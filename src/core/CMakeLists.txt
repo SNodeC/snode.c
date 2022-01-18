@@ -12,6 +12,7 @@ set(CORE_CPP
     EventReceiver.h
     ExceptionalConditionEventReceiver.cpp
     ReadEventReceiver.cpp
+    TimerEventDispatcher.cpp
     SNodeC.cpp
     WriteEventReceiver.cpp
     file/File.cpp
@@ -46,6 +47,8 @@ set(CORE_H
     ReadEventReceiver.h
     SNodeC.h
     TickStatus.h
+    TimerEventDispatcher.h
+    TimerEventReceiver.h
     WriteEventReceiver.h
     file/File.h
     file/FileReader.h

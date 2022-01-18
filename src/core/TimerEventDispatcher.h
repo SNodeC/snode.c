@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -19,9 +19,15 @@
 #ifndef CORE_TIMEREVENTDISPATCHER_H
 #define CORE_TIMEREVENTDISPATCHER_H
 
-#include "core/TimerEventReceiver.h" // IWYU pragma: export
+#include "core/TimerEventDispatcher.h" // IWYU pragma: export
+
+namespace core {
+    class TimerEventReceiver;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #include <list>
 
@@ -32,23 +38,28 @@ namespace core {
     class TimerEventDispatcher {
     public:
         TimerEventDispatcher() = default;
-        virtual ~TimerEventDispatcher() = default;
 
-        virtual void remove(TimerEventReceiver* timer) = 0;
-        virtual void add(TimerEventReceiver* timer) = 0;
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        virtual bool empty() = 0;
+        void dispatchActiveEvents(const utils::Timeval& currentTime);
 
-        virtual void stop() = 0;
+        void remove(core::TimerEventReceiver* timer);
+        void add(core::TimerEventReceiver* timer);
 
-        virtual utils::Timeval getNextTimeout(const utils::Timeval& currentTime) = 0;
-        virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
+        bool empty();
+
+        void stop();
+
+    private:
+        std::list<core::TimerEventReceiver*> timerList;
+        std::list<core::TimerEventReceiver*> addedList;
+        std::list<core::TimerEventReceiver*> removedList;
+
+        bool timerListDirty = false;
 
         class timernode_lt {
         public:
-            bool operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
-                return t1->getTimeout() < t2->getTimeout();
-            }
+            bool operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const;
         };
     };
 

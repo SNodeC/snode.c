@@ -20,7 +20,6 @@
 #define CORE_POLL_EVENTDISPATCHER_H
 
 #include "core/EventDispatcher.h"
-#include "core/poll/TimerEventDispatcher.h"
 
 namespace core {
     class EventReceiver;

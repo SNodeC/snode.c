@@ -34,10 +34,9 @@ namespace core {
 
     core::EventDispatcher::EventDispatcher(DescriptorEventDispatcher* const readDescriptorEventDispatcher,
                                            DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
-                                           DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher,
-                                           TimerEventDispatcher* const timerEventDispatcher)
+                                           DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher)
         : descriptorEventDispatcher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
-        , timerEventDispatcher(timerEventDispatcher) {
+        , timerEventDispatcher(new core::TimerEventDispatcher()) {
     }
 
     EventDispatcher::~EventDispatcher() {

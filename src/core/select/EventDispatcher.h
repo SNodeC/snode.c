@@ -21,7 +21,6 @@
 
 #include "core/EventDispatcher.h"
 #include "core/select/DescriptorEventDispatcher.h"
-#include "core/select/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

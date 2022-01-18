@@ -20,7 +20,6 @@
 #define CORE_EPOLL_EVENTDISPATCHER_H
 
 #include "core/EventDispatcher.h"
-#include "core/epoll/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

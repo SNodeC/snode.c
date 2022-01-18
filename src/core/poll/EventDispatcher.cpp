@@ -192,8 +192,7 @@ namespace core::poll {
     EventDispatcher::EventDispatcher()
         : core::EventDispatcher(new core::poll::DescriptorEventDispatcher(pollFds, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
                                 new core::poll::DescriptorEventDispatcher(pollFds, POLLOUT, POLLOUT),
-                                new core::poll::DescriptorEventDispatcher(pollFds, POLLPRI, POLLPRI),
-                                new core::poll::TimerEventDispatcher()) {
+                                new core::poll::DescriptorEventDispatcher(pollFds, POLLPRI, POLLPRI)) {
     }
 
     int EventDispatcher::multiplex(utils::Timeval& tickTimeOut) {

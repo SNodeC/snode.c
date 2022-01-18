@@ -37,8 +37,7 @@ namespace core::select {
     EventDispatcher::EventDispatcher()
         : core::EventDispatcher(new core::select::DescriptorEventDispatcher(fdSets[RD]),
                                 new core::select::DescriptorEventDispatcher(fdSets[WR]),
-                                new core::select::DescriptorEventDispatcher(fdSets[EX]),
-                                new core::select::TimerEventDispatcher()) {
+                                new core::select::DescriptorEventDispatcher(fdSets[EX])) {
     }
 
     int EventDispatcher::getMaxFd() {

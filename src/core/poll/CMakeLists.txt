@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CORE_POLL_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp
-                  TimerEventDispatcher.cpp
-)
+set(CORE_POLL_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
 
-set(CORE_POLL_H DescriptorEventDispatcher.h EventDispatcher.h
-                TimerEventDispatcher.h
-)
+set(CORE_POLL_H DescriptorEventDispatcher.h EventDispatcher.h)
 
 add_library(core-poll SHARED ${CORE_POLL_CPP} ${CORE_POLL_H})
 add_library(snodec::core-poll ALIAS core-poll)

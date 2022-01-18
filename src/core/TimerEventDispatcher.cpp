@@ -16,7 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/poll/TimerEventDispatcher.h"
+#include "core/TimerEventDispatcher.h"
+
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::poll {
+namespace core {
 
     utils::Timeval TimerEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout({LONG_MAX, 0});
@@ -98,4 +100,8 @@ namespace core::poll {
         getNextTimeout(currentTime);
     }
 
-} // namespace core::poll
+    bool TimerEventDispatcher::timernode_lt::operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
+        return t1->getTimeout() < t2->getTimeout();
+    }
+
+} // namespace core

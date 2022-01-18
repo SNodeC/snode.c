@@ -35,8 +35,7 @@ namespace core::epoll {
     EventDispatcher::EventDispatcher()
         : core::EventDispatcher(new core::epoll::DescriptorEventDispatcher(epfds[RD], EPOLLIN),
                                 new core::epoll::DescriptorEventDispatcher(epfds[WR], EPOLLOUT),
-                                new core::epoll::DescriptorEventDispatcher(epfds[EX], EPOLLPRI),
-                                new core::epoll::TimerEventDispatcher()) {
+                                new core::epoll::DescriptorEventDispatcher(epfds[EX], EPOLLPRI)) {
         epfd = epoll_create1(EPOLL_CLOEXEC);
 
         epoll_event event;

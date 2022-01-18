@@ -44,8 +44,7 @@ namespace core {
     protected:
         EventDispatcher(core::DescriptorEventDispatcher* const readDescriptorEventDispatcher,
                         core::DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
-                        core::DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher,
-                        core::TimerEventDispatcher* const timerEventDispatcher);
+                        core::DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher);
 
         ~EventDispatcher();
 

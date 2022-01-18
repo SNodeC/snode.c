@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CORE_SELECT_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp
-                    TimerEventDispatcher.cpp
-)
+set(CORE_SELECT_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
 
-set(CORE_SELECT_H DescriptorEventDispatcher.h EventDispatcher.h
-                  TimerEventDispatcher.h
-)
+set(CORE_SELECT_H DescriptorEventDispatcher.h EventDispatcher.h)
 
 add_library(core-select SHARED ${CORE_SELECT_CPP} ${CORE_SELECT_H})
 add_library(snodec::core-select ALIAS core-select)

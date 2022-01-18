@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CORE_EPOLL_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp
-                   TimerEventDispatcher.cpp
-)
+set(CORE_EPOLL_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
 
-set(CORE_EPOLL_H DescriptorEventDispatcher.h EventDispatcher.h
-                 TimerEventDispatcher.h
-)
+set(CORE_EPOLL_H DescriptorEventDispatcher.h EventDispatcher.h)
 
 add_library(core-epoll SHARED ${CORE_EPOLL_CPP} ${CORE_EPOLL_H})
 add_library(snodec::core-epoll ALIAS core-epoll)
