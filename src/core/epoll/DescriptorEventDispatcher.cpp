@@ -44,30 +44,21 @@ namespace core::epoll {
 
         if (epoll_ctl(epfd, EPOLL_CTL_ADD, eventReceiver->getRegisteredFd(), &ePollEvent) == 0) {
             interestCount++;
+
             if (interestCount >= ePollEvents.size()) {
                 ePollEvents.resize(ePollEvents.size() * 2);
             }
+        } else if (errno == EEXIST) {
+            mod(eventReceiver, events);
         } else {
-            switch (errno) {
-                case EEXIST:
-                    mod(eventReceiver, events);
-                    break;
-                default:
-                    break;
-            }
         }
     }
 
     void DescriptorEventDispatcher::EPollEvents::del(EventReceiver* eventReceiver) {
         if (epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
+        } else if (errno == ENOENT) {
         } else {
-            switch (errno) {
-                case ENOENT:
-                    break;
-                default:
-                    break;
-            }
         }
     }
 

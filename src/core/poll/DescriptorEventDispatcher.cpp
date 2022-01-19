@@ -38,11 +38,11 @@ namespace core::poll {
     }
 
     void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
-        pollFds.add(eventReceiver, events);
+        pollFds.modAdd(eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
-        pollFds.del(eventReceiver, events);
+        pollFds.modDel(eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {

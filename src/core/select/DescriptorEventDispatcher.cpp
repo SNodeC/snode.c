@@ -61,23 +61,19 @@ namespace core::select {
     }
 
     void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-        fdSet.set(fd);
+        fdSet.set(eventReceiver->getRegisteredFd());
     }
 
     void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-        fdSet.clr(fd);
+        fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
     void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-        fdSet.set(fd);
+        fdSet.set(eventReceiver->getRegisteredFd());
     }
 
     void DescriptorEventDispatcher::modOff(EventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-        fdSet.clr(fd);
+        fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {

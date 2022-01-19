@@ -50,7 +50,7 @@ namespace core::poll {
         pollfds.resize(1, pollFd);
     }
 
-    void PollFds::add(EventReceiver* eventReceiver, short event) {
+    void PollFds::modAdd(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
@@ -74,31 +74,29 @@ namespace core::poll {
                 pollfds.resize(pollfds.size() * 2, pollFd);
             }
         } else {
-            pollfds[itPollFdIndex->second.index].events |= event;
+            PollFdIndex& pollFdIndex = itPollFdIndex->second;
 
-            itPollFdIndex->second.events |= event;
+            pollfds[pollFdIndex.index].events |= event;
+            pollFdIndex.events |= event;
         }
     }
 
-    void PollFds::del(EventReceiver* eventReceiver, short event) {
+    void PollFds::modDel(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
-        if (itPollFdIndex != pollFdIndices.end()) {
-            unsigned long index = itPollFdIndex->second.index;
+        PollFdIndex& pollFdIndex = itPollFdIndex->second;
 
-            pollfds[index].events &= static_cast<short>(~event); // tilde promotes to int
+        pollfds[pollFdIndex.index].events &= static_cast<short>(~event); // tilde promotes to int
+        pollFdIndex.events &= static_cast<short>(~event);                // tilde promotes to int
 
-            itPollFdIndex->second.events &= static_cast<short>(~event); // tilde promotes to int
+        if (pollFdIndex.events == 0) {
+            pollfds[pollFdIndex.index].fd = -1; // Compress will keep track of that descriptor
 
-            if (itPollFdIndex->second.events == 0) {
-                pollfds[index].fd = -1; // Compress will keep track of that descriptor
+            pollFdIndices.erase(itPollFdIndex);
 
-                pollFdIndices.erase(itPollFdIndex);
-
-                interestCount--;
-            }
+            interestCount--;
         }
     }
 
@@ -107,22 +105,13 @@ namespace core::poll {
 
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
-        if (itPollFdIndex != pollFdIndices.end()) {
-            pollfds[itPollFdIndex->second.index].events |= event;
-        }
+        pollfds[itPollFdIndex->second.index].events |= event;
     }
 
     void PollFds::modOff(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
-
-        if (itPollFdIndex != pollFdIndices.end()) {
-            pollfd& pollFd = pollfds[itPollFdIndex->second.index];
-
-            pollFd.events &= static_cast<short>(~event);
-            pollFd.revents = 0;
-        }
+        pollfds[pollFdIndices.find(fd)->second.index].events &= static_cast<short>(~event);
     }
 
     void PollFds::compress() {
@@ -162,7 +151,7 @@ namespace core::poll {
         return pollfds.data();
     }
 
-    const std::unordered_map<int, PollFdIndex> &PollFds::getPollFdIndices() const {
+    const std::unordered_map<int, PollFdIndex>& PollFds::getPollFdIndices() const {
         return pollFdIndices;
     }
 

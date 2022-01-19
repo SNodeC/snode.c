@@ -52,8 +52,8 @@ namespace core::poll {
         using pollfds_size_type = std::vector<pollfd>::size_type;
         explicit PollFds();
 
-        void add(core::EventReceiver* eventReceiver, short event);
-        void del(core::EventReceiver* eventReceiver, short event);
+        void modAdd(core::EventReceiver* eventReceiver, short event);
+        void modDel(core::EventReceiver* eventReceiver, short event);
 
         void modOn(core::EventReceiver* eventReceiver, short event);
         void modOff(core::EventReceiver* eventReceiver, short event);
