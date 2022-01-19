@@ -31,8 +31,9 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/poll.h" // IWYU pragma: export
+
 #include <cstdint> // for uint32_t
-#include <poll.h>
 #include <unordered_map>
 #include <vector>
 

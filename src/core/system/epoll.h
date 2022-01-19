@@ -1,4 +1,4 @@
-﻿/*
+/*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
@@ -16,41 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EPOLL_EVENTDISPATCHER_H
-#define CORE_EPOLL_EVENTDISPATCHER_H
-
-#include "core/EventDispatcher.h"
-
-namespace utils {
-    class Timeval;
-}
+#ifndef NET_SYSTEM_EPOLL_H
+#define NET_SYSTEM_EPOLL_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/epoll.h"
+// IWYU pragma: begin_exports
+
+#include <sys/epoll.h>
+
+// IWYU pragma: end_exports
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::epoll {
+namespace core::system {
 
-    class EventDispatcher : public core::EventDispatcher {
-        EventDispatcher(const EventDispatcher&) = delete;
-        EventDispatcher& operator=(const EventDispatcher&) = delete;
+    int epoll_create1(int flags);
+    int epoll_wait(int epfd, struct epoll_event* events, int maxevents, int timeout);
+    int epoll_ctl(int epfd, int op, int fd, struct epoll_event* event);
 
-    public:
-        EventDispatcher();
-        ~EventDispatcher() = default;
+} // namespace core::system
 
-    private:
-        int multiplex(utils::Timeval& tickTimeout) override;
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime) override;
-
-        int epfd;
-
-        int epfds[3];
-        epoll_event ePollEvents[3];
-    };
-
-} // namespace core::epoll
-
-#endif // CORE_EPOLL_EVENTDISPATCHER_H
+#endif // NET_SYSTEM_EPOLL_H

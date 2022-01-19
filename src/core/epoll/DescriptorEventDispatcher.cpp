@@ -31,7 +31,7 @@ namespace core::epoll {
     DescriptorEventDispatcher::EPollEvents::EPollEvents(int& epfd, uint32_t events)
         : epfd(epfd)
         , events(events) {
-        epfd = epoll_create1(EPOLL_CLOEXEC);
+        epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
         interestCount = 0;
         ePollEvents.resize(1);
     }
@@ -42,7 +42,7 @@ namespace core::epoll {
         ePollEvent.data.ptr = eventReceiver;
         ePollEvent.events = events;
 
-        if (epoll_ctl(epfd, EPOLL_CTL_ADD, eventReceiver->getRegisteredFd(), &ePollEvent) == 0) {
+        if (core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, eventReceiver->getRegisteredFd(), &ePollEvent) == 0) {
             interestCount++;
 
             if (interestCount >= ePollEvents.size()) {
@@ -55,7 +55,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventDispatcher::EPollEvents::del(EventReceiver* eventReceiver) {
-        if (epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
+        if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
         } else if (errno == ENOENT) {
         } else {
@@ -68,7 +68,7 @@ namespace core::epoll {
         ePollEvent.data.ptr = eventReceiver;
         ePollEvent.events = events;
 
-        epoll_ctl(epfd, EPOLL_CTL_MOD, eventReceiver->getRegisteredFd(), &ePollEvent);
+        core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, eventReceiver->getRegisteredFd(), &ePollEvent);
     }
 
     void DescriptorEventDispatcher::EPollEvents::modOn(EventReceiver* eventReceiver) {
@@ -118,7 +118,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
-        int count = epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
+        int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
             core::EventReceiver* eventReceiver = static_cast<core::EventReceiver*>(ePollEvents.getEvents()[i].data.ptr);

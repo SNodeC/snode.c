@@ -31,8 +31,9 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/epoll.h" // IWYU pragma: export
+
 #include <cstdint>
-#include <sys/epoll.h>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

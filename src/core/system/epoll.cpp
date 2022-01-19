@@ -1,4 +1,4 @@
-﻿/*
+/*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
@@ -16,41 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EPOLL_EVENTDISPATCHER_H
-#define CORE_EPOLL_EVENTDISPATCHER_H
-
-#include "core/EventDispatcher.h"
-
-namespace utils {
-    class Timeval;
-}
+#include "core/system/epoll.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/epoll.h"
+#include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::epoll {
+namespace core::system {
 
-    class EventDispatcher : public core::EventDispatcher {
-        EventDispatcher(const EventDispatcher&) = delete;
-        EventDispatcher& operator=(const EventDispatcher&) = delete;
+    int epoll_create1(int flags) {
+        errno = 0;
 
-    public:
-        EventDispatcher();
-        ~EventDispatcher() = default;
+        return ::epoll_create1(flags);
+    }
 
-    private:
-        int multiplex(utils::Timeval& tickTimeout) override;
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime) override;
+    int epoll_wait(int epfd, epoll_event* events, int maxevents, int timeout) {
+        errno = 0;
 
-        int epfd;
+        return ::epoll_wait(epfd, events, maxevents, timeout);
+    }
 
-        int epfds[3];
-        epoll_event ePollEvents[3];
-    };
+    int epoll_ctl(int epfd, int op, int fd, epoll_event* event) {
+        errno = 0;
 
-} // namespace core::epoll
+        return ::epoll_ctl(epfd, op, fd, event);
+    }
 
-#endif // CORE_EPOLL_EVENTDISPATCHER_H
+} // namespace core::system

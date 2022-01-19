@@ -166,7 +166,7 @@ namespace core::poll {
     }
 
     int EventDispatcher::multiplex(utils::Timeval& tickTimeOut) {
-        return ::poll(pollFds.getEvents(), pollFds.getInterestCount(), tickTimeOut.ms());
+        return core::system::poll(pollFds.getEvents(), pollFds.getInterestCount(), tickTimeOut.ms());
     }
 
     void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {

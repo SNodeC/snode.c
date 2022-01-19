@@ -25,7 +25,9 @@ set(CORE_CPP
     socket/SocketConnection.cpp
     socket/SocketContext.cpp
     system/dlfcn.cpp
+    system/epoll.cpp
     system/netdb.cpp
+    system/poll.cpp
     system/select.cpp
     system/signal.cpp
     system/socket.cpp
@@ -72,6 +74,8 @@ set(CORE_H
     socket/stream/SocketServer.h
     socket/stream/SocketWriter.h
     system/dlfcn.h
+    system/epoll.h
+    system/poll.h
     system/netdb.h
     system/select.h
     system/signal.h

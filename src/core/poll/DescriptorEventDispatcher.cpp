@@ -23,7 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <poll.h>        // for pollfd, POLLNVAL
 #include <unordered_map> // for unordered_map, _Map_base<>::mapped_type
 #include <utility>       // for tuple_element<>::type
 

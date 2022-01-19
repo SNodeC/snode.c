@@ -38,23 +38,23 @@ namespace core::epoll {
         : core::EventDispatcher(new core::epoll::DescriptorEventDispatcher(epfds[RD], EPOLLIN),
                                 new core::epoll::DescriptorEventDispatcher(epfds[WR], EPOLLOUT),
                                 new core::epoll::DescriptorEventDispatcher(epfds[EX], EPOLLPRI)) {
-        epfd = epoll_create1(EPOLL_CLOEXEC);
+        epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
 
         epoll_event event;
         event.events = EPOLLIN;
 
         event.data.ptr = descriptorEventDispatcher[0];
-        epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[0], &event);
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[0], &event);
 
         event.data.ptr = descriptorEventDispatcher[1];
-        epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[1], &event);
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[1], &event);
 
         event.data.ptr = descriptorEventDispatcher[2];
-        epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[2], &event);
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[2], &event);
     }
 
     int EventDispatcher::multiplex(utils::Timeval& tickTimeout) {
-        return epoll_wait(epfd, ePollEvents, 3, tickTimeout.ms());
+        return core::system::epoll_wait(epfd, ePollEvents, 3, tickTimeout.ms());
     }
 
     void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
