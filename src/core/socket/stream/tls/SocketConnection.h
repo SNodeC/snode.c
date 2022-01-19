@@ -236,8 +236,9 @@ namespace core::socket::stream::tls {
                 if (SocketReader::isEnabled()) { // Good: Not received TCP-FIN going through SSL_shutdown handshake
                     VLOG(0) << "SSL_shutdown: Good: Beeing the first to send close_notify"; //
                     doSSLShutdown(
-                        []() -> void { // thus send one
+                        [this]() -> void { // thus send one
                             VLOG(0) << "SSL_shutdown: Close_notify sent. Waiting for peer's close_notify";
+                            doShutdown(); // Trigger shutdown recursively to wait for the close_notify reply
                         },
                         []() -> void {
                             LOG(WARNING) << "SSL/TLS shutdown handshake timed out";

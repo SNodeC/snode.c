@@ -67,14 +67,12 @@ namespace core::socket::stream {
     protected:
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
-            if (isSuspended()) {
-                resume();
-            }
-            shutdownTriggered = true;
+
+            disable();
         }
 
         void sendToPeer(const char* junk, std::size_t junkLen) {
-            if (!shutdownTriggered) {
+            if (!shutdownInProgress) {
                 writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
             }
 
@@ -86,37 +84,37 @@ namespace core::socket::stream {
         void doWrite() {
             errno = 0;
 
-            ssize_t retWrite = -1;
+            if (!shutdownInProgress) {
+                ssize_t retWrite = -1;
 
-            std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
-            if (!shutdownTriggered) { // Avoid a EPIPE
+                std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
                 retWrite = write(writeBuffer.data(), writeLen);
-            }
 
-            if (retWrite >= 0) {
-                writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-            } else if (errno != EINTR) {
-                disable();
-                if (errno != EAGAIN && errno != EWOULDBLOCK) { // Do not report EAGAIN or EWOULDBLOCK because this
-                                                               // is expected for some protocols eg. BTPROTO_L2CAP
-                    onError(errno);
+                if (retWrite >= 0) {
+                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
+                } else if (errno != EINTR) {
+                    disable();
+                    if (errno != EAGAIN && errno != EWOULDBLOCK) { // Do not report EAGAIN or EWOULDBLOCK because this
+                                                                   // is expected for some protocols eg. BTPROTO_L2CAP
+                        onError(errno);
+                    }
                 }
-            }
 
-            if (writeBuffer.empty()) {
-                suspend();
-                if (markShutdown) {
-                    shutdown();
+                if (writeBuffer.empty()) {
+                    suspend();
+                    if (markShutdown) {
+                        shutdown();
+                    }
                 }
             }
         }
 
         void shutdown() {
-            if (!shutdownTriggered) {
+            if (!shutdownInProgress) {
                 if (isSuspended()) {
+                    shutdownInProgress = true;
                     doShutdown();
                     setTimeout(MAX_SHUTDOWN_TIMEOUT);
-                    markShutdown = false;
                 } else {
                     markShutdown = true;
                 }
@@ -134,7 +132,7 @@ namespace core::socket::stream {
 
         bool markShutdown = false;
 
-        bool shutdownTriggered = false;
+        bool shutdownInProgress = false;
     };
 
 } // namespace core::socket::stream
