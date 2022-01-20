@@ -32,6 +32,8 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <array>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -70,7 +72,8 @@ namespace core {
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:
-        core::DescriptorEventDispatcher* const descriptorEventDispatcher[3];
+        //        core::DescriptorEventDispatcher* const descriptorEventDispatcher[3];
+        std::array<core::DescriptorEventDispatcher*, 3> descriptorEventDispatcher;
 
     private:
         core::TimerEventDispatcher* const timerEventDispatcher;

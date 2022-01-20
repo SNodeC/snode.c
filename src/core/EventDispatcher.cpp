@@ -40,8 +40,8 @@ namespace core {
     }
 
     EventDispatcher::~EventDispatcher() {
-        for (int i = 0; i < 3; i++) {
-            delete descriptorEventDispatcher[i];
+        for (core::DescriptorEventDispatcher* descriptorEventDispatcher : descriptorEventDispatcher) {
+            delete descriptorEventDispatcher;
         }
 
         delete timerEventDispatcher;
@@ -56,8 +56,8 @@ namespace core {
     }
 
     int EventDispatcher::getObservedEventReceiverCount() {
-        return std::accumulate(descriptorEventDispatcher,
-                               descriptorEventDispatcher + 3,
+        return std::accumulate(descriptorEventDispatcher.begin(),
+                               descriptorEventDispatcher.end(),
                                0,
                                [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
                                    return count + descriptorEventDispatcher->getObservedEventReceiverCount();
@@ -65,8 +65,8 @@ namespace core {
     }
 
     int EventDispatcher::getMaxFd() {
-        return std::accumulate(descriptorEventDispatcher,
-                               descriptorEventDispatcher + 3,
+        return std::accumulate(descriptorEventDispatcher.begin(),
+                               descriptorEventDispatcher.end(),
                                -1,
                                [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
                                    return std::max(descriptorEventDispatcher->getMaxFd(), count);
