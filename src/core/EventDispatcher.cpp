@@ -119,7 +119,6 @@ namespace core {
             for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
                 eventDispatcher->stop();
             }
-
             tickStatus = dispatch(2, true);
         } while (tickStatus == TickStatus::SUCCESS);
 

@@ -43,8 +43,10 @@ namespace core {
         void dontClose(bool dontClose);
         bool dontClose() const;
 
+    private:
         void close();
 
+    protected:
         int fd = -1;
 
         friend enum FLAGS operator|(const enum FLAGS& f1, const enum FLAGS& f2);
