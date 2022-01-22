@@ -32,7 +32,7 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <array>
+#include <array> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -50,6 +50,7 @@ namespace core {
         ~EventDispatcher();
 
     public:
+#define DISP_COUNT 3
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
         DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType);
@@ -72,8 +73,7 @@ namespace core {
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:
-        //        core::DescriptorEventDispatcher* const descriptorEventDispatcher[3];
-        std::array<core::DescriptorEventDispatcher*, 3> descriptorEventDispatcher;
+        std::array<core::DescriptorEventDispatcher*, DISP_COUNT> descriptorEventDispatcher;
 
     private:
         core::TimerEventDispatcher* const timerEventDispatcher;

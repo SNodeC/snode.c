@@ -103,15 +103,13 @@ namespace core::poll {
     void PollFds::modOn(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
-
-        pollfds[itPollFdIndex->second.index].events |= event;
+        pollfds[pollFdIndices.find(fd)->second.index].events |= event;
     }
 
     void PollFds::modOff(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        pollfds[pollFdIndices.find(fd)->second.index].events &= static_cast<short>(~event);
+        pollfds[pollFdIndices.find(fd)->second.index].events &= static_cast<short>(~event); // Tilde promotes to int
     }
 
     void PollFds::compress() {

@@ -46,6 +46,7 @@ namespace core::socket::stream::tls {
 
             switch (SSL_get_shutdown(ssl)) {
                 case 0:
+                    [[fallthrough]];
                 case SSL_SENT_SHUTDOWN:
                     if (ssl_err == SSL_ERROR_NONE) {
                         ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
@@ -94,6 +95,7 @@ namespace core::socket::stream::tls {
                     }
                     break;
                 case SSL_RECEIVED_SHUTDOWN:
+                    [[fallthrough]];
                 case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
                     ret = 0;
                     break;

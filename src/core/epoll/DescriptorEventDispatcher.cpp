@@ -50,15 +50,12 @@ namespace core::epoll {
             }
         } else if (errno == EEXIST) {
             mod(eventReceiver, events);
-        } else {
         }
     }
 
     void DescriptorEventDispatcher::EPollEvents::del(EventReceiver* eventReceiver) {
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
-        } else if (errno == ENOENT) {
-        } else {
         }
     }
 
