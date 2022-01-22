@@ -25,7 +25,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/stream/tls/ssl_utils.h"
-#include "log/Logger.h"
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -77,16 +76,16 @@ namespace core::socket::stream::tls {
                     break;
                 case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
                     switch (SSL_get_shutdown(ssl)) {
-                        break;
+                        case 0:
+                            errno = EINTR;
+                            break;
                         case SSL_SENT_SHUTDOWN:
                             errno = EINTR;
                             break;
                         case SSL_RECEIVED_SHUTDOWN:
-                            Super::shutdown();
-                            break;
-                        case 0:
                             [[fallthrough]];
                         case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
+                            Super::shutdown();
                             break;
                     }
                     ret = 0; // On the read side propagate the zerro
