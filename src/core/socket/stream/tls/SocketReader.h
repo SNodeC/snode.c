@@ -77,14 +77,15 @@ namespace core::socket::stream::tls {
                     break;
                 case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
                     switch (SSL_get_shutdown(ssl)) {
-                        case 0:
-                            break;
+                        break;
                         case SSL_SENT_SHUTDOWN:
                             errno = EINTR;
                             break;
                         case SSL_RECEIVED_SHUTDOWN:
                             Super::shutdown();
                             break;
+                        case 0:
+                            [[fallthrough]];
                         case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
                             break;
                     }
