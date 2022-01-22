@@ -25,6 +25,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/stream/tls/ssl_utils.h"
+#include "log/Logger.h"
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -79,6 +80,7 @@ namespace core::socket::stream::tls {
                         case 0:
                             errno = EINTR;
                             break;
+                            [[fallthrough]];
                         case SSL_SENT_SHUTDOWN:
                             errno = EINTR;
                             break;
