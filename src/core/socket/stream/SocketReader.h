@@ -66,9 +66,7 @@ namespace core::socket::stream {
     protected:
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::RD);
-            if (isSuspended()) {
-                resume();
-            }
+
             shutdownTriggered = true;
         }
 
@@ -113,9 +111,6 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
-                if (!isSuspended()) {
-                    suspend();
-                }
                 doShutdown();
                 setTimeout(MAX_SHUTDOWN_TIMEOUT);
             }

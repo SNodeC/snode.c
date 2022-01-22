@@ -69,6 +69,8 @@ namespace core::socket::stream {
             Socket::shutdown(Socket::shutdown::WR);
 
             disable();
+
+            finSent = true;
         }
 
         void sendToPeer(const char* junk, std::size_t junkLen) {
@@ -92,6 +94,8 @@ namespace core::socket::stream {
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
             } else if (errno != EINTR) {
+                int errnum = errno;
+                errno = errnum;
                 disable();
                 if (errno != EAGAIN && errno != EWOULDBLOCK) { // Do not report EAGAIN or EWOULDBLOCK because this
                                                                // is expected for some protocols eg. BTPROTO_L2CAP
@@ -108,7 +112,7 @@ namespace core::socket::stream {
         }
 
         void shutdown() {
-            if (!shutdownInProgress) {
+            if (!finSent) {
                 if (isSuspended()) {
                     shutdownInProgress = true;
                     doShutdown();
@@ -131,6 +135,8 @@ namespace core::socket::stream {
         bool markShutdown = false;
 
         bool shutdownInProgress = false;
+
+        bool finSent = false;
     };
 
 } // namespace core::socket::stream
