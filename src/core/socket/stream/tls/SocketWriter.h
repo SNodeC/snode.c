@@ -44,58 +44,47 @@ namespace core::socket::stream::tls {
             int ret = 0;
             int ssl_err = sslErr;
 
-            switch (SSL_get_shutdown(ssl)) {
-                case 0:
-                    [[fallthrough]];
-                case SSL_RECEIVED_SHUTDOWN:
-                    if (ssl_err == SSL_ERROR_NONE) {
-                        ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
+            if (ssl_err == SSL_ERROR_NONE) {
+                ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
 
-                        if (ret <= 0) {
-                            ssl_err = SSL_get_error(ssl, ret);
-                        }
-                    }
+                if (ret <= 0) {
+                    ssl_err = SSL_get_error(ssl, ret);
+                }
+            }
 
-                    switch (ssl_err) {
-                        case SSL_ERROR_NONE:
-                            break;
-                        case SSL_ERROR_WANT_READ:
-                            LOG(INFO) << "SSL/TLS start renegotiation on write";
-                            doSSLHandshake(
-                                [](void) -> void {
-                                    LOG(INFO) << "SSL/TLS renegotiation on write success";
-                                },
-                                [](void) -> void {
-                                    LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
-                                },
-                                [this](int ssl_err) -> void {
-                                    ssl_log("SSL/TLS renegotiation", ssl_err);
-                                    sslErr = ssl_err;
-                                });
-                            ret = -1;
-                            errno = EINTR;
-                            break;
-                        case SSL_ERROR_WANT_WRITE:
-                            ret = -1;
-                            errno = EINTR;
-                            break;
-                        case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                            ret = -1;               // on the write side this means a TCP broken pipe
-                            break;
-                        case SSL_ERROR_SYSCALL:
-                            ret = -1;
-                            break;
-                        default:
-                            int errnum = errno;
-                            ssl_log("SSL/TLS write failed", ssl_err);
-                            errno = errnum;
-                            ret = -1;
-                            break;
-                    }
+            switch (ssl_err) {
+                case SSL_ERROR_NONE:
                     break;
-                case SSL_SENT_SHUTDOWN:
-                    [[fallthrough]];
-                case SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN:
+                case SSL_ERROR_WANT_READ:
+                    LOG(INFO) << "SSL/TLS start renegotiation on write";
+                    doSSLHandshake(
+                        [](void) -> void {
+                            LOG(INFO) << "SSL/TLS renegotiation on write success";
+                        },
+                        [](void) -> void {
+                            LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
+                        },
+                        [this](int ssl_err) -> void {
+                            ssl_log("SSL/TLS renegotiation", ssl_err);
+                            sslErr = ssl_err;
+                        });
+                    ret = -1;
+                    errno = EINTR;
+                    break;
+                case SSL_ERROR_WANT_WRITE:
+                    ret = -1;
+                    errno = EINTR;
+                    break;
+                case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
+                    ret = -1;               // on the write side this means a TCP broken pipe
+                    break;
+                case SSL_ERROR_SYSCALL:
+                    ret = -1;
+                    break;
+                default:
+                    int errnum = errno;
+                    ssl_log("SSL/TLS write failed", ssl_err);
+                    errno = errnum;
                     ret = -1;
                     break;
             }
