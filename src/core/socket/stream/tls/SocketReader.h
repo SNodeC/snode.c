@@ -84,7 +84,6 @@ namespace core::socket::stream::tls {
                             break;
                         case SSL_RECEIVED_SHUTDOWN:
                             Super::shutdown();
-                            errno = EINTR;
                             break;
                         case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
                             break;
