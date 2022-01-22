@@ -235,12 +235,12 @@ namespace core::socket::stream::tls {
                     }
                 } else { // Both close_notify present
                     VLOG(0) << "SSL_shutdown: Close_notify received and sent";
-                    VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
-                    SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
+                    VLOG(0) << "SSL_shutdown: Shutdown completed."; // Closing underlying Writer";
+                    //                    SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
                 }
             } else { // We neighter have sent nor received close_notify
                 VLOG(0) << "SSL_shutdown: Close_notify neither received nor sent: sh = " << sh;
-                VLOG(0) << "SSL_shutdown: Good: Beeing the first to send close_notify"; //
+                VLOG(0) << "SSL_shutdown: Good: Beeing the first to send close_notify";
                 doSSLShutdown(
                     [this]() -> void { // thus send one
                         VLOG(0) << "SSL_shutdown: Close_notify sent.";
