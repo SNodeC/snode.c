@@ -179,6 +179,7 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log(const std::string& message, int sslErr) {
+        int errnum = errno;
         switch (sslErr) {
             case SSL_ERROR_NONE:
                 [[fallthrough]];
@@ -188,12 +189,15 @@ namespace core::socket::stream::tls {
             case SSL_ERROR_SYSCALL:
                 if (errno != 0) {
                     ssl_log_error(message);
+                } else {
+                    ssl_log_info(message);
                 }
                 break;
             default:
                 ssl_log_warning(message);
                 break;
         };
+        errno = errnum;
     }
 
     void ssl_log_error(const std::string& message) {

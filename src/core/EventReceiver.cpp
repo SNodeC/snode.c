@@ -106,7 +106,7 @@ namespace core {
     }
 
     utils::Timeval EventReceiver::getTimeout(const utils::Timeval& currentTime) const {
-        return (maxInactivity > 0) ? maxInactivity - (currentTime - lastTriggered) : TIMEOUT::MAX;
+        return (maxInactivity >= 0) ? maxInactivity - (currentTime - lastTriggered) : TIMEOUT::MAX;
     }
 
     void EventReceiver::dispatch(const utils::Timeval& currentTime) {
@@ -120,7 +120,7 @@ namespace core {
     }
 
     void EventReceiver::checkTimeout(const utils::Timeval& currentTime) {
-        if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
+        if (maxInactivity >= 0 && currentTime - lastTriggered >= maxInactivity) {
             timeoutEvent();
         }
     }

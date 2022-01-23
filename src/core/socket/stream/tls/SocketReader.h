@@ -56,8 +56,8 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_NONE:
                     break;
                 case SSL_ERROR_WANT_READ:
-                    ret = 0;
                     errno = EINTR;
+                    ret = 0;
                     break;
                 case SSL_ERROR_WANT_WRITE:
                     LOG(INFO) << "SSL/TLS start renegotiation on read";
@@ -78,9 +78,7 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
                     switch (SSL_get_shutdown(ssl)) {
                         case 0:
-                            errno = EINTR;
                             break;
-                            [[fallthrough]];
                         case SSL_SENT_SHUTDOWN:
                             errno = EINTR;
                             break;
@@ -93,13 +91,19 @@ namespace core::socket::stream::tls {
                     ret = 0; // On the read side propagate the zerro
                     break;
                 case SSL_ERROR_SYSCALL:
+                    if (int sh = SSL_get_shutdown(ssl) != (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
+                        VLOG(0) << "Emulating SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN";
+                        SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+                        int errnum = errno;
+                        Super::shutdown();
+                        errno = errnum;
+                        SSL_set_shutdown(ssl, sh);
+                    }
                     ret = -1;
                     break;
                 default:
-                    int errnum = errno;
-                    ssl_log("SSL/TLS read failed", ssl_err);
-                    errno = errnum;
-                    ret = 0;
+                    ssl_log("SSL/TLS error read failed", ssl_err);
+                    ret = -1;
                     break;
             }
 
@@ -107,7 +111,7 @@ namespace core::socket::stream::tls {
         }
 
         bool continueReadImmediately() const override {
-            return SSL_has_pending(ssl) || Super::continueReadImmediately();
+            return SSL_pending(ssl) || Super::continueReadImmediately();
         }
 
     protected:
