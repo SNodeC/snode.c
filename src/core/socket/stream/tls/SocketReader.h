@@ -85,19 +85,14 @@ namespace core::socket::stream::tls {
                         case SSL_RECEIVED_SHUTDOWN:
                             [[fallthrough]];
                         case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
-                            Super::shutdown();
                             break;
                     }
                     ret = 0; // On the read side propagate the zerro
                     break;
                 case SSL_ERROR_SYSCALL:
-                    if (int sh = SSL_get_shutdown(ssl) != (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
+                    if (SSL_get_shutdown(ssl) != (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                         ssl_log("SSL/TLS error. Emulating SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN", ssl_err);
                         SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-                        int errnum = errno;
-                        Super::shutdown();
-                        errno = errnum;
-                        SSL_set_shutdown(ssl, sh);
                     }
                     ret = -1;
                     break;

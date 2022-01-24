@@ -112,7 +112,7 @@ namespace core::socket::stream {
         }
 
         void shutdown() {
-            if (/*!finSent*/ !shutdownInProgress) {
+            if (!finSent /*!shutdownInProgress*/) {
                 if (isSuspended()) {
                     shutdownInProgress = true;
                     doShutdown();

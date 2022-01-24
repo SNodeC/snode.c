@@ -181,22 +181,22 @@ namespace core::socket::stream::tls {
                     }
                     onSuccess();
                 },
-                [onTimeout, this](void) -> void { // onTimeout
-                    if (SocketReader::isEnabled()) {
-                        SocketReader::disable();
+                [onTimeout, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onTimeout
+                    if (resumeSocketReader) {
+                        SocketReader::resume();
                     }
-                    if (SocketWriter::isEnabled()) {
-                        SocketWriter::disable();
+                    if (resumeSocketWriter) {
+                        SocketWriter::resume();
                     }
                     onTimeout();
                 },
-                [onError, this](int sslErr) -> void { // onError
+                [onError, this, resumeSocketReader, resumeSocketWriter](int sslErr) -> void { // onError
                     setSSLError(sslErr);
-                    if (SocketReader::isEnabled()) {
-                        SocketReader::disable();
+                    if (resumeSocketReader) {
+                        SocketReader::resume();
                     }
-                    if (SocketWriter::isEnabled()) {
-                        SocketWriter::disable();
+                    if (resumeSocketWriter) {
+                        SocketWriter::resume();
                     }
                     onError(sslErr);
                 });
@@ -216,25 +216,29 @@ namespace core::socket::stream::tls {
                                        "close_notify reply";
                             SocketWriter::doShutdown();
                         }
-
                     },
-                    []() -> void {
+                    [this]() -> void {
                         LOG(WARNING) << "SSL_shutdown: Handshake timed out";
+                        SocketWriter::disable();
                     },
-                    [](int sslErr) -> void {
+                    [this](int sslErr) -> void {
                         ssl_log("SSL_shutdown: Handshake failed", sslErr);
+                        SocketWriter::disable();
                     });
             } else if (sh == SSL_RECEIVED_SHUTDOWN) { // We have only received close_notify
                 VLOG(0) << "SSL_shutdown: Close_notify received. Now send close_notify: sh = " << sh;
                 doSSLShutdown(
-                    []() -> void {                                     // Send our close_notify
-                        VLOG(0) << "SSL_shutdown: Close_notify sent."; // SSL shutdown completed!
+                    [this]() -> void {                                                     // Send our close_notify
+                        VLOG(0) << "SSL_shutdown: Close_notify sent. Shutdown completed."; // SSL shutdown completed!
+                        SocketWriter::doShutdown();
                     },
-                    []() -> void {
+                    [this]() -> void {
                         LOG(WARNING) << "SSL_shutdown: Handshake timed out";
+                        SocketWriter::disable();
                     },
-                    [](int sslErr) -> void {
+                    [this](int sslErr) -> void {
                         ssl_log("SSL_shutdown: Handshake failed", sslErr);
+                        SocketWriter::disable();
                     });
             } else if (sh == SSL_SENT_SHUTDOWN) { // We have only sent close_notify
             } else {                              // We have sent and received close_notify present
