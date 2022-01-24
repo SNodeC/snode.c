@@ -59,7 +59,6 @@ namespace core::socket::stream::tls {
                     break;
                 case SSL_ERROR_WANT_READ:
                     errno = EINTR;
-                    ret = 0;
                     break;
                 case SSL_ERROR_WANT_WRITE:
                     LOG(INFO) << "SSL/TLS start renegotiation on read";
@@ -74,35 +73,18 @@ namespace core::socket::stream::tls {
                             ssl_log("SSL/TLS renegotiation", ssl_err);
                             sslErr = ssl_err;
                         });
-                    ret = 0;
                     errno = EINTR;
                     break;
-                case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
-                    switch (SSL_get_shutdown(ssl)) {
-                        case 0:
-                            break;
-                        case SSL_SENT_SHUTDOWN:
-                            errno = EINTR;
-                            break;
-                        case SSL_RECEIVED_SHUTDOWN:
-                            [[fallthrough]];
-                        case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
-                            doReadShutdown();
-                            break;
-                    }
-                    ret = 0; // On the read side propagate the zerro
+                case SSL_ERROR_ZERO_RETURN: // received close_notify
+                    doReadShutdown();
                     break;
                 case SSL_ERROR_SYSCALL:
-                    if (SSL_get_shutdown(ssl) != (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                        ssl_log("SSL/TLS error. Emulating SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN", ssl_err);
-                        SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-                        doReadShutdown();
-                    }
-                    ret = -1;
+                    ssl_log("SSL/TLS TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN", ssl_err);
+                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
+                    doReadShutdown();
                     break;
                 default:
                     ssl_log("SSL/TLS error read failed", ssl_err);
-                    ret = -1;
                     break;
             }
 
