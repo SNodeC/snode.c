@@ -64,12 +64,6 @@ namespace core::socket::stream {
         void readEvent() override = 0;
 
     protected:
-        virtual void doShutdown() {
-            Socket::shutdown(Socket::shutdown::RD);
-
-            shutdownTriggered = true;
-        }
-
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             std::size_t maxReturn = std::min(junkLen, size);
 
@@ -111,8 +105,8 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
-                doShutdown();
-                setTimeout(MAX_SHUTDOWN_TIMEOUT);
+                Socket::shutdown(Socket::shutdown::RD);
+                shutdownTriggered = true;
             }
         }
 

@@ -202,19 +202,24 @@ namespace core::socket::stream::tls {
                 });
         }
 
-        void doShutdown() override {
-            int sh = SSL_get_shutdown(ssl);
+        void doReadShutdown() override {
+            if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
+                VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
+                SocketWriter::doShutdown();
+            } else {
+                VLOG(0) << "SSL_Shutdown WAITING: Close_notify received but not send";
+            }
+        }
 
-            if (sh == 0) { // We neighter have sent nor received close_notify
-                VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify: sh = " << sh;
+        void doShutdown() override {
+            if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
                 doSSLShutdown(
                     [this]() -> void { // thus send one
-                        if (SocketReader::isEnabled()) {
-                            VLOG(0) << "SSL_shutdown: Close_notify sent. Waiting for peer's close_notify.";
-                        } else {
-                            VLOG(0) << "SSL_shutdown: Close_notify sent. Shutdown underlying Writer because we can not receive the "
-                                       "close_notify reply";
+                        if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
+                            VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
                             SocketWriter::doShutdown();
+                        } else {
+                            VLOG(0) << "SSL_Shutdown WAITING: Close_notify sent but not received";
                         }
                     },
                     [this]() -> void {
@@ -225,25 +230,6 @@ namespace core::socket::stream::tls {
                         ssl_log("SSL_shutdown: Handshake failed", sslErr);
                         SocketWriter::disable();
                     });
-            } else if (sh == SSL_RECEIVED_SHUTDOWN) { // We have only received close_notify
-                VLOG(0) << "SSL_shutdown: Close_notify received. Now send close_notify: sh = " << sh;
-                doSSLShutdown(
-                    [this]() -> void {                                                     // Send our close_notify
-                        VLOG(0) << "SSL_shutdown: Close_notify sent. Shutdown completed."; // SSL shutdown completed!
-                        SocketWriter::doShutdown();
-                    },
-                    [this]() -> void {
-                        LOG(WARNING) << "SSL_shutdown: Handshake timed out";
-                        SocketWriter::disable();
-                    },
-                    [this](int sslErr) -> void {
-                        ssl_log("SSL_shutdown: Handshake failed", sslErr);
-                        SocketWriter::disable();
-                    });
-            } else if (sh == SSL_SENT_SHUTDOWN) { // We have only sent close_notify
-            } else {                              // We have sent and received close_notify present
-                VLOG(0) << "SSL_shutdown: Close_notify received and sent. Shutdown completed: sh = " << sh;
-                SocketWriter::doShutdown();
             }
         }
 

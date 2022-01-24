@@ -40,6 +40,8 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketReader<SocketT>;
         using Super::Super;
 
+        virtual void doReadShutdown() = 0;
+
         ssize_t read(char* junk, std::size_t junkLen) override {
             int ret = 0;
             int ssl_err = sslErr;
@@ -85,6 +87,7 @@ namespace core::socket::stream::tls {
                         case SSL_RECEIVED_SHUTDOWN:
                             [[fallthrough]];
                         case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
+                            doReadShutdown();
                             break;
                     }
                     ret = 0; // On the read side propagate the zerro
@@ -93,6 +96,7 @@ namespace core::socket::stream::tls {
                     if (SSL_get_shutdown(ssl) != (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                         ssl_log("SSL/TLS error. Emulating SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN", ssl_err);
                         SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+                        doReadShutdown();
                     }
                     ret = -1;
                     break;

@@ -69,8 +69,6 @@ namespace core::socket::stream {
             Socket::shutdown(Socket::shutdown::WR);
 
             disable();
-
-            finSent = true;
         }
 
         void sendToPeer(const char* junk, std::size_t junkLen) {
@@ -112,7 +110,7 @@ namespace core::socket::stream {
         }
 
         void shutdown() {
-            if (!finSent /*!shutdownInProgress*/) {
+            if (!shutdownInProgress) {
                 if (isSuspended()) {
                     shutdownInProgress = true;
                     doShutdown();
@@ -135,8 +133,6 @@ namespace core::socket::stream {
         bool markShutdown = false;
 
         bool shutdownInProgress = false;
-
-        bool finSent = false;
     };
 
 } // namespace core::socket::stream
