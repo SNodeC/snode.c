@@ -53,8 +53,8 @@ namespace core::epoll {
             void mod(core::EventReceiver* eventReceiver, uint32_t events);
 
         public:
-            void add(core::EventReceiver* eventReceiver);
-            void del(core::EventReceiver* eventReceiver);
+            void modAdd(core::EventReceiver* eventReceiver);
+            void modDel(core::EventReceiver* eventReceiver);
 
             void modOn(core::EventReceiver* eventReceiver);
             void modOff(core::EventReceiver* eventReceiver);

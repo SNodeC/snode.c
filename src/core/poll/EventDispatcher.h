@@ -41,15 +41,15 @@ namespace utils {
 
 namespace core::poll {
 
-    struct PollFdIndex {
-        using pollfds_size_type = std::vector<pollfd>::size_type;
-
-        pollfds_size_type index; // cppcheck-suppress unusedStructMember
-        short events;            // cppcheck-suppress unusedStructMember
-    };
-
     class PollFds {
     public:
+        struct PollFdIndex {
+            using pollfds_size_type = std::vector<pollfd>::size_type;
+
+            pollfds_size_type index; // cppcheck-suppress unusedStructMember
+            short events;            // cppcheck-suppress unusedStructMember
+        };
+
         using pollfds_size_type = std::vector<pollfd>::size_type;
         explicit PollFds();
 

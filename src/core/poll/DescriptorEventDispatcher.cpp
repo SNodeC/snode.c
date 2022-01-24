@@ -55,7 +55,7 @@ namespace core::poll {
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         pollfd* pollfds = pollFds.getEvents();
 
-        std::unordered_map<int, PollFdIndex> pollFdsIndices = pollFds.getPollFdIndices();
+        std::unordered_map<int, PollFds::PollFdIndex> pollFdsIndices = pollFds.getPollFdIndices();
 
         for (auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unassignedVariable
             pollfd& pollFd = pollfds[pollFdsIndices[fd].index];

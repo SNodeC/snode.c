@@ -36,7 +36,7 @@ namespace core::epoll {
         ePollEvents.resize(1);
     }
 
-    void DescriptorEventDispatcher::EPollEvents::add(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::EPollEvents::modAdd(EventReceiver* eventReceiver) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -53,7 +53,7 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventDispatcher::EPollEvents::del(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::EPollEvents::modDel(EventReceiver* eventReceiver) {
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
         }
@@ -99,11 +99,11 @@ namespace core::epoll {
     }
 
     void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
-        ePollEvents.add(eventReceiver);
+        ePollEvents.modAdd(eventReceiver);
     }
 
     void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
-        ePollEvents.del(eventReceiver);
+        ePollEvents.modDel(eventReceiver);
     }
 
     void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {
