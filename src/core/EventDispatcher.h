@@ -66,11 +66,10 @@ namespace core {
         int getMaxFd();
 
     private:
-        virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
-
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void observeEnabledEvents();
+        virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
         virtual void dispatchActiveEvents(int count, const utils::Timeval& currentTime) = 0;
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
