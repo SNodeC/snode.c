@@ -205,30 +205,7 @@ namespace core::socket::stream::tls {
         void doShutdown() override {
             int sh = SSL_get_shutdown(ssl);
 
-            if ((sh & SSL_SENT_SHUTDOWN) || (sh & SSL_RECEIVED_SHUTDOWN)) { // Did we already received or sent close_notify?
-                if (sh == SSL_RECEIVED_SHUTDOWN) {                          // We have only received close_notify
-                    VLOG(0) << "SSL_shutdown: Close_notify received. Now send close_notify: sh = " << sh; // We can get a TCP-RST if peer
-                                                                                                          // immediately shuts down the read
-                                                                                                          // side after sending
-                                                                                                          // close_notify. Thus, peer is not
-                                                                                                          // waiting for our close_notify.
-                                                                                                          // E.g. firefox behaves like that
-                    doSSLShutdown(
-                        []() -> void {                                     // Send our close_notify
-                            VLOG(0) << "SSL_shutdown: Close_notify sent."; // SSL shutdown completed!
-                        },
-                        []() -> void {
-                            LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
-                        },
-                        [](int sslErr) -> void {
-                            ssl_log("SSL/TLS shutdown handshake failed", sslErr);
-                        });
-                } else if (sh == SSL_SENT_SHUTDOWN) {
-                } else { // Both close_notify present
-                    VLOG(0) << "SSL_shutdown: Shutdown completed. Close_notify received and sent: sh = " << sh;
-                    SocketWriter::doShutdown();
-                }
-            } else { // We neighter have sent nor received close_notify
+            if (sh == 0) { // We neighter have sent nor received close_notify
                 VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify: sh = " << sh;
                 doSSLShutdown(
                     [this]() -> void { // thus send one
@@ -242,11 +219,27 @@ namespace core::socket::stream::tls {
 
                     },
                     []() -> void {
-                        LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
+                        LOG(WARNING) << "SSL_shutdown: Handshake timed out";
                     },
                     [](int sslErr) -> void {
-                        ssl_log("SSL/TLS shutdown handshake failed", sslErr);
+                        ssl_log("SSL_shutdown: Handshake failed", sslErr);
                     });
+            } else if (sh == SSL_RECEIVED_SHUTDOWN) { // We have only received close_notify
+                VLOG(0) << "SSL_shutdown: Close_notify received. Now send close_notify: sh = " << sh;
+                doSSLShutdown(
+                    []() -> void {                                     // Send our close_notify
+                        VLOG(0) << "SSL_shutdown: Close_notify sent."; // SSL shutdown completed!
+                    },
+                    []() -> void {
+                        LOG(WARNING) << "SSL_shutdown: Handshake timed out";
+                    },
+                    [](int sslErr) -> void {
+                        ssl_log("SSL_shutdown: Handshake failed", sslErr);
+                    });
+            } else if (sh == SSL_SENT_SHUTDOWN) { // We have only sent close_notify
+            } else {                              // We have sent and received close_notify present
+                VLOG(0) << "SSL_shutdown: Close_notify received and sent. Shutdown completed: sh = " << sh;
+                SocketWriter::doShutdown();
             }
         }
 
