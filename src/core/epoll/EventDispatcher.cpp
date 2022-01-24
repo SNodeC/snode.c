@@ -44,13 +44,13 @@ namespace core::epoll {
         event.events = EPOLLIN;
 
         event.data.ptr = descriptorEventDispatcher[0];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[0], &event);
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[RD], &event);
 
         event.data.ptr = descriptorEventDispatcher[1];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[1], &event);
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[WR], &event);
 
         event.data.ptr = descriptorEventDispatcher[2];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[2], &event);
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[EX], &event);
     }
 
     int EventDispatcher::multiplex(utils::Timeval& tickTimeout) {
