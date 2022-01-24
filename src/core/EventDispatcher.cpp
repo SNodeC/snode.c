@@ -128,6 +128,16 @@ namespace core {
         } while (tickStatus == TickStatus::SUCCESS);
     }
 
+    void EventDispatcher::stopDescriptorEvents() {
+        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+            eventDispatcher->stop();
+        }
+    }
+
+    void EventDispatcher::stopTimerEvents() {
+        timerEventDispatcher->stop();
+    }
+
     utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
 

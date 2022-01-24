@@ -79,17 +79,7 @@ namespace core {
 
         TickStatus tickStatus = eventDispatcher.dispatch(tickTimeOut, stopped);
 
-        switch (tickStatus) {
-            case TickStatus::SUCCESS:
-                DynamicLoader::execDlCloseDeleyed();
-                break;
-            case TickStatus::NO_OBSERVER:
-                LOG(INFO) << "EventLoop: No Observer - exiting";
-                break;
-            case TickStatus::ERROR:
-                PLOG(ERROR) << "EventDispatcher::dispatch()";
-                break;
-        }
+        DynamicLoader::execDlCloseDeleyed();
 
         return tickStatus;
     }
@@ -132,6 +122,18 @@ namespace core {
                 tickStatus = EventLoop::_tick(timeOut, stopped);
             }
 
+            switch (tickStatus) {
+                case TickStatus::SUCCESS:
+                    LOG(INFO) << "EventLoop: exiting - freeing resources";
+                    break;
+                case TickStatus::NO_OBSERVER:
+                    LOG(INFO) << "EventLoop: No Observer - exiting";
+                    break;
+                case TickStatus::ERROR:
+                    PLOG(ERROR) << "EventDispatcher::dispatch()";
+                    break;
+            }
+
             running = false;
         }
 
@@ -153,7 +155,17 @@ namespace core {
     }
 
     void EventLoop::free() {
-        eventDispatcher.stop();
+        core::TickStatus tickStatus;
+
+        do {
+            eventDispatcher.stopDescriptorEvents();
+            tickStatus = _tick(2, true);
+        } while (tickStatus == TickStatus::SUCCESS);
+
+        do {
+            eventDispatcher.stopTimerEvents();
+            tickStatus = _tick(0, false);
+        } while (tickStatus == TickStatus::SUCCESS);
 
         DynamicLoader::execDlCloseDeleyed();
         DynamicLoader::execDlCloseAll();

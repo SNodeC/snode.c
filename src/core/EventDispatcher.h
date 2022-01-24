@@ -58,6 +58,8 @@ namespace core {
 
         TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
         void stop();
+        void stopDescriptorEvents();
+        void stopTimerEvents();
 
     protected:
         int getObservedEventReceiverCount();
