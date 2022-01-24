@@ -16,20 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_TLS_RF_WEBAPP_H
-#define EXPRESS_TLS_RF_WEBAPP_H
+#ifndef WEB_HTTP_LEGACY_UN_CLIENT_H
+#define WEB_HTTP_LEGACY_UN_CLIENT_H
 
-#include "express/WebAppT.h"        // IWYU pragma: export
-#include "web/http/tls/rf/Server.h" // IWYU pragma: export
+#include "net/un/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "web/http/client/Client.h"            // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::tls::rf {
+namespace web::http::legacy::un {
 
-    using WebApp = WebAppT<web::http::tls::rf::Server<express::Request, express::Response>>;
+    template <typename Request, typename Response>
+    class Client : public web::http::client::Client<net::un::stream::legacy::SocketClient, Request, Response> {
+        using web::http::client::Client<net::un::stream::legacy::SocketClient, Request, Response>::Client;
 
-} // namespace express::tls::rf
+    protected:
+        using SocketClient = net::un::stream::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
-#endif // EXPRESS_TLS_RF_WEBAPP_H
+    public:
+        using web::http::client::Client<net::un::stream::legacy::SocketClient, Request, Response>::connect;
+    };
+
+} // namespace web::http::legacy::un
+
+#endif // WEB_HTTP_LEGACY_UN_CLIENT_H

@@ -16,20 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_TLS_RF_WEBAPP_H
-#define EXPRESS_TLS_RF_WEBAPP_H
+#ifndef EXPRESS_LEGACY_UN_WEBAPP_H
+#define EXPRESS_LEGACY_UN_WEBAPP_H
 
-#include "express/WebAppT.h"        // IWYU pragma: export
-#include "web/http/tls/rf/Server.h" // IWYU pragma: export
+#include "express/WebAppT.h"           // IWYU pragma: export
+#include "web/http/legacy/un/Server.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::tls::rf {
+namespace express::legacy::un {
 
-    using WebApp = WebAppT<web::http::tls::rf::Server<express::Request, express::Response>>;
+    using WebApp = WebAppT<web::http::legacy::un::Server<express::Request, express::Response>>;
 
-} // namespace express::tls::rf
+} // namespace express::legacy::un
 
-#endif // EXPRESS_TLS_RF_WEBAPP_H
+#endif // EXPRESS_LEGACY_UN_WEBAPP_H

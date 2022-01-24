@@ -50,7 +50,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    http PUBLIC snodec::net-in snodec::net-in6 snodec::net-rf
+    http PUBLIC snodec::net-in snodec::net-in6 snodec::net-rf snodec::net-un
                 ${LIBMAGIC_LIBRARIES} dl
 )
 
