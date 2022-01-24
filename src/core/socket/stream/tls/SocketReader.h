@@ -92,7 +92,7 @@ namespace core::socket::stream::tls {
                     break;
                 case SSL_ERROR_SYSCALL:
                     if (int sh = SSL_get_shutdown(ssl) != (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                        VLOG(0) << "Emulating SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN";
+                        ssl_log("SSL/TLS error. Emulating SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN", ssl_err);
                         SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
                         int errnum = errno;
                         Super::shutdown();
