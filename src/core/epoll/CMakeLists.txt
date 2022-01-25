@@ -1,26 +1,26 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CORE_EPOLL_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
+set(MUX_EPOLL_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
 
-set(CORE_EPOLL_H DescriptorEventDispatcher.h EventDispatcher.h)
+set(MUX_EPOLL_H DescriptorEventDispatcher.h EventDispatcher.h)
 
-add_library(core-epoll SHARED ${CORE_EPOLL_CPP} ${CORE_EPOLL_H})
-add_library(snodec::core-epoll ALIAS core-epoll)
+add_library(mux-epoll SHARED ${MUX_EPOLL_CPP} ${MUX_EPOLL_H})
+add_library(snodec::mux-epoll ALIAS mux-epoll)
 
 target_include_directories(
-    core-epoll
+    mux-epoll
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    core-epoll PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-epoll
+    mux-epoll PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mux-epoll
 )
 
 install(
-    TARGETS core-epoll
-    EXPORT snodec_core-epoll_Targets
+    TARGETS mux-epoll
+    EXPORT snodec_mux-epoll_Targets
     LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -35,8 +35,8 @@ install(
 )
 
 install(
-    EXPORT snodec_core-epoll_Targets
-    FILE snodec_core-epoll_Targets.cmake
+    EXPORT snodec_mux-epoll_Targets
+    FILE snodec_mux-epoll_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

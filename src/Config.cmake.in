@@ -11,7 +11,7 @@ set(httpclient_DEPENDENCIES http)
 set(core-legacy_DEPENDENCIES core)
 set(core-tls_DEPENDENCIES core)
 
-set(core_DEPENDENCIES core-@IO_Multiplexer@ utils logger)
+set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
     message("Loading component: " ${_comp})

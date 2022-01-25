@@ -1,26 +1,26 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CORE_SELECT_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
+set(MUX_SELECT_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
 
-set(CORE_SELECT_H DescriptorEventDispatcher.h EventDispatcher.h)
+set(MUX_SELECT_H DescriptorEventDispatcher.h EventDispatcher.h)
 
-add_library(core-select SHARED ${CORE_SELECT_CPP} ${CORE_SELECT_H})
-add_library(snodec::core-select ALIAS core-select)
+add_library(mux-select SHARED ${MUX_SELECT_CPP} ${MUX_SELECT_H})
+add_library(snodec::mux-select ALIAS mux-select)
 
 target_include_directories(
-    core-select
+    mux-select
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    core-select PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-select
+    mux-select PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mux-select
 )
 
 install(
-    TARGETS core-select
-    EXPORT snodec_core-select_Targets
+    TARGETS mux-select
+    EXPORT snodec_mux-select_Targets
     LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -35,8 +35,8 @@ install(
 )
 
 install(
-    EXPORT snodec_core-select_Targets
-    FILE snodec_core-select_Targets.cmake
+    EXPORT snodec_mux-select_Targets
+    FILE snodec_mux-select_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
