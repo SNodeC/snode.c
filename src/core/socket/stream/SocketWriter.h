@@ -65,7 +65,7 @@ namespace core::socket::stream {
         void writeEvent() override = 0;
 
     protected:
-        virtual void doShutdown() {
+        virtual void doWriteShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
 
             disable();
@@ -91,14 +91,9 @@ namespace core::socket::stream {
 
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-            } else if (errno != EINTR) {
-                int errnum = errno;
-                errno = errnum;
+            } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                 disable();
-                if (errno != EAGAIN && errno != EWOULDBLOCK) { // Do not report EAGAIN or EWOULDBLOCK because this
-                                                               // is expected for some protocols eg. BTPROTO_L2CAP
-                    onError(errno);
-                }
+                onError(errno);
             }
 
             if (writeBuffer.empty()) {
@@ -113,8 +108,7 @@ namespace core::socket::stream {
             if (!shutdownInProgress) {
                 if (isSuspended()) {
                     shutdownInProgress = true;
-                    doShutdown();
-                    setTimeout(MAX_SHUTDOWN_TIMEOUT);
+                    doWriteShutdown();
                 } else {
                     markShutdown = true;
                 }
@@ -122,6 +116,7 @@ namespace core::socket::stream {
         }
 
         void terminate() override {
+            setTimeout(MAX_SHUTDOWN_TIMEOUT);
             shutdown();
         }
 

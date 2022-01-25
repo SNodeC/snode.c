@@ -90,10 +90,11 @@ namespace core::socket {
         socketConnection->close();
     }
 
-    void SocketContext::onWriteError(int errnum) { // By default we do nothing because we may still want to read data
+    void SocketContext::onWriteError(int errnum) {
         if (errnum != 0) {
             PLOG(ERROR) << "OnWriteError: " << errnum;
         }
+        shutdownRead();
     }
 
     void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown. Override this method in case your protocol still

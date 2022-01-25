@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define TLSSHUTDOWN_TIMEOUT 1
+#define TLSSHUTDOWN_TIMEOUT 2
 
 namespace core::socket::stream::tls {
 

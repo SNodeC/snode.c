@@ -64,6 +64,10 @@ namespace core::socket::stream {
         void readEvent() override = 0;
 
     protected:
+        virtual void doReadShutdown() {
+            Socket::shutdown(Socket::shutdown::RD);
+        }
+
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             std::size_t maxReturn = std::min(junkLen, size);
 
@@ -89,12 +93,9 @@ namespace core::socket::stream {
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
-                } else if (errno != EINTR) {
+                } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                     disable();
-                    if (errno != EAGAIN && errno != EWOULDBLOCK) { // Do not report EAGAIN or EWOULDBLOCK because this
-                                                                   // is intentionally expected for some protocols eg. BTPROTO_L2CAP
-                        onError(errno);
-                    }
+                    onError(errno);
                 }
             }
         }
@@ -105,7 +106,7 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
-                Socket::shutdown(Socket::shutdown::RD);
+                doReadShutdown();
                 shutdownTriggered = true;
             }
         }

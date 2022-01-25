@@ -40,8 +40,6 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketReader<SocketT>;
         using Super::Super;
 
-        virtual void doReadShutdown() = 0;
-
         ssize_t read(char* junk, std::size_t junkLen) override {
             int ret = 0;
             int ssl_err = sslErr;
@@ -58,7 +56,6 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_NONE:
                     break;
                 case SSL_ERROR_WANT_READ:
-                    errno = EINTR;
                     break;
                 case SSL_ERROR_WANT_WRITE:
                     LOG(INFO) << "SSL/TLS start renegotiation on read";
@@ -73,15 +70,14 @@ namespace core::socket::stream::tls {
                             ssl_log("SSL/TLS renegotiation", ssl_err);
                             sslErr = ssl_err;
                         });
-                    errno = EINTR;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    doReadShutdown();
+                    this->doReadShutdown();
                     break;
                 case SSL_ERROR_SYSCALL:
                     VLOG(0) << "SSL/TLS TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                    doReadShutdown();
+                    this->doReadShutdown();
                     break;
                 default:
                     ssl_log("SSL/TLS error read failed", ssl_err);

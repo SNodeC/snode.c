@@ -205,19 +205,19 @@ namespace core::socket::stream::tls {
         void doReadShutdown() override {
             if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                 VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
-                SocketWriter::doShutdown();
+                SocketWriter::doWriteShutdown();
             } else {
                 VLOG(0) << "SSL_Shutdown WAITING: Close_notify received but not send";
             }
         }
 
-        void doShutdown() override {
+        void doWriteShutdown() override {
             if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
                 doSSLShutdown(
                     [this]() -> void { // thus send one
                         if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                             VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
-                            SocketWriter::doShutdown();
+                            SocketWriter::doWriteShutdown();
                         } else {
                             VLOG(0) << "SSL_Shutdown WAITING: Close_notify sent but not received";
                         }

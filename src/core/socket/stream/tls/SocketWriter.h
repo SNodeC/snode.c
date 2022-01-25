@@ -69,11 +69,9 @@ namespace core::socket::stream::tls {
                             sslErr = ssl_err;
                         });
                     ret = -1;
-                    errno = EINTR;
                     break;
                 case SSL_ERROR_WANT_WRITE:
                     ret = -1;
-                    errno = EINTR;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
                     ret = -1;               // on the write side this means a TCP broken pipe
@@ -82,9 +80,8 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 default:
-                    int errnum = errno;
                     ssl_log("SSL/TLS write failed", ssl_err);
-                    errno = errnum;
+                    errno = EPIPE;
                     ret = -1;
                     break;
             }
