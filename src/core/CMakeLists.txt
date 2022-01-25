@@ -120,9 +120,7 @@ install(
     PATTERN "cmake" EXCLUDE
     PATTERN "socket/stream/tls" EXCLUDE
     PATTERN "socket/stream/legacy" EXCLUDE
-    PATTERN "select" EXCLUDE
-    PATTERN "poll" EXCLUDE
-    PATTERN "epoll" EXCLUDE
+    PATTERN "mux" EXCLUDE
 )
 
 install(
