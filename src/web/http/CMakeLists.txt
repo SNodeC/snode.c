@@ -49,10 +49,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(
-    http PUBLIC snodec::net-in snodec::net-in6 snodec::net-rf snodec::net-un
-                ${LIBMAGIC_LIBRARIES} dl
-)
+target_link_libraries(http PUBLIC ${LIBMAGIC_LIBRARIES} dl)
 
 set_target_properties(
     http

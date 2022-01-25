@@ -8,8 +8,6 @@ set(express_DEPENDENCIES httpserver)
 set(httpserver_DEPENDENCIES http)
 set(httpclient_DEPENDENCIES http)
 
-set(http_DEPENDENCIES net-in net-in6 net-rf net-un)
-
 set(net-in_DEPENDENCIES core-legacy core-tls)
 set(net-in6_DEPENDENCIES core-legacy core-tls)
 set(net-rf_DEPENDENCIES core-legacy core-tls)
