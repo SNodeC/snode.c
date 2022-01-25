@@ -63,7 +63,8 @@ foreach(NET IN LISTS NETS)
             httpserver-${STREAM}-${NET} ${HTTPSERVER_CPP} ${HTTPSERVER_H}
         )
         target_link_libraries(
-            httpserver-${STREAM}-${NET} PRIVATE snodec::express
+            httpserver-${STREAM}-${NET}
+            PUBLIC snodec::express snodec::core-${STREAM} snodec::net-${NET}
         )
         target_compile_definitions(
             httpserver-${STREAM}-${NET}
@@ -78,7 +79,8 @@ foreach(NET IN LISTS NETS)
             httpclient-${STREAM}-${NET} ${HTTPCLIENT_CPP} ${HTTPCLIENT_H}
         )
         target_link_libraries(
-            httpclient-${STREAM}-${NET} PRIVATE snodec::httpclient
+            httpclient-${STREAM}-${NET}
+            PUBLIC snodec::httpclient snodec::core-${STREAM} snodec::net-${NET}
         )
         target_compile_definitions(
             httpclient-${STREAM}-${NET}
@@ -95,7 +97,9 @@ foreach(NET IN LISTS NETS)
                 ${HTTPSERVERCLIENTCERT_CPP} ${HTTPSERVERCLIENTCERT_H}
             )
             target_link_libraries(
-                httpserverclientcert-${STREAM}-${NET} PRIVATE snodec::express
+                httpserverclientcert-${STREAM}-${NET}
+                PUBLIC snodec::express snodec::core-${STREAM}
+                       snodec::net-${NET}
             )
             target_compile_definitions(
                 httpserverclientcert-${STREAM}-${NET}
@@ -112,7 +116,8 @@ foreach(NET IN LISTS NETS)
             )
             target_link_libraries(
                 httpclientclientcert-${STREAM}-${NET}
-                PRIVATE snodec::httpclient
+                PUBLIC snodec::httpclient snodec::core-${STREAM}
+                       snodec::net-${NET}
             )
             target_compile_definitions(
                 httpclientclientcert-${STREAM}-${NET}

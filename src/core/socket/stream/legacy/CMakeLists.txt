@@ -22,6 +22,8 @@ target_include_directories(
               "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
+target_link_libraries(core-legacy INTERFACE snodec::core)
+
 install(
     TARGETS core-legacy
     EXPORT snodec_core-legacy_Targets

@@ -30,9 +30,7 @@ if(BLUEZ_FOUND)
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
 
-    target_link_libraries(
-        net-rf PUBLIC snodec::core-legacy snodec::core-tls ${BLUEZ_LIBRARIES}
-    )
+    target_link_libraries(net-rf PUBLIC ${BLUEZ_LIBRARIES})
 
     set_target_properties(
         net-rf PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-rf
