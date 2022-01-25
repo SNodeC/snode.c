@@ -77,10 +77,10 @@ namespace core::epoll {
         explicit DescriptorEventDispatcher(int& epfd, uint32_t events);
 
     private:
-        void modAdd(EventReceiver* eventReceiver) override;
-        void modDel(EventReceiver* eventReceiver) override;
-        void modOn(EventReceiver* eventReceiver) override;
-        void modOff(EventReceiver* eventReceiver) override;
+        void modAdd(core::EventReceiver* eventReceiver) override;
+        void modDel(core::EventReceiver* eventReceiver) override;
+        void modOn(core::EventReceiver* eventReceiver) override;
+        void modOff(core::EventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents(const utils::Timeval& currentTime) override;
         void finishTick() override;

@@ -36,19 +36,19 @@ namespace core::poll {
         , revents(revents) {
     }
 
-    void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modAdd(core::EventReceiver* eventReceiver) {
         pollFds.modAdd(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modDel(core::EventReceiver* eventReceiver) {
         pollFds.modDel(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOn(core::EventReceiver* eventReceiver) {
         pollFds.modOn(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modOff(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOff(core::EventReceiver* eventReceiver) {
         pollFds.modOff(eventReceiver, events);
     }
 
@@ -61,7 +61,7 @@ namespace core::poll {
             pollfd& pollFd = pollfds[pollFdsIndices[fd].index];
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & this->revents) != 0) {
-                EventReceiver* eventReceiver = eventReceivers.front();
+                core::EventReceiver* eventReceiver = eventReceivers.front();
                 if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                     eventCounter++;
                     eventReceiver->dispatch(currentTime);

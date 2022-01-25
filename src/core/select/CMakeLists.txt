@@ -22,16 +22,6 @@ install(
     TARGETS mux-select
     EXPORT snodec_mux-select_Targets
     LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
-)
-
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/select
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
 )
 
 install(

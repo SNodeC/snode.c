@@ -36,7 +36,7 @@ namespace core::epoll {
         ePollEvents.resize(1);
     }
 
-    void DescriptorEventDispatcher::EPollEvents::modAdd(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::EPollEvents::modAdd(core::EventReceiver* eventReceiver) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -53,13 +53,13 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventDispatcher::EPollEvents::modDel(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::EPollEvents::modDel(core::EventReceiver* eventReceiver) {
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
         }
     }
 
-    void DescriptorEventDispatcher::EPollEvents::mod(EventReceiver* eventReceiver, uint32_t events) {
+    void DescriptorEventDispatcher::EPollEvents::mod(core::EventReceiver* eventReceiver, uint32_t events) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -68,11 +68,11 @@ namespace core::epoll {
         core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, eventReceiver->getRegisteredFd(), &ePollEvent);
     }
 
-    void DescriptorEventDispatcher::EPollEvents::modOn(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::EPollEvents::modOn(core::EventReceiver* eventReceiver) {
         mod(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::EPollEvents::modOff(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::EPollEvents::modOff(core::EventReceiver* eventReceiver) {
         mod(eventReceiver, 0);
     }
 
@@ -98,19 +98,19 @@ namespace core::epoll {
         : ePollEvents(epfd, events) {
     }
 
-    void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modAdd(core::EventReceiver* eventReceiver) {
         ePollEvents.modAdd(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modDel(core::EventReceiver* eventReceiver) {
         ePollEvents.modDel(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOn(core::EventReceiver* eventReceiver) {
         ePollEvents.modOn(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::modOff(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOff(core::EventReceiver* eventReceiver) {
         ePollEvents.modOff(eventReceiver);
     }
 

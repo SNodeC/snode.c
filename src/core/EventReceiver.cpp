@@ -110,6 +110,7 @@ namespace core {
     }
 
     void EventReceiver::dispatch(const utils::Timeval& currentTime) {
+        eventCounter++;
         triggered(currentTime);
 
         dispatchEvent();

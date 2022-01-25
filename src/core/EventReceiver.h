@@ -109,6 +109,8 @@ namespace core {
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;
         const utils::Timeval initialTimeout;
+
+        int eventCounter = 0;
     };
 
 } // namespace core
