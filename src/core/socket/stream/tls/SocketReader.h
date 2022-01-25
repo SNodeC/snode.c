@@ -79,7 +79,7 @@ namespace core::socket::stream::tls {
                     doReadShutdown();
                     break;
                 case SSL_ERROR_SYSCALL:
-                    ssl_log("SSL/TLS TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN", ssl_err);
+                    VLOG(0) << "SSL/TLS TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
                     doReadShutdown();
                     break;
