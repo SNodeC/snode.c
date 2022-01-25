@@ -132,9 +132,7 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
-add_subdirectory(epoll)
-add_subdirectory(poll)
-add_subdirectory(select)
+add_subdirectory(mux)
 
 add_subdirectory(socket/stream/legacy)
 add_subdirectory(socket/stream/tls)

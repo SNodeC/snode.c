@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/epoll/EventDispatcher.h"
+#include "core/mux/epoll/EventDispatcher.h"
 
-#include "core/epoll/DescriptorEventDispatcher.h"
+#include "core/mux/epoll/DescriptorEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/epoll/DescriptorEventDispatcher.h"
+#include "core/mux/epoll/DescriptorEventDispatcher.h"
 
 #include "core/EventReceiver.h"
 

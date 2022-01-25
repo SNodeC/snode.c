@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/select/DescriptorEventDispatcher.h"
+#include "core/mux/select/DescriptorEventDispatcher.h"
 
 #include "core/EventReceiver.h"
 

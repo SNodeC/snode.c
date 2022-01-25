@@ -20,7 +20,7 @@
 #define CORE_SELECT_EVENTDISPATCHER_H
 
 #include "core/EventDispatcher.h"
-#include "core/select/DescriptorEventDispatcher.h"
+#include "core/mux/select/DescriptorEventDispatcher.h"
 
 namespace utils {
     class Timeval;
