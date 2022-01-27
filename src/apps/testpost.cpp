@@ -28,7 +28,7 @@
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    express::legacy::in::WebApp legacyApp;
+    express::legacy::in::WebApp legacyApp("legacy-testpost");
 
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    express::tls::in::WebApp tlsApp({{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+    express::tls::in::WebApp tlsApp("tls-testpost", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
     tlsApp.use(legacyApp);
 
     legacyApp.listen(8080, [](const express::legacy::in::WebApp::Socket& socket, int err) -> void {

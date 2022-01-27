@@ -23,7 +23,7 @@ std::map<std::string, std::string> actions = {{"open", "up"}, {"close", "down"},
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
-    legacy::in::WebApp webApp;
+    legacy::in::WebApp webApp("werema");
 
     //    tls::WebApp wa;
 

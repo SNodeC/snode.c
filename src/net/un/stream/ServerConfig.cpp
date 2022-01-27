@@ -16,32 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_STREAM_SERVERSOCKET_H
-#define NET_UN_STREAM_STREAM_SERVERSOCKET_H
-
-#include "core/socket/ServerSocket.h" // IWYU pragma: export
-#include "net/un/stream/Socket.h"     // IWYU pragma: export
+#include "net/un/stream/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string> // IWYU pragma: export
+#include "utils/CLI11.hpp"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream {
 
-    class ServerSocket : public core::socket::ServerSocket<net::un::stream::Socket> {
-        using Super = core::socket::ServerSocket<net::un::stream::Socket>;
-
-    public:
-        explicit ServerSocket(const std::string& name);
-
-        using core::socket::ServerSocket<net::un::stream::Socket>::listen;
-
-        void listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError);
-    };
+    ServerConfig::ServerConfig() {
+    }
 
 } // namespace net::un::stream
-
-#endif // NET_UN_STREAM_STREAM_SERVERSOCKET_H

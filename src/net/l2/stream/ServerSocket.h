@@ -33,7 +33,11 @@
 namespace net::l2::stream {
 
     class ServerSocket : public core::socket::ServerSocket<net::l2::stream::Socket> {
+        using Super = core::socket::ServerSocket<net::l2::stream::Socket>;
+
     public:
+        explicit ServerSocket(const std::string& name);
+
         using core::socket::ServerSocket<net::l2::stream::Socket>::listen;
 
         void listen(uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError);

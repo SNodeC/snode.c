@@ -20,9 +20,23 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in::stream {
+
+    ServerSocket::ServerSocket(const std::string& name)
+        : Super(name)
+        , serverConfig(name) {
+        serverConfig.parse(true, false);
+    }
+
+    void ServerSocket::listen(const std::function<void(const Socket& socket, int)>& onError) {
+        serverConfig.parse(false, true);
+
+        listen(SocketAddress(serverConfig.getBindInterface(), serverConfig.getBindPort()), serverConfig.getBacklog(), onError);
+    }
 
     void ServerSocket::listen(uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(port), backlog, onError);
@@ -37,6 +51,10 @@ namespace net::in::stream {
                               int backlog,
                               const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(ipOrHostname, port), backlog, onError);
+    }
+
+    ServerConfig& ServerSocket::getServerConfig() {
+        return serverConfig;
     }
 
 } // namespace net::in::stream

@@ -31,7 +31,7 @@ using namespace express;
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    legacy::in::WebApp legacyApp;
+    legacy::in::WebApp legacyApp("legacy-echoserver");
 
     legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
         if (req.url == "/" || req.url == "/index.html") {
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
     });
 
     {
-        tls::in::WebApp tlsApp({{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+        tls::in::WebApp tlsApp("tls-echoserver", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
         tlsApp.get("/", [] MIDDLEWARE(req, res, next) {
             if (req.url == "/" || req.url == "/index.html") {

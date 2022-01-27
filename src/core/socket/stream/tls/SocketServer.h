@@ -45,11 +45,12 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
         using SocketConnection = typename Super::SocketConnection;
 
-        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
+        SocketServer(const std::string& name,
+                     const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : Super(onConnect, onConnected, onDisconnect, options)
+            : Super(name, onConnect, onConnected, onDisconnect, options)
             , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [this](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
                 freeSniCerts(sniSslCtxs);
             }) {

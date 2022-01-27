@@ -33,7 +33,11 @@
 namespace net::rf::stream {
 
     class ServerSocket : public core::socket::ServerSocket<net::rf::stream::Socket> {
+        using Super = core::socket::ServerSocket<net::rf::stream::Socket>;
+
     public:
+        explicit ServerSocket(const std::string& name);
+
         using core::socket::ServerSocket<net::rf::stream::Socket>::listen;
 
         void listen(uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError);

@@ -83,3 +83,5 @@ add_subdirectory(l2)
 add_subdirectory(in)
 add_subdirectory(in6)
 add_subdirectory(un)
+
+add_subdirectory(config)

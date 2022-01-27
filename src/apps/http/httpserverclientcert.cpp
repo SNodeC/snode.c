@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;
-    WebApp webApp(apps::http::STREAM::getWebApp(SERVERROOT, options));
+    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", SERVERROOT, options));
 
 #if (STREAM_TYPE == TLS)
     webApp.addSniCerts(sniCerts);
@@ -50,9 +50,11 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)
-    webApp.listen(8080, 5, [](const WebApp::Socket& socket, int errnum) -> void {
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+    // webApp.listen(8080, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #elif (STREAM_TYPE == TLS)
-    webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+    // webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #endif
 #elif (NET_TYPE == IN6) // in6
 #if (STREAM_TYPE == LEGACY)

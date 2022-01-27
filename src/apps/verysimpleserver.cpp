@@ -29,10 +29,11 @@
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    express::legacy::in::WebApp legacyApp;
+    express::legacy::in::WebApp legacyApp("legacy-verysimpleserver");
     legacyApp.use(express::middleware::StaticMiddleware(SERVERROOT));
 
     express::tls::in::WebApp tlsApp(
+        "tls-verysimpleserver",
         {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}});
     tlsApp.use(express::middleware::StaticMiddleware(SERVERROOT));
 

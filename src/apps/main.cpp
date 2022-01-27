@@ -105,7 +105,7 @@ int timerApp() {
 
     [[maybe_unused]] bool canceled = false;
 
-    express::legacy::in::WebApp app;
+    express::legacy::in::WebApp app("testapp");
 
     app.get("/", [&canceled, &tack](express::Request& req, express::Response& res) -> void {
         std::string uri = req.originalUrl;
