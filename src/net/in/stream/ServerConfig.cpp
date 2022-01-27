@@ -93,17 +93,13 @@ namespace net::in::stream {
         return writeTimeout;
     }
 
-    int ServerConfig::parse(bool quiet, bool required) {
+    int ServerConfig::parse(bool required) {
         try {
             utils::Config::instance().required(serverSc, required);
             utils::Config::instance().required(serverBindSc, required);
             utils::Config::instance().required(bindServerPortOpt, required);
 
-            utils::Config::instance().parse(quiet);
-
-            //            serverSc->parse(core::EventLoop::argc, core::EventLoop::argv);
-
-            //            CLI11_PARSE(core::EventLoop::app, core::EventLoop::argc, core::EventLoop::argv);
+            utils::Config::instance().parse();
         } catch (const CLI::ParseError& e) {
         }
 

@@ -30,12 +30,12 @@
 
 namespace utils {
 
-    Config::Config()
-        : app(new CLI::App()) {
+    CLI::App Config::app;
+
+    Config::Config() {
     }
 
     Config::~Config() {
-        delete app;
     }
 
     Config& Config::instance() {
@@ -49,14 +49,14 @@ namespace utils {
         this->argc = argc;
         this->argv = argv;
 
-        app->description("Configuration file for application " + name);
+        app.description("Configuration file for application " + name);
 
-        app->set_config("--config", name + ".conf", "Read an config file", false);
+        app.set_config("--config", name + ".conf", "Read an config file", false);
 
-        CLI::Option* dumpConfigFlg = app->add_flag("-d,--dump-config", _dumpConfig, "Dump config file");
+        CLI::Option* dumpConfigFlg = app.add_flag("-d,--dump-config", _dumpConfig, "Dump config file");
         dumpConfigFlg->configurable(false);
 
-        parse(true);
+        parse();
 
         setRequired(_dumpConfig == false);
 
@@ -68,15 +68,15 @@ namespace utils {
 
         if (_dumpConfig) {
             std::cout << "Dumping config file: " << name + ".conf" << std::endl;
-            std::cout << app->config_to_str(true, true) << std::endl;
+            std::cout << app.config_to_str(true, true) << std::endl;
 
             std::ofstream confFile(std::string(name + ".conf"));
-            confFile << app->config_to_str(true, true);
+            confFile << app.config_to_str(true, true);
         }
     }
 
     CLI::App* Config::add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description) {
-        return app->add_subcommand(subcommand_name, subcommand_description);
+        return app.add_subcommand(subcommand_name, subcommand_description);
     }
 
     CLI::App* Config::required(CLI::App* app, bool required) {
@@ -91,13 +91,12 @@ namespace utils {
         _required = required;
     }
 
-    int Config::parse(bool quiet) {
+    int Config::parse(bool stopOnError) {
         try {
-            app->parse(argc, argv);
+            app.parse(argc, argv);
         } catch (const CLI::ParseError& e) {
-            if (!quiet) {
-                //                return app->exit(0);
-                exit(app->exit(e));
+            if (stopOnError) {
+                exit(app.exit(e));
             }
         }
 

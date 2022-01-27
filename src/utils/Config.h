@@ -50,12 +50,12 @@ namespace utils {
 
         void setRequired(bool required);
 
-        int parse(bool quiet = false);
+        int parse(bool stopOnError = false);
 
     private:
         std::string name;
 
-        CLI::App* app = nullptr;
+        static CLI::App app;
 
         int argc = 0;
         char** argv = nullptr;

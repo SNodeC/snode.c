@@ -49,7 +49,7 @@ namespace net::in::stream {
 
         int getWriteTimeout() const;
 
-        int parse(bool quiet = false, bool required = false);
+        int parse(bool required = false);
 
     private:
         CLI::App* serverSc = nullptr;
