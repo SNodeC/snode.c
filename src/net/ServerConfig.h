@@ -23,13 +23,19 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace CLI {
+    class Option;
+} // namespace CLI
+
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
     class ServerConfig : public Config {
     public:
-        ServerConfig(const std::string& name);
+        explicit ServerConfig(const std::string& name);
 
         int getBacklog() const;
 

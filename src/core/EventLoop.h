@@ -31,10 +31,6 @@ namespace core {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace CLI {
-    class App;
-}
-
 namespace core {
 
     class EventLoop {
@@ -60,12 +56,6 @@ namespace core {
         static void stoponsig(int sig);
 
         static core::EventDispatcher& eventDispatcher;
-
-    public:
-        //        static CLI::App app;
-
-        static int argc;
-        static char** argv;
 
     private:
         static bool running;

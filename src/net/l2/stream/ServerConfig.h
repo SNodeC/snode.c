@@ -23,7 +23,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
+#include <cstdint> // for uint16_t
+#include <string>  // for string
+
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
