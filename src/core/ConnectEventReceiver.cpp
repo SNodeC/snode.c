@@ -28,7 +28,8 @@
 namespace core {
 
     ConnectEventReceiver::ConnectEventReceiver(const utils::Timeval& timeout)
-        : EventReceiver(EventLoop::getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), timeout) {
+        : EventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR),
+                        timeout) {
     }
 
     void ConnectEventReceiver::connectTimeout() {

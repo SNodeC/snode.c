@@ -42,7 +42,7 @@ core::EventDispatcher& EventDispatcher();
 
 namespace core {
 
-    core::EventDispatcher& EventLoop::eventDispatcher = ::EventDispatcher();
+    //    core::EventDispatcher& EventLoop::eventDispatcher = ::EventDispatcher();
 
     bool EventLoop::initialized = false;
     bool EventLoop::running = false;
@@ -103,18 +103,18 @@ namespace core {
         chdir(path.c_str());
 
         // Close all open file descriptors
-        /*
-                long fd;
-                for (fd = sysconf(_SC_OPEN_MAX); fd >= 0; --fd) {
-                    close(static_cast<int>(fd));
-                }
 
-                // reopen stdin, stdout, stderr
+        long fd;
+        for (fd = sysconf(_SC_OPEN_MAX); fd >= 0; --fd) {
+            close(static_cast<int>(fd));
+        }
 
-                stdin = fopen(infile.c_str(), "r");    // fd=0
-                stdout = fopen(outfile.c_str(), "w+"); // fd=1
-                stderr = fopen(errfile.c_str(), "w+"); // fd=2
-        */
+        // reopen stdin, stdout, stderr
+
+        stdin = fopen(infile.c_str(), "r");    // fd=0
+        stdout = fopen(outfile.c_str(), "w+"); // fd=1
+        stderr = fopen(errfile.c_str(), "w+"); // fd=2
+
         return (0);
     }
 
@@ -126,6 +126,18 @@ namespace core {
         }
 
         return tick;
+    }
+
+    EventLoop::EventLoop()
+        : eventDispatcher(::EventDispatcher())
+
+    {
+    }
+
+    EventLoop& EventLoop::instance() {
+        static EventLoop eventLoop;
+
+        return eventLoop;
     }
 
     unsigned long EventLoop::getTickCounter() {
@@ -186,7 +198,7 @@ namespace core {
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
 
-        TickStatus tickStatus = EventLoop::_tick(timeOut, stopped);
+        TickStatus tickStatus = EventLoop::instance()._tick(timeOut, stopped);
 
         core::system::signal(SIGPIPE, oldSigPipeHandler);
 
@@ -215,12 +227,12 @@ namespace core {
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
             while (tickStatus == TickStatus::SUCCESS && !stopped) {
-                tickStatus = EventLoop::_tick(timeOut, stopped);
+                tickStatus = EventLoop::instance()._tick(timeOut, stopped);
             }
 
             switch (tickStatus) {
                 case TickStatus::SUCCESS:
-                    LOG(INFO) << "EventLoop: exiting - freeing resources";
+                    LOG(INFO) << "EventLoop terminated: Releasing resources";
                     break;
                 case TickStatus::NO_OBSERVER:
                     LOG(INFO) << "EventLoop: No Observer - exiting";
@@ -254,17 +266,19 @@ namespace core {
         core::TickStatus tickStatus;
 
         do {
-            eventDispatcher.stopDescriptorEvents();
-            tickStatus = _tick(2, true);
+            instance().eventDispatcher.stopDescriptorEvents();
+            tickStatus = instance()._tick(2, true);
         } while (tickStatus == TickStatus::SUCCESS);
 
         do {
-            eventDispatcher.stopTimerEvents();
-            tickStatus = _tick(0, false);
+            instance().eventDispatcher.stopTimerEvents();
+            tickStatus = instance()._tick(0, false);
         } while (tickStatus == TickStatus::SUCCESS);
 
         DynamicLoader::execDlCloseDeleyed();
         DynamicLoader::execDlCloseAll();
+
+        VLOG(0) << "All resources released";
     }
 
     void EventLoop::stoponsig(int sig) {

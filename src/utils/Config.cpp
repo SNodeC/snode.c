@@ -63,7 +63,7 @@ namespace utils {
         CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
         allHelpOpt->configurable(false);
 
-        CLI::Option* daemonizeOpt = app.add_flag("-d,--daemonize", _daemonize, "Start application as daemon");
+        CLI::Option* daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", _daemonize, "Start application as daemon");
         daemonizeOpt->configurable();
 
         CLI::Option* killDaemonOpt = app.add_flag("-k,--kill", _kill, "Start application as daemon");
