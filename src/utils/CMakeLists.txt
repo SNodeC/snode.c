@@ -24,11 +24,11 @@ else(FACKWARD_FOUND)
     )
 endif(BACKWARD_FOUND)
 
-set(UTILS_CPP Timeval.cpp base64.cpp instrumentation.cpp sha1.cpp
+set(UTILS_CPP Config.cpp Timeval.cpp base64.cpp instrumentation.cpp sha1.cpp
               stacktrace.cpp
 )
 
-set(UTILS_H AttributeInjector.h Timeval.h base64.h sha1.h stacktrace.h)
+set(UTILS_H AttributeInjector.h Config.h Timeval.h base64.h sha1.h stacktrace.h)
 
 add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})
 add_library(snodec::utils ALIAS utils)

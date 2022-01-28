@@ -5,13 +5,14 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-    set(NET-L2_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerSocket.cpp
-                   stream/ClientSocket.cpp
+    set(NET-L2_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerConfig.cpp
+                   stream/ServerSocket.cpp stream/ClientSocket.cpp
     )
 
     set(NET-L2_H
         SocketAddress.h
         stream/Socket.h
+        stream/ServerConfig.h
         stream/ServerSocket.h
         stream/ClientSocket.h
         stream/legacy/SocketServer.h
@@ -23,14 +24,14 @@ if(BLUEZ_FOUND)
     add_library(net-l2 SHARED ${NET-L2_CPP} ${NET-L2_H})
     add_library(snodec::net-l2 ALIAS net-l2)
 
+    target_link_libraries(net-l2 PUBLIC snodec::net ${BLUEZ_LIBRARIES})
+
     target_include_directories(
         net-l2
         PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
-
-    target_link_libraries(net-l2 PUBLIC ${BLUEZ_LIBRARIES})
 
     set_target_properties(
         net-l2 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-l2

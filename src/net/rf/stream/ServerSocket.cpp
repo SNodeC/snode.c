@@ -24,6 +24,17 @@
 
 namespace net::rf::stream {
 
+    ServerSocket::ServerSocket(const std::string& name)
+        : Super(name)
+        , serverConfig(name) {
+    }
+
+    void ServerSocket::listen(const std::function<void(const Socket&, int)>& onError) {
+        serverConfig.parse(true);
+
+        listen(serverConfig.getBindInterface(), serverConfig.getChannel(), serverConfig.getBacklog(), onError);
+    }
+
     void ServerSocket::listen(uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(channel), backlog, onError);
     }
@@ -37,6 +48,10 @@ namespace net::rf::stream {
                               int backlog,
                               const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(address, channel), backlog, onError);
+    }
+
+    ServerConfig& ServerSocket::getServerConfig() {
+        return serverConfig;
     }
 
 } // namespace net::rf::stream

@@ -16,36 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SERVERSOCKET_H
-#define CORE_SOCKET_SERVERSOCKET_H
+#ifndef NET_L2_STREAM_SERVERCONFIG_H
+#define NET_L2_STREAM_SERVERCONFIG_H
+
+#include "net/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
+#include "utils/CLI11.hpp"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net::l2::stream {
 
-    template <typename SocketT>
-    class ServerSocket {
-    protected:
-        explicit ServerSocket(const std::string& name)
-            : name(name) {
-        }
-
+    class ServerConfig : public net::ServerConfig {
     public:
-        using Socket = SocketT;
+        explicit ServerConfig(const std::string& name);
 
-        virtual void listen(const typename Socket::SocketAddress& bindAddress,
-                            int backlog,
-                            const std::function<void(const Socket& socket, int)>& onError) const = 0;
+        const std::string& getBindInterface() const;
 
-    protected:
-        std::string name;
+        uint16_t getPsm() const;
+
+        int parse(bool required = false);
+
+    private:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerHostOpt = nullptr;
+        CLI::Option* bindServerPsmOpt = nullptr;
+
+        std::string bindInterface;
+        uint16_t psm;
     };
 
-} // namespace core::socket
+} // namespace net::l2::stream
 
-#endif // CORE_SOCKET_SERVERSOCKET_H
+#endif

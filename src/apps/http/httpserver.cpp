@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;
-    WebApp webApp(apps::http::STREAM::getWebApp(SERVERROOT, options));
+    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", SERVERROOT, options));
 
 #if (STREAM_TYPE == TLS)
     webApp.addSniCerts(sniCerts);
@@ -48,28 +48,35 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)
-    webApp.listen(8080, 5, [](const WebApp::Socket& socket, int errnum) -> void {
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+    // webApp.listen(8080, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #elif (STREAM_TYPE == TLS)
-    webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+    // webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #endif
 #elif (NET_TYPE == IN6) // in6
 #if (STREAM_TYPE == LEGACY)
-    webApp.listen(8080, 5, [](const WebApp::Socket& socket, int errnum) -> void {
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+//    webApp.listen(8080, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #elif (STREAM_TYPE == TLS)
-    webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+//    webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #endif
 #elif (NET_TYPE == L2) //
     // ATLAS: 10:3D:1C:AC:BA:9C
     // TITAN: A4:B1:C1:2C:82:37
     // USB: 44:01:BB:A3:63:32
 
-    // webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
-    webApp.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+    //// webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
+    // webApp.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
 #elif (NET_TYPE == RF) // rf
-    // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
-    webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+    //// webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
+    // webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
 #elif (NET_TYPE == UN) // un
-    webApp.listen("/tmp/testme", 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
+    webApp.listen([](const WebApp::Socket& socket, int errnum) -> void {
+    // webApp.listen("/tmp/testme", 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
 #endif
         if (errnum != 0) {
             PLOG(FATAL) << "listen";

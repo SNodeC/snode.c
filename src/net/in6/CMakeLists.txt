@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NET-IN6_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerSocket.cpp
-                stream/ClientSocket.cpp
+set(NET-IN6_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerConfig.cpp
+                stream/ServerSocket.cpp stream/ClientSocket.cpp
 )
 
 set(NET-IN6_H
     SocketAddress.h
     stream/Socket.h
+    stream/ServerConfig.h
     stream/ServerSocket.h
     stream/ClientSocket.h
     stream/legacy/SocketServer.h
@@ -17,6 +18,8 @@ set(NET-IN6_H
 
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
 add_library(snodec::net-in6 ALIAS net-in6)
+
+target_link_libraries(net-in6 PUBLIC snodec::net)
 
 target_include_directories(
     net-in6

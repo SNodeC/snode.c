@@ -47,12 +47,14 @@ namespace web::http::server {
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
-        Server(const std::function<void(SocketConnection*)>& onConnect,
+        Server(const std::string& name,
+               const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&, Response&)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : Super(
+                  name,
                   [onConnect](SocketConnection* socketConnection) -> void { // OnConnect
                       onConnect(socketConnection);
                   },

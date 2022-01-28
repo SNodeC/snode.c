@@ -16,36 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SERVERSOCKET_H
-#define CORE_SOCKET_SERVERSOCKET_H
+#ifndef NET_UN_STREAM_SERVERCONFIG_H
+#define NET_UN_STREAM_SERVERCONFIG_H
+
+#include "net/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
+#include "utils/CLI11.hpp"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net::un::stream {
 
-    template <typename SocketT>
-    class ServerSocket {
-    protected:
-        explicit ServerSocket(const std::string& name)
-            : name(name) {
-        }
-
+    class ServerConfig : public net::ServerConfig {
     public:
-        using Socket = SocketT;
+        explicit ServerConfig(const std::string& name);
 
-        virtual void listen(const typename Socket::SocketAddress& bindAddress,
-                            int backlog,
-                            const std::function<void(const Socket& socket, int)>& onError) const = 0;
+        const std::string& getSunPath() const;
 
-    protected:
-        std::string name;
+        int parse(bool required = false);
+
+    private:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerSunPathOpt = nullptr;
+
+        std::string sunPath;
     };
 
-} // namespace core::socket
+} // namespace net::un::stream
 
-#endif // CORE_SOCKET_SERVERSOCKET_H
+#endif

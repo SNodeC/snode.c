@@ -31,6 +31,10 @@ namespace core {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace CLI {
+    class App;
+}
+
 namespace core {
 
     class EventLoop {
@@ -57,12 +61,21 @@ namespace core {
 
         static core::EventDispatcher& eventDispatcher;
 
+    public:
+        //        static CLI::App app;
+
+        static int argc;
+        static char** argv;
+
+    private:
         static bool running;
         static bool stopped;
         static int stopsig;
         static bool initialized;
 
         static unsigned long tickCounter;
+
+        static bool dumpConfig;
 
         friend class SNodeC;
     };

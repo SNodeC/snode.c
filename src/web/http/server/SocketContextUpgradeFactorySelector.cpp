@@ -62,8 +62,7 @@ namespace web::http::server {
             std::string upgradeContextName;
             std::string upgradeContextPriority;
 
-            std::tie(upgradeContextName, upgradeContextNames) =
-                httputils::str_split(upgradeContextNames, ','); // TODO honor priorities - needs a for loop´
+            std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
             std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
 
             httputils::to_lower(upgradeContextName);

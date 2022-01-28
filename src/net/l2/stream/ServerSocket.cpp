@@ -24,6 +24,17 @@
 
 namespace net::l2::stream {
 
+    ServerSocket::ServerSocket(const std::string& name)
+        : Super(name)
+        , serverConfig(name) {
+    }
+
+    void ServerSocket::listen(const std::function<void(const Socket&, int)>& onError) {
+        serverConfig.parse(true);
+
+        listen(serverConfig.getBindInterface(), serverConfig.getPsm(), serverConfig.getBacklog(), onError);
+    }
+
     void ServerSocket::listen(uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(psm), backlog, onError);
     }
@@ -37,6 +48,10 @@ namespace net::l2::stream {
                               int backlog,
                               const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(address, psm), backlog, onError);
+    }
+
+    ServerConfig& ServerSocket::getServerConfig() {
+        return serverConfig;
     }
 
 } // namespace net::l2::stream

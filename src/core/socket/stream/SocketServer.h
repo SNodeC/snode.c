@@ -46,11 +46,13 @@ namespace core::socket::stream {
         using SocketAddress = typename Socket::SocketAddress;
         using SocketConnection = typename SocketAcceptor::SocketConnection;
 
-        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
+        SocketServer(const std::string& name,
+                     const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : socketContextFactory(std::make_shared<SocketContextFactory>())
+            : ServerSocket(name)
+            , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
             , _onDisconnect(onDisconnect)

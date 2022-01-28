@@ -32,7 +32,7 @@ using json = nlohmann::json;
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
-    legacy::in::WebApp legacyApp;
+    legacy::in::WebApp legacyApp("legacy-jsonserver");
 
     legacyApp.use(middleware::JsonMiddleware());
 

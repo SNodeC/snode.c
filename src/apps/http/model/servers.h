@@ -35,8 +35,8 @@ namespace apps::http::legacy {
 
     using WebApp = express::legacy::NET::WebApp;
 
-    WebApp getWebApp(const std::string& rootPath, const std::map<std::string, std::any>& options) {
-        WebApp webApp(getRouter(rootPath), options);
+    WebApp getWebApp(const std::string& name, const std::string& rootPath, const std::map<std::string, std::any>& options) {
+        WebApp webApp(name, getRouter(rootPath), options);
 
         webApp.onConnect([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnect:";
@@ -67,8 +67,8 @@ namespace apps::http::tls {
 
     using WebApp = express::tls::NET::WebApp;
 
-    WebApp getWebApp(const std::string& rootPath, const std::map<std::string, std::any>& options) {
-        WebApp webApp(getRouter(rootPath), options);
+    WebApp getWebApp(const std::string& name, const std::string& rootPath, const std::map<std::string, std::any>& options) {
+        WebApp webApp(name, getRouter(rootPath), options);
 
         webApp.onConnect([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnect:";

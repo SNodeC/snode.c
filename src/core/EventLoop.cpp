@@ -25,6 +25,8 @@
 
 #include "core/system/signal.h"
 #include "log/Logger.h" // for Logger
+#include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #include <cstdlib> // for exit
 #include <string>  // for string, to_string
@@ -38,14 +40,23 @@
 /* Must be implemented in every variant of a multiplexer api */
 core::EventDispatcher& EventDispatcher();
 
+#define CONFFILEPATH "/home/voc/etc/snode.c/"
+
 namespace core {
 
     core::EventDispatcher& EventLoop::eventDispatcher = ::EventDispatcher();
+
+    //    CLI::App EventLoop::app;
+    int EventLoop::argc;
+    char** EventLoop::argv;
+
     bool EventLoop::initialized = false;
     bool EventLoop::running = false;
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
     unsigned long EventLoop::tickCounter = 0;
+
+    bool EventLoop::dumpConfig = false;
 
     static std::string getTickCounterAsString(const el::LogMessage*) {
         std::string tick = std::to_string(EventLoop::getTickCounter());
@@ -72,6 +83,38 @@ namespace core {
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
         EventLoop::initialized = true;
+
+        utils::Config::instance().init(std::string(CONFFILEPATH) + std::string(basename(argv[0])), argc, argv);
+
+        EventLoop::argc = argc;
+        EventLoop::argv = argv;
+
+        //        utils::Config::instance().app->description("Configuration file for application " + std::string(basename(argv[0])));
+        /*
+                utils::Config::instance().app->set_config(
+                    "--config", std::string(CONFFILEPATH) + std::string(basename(argv[0])) + ".conf", "Read an config file", false);
+
+                CLI::Option* dumpConfigFlg = utils::Config::instance().app->add_flag("-d,--dump-config", dumpConfig, "Dump config file
+           template"); dumpConfigFlg->configurable(false);
+        */
+        //        try {
+        //            utils::Config::instance().app->parse(argc, argv);
+        //        } catch (const CLI::ParseError& e) {
+        //        }
+        /*
+                app.description("Configuration file for application " + std::string(basename(argv[0])));
+
+                app.set_config("--config", std::string(CONFFILEPATH) + std::string(basename(argv[0])) + ".conf", "Read an config file",
+           false);
+
+                CLI::Option* dumpConfigFlg = app.add_flag("-d,--dump-config", dumpConfig, "Dump config file template");
+                dumpConfigFlg->configurable(false);
+
+                try {
+                    app.parse(argc, argv);
+                } catch (const CLI::ParseError& e) {
+                }
+        */
     }
 
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
@@ -104,6 +147,31 @@ namespace core {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::start().";
             exit(1);
         }
+
+        utils::Config::instance().finish();
+
+        // CLI11_PARSE(*utils::Config::instance().app, argc, argv);
+
+        /*
+                if (dumpConfig) {
+                    std::cout << "Dumping config file template: " << std::string(CONFFILEPATH "/") + std::string(basename(argv[0])) +
+           ".conf"
+                              << std::endl;
+                    std::ofstream confFile(std::string(CONFFILEPATH "/") + std::string(basename(argv[0])) + ".conf");
+                    VLOG(0) << utils::Config::instance().app->config_to_str(true, true);
+                    confFile << utils::Config::instance().app->config_to_str(true, true);
+                }
+                CLI11_PARSE(app, argc, argv);
+
+                if (dumpConfig) {
+                    std::cout << "Dumping config file template: " << std::string(CONFFILEPATH "/") + std::string(basename(argv[0])) +
+           ".conf"
+                              << std::endl;
+                    std::ofstream confFile(std::string(CONFFILEPATH "/") + std::string(basename(argv[0])) + ".conf");
+                    VLOG(0) << app.config_to_str(true, true);
+                    confFile << app.config_to_str(true, true);
+                }
+        */
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
         sighandler_t oldSigQuitHandler = core::system::signal(SIGQUIT, EventLoop::stoponsig);

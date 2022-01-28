@@ -29,12 +29,27 @@
 
 namespace net::un::stream {
 
+    ServerSocket::ServerSocket(const std::string& name)
+        : Super(name)
+        , serverConfig(name) {
+    }
+
+    void ServerSocket::listen(const std::function<void(const Socket&, int)>& onError) {
+        serverConfig.parse(true);
+
+        listen(serverConfig.getSunPath(), serverConfig.getBacklog(), onError);
+    }
+
     void ServerSocket::listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
             PLOG(ERROR) << "listen: sunPath: " << sunPath;
         } else {
             listen(SocketAddress(sunPath), backlog, onError);
         }
+    }
+
+    ServerConfig& ServerSocket::getServerConfig() {
+        return serverConfig;
     }
 
 } // namespace net::un::stream

@@ -115,7 +115,7 @@ Router router() {
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
-    legacy::in::WebApp legacyApp;
+    legacy::in::WebApp legacyApp("legacy-testregex");
 
     legacyApp.use(router());
 
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
         VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
     });
 
-    tls::in::WebApp tlsApp({{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+    tls::in::WebApp tlsApp("tls-testregex", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
     tlsApp.use(router());
 

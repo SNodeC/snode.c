@@ -16,36 +16,54 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SERVERSOCKET_H
-#define CORE_SOCKET_SERVERSOCKET_H
+#ifndef UTILS_CONFIG_H
+#define UTILS_CONFIG_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
+
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace utils {
 
-    template <typename SocketT>
-    class ServerSocket {
-    protected:
-        explicit ServerSocket(const std::string& name)
-            : name(name) {
-        }
+    class Config {
+    private:
+        Config();
+        ~Config();
 
     public:
-        using Socket = SocketT;
+        static Config& instance();
+        int init(const std::string& name, int argc, char* argv[]);
 
-        virtual void listen(const typename Socket::SocketAddress& bindAddress,
-                            int backlog,
-                            const std::function<void(const Socket& socket, int)>& onError) const = 0;
+        void finish();
 
-    protected:
+        CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
+
+        CLI::App* required(CLI::App* app, bool required);
+        CLI::Option* required(CLI::Option* option, bool required);
+
+        void setRequired(bool required);
+
+        int parse(bool stopOnError = false);
+
+    private:
         std::string name;
+
+        static CLI::App app;
+
+        int argc = 0;
+        char** argv = nullptr;
+
+        bool _required = true;
+        bool _dumpConfig = false;
     };
 
-} // namespace core::socket
+} // namespace utils
 
-#endif // CORE_SOCKET_SERVERSOCKET_H
+#endif // UTILS_CONFIG_H

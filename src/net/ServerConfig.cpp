@@ -16,36 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SERVERSOCKET_H
-#define CORE_SOCKET_SERVERSOCKET_H
+#include "net/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
+#include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net {
 
-    template <typename SocketT>
-    class ServerSocket {
-    protected:
-        explicit ServerSocket(const std::string& name)
-            : name(name) {
-        }
+    ServerConfig::ServerConfig(const std::string& name)
+        : Config(name) {
+        serverBacklogOpt = serverSc->add_option("-b,--backlog,backlog", backlog, "Server listen backlog");
+        serverBacklogOpt->type_name("[backlog]");
+        serverBacklogOpt->default_val(5);
+        serverBacklogOpt->configurable();
+    }
 
-    public:
-        using Socket = SocketT;
+    int ServerConfig::getBacklog() const {
+        return backlog;
+    }
 
-        virtual void listen(const typename Socket::SocketAddress& bindAddress,
-                            int backlog,
-                            const std::function<void(const Socket& socket, int)>& onError) const = 0;
-
-    protected:
-        std::string name;
-    };
-
-} // namespace core::socket
-
-#endif // CORE_SOCKET_SERVERSOCKET_H
+} // namespace net
