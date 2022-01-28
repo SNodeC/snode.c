@@ -42,7 +42,7 @@ namespace logger {
 
         static void setVerboseLevel(unsigned short level);
 
-        static void logToFile(const std::string& logFile = "");
+        static void logToFile(const std::string& logFile);
 
         static void quiet();
 

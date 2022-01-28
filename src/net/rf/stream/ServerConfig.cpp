@@ -33,12 +33,12 @@ namespace net::rf::stream {
         serverBindSc->description("Server socket bind options");
         serverBindSc->configurable();
 
-        bindServerHostOpt = serverBindSc->add_option("-a,--host,host", bindInterface, "Bind bluetooth address");
+        bindServerHostOpt = serverBindSc->add_option("-a,--host", bindInterface, "Bind bluetooth address");
         bindServerHostOpt->type_name("[bluetooth address]");
         bindServerHostOpt->default_val(":::::");
         bindServerHostOpt->configurable();
 
-        bindServerChannelOpt = serverBindSc->add_option("-c,--channel,channel", channel, "Bind channel number");
+        bindServerChannelOpt = serverBindSc->add_option("-c,--channel", channel, "Bind channel number");
         bindServerChannelOpt->type_name("[uint8_t]");
         bindServerChannelOpt->default_val(0);
         bindServerChannelOpt->configurable();

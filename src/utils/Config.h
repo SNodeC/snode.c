@@ -43,6 +43,12 @@ namespace utils {
 
         void finish();
 
+        const std::string getLogFile() const;
+
+        bool daemonize() const;
+
+        bool kill() const;
+
         CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
 
         CLI::App* required(CLI::App* app, bool required);
@@ -62,6 +68,9 @@ namespace utils {
 
         bool _required = true;
         bool _dumpConfig = false;
+        bool _daemonize = false;
+        bool _kill = false;
+        std::string _logFile = "";
     };
 
 } // namespace utils

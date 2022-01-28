@@ -29,21 +29,8 @@ namespace net {
 
     Config::Config(const std::string& name)
         : name(name) {
-        serverSc = utils::Config::instance().add_subcommand(name, "Configuration of the server");
+        serverSc = utils::Config::instance().add_subcommand(name, "Server configuration");
         serverSc->configurable();
-        /*
-                serverConnectionSc = serverSc->add_subcommand("connection");
-                serverConnectionSc->description("Options for established client connections");
-                serverConnectionSc->configurable();
-
-                serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--readtimeout,readtimeout", readTimeout, "Read
-           timeout"); serverConnectionReadTimeoutOpt->type_name("[sec]"); serverConnectionReadTimeoutOpt->default_val(60);
-                serverConnectionReadTimeoutOpt->configurable();
-
-                serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--writetimeout,writetimeout", writeTimeout, "Write
-           timeout"); serverConnectionWriteTimeoutOpt->type_name("[sec]"); serverConnectionWriteTimeoutOpt->default_val(60);
-                serverConnectionWriteTimeoutOpt->configurable();
-        */
     }
 
     void Config::finish() {
@@ -51,12 +38,12 @@ namespace net {
         serverConnectionSc->description("Options for established client connections");
         serverConnectionSc->configurable();
 
-        serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--readtimeout,readtimeout", readTimeout, "Read timeout");
+        serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--readtimeout", readTimeout, "Read timeout");
         serverConnectionReadTimeoutOpt->type_name("[sec]");
         serverConnectionReadTimeoutOpt->default_val(60);
         serverConnectionReadTimeoutOpt->configurable();
 
-        serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--writetimeout,writetimeout", writeTimeout, "Write timeout");
+        serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--writetimeout", writeTimeout, "Write timeout");
         serverConnectionWriteTimeoutOpt->type_name("[sec]");
         serverConnectionWriteTimeoutOpt->default_val(60);
         serverConnectionWriteTimeoutOpt->configurable();

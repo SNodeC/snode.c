@@ -53,13 +53,27 @@ namespace utils {
 
         app.description("Configuration file for application " + name);
 
-        CLI::Option* dumpConfigFlg = app.add_flag("-d,--dump-config", _dumpConfig, "Dump config file");
+        CLI::Option* dumpConfigFlg = app.add_flag("-w,--write-config", _dumpConfig, "Write config file");
         dumpConfigFlg->configurable(false);
+
+        CLI::Option* logFileOpt = app.add_option("-l,--log-file", _logFile, "Log to file");
+        logFileOpt->type_name("[path]");
+        logFileOpt->configurable();
+
+        CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
+        allHelpOpt->configurable(false);
+
+        CLI::Option* daemonizeOpt = app.add_flag("-d,--daemonize", _daemonize, "Start application as daemon");
+        daemonizeOpt->configurable();
+
+        CLI::Option* killDaemonOpt = app.add_flag("-k,--kill", _kill, "Start application as daemon");
+        killDaemonOpt->configurable(false);
 
         parse();
 
         if (app.count("--help") == 0) {
             app.set_config("--config", std::string(CONFFILEPATH) + "/" + name + ".conf", "Read an config file", false);
+            parse();
         }
 
         setRequired(_dumpConfig == false);
@@ -77,6 +91,18 @@ namespace utils {
             std::ofstream confFile(std::string(std::string(CONFFILEPATH) + "/" + name + ".conf"));
             confFile << app.config_to_str(true, true);
         }
+    }
+
+    const std::string Config::getLogFile() const {
+        return _logFile;
+    }
+
+    bool Config::daemonize() const {
+        return _daemonize;
+    }
+
+    bool Config::kill() const {
+        return _kill;
     }
 
     CLI::App* Config::add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description) {

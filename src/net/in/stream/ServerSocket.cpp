@@ -20,6 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in::stream {
@@ -30,6 +32,8 @@ namespace net::in::stream {
 
     void ServerSocket::listen(const std::function<void(const Socket& socket, int)>& onError) {
         serverConfig.parse(true);
+
+        VLOG(0) << "Bind Interface: " << serverConfig.getBindInterface();
 
         listen(serverConfig.getBindInterface(), serverConfig.getBindPort(), serverConfig.getBacklog(), onError);
     }

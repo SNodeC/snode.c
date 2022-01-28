@@ -28,7 +28,7 @@ namespace net {
 
     ServerConfig::ServerConfig(const std::string& name)
         : Config(name) {
-        serverBacklogOpt = serverSc->add_option("-b,--backlog,backlog", backlog, "Server listen backlog");
+        serverBacklogOpt = serverSc->add_option("-b,--backlog", backlog, "Server listen backlog");
         serverBacklogOpt->type_name("[backlog]");
         serverBacklogOpt->default_val(5);
         serverBacklogOpt->configurable();

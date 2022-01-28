@@ -33,12 +33,12 @@ namespace net::in::stream {
         serverBindSc->description("Server socket bind options");
         serverBindSc->configurable();
 
-        bindServerHostOpt = serverBindSc->add_option("-a,--host,host", bindInterface, "Bind host name or IP address");
+        bindServerHostOpt = serverBindSc->add_option("-a,--host", bindInterface, "Bind host name or IP address");
         bindServerHostOpt->type_name("[hostname|ip]");
         bindServerHostOpt->default_val("0.0.0.0");
         bindServerHostOpt->configurable();
 
-        bindServerPortOpt = serverBindSc->add_option("-p,--port,port", bindPort, "Bind port number");
+        bindServerPortOpt = serverBindSc->add_option("-p,--port", bindPort, "Bind port number");
         bindServerPortOpt->type_name("[uint16_t]");
         bindServerPortOpt->default_val(0);
         bindServerPortOpt->configurable();
