@@ -4,8 +4,13 @@ var ws_hostname = null;
 var ws_port     = null;
 var ws_endpoint = null;
 
+// var ws = location.protocol === "https:" ? new WebSocket("wss://" + location.host + "/ws/", "tiktaktoe") : new WebSocket("ws://" + location.host + "/ws/", "tiktaktoe");
+
 window.onload = function() {
     document.getElementById("hostname").value = location.hostname;
+    document.getElementById("protocol").value = location.protocol === "https:" ? "wss" : "ws";
+    document.getElementById("port").value = location.port;
+//    document.getElementById("endpoint").value = location.protocol === "https:" ? "/ws" : "/ws"
 }
 
 /**
