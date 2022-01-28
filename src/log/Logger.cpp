@@ -40,7 +40,7 @@ namespace logger {
         conf.setGlobally(el::ConfigurationType::SubsecondPrecision, "2");
         conf.setGlobally(el::ConfigurationType::PerformanceTracking, "false");
         conf.setGlobally(el::ConfigurationType::MaxLogFileSize, "2097152");
-        conf.setGlobally(el::ConfigurationType::LogFlushThreshold, "10");
+        conf.setGlobally(el::ConfigurationType::LogFlushThreshold, "0");
         conf.set(el::Level::Verbose, el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %msg");
 
         el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
