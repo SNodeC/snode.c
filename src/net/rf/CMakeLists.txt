@@ -33,7 +33,6 @@ if(BLUEZ_FOUND)
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
 
-
     set_target_properties(
         net-rf PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-rf
     )

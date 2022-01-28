@@ -27,9 +27,12 @@
 #include "log/Logger.h" // for Logger
 #include "utils/Config.h"
 
+#include <cstdio>  // for fopen, stderr, stdin, stdout
 #include <cstdlib> // for exit
 #include <cstring>
-#include <string> // for string, to_string
+#include <string>     // for string, to_string
+#include <sys/stat.h> // for umask
+#include <unistd.h>   // for fork, chdir, close, setsid, sysconf, _SC_OPEN_MAX
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
