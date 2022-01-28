@@ -19,6 +19,8 @@
 #ifndef NET_IN6_STREAM_SERVERCONFIG_H
 #define NET_IN6_STREAM_SERVERCONFIG_H
 
+#include "net/ServerConfig.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -27,9 +29,23 @@
 
 namespace net::in6::stream {
 
-    class ServerConfig {
+    class ServerConfig : public net::ServerConfig {
     public:
-        ServerConfig();
+        explicit ServerConfig(const std::string& name);
+
+        const std::string& getBindInterface() const;
+
+        uint16_t getBindPort() const;
+
+        int parse(bool required = false);
+
+    private:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerHostOpt = nullptr;
+        CLI::Option* bindServerPortOpt = nullptr;
+
+        std::string bindInterface;
+        uint16_t bindPort;
     };
 
 } // namespace net::in6::stream

@@ -19,6 +19,8 @@ set(NET-IN6_H
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
 add_library(snodec::net-in6 ALIAS net-in6)
 
+target_link_libraries(net-in6 PUBLIC snodec::net)
+
 target_include_directories(
     net-in6
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"

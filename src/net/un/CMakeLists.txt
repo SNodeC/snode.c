@@ -19,6 +19,8 @@ set(NET-UN_H
 add_library(net-un SHARED ${NET-UN_CPP} ${NET-UN_H})
 add_library(snodec::net-un ALIAS net-un)
 
+target_link_libraries(net-un PUBLIC snodec::net)
+
 target_include_directories(
     net-un
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"

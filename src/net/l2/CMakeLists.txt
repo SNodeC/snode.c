@@ -24,14 +24,14 @@ if(BLUEZ_FOUND)
     add_library(net-l2 SHARED ${NET-L2_CPP} ${NET-L2_H})
     add_library(snodec::net-l2 ALIAS net-l2)
 
+    target_link_libraries(net-l2 PUBLIC snodec::net ${BLUEZ_LIBRARIES})
+
     target_include_directories(
         net-l2
         PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
-
-    target_link_libraries(net-l2 PUBLIC ${BLUEZ_LIBRARIES})
 
     set_target_properties(
         net-l2 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-l2

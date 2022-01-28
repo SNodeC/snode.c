@@ -21,12 +21,38 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream {
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::ServerConfig(name) {
+        serverBindSc = serverSc->add_subcommand("bind");
+        serverBindSc->description("Server socket bind options");
+        serverBindSc->configurable();
 
-    ServerConfig::ServerConfig() {
+        bindServerSunPathOpt = serverBindSc->add_option("-a,--path,path", sunPath, "Unix domain socket path");
+        bindServerSunPathOpt->type_name("[hostname|ip]");
+        bindServerSunPathOpt->default_val("/tmp/" + name + ".sock");
+        bindServerSunPathOpt->configurable();
+    }
+
+    const std::string& ServerConfig::getSunPath() const {
+        return sunPath;
+    }
+
+    int ServerConfig::parse([[maybe_unused]] bool required) {
+        //        utils::Config::instance().required(serverSc, required);
+        //        utils::Config::instance().required(serverBindSc, required);
+        //        utils::Config::instance().required(bindServerSunPathOpt, required);
+
+        try {
+            utils::Config::instance().parse();
+        } catch (const CLI::ParseError& e) {
+        }
+
+        return 0;
     }
 
 } // namespace net::un::stream

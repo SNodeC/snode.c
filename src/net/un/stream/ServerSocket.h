@@ -19,8 +19,9 @@
 #ifndef NET_UN_STREAM_STREAM_SERVERSOCKET_H
 #define NET_UN_STREAM_STREAM_SERVERSOCKET_H
 
-#include "core/socket/ServerSocket.h" // IWYU pragma: export
-#include "net/un/stream/Socket.h"     // IWYU pragma: export
+#include "core/socket/ServerSocket.h"   // IWYU pragma: export
+#include "net/un/stream/ServerConfig.h" // IWYU pragma: export
+#include "net/un/stream/Socket.h"       // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,7 +40,14 @@ namespace net::un::stream {
 
         using core::socket::ServerSocket<net::un::stream::Socket>::listen;
 
+        void listen(const std::function<void(const Socket& socket, int)>& onError);
+
         void listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError);
+
+        ServerConfig& getServerConfig();
+
+    private:
+        ServerConfig serverConfig;
     };
 
 } // namespace net::un::stream

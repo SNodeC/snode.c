@@ -21,12 +21,48 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::stream {
 
-    ServerConfig::ServerConfig() {
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::ServerConfig(name) {
+        serverBindSc = serverSc->add_subcommand("bind");
+        serverBindSc->description("Server socket bind options");
+        serverBindSc->configurable();
+
+        bindServerHostOpt = serverBindSc->add_option("-a,--host,host", bindInterface, "Bind host name or IP address");
+        bindServerHostOpt->type_name("[hostname|ip]");
+        bindServerHostOpt->default_val("::");
+        bindServerHostOpt->configurable();
+
+        bindServerPortOpt = serverBindSc->add_option("-p,--port,port", bindPort, "Bind port number");
+        bindServerPortOpt->type_name("[port number]");
+        bindServerPortOpt->default_val(0);
+        bindServerPortOpt->configurable();
+    }
+
+    const std::string& ServerConfig::getBindInterface() const {
+        return bindInterface;
+    }
+
+    uint16_t ServerConfig::getBindPort() const {
+        return bindPort;
+    }
+
+    int ServerConfig::parse(bool required) {
+        utils::Config::instance().required(serverSc, required);
+        utils::Config::instance().required(serverBindSc, required);
+        utils::Config::instance().required(bindServerPortOpt, required);
+
+        try {
+            utils::Config::instance().parse();
+        } catch (const CLI::ParseError& e) {
+        }
+
+        return 0;
     }
 
 } // namespace net::in6::stream

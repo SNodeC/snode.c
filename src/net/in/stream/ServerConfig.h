@@ -19,6 +19,8 @@
 #ifndef NET_IN_STREAM_SERVERCONFIG_H
 #define NET_IN_STREAM_SERVERCONFIG_H
 
+#include "net/ServerConfig.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -33,40 +35,41 @@ namespace CLI {
 
 namespace net::in::stream {
 
-    class ServerConfig {
+    class ServerConfig : public net::ServerConfig {
     public:
         explicit ServerConfig(const std::string& name);
 
-        const std::string& getName() const;
-
-        int getBacklog() const;
+        //        const std::string& getName() const;
 
         const std::string& getBindInterface() const;
 
         uint16_t getBindPort() const;
+        /*
+                int getBacklog() const;
 
-        int getReadTimeout() const;
+                int getReadTimeout() const;
 
-        int getWriteTimeout() const;
-
+                int getWriteTimeout() const;
+        */
         int parse(bool required = false);
 
     private:
-        CLI::App* serverSc = nullptr;
-        CLI::Option* serverBacklogOpt = nullptr;
+        //        CLI::App* serverSc = nullptr;
+
         CLI::App* serverBindSc = nullptr;
         CLI::Option* bindServerHostOpt = nullptr;
         CLI::Option* bindServerPortOpt = nullptr;
-        CLI::App* serverConnectionSc = nullptr;
-        CLI::Option* serverConnectionReadTimeoutOpt = nullptr;
-        CLI::Option* serverConnectionWriteTimeoutOpt = nullptr;
-
-        std::string name;
-        int backlog;
+        /*
+                CLI::Option* serverBacklogOpt = nullptr;
+                CLI::App* serverConnectionSc = nullptr;
+                CLI::Option* serverConnectionReadTimeoutOpt = nullptr;
+                CLI::Option* serverConnectionWriteTimeoutOpt = nullptr;
+        */
         std::string bindInterface;
         uint16_t bindPort;
-        int readTimeout;
-        int writeTimeout;
+        //        int backlog;
+        //        int readTimeout;
+        //        int writeTimeout;
     };
 
 } // namespace net::in::stream

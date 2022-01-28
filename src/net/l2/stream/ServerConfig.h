@@ -19,6 +19,8 @@
 #ifndef NET_L2_STREAM_SERVERCONFIG_H
 #define NET_L2_STREAM_SERVERCONFIG_H
 
+#include "net/ServerConfig.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -27,9 +29,23 @@
 
 namespace net::l2::stream {
 
-    class ServerConfig {
+    class ServerConfig : public net::ServerConfig {
     public:
-        ServerConfig();
+        explicit ServerConfig(const std::string& name);
+
+        const std::string& getBindInterface() const;
+
+        uint16_t getPsm() const;
+
+        int parse(bool required = false);
+
+    private:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerHostOpt = nullptr;
+        CLI::Option* bindServerPsmOpt = nullptr;
+
+        std::string bindInterface;
+        uint16_t psm;
     };
 
 } // namespace net::l2::stream

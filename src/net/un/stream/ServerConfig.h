@@ -19,6 +19,8 @@
 #ifndef NET_UN_STREAM_SERVERCONFIG_H
 #define NET_UN_STREAM_SERVERCONFIG_H
 
+#include "net/ServerConfig.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -27,9 +29,19 @@
 
 namespace net::un::stream {
 
-    class ServerConfig {
+    class ServerConfig : public net::ServerConfig {
     public:
-        ServerConfig();
+        explicit ServerConfig(const std::string& name);
+
+        const std::string& getSunPath() const;
+
+        int parse(bool required = false);
+
+    private:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerSunPathOpt = nullptr;
+
+        std::string sunPath;
     };
 
 } // namespace net::un::stream

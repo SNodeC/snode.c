@@ -16,38 +16,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_SERVERCONFIG_H
-#define NET_RF_STREAM_SERVERCONFIG_H
-
-#include "net/ServerConfig.h"
+#ifndef NET_CONFIG_H
+#define NET_CONFIG_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net {
 
-    class ServerConfig : public net::ServerConfig {
+    class Config {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit Config(const std::string& name);
 
-        const std::string& getBindInterface() const;
+        const std::string& getName() const;
 
-        uint8_t getChannel() const;
+        int getReadTimeout() const;
 
-        int parse(bool required = false);
+        int getWriteTimeout() const;
+
+    protected:
+        CLI::App* serverSc = nullptr;
 
     private:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerHostOpt = nullptr;
-        CLI::Option* bindServerChannelOpt = nullptr;
+        CLI::App* serverConnectionSc = nullptr;
+        CLI::Option* serverConnectionReadTimeoutOpt = nullptr;
+        CLI::Option* serverConnectionWriteTimeoutOpt = nullptr;
 
-        std::string bindInterface;
-        uint8_t channel;
+        std::string name;
+        int readTimeout;
+        int writeTimeout;
     };
 
-} // namespace net::rf::stream
+} // namespace net
 
-#endif
+#endif // CONFIG_H

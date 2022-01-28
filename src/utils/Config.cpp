@@ -51,12 +51,14 @@ namespace utils {
 
         app.description("Configuration file for application " + name);
 
-        app.set_config("--config", name + ".conf", "Read an config file", false);
-
         CLI::Option* dumpConfigFlg = app.add_flag("-d,--dump-config", _dumpConfig, "Dump config file");
         dumpConfigFlg->configurable(false);
 
         parse();
+
+        if (app.count("--help") == 0) {
+            app.set_config("--config", name + ".conf", "Read an config file", false);
+        }
 
         setRequired(_dumpConfig == false);
 

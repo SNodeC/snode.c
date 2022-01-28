@@ -8,6 +8,12 @@ set(express_DEPENDENCIES httpserver)
 set(httpserver_DEPENDENCIES http)
 set(httpclient_DEPENDENCIES http)
 
+set(net-in_DEPENDENCIES net)
+set(net-in6_DEPENDENCIES net)
+set(net-l2_DEPENDENCIES net)
+set(net-rf_DEPENDENCIES net)
+set(net-un_DEPENDENCIES net)
+
 set(core-legacy_DEPENDENCIES core)
 set(core-tls_DEPENDENCIES core)
 

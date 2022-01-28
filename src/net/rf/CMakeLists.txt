@@ -24,6 +24,8 @@ if(BLUEZ_FOUND)
     add_library(net-rf SHARED ${NET-RF_CPP} ${NET-RF_H})
     add_library(snodec::net-rf ALIAS net-rf)
 
+    target_link_libraries(net-rf PUBLIC snodec::net ${BLUEZ_LIBRARIES})
+
     target_include_directories(
         net-rf
         PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -31,7 +33,6 @@ if(BLUEZ_FOUND)
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
 
-    target_link_libraries(net-rf PUBLIC ${BLUEZ_LIBRARIES})
 
     set_target_properties(
         net-rf PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-rf

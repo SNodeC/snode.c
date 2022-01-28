@@ -16,38 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_SERVERCONFIG_H
-#define NET_RF_STREAM_SERVERCONFIG_H
-
 #include "net/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net {
 
-    class ServerConfig : public net::ServerConfig {
-    public:
-        explicit ServerConfig(const std::string& name);
+    ServerConfig::ServerConfig(const std::string& name)
+        : Config(name) {
+        serverBacklogOpt = serverSc->add_option("-b,--backlog,backlog", backlog, "Server listen backlog");
+        serverBacklogOpt->type_name("[backlog]");
+        serverBacklogOpt->default_val(5);
+        serverBacklogOpt->configurable();
+    }
 
-        const std::string& getBindInterface() const;
+    int ServerConfig::getBacklog() const {
+        return backlog;
+    }
 
-        uint8_t getChannel() const;
-
-        int parse(bool required = false);
-
-    private:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerHostOpt = nullptr;
-        CLI::Option* bindServerChannelOpt = nullptr;
-
-        std::string bindInterface;
-        uint8_t channel;
-    };
-
-} // namespace net::rf::stream
-
-#endif
+} // namespace net

@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/EventLoop.h"
-#include "log/Logger.h"
 #include "utils/CLI11.hpp"
 #include "utils/Config.h"
 
@@ -29,16 +27,19 @@
 
 namespace net::in::stream {
 
-    ServerConfig::ServerConfig(const std::string& name) {
-        this->name = name;
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::ServerConfig(name) {
+        /*
+                this->name = name;
 
-        serverSc = utils::Config::instance().add_subcommand(name, "Configuration of the server");
-        serverSc->configurable();
+                serverSc = utils::Config::instance().add_subcommand(name, "Configuration of the server");
+                serverSc->configurable();
 
-        serverBacklogOpt = serverSc->add_option("-b,--backlog,backlog", backlog, "Server listen backlog");
-        serverBacklogOpt->type_name("[backlog]");
-        serverBacklogOpt->default_val(5);
-        serverBacklogOpt->configurable();
+                serverBacklogOpt = serverSc->add_option("-b,--backlog,backlog", backlog, "Server listen backlog");
+                serverBacklogOpt->type_name("[backlog]");
+                serverBacklogOpt->default_val(5);
+                serverBacklogOpt->configurable();
+        */
 
         serverBindSc = serverSc->add_subcommand("bind");
         serverBindSc->description("Server socket bind options");
@@ -54,27 +55,19 @@ namespace net::in::stream {
         bindServerPortOpt->default_val(0);
         bindServerPortOpt->configurable();
 
-        serverConnectionSc = serverSc->add_subcommand("connection");
-        serverConnectionSc->description("Options for established client connections");
-        serverConnectionSc->configurable();
+        /*
+                serverConnectionSc = serverSc->add_subcommand("connection");
+                serverConnectionSc->description("Options for established client connections");
+                serverConnectionSc->configurable();
 
-        serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--readtimeout,readtimeout", readTimeout, "Read timeout");
-        serverConnectionReadTimeoutOpt->type_name("[sec]");
-        serverConnectionReadTimeoutOpt->default_val(60);
-        serverConnectionReadTimeoutOpt->configurable();
+                serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--readtimeout,readtimeout", readTimeout, "Read
+           timeout"); serverConnectionReadTimeoutOpt->type_name("[sec]"); serverConnectionReadTimeoutOpt->default_val(60);
+                serverConnectionReadTimeoutOpt->configurable();
 
-        serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--writetimeout,writetimeout", writeTimeout, "Write timeout");
-        serverConnectionWriteTimeoutOpt->type_name("[sec]");
-        serverConnectionWriteTimeoutOpt->default_val(60);
-        serverConnectionWriteTimeoutOpt->configurable();
-    }
-
-    const std::string& ServerConfig::getName() const {
-        return name;
-    }
-
-    int ServerConfig::getBacklog() const {
-        return backlog;
+                serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--writetimeout,writetimeout", writeTimeout, "Write
+           timeout"); serverConnectionWriteTimeoutOpt->type_name("[sec]"); serverConnectionWriteTimeoutOpt->default_val(60);
+                serverConnectionWriteTimeoutOpt->configurable();
+        */
     }
 
     const std::string& ServerConfig::getBindInterface() const {
@@ -84,21 +77,25 @@ namespace net::in::stream {
     uint16_t ServerConfig::getBindPort() const {
         return bindPort;
     }
+    /*
+        int ServerConfig::getBacklog() const {
+            return backlog;
+        }
 
-    int ServerConfig::getReadTimeout() const {
-        return readTimeout;
-    }
+        int ServerConfig::getReadTimeout() const {
+            return readTimeout;
+        }
 
-    int ServerConfig::getWriteTimeout() const {
-        return writeTimeout;
-    }
-
+        int ServerConfig::getWriteTimeout() const {
+            return writeTimeout;
+        }
+    */
     int ServerConfig::parse(bool required) {
-        try {
-            utils::Config::instance().required(serverSc, required);
-            utils::Config::instance().required(serverBindSc, required);
-            utils::Config::instance().required(bindServerPortOpt, required);
+        utils::Config::instance().required(serverSc, required);
+        utils::Config::instance().required(serverBindSc, required);
+        utils::Config::instance().required(bindServerPortOpt, required);
 
+        try {
             utils::Config::instance().parse();
         } catch (const CLI::ParseError& e) {
         }

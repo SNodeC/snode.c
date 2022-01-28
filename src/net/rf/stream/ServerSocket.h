@@ -19,8 +19,9 @@
 #ifndef NET_RF_STREAM_SERVERSOCKET_H
 #define NET_RF_STREAM_SERVERSOCKET_H
 
-#include "core/socket/ServerSocket.h" // IWYU pragma: export
-#include "net/rf/stream/Socket.h"     // IWYU pragma: export
+#include "core/socket/ServerSocket.h"   // IWYU pragma: export
+#include "net/rf/stream/ServerConfig.h" // IWYU pragma: export
+#include "net/rf/stream/Socket.h"       // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,12 +41,19 @@ namespace net::rf::stream {
 
         using core::socket::ServerSocket<net::rf::stream::Socket>::listen;
 
+        void listen(const std::function<void(const Socket& socket, int)>& onError);
+
         void listen(uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
         void listen(const std::string& address, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
         void
         listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError);
+
+        ServerConfig& getServerConfig();
+
+    private:
+        ServerConfig serverConfig;
     };
 
 } // namespace net::rf::stream

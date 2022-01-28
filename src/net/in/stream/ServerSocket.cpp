@@ -36,7 +36,7 @@ namespace net::in::stream {
     void ServerSocket::listen(const std::function<void(const Socket& socket, int)>& onError) {
         serverConfig.parse(true);
 
-        listen(SocketAddress(serverConfig.getBindInterface(), serverConfig.getBindPort()), serverConfig.getBacklog(), onError);
+        listen(serverConfig.getBindInterface(), serverConfig.getBindPort(), serverConfig.getBacklog(), onError);
     }
 
     void ServerSocket::listen(uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError) {

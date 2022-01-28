@@ -19,8 +19,9 @@
 #ifndef NET_IN6_STREAM_STREAM_SERVERSOCKET_H
 #define NET_IN6_STREAM_STREAM_SERVERSOCKET_H
 
-#include "core/socket/ServerSocket.h" // IWYU pragma: export
-#include "net/in6/stream/Socket.h"    // IWYU pragma: export
+#include "core/socket/ServerSocket.h"    // IWYU pragma: export
+#include "net/in6/stream/ServerConfig.h" // IWYU pragma: export
+#include "net/in6/stream/Socket.h"       // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,12 +41,19 @@ namespace net::in6::stream {
 
         using core::socket::ServerSocket<net::in6::stream::Socket>::listen;
 
+        void listen(const std::function<void(const Socket& socket, int)>& onError);
+
         void listen(uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
         void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
         void
         listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError);
+
+        ServerConfig& getServerConfig();
+
+    private:
+        ServerConfig serverConfig;
     };
 
 } // namespace net::in6::stream

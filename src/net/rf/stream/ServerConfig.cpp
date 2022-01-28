@@ -21,12 +21,48 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rf::stream {
 
-    ServerConfig::ServerConfig() {
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::ServerConfig(name) {
+        serverBindSc = serverSc->add_subcommand("bind");
+        serverBindSc->description("Server socket bind options");
+        serverBindSc->configurable();
+
+        bindServerHostOpt = serverBindSc->add_option("-a,--host,host", bindInterface, "Bind host name or IP address");
+        bindServerHostOpt->type_name("[hostname|ip]");
+        bindServerHostOpt->default_val(":::::");
+        bindServerHostOpt->configurable();
+
+        bindServerChannelOpt = serverBindSc->add_option("-c,--channel,channel", channel, "Bind port number");
+        bindServerChannelOpt->type_name("[port number]");
+        bindServerChannelOpt->default_val(0);
+        bindServerChannelOpt->configurable();
+    }
+
+    const std::string& ServerConfig::getBindInterface() const {
+        return bindInterface;
+    }
+
+    uint8_t ServerConfig::getChannel() const {
+        return channel;
+    }
+    int ServerConfig::parse(bool required) {
+        utils::Config::instance().required(serverSc, required);
+        utils::Config::instance().required(serverBindSc, required);
+        utils::Config::instance().required(bindServerHostOpt, required);
+        utils::Config::instance().required(bindServerChannelOpt, required);
+
+        try {
+            utils::Config::instance().parse();
+        } catch (const CLI::ParseError& e) {
+        }
+
+        return 0;
     }
 
 } // namespace net::rf::stream
