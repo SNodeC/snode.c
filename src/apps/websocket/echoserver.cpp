@@ -31,7 +31,7 @@ using namespace express;
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    legacy::in::WebApp legacyApp("legacy-echoserver");
+    legacy::in::WebApp legacyApp("legacy");
 
     legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
         if (req.url == "/" || req.url == "/index.html") {
@@ -73,7 +73,8 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.listen(8080, [](const legacy::in::WebApp::Socket& socket, int err) -> void {
+    legacyApp.listen([](const tls::in::WebApp::Socket& socket, int err) -> void {
+        //    legacyApp.listen(8080, [](const legacy::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         } else {
@@ -82,7 +83,7 @@ int main(int argc, char* argv[]) {
     });
 
     {
-        tls::in::WebApp tlsApp("tls-echoserver", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+        tls::in::WebApp tlsApp("tls", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
         tlsApp.get("/", [] MIDDLEWARE(req, res, next) {
             if (req.url == "/" || req.url == "/index.html") {
@@ -124,7 +125,8 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.listen(8088, [](const tls::in::WebApp::Socket& socket, int err) -> void {
+        tlsApp.listen([](const tls::in::WebApp::Socket& socket, int err) -> void {
+            //        tlsApp.listen(8088, [](const tls::in::WebApp::Socket& socket, int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             } else {

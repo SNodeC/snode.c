@@ -33,9 +33,11 @@ namespace net::un::stream {
         serverBindSc->configurable();
 
         bindServerSunPathOpt = serverBindSc->add_option("-a,--path,path", sunPath, "Unix domain socket path");
-        bindServerSunPathOpt->type_name("[hostname|ip]");
+        bindServerSunPathOpt->type_name("[filesystem path]");
         bindServerSunPathOpt->default_val("/tmp/" + name + ".sock");
         bindServerSunPathOpt->configurable();
+
+        finish();
     }
 
     const std::string& ServerConfig::getSunPath() const {

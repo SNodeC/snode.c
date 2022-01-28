@@ -39,9 +39,11 @@ namespace net::in6::stream {
         bindServerHostOpt->configurable();
 
         bindServerPortOpt = serverBindSc->add_option("-p,--port,port", bindPort, "Bind port number");
-        bindServerPortOpt->type_name("[port number]");
+        bindServerPortOpt->type_name("[uint16_t]");
         bindServerPortOpt->default_val(0);
         bindServerPortOpt->configurable();
+
+        finish();
     }
 
     const std::string& ServerConfig::getBindInterface() const {

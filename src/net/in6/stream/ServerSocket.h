@@ -33,13 +33,13 @@
 
 namespace net::in6::stream {
 
-    class ServerSocket : public core::socket::ServerSocket<net::in6::stream::Socket> {
-        using Super = core::socket::ServerSocket<net::in6::stream::Socket>;
+    class ServerSocket : public core::socket::ServerSocket<net::in6::stream::Socket, net::in6::stream::ServerConfig> {
+        using Super = core::socket::ServerSocket<net::in6::stream::Socket, net::in6::stream::ServerConfig>;
 
     public:
         explicit ServerSocket(const std::string& name);
 
-        using core::socket::ServerSocket<net::in6::stream::Socket>::listen;
+        using core::socket::ServerSocket<net::in6::stream::Socket, net::in6::stream::ServerConfig>::listen;
 
         void listen(const std::function<void(const Socket& socket, int)>& onError);
 
@@ -49,11 +49,6 @@ namespace net::in6::stream {
 
         void
         listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError);
-
-        ServerConfig& getServerConfig();
-
-    private:
-        ServerConfig serverConfig;
     };
 
 } // namespace net::in6::stream

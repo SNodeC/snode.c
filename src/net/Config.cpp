@@ -31,7 +31,22 @@ namespace net {
         : name(name) {
         serverSc = utils::Config::instance().add_subcommand(name, "Configuration of the server");
         serverSc->configurable();
+        /*
+                serverConnectionSc = serverSc->add_subcommand("connection");
+                serverConnectionSc->description("Options for established client connections");
+                serverConnectionSc->configurable();
 
+                serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--readtimeout,readtimeout", readTimeout, "Read
+           timeout"); serverConnectionReadTimeoutOpt->type_name("[sec]"); serverConnectionReadTimeoutOpt->default_val(60);
+                serverConnectionReadTimeoutOpt->configurable();
+
+                serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--writetimeout,writetimeout", writeTimeout, "Write
+           timeout"); serverConnectionWriteTimeoutOpt->type_name("[sec]"); serverConnectionWriteTimeoutOpt->default_val(60);
+                serverConnectionWriteTimeoutOpt->configurable();
+        */
+    }
+
+    void Config::finish() {
         serverConnectionSc = serverSc->add_subcommand("connection");
         serverConnectionSc->description("Options for established client connections");
         serverConnectionSc->configurable();

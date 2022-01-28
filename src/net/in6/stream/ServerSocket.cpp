@@ -25,8 +25,7 @@
 namespace net::in6::stream {
 
     ServerSocket::ServerSocket(const std::string& name)
-        : Super(name)
-        , serverConfig(name) {
+        : Super(name) {
     }
 
     void ServerSocket::listen(const std::function<void(const Socket& socket, int)>& onError) {
@@ -48,10 +47,6 @@ namespace net::in6::stream {
                               int backlog,
                               const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(ipOrHostname, port), backlog, onError);
-    }
-
-    ServerConfig& ServerSocket::getServerConfig() {
-        return serverConfig;
     }
 
 } // namespace net::in6::stream

@@ -33,13 +33,13 @@
 
 namespace net::l2::stream {
 
-    class ServerSocket : public core::socket::ServerSocket<net::l2::stream::Socket> {
-        using Super = core::socket::ServerSocket<net::l2::stream::Socket>;
+    class ServerSocket : public core::socket::ServerSocket<net::l2::stream::Socket, net::l2::stream::ServerConfig> {
+        using Super = core::socket::ServerSocket<net::l2::stream::Socket, net::l2::stream::ServerConfig>;
 
     public:
         explicit ServerSocket(const std::string& name);
 
-        using core::socket::ServerSocket<net::l2::stream::Socket>::listen;
+        using core::socket::ServerSocket<net::l2::stream::Socket, net::l2::stream::ServerConfig>::listen;
 
         void listen(const std::function<void(const Socket& socket, int)>& onError);
 
@@ -48,11 +48,6 @@ namespace net::l2::stream {
         void listen(const std::string& address, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
         void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError);
-
-        ServerConfig& getServerConfig();
-
-    private:
-        ServerConfig serverConfig;
     };
 
 } // namespace net::l2::stream

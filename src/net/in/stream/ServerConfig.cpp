@@ -29,18 +29,6 @@ namespace net::in::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::ServerConfig(name) {
-        /*
-                this->name = name;
-
-                serverSc = utils::Config::instance().add_subcommand(name, "Configuration of the server");
-                serverSc->configurable();
-
-                serverBacklogOpt = serverSc->add_option("-b,--backlog,backlog", backlog, "Server listen backlog");
-                serverBacklogOpt->type_name("[backlog]");
-                serverBacklogOpt->default_val(5);
-                serverBacklogOpt->configurable();
-        */
-
         serverBindSc = serverSc->add_subcommand("bind");
         serverBindSc->description("Server socket bind options");
         serverBindSc->configurable();
@@ -51,23 +39,11 @@ namespace net::in::stream {
         bindServerHostOpt->configurable();
 
         bindServerPortOpt = serverBindSc->add_option("-p,--port,port", bindPort, "Bind port number");
-        bindServerPortOpt->type_name("[port number]");
+        bindServerPortOpt->type_name("[uint16_t]");
         bindServerPortOpt->default_val(0);
         bindServerPortOpt->configurable();
 
-        /*
-                serverConnectionSc = serverSc->add_subcommand("connection");
-                serverConnectionSc->description("Options for established client connections");
-                serverConnectionSc->configurable();
-
-                serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--readtimeout,readtimeout", readTimeout, "Read
-           timeout"); serverConnectionReadTimeoutOpt->type_name("[sec]"); serverConnectionReadTimeoutOpt->default_val(60);
-                serverConnectionReadTimeoutOpt->configurable();
-
-                serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--writetimeout,writetimeout", writeTimeout, "Write
-           timeout"); serverConnectionWriteTimeoutOpt->type_name("[sec]"); serverConnectionWriteTimeoutOpt->default_val(60);
-                serverConnectionWriteTimeoutOpt->configurable();
-        */
+        finish();
     }
 
     const std::string& ServerConfig::getBindInterface() const {
@@ -77,19 +53,7 @@ namespace net::in::stream {
     uint16_t ServerConfig::getBindPort() const {
         return bindPort;
     }
-    /*
-        int ServerConfig::getBacklog() const {
-            return backlog;
-        }
 
-        int ServerConfig::getReadTimeout() const {
-            return readTimeout;
-        }
-
-        int ServerConfig::getWriteTimeout() const {
-            return writeTimeout;
-        }
-    */
     int ServerConfig::parse(bool required) {
         utils::Config::instance().required(serverSc, required);
         utils::Config::instance().required(serverBindSc, required);

@@ -33,15 +33,17 @@ namespace net::l2::stream {
         serverBindSc->description("Server socket bind options");
         serverBindSc->configurable();
 
-        bindServerHostOpt = serverBindSc->add_option("-a,--host,host", bindInterface, "Bind host name or IP address");
-        bindServerHostOpt->type_name("[hostname|ip]");
+        bindServerHostOpt = serverBindSc->add_option("-a,--host,host", bindInterface, "Bind bluetooth address");
+        bindServerHostOpt->type_name("[bluetooth address]");
         bindServerHostOpt->default_val(":::::");
         bindServerHostOpt->configurable();
 
-        bindServerPsmOpt = serverBindSc->add_option("-p,--psm,psm", psm, "Bind port number");
-        bindServerPsmOpt->type_name("[port number]");
+        bindServerPsmOpt = serverBindSc->add_option("-p,--psm,psm", psm, "Bind protocol service multiplexer");
+        bindServerPsmOpt->type_name("[uint16_t]");
         bindServerPsmOpt->default_val(0);
         bindServerPsmOpt->configurable();
+
+        finish();
     }
 
     const std::string& ServerConfig::getBindInterface() const {

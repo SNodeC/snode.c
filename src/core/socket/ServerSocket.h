@@ -28,22 +28,27 @@
 
 namespace core::socket {
 
-    template <typename SocketT>
+    template <typename SocketT, typename ServerConfigT>
     class ServerSocket {
     protected:
         explicit ServerSocket(const std::string& name)
-            : name(name) {
+            : serverConfig(name) {
         }
 
     public:
         using Socket = SocketT;
+        using ServerConfig = ServerConfigT;
 
         virtual void listen(const typename Socket::SocketAddress& bindAddress,
                             int backlog,
                             const std::function<void(const Socket& socket, int)>& onError) const = 0;
 
+        ServerConfig& getServerConfig() {
+            return serverConfig;
+        }
+
     protected:
-        std::string name;
+        ServerConfig serverConfig;
     };
 
 } // namespace core::socket

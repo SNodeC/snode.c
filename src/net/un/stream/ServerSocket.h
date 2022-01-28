@@ -32,22 +32,17 @@
 
 namespace net::un::stream {
 
-    class ServerSocket : public core::socket::ServerSocket<net::un::stream::Socket> {
-        using Super = core::socket::ServerSocket<net::un::stream::Socket>;
+    class ServerSocket : public core::socket::ServerSocket<net::un::stream::Socket, net::un::stream::ServerConfig> {
+        using Super = core::socket::ServerSocket<net::un::stream::Socket, net::un::stream::ServerConfig>;
 
     public:
         explicit ServerSocket(const std::string& name);
 
-        using core::socket::ServerSocket<net::un::stream::Socket>::listen;
+        using core::socket::ServerSocket<net::un::stream::Socket, net::un::stream::ServerConfig>::listen;
 
         void listen(const std::function<void(const Socket& socket, int)>& onError);
 
         void listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError);
-
-        ServerConfig& getServerConfig();
-
-    private:
-        ServerConfig serverConfig;
     };
 
 } // namespace net::un::stream

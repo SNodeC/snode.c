@@ -36,13 +36,16 @@ namespace net {
     public:
         explicit Config(const std::string& name);
 
+    protected:
+        void finish();
+
+    public:
         const std::string& getName() const;
 
         int getReadTimeout() const;
 
         int getWriteTimeout() const;
 
-    protected:
         CLI::App* serverSc = nullptr;
 
     private:

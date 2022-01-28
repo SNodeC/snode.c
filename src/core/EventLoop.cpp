@@ -40,8 +40,6 @@
 /* Must be implemented in every variant of a multiplexer api */
 core::EventDispatcher& EventDispatcher();
 
-#define CONFFILEPATH "/home/voc/etc/snode.c/"
-
 namespace core {
 
     core::EventDispatcher& EventLoop::eventDispatcher = ::EventDispatcher();
@@ -80,7 +78,7 @@ namespace core {
 
         EventLoop::initialized = true;
 
-        utils::Config::instance().init(std::string(CONFFILEPATH) + std::string(basename(argv[0])), argc, argv);
+        utils::Config::instance().init(std::string(basename(argv[0])), argc, argv);
     }
 
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {

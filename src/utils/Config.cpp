@@ -28,6 +28,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define CONFFILEPATH "/home/voc/etc/snode.c"
+
 namespace utils {
 
     CLI::App Config::app;
@@ -57,7 +59,7 @@ namespace utils {
         parse();
 
         if (app.count("--help") == 0) {
-            app.set_config("--config", name + ".conf", "Read an config file", false);
+            app.set_config("--config", std::string(CONFFILEPATH) + "/" + name + ".conf", "Read an config file", false);
         }
 
         setRequired(_dumpConfig == false);
@@ -69,10 +71,10 @@ namespace utils {
         parse(true);
 
         if (_dumpConfig) {
-            std::cout << "Dumping config file: " << name + ".conf" << std::endl;
+            std::cout << "Dumping config file: " << std::string(CONFFILEPATH) + "/" + name + ".conf" << std::endl;
             std::cout << app.config_to_str(true, true) << std::endl;
 
-            std::ofstream confFile(std::string(name + ".conf"));
+            std::ofstream confFile(std::string(std::string(CONFFILEPATH) + "/" + name + ".conf"));
             confFile << app.config_to_str(true, true);
         }
     }

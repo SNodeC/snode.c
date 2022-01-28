@@ -30,8 +30,7 @@
 namespace net::un::stream {
 
     ServerSocket::ServerSocket(const std::string& name)
-        : Super(name)
-        , serverConfig(name) {
+        : Super(name) {
     }
 
     void ServerSocket::listen(const std::function<void(const Socket&, int)>& onError) {
@@ -46,10 +45,6 @@ namespace net::un::stream {
         } else {
             listen(SocketAddress(sunPath), backlog, onError);
         }
-    }
-
-    ServerConfig& ServerSocket::getServerConfig() {
-        return serverConfig;
     }
 
 } // namespace net::un::stream
