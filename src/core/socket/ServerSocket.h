@@ -39,17 +39,11 @@ namespace core::socket {
         using Socket = SocketT;
         using ServerConfig = ServerConfigT;
 
+        virtual void listen(const std::function<void(const Socket& socket, int)>& onError) const = 0;
+
         virtual void listen(const typename Socket::SocketAddress& bindAddress,
                             int backlog,
                             const std::function<void(const Socket& socket, int)>& onError) const = 0;
-        /*
-                ServerConfig& getServerConfig() {
-                    return serverConfig;
-                }
-
-            protected:
-                ServerConfig serverConfig;
-        */
     };
 
 } // namespace core::socket

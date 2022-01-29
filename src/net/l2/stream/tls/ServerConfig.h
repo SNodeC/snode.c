@@ -34,7 +34,7 @@ namespace net::l2::stream::tls {
         : public net::ConfigTls
         , public net::l2::stream::ServerConfig {
     public:
-        ServerConfig(const std::string& name)
+        explicit ServerConfig(const std::string& name)
             : net::l2::stream::ServerConfig(name) {
             net::l2::stream::ServerConfig::finish();
             net::ConfigTls::finish(serverSc);

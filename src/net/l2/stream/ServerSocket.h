@@ -41,8 +41,6 @@ namespace net::l2::stream {
 
         using core::socket::ServerSocket<net::l2::stream::Socket, net::l2::stream::ServerConfig>::listen;
 
-        void listen(const std::function<void(const Socket& socket, int)>& onError);
-
         void listen(uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
         void listen(const std::string& address, int backlog, const std::function<void(const Socket& socket, int)>& onError);

@@ -34,11 +34,7 @@ namespace net::un::stream::tls {
         : public net::ConfigTls
         , public net::un::stream::ServerConfig {
     public:
-        ServerConfig(const std::string& name)
-            : net::un::stream::ServerConfig(name) {
-            net::un::stream::ServerConfig::finish();
-            net::ConfigTls::finish(serverSc);
-        }
+        explicit ServerConfig(const std::string& name);
     };
 
 } // namespace net::un::stream::tls

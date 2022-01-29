@@ -16,11 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_TLS_SERVERCONFIG_H
-#define NET_IN6_STREAM_TLS_SERVERCONFIG_H
-
-#include "net/ConfigTls.h"               // IWYU pragma: export
-#include "net/in6/stream/ServerConfig.h" // IWYU pragma: export
+#include "net/un/stream/tls/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,19 +24,12 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in6::stream::tls {
+namespace net::un::stream::tls {
 
-    class ServerConfig
-        : public net::ConfigTls
-        , public net::in6::stream::ServerConfig {
-    public:
-        explicit ServerConfig(const std::string& name)
-            : net::in6::stream::ServerConfig(name) {
-            net::in6::stream::ServerConfig::finish();
-            net::ConfigTls::finish(serverSc);
-        }
-    };
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::un::stream::ServerConfig(name) {
+        net::un::stream::ServerConfig::finish();
+        net::ConfigTls::finish(serverSc);
+    }
 
-} // namespace net::in6::stream::tls
-
-#endif // NET_IN6_STREAM_TLS_SERVERCONFIG_H
+} // namespace net::un::stream::tls

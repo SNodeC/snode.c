@@ -20,6 +20,7 @@
 #define NET_UN_STREAM_SERVERCONFIG_H
 
 #include "net/ServerConfig.h"
+#include "net/un/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,7 +41,9 @@ namespace net::un::stream {
 
         const std::string& getSunPath() const;
 
-        int parse(bool required = false);
+        const net::un::SocketAddress getSocketAddress() const;
+
+        int parse(bool required = false) const;
 
     private:
         CLI::App* serverBindSc = nullptr;

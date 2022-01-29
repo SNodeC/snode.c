@@ -28,14 +28,14 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename ServerSocketConfigT, typename ServerSocketT, typename SocketContextFactoryT>
+    template <typename ServerConfigT, typename ServerSocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public core::socket::stream::SocketServer<ServerSocketConfigT,
+        : public core::socket::stream::SocketServer<ServerConfigT,
                                                     ServerSocketT,
                                                     core::socket::stream::legacy::SocketAcceptor<typename ServerSocketT::Socket>,
                                                     SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketServer<ServerSocketConfigT,
+        using Super = core::socket::stream::SocketServer<ServerConfigT,
                                                          ServerSocketT,
                                                          core::socket::stream::legacy::SocketAcceptor<typename ServerSocketT::Socket>,
                                                          SocketContextFactoryT>;

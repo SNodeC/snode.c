@@ -20,6 +20,7 @@
 #define NET_RF_STREAM_SERVERCONFIG_H
 
 #include "net/ServerConfig.h"
+#include "net/rf/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,7 +44,9 @@ namespace net::rf::stream {
 
         uint8_t getChannel() const;
 
-        int parse(bool required = false);
+        const net::rf::SocketAddress getSocketAddress() const;
+
+        int parse(bool required = false) const;
 
     private:
         CLI::App* serverBindSc = nullptr;

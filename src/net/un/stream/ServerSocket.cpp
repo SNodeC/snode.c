@@ -33,12 +33,6 @@ namespace net::un::stream {
         : Super(name) {
     }
 
-    void ServerSocket::listen(const std::function<void(const Socket&, int)>& onError) {
-        serverConfig.parse(true);
-
-        listen(serverConfig.getSunPath(), serverConfig.getBacklog(), onError);
-    }
-
     void ServerSocket::listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
             PLOG(ERROR) << "listen: sunPath: " << sunPath;

@@ -32,12 +32,12 @@
 
 namespace core::socket::stream {
 
-    template <typename ServerSocketConfigT, typename ServerSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
+    template <typename ServerConfigT, typename ServerSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
     class SocketServer : public ServerSocketT {
         SocketServer() = delete;
 
     protected:
-        using ServerSocketConfig = ServerSocketConfigT;
+        using ServerConfig = ServerConfigT;
         using ServerSocket = ServerSocketT;
         using SocketAcceptor = SocketAcceptorT;
         using SocketContextFactory = SocketContextFactoryT;
@@ -65,6 +65,12 @@ namespace core::socket::stream {
 
         using ServerSocket::listen;
 
+        void listen(const std::function<void(const Socket& socket, int)>& onError) const override {
+            serverConfig.parse(true);
+
+            listen(serverConfig.getSocketAddress(), serverConfig.getBacklog(), onError);
+        }
+
         void listen(const SocketAddress& bindAddress,
                     int backlog,
                     const std::function<void(const Socket& socket, int)>& onError) const override {
@@ -89,12 +95,12 @@ namespace core::socket::stream {
             return socketContextFactory;
         }
 
-        ServerSocketConfig& getServerConfig() {
+        ServerConfig& getServerConfig() {
             return serverConfig;
         }
 
     protected:
-        ServerSocketConfig serverConfig;
+        ServerConfig serverConfig;
 
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 

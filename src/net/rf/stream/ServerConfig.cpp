@@ -42,8 +42,6 @@ namespace net::rf::stream {
         bindServerChannelOpt->type_name("[uint8_t]");
         bindServerChannelOpt->default_val(0);
         bindServerChannelOpt->configurable();
-
-        finish();
     }
 
     const std::string& ServerConfig::getBindInterface() const {
@@ -53,7 +51,12 @@ namespace net::rf::stream {
     uint8_t ServerConfig::getChannel() const {
         return channel;
     }
-    int ServerConfig::parse(bool required) {
+
+    const SocketAddress ServerConfig::getSocketAddress() const {
+        return net::rf::SocketAddress(bindInterface, channel);
+    }
+
+    int ServerConfig::parse(bool required) const {
         utils::Config::instance().required(serverSc, required);
         utils::Config::instance().required(serverBindSc, required);
         utils::Config::instance().required(bindServerHostOpt, required);

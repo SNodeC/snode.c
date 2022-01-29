@@ -40,8 +40,6 @@ namespace net::un::stream {
 
         using core::socket::ServerSocket<net::un::stream::Socket, net::un::stream::ServerConfig>::listen;
 
-        void listen(const std::function<void(const Socket& socket, int)>& onError);
-
         void listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError);
     };
 

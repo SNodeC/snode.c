@@ -28,12 +28,6 @@ namespace net::l2::stream {
         : Super(name) {
     }
 
-    void ServerSocket::listen(const std::function<void(const Socket&, int)>& onError) {
-        serverConfig.parse(true);
-
-        listen(serverConfig.getBindInterface(), serverConfig.getPsm(), serverConfig.getBacklog(), onError);
-    }
-
     void ServerSocket::listen(uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(psm), backlog, onError);
     }

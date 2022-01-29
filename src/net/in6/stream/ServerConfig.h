@@ -20,6 +20,7 @@
 #define NET_IN6_STREAM_SERVERCONFIG_H
 
 #include "net/ServerConfig.h"
+#include "net/in6/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,7 +44,9 @@ namespace net::in6::stream {
 
         uint16_t getBindPort() const;
 
-        int parse(bool required = false);
+        const net::in6::SocketAddress getSocketAddress() const;
+
+        int parse(bool required = false) const;
 
     private:
         CLI::App* serverBindSc = nullptr;

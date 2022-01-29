@@ -36,18 +36,20 @@ namespace net::un::stream {
         bindServerSunPathOpt->type_name("[filesystem path]");
         bindServerSunPathOpt->default_val("/tmp/" + name + ".sock");
         bindServerSunPathOpt->configurable();
-
-        finish();
     }
 
     const std::string& ServerConfig::getSunPath() const {
         return sunPath;
     }
 
-    int ServerConfig::parse([[maybe_unused]] bool required) {
-        //        utils::Config::instance().required(serverSc, required);
-        //        utils::Config::instance().required(serverBindSc, required);
-        //        utils::Config::instance().required(bindServerSunPathOpt, required);
+    const SocketAddress ServerConfig::getSocketAddress() const{
+        return net::un::SocketAddress(sunPath);
+    }
+
+    int ServerConfig::parse(bool required) const {
+        utils::Config::instance().required(serverSc, required);
+        utils::Config::instance().required(serverBindSc, required);
+        utils::Config::instance().required(bindServerSunPathOpt, required);
 
         try {
             utils::Config::instance().parse();
