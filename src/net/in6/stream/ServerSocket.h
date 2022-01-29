@@ -37,8 +37,6 @@ namespace net::in6::stream {
         using Super = core::socket::ServerSocket<net::in6::stream::Socket, net::in6::stream::ServerConfig>;
 
     public:
-        explicit ServerSocket(const std::string& name);
-
         using core::socket::ServerSocket<net::in6::stream::Socket, net::in6::stream::ServerConfig>::listen;
 
         void listen(uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError);

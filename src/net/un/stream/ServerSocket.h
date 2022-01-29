@@ -36,8 +36,6 @@ namespace net::un::stream {
         using Super = core::socket::ServerSocket<net::un::stream::Socket, net::un::stream::ServerConfig>;
 
     public:
-        explicit ServerSocket(const std::string& name);
-
         using core::socket::ServerSocket<net::un::stream::Socket, net::un::stream::ServerConfig>::listen;
 
         void listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError);

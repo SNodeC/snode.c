@@ -44,7 +44,7 @@ namespace net::in::stream {
 
         uint16_t getBindPort() const;
 
-        const net::in::SocketAddress getSocketAddress() const;
+        net::in::SocketAddress getSocketAddress() const;
 
         int parse(bool required = false) const;
 

@@ -42,7 +42,7 @@ namespace net::un::stream {
         return sunPath;
     }
 
-    const SocketAddress ServerConfig::getSocketAddress() const{
+    SocketAddress ServerConfig::getSocketAddress() const {
         return net::un::SocketAddress(sunPath);
     }
 

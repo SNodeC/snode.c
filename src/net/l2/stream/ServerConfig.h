@@ -44,7 +44,7 @@ namespace net::l2::stream {
 
         uint16_t getPsm() const;
 
-        const net::l2::SocketAddress getSocketAddress() const;
+        net::l2::SocketAddress getSocketAddress() const;
 
         int parse(bool required = false) const;
 

@@ -52,7 +52,7 @@ namespace net::rf::stream {
         return channel;
     }
 
-    const SocketAddress ServerConfig::getSocketAddress() const {
+    SocketAddress ServerConfig::getSocketAddress() const {
         return net::rf::SocketAddress(bindInterface, channel);
     }
 

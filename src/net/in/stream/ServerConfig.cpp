@@ -52,7 +52,7 @@ namespace net::in::stream {
         return bindPort;
     }
 
-    const SocketAddress ServerConfig::getSocketAddress() const {
+    SocketAddress ServerConfig::getSocketAddress() const {
         return net::in::SocketAddress(bindInterface, bindPort);
     }
 

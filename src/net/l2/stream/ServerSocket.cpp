@@ -24,10 +24,6 @@
 
 namespace net::l2::stream {
 
-    ServerSocket::ServerSocket(const std::string& name)
-        : Super(name) {
-    }
-
     void ServerSocket::listen(uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(psm), backlog, onError);
     }

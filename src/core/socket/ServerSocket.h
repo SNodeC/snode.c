@@ -31,9 +31,7 @@ namespace core::socket {
     template <typename SocketT, typename ServerConfigT>
     class ServerSocket {
     protected:
-        explicit ServerSocket([[maybe_unused]] const std::string& name)
-        /*: serverConfig(name)*/ {
-        }
+        ServerSocket() = default;
 
     public:
         using Socket = SocketT;

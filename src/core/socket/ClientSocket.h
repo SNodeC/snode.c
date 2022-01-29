@@ -29,6 +29,9 @@ namespace core::socket {
 
     template <typename SocketT>
     class ClientSocket {
+    protected:
+        ClientSocket() = default;
+
     public:
         using Socket = SocketT;
 

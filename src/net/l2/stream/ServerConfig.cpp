@@ -52,7 +52,7 @@ namespace net::l2::stream {
         return psm;
     }
 
-    const SocketAddress ServerConfig::getSocketAddress() const {
+    SocketAddress ServerConfig::getSocketAddress() const {
         return net::l2::SocketAddress(bindInterface, psm);
     }
 

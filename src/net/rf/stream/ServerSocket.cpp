@@ -24,10 +24,6 @@
 
 namespace net::rf::stream {
 
-    ServerSocket::ServerSocket(const std::string& name)
-        : Super(name) {
-    }
-
     void ServerSocket::listen(uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(channel), backlog, onError);
     }
