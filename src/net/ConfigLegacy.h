@@ -16,23 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_LEGACY_SOCKETSERVER_H
-#define NET_UN_STREAM_LEGACY_SOCKETSERVER_H
-
-#include "core/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
-#include "net/un/stream/ServerSocket.h"             // IWYU pragma: export
-#include "net/un/stream/legacy/ServerConfig.h"      // IWYU pragma: export
+#ifndef NET_CONFIGLEGACY_H
+#define NET_CONFIGLEGACY_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
 
-namespace net::un::stream::legacy {
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-    template <typename SocketContextFactoryT>
-    using SocketServer = core::socket::stream::legacy::
-        SocketServer<net::un::stream::legacy::ServerConfig, net::un::stream::ServerSocket, SocketContextFactoryT>;
+namespace net {
 
-} // namespace net::un::stream::legacy
+    class ConfigLegacy {
+    public:
+        explicit ConfigLegacy() = default;
 
-#endif // NET_UN_STREAM_LEGACY_SOCKETSERVER_H
+    protected:
+        void finish(CLI::App* serverSc);
+    };
+
+} // namespace net
+
+#endif // CONFIGLEGACY_H

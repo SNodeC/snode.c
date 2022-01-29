@@ -21,6 +21,7 @@
 
 #include "core/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
 #include "net/in/stream/ServerSocket.h"             // IWYU pragma: export
+#include "net/in/stream/legacy/ServerConfig.h"      // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +30,8 @@
 namespace net::in::stream::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = core::socket::stream::legacy::SocketServer<net::in::stream::ServerSocket, SocketContextFactoryT>;
+    using SocketServer = core::socket::stream::legacy::
+        SocketServer<net::in::stream::legacy::ServerConfig, net::in::stream::ServerSocket, SocketContextFactoryT>;
 
 } // namespace net::in::stream::legacy
 

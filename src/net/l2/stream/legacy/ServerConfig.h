@@ -16,23 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_LEGACY_SOCKETSERVER_H
-#define NET_UN_STREAM_LEGACY_SOCKETSERVER_H
+#ifndef NET_L2_STREAM_LEGACY_SERVERCONFIG_H
+#define NET_L2_STREAM_LEGACY_SERVERCONFIG_H
 
-#include "core/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
-#include "net/un/stream/ServerSocket.h"             // IWYU pragma: export
-#include "net/un/stream/legacy/ServerConfig.h"      // IWYU pragma: export
+#include "net/ConfigLegacy.h"
+#include "net/l2/stream/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::un::stream::legacy {
+namespace net::l2::stream::legacy {
 
-    template <typename SocketContextFactoryT>
-    using SocketServer = core::socket::stream::legacy::
-        SocketServer<net::un::stream::legacy::ServerConfig, net::un::stream::ServerSocket, SocketContextFactoryT>;
+    class ServerConfig
+        : public net::ConfigLegacy
+        , public net::l2::stream::ServerConfig {
+    public:
+        ServerConfig(const std::string& name)
+            : net::l2::stream::ServerConfig(name) {
+            net::l2::stream::ServerConfig::finish();
+            net::ConfigLegacy::finish(serverSc);
+        }
+    };
 
-} // namespace net::un::stream::legacy
+} // namespace net::l2::stream::legacy
 
-#endif // NET_UN_STREAM_LEGACY_SOCKETSERVER_H
+#endif // NET_L2_STREAM_TLS_SERVERCONFIG_H

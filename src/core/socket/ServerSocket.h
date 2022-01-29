@@ -31,8 +31,8 @@ namespace core::socket {
     template <typename SocketT, typename ServerConfigT>
     class ServerSocket {
     protected:
-        explicit ServerSocket(const std::string& name)
-            : serverConfig(name) {
+        explicit ServerSocket([[maybe_unused]] const std::string& name)
+        /*: serverConfig(name)*/ {
         }
 
     public:
@@ -42,13 +42,14 @@ namespace core::socket {
         virtual void listen(const typename Socket::SocketAddress& bindAddress,
                             int backlog,
                             const std::function<void(const Socket& socket, int)>& onError) const = 0;
+        /*
+                ServerConfig& getServerConfig() {
+                    return serverConfig;
+                }
 
-        ServerConfig& getServerConfig() {
-            return serverConfig;
-        }
-
-    protected:
-        ServerConfig serverConfig;
+            protected:
+                ServerConfig serverConfig;
+        */
     };
 
 } // namespace core::socket

@@ -38,12 +38,12 @@ namespace net {
         serverConnectionSc->description("Options for established client connections");
         serverConnectionSc->configurable();
 
-        serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--readtimeout", readTimeout, "Read timeout");
+        serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--read-timeout", readTimeout, "Read timeout");
         serverConnectionReadTimeoutOpt->type_name("[sec]");
         serverConnectionReadTimeoutOpt->default_val(60);
         serverConnectionReadTimeoutOpt->configurable();
 
-        serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--writetimeout", writeTimeout, "Write timeout");
+        serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--write-timeout", writeTimeout, "Write timeout");
         serverConnectionWriteTimeoutOpt->type_name("[sec]");
         serverConnectionWriteTimeoutOpt->default_val(60);
         serverConnectionWriteTimeoutOpt->configurable();
