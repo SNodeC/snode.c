@@ -20,6 +20,7 @@
 #define NET_L2_STREAM_SERVERCONFIG_H
 
 #include "net/ServerConfig.h"
+#include "net/l2/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,7 +44,9 @@ namespace net::l2::stream {
 
         uint16_t getPsm() const;
 
-        int parse(bool required = false);
+        const net::l2::SocketAddress getSocketAddress() const;
+
+        int parse(bool required = false) const;
 
     private:
         CLI::App* serverBindSc = nullptr;

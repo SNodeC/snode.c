@@ -16,15 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
-
-#include "net/ServerConfig.h"
-#include "net/un/SocketAddress.h"
+#ifndef NET_CONFIGLEGACY_H
+#define NET_CONFIGLEGACY_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string> // for string
 
 namespace CLI {
     class App;
@@ -33,25 +28,16 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net {
 
-    class ServerConfig : public net::ServerConfig {
+    class ConfigLegacy {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ConfigLegacy() = default;
 
-        const std::string& getSunPath() const;
-
-        const net::un::SocketAddress getSocketAddress() const;
-
-        int parse(bool required = false) const;
-
-    private:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerSunPathOpt = nullptr;
-
-        std::string sunPath;
+    protected:
+        void finish(CLI::App* serverSc);
     };
 
-} // namespace net::un::stream
+} // namespace net
 
-#endif
+#endif // CONFIGLEGACY_H

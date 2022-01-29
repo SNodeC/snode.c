@@ -30,14 +30,17 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename ServerSocketT, typename SocketContextFactoryT>
+    template <typename ServerConfigT, typename ServerSocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public core::socket::stream::SocketServer<ServerSocketT,
+        : public core::socket::stream::SocketServer<ServerConfigT,
+                                                    ServerSocketT,
                                                     core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>,
                                                     SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::
-            SocketServer<ServerSocketT, core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
+        using Super = core::socket::stream::SocketServer<ServerConfigT,
+                                                         ServerSocketT,
+                                                         core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>,
+                                                         SocketContextFactoryT>;
         using Super::Super;
 
     public:

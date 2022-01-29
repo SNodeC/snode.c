@@ -28,12 +28,6 @@ namespace net::in6::stream {
         : Super(name) {
     }
 
-    void ServerSocket::listen(const std::function<void(const Socket& socket, int)>& onError) {
-        serverConfig.parse(true);
-
-        listen(serverConfig.getBindInterface(), serverConfig.getBindPort(), serverConfig.getBacklog(), onError);
-    }
-
     void ServerSocket::listen(uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(port), backlog, onError);
     }

@@ -1,17 +1,25 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NET-UN_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerConfig.cpp
-               stream/ServerSocket.cpp stream/ClientSocket.cpp
+set(NET-UN_CPP
+    SocketAddress.cpp
+    stream/Socket.cpp
+    stream/ClientSocket.cpp
+    stream/ServerConfig.cpp
+    stream/ServerSocket.cpp
+    stream/legacy/ServerConfig.cpp
+    stream/tls/ServerConfig.cpp
 )
 
 set(NET-UN_H
     SocketAddress.h
     stream/Socket.h
+    stream/ClientSocket.h
     stream/ServerConfig.h
     stream/ServerSocket.h
-    stream/ClientSocket.h
+    stream/legacy/ServerConfig.h
     stream/legacy/SocketServer.h
     stream/legacy/SocketClient.h
+    stream/tls/ServerConfig.h
     stream/tls/SocketServer.h
     stream/tls/SocketClient.h
 )

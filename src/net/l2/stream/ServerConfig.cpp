@@ -42,8 +42,6 @@ namespace net::l2::stream {
         bindServerPsmOpt->type_name("[uint16_t]");
         bindServerPsmOpt->default_val(0);
         bindServerPsmOpt->configurable();
-
-        finish();
     }
 
     const std::string& ServerConfig::getBindInterface() const {
@@ -54,7 +52,11 @@ namespace net::l2::stream {
         return psm;
     }
 
-    int ServerConfig::parse(bool required) {
+    const SocketAddress ServerConfig::getSocketAddress() const {
+        return net::l2::SocketAddress(bindInterface, psm);
+    }
+
+    int ServerConfig::parse(bool required) const {
         utils::Config::instance().required(serverSc, required);
         utils::Config::instance().required(serverBindSc, required);
         utils::Config::instance().required(bindServerHostOpt, required);

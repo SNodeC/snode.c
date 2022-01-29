@@ -16,15 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_H
-#define NET_CONFIG_H
+#include "net/ConfigTls.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
+#include "utils/CLI11.hpp"
 
 #include <string>
 
@@ -32,33 +28,28 @@ namespace CLI {
 
 namespace net {
 
-    class Config {
-    public:
-        explicit Config(const std::string& name);
+    void ConfigTls::finish(CLI::App* serverSc) {
+        tlsSc = serverSc->add_subcommand("tls");
+        tlsSc->description("Options for SSL/TLS behoviour");
+        tlsSc->configurable();
 
-    protected:
-        void finish();
+        tlsInitTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "Read timeout");
+        tlsInitTimeoutOpt->type_name("[sec]");
+        tlsInitTimeoutOpt->default_val(2);
+        tlsInitTimeoutOpt->configurable();
 
-    public:
-        const std::string& getName() const;
+        tlsShutdownTimeoutOpt = tlsSc->add_option("-s,--shutdown-timeout", shutdownTimeout, "Write timeout");
+        tlsShutdownTimeoutOpt->type_name("[sec]");
+        tlsShutdownTimeoutOpt->default_val(2);
+        tlsShutdownTimeoutOpt->configurable();
+    }
 
-        int getReadTimeout() const;
+    int ConfigTls::getShutdownTimeout() const {
+        return shutdownTimeout;
+    }
 
-        int getWriteTimeout() const;
-
-    protected:
-        CLI::App* serverSc = nullptr;
-
-    private:
-        CLI::App* serverConnectionSc = nullptr;
-        CLI::Option* serverConnectionReadTimeoutOpt = nullptr;
-        CLI::Option* serverConnectionWriteTimeoutOpt = nullptr;
-
-        std::string name;
-        int readTimeout;
-        int writeTimeout;
-    };
+    int ConfigTls::getInitTimeout() const {
+        return initTimeout;
+    }
 
 } // namespace net
-
-#endif // CONFIG_H

@@ -28,12 +28,6 @@ namespace net::rf::stream {
         : Super(name) {
     }
 
-    void ServerSocket::listen(const std::function<void(const Socket&, int)>& onError) {
-        serverConfig.parse(true);
-
-        listen(serverConfig.getBindInterface(), serverConfig.getChannel(), serverConfig.getBacklog(), onError);
-    }
-
     void ServerSocket::listen(uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(channel), backlog, onError);
     }

@@ -16,42 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
-
-#include "net/ServerConfig.h"
-#include "net/un/SocketAddress.h"
+#include "net/un/stream/tls/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace net::un::stream::tls {
 
-namespace net::un::stream {
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::un::stream::ServerConfig(name) {
+        net::un::stream::ServerConfig::finish();
+        net::ConfigTls::finish(serverSc);
+    }
 
-    class ServerConfig : public net::ServerConfig {
-    public:
-        explicit ServerConfig(const std::string& name);
-
-        const std::string& getSunPath() const;
-
-        const net::un::SocketAddress getSocketAddress() const;
-
-        int parse(bool required = false) const;
-
-    private:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerSunPathOpt = nullptr;
-
-        std::string sunPath;
-    };
-
-} // namespace net::un::stream
-
-#endif
+} // namespace net::un::stream::tls

@@ -16,42 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
+#ifndef NET_IN_STREAM_LEGACY_SERVERCONFIG_H
+#define NET_IN_STREAM_LEGACY_SERVERCONFIG_H
 
-#include "net/ServerConfig.h"
-#include "net/un/SocketAddress.h"
+#include "net/ConfigLegacy.h"
+#include "net/in/stream/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace net::in::stream::legacy {
 
-namespace net::un::stream {
-
-    class ServerConfig : public net::ServerConfig {
+    class ServerConfig
+        : public net::ConfigLegacy
+        , public net::in::stream::ServerConfig {
     public:
-        explicit ServerConfig(const std::string& name);
-
-        const std::string& getSunPath() const;
-
-        const net::un::SocketAddress getSocketAddress() const;
-
-        int parse(bool required = false) const;
-
-    private:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerSunPathOpt = nullptr;
-
-        std::string sunPath;
+        explicit ServerConfig(const std::string& name)
+            : net::in::stream::ServerConfig(name) {
+            net::in::stream::ServerConfig::finish();
+            net::ConfigLegacy::finish(serverSc);
+        }
     };
 
-} // namespace net::un::stream
+} // namespace net::in::stream::legacy
 
-#endif
+#endif // NET_IN_STREAM_LEGACY_SERVERCONFIG_H

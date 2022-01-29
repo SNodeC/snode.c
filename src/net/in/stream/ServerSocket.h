@@ -41,8 +41,6 @@ namespace net::in::stream {
 
         using core::socket::ServerSocket<net::in::stream::Socket, net::in::stream::ServerConfig>::listen;
 
-        void listen(const std::function<void(const Socket& socket, int)>& onError);
-
         void listen(uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
         void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const Socket& socket, int)>& onError);

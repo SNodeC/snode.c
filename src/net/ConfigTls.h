@@ -16,15 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
-
-#include "net/ServerConfig.h"
-#include "net/un/SocketAddress.h"
+#ifndef NET_CONFIGTLS_H
+#define NET_CONFIGTLS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string> // for string
 
 namespace CLI {
     class App;
@@ -33,25 +28,28 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net {
 
-    class ServerConfig : public net::ServerConfig {
+    class ConfigTls {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ConfigTls() = default;
 
-        const std::string& getSunPath() const;
+        int getInitTimeout() const;
 
-        const net::un::SocketAddress getSocketAddress() const;
+        int getShutdownTimeout() const;
 
-        int parse(bool required = false) const;
+    protected:
+        void finish(CLI::App* serverSc);
 
     private:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerSunPathOpt = nullptr;
+        CLI::App* tlsSc = nullptr;
+        CLI::Option* tlsInitTimeoutOpt = nullptr;
+        CLI::Option* tlsShutdownTimeoutOpt = nullptr;
 
-        std::string sunPath;
+        int initTimeout;
+        int shutdownTimeout;
     };
 
-} // namespace net::un::stream
+} // namespace net
 
-#endif
+#endif // NET_CONFIGTLS_H

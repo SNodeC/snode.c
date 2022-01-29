@@ -10,8 +10,10 @@ set(NET-IN_H
     stream/ServerConfig.h
     stream/ServerSocket.h
     stream/ClientSocket.h
+    stream/legacy/ServerConfig.h
     stream/legacy/SocketServer.h
     stream/legacy/SocketClient.h
+    stream/tls/ServerConfig.h
     stream/tls/SocketServer.h
     stream/tls/SocketClient.h
 )

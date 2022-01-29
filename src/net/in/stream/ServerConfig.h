@@ -20,6 +20,7 @@
 #define NET_IN_STREAM_SERVERCONFIG_H
 
 #include "net/ServerConfig.h"
+#include "net/in/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,37 +40,22 @@ namespace net::in::stream {
     public:
         explicit ServerConfig(const std::string& name);
 
-        //        const std::string& getName() const;
-
         const std::string& getBindInterface() const;
 
         uint16_t getBindPort() const;
-        /*
-                int getBacklog() const;
 
-                int getReadTimeout() const;
+        const net::in::SocketAddress getSocketAddress() const;
 
-                int getWriteTimeout() const;
-        */
-        int parse(bool required = false);
+        int parse(bool required = false) const;
 
     private:
-        //        CLI::App* serverSc = nullptr;
-
         CLI::App* serverBindSc = nullptr;
         CLI::Option* bindServerHostOpt = nullptr;
         CLI::Option* bindServerPortOpt = nullptr;
-        /*
-                CLI::Option* serverBacklogOpt = nullptr;
-                CLI::App* serverConnectionSc = nullptr;
-                CLI::Option* serverConnectionReadTimeoutOpt = nullptr;
-                CLI::Option* serverConnectionWriteTimeoutOpt = nullptr;
-        */
+
+    protected:
         std::string bindInterface;
         uint16_t bindPort;
-        //        int backlog;
-        //        int readTimeout;
-        //        int writeTimeout;
     };
 
 } // namespace net::in::stream

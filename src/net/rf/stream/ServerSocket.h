@@ -41,8 +41,6 @@ namespace net::rf::stream {
 
         using core::socket::ServerSocket<net::rf::stream::Socket, net::rf::stream::ServerConfig>::listen;
 
-        void listen(const std::function<void(const Socket& socket, int)>& onError);
-
         void listen(uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
         void listen(const std::string& address, int backlog, const std::function<void(const Socket& socket, int)>& onError);

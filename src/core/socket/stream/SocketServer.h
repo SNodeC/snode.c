@@ -32,11 +32,12 @@
 
 namespace core::socket::stream {
 
-    template <typename ServerSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
+    template <typename ServerConfigT, typename ServerSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
     class SocketServer : public ServerSocketT {
         SocketServer() = delete;
 
     protected:
+        using ServerConfig = ServerConfigT;
         using ServerSocket = ServerSocketT;
         using SocketAcceptor = SocketAcceptorT;
         using SocketContextFactory = SocketContextFactoryT;
@@ -52,6 +53,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
             : ServerSocket(name)
+            , serverConfig(name)
             , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
@@ -62,6 +64,12 @@ namespace core::socket::stream {
         virtual ~SocketServer() = default;
 
         using ServerSocket::listen;
+
+        void listen(const std::function<void(const Socket& socket, int)>& onError) const override {
+            serverConfig.parse(true);
+
+            listen(serverConfig.getSocketAddress(), serverConfig.getBacklog(), onError);
+        }
 
         void listen(const SocketAddress& bindAddress,
                     int backlog,
@@ -87,7 +95,13 @@ namespace core::socket::stream {
             return socketContextFactory;
         }
 
+        ServerConfig& getServerConfig() {
+            return serverConfig;
+        }
+
     protected:
+        ServerConfig serverConfig;
+
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;

@@ -42,8 +42,6 @@ namespace net::in6::stream {
         bindServerPortOpt->type_name("[uint16_t]");
         bindServerPortOpt->default_val(0);
         bindServerPortOpt->configurable();
-
-        finish();
     }
 
     const std::string& ServerConfig::getBindInterface() const {
@@ -54,7 +52,11 @@ namespace net::in6::stream {
         return bindPort;
     }
 
-    int ServerConfig::parse(bool required) {
+    const SocketAddress ServerConfig::getSocketAddress() const {
+        return net::in6::SocketAddress(bindInterface, bindPort);
+    }
+
+    int ServerConfig::parse(bool required) const {
         utils::Config::instance().required(serverSc, required);
         utils::Config::instance().required(serverBindSc, required);
         utils::Config::instance().required(bindServerPortOpt, required);

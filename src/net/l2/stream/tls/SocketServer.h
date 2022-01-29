@@ -21,6 +21,7 @@
 
 #include "core/socket/stream/tls/SocketServer.h" // IWYU pragma: export
 #include "net/l2/stream/ServerSocket.h"          // IWYU pragma: export
+#include "net/l2/stream/tls/ServerConfig.h"      // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +30,8 @@
 namespace net::l2::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = core::socket::stream::tls::SocketServer<net::l2::stream::ServerSocket, SocketContextFactoryT>;
+    using SocketServer =
+        core::socket::stream::tls::SocketServer<net::l2::stream::tls::ServerConfig, net::l2::stream::ServerSocket, SocketContextFactoryT>;
 
 } // namespace net::l2::stream::tls
 
