@@ -45,8 +45,6 @@ core::EventDispatcher& EventDispatcher();
 
 namespace core {
 
-    //    core::EventDispatcher& EventLoop::eventDispatcher = ::EventDispatcher();
-
     bool EventLoop::initialized = false;
     bool EventLoop::running = false;
     bool EventLoop::stopped = true;
@@ -281,7 +279,7 @@ namespace core {
         DynamicLoader::execDlCloseDeleyed();
         DynamicLoader::execDlCloseAll();
 
-        VLOG(0) << "All resources released";
+        LOG(INFO) << "All resources released";
     }
 
     void EventLoop::stoponsig(int sig) {
