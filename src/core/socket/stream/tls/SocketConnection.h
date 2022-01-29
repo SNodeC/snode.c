@@ -241,7 +241,7 @@ namespace core::socket::stream::tls {
 
         int sslErr = SSL_ERROR_NONE;
 
-        template <typename Socket>
+        template <typename ServerConfig, typename Socket>
         friend class SocketAcceptor;
 
         template <typename Socket>

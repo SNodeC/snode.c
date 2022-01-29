@@ -28,22 +28,25 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename SocketT>
-    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>> {
+    template <typename ServerConfigT, typename SocketT>
+    class SocketAcceptor
+        : protected core::socket::stream::SocketAcceptor<ServerConfigT, core::socket::stream::legacy::SocketConnection<SocketT>> {
     private:
-        using Super = core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>>;
+        using Super = core::socket::stream::SocketAcceptor<ServerConfigT, core::socket::stream::legacy::SocketConnection<SocketT>>;
 
     public:
+        using ServerConfig = ServerConfigT;
         using Socket = typename Super::Socket;
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const ServerConfig& serverConfig,
+                       const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : core::socket::stream::SocketAcceptor<SocketConnection>(socketContextFactory, onConnect, onConnected, onDisconnect, options) {
+            : Super(serverConfig, socketContextFactory, onConnect, onConnected, onDisconnect, options) {
         }
 
         using Super::listen;

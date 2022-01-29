@@ -52,8 +52,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : ServerSocket(name)
-            , serverConfig(name)
+            : serverConfig(name)
             , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
@@ -74,7 +73,8 @@ namespace core::socket::stream {
         void listen(const SocketAddress& bindAddress,
                     int backlog,
                     const std::function<void(const Socket& socket, int)>& onError) const override {
-            SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+            SocketAcceptor* socketAcceptor =
+                new SocketAcceptor(serverConfig, socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketAcceptor->listen(bindAddress, backlog, onError);
         }

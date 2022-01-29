@@ -43,7 +43,7 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename SocketConnectionT>
+    template <typename ServerConfigT, typename SocketConnectionT>
     class SocketAcceptor
         : protected SocketConnectionT::Socket
         , protected AcceptEventReceiver {
@@ -52,6 +52,7 @@ namespace core::socket::stream {
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
     public:
+        using ServerConfig = ServerConfigT;
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
@@ -61,12 +62,14 @@ namespace core::socket::stream {
 !include core/socket/stream/pu/SocketAcceptor.pu!0
 @enduml
 */
-        SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const ServerConfig& serverConfig,
+                       const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : socketContextFactory(socketContextFactory)
+            : serverConfig(serverConfig)
+            , socketContextFactory(socketContextFactory)
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
@@ -169,6 +172,8 @@ namespace core::socket::stream {
         }
 
     private:
+        ServerConfig serverConfig;
+
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
 
         std::function<void(SocketConnection*)> onConnect;
