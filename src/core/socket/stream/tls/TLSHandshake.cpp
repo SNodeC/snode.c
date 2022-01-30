@@ -26,23 +26,23 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define TLSHANDSHAKE_TIMEOUT 10
-
 namespace core::socket::stream::tls {
 
     void TLSHandshake::doHandshake(SSL* ssl,
                                    const std::function<void(void)>& onSuccess,
                                    const std::function<void(void)>& onTimeout,
-                                   const std::function<void(int err)>& onError) {
-        new TLSHandshake(ssl, onSuccess, onTimeout, onError);
+                                   const std::function<void(int err)>& onError,
+                                   const utils::Timeval& timeout) {
+        new TLSHandshake(ssl, onSuccess, onTimeout, onError, timeout);
     }
 
     TLSHandshake::TLSHandshake(SSL* ssl,
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
-                               const std::function<void(int err)>& onError)
-        : ReadEventReceiver(TLSHANDSHAKE_TIMEOUT)
-        , WriteEventReceiver(TLSHANDSHAKE_TIMEOUT)
+                               const std::function<void(int err)>& onError,
+                               const utils::Timeval& timeout)
+        : ReadEventReceiver(timeout)
+        , WriteEventReceiver(timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)

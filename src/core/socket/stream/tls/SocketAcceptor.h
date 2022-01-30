@@ -62,6 +62,9 @@ namespace core::socket::stream::tls {
                   [onConnected, this](SocketConnection* socketConnection) -> void {
                       SSL* ssl = socketConnection->startSSL(this->masterSslCtx);
 
+                      socketConnection->setInitTimeout(this->serverConfig.getInitTimeout());
+                      socketConnection->setShutdownTimeout(this->serverConfig.getShutdownTimeout());
+
                       if (ssl != nullptr) {
                           SSL_CTX_set_tlsext_servername_arg(this->masterSslCtx, this);
 

@@ -43,7 +43,7 @@ namespace net::un::stream {
         return sunPath;
     }
 
-    SocketAddress ServerConfig::getSocketAddress() const {
+    SocketAddress ServerConfig::getBindAddress() const {
         return net::un::SocketAddress(sunPath);
     }
 

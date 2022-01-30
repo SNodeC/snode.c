@@ -148,6 +148,11 @@ namespace core::socket::stream {
                         SocketConnection* socketConnection = new SocketConnection(
                             fd, socketContextFactory, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
 
+                        socketConnection->SocketReader::setTimeout(serverConfig.getReadTimeout());
+                        socketConnection->SocketWriter::setTimeout(serverConfig.getWriteTimeout());
+                        socketConnection->SocketReader::setBlockSize(serverConfig.getReadBlockSize());
+                        socketConnection->SocketWriter::setBlockSize(serverConfig.getWriteBlockSize());
+
                         onConnected(socketConnection);
                     } else {
                         PLOG(ERROR) << "getsockname";
@@ -171,9 +176,9 @@ namespace core::socket::stream {
             delete this;
         }
 
-    private:
         ServerConfig serverConfig;
 
+    private:
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
 
         std::function<void(SocketConnection*)> onConnect;

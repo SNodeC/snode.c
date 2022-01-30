@@ -33,16 +33,18 @@ namespace core::socket::stream::tls {
     void TLSShutdown::doShutdown(SSL* ssl,
                                  const std::function<void(void)>& onSuccess,
                                  const std::function<void(void)>& onTimeout,
-                                 const std::function<void(int err)>& onError) {
-        new TLSShutdown(ssl, onSuccess, onTimeout, onError);
+                                 const std::function<void(int err)>& onError,
+                                 const utils::Timeval& timeout) {
+        new TLSShutdown(ssl, onSuccess, onTimeout, onError, timeout);
     }
 
     TLSShutdown::TLSShutdown(SSL* ssl,
                              const std::function<void(void)>& onSuccess,
                              const std::function<void(void)>& onTimeout,
-                             const std::function<void(int err)>& onError)
-        : ReadEventReceiver(TLSSHUTDOWN_TIMEOUT)
-        , WriteEventReceiver(TLSSHUTDOWN_TIMEOUT)
+                             const std::function<void(int err)>& onError,
+                             const utils::Timeval& timeout)
+        : ReadEventReceiver(timeout)
+        , WriteEventReceiver(timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)

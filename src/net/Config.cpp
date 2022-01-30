@@ -34,33 +34,51 @@ namespace net {
     }
 
     void Config::finish() {
-        serverConnectionSc = serverSc->add_subcommand("conn");
-        serverConnectionSc->description("Options for established client connections");
-        serverConnectionSc->configurable();
+        connectionSc = serverSc->add_subcommand("conn");
+        connectionSc->description("Options for established client connections");
+        connectionSc->configurable();
 
-        serverConnectionSc->group("Sub-Options (use -h,--help on them)");
+        connectionSc->group("Sub-Options (use -h,--help on them)");
 
-        serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--read-timeout", readTimeout, "Read timeout");
-        serverConnectionReadTimeoutOpt->type_name("[sec]");
-        serverConnectionReadTimeoutOpt->default_val(60);
-        serverConnectionReadTimeoutOpt->configurable();
+        readTimeoutOpt = connectionSc->add_option("-r,--read-timeout", readTimeout, "Read timeout");
+        readTimeoutOpt->type_name("[sec]");
+        readTimeoutOpt->default_val(60);
+        readTimeoutOpt->configurable();
 
-        serverConnectionWriteTimeoutOpt = serverConnectionSc->add_option("-w,--write-timeout", writeTimeout, "Write timeout");
-        serverConnectionWriteTimeoutOpt->type_name("[sec]");
-        serverConnectionWriteTimeoutOpt->default_val(60);
-        serverConnectionWriteTimeoutOpt->configurable();
+        writeTimeoutOpt = connectionSc->add_option("-w,--write-timeout", writeTimeout, "Write timeout");
+        writeTimeoutOpt->type_name("[sec]");
+        writeTimeoutOpt->default_val(60);
+        writeTimeoutOpt->configurable();
+
+        readBlockSizeOpt = connectionSc->add_option("--read-block-size", readBlockSize, "Read block size");
+        readBlockSizeOpt->type_name("[bytes]");
+        readBlockSizeOpt->default_val(4096);
+        readBlockSizeOpt->configurable();
+
+        writeBlockSizeOpt = connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size");
+        writeBlockSizeOpt->type_name("[bytes]");
+        writeBlockSizeOpt->default_val(4096);
+        writeBlockSizeOpt->configurable();
     }
 
     const std::string& Config::getName() const {
         return name;
     }
 
-    int Config::getReadTimeout() const {
+    const utils::Timeval& Config::getReadTimeout() const {
         return readTimeout;
     }
 
-    int Config::getWriteTimeout() const {
+    const utils::Timeval& Config::getWriteTimeout() const {
         return writeTimeout;
+    }
+
+    std::size_t Config::getReadBlockSize() const {
+        return readBlockSize;
+    }
+
+    std::size_t Config::getWriteBlockSize() const {
+        return writeBlockSize;
     }
 
 } // namespace net

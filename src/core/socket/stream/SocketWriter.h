@@ -53,6 +53,7 @@ namespace core::socket::stream {
     protected:
         explicit SocketWriter(const std::function<void(int)>& onError)
             : onError(onError) {
+            setBlockSize(MAX_SEND_JUNKSIZE);
             enable(Socket::fd);
             suspend();
         }
@@ -65,6 +66,10 @@ namespace core::socket::stream {
         void writeEvent() override = 0;
 
     protected:
+        void setBlockSize(std::size_t writeBlockSize) {
+            this->blockSize = writeBlockSize;
+        }
+
         virtual void doWriteShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
 
@@ -86,7 +91,7 @@ namespace core::socket::stream {
 
             ssize_t retWrite = -1;
 
-            std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
+            std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
             retWrite = write(writeBuffer.data(), writeLen);
 
             if (retWrite >= 0) {
@@ -124,6 +129,7 @@ namespace core::socket::stream {
         std::function<void(int)> onError;
 
         std::vector<char> writeBuffer;
+        std::size_t blockSize;
 
         bool markShutdown = false;
 

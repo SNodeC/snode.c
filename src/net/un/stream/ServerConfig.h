@@ -41,7 +41,7 @@ namespace net::un::stream {
 
         const std::string& getSunPath() const;
 
-        net::un::SocketAddress getSocketAddress() const;
+        net::un::SocketAddress getBindAddress() const;
 
         int parse(bool required = false) const;
 

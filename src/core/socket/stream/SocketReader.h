@@ -53,6 +53,7 @@ namespace core::socket::stream {
     protected:
         explicit SocketReader(const std::function<void(int)>& onError)
             : onError(onError) {
+            setBlockSize(MAX_READ_JUNKSIZE);
             enable(Socket::fd);
         }
 
@@ -64,6 +65,11 @@ namespace core::socket::stream {
         void readEvent() override = 0;
 
     protected:
+        void setBlockSize(std::size_t readBlockSize) {
+            readBuffer.resize(readBlockSize);
+            this->blockSize = readBlockSize;
+        }
+
         virtual void doReadShutdown() {
             Socket::shutdown(Socket::shutdown::RD);
         }
@@ -71,7 +77,7 @@ namespace core::socket::stream {
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             std::size_t maxReturn = std::min(junkLen, size);
 
-            std::copy(data + cursor, data + cursor + maxReturn, junk);
+            std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, junk);
 
             cursor += maxReturn;
             size -= maxReturn;
@@ -88,8 +94,8 @@ namespace core::socket::stream {
 
                 ssize_t retRead = 0;
 
-                std::size_t readLen = MAX_READ_JUNKSIZE - size;
-                retRead = read(data + size, readLen);
+                std::size_t readLen = blockSize - size;
+                retRead = read(readBuffer.data() + size, readLen);
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
@@ -119,7 +125,9 @@ namespace core::socket::stream {
     private:
         std::function<void(int)> onError;
 
-        char data[MAX_READ_JUNKSIZE] = {};
+        std::vector<char> readBuffer;
+        std::size_t blockSize;
+
         std::size_t size = 0;
         std::size_t cursor = 0;
 

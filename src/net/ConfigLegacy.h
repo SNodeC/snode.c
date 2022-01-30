@@ -23,7 +23,6 @@
 
 namespace CLI {
     class App;
-    class Option;
 } // namespace CLI
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -43,9 +43,10 @@ namespace core::socket::stream {
     private:
         using Super = core::socket::SocketConnection;
 
-    public:
         using SocketReader = SocketReaderT;
         using SocketWriter = SocketWriterT;
+
+    protected:
         using SocketAddress = SocketAddressT;
 
     protected:
@@ -155,6 +156,12 @@ namespace core::socket::stream {
         core::socket::SocketContext* newSocketContext = nullptr;
 
         std::function<void()> onDisconnect;
+
+        template <typename ServerConfig, typename SocketConnection>
+        friend class SocketAcceptor;
+
+        template <typename Socket>
+        friend class SocketConnector;
     };
 
 } // namespace core::socket::stream

@@ -26,6 +26,8 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
+#include "utils/Timeval.h"
+
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -42,21 +44,31 @@ namespace net {
     public:
         const std::string& getName() const;
 
-        int getReadTimeout() const;
+        const utils::Timeval& getReadTimeout() const;
 
-        int getWriteTimeout() const;
+        const utils::Timeval& getWriteTimeout() const;
+
+        std::size_t getReadBlockSize() const;
+
+        std::size_t getWriteBlockSize() const;
 
     protected:
         CLI::App* serverSc = nullptr;
 
     private:
-        CLI::App* serverConnectionSc = nullptr;
-        CLI::Option* serverConnectionReadTimeoutOpt = nullptr;
-        CLI::Option* serverConnectionWriteTimeoutOpt = nullptr;
+        CLI::App* connectionSc = nullptr;
+        CLI::Option* readTimeoutOpt = nullptr;
+        CLI::Option* writeTimeoutOpt = nullptr;
+        CLI::Option* readBlockSizeOpt = nullptr;
+        CLI::Option* writeBlockSizeOpt = nullptr;
 
         std::string name;
-        int readTimeout;
-        int writeTimeout;
+
+        utils::Timeval readTimeout;
+        utils::Timeval writeTimeout;
+
+        std::size_t readBlockSize;
+        std::size_t writeBlockSize;
     };
 
 } // namespace net

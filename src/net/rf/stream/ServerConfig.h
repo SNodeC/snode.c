@@ -44,7 +44,7 @@ namespace net::rf::stream {
 
         uint8_t getChannel() const;
 
-        net::rf::SocketAddress getSocketAddress() const;
+        net::rf::SocketAddress getBindAddress() const;
 
         int parse(bool required = false) const;
 

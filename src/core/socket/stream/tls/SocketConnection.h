@@ -24,6 +24,11 @@
 #include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 
+namespace core::socket::stream {
+    template <typename ServerConfig, typename SocketConnection>
+    class SocketAcceptor;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -77,6 +82,14 @@ namespace core::socket::stream::tls {
 
     private:
         ~SocketConnection() override = default;
+
+        void setInitTimeout(const utils::Timeval& timeout) {
+            initTimeout = timeout;
+        }
+
+        void setShutdownTimeout(const utils::Timeval& timeout) {
+            shutdownTimeout = timeout;
+        }
 
         SSL* startSSL(SSL_CTX* ctx) {
             if (ctx != nullptr) {
@@ -151,7 +164,8 @@ namespace core::socket::stream::tls {
                         SocketWriter::disable();
                     }
                     onError(sslErr);
-                });
+                },
+                initTimeout);
         }
 
         void doSSLShutdown(const std::function<void()>& onSuccess,
@@ -199,7 +213,8 @@ namespace core::socket::stream::tls {
                         SocketWriter::resume();
                     }
                     onError(sslErr);
-                });
+                },
+                shutdownTimeout);
         }
 
         void doReadShutdown() override {
@@ -241,8 +256,14 @@ namespace core::socket::stream::tls {
 
         int sslErr = SSL_ERROR_NONE;
 
+        utils::Timeval initTimeout;
+        utils::Timeval shutdownTimeout;
+
         template <typename ServerConfig, typename Socket>
         friend class SocketAcceptor;
+
+        template <typename ServerConfig, typename SocketConnection>
+        friend class core::socket::stream::SocketAcceptor;
 
         template <typename Socket>
         friend class SocketConnector;

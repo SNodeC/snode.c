@@ -67,7 +67,7 @@ namespace core::socket::stream {
         void listen(const std::function<void(const Socket& socket, int)>& onError) const override {
             serverConfig.parse(true);
 
-            listen(serverConfig.getSocketAddress(), serverConfig.getBacklog(), onError);
+            listen(serverConfig.getBindAddress(), serverConfig.getBacklog(), onError);
         }
 
         void listen(const SocketAddress& bindAddress,

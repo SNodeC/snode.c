@@ -26,6 +26,8 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
+#include "utils/Timeval.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
@@ -34,9 +36,9 @@ namespace net {
     public:
         explicit ConfigTls() = default;
 
-        int getInitTimeout() const;
+        const utils::Timeval& getInitTimeout() const;
 
-        int getShutdownTimeout() const;
+        const utils::Timeval& getShutdownTimeout() const;
 
     protected:
         void finish(CLI::App* serverSc);
@@ -46,8 +48,11 @@ namespace net {
         CLI::Option* tlsInitTimeoutOpt = nullptr;
         CLI::Option* tlsShutdownTimeoutOpt = nullptr;
 
-        int initTimeout;
-        int shutdownTimeout;
+        //        double initTimeout;
+        //        double shutdownTimeout;
+
+        utils::Timeval initTimeout;
+        utils::Timeval shutdownTimeout;
     };
 
 } // namespace net

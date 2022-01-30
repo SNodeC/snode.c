@@ -37,7 +37,7 @@ namespace net {
 
         tlsInitTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "Read timeout");
         tlsInitTimeoutOpt->type_name("[sec]");
-        tlsInitTimeoutOpt->default_val(2);
+        tlsInitTimeoutOpt->default_val(10);
         tlsInitTimeoutOpt->configurable();
 
         tlsShutdownTimeoutOpt = tlsSc->add_option("-s,--shutdown-timeout", shutdownTimeout, "Write timeout");
@@ -46,11 +46,11 @@ namespace net {
         tlsShutdownTimeoutOpt->configurable();
     }
 
-    int ConfigTls::getShutdownTimeout() const {
+    const utils::Timeval& ConfigTls::getShutdownTimeout() const {
         return shutdownTimeout;
     }
 
-    int ConfigTls::getInitTimeout() const {
+    const utils::Timeval& ConfigTls::getInitTimeout() const {
         return initTimeout;
     }
 

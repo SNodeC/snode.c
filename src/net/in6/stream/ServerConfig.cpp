@@ -53,7 +53,7 @@ namespace net::in6::stream {
         return bindPort;
     }
 
-    SocketAddress ServerConfig::getSocketAddress() const {
+    SocketAddress ServerConfig::getBindAddress() const {
         return net::in6::SocketAddress(bindInterface, bindPort);
     }
 

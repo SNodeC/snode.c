@@ -23,6 +23,11 @@
 #include "core/socket/stream/legacy/SocketReader.h"
 #include "core/socket/stream/legacy/SocketWriter.h"
 
+namespace core::socket::stream {
+    template <typename ServerConfig, typename SocketConnection>
+    class SocketAcceptor;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -69,6 +74,15 @@ namespace core::socket::stream::legacy {
 
     private:
         ~SocketConnection() override = default;
+
+        template <typename ServerConfig, typename Socket>
+        friend class SocketAcceptor;
+
+        template <typename ServerConfig, typename SocketConnection>
+        friend class core::socket::stream::SocketAcceptor;
+
+        template <typename Socket>
+        friend class SocketConnector;
     };
 
 } // namespace core::socket::stream::legacy
