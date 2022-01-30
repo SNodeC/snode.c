@@ -16,27 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_LEGACY_SERVERCONFIG_H
-#define NET_RF_STREAM_LEGACY_SERVERCONFIG_H
-
-#include "net/ConfigLegacy.h"
-#include "net/rf/stream/ServerConfig.h"
+#include "net/ConfigServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
+
 #include <string>
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream::legacy {
+namespace net {
 
-    class ServerConfig
-        : public net::ConfigLegacy
-        , public net::rf::stream::ServerConfig {
-    public:
-        explicit ServerConfig(const std::string& name);
-    };
+    ConfigServer::ConfigServer() {
+    }
 
-} // namespace net::rf::stream::legacy
+    void ConfigServer::populate(CLI::App* serverSc) {
+        serverBacklogOpt = serverSc->add_option("-b,--backlog", backlog, "Server listen backlog");
+        serverBacklogOpt->type_name("[backlog]");
+        serverBacklogOpt->default_val(5);
+        serverBacklogOpt->configurable();
+    }
 
-#endif // NET_RF_STREAM_TLS_SERVERCONFIG_H
+    int ConfigServer::getBacklog() const {
+        return backlog;
+    }
+
+} // namespace net

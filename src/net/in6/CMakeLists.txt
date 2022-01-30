@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NET-IN6_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerConfig.cpp
-                stream/ServerSocket.cpp stream/ClientSocket.cpp
+set(NET-IN6_CPP
+    SocketAddress.cpp
+    stream/Socket.cpp
+    stream/ClientSocket.cpp
+    stream/ServerConfig.cpp
+    stream/ServerSocket.cpp
+    stream/legacy/ServerConfig.cpp
+    stream/tls/ServerConfig.cpp
 )
 
 set(NET-IN6_H

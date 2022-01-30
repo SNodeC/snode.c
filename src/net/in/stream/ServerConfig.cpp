@@ -44,7 +44,7 @@ namespace net::in::stream {
         bindServerPortOpt->default_val(0);
         bindServerPortOpt->configurable();
 
-        net::ServerConfig::populate(serverSc);
+        net::ConfigServer::populate(serverSc);
         net::ConfigConn::populate(serverSc);
     }
 

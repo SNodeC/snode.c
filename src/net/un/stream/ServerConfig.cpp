@@ -38,7 +38,7 @@ namespace net::un::stream {
         bindServerSunPathOpt->default_val("/tmp/" + name + ".sock");
         bindServerSunPathOpt->configurable();
 
-        net::ServerConfig::populate(serverSc);
+        net::ConfigServer::populate(serverSc);
         net::ConfigConn::populate(serverSc);
     }
 

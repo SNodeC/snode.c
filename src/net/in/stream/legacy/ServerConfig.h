@@ -34,10 +34,7 @@ namespace net::in::stream::legacy {
         : public net::ConfigLegacy
         , public net::in::stream::ServerConfig {
     public:
-        explicit ServerConfig(const std::string& name)
-            : net::in::stream::ServerConfig(name) {
-            net::ConfigLegacy::populate(serverSc);
-        }
+        explicit ServerConfig(const std::string& name);
     };
 
 } // namespace net::in::stream::legacy

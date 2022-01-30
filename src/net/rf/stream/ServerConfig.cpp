@@ -44,7 +44,7 @@ namespace net::rf::stream {
         bindServerChannelOpt->default_val(0);
         bindServerChannelOpt->configurable();
 
-        net::ServerConfig::populate(serverSc);
+        net::ConfigServer::populate(serverSc);
         net::ConfigConn::populate(serverSc);
     }
 

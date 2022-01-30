@@ -21,7 +21,7 @@
 
 #include "net/ConfigBase.h"
 #include "net/ConfigConn.h"
-#include "net/ServerConfig.h"
+#include "net/ConfigServer.h"
 #include "net/l2/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,7 +40,7 @@ namespace net::l2::stream {
 
     class ServerConfig
         : public net::ConfigBase
-        , public net::ServerConfig
+        , public net::ConfigServer
         , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);

@@ -16,11 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_LEGACY_SERVERCONFIG_H
-#define NET_RF_STREAM_LEGACY_SERVERCONFIG_H
-
-#include "net/ConfigLegacy.h"
-#include "net/rf/stream/ServerConfig.h"
+#include "net/in/stream/tls/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,15 +24,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::rf::stream::legacy {
+namespace net::in::stream::tls {
 
-    class ServerConfig
-        : public net::ConfigLegacy
-        , public net::rf::stream::ServerConfig {
-    public:
-        explicit ServerConfig(const std::string& name);
-    };
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::in::stream::ServerConfig(name) {
+        net::ConfigTls::populate(serverSc);
+    }
 
-} // namespace net::rf::stream::legacy
-
-#endif // NET_RF_STREAM_TLS_SERVERCONFIG_H
+} // namespace net::in::stream::tls

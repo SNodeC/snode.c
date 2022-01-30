@@ -16,28 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ServerConfig.h"
+#include "net/rf/stream/tls/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
+#include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net {
+namespace net::rf::stream::tls {
 
-    ServerConfig::ServerConfig() {
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::rf::stream::ServerConfig(name) {
+        net::ConfigTls::populate(serverSc);
     }
 
-    void ServerConfig::populate(CLI::App* serverSc) {
-        serverBacklogOpt = serverSc->add_option("-b,--backlog", backlog, "Server listen backlog");
-        serverBacklogOpt->type_name("[backlog]");
-        serverBacklogOpt->default_val(5);
-        serverBacklogOpt->configurable();
-    }
-
-    int ServerConfig::getBacklog() const {
-        return backlog;
-    }
-
-} // namespace net
+} // namespace net::rf::stream::tls

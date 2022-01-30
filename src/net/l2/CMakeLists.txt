@@ -5,8 +5,14 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-    set(NET-L2_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerConfig.cpp
-                   stream/ServerSocket.cpp stream/ClientSocket.cpp
+    set(NET-L2_CPP
+        SocketAddress.cpp
+        stream/Socket.cpp
+        stream/ClientSocket.cpp
+        stream/ServerConfig.cpp
+        stream/ServerSocket.cpp
+        stream/legacy/ServerConfig.cpp
+        stream/tls/ServerConfig.cpp
     )
 
     set(NET-L2_H

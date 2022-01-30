@@ -16,27 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_LEGACY_SERVERCONFIG_H
-#define NET_RF_STREAM_LEGACY_SERVERCONFIG_H
-
-#include "net/ConfigLegacy.h"
-#include "net/rf/stream/ServerConfig.h"
+#ifndef NET_SERVERCONFIG_H
+#define NET_SERVERCONFIG_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream::legacy {
+namespace net {
 
-    class ServerConfig
-        : public net::ConfigLegacy
-        , public net::rf::stream::ServerConfig {
+    class ConfigServer {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ConfigServer();
+
+        int getBacklog() const;
+
+    protected:
+        void populate(CLI::App* serverSc);
+
+    private:
+        CLI::Option* serverBacklogOpt = nullptr;
+
+        int backlog;
     };
 
-} // namespace net::rf::stream::legacy
+} // namespace net
 
-#endif // NET_RF_STREAM_TLS_SERVERCONFIG_H
+#endif // NET_SERVERCONFIG_H

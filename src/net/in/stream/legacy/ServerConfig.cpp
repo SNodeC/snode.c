@@ -16,37 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SERVERCONFIG_H
-#define NET_SERVERCONFIG_H
+#include "net/in/stream/legacy/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
-
 #include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net {
+namespace net::in::stream::legacy {
 
-    class ServerConfig {
-    public:
-        explicit ServerConfig();
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::in::stream::ServerConfig(name) {
+        net::ConfigLegacy::populate(serverSc);
+    }
 
-        int getBacklog() const;
-
-    protected:
-        void populate(CLI::App* serverSc);
-
-    private:
-        CLI::Option* serverBacklogOpt = nullptr;
-
-        int backlog;
-    };
-
-} // namespace net
-
-#endif // NET_SERVERCONFIG_H
+} // namespace net::in::stream::legacy

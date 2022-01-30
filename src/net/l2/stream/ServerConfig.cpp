@@ -44,7 +44,7 @@ namespace net::l2::stream {
         bindServerPsmOpt->default_val(0);
         bindServerPsmOpt->configurable();
 
-        net::ServerConfig::populate(serverSc);
+        net::ConfigServer::populate(serverSc);
         net::ConfigConn::populate(serverSc);
     }
 
