@@ -26,7 +26,10 @@
 namespace core::socket::stream {
     template <typename ServerConfig, typename SocketConnection>
     class SocketAcceptor;
-}
+
+    template <typename SocketConnection>
+    class SocketConnector;
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -83,6 +86,9 @@ namespace core::socket::stream::legacy {
 
         template <typename Socket>
         friend class SocketConnector;
+
+        template <typename SocketConnection>
+        friend class core::socket::stream::SocketConnector;
     };
 
 } // namespace core::socket::stream::legacy

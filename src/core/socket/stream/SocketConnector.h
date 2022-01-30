@@ -47,10 +47,15 @@ namespace core::socket::stream {
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
 
-    public:
+    protected:
+        //        using ServerConfig = ServerConfigT;
+
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
+
+        using SocketReader = typename SocketConnection::SocketReader;
+        using SocketWriter = typename SocketConnection::SocketWriter;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,

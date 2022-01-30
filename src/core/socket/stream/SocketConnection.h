@@ -40,16 +40,14 @@ namespace core::socket::stream {
         , protected SocketWriterT {
         SocketConnection() = delete;
 
-    private:
+    protected:
         using Super = core::socket::SocketConnection;
 
         using SocketReader = SocketReaderT;
         using SocketWriter = SocketWriterT;
 
-    protected:
         using SocketAddress = SocketAddressT;
 
-    protected:
         SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,

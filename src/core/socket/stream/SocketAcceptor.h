@@ -51,17 +51,21 @@ namespace core::socket::stream {
         SocketAcceptor(const SocketAcceptor&) = delete;
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
-    public:
+    protected:
         using ServerConfig = ServerConfigT;
+
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
+        using SocketReader = typename SocketConnection::SocketReader;
+        using SocketWriter = typename SocketConnection::SocketWriter;
+
         /** Sequence diagramm of res.upgrade(req).
-@startuml
-!include core/socket/stream/pu/SocketAcceptor.pu!0
-@enduml
-*/
+        @startuml
+        !include core/socket/stream/pu/SocketAcceptor.pu!0
+        @enduml
+        */
         SocketAcceptor(const ServerConfig& serverConfig,
                        const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
