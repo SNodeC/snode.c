@@ -36,17 +36,17 @@ namespace net::un::stream {
 
     class ConfigBind {
     public:
-        explicit ConfigBind(CLI::App* serverSc);
+        explicit ConfigBind(CLI::App* baseSc);
 
-        const std::string& getSunPath() const;
+        const std::string& getBindSunPath() const;
 
         net::un::SocketAddress getBindAddress() const;
 
     protected:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerSunPathOpt = nullptr;
+        CLI::App* bindSc = nullptr;
+        CLI::Option* bindSunPathOpt = nullptr;
 
-        std::string sunPath = "";
+        std::string bindSunPath = "";
     };
 
 } // namespace net::un::stream

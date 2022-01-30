@@ -29,9 +29,9 @@ namespace net {
 
     ConfigBase::ConfigBase(const std::string& name)
         : name(name) {
-        serverSc = utils::Config::instance().add_subcommand(name, name + " configuration");
-        serverSc->configurable();
-        serverSc->fallthrough();
+        baseSc = utils::Config::instance().add_subcommand(name, name + " configuration");
+        baseSc->configurable();
+        baseSc->fallthrough();
     }
 
     const std::string& ConfigBase::getName() const {

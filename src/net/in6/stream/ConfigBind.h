@@ -37,21 +37,21 @@ namespace net::in6::stream {
 
     class ConfigBind {
     public:
-        explicit ConfigBind(CLI::App* serverSc);
+        explicit ConfigBind(CLI::App* baseSc);
 
-        const std::string& getBindInterface() const;
+        const std::string& getBindHost() const;
 
         uint16_t getBindPort() const;
 
         net::in6::SocketAddress getBindAddress() const;
 
     protected:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerHostOpt = nullptr;
-        CLI::Option* bindServerPortOpt = nullptr;
+        CLI::App* bindSc = nullptr;
+        CLI::Option* bindHostOpt = nullptr;
+        CLI::Option* bindPortOpt = nullptr;
 
     private:
-        std::string bindInterface = "";
+        std::string bindHost = "";
         uint16_t bindPort = 0;
     };
 

@@ -29,15 +29,15 @@ namespace net::in::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name)
-        , net::ConfigBacklog(serverSc)
-        , net::in::stream::ConfigBind(serverSc)
-        , net::ConfigConn(serverSc) {
+        , net::ConfigBacklog(baseSc)
+        , net::in::stream::ConfigBind(baseSc)
+        , net::ConfigConn(baseSc) {
     }
 
     void ServerConfig::required(bool req) const {
-        utils::Config::instance().required(serverSc, req);
-        utils::Config::instance().required(serverBindSc, req);
-        utils::Config::instance().required(bindServerPortOpt, req);
+        utils::Config::instance().required(baseSc, req);
+        utils::Config::instance().required(bindSc, req);
+        utils::Config::instance().required(bindPortOpt, req);
     }
 
 } // namespace net::in::stream

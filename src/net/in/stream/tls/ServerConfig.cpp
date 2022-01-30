@@ -28,7 +28,7 @@ namespace net::in::stream::tls {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::in::stream::ServerConfig(name)
-        , net::ConfigTls(serverSc) {
+        , net::ConfigTls(baseSc) {
     }
 
 } // namespace net::in::stream::tls

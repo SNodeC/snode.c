@@ -26,24 +26,24 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream {
-    ConfigBind::ConfigBind(CLI::App* serverSc) {
-        serverBindSc = serverSc->add_subcommand("bind");
-        serverBindSc->group("Sub-Options (use -h,--help on them)");
-        serverBindSc->description("Server socket bind options");
-        serverBindSc->configurable();
+    ConfigBind::ConfigBind(CLI::App* baseSc) {
+        bindSc = baseSc->add_subcommand("bind");
+        bindSc->group("Sub-Options (use -h,--help on them)");
+        bindSc->description("Server socket bind options");
+        bindSc->configurable();
 
-        bindServerSunPathOpt = serverBindSc->add_option("-p,--path", sunPath, "Unix domain socket path");
-        bindServerSunPathOpt->type_name("[filesystem path]");
-        bindServerSunPathOpt->default_val("/tmp/sun.sock");
-        bindServerSunPathOpt->configurable();
+        bindSunPathOpt = bindSc->add_option("-p,--path", bindSunPath, "Unix domain socket path");
+        bindSunPathOpt->type_name("[filesystem path]");
+        bindSunPathOpt->default_val("/tmp/sun.sock");
+        bindSunPathOpt->configurable();
     }
 
-    const std::string& ConfigBind::getSunPath() const {
-        return sunPath;
+    const std::string& ConfigBind::getBindSunPath() const {
+        return bindSunPath;
     }
 
     SocketAddress ConfigBind::getBindAddress() const {
-        return net::un::SocketAddress(sunPath);
+        return net::un::SocketAddress(bindSunPath);
     }
 
 } // namespace net::un::stream

@@ -42,7 +42,7 @@ namespace net {
     protected:
         virtual void required(bool req) const = 0;
 
-        CLI::App* serverSc = nullptr;
+        CLI::App* baseSc = nullptr;
 
     private:
         std::string name;

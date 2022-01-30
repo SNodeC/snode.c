@@ -28,7 +28,7 @@ namespace net::in6::stream::legacy {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::in6::stream::ServerConfig(name)
-        , net::ConfigLegacy(serverSc) {
+        , net::ConfigLegacy(baseSc) {
     }
 
 } // namespace net::in6::stream::legacy

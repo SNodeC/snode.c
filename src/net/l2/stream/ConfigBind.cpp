@@ -27,33 +27,33 @@
 
 namespace net::l2::stream {
 
-    ConfigBind::ConfigBind(CLI::App* serverSc) {
-        serverBindSc = serverSc->add_subcommand("bind");
-        serverBindSc->group("Sub-Options (use -h,--help on them)");
-        serverBindSc->description("Server socket bind options");
-        serverBindSc->configurable();
+    ConfigBind::ConfigBind(CLI::App* baseSc) {
+        bindSc = baseSc->add_subcommand("bind");
+        bindSc->group("Sub-Options (use -h,--help on them)");
+        bindSc->description("Server socket bind options");
+        bindSc->configurable();
 
-        bindServerHostOpt = serverBindSc->add_option("-a,--host", bindInterface, "Bind bluetooth address");
-        bindServerHostOpt->type_name("[bluetooth address]");
-        bindServerHostOpt->default_val(":::::");
-        bindServerHostOpt->configurable();
+        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind bluetooth address");
+        bindHostOpt->type_name("[bluetooth address]");
+        bindHostOpt->default_val(":::::");
+        bindHostOpt->configurable();
 
-        bindServerPsmOpt = serverBindSc->add_option("-p,--psm", psm, "Bind protocol service multiplexer");
-        bindServerPsmOpt->type_name("[uint16_t]");
-        bindServerPsmOpt->default_val(0);
-        bindServerPsmOpt->configurable();
+        bindPsmOpt = bindSc->add_option("-p,--psm", bindPsm, "Bind protocol service multiplexer");
+        bindPsmOpt->type_name("[uint16_t]");
+        bindPsmOpt->default_val(0);
+        bindPsmOpt->configurable();
     }
 
-    const std::string& ConfigBind::getBindInterface() const {
-        return bindInterface;
+    const std::string& ConfigBind::getBindHost() const {
+        return bindHost;
     }
 
-    uint16_t ConfigBind::getPsm() const {
-        return psm;
+    uint16_t ConfigBind::getBindPsm() const {
+        return bindPsm;
     }
 
     SocketAddress ConfigBind::getBindAddress() const {
-        return net::l2::SocketAddress(bindInterface, psm);
+        return net::l2::SocketAddress(bindHost, bindPsm);
     }
 
 } // namespace net::l2::stream

@@ -36,7 +36,7 @@ namespace net {
 
     class ConfigConn {
     public:
-        explicit ConfigConn(CLI::App* serverSc);
+        explicit ConfigConn(CLI::App* baseSc);
 
     public:
         const utils::Timeval& getReadTimeout() const;

@@ -28,8 +28,8 @@
 
 namespace net {
 
-    ConfigTls::ConfigTls(CLI::App* serverSc) {
-        tlsSc = serverSc->add_subcommand("tls");
+    ConfigTls::ConfigTls(CLI::App* baseSc) {
+        tlsSc = baseSc->add_subcommand("tls");
         tlsSc->description("Options for SSL/TLS behaviour");
         tlsSc->configurable();
 

@@ -37,22 +37,22 @@ namespace net::rf::stream {
 
     class ConfigBind {
     public:
-        explicit ConfigBind(CLI::App* serverSc);
+        explicit ConfigBind(CLI::App* baseSc);
 
-        const std::string& getBindInterface() const;
+        const std::string& getBindHost() const;
 
-        uint8_t getChannel() const;
+        uint8_t getBindChannel() const;
 
         net::rf::SocketAddress getBindAddress() const;
 
     protected:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerHostOpt = nullptr;
-        CLI::Option* bindServerChannelOpt = nullptr;
+        CLI::App* bindSc = nullptr;
+        CLI::Option* bindHostOpt = nullptr;
+        CLI::Option* bindChannelOpt = nullptr;
 
     private:
-        std::string bindInterface = "";
-        uint8_t channel = 0;
+        std::string bindHost = "";
+        uint8_t bindChannel = 0;
     };
 
 } // namespace net::rf::stream

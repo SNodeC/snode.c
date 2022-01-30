@@ -37,22 +37,22 @@ namespace net::l2::stream {
 
     class ConfigBind {
     public:
-        explicit ConfigBind(CLI::App* serverSc);
+        explicit ConfigBind(CLI::App* baseSc);
 
-        const std::string& getBindInterface() const;
+        const std::string& getBindHost() const;
 
-        uint16_t getPsm() const;
+        uint16_t getBindPsm() const;
 
         net::l2::SocketAddress getBindAddress() const;
 
     protected:
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerHostOpt = nullptr;
-        CLI::Option* bindServerPsmOpt = nullptr;
+        CLI::App* bindSc = nullptr;
+        CLI::Option* bindHostOpt = nullptr;
+        CLI::Option* bindPsmOpt = nullptr;
 
     private:
-        std::string bindInterface = "";
-        uint16_t psm = 0;
+        std::string bindHost = "";
+        uint16_t bindPsm = 0;
     };
 
 } // namespace net::l2::stream

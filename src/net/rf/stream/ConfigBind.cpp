@@ -27,33 +27,33 @@
 
 namespace net::rf::stream {
 
-    ConfigBind::ConfigBind(CLI::App* serverSc) {
-        serverBindSc = serverSc->add_subcommand("bind");
-        serverBindSc->group("Sub-Options (use -h,--help on them)");
-        serverBindSc->description("Server socket bind options");
-        serverBindSc->configurable();
+    ConfigBind::ConfigBind(CLI::App* baseSc) {
+        bindSc = baseSc->add_subcommand("bind");
+        bindSc->group("Sub-Options (use -h,--help on them)");
+        bindSc->description("Server socket bind options");
+        bindSc->configurable();
 
-        bindServerHostOpt = serverBindSc->add_option("-a,--host", bindInterface, "Bind bluetooth address");
-        bindServerHostOpt->type_name("[bluetooth address]");
-        bindServerHostOpt->default_val(":::::");
-        bindServerHostOpt->configurable();
+        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind bluetooth address");
+        bindHostOpt->type_name("[bluetooth address]");
+        bindHostOpt->default_val(":::::");
+        bindHostOpt->configurable();
 
-        bindServerChannelOpt = serverBindSc->add_option("-c,--channel", channel, "Bind channel number");
-        bindServerChannelOpt->type_name("[uint8_t]");
-        bindServerChannelOpt->default_val(0);
-        bindServerChannelOpt->configurable();
+        bindChannelOpt = bindSc->add_option("-c,--channel", bindChannel, "Bind channel number");
+        bindChannelOpt->type_name("[uint8_t]");
+        bindChannelOpt->default_val(0);
+        bindChannelOpt->configurable();
     }
 
-    const std::string& ConfigBind::getBindInterface() const {
-        return bindInterface;
+    const std::string& ConfigBind::getBindHost() const {
+        return bindHost;
     }
 
-    uint8_t ConfigBind::getChannel() const {
-        return channel;
+    uint8_t ConfigBind::getBindChannel() const {
+        return bindChannel;
     }
 
     SocketAddress ConfigBind::getBindAddress() const {
-        return net::rf::SocketAddress(bindInterface, channel);
+        return net::rf::SocketAddress(bindHost, bindChannel);
     }
 
 } // namespace net::rf::stream

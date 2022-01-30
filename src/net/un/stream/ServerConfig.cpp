@@ -28,15 +28,15 @@
 namespace net::un::stream {
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name)
-        , net::ConfigBacklog(serverSc)
-        , net::un::stream::ConfigBind(serverSc)
-        , net::ConfigConn(serverSc) {
+        , net::ConfigBacklog(baseSc)
+        , net::un::stream::ConfigBind(baseSc)
+        , net::ConfigConn(baseSc) {
     }
 
     void ServerConfig::required(bool req) const {
-        utils::Config::instance().required(serverSc, req);
-        utils::Config::instance().required(serverBindSc, req);
-        utils::Config::instance().required(bindServerSunPathOpt, req);
+        utils::Config::instance().required(baseSc, req);
+        utils::Config::instance().required(bindSc, req);
+        utils::Config::instance().required(bindSunPathOpt, req);
     }
 
 } // namespace net::un::stream

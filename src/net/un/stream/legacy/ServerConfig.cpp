@@ -28,7 +28,7 @@ namespace net::un::stream::legacy {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::un::stream::ServerConfig(name)
-        , net::ConfigLegacy(serverSc) {
+        , net::ConfigLegacy(baseSc) {
     }
 
 } // namespace net::un::stream::legacy

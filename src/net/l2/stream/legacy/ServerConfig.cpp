@@ -28,7 +28,7 @@ namespace net::l2::stream::legacy {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::l2::stream::ServerConfig(name)
-        , net::ConfigLegacy(serverSc) {
+        , net::ConfigLegacy(baseSc) {
     }
 
 } // namespace net::l2::stream::legacy

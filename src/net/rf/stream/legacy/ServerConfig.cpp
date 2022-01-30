@@ -28,7 +28,7 @@ namespace net::rf::stream::legacy {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::rf::stream::ServerConfig(name)
-        , net::ConfigLegacy(serverSc) {
+        , net::ConfigLegacy(baseSc) {
     }
 
 } // namespace net::rf::stream::legacy

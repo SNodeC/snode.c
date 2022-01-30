@@ -27,25 +27,25 @@
 
 namespace net::in6::stream {
 
-    ConfigBind::ConfigBind(CLI::App* serverSc) {
-        serverBindSc = serverSc->add_subcommand("bind");
-        serverBindSc->group("Sub-Options (use -h,--help on them)");
-        serverBindSc->description("Server socket bind options");
-        serverBindSc->configurable();
+    ConfigBind::ConfigBind(CLI::App* baseSc) {
+        bindSc = baseSc->add_subcommand("bind");
+        bindSc->group("Sub-Options (use -h,--help on them)");
+        bindSc->description("Server socket bind options");
+        bindSc->configurable();
 
-        bindServerHostOpt = serverBindSc->add_option("-a,--host", bindInterface, "Bind host name or IP address");
-        bindServerHostOpt->type_name("[hostname|ip]");
-        bindServerHostOpt->default_val("::");
-        bindServerHostOpt->configurable();
+        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind host name or IP address");
+        bindHostOpt->type_name("[hostname|ip]");
+        bindHostOpt->default_val("::");
+        bindHostOpt->configurable();
 
-        bindServerPortOpt = serverBindSc->add_option("-p,--port", bindPort, "Bind port number");
-        bindServerPortOpt->type_name("[uint16_t]");
-        bindServerPortOpt->default_val(0);
-        bindServerPortOpt->configurable();
+        bindPortOpt = bindSc->add_option("-p,--port", bindPort, "Bind port number");
+        bindPortOpt->type_name("[uint16_t]");
+        bindPortOpt->default_val(0);
+        bindPortOpt->configurable();
     }
 
-    const std::string& ConfigBind::getBindInterface() const {
-        return bindInterface;
+    const std::string& ConfigBind::getBindHost() const {
+        return bindHost;
     }
 
     uint16_t ConfigBind::getBindPort() const {
@@ -53,7 +53,7 @@ namespace net::in6::stream {
     }
 
     SocketAddress ConfigBind::getBindAddress() const {
-        return net::in6::SocketAddress(bindInterface, bindPort);
+        return net::in6::SocketAddress(bindHost, bindPort);
     }
 
 } // namespace net::in6::stream

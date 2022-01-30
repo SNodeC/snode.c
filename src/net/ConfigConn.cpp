@@ -26,8 +26,8 @@
 
 namespace net {
 
-    ConfigConn::ConfigConn(CLI::App* serverSc) {
-        connectionSc = serverSc->add_subcommand("conn");
+    ConfigConn::ConfigConn(CLI::App* baseSc) {
+        connectionSc = baseSc->add_subcommand("conn");
         connectionSc->description("Options for established client connections");
         connectionSc->configurable();
 

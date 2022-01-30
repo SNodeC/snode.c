@@ -34,7 +34,7 @@ namespace net {
 
     class ConfigTls {
     public:
-        explicit ConfigTls(CLI::App* serverSc);
+        explicit ConfigTls(CLI::App* baseSc);
 
         const utils::Timeval& getInitTimeout() const;
 

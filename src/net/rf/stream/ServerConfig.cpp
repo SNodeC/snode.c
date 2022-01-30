@@ -29,16 +29,16 @@ namespace net::rf::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name)
-        , net::ConfigBacklog(serverSc)
-        , net::rf::stream::ConfigBind(serverSc)
-        , net::ConfigConn(serverSc) {
+        , net::ConfigBacklog(baseSc)
+        , net::rf::stream::ConfigBind(baseSc)
+        , net::ConfigConn(baseSc) {
     }
 
     void ServerConfig::required(bool req) const {
-        utils::Config::instance().required(serverSc, req);
-        utils::Config::instance().required(serverBindSc, req);
-        utils::Config::instance().required(bindServerHostOpt, req);
-        utils::Config::instance().required(bindServerChannelOpt, req);
+        utils::Config::instance().required(baseSc, req);
+        utils::Config::instance().required(bindSc, req);
+        utils::Config::instance().required(bindHostOpt, req);
+        utils::Config::instance().required(bindChannelOpt, req);
     }
 
 } // namespace net::rf::stream
