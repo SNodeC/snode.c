@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGTLS_H
-#define NET_CONFIGTLS_H
+#ifndef NET_CONFIG_H
+#define NET_CONFIG_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,30 +28,49 @@ namespace CLI {
 
 #include "utils/Timeval.h"
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
-    class ConfigTls {
+    class ConfigConn {
     public:
-        explicit ConfigTls();
+        explicit ConfigConn();
 
-        const utils::Timeval& getInitTimeout() const;
+    public:
+        const utils::Timeval& getReadTimeout() const;
 
-        const utils::Timeval& getShutdownTimeout() const;
+        const utils::Timeval& getWriteTimeout() const;
+
+        std::size_t getReadBlockSize() const;
+
+        std::size_t getWriteBlockSize() const;
+
+        const utils::Timeval& getTerminateTimeout() const;
 
     protected:
         void populate(CLI::App* serverSc);
 
     private:
-        CLI::App* tlsSc = nullptr;
-        CLI::Option* tlsInitTimeoutOpt = nullptr;
-        CLI::Option* tlsShutdownTimeoutOpt = nullptr;
+        CLI::App* connectionSc = nullptr;
+        CLI::Option* readTimeoutOpt = nullptr;
+        CLI::Option* writeTimeoutOpt = nullptr;
+        CLI::Option* readBlockSizeOpt = nullptr;
+        CLI::Option* writeBlockSizeOpt = nullptr;
+        CLI::Option* terminateTimeoutOpt = nullptr;
 
-        utils::Timeval initTimeout;
-        utils::Timeval shutdownTimeout;
+        std::string name;
+
+        utils::Timeval readTimeout;
+        utils::Timeval writeTimeout;
+
+        std::size_t readBlockSize;
+        std::size_t writeBlockSize;
+
+        utils::Timeval terminateTimeout;
     };
 
 } // namespace net
 
-#endif // NET_CONFIGTLS_H
+#endif // CONFIG_H

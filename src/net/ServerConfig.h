@@ -19,11 +19,10 @@
 #ifndef NET_SERVERCONFIG_H
 #define NET_SERVERCONFIG_H
 
-#include "net/Config.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
+    class App;
     class Option;
 } // namespace CLI
 
@@ -33,11 +32,14 @@ namespace CLI {
 
 namespace net {
 
-    class ServerConfig : public net::Config {
+    class ServerConfig {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ServerConfig();
 
         int getBacklog() const;
+
+    protected:
+        void populate(CLI::App* serverSc);
 
     private:
         CLI::Option* serverBacklogOpt = nullptr;

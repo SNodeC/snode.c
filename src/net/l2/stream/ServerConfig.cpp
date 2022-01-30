@@ -28,7 +28,7 @@
 namespace net::l2::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::ServerConfig(name) {
+        : net::ConfigBase(name) {
         serverBindSc = serverSc->add_subcommand("bind");
         serverBindSc->group("Sub-Options (use -h,--help on them)");
         serverBindSc->description("Server socket bind options");
@@ -43,6 +43,9 @@ namespace net::l2::stream {
         bindServerPsmOpt->type_name("[uint16_t]");
         bindServerPsmOpt->default_val(0);
         bindServerPsmOpt->configurable();
+
+        net::ServerConfig::populate(serverSc);
+        net::ConfigConn::populate(serverSc);
     }
 
     const std::string& ServerConfig::getBindInterface() const {

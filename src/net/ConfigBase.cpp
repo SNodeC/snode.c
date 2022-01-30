@@ -16,18 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ConfigLegacy.h"
+#include "net/ConfigBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
-    ConfigLegacy::ConfigLegacy() {
+    ConfigBase::ConfigBase(const std::string& name)
+        : name(name) {
+        serverSc = utils::Config::instance().add_subcommand(name, name + " configuration");
+        serverSc->configurable();
+        serverSc->fallthrough();
     }
 
-    void ConfigLegacy::populate([[maybe_unused]] CLI::App* serverSc) {
+    const std::string& ConfigBase::getName() const {
+        return name;
+    }
+
+    int ConfigBase::parse(bool req) const {
+        required(req);
+
+        try {
+            utils::Config::instance().parse();
+        } catch (const CLI::ParseError& e) {
+        }
+
+        return 0;
     }
 
 } // namespace net

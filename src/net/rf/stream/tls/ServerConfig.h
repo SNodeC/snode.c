@@ -31,13 +31,12 @@
 namespace net::rf::stream::tls {
 
     class ServerConfig
-        : public net::ConfigTls
-        , public net::rf::stream::ServerConfig {
+        : public net::rf::stream::ServerConfig
+        , public net::ConfigTls {
     public:
         explicit ServerConfig(const std::string& name)
             : net::rf::stream::ServerConfig(name) {
-            net::ServerConfig::finish();
-            net::ConfigTls::finish(serverSc);
+            net::ConfigTls::populate(serverSc);
         }
     };
 

@@ -31,8 +31,8 @@
 namespace net::un::stream::legacy {
 
     class ServerConfig
-        : public net::ConfigLegacy
-        , public net::un::stream::ServerConfig {
+        : public net::un::stream::ServerConfig
+        , public net::ConfigLegacy {
     public:
         explicit ServerConfig(const std::string& name);
     };

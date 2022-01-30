@@ -28,7 +28,10 @@
 
 namespace net {
 
-    void ConfigTls::finish(CLI::App* serverSc) {
+    ConfigTls::ConfigTls() {
+    }
+
+    void ConfigTls::populate(CLI::App* serverSc) {
         tlsSc = serverSc->add_subcommand("tls");
         tlsSc->description("Options for SSL/TLS behaviour");
         tlsSc->configurable();

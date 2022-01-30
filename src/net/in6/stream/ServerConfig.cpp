@@ -28,7 +28,7 @@
 namespace net::in6::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::ServerConfig(name) {
+        : net::ConfigBase(name) {
         serverBindSc = serverSc->add_subcommand("bind");
         serverBindSc->group("Sub-Options (use -h,--help on them)");
         serverBindSc->description("Server socket bind options");
@@ -43,6 +43,9 @@ namespace net::in6::stream {
         bindServerPortOpt->type_name("[uint16_t]");
         bindServerPortOpt->default_val(0);
         bindServerPortOpt->configurable();
+
+        net::ServerConfig::populate(serverSc);
+        net::ConfigConn::populate(serverSc);
     }
 
     const std::string& ServerConfig::getBindInterface() const {

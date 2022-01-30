@@ -16,36 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/Config.h"
+#include "net/ConfigConn.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
-#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
-    Config::Config(const std::string& name)
-        : name(name) {
-        serverSc = utils::Config::instance().add_subcommand(name, "Server configuration");
-        serverSc->configurable();
-        serverSc->fallthrough();
+    ConfigConn::ConfigConn() {
     }
 
-    int Config::parse(bool req) const {
-        required(req);
-
-        try {
-            utils::Config::instance().parse();
-        } catch (const CLI::ParseError& e) {
-        }
-
-        return 0;
-    }
-
-    void Config::finish() {
+    void ConfigConn::populate(CLI::App* serverSc) {
         connectionSc = serverSc->add_subcommand("conn");
         connectionSc->description("Options for established client connections");
         connectionSc->configurable();
@@ -78,27 +62,23 @@ namespace net {
         terminateTimeoutOpt->configurable();
     }
 
-    const std::string& Config::getName() const {
-        return name;
-    }
-
-    const utils::Timeval& Config::getReadTimeout() const {
+    const utils::Timeval& ConfigConn::getReadTimeout() const {
         return readTimeout;
     }
 
-    const utils::Timeval& Config::getWriteTimeout() const {
+    const utils::Timeval& ConfigConn::getWriteTimeout() const {
         return writeTimeout;
     }
 
-    std::size_t Config::getReadBlockSize() const {
+    std::size_t ConfigConn::getReadBlockSize() const {
         return readBlockSize;
     }
 
-    std::size_t Config::getWriteBlockSize() const {
+    std::size_t ConfigConn::getWriteBlockSize() const {
         return writeBlockSize;
     }
 
-    const utils::Timeval& Config::getTerminateTimeout() const {
+    const utils::Timeval& ConfigConn::getTerminateTimeout() const {
         return terminateTimeout;
     }
 

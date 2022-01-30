@@ -16,17 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_H
-#define NET_CONFIG_H
+#ifndef NET_CONFIGBASE_H
+#define NET_CONFIGBASE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
     class App;
-    class Option;
 } // namespace CLI
-
-#include "utils/Timeval.h"
 
 #include <string>
 
@@ -34,52 +31,23 @@ namespace CLI {
 
 namespace net {
 
-    class Config {
+    class ConfigBase {
     public:
-        explicit Config(const std::string& name);
+        explicit ConfigBase(const std::string& name);
+
+        const std::string& getName() const;
 
         int parse(bool req = false) const;
 
     protected:
         virtual void required(bool req) const = 0;
 
-        void finish();
-
-    public:
-        const std::string& getName() const;
-
-        const utils::Timeval& getReadTimeout() const;
-
-        const utils::Timeval& getWriteTimeout() const;
-
-        std::size_t getReadBlockSize() const;
-
-        std::size_t getWriteBlockSize() const;
-
-        const utils::Timeval& getTerminateTimeout() const;
-
-    protected:
         CLI::App* serverSc = nullptr;
 
     private:
-        CLI::App* connectionSc = nullptr;
-        CLI::Option* readTimeoutOpt = nullptr;
-        CLI::Option* writeTimeoutOpt = nullptr;
-        CLI::Option* readBlockSizeOpt = nullptr;
-        CLI::Option* writeBlockSizeOpt = nullptr;
-        CLI::Option* terminateTimeoutOpt = nullptr;
-
         std::string name;
-
-        utils::Timeval readTimeout;
-        utils::Timeval writeTimeout;
-
-        std::size_t readBlockSize;
-        std::size_t writeBlockSize;
-
-        utils::Timeval terminateTimeout;
     };
 
 } // namespace net
 
-#endif // CONFIG_H
+#endif // NET_CONFIGBASE_H

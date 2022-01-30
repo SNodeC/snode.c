@@ -19,6 +19,8 @@
 #ifndef NET_IN6_STREAM_SERVERCONFIG_H
 #define NET_IN6_STREAM_SERVERCONFIG_H
 
+#include "net/ConfigBase.h"
+#include "net/ConfigConn.h"
 #include "net/ServerConfig.h"
 #include "net/in6/SocketAddress.h"
 
@@ -36,7 +38,10 @@ namespace CLI {
 
 namespace net::in6::stream {
 
-    class ServerConfig : public net::ServerConfig {
+    class ServerConfig
+        : public net::ConfigBase
+        , public net::ServerConfig
+        , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);
 

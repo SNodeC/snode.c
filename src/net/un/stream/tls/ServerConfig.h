@@ -31,8 +31,8 @@
 namespace net::un::stream::tls {
 
     class ServerConfig
-        : public net::ConfigTls
-        , public net::un::stream::ServerConfig {
+        : public net::un::stream::ServerConfig
+        , public net::ConfigTls {
     public:
         explicit ServerConfig(const std::string& name);
     };

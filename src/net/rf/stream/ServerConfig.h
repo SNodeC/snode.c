@@ -19,6 +19,8 @@
 #ifndef NET_RF_STREAM_SERVERCONFIG_H
 #define NET_RF_STREAM_SERVERCONFIG_H
 
+#include "net/ConfigBase.h"
+#include "net/ConfigConn.h"
 #include "net/ServerConfig.h"
 #include "net/rf/SocketAddress.h"
 
@@ -36,7 +38,10 @@ namespace CLI {
 
 namespace net::rf::stream {
 
-    class ServerConfig : public net::ServerConfig {
+    class ServerConfig
+        : public net::ConfigBase
+        , public net::ServerConfig
+        , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);
 

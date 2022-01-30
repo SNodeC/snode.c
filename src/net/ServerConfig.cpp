@@ -26,8 +26,10 @@
 
 namespace net {
 
-    ServerConfig::ServerConfig(const std::string& name)
-        : Config(name) {
+    ServerConfig::ServerConfig() {
+    }
+
+    void ServerConfig::populate(CLI::App* serverSc) {
         serverBacklogOpt = serverSc->add_option("-b,--backlog", backlog, "Server listen backlog");
         serverBacklogOpt->type_name("[backlog]");
         serverBacklogOpt->default_val(5);
