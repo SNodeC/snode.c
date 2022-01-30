@@ -31,10 +31,7 @@ namespace net {
 
     class ConfigLegacy {
     public:
-        explicit ConfigLegacy();
-
-    protected:
-        void populate(CLI::App* serverSc);
+        explicit ConfigLegacy(CLI::App* serverSc);
     };
 
 } // namespace net

@@ -27,8 +27,8 @@
 namespace net::un::stream::tls {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::un::stream::ServerConfig(name) {
-        net::ConfigTls::populate(serverSc);
+        : net::un::stream::ServerConfig(name)
+        , net::ConfigTls(serverSc) {
     }
 
 } // namespace net::un::stream::tls

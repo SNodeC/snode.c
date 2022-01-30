@@ -27,8 +27,8 @@
 namespace net::rf::stream::legacy {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::rf::stream::ServerConfig(name) {
-        net::ConfigLegacy::populate(serverSc);
+        : net::rf::stream::ServerConfig(name)
+        , net::ConfigLegacy(serverSc) {
     }
 
 } // namespace net::rf::stream::legacy

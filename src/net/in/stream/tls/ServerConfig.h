@@ -31,8 +31,8 @@
 namespace net::in::stream::tls {
 
     class ServerConfig
-        : public net::ConfigTls
-        , public net::in::stream::ServerConfig {
+        : public net::in::stream::ServerConfig
+        , public net::ConfigTls {
     public:
         explicit ServerConfig(const std::string& name);
     };

@@ -28,11 +28,10 @@
 namespace net::in::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::ConfigBase(name) {
-        net::ConfigBacklog::populate(serverSc);
-        net::in::stream::ConfigBind::populate(serverSc);
-
-        net::ConfigConn::populate(serverSc);
+        : net::ConfigBase(name)
+        , net::ConfigBacklog(serverSc)
+        , net::in::stream::ConfigBind(serverSc)
+        , net::ConfigConn(serverSc) {
     }
 
     void ServerConfig::required(bool req) const {

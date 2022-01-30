@@ -24,10 +24,7 @@
 
 namespace net {
 
-    ConfigLegacy::ConfigLegacy() {
-    }
-
-    void ConfigLegacy::populate([[maybe_unused]] CLI::App* serverSc) {
+    ConfigLegacy::ConfigLegacy([[maybe_unused]] CLI::App* serverSc) {
     }
 
 } // namespace net

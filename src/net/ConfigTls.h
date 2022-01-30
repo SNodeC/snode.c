@@ -34,14 +34,11 @@ namespace net {
 
     class ConfigTls {
     public:
-        explicit ConfigTls();
+        explicit ConfigTls(CLI::App* serverSc);
 
         const utils::Timeval& getInitTimeout() const;
 
         const utils::Timeval& getShutdownTimeout() const;
-
-    protected:
-        void populate(CLI::App* serverSc);
 
     private:
         CLI::App* tlsSc = nullptr;

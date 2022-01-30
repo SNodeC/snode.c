@@ -32,12 +32,9 @@ namespace net {
 
     class ConfigBacklog {
     public:
-        explicit ConfigBacklog();
+        explicit ConfigBacklog(CLI::App* serverSc);
 
         int getBacklog() const;
-
-    protected:
-        void populate(CLI::App* serverSc);
 
     private:
         CLI::Option* serverBacklogOpt = nullptr;

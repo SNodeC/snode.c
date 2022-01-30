@@ -36,7 +36,7 @@ namespace net {
 
     class ConfigConn {
     public:
-        explicit ConfigConn();
+        explicit ConfigConn(CLI::App* serverSc);
 
     public:
         const utils::Timeval& getReadTimeout() const;
@@ -48,9 +48,6 @@ namespace net {
         std::size_t getWriteBlockSize() const;
 
         const utils::Timeval& getTerminateTimeout() const;
-
-    protected:
-        void populate(CLI::App* serverSc);
 
     private:
         CLI::App* connectionSc = nullptr;

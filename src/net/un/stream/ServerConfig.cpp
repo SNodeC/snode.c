@@ -27,10 +27,10 @@
 
 namespace net::un::stream {
     ServerConfig::ServerConfig(const std::string& name)
-        : net::ConfigBase(name) {
-        net::ConfigBacklog::populate(serverSc);
-        net::un::stream::ConfigBind::populate(serverSc);
-        net::ConfigConn::populate(serverSc);
+        : net::ConfigBase(name)
+        , net::ConfigBacklog(serverSc)
+        , net::un::stream::ConfigBind(serverSc)
+        , net::ConfigConn(serverSc) {
     }
 
     void ServerConfig::required(bool req) const {

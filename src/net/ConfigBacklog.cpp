@@ -28,10 +28,7 @@
 
 namespace net {
 
-    ConfigBacklog::ConfigBacklog() {
-    }
-
-    void ConfigBacklog::populate(CLI::App* serverSc) {
+    ConfigBacklog::ConfigBacklog(CLI::App* serverSc) {
         serverBacklogOpt = serverSc->add_option("-b,--backlog", backlog, "Server listen backlog");
         serverBacklogOpt->type_name("[backlog]");
         serverBacklogOpt->default_val(5);

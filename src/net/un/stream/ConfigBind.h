@@ -36,7 +36,7 @@ namespace net::un::stream {
 
     class ConfigBind {
     public:
-        void populate(CLI::App* serverSc);
+        explicit ConfigBind(CLI::App* serverSc);
 
         const std::string& getSunPath() const;
 

@@ -37,7 +37,7 @@ namespace net::rf::stream {
 
     class ConfigBind {
     public:
-        void populate(CLI::App* serverSc);
+        explicit ConfigBind(CLI::App* serverSc);
 
         const std::string& getBindInterface() const;
 

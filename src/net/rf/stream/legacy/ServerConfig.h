@@ -31,8 +31,8 @@
 namespace net::rf::stream::legacy {
 
     class ServerConfig
-        : public net::ConfigLegacy
-        , public net::rf::stream::ServerConfig {
+        : public net::rf::stream::ServerConfig
+        , public net::ConfigLegacy {
     public:
         explicit ServerConfig(const std::string& name);
     };

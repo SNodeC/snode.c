@@ -31,8 +31,8 @@
 namespace net::in6::stream::legacy {
 
     class ServerConfig
-        : public net::ConfigLegacy
-        , public net::in6::stream::ServerConfig {
+        : public net::in6::stream::ServerConfig
+        , public net::ConfigLegacy {
     public:
         explicit ServerConfig(const std::string& name);
     };

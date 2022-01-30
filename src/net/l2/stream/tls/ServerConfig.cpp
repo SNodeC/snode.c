@@ -27,8 +27,8 @@
 namespace net::l2::stream::tls {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::l2::stream::ServerConfig(name) {
-        net::ConfigTls::populate(serverSc);
+        : net::l2::stream::ServerConfig(name)
+        , net::ConfigTls(serverSc) {
     }
 
 } // namespace net::l2::stream::tls

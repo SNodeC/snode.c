@@ -26,7 +26,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream {
-    void ConfigBind::populate(CLI::App* serverSc) {
+    ConfigBind::ConfigBind(CLI::App* serverSc) {
         serverBindSc = serverSc->add_subcommand("bind");
         serverBindSc->group("Sub-Options (use -h,--help on them)");
         serverBindSc->description("Server socket bind options");

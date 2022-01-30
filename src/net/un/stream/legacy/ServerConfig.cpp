@@ -27,8 +27,8 @@
 namespace net::un::stream::legacy {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::un::stream::ServerConfig(name) {
-        net::ConfigLegacy::populate(serverSc);
+        : net::un::stream::ServerConfig(name)
+        , net::ConfigLegacy(serverSc) {
     }
 
 } // namespace net::un::stream::legacy
