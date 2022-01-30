@@ -35,7 +35,7 @@ namespace core::socket::stream::legacy {
         using Super = core::socket::stream::SocketAcceptor<ServerConfigT, core::socket::stream::legacy::SocketConnection<SocketT>>;
 
     public:
-        using ServerConfig = ServerConfigT;
+        using ServerConfig = typename Super::ServerConfig;
         using Socket = typename Super::Socket;
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;

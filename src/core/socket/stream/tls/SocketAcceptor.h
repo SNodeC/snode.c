@@ -44,7 +44,7 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketAcceptor<ServerConfigT, core::socket::stream::tls::SocketConnection<SocketT>>;
 
     public:
-        using ServerConfig = ServerConfigT;
+        using ServerConfig = typename Super::ServerConfig;
         using Socket = typename Super::Socket;
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
