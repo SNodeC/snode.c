@@ -43,9 +43,9 @@ namespace net::un::stream {
 
         net::un::SocketAddress getBindAddress() const;
 
-        int parse(bool required = false) const;
-
     private:
+        void required(bool req) const override;
+
         CLI::App* serverBindSc = nullptr;
         CLI::Option* bindServerSunPathOpt = nullptr;
 

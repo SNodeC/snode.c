@@ -57,17 +57,10 @@ namespace net::in6::stream {
         return net::in6::SocketAddress(bindInterface, bindPort);
     }
 
-    int ServerConfig::parse(bool required) const {
-        utils::Config::instance().required(serverSc, required);
-        utils::Config::instance().required(serverBindSc, required);
-        utils::Config::instance().required(bindServerPortOpt, required);
-
-        try {
-            utils::Config::instance().parse();
-        } catch (const CLI::ParseError& e) {
-        }
-
-        return 0;
+    void ServerConfig::required(bool req) const {
+        utils::Config::instance().required(serverSc, req);
+        utils::Config::instance().required(serverBindSc, req);
+        utils::Config::instance().required(bindServerPortOpt, req);
     }
 
 } // namespace net::in6::stream

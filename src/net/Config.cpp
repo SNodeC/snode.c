@@ -31,6 +31,18 @@ namespace net {
         : name(name) {
         serverSc = utils::Config::instance().add_subcommand(name, "Server configuration");
         serverSc->configurable();
+        serverSc->fallthrough();
+    }
+
+    int Config::parse(bool req) const {
+        required(req);
+
+        try {
+            utils::Config::instance().parse();
+        } catch (const CLI::ParseError& e) {
+        }
+
+        return 0;
     }
 
     void Config::finish() {

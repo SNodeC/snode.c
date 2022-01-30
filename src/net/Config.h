@@ -38,7 +38,11 @@ namespace net {
     public:
         explicit Config(const std::string& name);
 
+        int parse(bool req = false) const;
+
     protected:
+        virtual void required(bool req) const = 0;
+
         void finish();
 
     public:
@@ -52,7 +56,7 @@ namespace net {
 
         std::size_t getWriteBlockSize() const;
 
-        const utils::Timeval &getTerminateTimeout() const;
+        const utils::Timeval& getTerminateTimeout() const;
 
     protected:
         CLI::App* serverSc = nullptr;

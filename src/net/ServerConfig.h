@@ -33,7 +33,7 @@ namespace CLI {
 
 namespace net {
 
-    class ServerConfig : public Config {
+    class ServerConfig : public net::Config {
     public:
         explicit ServerConfig(const std::string& name);
 

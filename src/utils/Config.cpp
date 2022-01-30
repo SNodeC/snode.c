@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cstdlib>   // for exit
 #include <iostream>  // for basic_ostream, endl, operator<<, cout, ofstream, ostream
 #include <stdexcept> // for invalid_argument, out_of_range
@@ -66,7 +68,7 @@ namespace utils {
         CLI::Option* daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", _daemonize, "Start application as daemon");
         daemonizeOpt->configurable();
 
-        CLI::Option* killDaemonOpt = app.add_flag("-k,--kill", _kill, "Start application as daemon");
+        CLI::Option* killDaemonOpt = app.add_flag("-k,--kill", _kill, "Kill running daemon");
         killDaemonOpt->configurable(false);
 
         parse();
