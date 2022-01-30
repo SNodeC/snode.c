@@ -24,6 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h" // for Timeval
+
 #include <functional>
 #include <openssl/ossl_typ.h> // for SSL
 
