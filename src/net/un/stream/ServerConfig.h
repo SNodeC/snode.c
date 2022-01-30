@@ -22,17 +22,11 @@
 #include "net/ConfigBacklog.h"
 #include "net/ConfigBase.h"
 #include "net/ConfigConn.h"
-#include "net/un/SocketAddress.h"
 #include "net/un/stream/ConfigBind.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string> // for string
-
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

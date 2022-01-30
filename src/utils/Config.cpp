@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cstdlib>   // for exit
 #include <iostream>  // for basic_ostream, endl, operator<<, cout, ofstream, ostream
 #include <stdexcept> // for invalid_argument, out_of_range

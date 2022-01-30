@@ -20,7 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
 #include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
