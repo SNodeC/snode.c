@@ -20,8 +20,6 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/SocketContext.h"
-#include "core/socket/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

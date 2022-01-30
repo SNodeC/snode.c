@@ -34,9 +34,11 @@ namespace net {
     }
 
     void Config::finish() {
-        serverConnectionSc = serverSc->add_subcommand("connection");
+        serverConnectionSc = serverSc->add_subcommand("conn");
         serverConnectionSc->description("Options for established client connections");
         serverConnectionSc->configurable();
+
+        serverConnectionSc->group("Sub-Options (use -h,--help on them)");
 
         serverConnectionReadTimeoutOpt = serverConnectionSc->add_option("-r,--read-timeout", readTimeout, "Read timeout");
         serverConnectionReadTimeoutOpt->type_name("[sec]");

@@ -30,6 +30,7 @@ namespace net::in::stream {
     ServerConfig::ServerConfig(const std::string& name)
         : net::ServerConfig(name) {
         serverBindSc = serverSc->add_subcommand("bind");
+        serverBindSc->group("Sub-Options (use -h,--help on them)");
         serverBindSc->description("Server socket bind options");
         serverBindSc->configurable();
 
