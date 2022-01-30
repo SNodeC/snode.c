@@ -52,14 +52,27 @@ namespace core::socket::stream {
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void()>& onConnect,
-                         const std::function<void()>& onDisconnect)
+                         const std::function<void()>& onDisconnect,
+                         const utils::Timeval& readTimeout,
+                         const utils::Timeval& writeTimeout,
+                         std::size_t readBlockSize,
+                         std::size_t writeBlockSize,
+                         const utils::Timeval& terminateTimeout)
             : Super(socketContextFactory)
-            , SocketReader([this](int errnum) -> void {
-                onReadError(errnum);
-            })
-            , SocketWriter([this](int errnum) -> void {
-                onWriteError(errnum);
-            })
+            , SocketReader(
+                  [this](int errnum) -> void {
+                      onReadError(errnum);
+                  },
+                  readTimeout,
+                  readBlockSize,
+                  terminateTimeout)
+            , SocketWriter(
+                  [this](int errnum) -> void {
+                      onWriteError(errnum);
+                  },
+                  writeTimeout,
+                  writeBlockSize,
+                  terminateTimeout)
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {

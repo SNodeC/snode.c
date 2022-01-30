@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
@@ -31,12 +33,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_READ_JUNKSIZE
-#define MAX_READ_JUNKSIZE 16384
-#endif
-
-#ifndef MAX_SHUTDOWN_TIMEOUT
-#define MAX_SHUTDOWN_TIMEOUT 1
+#ifndef MAX_TERMINATE_TIMEOUT
+#define MAX_TERMINATE_TIMEOUT 1
 #endif
 
 namespace core::socket::stream {
@@ -51,10 +49,17 @@ namespace core::socket::stream {
         using Socket = SocketT;
 
     protected:
-        explicit SocketReader(const std::function<void(int)>& onError)
-            : onError(onError) {
-            setBlockSize(MAX_READ_JUNKSIZE);
+        explicit SocketReader(const std::function<void(int)>& onError,
+                              const utils::Timeval& timeout,
+                              std::size_t blockSize,
+                              const utils::Timeval& terminateTimeout)
+            : onError(onError)
+            , terminateTimeout(terminateTimeout) {
+            setBlockSize(blockSize);
+            setTimeout(timeout);
             enable(Socket::fd);
+
+            VLOG(0) << "BlockSize = " << blockSize << ", timeout = " << timeout;
         }
 
         virtual ~SocketReader() = default;
@@ -118,7 +123,7 @@ namespace core::socket::stream {
         }
 
         void terminate() override {
-            setTimeout(MAX_SHUTDOWN_TIMEOUT);
+            setTimeout(terminateTimeout);
             // shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
         }
 
@@ -132,6 +137,8 @@ namespace core::socket::stream {
         std::size_t cursor = 0;
 
         bool shutdownTriggered = false;
+
+        utils::Timeval terminateTimeout;
     };
 
 } // namespace core::socket::stream

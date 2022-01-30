@@ -124,7 +124,12 @@ namespace core::socket::stream {
                                                                                       SocketAddress(localAddress),
                                                                                       SocketAddress(remoteAddress),
                                                                                       onConnect,
-                                                                                      onDisconnect);
+                                                                                      onDisconnect,
+                                                                                      60,
+                                                                                      60,
+                                                                                      4096,
+                                                                                      4096,
+                                                                                      1);
 
                             onConnected(socketConnection);
                             onError(0);

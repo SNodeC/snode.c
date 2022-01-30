@@ -149,13 +149,17 @@ namespace core::socket::stream {
                     socklen_t addressLength = sizeof(localAddress);
 
                     if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                        SocketConnection* socketConnection = new SocketConnection(
-                            fd, socketContextFactory, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
-
-                        socketConnection->SocketReader::setTimeout(serverConfig.getReadTimeout());
-                        socketConnection->SocketWriter::setTimeout(serverConfig.getWriteTimeout());
-                        socketConnection->SocketReader::setBlockSize(serverConfig.getReadBlockSize());
-                        socketConnection->SocketWriter::setBlockSize(serverConfig.getWriteBlockSize());
+                        SocketConnection* socketConnection = new SocketConnection(fd,
+                                                                                  socketContextFactory,
+                                                                                  SocketAddress(localAddress),
+                                                                                  SocketAddress(remoteAddress),
+                                                                                  onConnect,
+                                                                                  onDisconnect,
+                                                                                  serverConfig.getReadTimeout(),
+                                                                                  serverConfig.getWriteTimeout(),
+                                                                                  serverConfig.getReadBlockSize(),
+                                                                                  serverConfig.getWriteBlockSize(),
+                                                                                  serverConfig.getTerminateTimeout());
 
                         onConnected(socketConnection);
                     } else {

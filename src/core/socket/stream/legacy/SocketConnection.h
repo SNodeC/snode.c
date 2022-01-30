@@ -61,7 +61,12 @@ namespace core::socket::stream::legacy {
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(SocketConnection*)>& onConnect,
-                         const std::function<void(SocketConnection*)>& onDisconnect)
+                         const std::function<void(SocketConnection*)>& onDisconnect,
+                         const utils::Timeval& readTimeout,
+                         const utils::Timeval& writeTimeout,
+                         std::size_t readBlockSize,
+                         std::size_t writeBlockSize,
+                         const utils::Timeval& terminateTimeout)
             : Super::Descriptor(fd)
             , Super(
                   socketProtocolFactory,
@@ -72,7 +77,12 @@ namespace core::socket::stream::legacy {
                   },
                   [onDisconnect, this]() -> void {
                       onDisconnect(this);
-                  }) {
+                  },
+                  readTimeout,
+                  writeTimeout,
+                  readBlockSize,
+                  writeBlockSize,
+                  terminateTimeout) {
         }
 
     private:

@@ -51,7 +51,7 @@ namespace core::socket::stream::tls {
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
-                      SSL* ssl = socketConnection->startSSL(this->ctx);
+                      SSL* ssl = socketConnection->startSSL(this->ctx, 10, 2);
 
                       if (ssl != nullptr) {
                           ssl_set_sni(ssl, this->options);

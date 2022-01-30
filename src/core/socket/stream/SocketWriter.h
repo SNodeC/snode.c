@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
@@ -31,12 +33,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_SEND_JUNKSIZE
-#define MAX_SEND_JUNKSIZE 16384
-#endif
-
-#ifndef MAX_SHUTDOWN_TIMEOUT
-#define MAX_SHUTDOWN_TIMEOUT 1
+#ifndef MAX_TERMINATE_TIMEOUT
+#define MAX_TERMINATE_TIMEOUT 1
 #endif
 
 namespace core::socket::stream {
@@ -51,11 +49,18 @@ namespace core::socket::stream {
         using Socket = SocketT;
 
     protected:
-        explicit SocketWriter(const std::function<void(int)>& onError)
-            : onError(onError) {
-            setBlockSize(MAX_SEND_JUNKSIZE);
+        explicit SocketWriter(const std::function<void(int)>& onError,
+                              const utils::Timeval& timeout,
+                              std::size_t blockSize,
+                              const utils::Timeval& terminateTimeout)
+            : onError(onError)
+            , terminateTimeout(terminateTimeout) {
+            setBlockSize(blockSize);
+            setTimeout(timeout);
             enable(Socket::fd);
             suspend();
+
+            VLOG(0) << "BlockSize = " << blockSize << ", timeout = " << timeout;
         }
 
         virtual ~SocketWriter() = default;
@@ -121,7 +126,7 @@ namespace core::socket::stream {
         }
 
         void terminate() override {
-            setTimeout(MAX_SHUTDOWN_TIMEOUT);
+            setTimeout(MAX_TERMINATE_TIMEOUT);
             shutdown();
         }
 
@@ -134,6 +139,8 @@ namespace core::socket::stream {
         bool markShutdown = false;
 
         bool shutdownInProgress = false;
+
+        utils::Timeval terminateTimeout;
     };
 
 } // namespace core::socket::stream

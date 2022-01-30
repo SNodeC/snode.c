@@ -65,7 +65,12 @@ namespace core::socket::stream::tls {
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(SocketConnection*)>& onConnect,
-                         const std::function<void(SocketConnection*)>& onDisconnect)
+                         const std::function<void(SocketConnection*)>& onDisconnect,
+                         const utils::Timeval& readTimeout,
+                         const utils::Timeval& writeTimeout,
+                         std::size_t readBlockSize,
+                         std::size_t writeBlockSize,
+                         const utils::Timeval& terminateTimeout)
             : Super::Descriptor(fd)
             , Super(
                   socketContextFactory,
@@ -76,7 +81,12 @@ namespace core::socket::stream::tls {
                   },
                   [onDisconnect, this]() -> void {
                       onDisconnect(this);
-                  }) {
+                  },
+                  readTimeout,
+                  writeTimeout,
+                  readBlockSize,
+                  writeBlockSize,
+                  terminateTimeout) {
         }
 
         SSL* getSSL() const {
@@ -86,15 +96,9 @@ namespace core::socket::stream::tls {
     private:
         ~SocketConnection() override = default;
 
-        void setInitTimeout(const utils::Timeval& timeout) {
-            initTimeout = timeout;
-        }
-
-        void setShutdownTimeout(const utils::Timeval& timeout) {
-            shutdownTimeout = timeout;
-        }
-
-        SSL* startSSL(SSL_CTX* ctx) {
+        SSL* startSSL(SSL_CTX* ctx, const utils::Timeval& initTimeout, const utils::Timeval& shutdownTimeout) {
+            this->initTimeout = initTimeout;
+            this->shutdownTimeout = shutdownTimeout;
             if (ctx != nullptr) {
                 ssl = SSL_new(ctx);
 
@@ -173,7 +177,8 @@ namespace core::socket::stream::tls {
 
         void doSSLShutdown(const std::function<void()>& onSuccess,
                            const std::function<void()>& onTimeout,
-                           const std::function<void(int)>& onError) {
+                           const std::function<void(int)>& onError,
+                           const utils::Timeval& shutdownTimeout) {
             int resumeSocketReader = false;
             int resumeSocketWriter = false;
 
@@ -247,7 +252,8 @@ namespace core::socket::stream::tls {
                     [this](int sslErr) -> void {
                         ssl_log("SSL_shutdown: Handshake failed", sslErr);
                         SocketWriter::disable();
-                    });
+                    },
+                    shutdownTimeout);
             }
         }
 

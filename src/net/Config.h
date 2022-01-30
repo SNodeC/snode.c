@@ -52,6 +52,8 @@ namespace net {
 
         std::size_t getWriteBlockSize() const;
 
+        const utils::Timeval &getTerminateTimeout() const;
+
     protected:
         CLI::App* serverSc = nullptr;
 
@@ -61,6 +63,7 @@ namespace net {
         CLI::Option* writeTimeoutOpt = nullptr;
         CLI::Option* readBlockSizeOpt = nullptr;
         CLI::Option* writeBlockSizeOpt = nullptr;
+        CLI::Option* terminateTimeoutOpt = nullptr;
 
         std::string name;
 
@@ -69,6 +72,8 @@ namespace net {
 
         std::size_t readBlockSize;
         std::size_t writeBlockSize;
+
+        utils::Timeval terminateTimeout;
     };
 
 } // namespace net

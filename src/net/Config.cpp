@@ -59,6 +59,11 @@ namespace net {
         writeBlockSizeOpt->type_name("[bytes]");
         writeBlockSizeOpt->default_val(4096);
         writeBlockSizeOpt->configurable();
+
+        terminateTimeoutOpt = connectionSc->add_option("-t,--terminate-timeout", terminateTimeout, "Terminate timeout");
+        terminateTimeoutOpt->type_name("[sec]");
+        terminateTimeoutOpt->default_val(1);
+        terminateTimeoutOpt->configurable();
     }
 
     const std::string& Config::getName() const {
@@ -79,6 +84,10 @@ namespace net {
 
     std::size_t Config::getWriteBlockSize() const {
         return writeBlockSize;
+    }
+
+    const utils::Timeval& Config::getTerminateTimeout() const {
+        return terminateTimeout;
     }
 
 } // namespace net
