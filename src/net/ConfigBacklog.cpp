@@ -16,40 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
-
 #include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConn.h"
-#include "net/un/SocketAddress.h"
-#include "net/un/stream/ConfigBind.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include "utils/CLI11.hpp"
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net {
 
-    class ServerConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
-        , public net::un::stream::ConfigBind
-        , public net::ConfigConn {
-    public:
-        explicit ServerConfig(const std::string& name);
+    ConfigBacklog::ConfigBacklog() {
+    }
 
-    private:
-        void required(bool req) const override;
-    };
+    void ConfigBacklog::populate(CLI::App* serverSc) {
+        serverBacklogOpt = serverSc->add_option("-b,--backlog", backlog, "Server listen backlog");
+        serverBacklogOpt->type_name("[backlog]");
+        serverBacklogOpt->default_val(5);
+        serverBacklogOpt->configurable();
+    }
 
-} // namespace net::un::stream
+    int ConfigBacklog::getBacklog() const {
+        return backlog;
+    }
 
-#endif
+} // namespace net

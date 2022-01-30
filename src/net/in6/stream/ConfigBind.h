@@ -16,10 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SERVERCONFIG_H
-#define NET_SERVERCONFIG_H
+#ifndef NET_IN6_STREAM_CONFIGBIND_H
+#define NET_IN6_STREAM_CONFIGBIND_H
+
+#include "net/in6/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstdint> // for uint16_t
+#include <string>  // for string
 
 namespace CLI {
     class App;
@@ -28,23 +33,28 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::in6::stream {
 
-    class ConfigServer {
+    class ConfigBind {
     public:
-        explicit ConfigServer();
-
-        int getBacklog() const;
-
-    protected:
         void populate(CLI::App* serverSc);
 
-    private:
-        CLI::Option* serverBacklogOpt = nullptr;
+        const std::string& getBindInterface() const;
 
-        int backlog;
+        uint16_t getBindPort() const;
+
+        net::in6::SocketAddress getBindAddress() const;
+
+    protected:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerHostOpt = nullptr;
+        CLI::Option* bindServerPortOpt = nullptr;
+
+    private:
+        std::string bindInterface = "";
+        uint16_t bindPort = 0;
     };
 
-} // namespace net
+} // namespace net::in6::stream
 
-#endif // NET_SERVERCONFIG_H
+#endif

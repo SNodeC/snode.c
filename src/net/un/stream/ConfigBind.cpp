@@ -16,40 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
-
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConn.h"
-#include "net/un/SocketAddress.h"
 #include "net/un/stream/ConfigBind.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
-
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
+#include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream {
+    void ConfigBind::populate(CLI::App* serverSc) {
+        serverBindSc = serverSc->add_subcommand("bind");
+        serverBindSc->group("Sub-Options (use -h,--help on them)");
+        serverBindSc->description("Server socket bind options");
+        serverBindSc->configurable();
 
-    class ServerConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
-        , public net::un::stream::ConfigBind
-        , public net::ConfigConn {
-    public:
-        explicit ServerConfig(const std::string& name);
+        bindServerSunPathOpt = serverBindSc->add_option("-p,--path", sunPath, "Unix domain socket path");
+        bindServerSunPathOpt->type_name("[filesystem path]");
+        bindServerSunPathOpt->default_val("/tmp/sun.sock");
+        bindServerSunPathOpt->configurable();
+    }
 
-    private:
-        void required(bool req) const override;
-    };
+    const std::string& ConfigBind::getSunPath() const {
+        return sunPath;
+    }
+
+    SocketAddress ConfigBind::getBindAddress() const {
+        return net::un::SocketAddress(sunPath);
+    }
 
 } // namespace net::un::stream
-
-#endif

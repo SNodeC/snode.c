@@ -16,14 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
+#ifndef NET_UN_STREAM_CONFIGBIND_H
+#define NET_UN_STREAM_CONFIGBIND_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConn.h"
 #include "net/un/SocketAddress.h"
-#include "net/un/stream/ConfigBind.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,16 +34,19 @@ namespace CLI {
 
 namespace net::un::stream {
 
-    class ServerConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
-        , public net::un::stream::ConfigBind
-        , public net::ConfigConn {
+    class ConfigBind {
     public:
-        explicit ServerConfig(const std::string& name);
+        void populate(CLI::App* serverSc);
 
-    private:
-        void required(bool req) const override;
+        const std::string& getSunPath() const;
+
+        net::un::SocketAddress getBindAddress() const;
+
+    protected:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerSunPathOpt = nullptr;
+
+        std::string sunPath = "";
     };
 
 } // namespace net::un::stream

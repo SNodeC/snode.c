@@ -29,35 +29,9 @@ namespace net::l2::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name) {
-        serverBindSc = serverSc->add_subcommand("bind");
-        serverBindSc->group("Sub-Options (use -h,--help on them)");
-        serverBindSc->description("Server socket bind options");
-        serverBindSc->configurable();
-
-        bindServerHostOpt = serverBindSc->add_option("-a,--host", bindInterface, "Bind bluetooth address");
-        bindServerHostOpt->type_name("[bluetooth address]");
-        bindServerHostOpt->default_val(":::::");
-        bindServerHostOpt->configurable();
-
-        bindServerPsmOpt = serverBindSc->add_option("-p,--psm", psm, "Bind protocol service multiplexer");
-        bindServerPsmOpt->type_name("[uint16_t]");
-        bindServerPsmOpt->default_val(0);
-        bindServerPsmOpt->configurable();
-
-        net::ConfigServer::populate(serverSc);
+        net::ConfigBacklog::populate(serverSc);
+        net::l2::stream::ConfigBind::populate(serverSc);
         net::ConfigConn::populate(serverSc);
-    }
-
-    const std::string& ServerConfig::getBindInterface() const {
-        return bindInterface;
-    }
-
-    uint16_t ServerConfig::getPsm() const {
-        return psm;
-    }
-
-    SocketAddress ServerConfig::getBindAddress() const {
-        return net::l2::SocketAddress(bindInterface, psm);
     }
 
     void ServerConfig::required(bool req) const {

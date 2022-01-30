@@ -28,30 +28,13 @@
 namespace net::un::stream {
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name) {
-        serverBindSc = net::ConfigBase::serverSc->add_subcommand("bind");
-        serverBindSc->group("Sub-Options (use -h,--help on them)");
-        serverBindSc->description("Server socket bind options");
-        serverBindSc->configurable();
-
-        bindServerSunPathOpt = serverBindSc->add_option("-p,--path", sunPath, "Unix domain socket path");
-        bindServerSunPathOpt->type_name("[filesystem path]");
-        bindServerSunPathOpt->default_val("/tmp/" + name + ".sock");
-        bindServerSunPathOpt->configurable();
-
-        net::ConfigServer::populate(serverSc);
+        net::ConfigBacklog::populate(serverSc);
+        net::un::stream::ConfigBind::populate(serverSc);
         net::ConfigConn::populate(serverSc);
     }
 
-    const std::string& ServerConfig::getSunPath() const {
-        return sunPath;
-    }
-
-    SocketAddress ServerConfig::getBindAddress() const {
-        return net::un::SocketAddress(sunPath);
-    }
-
     void ServerConfig::required(bool req) const {
-        utils::Config::instance().required(net::ConfigBase::serverSc, req);
+        utils::Config::instance().required(serverSc, req);
         utils::Config::instance().required(serverBindSc, req);
         utils::Config::instance().required(bindServerSunPathOpt, req);
     }

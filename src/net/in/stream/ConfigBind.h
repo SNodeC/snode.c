@@ -16,40 +16,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
+#ifndef NET_IN_STREAM_CONFIGBIND_H
+#define NET_IN_STREAM_CONFIGBIND_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConn.h"
-#include "net/un/SocketAddress.h"
-#include "net/un/stream/ConfigBind.h"
+#include "net/in/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string> // for string
 
 namespace CLI {
     class App;
     class Option;
 } // namespace CLI
 
+#include <cstdint>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::in::stream {
 
-    class ServerConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
-        , public net::un::stream::ConfigBind
-        , public net::ConfigConn {
+    class ConfigBind {
     public:
-        explicit ServerConfig(const std::string& name);
+        void populate(CLI::App* serverSc);
+
+        const std::string& getBindInterface() const;
+
+        uint16_t getBindPort() const;
+
+        net::in::SocketAddress getBindAddress() const;
+
+    protected:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerHostOpt = nullptr;
+        CLI::Option* bindServerPortOpt = nullptr;
 
     private:
-        void required(bool req) const override;
+        std::string bindInterface = "";
+        uint16_t bindPort = 0;
     };
 
-} // namespace net::un::stream
+} // namespace net::in::stream
 
 #endif

@@ -16,18 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SERVERCONFIG_H
-#define NET_UN_STREAM_SERVERCONFIG_H
+#ifndef NET_L2_STREAM_CONFIGBIND_H
+#define NET_L2_STREAM_CONFIGBIND_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConn.h"
-#include "net/un/SocketAddress.h"
-#include "net/un/stream/ConfigBind.h"
+#include "net/l2/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <cstdint> // for uint16_t
+#include <string>  // for string
 
 namespace CLI {
     class App;
@@ -36,20 +33,28 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::l2::stream {
 
-    class ServerConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
-        , public net::un::stream::ConfigBind
-        , public net::ConfigConn {
+    class ConfigBind {
     public:
-        explicit ServerConfig(const std::string& name);
+        void populate(CLI::App* serverSc);
+
+        const std::string& getBindInterface() const;
+
+        uint16_t getPsm() const;
+
+        net::l2::SocketAddress getBindAddress() const;
+
+    protected:
+        CLI::App* serverBindSc = nullptr;
+        CLI::Option* bindServerHostOpt = nullptr;
+        CLI::Option* bindServerPsmOpt = nullptr;
 
     private:
-        void required(bool req) const override;
+        std::string bindInterface = "";
+        uint16_t psm = 0;
     };
 
-} // namespace net::un::stream
+} // namespace net::l2::stream
 
 #endif

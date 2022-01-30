@@ -29,35 +29,10 @@ namespace net::in::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name) {
-        serverBindSc = serverSc->add_subcommand("bind");
-        serverBindSc->group("Sub-Options (use -h,--help on them)");
-        serverBindSc->description("Server socket bind options");
-        serverBindSc->configurable();
+        net::ConfigBacklog::populate(serverSc);
+        net::in::stream::ConfigBind::populate(serverSc);
 
-        bindServerHostOpt = serverBindSc->add_option("-a,--host", bindInterface, "Bind host name or IP address");
-        bindServerHostOpt->type_name("[hostname|ip]");
-        bindServerHostOpt->default_val("0.0.0.0");
-        bindServerHostOpt->configurable();
-
-        bindServerPortOpt = serverBindSc->add_option("-p,--port", bindPort, "Bind port number");
-        bindServerPortOpt->type_name("[uint16_t]");
-        bindServerPortOpt->default_val(0);
-        bindServerPortOpt->configurable();
-
-        net::ConfigServer::populate(serverSc);
         net::ConfigConn::populate(serverSc);
-    }
-
-    const std::string& ServerConfig::getBindInterface() const {
-        return bindInterface;
-    }
-
-    uint16_t ServerConfig::getBindPort() const {
-        return bindPort;
-    }
-
-    SocketAddress ServerConfig::getBindAddress() const {
-        return net::in::SocketAddress(bindInterface, bindPort);
     }
 
     void ServerConfig::required(bool req) const {

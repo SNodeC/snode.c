@@ -19,10 +19,11 @@
 #ifndef NET_L2_STREAM_SERVERCONFIG_H
 #define NET_L2_STREAM_SERVERCONFIG_H
 
+#include "net/ConfigBacklog.h"
 #include "net/ConfigBase.h"
 #include "net/ConfigConn.h"
-#include "net/ConfigServer.h"
 #include "net/l2/SocketAddress.h"
+#include "net/l2/stream/ConfigBind.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,26 +41,14 @@ namespace net::l2::stream {
 
     class ServerConfig
         : public net::ConfigBase
-        , public net::ConfigServer
+        , public net::ConfigBacklog
+        , public net::l2::stream::ConfigBind
         , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);
 
-        const std::string& getBindInterface() const;
-
-        uint16_t getPsm() const;
-
-        net::l2::SocketAddress getBindAddress() const;
-
     private:
         void required(bool req) const override;
-
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerHostOpt = nullptr;
-        CLI::Option* bindServerPsmOpt = nullptr;
-
-        std::string bindInterface;
-        uint16_t psm;
     };
 
 } // namespace net::l2::stream

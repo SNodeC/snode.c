@@ -9,6 +9,7 @@ if(BLUEZ_FOUND)
         SocketAddress.cpp
         stream/Socket.cpp
         stream/ClientSocket.cpp
+        stream/ConfigBind.cpp
         stream/ServerConfig.cpp
         stream/ServerSocket.cpp
         stream/legacy/ServerConfig.cpp
@@ -21,6 +22,7 @@ if(BLUEZ_FOUND)
         stream/ServerConfig.h
         stream/ServerSocket.h
         stream/ClientSocket.h
+        stream/ConfigBind.h
         stream/legacy/ServerConfig.h
         stream/legacy/SocketServer.h
         stream/legacy/SocketClient.h

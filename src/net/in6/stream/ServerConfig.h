@@ -19,10 +19,11 @@
 #ifndef NET_IN6_STREAM_SERVERCONFIG_H
 #define NET_IN6_STREAM_SERVERCONFIG_H
 
+#include "net/ConfigBacklog.h"
 #include "net/ConfigBase.h"
 #include "net/ConfigConn.h"
-#include "net/ConfigServer.h"
 #include "net/in6/SocketAddress.h"
+#include "net/in6/stream/ConfigBind.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,26 +41,14 @@ namespace net::in6::stream {
 
     class ServerConfig
         : public net::ConfigBase
-        , public net::ConfigServer
+        , public net::ConfigBacklog
+        , public net::in6::stream::ConfigBind
         , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);
 
-        const std::string& getBindInterface() const;
-
-        uint16_t getBindPort() const;
-
-        net::in6::SocketAddress getBindAddress() const;
-
     private:
         void required(bool req) const override;
-
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerHostOpt = nullptr;
-        CLI::Option* bindServerPortOpt = nullptr;
-
-        std::string bindInterface;
-        uint16_t bindPort;
     };
 
 } // namespace net::in6::stream

@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NET_CPP ConfigBase.cpp ConfigConn.cpp ConfigLegacy.cpp ConfigTls.cpp ConfigServer.cpp)
+set(NET_CPP ConfigBase.cpp ConfigBacklog.cpp ConfigConn.cpp ConfigLegacy.cpp
+            ConfigTls.cpp
+)
 
-set(NET_H ConfigBase.h ConfigConn.h ConfigLegacy.h ConfigTls.h ConfigServer.h)
+set(NET_H ConfigBase.h ConfigBacklog.h ConfigConn.h ConfigLegacy.h ConfigTls.h)
 
 add_library(net SHARED ${NET_CPP} ${NET_H})
 add_library(snodec::net ALIAS net)

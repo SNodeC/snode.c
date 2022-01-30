@@ -19,10 +19,11 @@
 #ifndef NET_RF_STREAM_SERVERCONFIG_H
 #define NET_RF_STREAM_SERVERCONFIG_H
 
+#include "net/ConfigBacklog.h"
 #include "net/ConfigBase.h"
 #include "net/ConfigConn.h"
-#include "net/ConfigServer.h"
 #include "net/rf/SocketAddress.h"
+#include "net/rf/stream/ConfigBind.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,26 +41,14 @@ namespace net::rf::stream {
 
     class ServerConfig
         : public net::ConfigBase
-        , public net::ConfigServer
+        , public net::ConfigBacklog
+        , public net::rf::stream::ConfigBind
         , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);
 
-        const std::string& getBindInterface() const;
-
-        uint8_t getChannel() const;
-
-        net::rf::SocketAddress getBindAddress() const;
-
     private:
         void required(bool req) const override;
-
-        CLI::App* serverBindSc = nullptr;
-        CLI::Option* bindServerHostOpt = nullptr;
-        CLI::Option* bindServerChannelOpt = nullptr;
-
-        std::string bindInterface;
-        uint8_t channel;
     };
 
 } // namespace net::rf::stream

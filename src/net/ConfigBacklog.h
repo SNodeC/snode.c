@@ -16,30 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ConfigServer.h"
+#ifndef NET_SERVERCONFIG_H
+#define NET_SERVERCONFIG_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-
-#include <string>
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
-    ConfigServer::ConfigServer() {
-    }
+    class ConfigBacklog {
+    public:
+        explicit ConfigBacklog();
 
-    void ConfigServer::populate(CLI::App* serverSc) {
-        serverBacklogOpt = serverSc->add_option("-b,--backlog", backlog, "Server listen backlog");
-        serverBacklogOpt->type_name("[backlog]");
-        serverBacklogOpt->default_val(5);
-        serverBacklogOpt->configurable();
-    }
+        int getBacklog() const;
 
-    int ConfigServer::getBacklog() const {
-        return backlog;
-    }
+    protected:
+        void populate(CLI::App* serverSc);
+
+    private:
+        CLI::Option* serverBacklogOpt = nullptr;
+
+        int backlog;
+    };
 
 } // namespace net
+
+#endif // NET_SERVERCONFIG_H

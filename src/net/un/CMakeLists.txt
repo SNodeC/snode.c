@@ -4,6 +4,7 @@ set(NET-UN_CPP
     SocketAddress.cpp
     stream/Socket.cpp
     stream/ClientSocket.cpp
+    stream/ConfigBind.cpp
     stream/ServerConfig.cpp
     stream/ServerSocket.cpp
     stream/legacy/ServerConfig.cpp
@@ -14,6 +15,7 @@ set(NET-UN_H
     SocketAddress.h
     stream/Socket.h
     stream/ClientSocket.h
+    stream/ConfigBind.h
     stream/ServerConfig.h
     stream/ServerSocket.h
     stream/legacy/ServerConfig.h
