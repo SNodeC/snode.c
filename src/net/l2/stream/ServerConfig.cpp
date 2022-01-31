@@ -34,10 +34,7 @@ namespace net::l2::stream {
     }
 
     void ServerConfig::required(bool req) const {
-        utils::Config::instance().required(baseSc, req);
-        utils::Config::instance().required(bindSc, req);
-        utils::Config::instance().required(bindHostOpt, req);
-        utils::Config::instance().required(bindPsmOpt, req);
+        net::l2::stream::ConfigBind::required(req);
     }
 
 } // namespace net::l2::stream

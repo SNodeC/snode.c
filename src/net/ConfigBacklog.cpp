@@ -29,7 +29,7 @@
 namespace net {
 
     ConfigBacklog::ConfigBacklog(CLI::App* baseSc) {
-        backlogOpt = baseSc->add_option("-b,--backlog", backlog, "Server listen backlog");
+        backlogOpt = baseSc->add_option("-b,--backlog", backlog, "Listen backlog");
         backlogOpt->type_name("[backlog]");
         backlogOpt->default_val(5);
         backlogOpt->configurable();

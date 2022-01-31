@@ -33,8 +33,8 @@ namespace net::in::stream {
         , net::ConfigConn(baseSc) {
     }
 
-    void ServerConfig::required([[maybe_unused]] bool req) const {
-        utils::Config::instance().required(baseSc, req);
+    void ServerConfig::required(bool req) const {
+        net::in::stream::ConfigBind::required(req);
     }
 
 } // namespace net::in::stream

@@ -39,6 +39,7 @@ namespace net {
     }
 
     int ConfigBase::parse(bool req) const {
+        utils::Config::instance().required(baseSc, req);
         required(req);
 
         try {

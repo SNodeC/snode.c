@@ -34,10 +34,7 @@ namespace net::rf::stream {
     }
 
     void ServerConfig::required(bool req) const {
-        utils::Config::instance().required(baseSc, req);
-        utils::Config::instance().required(bindSc, req);
-        utils::Config::instance().required(bindHostOpt, req);
-        utils::Config::instance().required(bindChannelOpt, req);
+        net::rf::stream::ConfigBind::required(req);
     }
 
 } // namespace net::rf::stream

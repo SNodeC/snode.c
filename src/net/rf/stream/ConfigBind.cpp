@@ -18,6 +18,8 @@
 
 #include "net/rf/stream/ConfigBind.h"
 
+#include "utils/Config.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -28,16 +30,16 @@ namespace net::rf::stream {
 
     ConfigBind::ConfigBind(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("bind");
-        bindSc->group("Sub-Options (use -h,--help on them)");
-        bindSc->description("Server socket bind options");
+        bindSc->description("Bind options");
         bindSc->configurable();
+        bindSc->required();
 
-        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind bluetooth address");
+        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bluetooth address");
         bindHostOpt->type_name("[bluetooth address]");
         bindHostOpt->default_val("00:00:00:00:00:00");
         bindHostOpt->configurable();
 
-        bindChannelOpt = bindSc->add_option("-c,--channel", bindChannel, "Bind channel number");
+        bindChannelOpt = bindSc->add_option("-c,--channel", bindChannel, "Channel number");
         bindChannelOpt->type_name("[uint8_t]");
         bindChannelOpt->default_val(0);
         bindChannelOpt->configurable();
@@ -53,6 +55,11 @@ namespace net::rf::stream {
 
     SocketAddress ConfigBind::getBindAddress() const {
         return net::rf::SocketAddress(bindHost, bindChannel);
+    }
+
+    void ConfigBind::required(bool req) const {
+        utils::Config::instance().required(bindSc, req);
+        utils::Config::instance().required(bindChannelOpt, req);
     }
 
 } // namespace net::rf::stream

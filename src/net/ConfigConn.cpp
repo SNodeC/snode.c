@@ -45,12 +45,12 @@ namespace net {
 
         readBlockSizeOpt = connectionSc->add_option("--read-block-size", readBlockSize, "Read block size");
         readBlockSizeOpt->type_name("[bytes]");
-        readBlockSizeOpt->default_val(4096);
+        readBlockSizeOpt->default_val(16384);
         readBlockSizeOpt->configurable();
 
         writeBlockSizeOpt = connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size");
         writeBlockSizeOpt->type_name("[bytes]");
-        writeBlockSizeOpt->default_val(4096);
+        writeBlockSizeOpt->default_val(16384);
         writeBlockSizeOpt->configurable();
 
         terminateTimeoutOpt = connectionSc->add_option("-t,--terminate-timeout", terminateTimeout, "Terminate timeout");

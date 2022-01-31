@@ -33,9 +33,7 @@ namespace net::un::stream {
     }
 
     void ServerConfig::required(bool req) const {
-        utils::Config::instance().required(baseSc, req);
-        utils::Config::instance().required(bindSc, req);
-        utils::Config::instance().required(bindSunPathOpt, req);
+        net::un::stream::ConfigBind::required(req);
     }
 
 } // namespace net::un::stream

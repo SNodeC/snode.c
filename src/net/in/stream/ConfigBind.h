@@ -46,6 +46,8 @@ namespace net::in::stream {
         net::in::SocketAddress getBindAddress() const;
 
     protected:
+        void required(bool req) const;
+
         CLI::App* bindSc = nullptr;
         CLI::Option* bindHostOpt = nullptr;
         CLI::Option* bindPortOpt = nullptr;

@@ -18,6 +18,8 @@
 
 #include "net/un/stream/ConfigBind.h"
 
+#include "utils/Config.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -27,11 +29,10 @@
 namespace net::un::stream {
     ConfigBind::ConfigBind(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("bind");
-        bindSc->group("Sub-Options (use -h,--help on them)");
-        bindSc->description("Server socket bind options");
+        bindSc->description("Bind options");
         bindSc->configurable();
 
-        bindSunPathOpt = bindSc->add_option("-p,--path", bindSunPath, "Unix domain socket path");
+        bindSunPathOpt = bindSc->add_option("-p,--path", bindSunPath, "Unix domain socket");
         bindSunPathOpt->type_name("[filesystem path]");
         bindSunPathOpt->default_val("/tmp/sun.sock");
         bindSunPathOpt->configurable();
@@ -43,6 +44,11 @@ namespace net::un::stream {
 
     SocketAddress ConfigBind::getBindAddress() const {
         return net::un::SocketAddress(bindSunPath);
+    }
+
+    void ConfigBind::required(bool req) const {
+        utils::Config::instance().required(bindSc, req);
+        utils::Config::instance().required(bindSunPathOpt, req);
     }
 
 } // namespace net::un::stream

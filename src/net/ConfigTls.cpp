@@ -35,12 +35,12 @@ namespace net {
 
         tlsSc->group("Sub-Options (use -h,--help on them)");
 
-        tlsInitTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "Read timeout");
+        tlsInitTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "SSL/TLS initialization timeout");
         tlsInitTimeoutOpt->type_name("[sec]");
         tlsInitTimeoutOpt->default_val(10);
         tlsInitTimeoutOpt->configurable();
 
-        tlsShutdownTimeoutOpt = tlsSc->add_option("-s,--shutdown-timeout", shutdownTimeout, "Write timeout");
+        tlsShutdownTimeoutOpt = tlsSc->add_option("-s,--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
         tlsShutdownTimeoutOpt->type_name("[sec]");
         tlsShutdownTimeoutOpt->default_val(2);
         tlsShutdownTimeoutOpt->configurable();

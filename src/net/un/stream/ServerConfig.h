@@ -41,7 +41,7 @@ namespace net::un::stream {
         explicit ServerConfig(const std::string& name);
 
     private:
-        void required(bool req) const override;
+        void required(bool req) const final;
     };
 
 } // namespace net::un::stream

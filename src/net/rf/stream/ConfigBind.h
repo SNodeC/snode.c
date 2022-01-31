@@ -46,6 +46,8 @@ namespace net::rf::stream {
         net::rf::SocketAddress getBindAddress() const;
 
     protected:
+        void required(bool req) const;
+
         CLI::App* bindSc = nullptr;
         CLI::Option* bindHostOpt = nullptr;
         CLI::Option* bindChannelOpt = nullptr;

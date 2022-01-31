@@ -46,6 +46,8 @@ namespace net::l2::stream {
         net::l2::SocketAddress getBindAddress() const;
 
     protected:
+        void required(bool req) const;
+
         CLI::App* bindSc = nullptr;
         CLI::Option* bindHostOpt = nullptr;
         CLI::Option* bindPsmOpt = nullptr;

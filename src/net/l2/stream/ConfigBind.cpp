@@ -18,6 +18,8 @@
 
 #include "net/l2/stream/ConfigBind.h"
 
+#include "utils/Config.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -28,16 +30,16 @@ namespace net::l2::stream {
 
     ConfigBind::ConfigBind(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("bind");
-        bindSc->group("Sub-Options (use -h,--help on them)");
-        bindSc->description("Server socket bind options");
+        bindSc->description("Bind options");
         bindSc->configurable();
+        bindSc->required();
 
-        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind bluetooth address");
+        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bluetooth address");
         bindHostOpt->type_name("[bluetooth address]");
         bindHostOpt->default_val("00:00:00:00:00:00");
         bindHostOpt->configurable();
 
-        bindPsmOpt = bindSc->add_option("-p,--psm", bindPsm, "Bind protocol service multiplexer");
+        bindPsmOpt = bindSc->add_option("-p,--psm", bindPsm, "Protocol service multiplexer");
         bindPsmOpt->type_name("[uint16_t]");
         bindPsmOpt->default_val(0);
         bindPsmOpt->configurable();
@@ -53,6 +55,11 @@ namespace net::l2::stream {
 
     SocketAddress ConfigBind::getBindAddress() const {
         return net::l2::SocketAddress(bindHost, bindPsm);
+    }
+
+    void ConfigBind::required(bool req) const {
+        utils::Config::instance().required(bindSc, req);
+        utils::Config::instance().required(bindPsmOpt, req);
     }
 
 } // namespace net::l2::stream

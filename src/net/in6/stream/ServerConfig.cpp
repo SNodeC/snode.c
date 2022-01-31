@@ -34,9 +34,7 @@ namespace net::in6::stream {
     }
 
     void ServerConfig::required(bool req) const {
-        utils::Config::instance().required(baseSc, req);
-        utils::Config::instance().required(bindSc, req);
-        utils::Config::instance().required(bindPortOpt, req);
+        net::in6::stream::ConfigBind::required(req);
     }
 
 } // namespace net::in6::stream

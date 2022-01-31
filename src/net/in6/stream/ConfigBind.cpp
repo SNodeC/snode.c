@@ -18,6 +18,8 @@
 
 #include "net/in6/stream/ConfigBind.h"
 
+#include "utils/Config.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -28,16 +30,16 @@ namespace net::in6::stream {
 
     ConfigBind::ConfigBind(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("bind");
-        bindSc->group("Sub-Options (use -h,--help on them)");
-        bindSc->description("Server socket bind options");
+        bindSc->description("Bind options");
         bindSc->configurable();
+        bindSc->required();
 
-        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind host name or IP address");
+        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Host name or IP address");
         bindHostOpt->type_name("[hostname|ip]");
         bindHostOpt->default_val("::");
         bindHostOpt->configurable();
 
-        bindPortOpt = bindSc->add_option("-p,--port", bindPort, "Bind port number");
+        bindPortOpt = bindSc->add_option("-p,--port", bindPort, "Port number");
         bindPortOpt->type_name("[uint16_t]");
         bindPortOpt->default_val(0);
         bindPortOpt->configurable();
@@ -53,6 +55,11 @@ namespace net::in6::stream {
 
     SocketAddress ConfigBind::getBindAddress() const {
         return net::in6::SocketAddress(bindHost, bindPort);
+    }
+
+    void ConfigBind::required(bool req) const {
+        utils::Config::instance().required(bindSc, req);
+        utils::Config::instance().required(bindPortOpt, req);
     }
 
 } // namespace net::in6::stream
