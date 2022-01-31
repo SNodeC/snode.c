@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(NET-IN_CPP
     SocketAddress.cpp
+    stream/ClientConfig.cpp
     stream/ClientSocket.cpp
     stream/ConfigBind.cpp
     stream/ConfigConnect.cpp
@@ -12,6 +13,7 @@ set(NET-IN_CPP
 
 set(NET-IN_H
     SocketAddress.h
+    stream/ClientConfig.h
     stream/ClientSocket.h
     stream/ConfigBind.h
     stream/ConfigConnect.h
