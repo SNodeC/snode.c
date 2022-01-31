@@ -34,7 +34,10 @@ namespace net::un::stream::legacy {
         : public net::un::stream::ServerConfig
         , public net::ConfigLegacy {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ServerConfig(const std::string& name)
+            : net::un::stream::ServerConfig(name)
+            , net::ConfigLegacy(baseSc) {
+        }
     };
 
 } // namespace net::un::stream::legacy

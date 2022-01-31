@@ -34,7 +34,7 @@ namespace net::rf::stream {
 
         bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind bluetooth address");
         bindHostOpt->type_name("[bluetooth address]");
-        bindHostOpt->default_val(":::::");
+        bindHostOpt->default_val("00:00:00:00:00:00");
         bindHostOpt->configurable();
 
         bindChannelOpt = bindSc->add_option("-c,--channel", bindChannel, "Bind channel number");

@@ -34,7 +34,7 @@ namespace net::l2::stream {
 
         bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind bluetooth address");
         bindHostOpt->type_name("[bluetooth address]");
-        bindHostOpt->default_val(":::::");
+        bindHostOpt->default_val("00:00:00:00:00:00");
         bindHostOpt->configurable();
 
         bindPsmOpt = bindSc->add_option("-p,--psm", bindPsm, "Bind protocol service multiplexer");
