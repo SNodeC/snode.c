@@ -31,6 +31,7 @@ namespace net::in::stream {
         bindSc->group("Sub-Options (use -h,--help on them)");
         bindSc->description("Server socket bind options");
         bindSc->configurable();
+        bindSc->required();
 
         bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bind host name or IP address");
         bindHostOpt->type_name("[hostname|ip]");
@@ -41,6 +42,7 @@ namespace net::in::stream {
         bindPortOpt->type_name("[uint16_t]");
         bindPortOpt->default_val(0);
         bindPortOpt->configurable();
+        bindPortOpt->required();
     }
 
     const std::string& ConfigBind::getBindHost() const {

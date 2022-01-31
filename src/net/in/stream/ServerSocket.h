@@ -19,9 +19,8 @@
 #ifndef NET_IN_STREAM_SERVERSOCKET_H
 #define NET_IN_STREAM_SERVERSOCKET_H
 
-#include "core/socket/ServerSocket.h"   // IWYU pragma: export
-#include "net/in/stream/ServerConfig.h" // IWYU pragma: export
-#include "net/in/stream/Socket.h"       // IWYU pragma: export
+#include "core/socket/ServerSocket.h" // IWYU pragma: export
+#include "net/in/stream/Socket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,11 +32,11 @@
 
 namespace net::in::stream {
 
-    class ServerSocket : public core::socket::ServerSocket<net::in::stream::Socket, net::in::stream::ServerConfig> {
-        using Super = core::socket::ServerSocket<net::in::stream::Socket, net::in::stream::ServerConfig>;
+    class ServerSocket : public core::socket::ServerSocket<net::in::stream::Socket> {
+        using Super = core::socket::ServerSocket<net::in::stream::Socket>;
 
     public:
-        using core::socket::ServerSocket<net::in::stream::Socket, net::in::stream::ServerConfig>::listen;
+        using core::socket::ServerSocket<net::in::stream::Socket>::listen;
 
         void listen(uint16_t port, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
