@@ -31,7 +31,7 @@ namespace net::rf::stream::legacy {
 
     template <typename SocketContextFactoryT>
     using SocketServer = core::socket::stream::legacy::
-        SocketServer<net::rf::stream::legacy::ServerConfig, net::rf::stream::ServerSocket, SocketContextFactoryT>;
+        SocketServer<net::rf::stream::ServerSocket, net::rf::stream::legacy::ServerConfig, SocketContextFactoryT>;
 
 } // namespace net::rf::stream::legacy
 

@@ -31,7 +31,7 @@ namespace net::un::stream::tls {
 
     template <typename SocketContextFactoryT>
     using SocketServer =
-        core::socket::stream::tls::SocketServer<net::un::stream::tls::ServerConfig, net::un::stream::ServerSocket, SocketContextFactoryT>;
+        core::socket::stream::tls::SocketServer<net::un::stream::ServerSocket, net::un::stream::tls::ServerConfig, SocketContextFactoryT>;
 
 } // namespace net::un::stream::tls
 

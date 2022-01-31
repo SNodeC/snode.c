@@ -32,13 +32,13 @@
 
 namespace core::socket::stream {
 
-    template <typename ServerConfigT, typename ServerSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
+    template <typename ServerSocketT, typename ServerConfigT, typename SocketAcceptorT, typename SocketContextFactoryT>
     class SocketServer : public ServerSocketT {
         SocketServer() = delete;
 
     protected:
-        using ServerConfig = ServerConfigT;
         using ServerSocket = ServerSocketT;
+        using ServerConfig = ServerConfigT;
         using SocketAcceptor = SocketAcceptorT;
         using SocketContextFactory = SocketContextFactoryT;
 
