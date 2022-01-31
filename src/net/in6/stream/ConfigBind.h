@@ -43,7 +43,7 @@ namespace net::in6::stream {
 
         uint16_t getBindPort() const;
 
-        net::in6::SocketAddress getBindAddress() const;
+        SocketAddress getBindAddress() const;
 
     protected:
         void required(bool req) const;

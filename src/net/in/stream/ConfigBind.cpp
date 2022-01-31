@@ -53,7 +53,7 @@ namespace net::in::stream {
     }
 
     SocketAddress ConfigBind::getBindAddress() const {
-        return net::in::SocketAddress(bindHost, bindPort);
+        return SocketAddress(bindHost, bindPort);
     }
 
     void ConfigBind::required(bool req) const {

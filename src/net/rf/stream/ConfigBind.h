@@ -43,7 +43,7 @@ namespace net::rf::stream {
 
         uint8_t getBindChannel() const;
 
-        net::rf::SocketAddress getBindAddress() const;
+        SocketAddress getBindAddress() const;
 
     protected:
         void required(bool req) const;

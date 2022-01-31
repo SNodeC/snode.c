@@ -54,7 +54,7 @@ namespace net::l2::stream {
     }
 
     SocketAddress ConfigBind::getBindAddress() const {
-        return net::l2::SocketAddress(bindHost, bindPsm);
+        return SocketAddress(bindHost, bindPsm);
     }
 
     void ConfigBind::required(bool req) const {

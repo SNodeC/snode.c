@@ -6,23 +6,29 @@ pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
     set(NET-RF_CPP
-        SocketAddress.cpp stream/Socket.cpp stream/ClientSocket.cpp
-        stream/ConfigBind.cpp stream/ServerConfig.cpp stream/ServerSocket.cpp
+        SocketAddress.cpp
+        stream/ClientSocket.cpp
+        stream/ConfigBind.cpp
+        stream/ConfigConnect.cpp
+        stream/ServerConfig.cpp
+        stream/ServerSocket.cpp
+        stream/Socket.cpp
     )
 
     set(NET-RF_H
         SocketAddress.h
-        stream/Socket.h
-        stream/ServerConfig.h
-        stream/ServerSocket.h
         stream/ClientSocket.h
         stream/ConfigBind.h
+        stream/ConfigConnect.h
+        stream/ServerConfig.h
+        stream/ServerSocket.h
+        stream/Socket.h
+        stream/legacy/SocketClient.h
         stream/legacy/ServerConfig.h
         stream/legacy/SocketServer.h
-        stream/legacy/SocketClient.h
+        stream/tls/SocketClient.h
         stream/tls/ServerConfig.h
         stream/tls/SocketServer.h
-        stream/tls/SocketClient.h
     )
 
     add_library(net-rf SHARED ${NET-RF_CPP} ${NET-RF_H})

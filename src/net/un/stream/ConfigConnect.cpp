@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ConfigBind.h"
+#include "net/un/stream/ConfigConnect.h"
 
 #include "utils/Config.h"
 
@@ -28,28 +28,28 @@
 
 namespace net::un::stream {
 
-    ConfigBind::ConfigBind(CLI::App* baseSc) {
-        bindSc = baseSc->add_subcommand("bind");
-        bindSc->description("Bind options");
-        bindSc->configurable();
+    ConfigConnect::ConfigConnect(CLI::App* baseSc) {
+        connectSc = baseSc->add_subcommand("bind");
+        connectSc->description("Bind options");
+        connectSc->configurable();
 
-        bindSunPathOpt = bindSc->add_option("-p,--path", bindSunPath, "Unix domain socket");
-        bindSunPathOpt->type_name("[filesystem path]");
-        bindSunPathOpt->default_val("/tmp/sun.sock");
-        bindSunPathOpt->configurable();
+        connectSunPathOpt = connectSc->add_option("-p,--path", connectSunPath, "Unix domain socket");
+        connectSunPathOpt->type_name("[filesystem path]");
+        connectSunPathOpt->default_val("/tmp/sun.sock");
+        connectSunPathOpt->configurable();
     }
 
-    const std::string& ConfigBind::getBindSunPath() const {
-        return bindSunPath;
+    const std::string& ConfigConnect::getConnectSunPath() const {
+        return connectSunPath;
     }
 
-    SocketAddress ConfigBind::getBindAddress() const {
-        return net::un::SocketAddress(bindSunPath);
+    SocketAddress ConfigConnect::getConnectAddress() const {
+        return SocketAddress(connectSunPath);
     }
 
-    void ConfigBind::required(bool req) const {
-        utils::Config::instance().required(bindSc, req);
-        utils::Config::instance().required(bindSunPathOpt, req);
+    void ConfigConnect::required(bool req) const {
+        utils::Config::instance().required(connectSc, req);
+        utils::Config::instance().required(connectSunPathOpt, req);
     }
 
 } // namespace net::un::stream

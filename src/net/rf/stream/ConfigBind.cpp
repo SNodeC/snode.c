@@ -54,7 +54,7 @@ namespace net::rf::stream {
     }
 
     SocketAddress ConfigBind::getBindAddress() const {
-        return net::rf::SocketAddress(bindHost, bindChannel);
+        return SocketAddress(bindHost, bindChannel);
     }
 
     void ConfigBind::required(bool req) const {

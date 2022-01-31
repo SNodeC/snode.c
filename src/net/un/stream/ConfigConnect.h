@@ -16,47 +16,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_CONFIGBIND_H
-#define NET_L2_STREAM_CONFIGBIND_H
+#ifndef NET_UN_STREAM_CONFIGCONNECT_H
+#define NET_UN_STREAM_CONFIGCONNECT_H
 
-#include "net/l2/SocketAddress.h"
+#include "net/un/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint> // for uint16_t
-#include <string>  // for string
 
 namespace CLI {
     class App;
     class Option;
 } // namespace CLI
 
+#include <cstdint>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::un::stream {
 
-    class ConfigBind {
+    class ConfigConnect {
     public:
-        explicit ConfigBind(CLI::App* baseSc);
+        explicit ConfigConnect(CLI::App* baseSc);
 
-        const std::string& getBindHost() const;
+        const std::string& getConnectSunPath() const;
 
-        uint16_t getBindPsm() const;
-
-        SocketAddress getBindAddress() const;
+        SocketAddress getConnectAddress() const;
 
     protected:
         void required(bool req) const;
 
-        CLI::App* bindSc = nullptr;
-        CLI::Option* bindHostOpt = nullptr;
-        CLI::Option* bindPsmOpt = nullptr;
+        CLI::App* connectSc = nullptr;
+        CLI::Option* connectSunPathOpt = nullptr;
 
-    private:
-        std::string bindHost = "";
-        uint16_t bindPsm = 0;
+        std::string connectSunPath = "";
     };
 
-} // namespace net::l2::stream
+} // namespace net::un::stream
 
-#endif
+#endif // NET_UN_STREAM_CONFIGCONNECT_H
