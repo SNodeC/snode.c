@@ -171,7 +171,7 @@ namespace core::socket::stream {
         template <typename ServerConfig, typename SocketConnection>
         friend class SocketAcceptor;
 
-        template <typename Socket>
+        template <typename ClientConfig, typename SocketConnection>
         friend class SocketConnector;
     };
 

@@ -21,6 +21,7 @@
 
 #include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
 #include "net/rf/stream/ClientSocket.h"             // IWYU pragma: export
+#include "net/rf/stream/legacy/ClientConfig.h"      // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +30,8 @@
 namespace net::rf::stream::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = core::socket::stream::legacy::SocketClient<net::rf::stream::ClientSocket, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::legacy::
+        SocketClient<net::rf::stream::ClientSocket, net::rf::stream::legacy::ClientConfig, SocketContextFactoryT>;
 
 } // namespace net::rf::stream::legacy
 

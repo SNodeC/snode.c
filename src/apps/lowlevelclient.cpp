@@ -134,6 +134,7 @@ namespace tls {
 
     SocketClient getClient() {
         SocketClient client(
+            "tls",
             [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
@@ -221,6 +222,7 @@ namespace legacy {
 
     SocketClient getLegacyClient() {
         SocketClient legacyClient(
+            "legacy",
             [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 

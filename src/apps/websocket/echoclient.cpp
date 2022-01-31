@@ -44,6 +44,7 @@ int main(int argc, char* argv[]) {
 
     {
         web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
+            "legacy",
             [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
                 VLOG(0) << "OnConnect";
@@ -99,6 +100,7 @@ int main(int argc, char* argv[]) {
             });
 
         web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
+            "tls",
             [](web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
                 VLOG(0) << "OnConnect";

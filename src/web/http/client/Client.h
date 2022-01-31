@@ -37,18 +37,24 @@ namespace web::http::client {
     public:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketClient = SocketClientT<web::http::client::SocketContextFactory<Request, Response>>; // this makes it an HTTP client;
-        using SocketConnection = typename SocketClient::SocketConnection;
-        using SocketAddress = typename SocketConnection::SocketAddress;
 
-        Client(const std::function<void(SocketConnection*)>& onConnect,
+    private:
+        using Super = SocketClientT<web::http::client::SocketContextFactory<Request, Response>>; // this makes it an HTTP client;
+
+    public:
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
+
+        Client(const std::string& name,
+               const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&)>& onRequestBegin,
                const std::function<void(Request&, Response&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            : SocketClient(
+            : Super(
+                  name,
                   [onConnect](SocketConnection* socketConnection) -> void { // onConnect
                       onConnect(socketConnection);
                   },
@@ -66,8 +72,8 @@ namespace web::http::client {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            SocketClient::getSocketContextFactory()->setOnResponseReady(onResponseReady);
-            SocketClient::getSocketContextFactory()->setOnResponseError(onResponseError);
+            Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
+            Super::getSocketContextFactory()->setOnResponseError(onResponseError);
         }
     };
 

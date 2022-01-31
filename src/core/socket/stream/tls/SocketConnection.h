@@ -28,7 +28,7 @@ namespace core::socket::stream {
     template <typename ServerConfig, typename SocketConnection>
     class SocketAcceptor;
 
-    template <typename SocketConnection>
+    template <typename ClientConfig, typename SocketConnection>
     class SocketConnector;
 } // namespace core::socket::stream
 
@@ -274,10 +274,10 @@ namespace core::socket::stream::tls {
         template <typename ServerConfig, typename SocketConnection>
         friend class core::socket::stream::SocketAcceptor;
 
-        template <typename Socket>
+        template <typename ClientConfig, typename Socket>
         friend class SocketConnector;
 
-        template <typename SocketConnection>
+        template <typename ClientConfig, typename SocketConnection>
         friend class core::socket::stream::SocketConnector;
     };
 

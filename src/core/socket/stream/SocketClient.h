@@ -32,7 +32,7 @@
 
 namespace core::socket::stream {
 
-    template <typename ClientSocketT, typename SocketConnectorT, typename SocketContextFactoryT>
+    template <typename ClientSocketT, typename ClientConfigT, typename SocketConnectorT, typename SocketContextFactoryT>
     class SocketClient : public ClientSocketT {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
@@ -44,6 +44,7 @@ namespace core::socket::stream {
 
     protected:
         using ClientSocket = ClientSocketT;
+        using ClientConfig = ClientConfigT;
         using SocketConnector = SocketConnectorT;
         using SocketContextFactory = SocketContextFactoryT;
 
@@ -52,11 +53,13 @@ namespace core::socket::stream {
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
-        SocketClient(const std::function<void(SocketConnection*)>& onConnect,
+        SocketClient(const std::string& name,
+                     const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : socketContextFactory(std::make_shared<SocketContextFactory>())
+            : clientConfig(name)
+            , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
             , _onDisconnect(onDisconnect)
@@ -67,10 +70,17 @@ namespace core::socket::stream {
 
         using ClientSocket::connect;
 
+        void connect(const std::function<void(int)>& onError) const override {
+            clientConfig.parse(true);
+
+            connect(clientConfig.getConnectAddress(), clientConfig.getBindAddress(), onError);
+        }
+
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& bindAddress,
                      const std::function<void(int)>& onError) const override {
-            SocketConnector* socketConnector = new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+            SocketConnector* socketConnector =
+                new SocketConnector(clientConfig, socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);
         }
@@ -96,6 +106,8 @@ namespace core::socket::stream {
         }
 
     protected:
+        ClientConfig clientConfig;
+
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;

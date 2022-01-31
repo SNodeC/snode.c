@@ -39,7 +39,7 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename SocketConnectionT>
+    template <typename ClientConfigT, typename SocketConnectionT>
     class SocketConnector
         : protected SocketConnectionT::Socket
         , protected ConnectEventReceiver {
@@ -48,7 +48,7 @@ namespace core::socket::stream {
         SocketConnector& operator=(const SocketConnector&) = delete;
 
     protected:
-        //        using ServerConfig = ServerConfigT;
+        using ClientConfig = ClientConfigT;
 
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
@@ -57,12 +57,14 @@ namespace core::socket::stream {
         using SocketReader = typename SocketConnection::SocketReader;
         using SocketWriter = typename SocketConnection::SocketWriter;
 
-        SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnector(const ClientConfig& clientConfig,
+                        const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
-            : socketContextFactory(socketContextFactory)
+            : clientConfig(clientConfig)
+            , socketContextFactory(socketContextFactory)
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
@@ -125,11 +127,11 @@ namespace core::socket::stream {
                                                                                       SocketAddress(remoteAddress),
                                                                                       onConnect,
                                                                                       onDisconnect,
-                                                                                      60,
-                                                                                      60,
-                                                                                      4096,
-                                                                                      4096,
-                                                                                      1);
+                                                                                      clientConfig.getReadTimeout(),
+                                                                                      clientConfig.getWriteTimeout(),
+                                                                                      clientConfig.getReadBlockSize(),
+                                                                                      clientConfig.getWriteBlockSize(),
+                                                                                      clientConfig.getTerminateTimeout());
 
                             onConnected(socketConnection);
                             onError(0);
@@ -161,6 +163,8 @@ namespace core::socket::stream {
         void destruct() {
             delete this;
         }
+
+        ClientConfig clientConfig;
 
     private:
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;

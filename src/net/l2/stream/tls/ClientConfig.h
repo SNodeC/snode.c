@@ -30,7 +30,7 @@
 
 namespace net::l2::stream::tls {
 
-    class ServerConfig
+    class ClientConfig
         : public net::l2::stream::ClientConfig
         , public net::ConfigTls {
     public:

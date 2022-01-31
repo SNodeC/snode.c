@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> jsonClient(
+        "legacy",
         [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
             -> void {
             VLOG(0) << "-- OnConnect";

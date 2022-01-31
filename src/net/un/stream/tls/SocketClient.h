@@ -21,6 +21,7 @@
 
 #include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
 #include "net/un/stream/ClientSocket.h"          // IWYU pragma: export
+#include "net/un/stream/tls/ClientConfig.h"      // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +30,8 @@
 namespace net::un::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = core::socket::stream::tls::SocketClient<net::un::stream::ClientSocket, SocketContextFactoryT>;
+    using SocketClient =
+        core::socket::stream::tls::SocketClient<net::un::stream::ClientSocket, net::un::stream::tls::ClientConfig, SocketContextFactoryT>;
 
 } // namespace net::un::stream::tls
 

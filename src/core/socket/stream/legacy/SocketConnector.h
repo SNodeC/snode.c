@@ -28,22 +28,25 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename SocketT>
-    class SocketConnector : protected core::socket::stream::SocketConnector<core::socket::stream::legacy::SocketConnection<SocketT>> {
+    template <typename ClientConfigT, typename SocketT>
+    class SocketConnector
+        : protected core::socket::stream::SocketConnector<ClientConfigT, core::socket::stream::legacy::SocketConnection<SocketT>> {
     private:
-        using Super = core::socket::stream::SocketConnector<core::socket::stream::legacy::SocketConnection<SocketT>>;
+        using Super = core::socket::stream::SocketConnector<ClientConfigT, core::socket::stream::legacy::SocketConnection<SocketT>>;
 
     public:
+        using ClientConfig = typename Super::ClientConfig;
         using Socket = typename Super::Socket;
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnector(const ClientConfig& clientConfig,
+                        const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
-            : Super(socketContextFactory, onConnect, onConnected, onDisconnect, options) {
+            : Super(clientConfig, socketContextFactory, onConnect, onConnected, onDisconnect, options) {
         }
 
         using Super::connect;
