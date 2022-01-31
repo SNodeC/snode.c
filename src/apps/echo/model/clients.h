@@ -58,7 +58,7 @@ namespace apps::echo::model::legacy {
         using SocketConnection = typename EchoSocketClient::SocketConnection;
 
         return EchoSocketClient(
-            "legacy",
+            "echoclient",
             [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
@@ -95,7 +95,7 @@ namespace apps::echo::model::tls {
         using SocketConnection = typename EchoSocketClient::SocketConnection;
 
         return EchoSocketClient(
-            "tls",
+            "echoclient",
             [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 

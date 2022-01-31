@@ -33,7 +33,7 @@ namespace apps::http::legacy {
 
     Client getClient(const std::map<std::string, std::any>& options) {
         return Client(
-            "legacy",
+            "httpclient",
             [](Client::SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
@@ -101,7 +101,7 @@ namespace apps::http::tls {
 
     Client getClient(const std::map<std::string, std::any>& options) {
         return Client(
-            "tls",
+            "httpclient",
             [](Client::SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
