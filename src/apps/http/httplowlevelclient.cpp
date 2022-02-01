@@ -18,14 +18,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                                  // for CLIENTCERTF
-#include "core/SNodeC.h"                             // for SNodeC
-#include "core/socket/stream/SocketContext.h"        // for SocketProtocol
-#include "core/socket/stream/SocketContextFactory.h" // for SocketProtocolF...
-#include "log/Logger.h"                              // for Writer, Storage
-#include "net/in/stream/legacy/SocketClient.h"       // for SocketC...
-#include "net/in/stream/tls/SocketClient.h"          // for SocketC...
-#include "web/http/client/ResponseParser.h"          // for ResponseParser
+#include "config.h"                           // for CLIENTCERTF
+#include "core/SNodeC.h"                      // for SNodeC
+#include "core/socket/SocketContext.h"        // for SocketProtocol
+#include "core/socket/SocketContextFactory.h" // for SocketProtocolF...
+#include "log/Logger.h"                       // for Writer, Storage
+#include "net/in/stream/legacy/ClientConfig.h"
+#include "net/in/stream/legacy/SocketClient.h" // for SocketC...
+#include "net/in/stream/tls/SocketClient.h"    // for SocketC...
+#include "web/http/client/ResponseParser.h"    // for ResponseParser
 
 #include <cstring>
 #include <openssl/asn1.h>     // for ASN1_STRING_get...
@@ -45,7 +46,7 @@ namespace web::http {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-static web::http::client::ResponseParser* getResponseParser(core::socket::stream::SocketContext* socketContext) {
+static web::http::client::ResponseParser* getResponseParser(core::socket::SocketContext* socketContext) {
     web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
         socketContext,
         [](void) -> void {
@@ -67,12 +68,10 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
                 }
             }
         },
-        [](char* content, std::size_t contentLength) -> void {
-            char* strContent = new char[contentLength + 1];
-            memcpy(strContent, content, contentLength);
-            strContent[contentLength] = 0;
-            VLOG(0) << "++   OnContent: " << contentLength << std::endl << strContent;
-            delete[] strContent;
+        [](std::vector<uint8_t> content) -> void {
+            content.push_back(0);
+
+            VLOG(0) << "++   OnContent: " << content;
         },
         [](web::http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
@@ -85,10 +84,10 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
     return responseParser;
 }
 
-class SimpleSocketProtocol : public core::socket::stream::SocketContext {
+class SimpleSocketProtocol : public core::socket::SocketContext {
 public:
-    explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection, Role::CLIENT) {
+    explicit SimpleSocketProtocol(core::socket::SocketConnection* socketConnection)
+        : core::socket::SocketContext(socketConnection, Role::CLIENT) {
         responseParser = getResponseParser(this);
     }
 
@@ -119,9 +118,9 @@ private:
     web::http::client::ResponseParser* responseParser;
 };
 
-class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
+class SimpleSocketProtocolFactory : public core::socket::SocketContextFactory {
 private:
-    core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
+    core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };
@@ -134,12 +133,14 @@ namespace tls {
 
     SocketClient getClient() {
         SocketClient client(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // onConnect
+            "tls",
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
@@ -222,12 +223,14 @@ namespace legacy {
 
     SocketClient getLegacyClient() {
         SocketClient legacyClient(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // OnConnect
+            "legacy",
+            [](SocketConnection* socketConnection) -> void { // OnConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
@@ -265,8 +268,9 @@ int main(int argc, char* argv[]) {
     {
         legacy::SocketAddress legacyRemoteAddress("localhost", 8080);
 
-        core::socket::stream::legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient =
-            legacy::getLegacyClient();
+        core::socket::stream::legacy::
+            SocketClient<net::in::stream::ClientSocket, net::in::stream::legacy::ClientConfig, SimpleSocketProtocolFactory>
+                legacyClient = legacy::getLegacyClient();
 
         legacyClient.connect(legacyRemoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
             if (err) {
