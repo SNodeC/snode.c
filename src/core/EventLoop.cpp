@@ -155,23 +155,7 @@ namespace core {
 
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
-        EventLoop::initialized = true;
-
         utils::Config::instance().init(std::string(basename(argv[0])), argc, argv);
-
-        if (utils::Config::instance().daemonize()) {
-            VLOG(0) << "Daemonizing";
-            daemonize(std::string(basename(argv[0])));
-        } else {
-            VLOG(0) << "Not daemonizing";
-        }
-
-        if (utils::Config::instance().kill()) {
-            // kill daemon
-            VLOG(0) << "Daemon killed";
-
-            exit(0);
-        }
 
         if (!utils::Config::instance().getLogFile().empty()) {
             VLOG(0) << "LogFile: " << utils::Config::instance().getLogFile();
@@ -179,6 +163,8 @@ namespace core {
             logger::Logger::logToFile(utils::Config::instance().getLogFile());
             logger::Logger::quiet();
         }
+
+        EventLoop::initialized = true;
     }
 
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
@@ -212,7 +198,7 @@ namespace core {
             exit(1);
         }
 
-        utils::Config::instance().finish();
+        utils::Config::instance().prepare();
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
         sighandler_t oldSigQuitHandler = core::system::signal(SIGQUIT, EventLoop::stoponsig);
@@ -278,6 +264,8 @@ namespace core {
 
         DynamicLoader::execDlCloseDeleyed();
         DynamicLoader::execDlCloseAll();
+
+        utils::Config::instance().terminate();
 
         LOG(INFO) << "All resources released";
     }

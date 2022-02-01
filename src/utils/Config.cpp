@@ -19,12 +19,22 @@
 #include "utils/Config.h"
 
 #include "utils/CLI11.hpp"
+#include "utils/Daemon.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdlib>   // for exit
-#include <iostream>  // for basic_ostream, endl, operator<<, cout, ofstream, ostream
+#include <cstdlib>  // for exit
+#include <iostream> // for basic_ostream, endl, operator<<, cout, ofstream, ostream
+#include <poll.h>
 #include <stdexcept> // for invalid_argument, out_of_range
+#include <stdlib.h>
+#include <sys/types.h>
+#include <syscall.h>
+#include <unistd.h>
+
+#ifndef __NR_pidfd_open
+#define __NR_pidfd_open 434 /* System call # on most architectures */
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -80,10 +90,24 @@ namespace utils {
 
         app.allow_extras(false);
 
+        if (_kill) {
+            utils::Daemon::kill("/home/voc/etc/snode.c/" + name + ".pid");
+            std::cout << "Daemon killed" << std::endl;
+
+            exit(0);
+        }
+
+        if (_daemonize) {
+            std::cout << "Daemonizing" << std::endl;
+            utils::Daemon::daemonize("/home/voc/etc/snode.c/" + name + ".pid");
+        } else {
+            std::cout << "Not daemonizing" << std::endl;
+        }
+
         return 0;
     }
 
-    void Config::finish() {
+    void Config::prepare() {
         parse();
 
         if (_dumpConfig) {
@@ -95,6 +119,12 @@ namespace utils {
         }
 
         parse(true);
+    }
+
+    void Config::terminate() {
+        if (_daemonize) {
+            Daemon::erasePidFile("/home/voc/etc/snode.c/" + name + ".pid");
+        }
     }
 
     const std::string Config::getLogFile() const {

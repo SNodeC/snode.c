@@ -40,7 +40,9 @@ namespace utils {
         static Config& instance();
         int init(const std::string& name, int argc, char* argv[]);
 
-        void finish();
+        void prepare();
+
+        void terminate();
 
         const std::string getLogFile() const;
 
