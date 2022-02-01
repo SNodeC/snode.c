@@ -88,6 +88,8 @@ namespace utils {
 
         app.set_config("--config", configFile, "Read an config file", false);
 
+        parse();
+
         app.allow_extras(false);
 
         if (_kill) {
