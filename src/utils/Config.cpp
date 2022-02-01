@@ -36,7 +36,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CONFFILEPATH "/home/voc/etc/snode.c"
+#define CONFFILEPATH std::string("/home/voc/etc/snode.c")
+#define LOGFILEPATH std::string("/home/voc/etc/snode.c")
+#define PIDFILEPATH std::string("/home/voc/etc/snode.c")
 
 namespace utils {
 
@@ -72,7 +74,7 @@ namespace utils {
         dumpConfigFlg->configurable(false);
 
         CLI::Option* logFileOpt = app.add_option("-l,--log-file", _logFile, "Log to file");
-        logFileOpt->default_val("/home/voc/etc/snode.c/" + name + ".log");
+        logFileOpt->default_val(LOGFILEPATH + "/" + name + ".log");
         logFileOpt->type_name("[path]");
         logFileOpt->excludes(showConfigFlag);
         logFileOpt->configurable();
@@ -93,16 +95,14 @@ namespace utils {
         killDaemonOpt->disable_flag_override();
         killDaemonOpt->configurable(false);
 
-        parse();
-
-        app.set_config("--config", std::string(CONFFILEPATH) + "/" + name + ".conf", "Read an config file", false);
+        app.set_config("--config", CONFFILEPATH + "/" + name + ".conf", "Read an config file", false);
 
         parse();
 
         app.allow_extras(false);
 
         if (_kill) {
-            utils::Daemon::kill("/home/voc/etc/snode.c/" + name + ".pid");
+            utils::Daemon::kill(PIDFILEPATH + "/" + name + ".pid");
             std::cout << "Daemon killed" << std::endl;
 
             exit(0);
@@ -110,12 +110,13 @@ namespace utils {
 
         if (!_showConfig) {
             if (_daemonize) {
-                utils::Daemon::daemonize("/home/voc/etc/snode.c/" + name + ".pid");
+                utils::Daemon::daemonize(PIDFILEPATH + "/" + name + ".pid");
                 logger::Logger::quiet();
             } else {
                 if (!_forceLogFile) {
                     _logFile = "";
                 }
+
                 std::cout << "Not daemonizing" << std::endl;
             }
 
@@ -146,7 +147,7 @@ namespace utils {
 
     void Config::terminate() {
         if (_daemonize) {
-            Daemon::erasePidFile("/home/voc/etc/snode.c/" + name + ".pid");
+            Daemon::erasePidFile(PIDFILEPATH + "/" + name + ".pid");
         }
     }
 
