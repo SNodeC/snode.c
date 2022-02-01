@@ -18,8 +18,6 @@
 
 #include "net/l2/stream/ConfigConnect.h"
 
-#include "utils/Config.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -57,10 +55,10 @@ namespace net::l2::stream {
         return SocketAddress(connectHost, connectPsm);
     }
 
-    void ConfigConnect::required(bool req) const {
-        utils::Config::instance().required(connectSc, req);
-        utils::Config::instance().required(connectHostOpt, req);
-        utils::Config::instance().required(connectPsmOpt, req);
+    void ConfigConnect::required() const {
+        connectSc->required();
+        connectHostOpt->required();
+        connectPsmOpt->required();
     }
 
 } // namespace net::l2::stream

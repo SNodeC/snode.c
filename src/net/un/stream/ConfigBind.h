@@ -43,7 +43,7 @@ namespace net::un::stream {
         net::un::SocketAddress getBindAddress() const;
 
     protected:
-        void required(bool req) const;
+        void required() const;
 
         CLI::App* bindSc = nullptr;
         CLI::Option* bindSunPathOpt = nullptr;

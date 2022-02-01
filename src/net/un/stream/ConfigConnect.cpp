@@ -18,8 +18,6 @@
 
 #include "net/un/stream/ConfigConnect.h"
 
-#include "utils/Config.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -47,9 +45,9 @@ namespace net::un::stream {
         return SocketAddress(connectSunPath);
     }
 
-    void ConfigConnect::required(bool req) const {
-        utils::Config::instance().required(connectSc, req);
-        utils::Config::instance().required(connectSunPathOpt, req);
+    void ConfigConnect::required() const {
+        connectSc->required();
+        connectSunPathOpt->required();
     }
 
 } // namespace net::un::stream

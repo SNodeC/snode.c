@@ -39,9 +39,6 @@ namespace net::un::stream {
         , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);
-
-    private:
-        void required(bool req) const final;
     };
 
 } // namespace net::un::stream

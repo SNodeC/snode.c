@@ -31,8 +31,6 @@ namespace net {
         connectionSc->description("Options for established client connections");
         connectionSc->configurable();
 
-        connectionSc->group("Sub-Options (use -h,--help on them)");
-
         readTimeoutOpt = connectionSc->add_option("-r,--read-timeout", readTimeout, "Read timeout");
         readTimeoutOpt->type_name("[sec]");
         readTimeoutOpt->default_val(60);

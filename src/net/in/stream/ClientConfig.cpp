@@ -30,10 +30,7 @@ namespace net::in::stream {
         , net::in::stream::ConfigConnect(baseSc)
         , net::in::stream::ConfigBind(baseSc)
         , net::ConfigConn(baseSc) {
-    }
-
-    void ClientConfig::required(bool req) const {
-        net::in::stream::ConfigConnect::required(req);
+        net::in::stream::ConfigConnect::required();
     }
 
 } // namespace net::in::stream

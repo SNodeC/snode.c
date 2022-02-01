@@ -41,9 +41,6 @@ namespace net::in6::stream {
         , public net::ConfigConn {
     public:
         explicit ClientConfig(const std::string& name);
-
-    private:
-        void required(bool req) const final;
     };
 
 } // namespace net::in6::stream

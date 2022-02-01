@@ -61,7 +61,7 @@ namespace core::socket {
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
-    protected: // must be call able from subclasses
+    protected: // must be callable from subclasses
         void onConnected();
         void onDisconnected();
 

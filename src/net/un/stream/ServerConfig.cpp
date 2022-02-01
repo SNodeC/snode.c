@@ -28,10 +28,7 @@ namespace net::un::stream {
         , net::ConfigBacklog(baseSc)
         , net::un::stream::ConfigBind(baseSc)
         , net::ConfigConn(baseSc) {
-    }
-
-    void ServerConfig::required(bool req) const {
-        net::un::stream::ConfigBind::required(req);
+        net::un::stream::ConfigBind::required();
     }
 
 } // namespace net::un::stream

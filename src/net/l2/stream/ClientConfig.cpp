@@ -30,10 +30,7 @@ namespace net::l2::stream {
         , net::l2::stream::ConfigConnect(baseSc)
         , net::l2::stream::ConfigBind(baseSc)
         , net::ConfigConn(baseSc) {
-    }
-
-    void ClientConfig::required(bool req) const {
-        net::l2::stream::ConfigConnect::required(req);
+        net::l2::stream::ConfigConnect::required();
     }
 
 } // namespace net::l2::stream

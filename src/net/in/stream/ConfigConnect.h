@@ -46,7 +46,7 @@ namespace net::in::stream {
         SocketAddress getConnectAddress() const;
 
     protected:
-        void required(bool req) const;
+        void required() const;
 
         CLI::App* connectSc = nullptr;
         CLI::Option* connectHostOpt = nullptr;

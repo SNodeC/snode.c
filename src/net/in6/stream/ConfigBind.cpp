@@ -18,8 +18,6 @@
 
 #include "net/in6/stream/ConfigBind.h"
 
-#include "utils/Config.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -57,9 +55,9 @@ namespace net::in6::stream {
         return SocketAddress(bindHost, bindPort);
     }
 
-    void ConfigBind::required(bool req) const {
-        utils::Config::instance().required(bindSc, req);
-        utils::Config::instance().required(bindPortOpt, req);
+    void ConfigBind::required() const {
+        bindSc->required();
+        bindPortOpt->required();
     }
 
 } // namespace net::in6::stream

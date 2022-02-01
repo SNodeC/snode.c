@@ -33,8 +33,6 @@ namespace net {
         tlsSc->description("Options for SSL/TLS behaviour");
         tlsSc->configurable();
 
-        tlsSc->group("Sub-Options (use -h,--help on them)");
-
         tlsInitTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "SSL/TLS initialization timeout");
         tlsInitTimeoutOpt->type_name("[sec]");
         tlsInitTimeoutOpt->default_val(10);

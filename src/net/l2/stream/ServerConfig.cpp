@@ -29,10 +29,7 @@ namespace net::l2::stream {
         , net::ConfigBacklog(baseSc)
         , net::l2::stream::ConfigBind(baseSc)
         , net::ConfigConn(baseSc) {
-    }
-
-    void ServerConfig::required(bool req) const {
-        net::l2::stream::ConfigBind::required(req);
+        net::l2::stream::ConfigBind::required();
     }
 
 } // namespace net::l2::stream

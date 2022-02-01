@@ -39,9 +39,6 @@ namespace net::rf::stream {
         , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);
-
-    private:
-        void required(bool req) const final;
     };
 
 } // namespace net::rf::stream

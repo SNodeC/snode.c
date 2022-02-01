@@ -37,6 +37,7 @@ namespace net::l2::stream::legacy {
         explicit ClientConfig(const std::string& name)
             : net::l2::stream::ClientConfig(name)
             , net::ConfigLegacy(baseSc) {
+            parse();
         }
     };
 

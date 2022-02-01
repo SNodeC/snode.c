@@ -30,10 +30,7 @@ namespace net::rf::stream {
         , net::rf::stream::ConfigConnect(baseSc)
         , net::rf::stream::ConfigBind(baseSc)
         , net::ConfigConn(baseSc) {
-    }
-
-    void ClientConfig::required(bool req) const {
-        net::rf::stream::ConfigConnect::required(req);
+        net::rf::stream::ConfigConnect::required();
     }
 
 } // namespace net::rf::stream

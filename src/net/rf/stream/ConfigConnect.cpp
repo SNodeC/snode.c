@@ -18,8 +18,6 @@
 
 #include "net/rf/stream/ConfigConnect.h"
 
-#include "utils/Config.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -57,10 +55,10 @@ namespace net::rf::stream {
         return SocketAddress(connectHost, connectChannel);
     }
 
-    void ConfigConnect::required(bool req) const {
-        utils::Config::instance().required(connectSc, req);
-        utils::Config::instance().required(connectHostOpt, req);
-        utils::Config::instance().required(connectChannelOpt, req);
+    void ConfigConnect::required() const {
+        connectSc->required();
+        connectHostOpt->required();
+        connectChannelOpt->required();
     }
 
 } // namespace net::rf::stream

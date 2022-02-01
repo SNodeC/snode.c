@@ -18,8 +18,6 @@
 
 #include "net/un/stream/ConfigBind.h"
 
-#include "utils/Config.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -47,9 +45,9 @@ namespace net::un::stream {
         return net::un::SocketAddress(bindSunPath);
     }
 
-    void ConfigBind::required(bool req) const {
-        utils::Config::instance().required(bindSc, req);
-        utils::Config::instance().required(bindSunPathOpt, req);
+    void ConfigBind::required() const {
+        bindSc->required();
+        bindSunPathOpt->required();
     }
 
 } // namespace net::un::stream

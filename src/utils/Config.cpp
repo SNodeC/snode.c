@@ -51,7 +51,8 @@ namespace utils {
         this->argc = argc;
         this->argv = argv;
 
-        app.description("Configuration file for application " + name);
+        app.description("Configuration for application " + name);
+        app.allow_extras();
 
         CLI::Option* dumpConfigFlg = app.add_flag("-w,--write-config", _dumpConfig, "Write config file");
         dumpConfigFlg->configurable(false);
@@ -63,6 +64,10 @@ namespace utils {
         CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
         allHelpOpt->configurable(false);
 
+        CLI::Option* configFileOpt = app.add_option("-c,--config-file", configFile, "Config file");
+        configFileOpt->type_name("[path]");
+        configFileOpt->default_val(std::string(CONFFILEPATH) + "/" + name + ".conf");
+
         CLI::Option* daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", _daemonize, "Start application as daemon");
         daemonizeOpt->configurable();
 
@@ -71,26 +76,25 @@ namespace utils {
 
         parse();
 
-        if (app.count("--help") == 0) {
-            app.set_config("--config", std::string(CONFFILEPATH) + "/" + name + ".conf", "Read an config file", false);
-            parse();
-        }
+        app.set_config("--config", configFile, "Read an config file", false);
 
-        setRequired(_dumpConfig == false);
+        app.allow_extras(false);
 
         return 0;
     }
 
     void Config::finish() {
-        parse(true);
+        parse();
 
         if (_dumpConfig) {
-            std::cout << "Dumping config file: " << std::string(CONFFILEPATH) + "/" + name + ".conf" << std::endl;
+            std::cout << "Dumping config file: " << app["--config"]->as<std::string>() << std::endl;
             std::cout << app.config_to_str(true, true) << std::endl;
 
-            std::ofstream confFile(std::string(std::string(CONFFILEPATH) + "/" + name + ".conf"));
+            std::ofstream confFile(app["--config"]->as<std::string>());
             confFile << app.config_to_str(true, true);
         }
+
+        parse(true);
     }
 
     const std::string Config::getLogFile() const {
@@ -109,28 +113,21 @@ namespace utils {
         return app.add_subcommand(subcommand_name, subcommand_description);
     }
 
-    CLI::App* Config::required(CLI::App* app, bool required) {
-        return app->required(required & _required);
-    }
-
-    CLI::Option* Config::required(CLI::Option* option, bool required) {
-        return option->required(required & _required);
-    }
-
-    void Config::setRequired(bool required) {
-        _required = required;
-    }
-
-    int Config::parse(bool stopOnError) {
+    int Config::parse([[maybe_unused]] CLI::App* sc, bool stopOnError) {
         try {
-            app.parse(argc, argv);
+            // sc->parse(argc, argv);
+            Config::app.parse(argc, argv);
         } catch (const CLI::ParseError& e) {
             if (stopOnError) {
-                exit(app.exit(e));
+                exit(Config::app.exit(e));
             }
         }
 
         return 0;
+    }
+
+    int Config::parse(bool stopOnError) {
+        return parse(&app, stopOnError);
     }
 
 } // namespace utils

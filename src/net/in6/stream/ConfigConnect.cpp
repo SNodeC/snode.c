@@ -18,8 +18,6 @@
 
 #include "net/in6/stream/ConfigConnect.h"
 
-#include "utils/Config.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -56,10 +54,10 @@ namespace net::in6::stream {
         return SocketAddress(connectHost, connectPort);
     }
 
-    void ConfigConnect::required(bool req) const {
-        utils::Config::instance().required(connectSc, req);
-        utils::Config::instance().required(connectHostOpt, req);
-        utils::Config::instance().required(connectPortOpt, req);
+    void ConfigConnect::required() const {
+        connectSc->required();
+        connectHostOpt->required();
+        connectPortOpt->required();
     }
 
 } // namespace net::in6::stream

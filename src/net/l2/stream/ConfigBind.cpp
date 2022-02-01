@@ -18,8 +18,6 @@
 
 #include "net/l2/stream/ConfigBind.h"
 
-#include "utils/Config.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -57,9 +55,9 @@ namespace net::l2::stream {
         return SocketAddress(bindHost, bindPsm);
     }
 
-    void ConfigBind::required(bool req) const {
-        utils::Config::instance().required(bindSc, req);
-        utils::Config::instance().required(bindPsmOpt, req);
+    void ConfigBind::required() const {
+        bindSc->required();
+        bindPsmOpt->required();
     }
 
 } // namespace net::l2::stream

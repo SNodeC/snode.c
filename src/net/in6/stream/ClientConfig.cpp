@@ -30,10 +30,7 @@ namespace net::in6::stream {
         , net::in6::stream::ConfigConnect(baseSc)
         , net::in6::stream::ConfigBind(baseSc)
         , net::ConfigConn(baseSc) {
-    }
-
-    void ClientConfig::required(bool req) const {
-        net::in6::stream::ConfigConnect::required(req);
+        net::in6::stream::ConfigConnect::required();
     }
 
 } // namespace net::in6::stream

@@ -23,7 +23,6 @@
 
 namespace CLI {
     class App;
-    class Option;
 } // namespace CLI
 
 #include <string>
@@ -51,22 +50,20 @@ namespace utils {
 
         CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
 
-        CLI::App* required(CLI::App* app, bool required);
-        CLI::Option* required(CLI::Option* option, bool required);
-
-        void setRequired(bool required);
+        int parse(CLI::App* sc, bool stopOnError = false);
 
         int parse(bool stopOnError = false);
 
     private:
         std::string name;
 
+        std::string configFile;
+
         static CLI::App app;
 
         int argc = 0;
         char** argv = nullptr;
 
-        bool _required = true;
         bool _dumpConfig = false;
         bool _daemonize = false;
         bool _kill = false;

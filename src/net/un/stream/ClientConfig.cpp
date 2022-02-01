@@ -29,10 +29,7 @@ namespace net::un::stream {
         , net::un::stream::ConfigConnect(baseSc)
         , net::un::stream::ConfigBind(baseSc)
         , net::ConfigConn(baseSc) {
-    }
-
-    void ClientConfig::required(bool req) const {
-        net::un::stream::ConfigConnect::required(req);
+        net::un::stream::ConfigConnect::required();
     }
 
 } // namespace net::un::stream

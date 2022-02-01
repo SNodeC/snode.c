@@ -32,20 +32,15 @@ namespace net {
         baseSc = utils::Config::instance().add_subcommand(name, name + " configuration");
         baseSc->configurable();
         baseSc->fallthrough();
+        baseSc->required();
     }
 
     const std::string& ConfigBase::getName() const {
         return name;
     }
 
-    int ConfigBase::parse(bool req) const {
-        utils::Config::instance().required(baseSc, req);
-        required(req);
-
-        try {
-            utils::Config::instance().parse();
-        } catch (const CLI::ParseError& e) {
-        }
+    int ConfigBase::parse() const {
+        utils::Config::instance().parse(baseSc);
 
         return 0;
     }
