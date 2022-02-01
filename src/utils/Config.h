@@ -59,8 +59,6 @@ namespace utils {
     private:
         std::string name;
 
-        std::string configFile;
-
         static CLI::App app;
 
         int argc = 0;
@@ -69,6 +67,8 @@ namespace utils {
         bool _dumpConfig = false;
         bool _daemonize = false;
         bool _kill = false;
+        bool _forceLogFile = false;
+        bool _showConfig = false;
         std::string _logFile = "";
     };
 

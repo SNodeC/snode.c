@@ -40,6 +40,8 @@ namespace utils {
     private:
         static long pidfd_open(pid_t pid, unsigned int flags);
         static int waitForDaemonToExit(pid_t pid);
+
+        static bool daemonized;
     };
 
 } // namespace utils

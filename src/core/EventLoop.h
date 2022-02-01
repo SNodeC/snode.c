@@ -68,8 +68,6 @@ namespace core {
 
         static unsigned long tickCounter;
 
-        static bool dumpConfig;
-
         friend class SNodeC;
     };
 

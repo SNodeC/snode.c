@@ -23,14 +23,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdlib>  // for exit
-#include <iostream> // for basic_ostream, endl, operator<<, cout, ofstream, ostream
-#include <poll.h>
+#include "log/Logger.h"
+
+#include <cstdlib>
+#include <iostream>  // for basic_ostream, endl, operator<<, cout,
 #include <stdexcept> // for invalid_argument, out_of_range
-#include <stdlib.h>
-#include <sys/types.h>
 #include <syscall.h>
-#include <unistd.h>
 
 #ifndef __NR_pidfd_open
 #define __NR_pidfd_open 434 /* System call # on most architectures */
@@ -61,32 +59,43 @@ namespace utils {
         this->argc = argc;
         this->argv = argv;
 
+        logger::Logger::init(argc, argv);
+
         app.description("Configuration for application " + name);
         app.allow_extras();
 
+        CLI::Option* showConfigFlag = app.add_flag("-s,--show-config", _showConfig, "Show current configuration and exit");
+        showConfigFlag->configurable(false);
+
         CLI::Option* dumpConfigFlg = app.add_flag("-w,--write-config", _dumpConfig, "Write config file");
+        dumpConfigFlg->disable_flag_override();
         dumpConfigFlg->configurable(false);
 
         CLI::Option* logFileOpt = app.add_option("-l,--log-file", _logFile, "Log to file");
+        logFileOpt->default_val("/home/voc/etc/snode.c/" + name + ".log");
         logFileOpt->type_name("[path]");
+        logFileOpt->excludes(showConfigFlag);
         logFileOpt->configurable();
+
+        CLI::Option* forceLogFileFlag = app.add_flag(
+            "-g,!-n,--force-log-file,!--no-log-file", _forceLogFile, "Force writing logs to file for foureground applications");
+        forceLogFileFlag->excludes(showConfigFlag);
+        forceLogFileFlag->configurable();
 
         CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
         allHelpOpt->configurable(false);
 
-        CLI::Option* configFileOpt = app.add_option("-c,--config-file", configFile, "Config file");
-        configFileOpt->type_name("[path]");
-        configFileOpt->default_val(std::string(CONFFILEPATH) + "/" + name + ".conf");
-
         CLI::Option* daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", _daemonize, "Start application as daemon");
+        daemonizeOpt->excludes(showConfigFlag);
         daemonizeOpt->configurable();
 
         CLI::Option* killDaemonOpt = app.add_flag("-k,--kill", _kill, "Kill running daemon");
+        killDaemonOpt->disable_flag_override();
         killDaemonOpt->configurable(false);
 
         parse();
 
-        app.set_config("--config", configFile, "Read an config file", false);
+        app.set_config("--config", std::string(CONFFILEPATH) + "/" + name + ".conf", "Read an config file", false);
 
         parse();
 
@@ -99,11 +108,20 @@ namespace utils {
             exit(0);
         }
 
-        if (_daemonize) {
-            std::cout << "Daemonizing" << std::endl;
-            utils::Daemon::daemonize("/home/voc/etc/snode.c/" + name + ".pid");
-        } else {
-            std::cout << "Not daemonizing" << std::endl;
+        if (!_showConfig) {
+            if (_daemonize) {
+                utils::Daemon::daemonize("/home/voc/etc/snode.c/" + name + ".pid");
+                logger::Logger::quiet();
+            } else {
+                if (!_forceLogFile) {
+                    _logFile = "";
+                }
+                std::cout << "Not daemonizing" << std::endl;
+            }
+
+            if (!_logFile.empty()) {
+                logger::Logger::logToFile(_logFile);
+            }
         }
 
         return 0;
@@ -113,11 +131,14 @@ namespace utils {
         parse();
 
         if (_dumpConfig) {
-            std::cout << "Dumping config file: " << app["--config"]->as<std::string>() << std::endl;
-            std::cout << app.config_to_str(true, true) << std::endl;
-
             std::ofstream confFile(app["--config"]->as<std::string>());
             confFile << app.config_to_str(true, true);
+        }
+
+        if (_showConfig) {
+            std::cout << app.config_to_str(true, true) << std::endl;
+
+            exit(0);
         }
 
         parse(true);

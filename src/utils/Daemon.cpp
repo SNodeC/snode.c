@@ -20,11 +20,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <poll.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -35,103 +37,87 @@
 
 namespace utils {
 
+    bool Daemon::daemonized = false;
+
     long Daemon::pidfd_open(pid_t pid, unsigned int flags) {
         return syscall(__NR_pidfd_open, pid, flags);
     }
 
-    int Daemon::waitForDaemonToExit(pid_t pid) {
-        struct pollfd pollfd;
-        int pidfd;
-        int ready;
-
-        pidfd = static_cast<int>(pidfd_open(pid, 0));
-        if (pidfd == -1) {
-            perror("pidfd_open");
-            exit(EXIT_FAILURE);
-        }
-
-        pollfd.fd = pidfd;
-        pollfd.events = POLLIN;
-
-        ready = poll(&pollfd, 1, -1);
-        if (ready == -1) {
-            perror("poll");
-            exit(EXIT_FAILURE);
-        }
-
-        std::cout << "Daemon terminated" << std::endl;
-
-        close(pidfd);
-        exit(EXIT_SUCCESS);
-    }
-
     void Daemon::daemonize(const std::string& pidFileName) {
-        pid_t pid = 0;
+        if (!std::filesystem::exists(pidFileName)) {
+            VLOG(0) << "Daemonizing";
 
-        /* Fork off the parent process */
-        pid = fork();
+            pid_t pid = 0;
 
-        /* An error occurred */
-        if (pid < 0) {
-            exit(EXIT_FAILURE);
-        }
+            /* Fork off the parent process */
+            pid = fork();
 
-        /* Success: Let the parent terminate */
-        if (pid > 0) {
-            exit(EXIT_SUCCESS);
-        }
-
-        /* On success: The child process becomes session leader */
-        if (setsid() < 0) {
-            exit(EXIT_FAILURE);
-        }
-
-        /* Ignore signal sent from child to parent process */
-        signal(SIGCHLD, SIG_IGN);
-
-        /* Fork off for the second time*/
-        pid = fork();
-
-        /* An error occurred */
-        if (pid < 0) {
-            exit(EXIT_FAILURE);
-        }
-
-        /* Success: Let the parent terminate */
-        if (pid > 0) {
-            exit(EXIT_SUCCESS);
-        }
-
-        /* Set new file permissions */
-        umask(0);
-
-        /* Change the working directory to the root directory */
-        /* or another appropriated directory */
-        chdir("/");
-
-        /* Close all open file descriptors */
-        for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
-            close(static_cast<int>(fd));
-        }
-
-        /* Reopen stdin (fd = 0), stdout (fd = 1), stderr (fd = 2) */
-        if (std::freopen("/dev/null", "r", stdin) == nullptr) {
-        }
-        if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
-        }
-        if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
-        }
-
-        /* Try to write PID of daemon to lockfile */
-        if (!pidFileName.empty()) {
-            std::ofstream pidFile(pidFileName, std::ofstream::out);
-
-            if (pidFile.good()) {
-                pidFile << getpid() << std::endl;
-                pidFile.close();
-            } else {
+            /* An error occurred */
+            if (pid < 0) {
                 exit(EXIT_FAILURE);
             }
+
+            /* Success: Let the parent terminate */
+            if (pid > 0) {
+                exit(EXIT_SUCCESS);
+            }
+
+            /* On success: The child process becomes session leader */
+            if (setsid() < 0) {
+                exit(EXIT_FAILURE);
+            }
+
+            /* Ignore signal sent from child to parent process */
+            signal(SIGCHLD, SIG_IGN);
+
+            /* Fork off for the second time*/
+            pid = fork();
+
+            /* An error occurred */
+            if (pid < 0) {
+                exit(EXIT_FAILURE);
+            }
+
+            /* Success: Let the parent terminate */
+            if (pid > 0) {
+                exit(EXIT_SUCCESS);
+            }
+
+            /* Set new file permissions */
+            umask(0);
+
+            /* Change the working directory to the root directory */
+            /* or another appropriated directory */
+            chdir("/");
+
+            /* Close all open file descriptors */
+            for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
+                close(static_cast<int>(fd));
+            }
+
+            /* Reopen stdin (fd = 0), stdout (fd = 1), stderr (fd = 2) */
+            if (std::freopen("/dev/null", "r", stdin) == nullptr) {
+            }
+            if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
+            }
+            if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
+            }
+
+            /* Try to write PID of daemon to lockfile */
+            if (!pidFileName.empty()) {
+                std::ofstream pidFile(pidFileName, std::ofstream::out);
+
+                if (pidFile.good()) {
+                    pidFile << getpid() << std::endl;
+                    pidFile.close();
+                } else {
+                    exit(EXIT_FAILURE);
+                }
+            }
+            daemonized = true;
+        } else {
+            VLOG(0) << "Already running: Not daemonized ... exiting";
+            daemonized = false;
         }
     }
 
@@ -143,17 +129,45 @@ namespace utils {
             if (pidFile.good()) {
                 int pid;
                 pidFile >> pid;
+
+                struct pollfd pollfd;
+
+                int pidfd = static_cast<int>(pidfd_open(pid, 0));
+
+                if (pidfd == -1) {
+                    VLOG(0) << "Daemon not running";
+                    exit(EXIT_FAILURE);
+                }
+
                 ::kill(pid, SIGTERM);
                 pidFile.close();
-                waitForDaemonToExit(pid);
+
+                pollfd.fd = pidfd;
+                pollfd.events = POLLIN;
+
+                int ready = poll(&pollfd, 1, -1);
+                if (ready == -1) {
+                    PLOG(ERROR) << "Poll";
+                    exit(EXIT_FAILURE);
+                }
+
+                VLOG(0) << "Daemon terminated";
+
+                close(pidfd);
+                exit(EXIT_SUCCESS);
+
             } else {
+                VLOG(0) << "Daemon not running";
+
                 exit(EXIT_FAILURE);
             }
         }
     }
 
     void Daemon::erasePidFile(const std::string& pidFileName) {
-        std::remove(pidFileName.data());
+        if (daemonized) {
+            std::remove(pidFileName.data());
+        }
     }
 
 } // namespace utils

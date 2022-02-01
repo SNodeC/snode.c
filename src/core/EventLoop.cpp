@@ -27,12 +27,9 @@
 #include "log/Logger.h" // for Logger
 #include "utils/Config.h"
 
-#include <cstdio>  // for fopen, stderr, stdin, stdout
 #include <cstdlib> // for exit
 #include <cstring>
-#include <string>     // for string, to_string
-#include <sys/stat.h> // for umask
-#include <unistd.h>   // for fork, chdir, close, setsid, sysconf, _SC_OPEN_MAX
+#include <string> // for string, to_string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -50,74 +47,6 @@ namespace core {
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
     unsigned long EventLoop::tickCounter = 0;
-
-    bool EventLoop::dumpConfig = false;
-
-    int daemonize(std::string name, std::string path = "", std::string outfile = "", std::string errfile = "", std::string infile = "") {
-        if (path.empty()) {
-            path = "/";
-        }
-        if (name.empty()) {
-            name = "SNodeC daemon";
-        }
-        if (infile.empty()) {
-            infile = "/dev/null";
-        }
-        if (outfile.empty()) {
-            outfile = "/dev/null";
-        }
-        if (errfile.empty()) {
-            errfile = "/dev/null";
-        }
-        // printf("%s %s %s %s\n",name,path,outfile,infile);
-
-        pid_t child;
-        // fork, detach from process group leader
-        if ((child = fork()) < 0) { // failed fork
-            VLOG(0) << "error: failed fork";
-            exit(EXIT_FAILURE);
-        }
-        if (child > 0) { // parent
-            exit(EXIT_SUCCESS);
-        }
-        if (setsid() < 0) { // failed to become session leader
-            VLOG(0) << "error: failed setsid";
-            exit(EXIT_FAILURE);
-        }
-
-        // catch/ignore signals
-        signal(SIGCHLD, SIG_IGN);
-        signal(SIGHUP, SIG_IGN);
-
-        // fork second time
-        if ((child = fork()) < 0) { // failed fork
-            VLOG(0) << "error: failed fork";
-            exit(EXIT_FAILURE);
-        }
-        if (child > 0) { // parent
-            exit(EXIT_SUCCESS);
-        }
-
-        // new file permissions
-        umask(0);
-        // change to path directory
-        chdir(path.c_str());
-
-        // Close all open file descriptors
-
-        long fd;
-        for (fd = sysconf(_SC_OPEN_MAX); fd >= 0; --fd) {
-            close(static_cast<int>(fd));
-        }
-
-        // reopen stdin, stdout, stderr
-
-        stdin = fopen(infile.c_str(), "r");    // fd=0
-        stdout = fopen(outfile.c_str(), "w+"); // fd=1
-        stderr = fopen(errfile.c_str(), "w+"); // fd=2
-
-        return (0);
-    }
 
     static std::string getTickCounterAsString(const el::LogMessage*) {
         std::string tick = std::to_string(EventLoop::getTickCounter());
@@ -151,18 +80,9 @@ namespace core {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     void EventLoop::init(int argc, char* argv[]) {
-        logger::Logger::init(argc, argv);
-
-        logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
-
         utils::Config::instance().init(std::string(basename(argv[0])), argc, argv);
 
-        if (!utils::Config::instance().getLogFile().empty()) {
-            VLOG(0) << "LogFile: " << utils::Config::instance().getLogFile();
-
-            logger::Logger::logToFile(utils::Config::instance().getLogFile());
-            logger::Logger::quiet();
-        }
+        logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
         EventLoop::initialized = true;
     }
