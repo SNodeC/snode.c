@@ -22,7 +22,7 @@
 #include "net/ConfigBacklog.h"
 #include "net/ConfigBase.h"
 #include "net/ConfigConn.h"
-#include "net/rf/stream/ConfigBind.h"
+#include "net/rf/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,7 +35,7 @@ namespace net::rf::stream {
     class ServerConfig
         : public net::ConfigBase
         , public net::ConfigBacklog
-        , public net::rf::stream::ConfigBind
+        , public net::rf::ConfigLocal
         , public net::ConfigConn {
     public:
         explicit ServerConfig(const std::string& name);

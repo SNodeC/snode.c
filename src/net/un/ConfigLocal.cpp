@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ConfigConnect.h"
+#include "net/un/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,30 +24,26 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::un {
 
-    ConfigConnect::ConfigConnect(CLI::App* baseSc) {
-        connectSc = baseSc->add_subcommand("bind");
-        connectSc->description("Bind options");
-        connectSc->configurable();
+    ConfigLocal::ConfigLocal(CLI::App* baseSc) {
+        bindSc = baseSc->add_subcommand("bind");
+        bindSc->description("Bind options");
+        bindSc->configurable();
 
-        connectSunPathOpt = connectSc->add_option("-p,--path", connectSunPath, "Unix domain socket");
-        connectSunPathOpt->type_name("[filesystem path]");
-        connectSunPathOpt->default_val("/tmp/sun.sock");
-        connectSunPathOpt->configurable();
+        bindSunPathOpt = bindSc->add_option("-p,--path", bindSunPath, "Unix domain socket");
+        bindSunPathOpt->type_name("[filesystem path]");
+        bindSunPathOpt->default_val("/tmp/sun.sock");
+        bindSunPathOpt->configurable();
     }
 
-    const std::string& ConfigConnect::getConnectSunPath() const {
-        return connectSunPath;
+    SocketAddress ConfigLocal::getLocalAddress() const {
+        return net::un::SocketAddress(bindSunPath);
     }
 
-    SocketAddress ConfigConnect::getConnectAddress() const {
-        return SocketAddress(connectSunPath);
+    void ConfigLocal::required() const {
+        bindSc->required();
+        bindSunPathOpt->required();
     }
 
-    void ConfigConnect::required() const {
-        connectSc->required();
-        connectSunPathOpt->required();
-    }
-
-} // namespace net::un::stream
+} // namespace net::un

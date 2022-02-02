@@ -16,47 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_CONFIGCONNECT_H
-#define NET_IN6_STREAM_CONFIGCONNECT_H
+#ifndef NET_RF_STREAM_CONFIGLOCAL_H
+#define NET_RF_STREAM_CONFIGLOCAL_H
 
-#include "net/in6/SocketAddress.h"
+#include "net/rf/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstdint> // for uint16_t
+#include <string>  // for string
 
 namespace CLI {
     class App;
     class Option;
 } // namespace CLI
 
-#include <cstdint>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6::stream {
+namespace net::rf {
 
-    class ConfigConnect {
+    class ConfigLocal {
     public:
-        explicit ConfigConnect(CLI::App* baseSc);
+        explicit ConfigLocal(CLI::App* baseSc);
 
-        const std::string& getConnectHost() const;
-
-        uint16_t getConnectPort() const;
-
-        SocketAddress getConnectAddress() const;
+        SocketAddress getLocalAddress() const;
 
     protected:
         void required() const;
 
-        CLI::App* connectSc = nullptr;
-        CLI::Option* connectHostOpt = nullptr;
-        CLI::Option* connectPortOpt = nullptr;
+        CLI::App* bindSc = nullptr;
+        CLI::Option* bindHostOpt = nullptr;
+        CLI::Option* bindChannelOpt = nullptr;
 
     private:
-        std::string connectHost = "";
-        uint16_t connectPort = 0;
+        std::string bindHost = "";
+        uint8_t bindChannel = 0;
     };
 
-} // namespace net::in6::stream
+} // namespace net::rf
 
-#endif // NET_IN6_STREAM_CONFIGCONNECT_H
+#endif // NET_RF_STREAM_CONFIGLOCAL_H

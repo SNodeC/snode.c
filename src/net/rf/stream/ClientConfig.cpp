@@ -27,10 +27,10 @@ namespace net::rf::stream {
     ClientConfig::ClientConfig(const std::string& name)
         : net::ConfigBase(name)
         , net::ConfigBacklog(baseSc)
-        , net::rf::stream::ConfigConnect(baseSc)
-        , net::rf::stream::ConfigBind(baseSc)
+        , net::rf::ConfigRemote(baseSc)
+        , net::rf::ConfigLocal(baseSc)
         , net::ConfigConn(baseSc) {
-        net::rf::stream::ConfigConnect::required();
+        net::rf::ConfigRemote::required();
     }
 
 } // namespace net::rf::stream

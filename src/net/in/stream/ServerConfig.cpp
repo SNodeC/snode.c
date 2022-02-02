@@ -27,9 +27,9 @@ namespace net::in::stream {
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name)
         , net::ConfigBacklog(baseSc)
-        , net::in::stream::ConfigBind(baseSc)
+        , net::in::ConfigLocal(baseSc)
         , net::ConfigConn(baseSc) {
-        net::in::stream::ConfigBind::required();
+        net::in::ConfigLocal::required();
     }
 
 } // namespace net::in::stream

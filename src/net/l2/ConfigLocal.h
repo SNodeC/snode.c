@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_CONFIGBIND_H
-#define NET_RF_STREAM_CONFIGBIND_H
+#ifndef NET_L2_CONFIGLOCAL_H
+#define NET_L2_CONFIGLOCAL_H
 
-#include "net/rf/SocketAddress.h"
+#include "net/l2/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,30 +33,26 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net::l2 {
 
-    class ConfigBind {
+    class ConfigLocal {
     public:
-        explicit ConfigBind(CLI::App* baseSc);
+        explicit ConfigLocal(CLI::App* baseSc);
 
-        const std::string& getBindHost() const;
-
-        uint8_t getBindChannel() const;
-
-        SocketAddress getBindAddress() const;
+        SocketAddress getLocalAddress() const;
 
     protected:
         void required() const;
 
         CLI::App* bindSc = nullptr;
         CLI::Option* bindHostOpt = nullptr;
-        CLI::Option* bindChannelOpt = nullptr;
+        CLI::Option* bindPsmOpt = nullptr;
 
     private:
         std::string bindHost = "";
-        uint8_t bindChannel = 0;
+        uint16_t bindPsm = 0;
     };
 
-} // namespace net::rf::stream
+} // namespace net::l2
 
-#endif
+#endif // NET_L2_CONFIGLOCAL_H

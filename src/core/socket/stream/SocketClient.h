@@ -71,7 +71,7 @@ namespace core::socket::stream {
         using ClientSocket::connect;
 
         void connect(const std::function<void(int)>& onError) const override {
-            connect(clientConfig.getConnectAddress(), clientConfig.getBindAddress(), onError);
+            connect(clientConfig.getRemoteAddress(), clientConfig.getLocalAddress(), onError);
         }
 
         void connect(const SocketAddress& remoteAddress,

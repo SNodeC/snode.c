@@ -16,41 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIGCONNECT_H
-#define NET_UN_STREAM_CONFIGCONNECT_H
-
-#include "net/un/SocketAddress.h"
+#include "net/un/ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
-
-#include <string>
+#include "utils/CLI11.hpp"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::un {
 
-    class ConfigConnect {
-    public:
-        explicit ConfigConnect(CLI::App* baseSc);
+    ConfigRemote::ConfigRemote(CLI::App* baseSc) {
+        connectSc = baseSc->add_subcommand("bind");
+        connectSc->description("Bind options");
+        connectSc->configurable();
 
-        const std::string& getConnectSunPath() const;
+        connectSunPathOpt = connectSc->add_option("-p,--path", connectSunPath, "Unix domain socket");
+        connectSunPathOpt->type_name("[filesystem path]");
+        connectSunPathOpt->default_val("/tmp/sun.sock");
+        connectSunPathOpt->configurable();
+    }
 
-        SocketAddress getConnectAddress() const;
+    SocketAddress ConfigRemote::getRemoteAddress() const {
+        return SocketAddress(connectSunPath);
+    }
 
-    protected:
-        void required() const;
+    void ConfigRemote::required() const {
+        connectSc->required();
+        connectSunPathOpt->required();
+    }
 
-        CLI::App* connectSc = nullptr;
-        CLI::Option* connectSunPathOpt = nullptr;
-
-        std::string connectSunPath = "";
-    };
-
-} // namespace net::un::stream
-
-#endif // NET_UN_STREAM_CONFIGCONNECT_H
+} // namespace net::un

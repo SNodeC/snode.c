@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_CONFIGCONNECT_H
-#define NET_RF_STREAM_CONFIGCONNECT_H
+#ifndef NET_UN_STREAM_CONFIGREMOTE_H
+#define NET_UN_STREAM_CONFIGREMOTE_H
 
-#include "net/rf/SocketAddress.h"
+#include "net/un/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,35 +28,27 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include <cstdint>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net::un {
 
-    class ConfigConnect {
+    class ConfigRemote {
     public:
-        explicit ConfigConnect(CLI::App* baseSc);
+        explicit ConfigRemote(CLI::App* baseSc);
 
-        const std::string& getConnectHost() const;
-
-        uint8_t getConnectChannel() const;
-
-        SocketAddress getConnectAddress() const;
+        SocketAddress getRemoteAddress() const;
 
     protected:
         void required() const;
 
         CLI::App* connectSc = nullptr;
-        CLI::Option* connectHostOpt = nullptr;
-        CLI::Option* connectChannelOpt = nullptr;
+        CLI::Option* connectSunPathOpt = nullptr;
 
-    private:
-        std::string connectHost = "";
-        uint8_t connectChannel = 0;
+        std::string connectSunPath = "";
     };
 
-} // namespace net::rf::stream
+} // namespace net::un
 
-#endif // NET_RF_STREAM_CONFIGCONNECT_H
+#endif // NET_UN_STREAM_CONFIGREMOTE_H

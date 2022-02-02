@@ -27,9 +27,9 @@ namespace net::rf::stream {
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name)
         , net::ConfigBacklog(baseSc)
-        , net::rf::stream::ConfigBind(baseSc)
+        , net::rf::ConfigLocal(baseSc)
         , net::ConfigConn(baseSc) {
-        net::rf::stream::ConfigBind::required();
+        net::rf::ConfigLocal::required();
     }
 
 } // namespace net::rf::stream

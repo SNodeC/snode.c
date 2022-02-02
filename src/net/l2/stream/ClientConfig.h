@@ -22,8 +22,8 @@
 #include "net/ConfigBacklog.h"
 #include "net/ConfigBase.h"
 #include "net/ConfigConn.h"
-#include "net/l2/stream/ConfigBind.h"
-#include "net/l2/stream/ConfigConnect.h"
+#include "net/l2/ConfigLocal.h"
+#include "net/l2/ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,8 +36,8 @@ namespace net::l2::stream {
     class ClientConfig
         : public net::ConfigBase
         , public net::ConfigBacklog
-        , public net::l2::stream::ConfigConnect
-        , public net::l2::stream::ConfigBind
+        , public net::l2::ConfigRemote
+        , public net::l2::ConfigLocal
         , public net::ConfigConn {
     public:
         explicit ClientConfig(const std::string& name);

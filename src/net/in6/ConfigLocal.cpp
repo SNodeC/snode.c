@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in6/stream/ConfigBind.h"
+#include "net/in6/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,9 +24,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6::stream {
+namespace net::in6 {
 
-    ConfigBind::ConfigBind(CLI::App* baseSc) {
+    ConfigLocal::ConfigLocal(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("bind");
         bindSc->description("Bind options");
         bindSc->configurable();
@@ -43,21 +43,13 @@ namespace net::in6::stream {
         bindPortOpt->configurable();
     }
 
-    const std::string& ConfigBind::getBindHost() const {
-        return bindHost;
-    }
-
-    uint16_t ConfigBind::getBindPort() const {
-        return bindPort;
-    }
-
-    SocketAddress ConfigBind::getBindAddress() const {
+    SocketAddress ConfigLocal::getLocalAddress() const {
         return SocketAddress(bindHost, bindPort);
     }
 
-    void ConfigBind::required() const {
+    void ConfigLocal::required() const {
         bindSc->required();
         bindPortOpt->required();
     }
 
-} // namespace net::in6::stream
+} // namespace net::in6

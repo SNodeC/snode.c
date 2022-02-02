@@ -16,41 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIGBIND_H
-#define NET_UN_STREAM_CONFIGBIND_H
+#ifndef NET_IN6_CONFIGREMOTE_H
+#define NET_IN6_CONFIGREMOTE_H
 
-#include "net/un/SocketAddress.h"
+#include "net/in6/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string> // for string
 
 namespace CLI {
     class App;
     class Option;
 } // namespace CLI
 
+#include <cstdint>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::in6 {
 
-    class ConfigBind {
+    class ConfigRemote {
     public:
-        explicit ConfigBind(CLI::App* baseSc);
+        explicit ConfigRemote(CLI::App* baseSc);
 
-        const std::string& getBindSunPath() const;
-
-        net::un::SocketAddress getBindAddress() const;
+        SocketAddress getRemoteAddress() const;
 
     protected:
         void required() const;
 
-        CLI::App* bindSc = nullptr;
-        CLI::Option* bindSunPathOpt = nullptr;
+        CLI::App* connectSc = nullptr;
+        CLI::Option* connectHostOpt = nullptr;
+        CLI::Option* connectPortOpt = nullptr;
 
-        std::string bindSunPath = "";
+    private:
+        std::string connectHost = "";
+        uint16_t connectPort = 0;
     };
 
-} // namespace net::un::stream
+} // namespace net::in6
 
-#endif
+#endif // NET_IN6_CONFIGREMOTE_H

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ConfigBind.h"
+#include "net/l2/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,30 +24,32 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::l2 {
 
-    ConfigBind::ConfigBind(CLI::App* baseSc) {
+    ConfigLocal::ConfigLocal(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("bind");
         bindSc->description("Bind options");
         bindSc->configurable();
-
-        bindSunPathOpt = bindSc->add_option("-p,--path", bindSunPath, "Unix domain socket");
-        bindSunPathOpt->type_name("[filesystem path]");
-        bindSunPathOpt->default_val("/tmp/sun.sock");
-        bindSunPathOpt->configurable();
-    }
-
-    const std::string& ConfigBind::getBindSunPath() const {
-        return bindSunPath;
-    }
-
-    SocketAddress ConfigBind::getBindAddress() const {
-        return net::un::SocketAddress(bindSunPath);
-    }
-
-    void ConfigBind::required() const {
         bindSc->required();
-        bindSunPathOpt->required();
+
+        bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bluetooth address");
+        bindHostOpt->type_name("[bluetooth address]");
+        bindHostOpt->default_val("00:00:00:00:00:00");
+        bindHostOpt->configurable();
+
+        bindPsmOpt = bindSc->add_option("-p,--psm", bindPsm, "Protocol service multiplexer");
+        bindPsmOpt->type_name("[uint16_t]");
+        bindPsmOpt->default_val(0);
+        bindPsmOpt->configurable();
     }
 
-} // namespace net::un::stream
+    SocketAddress ConfigLocal::getLocalAddress() const {
+        return SocketAddress(bindHost, bindPsm);
+    }
+
+    void ConfigLocal::required() const {
+        bindSc->required();
+        bindPsmOpt->required();
+    }
+
+} // namespace net::l2

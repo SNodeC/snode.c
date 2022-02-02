@@ -26,9 +26,9 @@ namespace net::un::stream {
     ServerConfig::ServerConfig(const std::string& name)
         : net::ConfigBase(name)
         , net::ConfigBacklog(baseSc)
-        , net::un::stream::ConfigBind(baseSc)
+        , net::un::ConfigLocal(baseSc)
         , net::ConfigConn(baseSc) {
-        net::un::stream::ConfigBind::required();
+        net::un::ConfigLocal::required();
     }
 
 } // namespace net::un::stream

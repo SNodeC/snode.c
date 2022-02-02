@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/stream/ConfigConnect.h"
+#include "net/rf/ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,9 +24,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::rf {
 
-    ConfigConnect::ConfigConnect(CLI::App* baseSc) {
+    ConfigRemote::ConfigRemote(CLI::App* baseSc) {
         connectSc = baseSc->add_subcommand("bind");
         connectSc->description("Bind options");
         connectSc->configurable();
@@ -37,28 +37,20 @@ namespace net::l2::stream {
         connectHostOpt->default_val("00:00:00:00:00:00");
         connectHostOpt->configurable();
 
-        connectPsmOpt = connectSc->add_option("-p,--psm", connectPsm, "Protocol service multiplexer");
-        connectPsmOpt->type_name("[uint16_t]");
-        connectPsmOpt->default_val(0);
-        connectPsmOpt->configurable();
+        connectChannelOpt = connectSc->add_option("-c,--channel", connectChannel, "Channel number");
+        connectChannelOpt->type_name("[uint8_t]");
+        connectChannelOpt->default_val(0);
+        connectChannelOpt->configurable();
     }
 
-    const std::string& ConfigConnect::getConnectHost() const {
-        return connectHost;
+    SocketAddress ConfigRemote::getRemoteAddress() const {
+        return SocketAddress(connectHost, connectChannel);
     }
 
-    uint16_t ConfigConnect::getConnectPsm() const {
-        return connectPsm;
-    }
-
-    SocketAddress ConfigConnect::getConnectAddress() const {
-        return SocketAddress(connectHost, connectPsm);
-    }
-
-    void ConfigConnect::required() const {
+    void ConfigRemote::required() const {
         connectSc->required();
         connectHostOpt->required();
-        connectPsmOpt->required();
+        connectChannelOpt->required();
     }
 
-} // namespace net::l2::stream
+} // namespace net::rf

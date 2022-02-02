@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rf/stream/ConfigBind.h"
+#include "net/rf/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,9 +24,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net::rf {
 
-    ConfigBind::ConfigBind(CLI::App* baseSc) {
+    ConfigLocal::ConfigLocal(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("bind");
         bindSc->description("Bind options");
         bindSc->configurable();
@@ -43,21 +43,13 @@ namespace net::rf::stream {
         bindChannelOpt->configurable();
     }
 
-    const std::string& ConfigBind::getBindHost() const {
-        return bindHost;
-    }
-
-    uint8_t ConfigBind::getBindChannel() const {
-        return bindChannel;
-    }
-
-    SocketAddress ConfigBind::getBindAddress() const {
+    SocketAddress ConfigLocal::getLocalAddress() const {
         return SocketAddress(bindHost, bindChannel);
     }
 
-    void ConfigBind::required() const {
+    void ConfigLocal::required() const {
         bindSc->required();
         bindChannelOpt->required();
     }
 
-} // namespace net::rf::stream
+} // namespace net::rf

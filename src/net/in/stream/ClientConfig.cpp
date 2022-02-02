@@ -27,10 +27,10 @@ namespace net::in::stream {
     ClientConfig::ClientConfig(const std::string& name)
         : net::ConfigBase(name)
         , net::ConfigBacklog(baseSc)
-        , net::in::stream::ConfigConnect(baseSc)
-        , net::in::stream::ConfigBind(baseSc)
+        , net::in::ConfigRemote(baseSc)
+        , net::in::ConfigLocal(baseSc)
         , net::ConfigConn(baseSc) {
-        net::in::stream::ConfigConnect::required();
+        net::in::ConfigRemote::required();
     }
 
 } // namespace net::in::stream

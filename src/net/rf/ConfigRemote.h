@@ -16,20 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ClientConfig.h"
+#ifndef NET_RF_STREAM_CONFIGREMOTE_H
+#define NET_RF_STREAM_CONFIGREMOTE_H
+
+#include "net/rf/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
+
+#include <cstdint>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
-    ClientConfig::ClientConfig(const std::string& name)
-        : net::ConfigBase(name)
-        , net::ConfigBacklog(baseSc)
-        , net::un::ConfigRemote(baseSc)
-        , net::un::ConfigLocal(baseSc)
-        , net::ConfigConn(baseSc) {
-        net::un::ConfigRemote::required();
-    }
+namespace net::rf {
 
-} // namespace net::un::stream
+    class ConfigRemote {
+    public:
+        explicit ConfigRemote(CLI::App* baseSc);
+
+        SocketAddress getRemoteAddress() const;
+
+    protected:
+        void required() const;
+
+        CLI::App* connectSc = nullptr;
+        CLI::Option* connectHostOpt = nullptr;
+        CLI::Option* connectChannelOpt = nullptr;
+
+    private:
+        std::string connectHost = "";
+        uint8_t connectChannel = 0;
+    };
+
+} // namespace net::rf
+
+#endif // NET_RF_STREAM_CONFIGREMOTE_H

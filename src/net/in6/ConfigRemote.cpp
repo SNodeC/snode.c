@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in6/stream/ConfigConnect.h"
+#include "net/in6/ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,9 +24,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6::stream {
+namespace net::in6 {
 
-    ConfigConnect::ConfigConnect(CLI::App* baseSc) {
+    ConfigRemote::ConfigRemote(CLI::App* baseSc) {
         connectSc = baseSc->add_subcommand("connect");
         connectSc->description("Connect options");
         connectSc->configurable();
@@ -42,22 +42,14 @@ namespace net::in6::stream {
         connectPortOpt->configurable();
     }
 
-    const std::string& ConfigConnect::getConnectHost() const {
-        return connectHost;
-    }
-
-    uint16_t ConfigConnect::getConnectPort() const {
-        return connectPort;
-    }
-
-    SocketAddress ConfigConnect::getConnectAddress() const {
+    SocketAddress ConfigRemote::getRemoteAddress() const {
         return SocketAddress(connectHost, connectPort);
     }
 
-    void ConfigConnect::required() const {
+    void ConfigRemote::required() const {
         connectSc->required();
         connectHostOpt->required();
         connectPortOpt->required();
     }
 
-} // namespace net::in6::stream
+} // namespace net::in6

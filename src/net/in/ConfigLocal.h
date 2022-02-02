@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_CONFIGBIND_H
-#define NET_IN_STREAM_CONFIGBIND_H
+#ifndef NET_IN_CONFIGLOCAL_H
+#define NET_IN_CONFIGLOCAL_H
 
 #include "net/in/SocketAddress.h"
 
@@ -33,17 +33,13 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {
+namespace net::in {
 
-    class ConfigBind {
+    class ConfigLocal {
     public:
-        explicit ConfigBind(CLI::App* baseSc);
+        explicit ConfigLocal(CLI::App* baseSc);
 
-        const std::string& getBindHost() const;
-
-        uint16_t getBindPort() const;
-
-        SocketAddress getBindAddress() const;
+        SocketAddress getLocalAddress() const;
 
     protected:
         void required() const;
@@ -56,7 +52,6 @@ namespace net::in::stream {
         std::string bindHost = "";
         uint16_t bindPort = 0;
     };
+} // namespace net::in
 
-} // namespace net::in::stream
-
-#endif
+#endif // NET_IN_CONFIGLOCAL_H

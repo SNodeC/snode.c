@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_l2_STREAM_CONFIGCONNECT_H
-#define NET_l2_STREAM_CONFIGCONNECT_H
+#ifndef NET_l2_CONFIGREMOTE_H
+#define NET_l2_CONFIGREMOTE_H
 
 #include "net/l2/SocketAddress.h"
 
@@ -33,17 +33,13 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::l2 {
 
-    class ConfigConnect {
+    class ConfigRemote {
     public:
-        explicit ConfigConnect(CLI::App* baseSc);
+        explicit ConfigRemote(CLI::App* baseSc);
 
-        const std::string& getConnectHost() const;
-
-        uint16_t getConnectPsm() const;
-
-        SocketAddress getConnectAddress() const;
+        SocketAddress getRemoteAddress() const;
 
     protected:
         void required() const;
@@ -57,6 +53,6 @@ namespace net::l2::stream {
         uint16_t connectPsm = 0;
     };
 
-} // namespace net::l2::stream
+} // namespace net::l2
 
-#endif // NET_L2_STREAM_CONFIGCONNECT_H
+#endif // NET_L2_CONFIGREMOTE_H
