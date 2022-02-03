@@ -21,28 +21,33 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6 {
 
     ConfigRemote::ConfigRemote(CLI::App* baseSc) {
-        connectSc = baseSc->add_subcommand("connect");
+        connectSc = baseSc->add_subcommand("remote");
         connectSc->description("Connect options");
         connectSc->configurable();
 
         connectHostOpt = connectSc->add_option("-a,--host", connectHost, "Host name or IP address");
         connectHostOpt->type_name("[hostname|ip]");
         connectHostOpt->default_val("0.0.0.0");
+        connectHostOpt->take_first();
         connectHostOpt->configurable();
 
         connectPortOpt = connectSc->add_option("-p,--port", connectPort, "Port number");
         connectPortOpt->type_name("[uint16_t]");
         connectPortOpt->default_val(0);
+        connectHostOpt->take_first();
         connectPortOpt->configurable();
     }
 
     SocketAddress ConfigRemote::getRemoteAddress() const {
+        utils::Config::instance().parse(true);
+
         return SocketAddress(connectHost, connectPort);
     }
 

@@ -21,23 +21,27 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un {
 
     ConfigLocal::ConfigLocal(CLI::App* baseSc) {
-        bindSc = baseSc->add_subcommand("bind");
+        bindSc = baseSc->add_subcommand("local");
         bindSc->description("Bind options");
         bindSc->configurable();
 
         bindSunPathOpt = bindSc->add_option("-p,--path", bindSunPath, "Unix domain socket");
         bindSunPathOpt->type_name("[filesystem path]");
         bindSunPathOpt->default_val("/tmp/sun.sock");
+        bindSunPathOpt->take_first();
         bindSunPathOpt->configurable();
     }
 
     SocketAddress ConfigLocal::getLocalAddress() const {
+        utils::Config::instance().parse(true);
+
         return net::un::SocketAddress(bindSunPath);
     }
 

@@ -21,23 +21,27 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un {
 
     ConfigRemote::ConfigRemote(CLI::App* baseSc) {
-        connectSc = baseSc->add_subcommand("bind");
-        connectSc->description("Bind options");
+        connectSc = baseSc->add_subcommand("remote");
+        connectSc->description("Connect options");
         connectSc->configurable();
 
         connectSunPathOpt = connectSc->add_option("-p,--path", connectSunPath, "Unix domain socket");
         connectSunPathOpt->type_name("[filesystem path]");
         connectSunPathOpt->default_val("/tmp/sun.sock");
+        connectSunPathOpt->take_first();
         connectSunPathOpt->configurable();
     }
 
     SocketAddress ConfigRemote::getRemoteAddress() const {
+        utils::Config::instance().parse(true);
+
         return SocketAddress(connectSunPath);
     }
 

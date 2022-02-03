@@ -21,13 +21,14 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rf {
 
     ConfigLocal::ConfigLocal(CLI::App* baseSc) {
-        bindSc = baseSc->add_subcommand("bind");
+        bindSc = baseSc->add_subcommand("local");
         bindSc->description("Bind options");
         bindSc->configurable();
         bindSc->required();
@@ -35,15 +36,19 @@ namespace net::rf {
         bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bluetooth address");
         bindHostOpt->type_name("[bluetooth address]");
         bindHostOpt->default_val("00:00:00:00:00:00");
+        bindHostOpt->take_first();
         bindHostOpt->configurable();
 
         bindChannelOpt = bindSc->add_option("-c,--channel", bindChannel, "Channel number");
         bindChannelOpt->type_name("[uint8_t]");
         bindChannelOpt->default_val(0);
+        bindChannelOpt->take_first();
         bindChannelOpt->configurable();
     }
 
     SocketAddress ConfigLocal::getLocalAddress() const {
+        utils::Config::instance().parse(true);
+
         return SocketAddress(bindHost, bindChannel);
     }
 

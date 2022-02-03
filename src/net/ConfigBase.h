@@ -37,9 +37,9 @@ namespace net {
 
         const std::string& getName() const;
 
-    protected:
-        int parse() const;
+        virtual int parse() const;
 
+    protected:
         CLI::App* baseSc = nullptr;
 
     private:

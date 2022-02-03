@@ -26,13 +26,8 @@
 #include "log/Logger.h"
 
 #include <cstdlib>
-#include <iostream>  // for basic_ostream, endl, operator<<, cout,
+#include <ostream>   // for ofstream, basic_ostream
 #include <stdexcept> // for invalid_argument, out_of_range
-#include <syscall.h>
-
-#ifndef __NR_pidfd_open
-#define __NR_pidfd_open 434 /* System call # on most architectures */
-#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -99,17 +94,17 @@ namespace utils {
 
         parse();
 
-        app.allow_extras(false);
-
         if (_kill) {
             utils::Daemon::kill(PIDFILEPATH + "/" + name + ".pid");
-            std::cout << "Daemon killed" << std::endl;
+            VLOG(0) << "Daemon killed";
 
             exit(0);
         }
 
         if (!_showConfig) {
             if (_daemonize) {
+                VLOG(0) << "Daemonizing";
+
                 utils::Daemon::daemonize(PIDFILEPATH + "/" + name + ".pid");
                 logger::Logger::quiet();
             } else {
@@ -117,7 +112,7 @@ namespace utils {
                     _logFile = "";
                 }
 
-                std::cout << "Not daemonizing" << std::endl;
+                VLOG(0) << "Not daemonizing";
             }
 
             if (!_logFile.empty()) {
@@ -129,20 +124,16 @@ namespace utils {
     }
 
     void Config::prepare() {
-        parse();
-
         if (_dumpConfig) {
             std::ofstream confFile(app["--config"]->as<std::string>());
             confFile << app.config_to_str(true, true);
         }
 
         if (_showConfig) {
-            std::cout << app.config_to_str(true, true) << std::endl;
+            VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
 
             exit(0);
         }
-
-        parse(true);
     }
 
     void Config::terminate() {
@@ -167,21 +158,16 @@ namespace utils {
         return app.add_subcommand(subcommand_name, subcommand_description);
     }
 
-    int Config::parse([[maybe_unused]] CLI::App* sc, bool stopOnError) {
+    int Config::parse(bool stopOnError) {
         try {
-            // sc->parse(argc, argv);
             Config::app.parse(argc, argv);
         } catch (const CLI::ParseError& e) {
-            if (stopOnError) {
+            if (stopOnError && !_showConfig) {
                 exit(Config::app.exit(e));
             }
         }
 
         return 0;
-    }
-
-    int Config::parse(bool stopOnError) {
-        return parse(&app, stopOnError);
     }
 
 } // namespace utils

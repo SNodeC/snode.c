@@ -21,13 +21,14 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6 {
 
     ConfigLocal::ConfigLocal(CLI::App* baseSc) {
-        bindSc = baseSc->add_subcommand("bind");
+        bindSc = baseSc->add_subcommand("local");
         bindSc->description("Bind options");
         bindSc->configurable();
         bindSc->required();
@@ -35,15 +36,19 @@ namespace net::in6 {
         bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Host name or IP address");
         bindHostOpt->type_name("[hostname|ip]");
         bindHostOpt->default_val("::");
+        bindHostOpt->take_first();
         bindHostOpt->configurable();
 
         bindPortOpt = bindSc->add_option("-p,--port", bindPort, "Port number");
         bindPortOpt->type_name("[uint16_t]");
         bindPortOpt->default_val(0);
+        bindPortOpt->take_first();
         bindPortOpt->configurable();
     }
 
     SocketAddress ConfigLocal::getLocalAddress() const {
+        utils::Config::instance().parse(true);
+
         return SocketAddress(bindHost, bindPort);
     }
 

@@ -21,13 +21,14 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2 {
 
     ConfigLocal::ConfigLocal(CLI::App* baseSc) {
-        bindSc = baseSc->add_subcommand("bind");
+        bindSc = baseSc->add_subcommand("local");
         bindSc->description("Bind options");
         bindSc->configurable();
         bindSc->required();
@@ -35,15 +36,19 @@ namespace net::l2 {
         bindHostOpt = bindSc->add_option("-a,--host", bindHost, "Bluetooth address");
         bindHostOpt->type_name("[bluetooth address]");
         bindHostOpt->default_val("00:00:00:00:00:00");
+        bindHostOpt->take_first();
         bindHostOpt->configurable();
 
         bindPsmOpt = bindSc->add_option("-p,--psm", bindPsm, "Protocol service multiplexer");
         bindPsmOpt->type_name("[uint16_t]");
         bindPsmOpt->default_val(0);
+        bindPsmOpt->take_first();
         bindPsmOpt->configurable();
     }
 
     SocketAddress ConfigLocal::getLocalAddress() const {
+        utils::Config::instance().parse(true);
+
         return SocketAddress(bindHost, bindPsm);
     }
 

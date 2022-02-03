@@ -40,7 +40,7 @@ namespace net {
     }
 
     int ConfigBase::parse() const {
-        utils::Config::instance().parse(baseSc);
+        utils::Config::instance().parse();
 
         return 0;
     }

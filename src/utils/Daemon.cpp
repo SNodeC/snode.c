@@ -35,6 +35,10 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+#ifndef __NR_pidfd_open
+#define __NR_pidfd_open 434 /* System call # on most architectures */
+#endif
+
 namespace utils {
 
     bool Daemon::daemonized = false;
@@ -45,8 +49,6 @@ namespace utils {
 
     void Daemon::daemonize(const std::string& pidFileName) {
         if (!std::filesystem::exists(pidFileName)) {
-            VLOG(0) << "Daemonizing";
-
             pid_t pid = 0;
 
             /* Fork off the parent process */

@@ -80,9 +80,9 @@ namespace core {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     void EventLoop::init(int argc, char* argv[]) {
-        utils::Config::instance().init(std::string(basename(argv[0])), argc, argv);
-
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
+
+        utils::Config::instance().init(std::string(basename(argv[0])), argc, argv);
 
         EventLoop::initialized = true;
     }

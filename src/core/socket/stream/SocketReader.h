@@ -58,8 +58,6 @@ namespace core::socket::stream {
             setBlockSize(blockSize);
             setTimeout(timeout);
             enable(Socket::fd);
-
-            VLOG(0) << "BlockSize = " << blockSize << ", timeout = " << timeout;
         }
 
         virtual ~SocketReader() = default;

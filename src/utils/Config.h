@@ -52,8 +52,6 @@ namespace utils {
 
         CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
 
-        int parse(CLI::App* sc, bool stopOnError = false);
-
         int parse(bool stopOnError = false);
 
     private:
@@ -69,6 +67,7 @@ namespace utils {
         bool _kill = false;
         bool _forceLogFile = false;
         bool _showConfig = false;
+
         std::string _logFile = "";
     };
 

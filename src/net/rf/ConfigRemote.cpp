@@ -21,29 +21,34 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rf {
 
     ConfigRemote::ConfigRemote(CLI::App* baseSc) {
-        connectSc = baseSc->add_subcommand("bind");
-        connectSc->description("Bind options");
+        connectSc = baseSc->add_subcommand("remote");
+        connectSc->description("Connect options");
         connectSc->configurable();
         connectSc->required();
 
         connectHostOpt = connectSc->add_option("-a,--host", connectHost, "Bluetooth address");
         connectHostOpt->type_name("[bluetooth address]");
         connectHostOpt->default_val("00:00:00:00:00:00");
+        connectHostOpt->take_first();
         connectHostOpt->configurable();
 
         connectChannelOpt = connectSc->add_option("-c,--channel", connectChannel, "Channel number");
         connectChannelOpt->type_name("[uint8_t]");
         connectChannelOpt->default_val(0);
+        connectChannelOpt->take_first();
         connectChannelOpt->configurable();
     }
 
     SocketAddress ConfigRemote::getRemoteAddress() const {
+        utils::Config::instance().parse(true);
+
         return SocketAddress(connectHost, connectChannel);
     }
 

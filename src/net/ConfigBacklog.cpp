@@ -32,6 +32,7 @@ namespace net {
         backlogOpt = baseSc->add_option("-b,--backlog", backlog, "Listen backlog");
         backlogOpt->type_name("[backlog]");
         backlogOpt->default_val(5);
+        backlogOpt->take_first();
         backlogOpt->configurable();
     }
 

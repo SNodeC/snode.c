@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
@@ -59,8 +57,6 @@ namespace core::socket::stream {
             setTimeout(timeout);
             enable(Socket::fd);
             suspend();
-
-            VLOG(0) << "BlockSize = " << blockSize << ", timeout = " << timeout;
         }
 
         virtual ~SocketWriter() = default;
