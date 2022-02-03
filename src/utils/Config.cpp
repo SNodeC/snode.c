@@ -94,16 +94,18 @@ namespace utils {
 
         parse();
 
-        if (app["--help"]->count() == 0 && app["--help-all"]->count() == 0) {
-            app.set_config("--config", CONFFILEPATH + "/" + name + ".conf", "Read an config file", false);
-        }
-
         if (_kill) {
             utils::Daemon::kill(PIDFILEPATH + "/" + name + ".pid");
             VLOG(0) << "Daemon killed";
 
             exit(0);
         }
+
+        if (app["--help"]->count() == 0 && app["--help-all"]->count() == 0) {
+            app.set_config("--config", CONFFILEPATH + "/" + name + ".conf", "Read an config file", false);
+        }
+
+        parse(); // for daemonize
 
         if (!_showConfig) {
             if (_daemonize) {
