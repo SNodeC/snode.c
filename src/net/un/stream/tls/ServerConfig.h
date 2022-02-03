@@ -37,7 +37,6 @@ namespace net::un::stream::tls {
         explicit ServerConfig(const std::string& name)
             : net::un::stream::ServerConfig(name)
             , net::ConfigTls(baseSc) {
-            parse();
         }
     };
 

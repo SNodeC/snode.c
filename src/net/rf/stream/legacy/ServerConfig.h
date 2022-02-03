@@ -37,7 +37,6 @@ namespace net::rf::stream::legacy {
         explicit ServerConfig(const std::string& name)
             : net::rf::stream::ServerConfig(name)
             , net::ConfigLegacy(baseSc) {
-            parse();
         }
     };
 

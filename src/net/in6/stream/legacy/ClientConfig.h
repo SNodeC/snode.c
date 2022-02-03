@@ -37,7 +37,6 @@ namespace net::in6::stream::legacy {
         explicit ClientConfig(const std::string& name)
             : net::in6::stream::ClientConfig(name)
             , net::ConfigLegacy(baseSc) {
-            parse();
         }
     };
 

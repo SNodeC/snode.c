@@ -37,7 +37,6 @@ namespace net::in::stream::tls {
         explicit ClientConfig(const std::string& name)
             : net::in::stream::ClientConfig(name)
             , net::ConfigTls(baseSc) {
-            parse();
         }
     };
 

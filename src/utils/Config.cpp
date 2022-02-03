@@ -26,6 +26,7 @@
 #include "log/Logger.h"
 
 #include <cstdlib>
+#include <memory>
 #include <ostream>   // for ofstream, basic_ostream
 #include <stdexcept> // for invalid_argument, out_of_range
 
@@ -60,6 +61,7 @@ namespace utils {
 
         app.description("Configuration for application " + name);
         app.allow_extras();
+        app.allow_config_extras();
 
         CLI::Option* showConfigFlag = app.add_flag("-s,--show-config", _showConfig, "Show current configuration and exit");
         showConfigFlag->configurable(false);
@@ -90,9 +92,11 @@ namespace utils {
         killDaemonOpt->disable_flag_override();
         killDaemonOpt->configurable(false);
 
-        app.set_config("--config", CONFFILEPATH + "/" + name + ".conf", "Read an config file", false);
-
         parse();
+
+        if (app["--help"]->count() == 0 && app["--help-all"]->count() == 0) {
+            app.set_config("--config", CONFFILEPATH + "/" + name + ".conf", "Read an config file", false);
+        }
 
         if (_kill) {
             utils::Daemon::kill(PIDFILEPATH + "/" + name + ".pid");
@@ -103,7 +107,7 @@ namespace utils {
 
         if (!_showConfig) {
             if (_daemonize) {
-                VLOG(0) << "Daemonizing";
+                VLOG(0) << "Running as daemon";
 
                 utils::Daemon::daemonize(PIDFILEPATH + "/" + name + ".pid");
                 logger::Logger::quiet();
@@ -112,7 +116,7 @@ namespace utils {
                     _logFile = "";
                 }
 
-                VLOG(0) << "Not daemonizing";
+                VLOG(0) << "Running in foureground";
             }
 
             if (!_logFile.empty()) {
@@ -124,6 +128,8 @@ namespace utils {
     }
 
     void Config::prepare() {
+        parse();
+
         if (_dumpConfig) {
             std::ofstream confFile(app["--config"]->as<std::string>());
             confFile << app.config_to_str(true, true);
