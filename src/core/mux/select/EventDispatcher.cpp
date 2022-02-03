@@ -34,13 +34,14 @@ core::EventDispatcher& EventDispatcher() {
 namespace core::select {
 
     EventDispatcher::EventDispatcher()
-        : core::EventDispatcher(new core::select::DescriptorEventDispatcher(fdSets[RD]),
-                                new core::select::DescriptorEventDispatcher(fdSets[WR]),
-                                new core::select::DescriptorEventDispatcher(fdSets[EX])) {
+        : core::EventDispatcher(new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::RD]),
+                                new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::WR]),
+                                new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::EX])) {
     }
 
     int EventDispatcher::multiplex(utils::Timeval& tickTimeOut) {
-        return core::system::select(getMaxFd() + 1, &fdSets[RD].get(), &fdSets[WR].get(), &fdSets[EX].get(), &tickTimeOut);
+        return core::system::select(
+            getMaxFd() + 1, &fdSets[DISP_TYPE::RD].get(), &fdSets[DISP_TYPE::WR].get(), &fdSets[DISP_TYPE::EX].get(), &tickTimeOut);
     }
 
     void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {

@@ -35,22 +35,22 @@ core::EventDispatcher& EventDispatcher() {
 namespace core::epoll {
 
     EventDispatcher::EventDispatcher()
-        : core::EventDispatcher(new core::epoll::DescriptorEventDispatcher(epfds[RD], EPOLLIN),
-                                new core::epoll::DescriptorEventDispatcher(epfds[WR], EPOLLOUT),
-                                new core::epoll::DescriptorEventDispatcher(epfds[EX], EPOLLPRI)) {
+        : core::EventDispatcher(new core::epoll::DescriptorEventDispatcher(epfds[DISP_TYPE::RD], EPOLLIN),
+                                new core::epoll::DescriptorEventDispatcher(epfds[DISP_TYPE::WR], EPOLLOUT),
+                                new core::epoll::DescriptorEventDispatcher(epfds[DISP_TYPE::EX], EPOLLPRI)) {
         epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
 
         epoll_event event;
         event.events = EPOLLIN;
 
-        event.data.ptr = descriptorEventDispatcher[0];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[RD], &event);
+        event.data.ptr = descriptorEventDispatcher[DISP_TYPE::RD];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::RD], &event);
 
-        event.data.ptr = descriptorEventDispatcher[1];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[WR], &event);
+        event.data.ptr = descriptorEventDispatcher[WR];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::WR], &event);
 
-        event.data.ptr = descriptorEventDispatcher[2];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[EX], &event);
+        event.data.ptr = descriptorEventDispatcher[EX];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::EX], &event);
     }
 
     int EventDispatcher::multiplex(utils::Timeval& tickTimeout) {
