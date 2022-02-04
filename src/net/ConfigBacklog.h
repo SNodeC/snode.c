@@ -36,10 +36,14 @@ namespace net {
 
         int getBacklog() const;
 
+        void setBacklog(int backlog) const;
+
     private:
         CLI::Option* backlogOpt = nullptr;
 
+        mutable int initBacklog;
         int backlog;
+        mutable bool initialized = false;
     };
 
 } // namespace net

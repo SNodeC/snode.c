@@ -56,7 +56,7 @@ namespace net {
         virtual SocketAddress getAddress() const = 0;
 
         mutable SocketAddress localAddress;
-        mutable bool initialized;
+        mutable bool initialized = false;
     };
 
 } // namespace net

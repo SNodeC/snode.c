@@ -37,7 +37,17 @@ namespace net {
     }
 
     int ConfigBacklog::getBacklog() const {
+        int backlog = this->backlog;
+
+        if (initialized) {
+            backlog = this->initBacklog;
+        }
+
         return backlog;
+    }
+
+    void ConfigBacklog::setBacklog(int backlog) const {
+        this->initBacklog = backlog;
     }
 
 } // namespace net
