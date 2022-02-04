@@ -61,6 +61,7 @@ namespace core {
         void stopDescriptorEvents();
         void stopTimerEvents();
 
+        void processEventQueue();
     protected:
         int getObservedEventReceiverCount();
         int getMaxFd();

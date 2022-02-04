@@ -20,6 +20,7 @@
 #define CORE_DESCRIPTOREVENTDISPATCHER_H
 
 namespace core {
+    class Event;
     class EventReceiver;
 } // namespace core
 
@@ -29,6 +30,7 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <deque>
 #include <list> // IWYU pragma: export
 #include <map>  // IWYU pragma: export
 
@@ -45,6 +47,10 @@ namespace core {
 
     public:
         virtual ~DescriptorEventDispatcher() = default;
+
+        void publish(Event* event);
+
+        void processEventQueue();
 
         void enable(EventReceiver* eventReceiver);
         void disable(EventReceiver* eventReceiver);
@@ -84,6 +90,8 @@ namespace core {
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
         std::map<int, EventReceiverList> unobservedEventReceiver;
+
+        std::deque<Event*> eventQueue;
 
         unsigned long eventCounter = 0;
     };

@@ -23,6 +23,8 @@ namespace core {
     class DescriptorEventDispatcher;
 } // namespace core
 
+#include "core/Event.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h" // IWYU pragma: export
@@ -72,6 +74,8 @@ namespace core {
         virtual ~EventReceiver() = default;
 
     public:
+        void publish(const utils::Timeval& currentTime);
+
         int getRegisteredFd();
         virtual bool continueImmediately() const = 0;
 
@@ -100,12 +104,14 @@ namespace core {
         virtual void timeoutEvent() = 0;
 
         DescriptorEventDispatcher& descriptorEventDispatcher;
+        Event event;
 
         int registeredFd = -1;
 
         bool enabled = false;
         bool suspended = false;
 
+        utils::Timeval publisedTime;
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;
         const utils::Timeval initialTimeout;

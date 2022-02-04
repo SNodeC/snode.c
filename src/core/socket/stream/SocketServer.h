@@ -67,9 +67,6 @@ namespace core::socket::stream {
         void listen(const SocketAddress& bindAddress,
                     int backlog,
                     const std::function<void(const Socket& socket, int)>& onError) const override {
-            serverConfig.setLocalAddress(bindAddress);
-            serverConfig.setBacklog(backlog);
-
             SocketAcceptor* socketAcceptor =
                 new SocketAcceptor(serverConfig, socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 

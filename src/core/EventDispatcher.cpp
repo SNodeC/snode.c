@@ -76,11 +76,14 @@ namespace core {
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        EventDispatcher::observeEnabledEvents();
-
-        int observedEventReceiverCount = getObservedEventReceiverCount();
+        processEventQueue();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
+
+        unobserveDisabledEvents(currentTime);
+        observeEnabledEvents();
+
+        int observedEventReceiverCount = getObservedEventReceiverCount();
 
         utils::Timeval nextEventTimeout = getNextTimeout(currentTime);
         utils::Timeval nextTimerTimeout = timerEventDispatcher->getNextTimeout(currentTime);
@@ -99,7 +102,6 @@ namespace core {
                 timerEventDispatcher->dispatchActiveEvents(currentTime);
 
                 dispatchActiveEvents(ret, currentTime);
-                unobserveDisabledEvents(currentTime);
             } else {
                 if (errno != EINTR) {
                     tickStatus = TickStatus::ERROR;
@@ -145,6 +147,12 @@ namespace core {
             nextTimeout = std::min(eventDispatcher->getNextTimeout(currentTime), nextTimeout);
         }
         return nextTimeout;
+    }
+
+    void EventDispatcher::processEventQueue() {
+        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+            eventDispatcher->processEventQueue();
+        }
     }
 
     void EventDispatcher::observeEnabledEvents() {
