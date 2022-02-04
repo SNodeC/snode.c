@@ -19,6 +19,7 @@
 #ifndef NET_UN_STREAM_CONFIGLOCAL_H
 #define NET_UN_STREAM_CONFIGLOCAL_H
 
+#include "net/ConfigLocal.h"
 #include "net/un/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,13 +35,13 @@ namespace CLI {
 
 namespace net::un {
 
-    class ConfigLocal {
+    class ConfigLocal : public net::ConfigLocal<SocketAddress> {
     public:
         explicit ConfigLocal(CLI::App* baseSc);
 
-        net::un::SocketAddress getLocalAddress() const;
-
     protected:
+        net::un::SocketAddress getAddress() const override;
+
         void required() const;
 
         CLI::App* bindSc = nullptr;

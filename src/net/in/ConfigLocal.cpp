@@ -21,7 +21,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
-#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,9 +44,7 @@ namespace net::in {
         bindPortOpt->configurable();
     }
 
-    SocketAddress ConfigLocal::getLocalAddress() const {
-        utils::Config::instance().parse(true);
-
+    SocketAddress ConfigLocal::getAddress() const {
         return SocketAddress(bindHost, bindPort);
     }
 

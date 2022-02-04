@@ -4,7 +4,15 @@ set(NET_CPP ConfigBase.cpp ConfigBacklog.cpp ConfigConn.cpp ConfigLegacy.cpp
             ConfigTls.cpp
 )
 
-set(NET_H ConfigBase.h ConfigBacklog.h ConfigConn.h ConfigLegacy.h ConfigTls.h)
+set(NET_H
+    ConfigBase.h
+    ConfigBacklog.h
+    ConfigConn.h
+    ConfigLocal.h
+    ConfigLegacy.h
+    ConfigRemote.h
+    ConfigTls.h
+)
 
 add_library(net SHARED ${NET_CPP} ${NET_H})
 add_library(snodec::net ALIAS net)

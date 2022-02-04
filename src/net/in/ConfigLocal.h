@@ -19,6 +19,7 @@
 #ifndef NET_IN_CONFIGLOCAL_H
 #define NET_IN_CONFIGLOCAL_H
 
+#include "net/ConfigLocal.h"
 #include "net/in/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,11 +36,9 @@ namespace CLI {
 
 namespace net::in {
 
-    class ConfigLocal {
+    class ConfigLocal : public net::ConfigLocal<net::in::SocketAddress> {
     public:
         explicit ConfigLocal(CLI::App* baseSc);
-
-        SocketAddress getLocalAddress() const;
 
     protected:
         void required() const;
@@ -49,6 +48,8 @@ namespace net::in {
         CLI::Option* bindPortOpt = nullptr;
 
     private:
+        SocketAddress getAddress() const override;
+
         std::string bindHost = "";
         uint16_t bindPort = 0;
     };

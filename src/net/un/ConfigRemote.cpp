@@ -39,9 +39,7 @@ namespace net::un {
         connectSunPathOpt->configurable();
     }
 
-    SocketAddress ConfigRemote::getRemoteAddress() const {
-        utils::Config::instance().parse(true);
-
+    SocketAddress ConfigRemote::getAddress() const {
         return SocketAddress(connectSunPath);
     }
 

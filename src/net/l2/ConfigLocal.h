@@ -19,6 +19,7 @@
 #ifndef NET_L2_CONFIGLOCAL_H
 #define NET_L2_CONFIGLOCAL_H
 
+#include "net/ConfigLocal.h"
 #include "net/l2/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,11 +36,9 @@ namespace CLI {
 
 namespace net::l2 {
 
-    class ConfigLocal {
+    class ConfigLocal : public net::ConfigLocal<SocketAddress> {
     public:
         explicit ConfigLocal(CLI::App* baseSc);
-
-        SocketAddress getLocalAddress() const;
 
     protected:
         void required() const;
@@ -49,6 +48,8 @@ namespace net::l2 {
         CLI::Option* bindPsmOpt = nullptr;
 
     private:
+        SocketAddress getAddress() const override;
+
         std::string bindHost = "";
         uint16_t bindPsm = 0;
     };

@@ -21,7 +21,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
-#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,9 +44,7 @@ namespace net::in {
         connectPortOpt->configurable();
     }
 
-    SocketAddress ConfigRemote::getRemoteAddress() const {
-        utils::Config::instance().parse(true);
-
+    SocketAddress ConfigRemote::getAddress() const {
         return SocketAddress(connectHost, connectPort);
     }
 

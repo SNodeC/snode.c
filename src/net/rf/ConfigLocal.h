@@ -19,6 +19,7 @@
 #ifndef NET_RF_STREAM_CONFIGLOCAL_H
 #define NET_RF_STREAM_CONFIGLOCAL_H
 
+#include "net/ConfigLocal.h"
 #include "net/rf/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,11 +36,9 @@ namespace CLI {
 
 namespace net::rf {
 
-    class ConfigLocal {
+    class ConfigLocal : public net::ConfigLocal<SocketAddress> {
     public:
         explicit ConfigLocal(CLI::App* baseSc);
-
-        SocketAddress getLocalAddress() const;
 
     protected:
         void required() const;
@@ -49,6 +48,8 @@ namespace net::rf {
         CLI::Option* bindChannelOpt = nullptr;
 
     private:
+        SocketAddress getAddress() const override;
+
         std::string bindHost = "";
         uint8_t bindChannel = 0;
     };

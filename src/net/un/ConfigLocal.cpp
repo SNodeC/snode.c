@@ -39,9 +39,7 @@ namespace net::un {
         bindSunPathOpt->configurable();
     }
 
-    SocketAddress ConfigLocal::getLocalAddress() const {
-        utils::Config::instance().parse(true);
-
+    SocketAddress ConfigLocal::getAddress() const {
         return net::un::SocketAddress(bindSunPath);
     }
 

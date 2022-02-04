@@ -19,6 +19,7 @@
 #ifndef NET_IN_CONFIGREMOTE_H
 #define NET_IN_CONFIGREMOTE_H
 
+#include "net/ConfigRemote.h"
 #include "net/in/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,11 +36,9 @@ namespace CLI {
 
 namespace net::in {
 
-    class ConfigRemote {
+    class ConfigRemote : public net::ConfigRemote<net::in::SocketAddress> {
     public:
         explicit ConfigRemote(CLI::App* baseSc);
-
-        SocketAddress getRemoteAddress() const;
 
     protected:
         void required() const;
@@ -49,6 +48,8 @@ namespace net::in {
         CLI::Option* connectPortOpt = nullptr;
 
     private:
+        SocketAddress getAddress() const override;
+
         std::string connectHost = "";
         uint16_t connectPort = 0;
     };

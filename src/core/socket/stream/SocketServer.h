@@ -64,17 +64,19 @@ namespace core::socket::stream {
 
         using ServerSocket::listen;
 
-        void listen(const std::function<void(const Socket& socket, int)>& onError) const override {
-            listen(serverConfig.getLocalAddress(), serverConfig.getBacklog(), onError);
-        }
-
         void listen(const SocketAddress& bindAddress,
                     int backlog,
                     const std::function<void(const Socket& socket, int)>& onError) const override {
+            serverConfig.setLocalAddress(bindAddress);
+
             SocketAcceptor* socketAcceptor =
                 new SocketAcceptor(serverConfig, socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketAcceptor->listen(bindAddress, backlog, onError);
+        }
+
+        void listen(const std::function<void(const Socket& socket, int)>& onError) const override {
+            listen(serverConfig.getLocalAddress(), serverConfig.getBacklog(), onError);
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {

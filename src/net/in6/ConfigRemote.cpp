@@ -45,9 +45,7 @@ namespace net::in6 {
         connectPortOpt->configurable();
     }
 
-    SocketAddress ConfigRemote::getRemoteAddress() const {
-        utils::Config::instance().parse(true);
-
+    SocketAddress ConfigRemote::getAddress() const {
         return SocketAddress(connectHost, connectPort);
     }
 

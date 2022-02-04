@@ -46,9 +46,7 @@ namespace net::l2 {
         bindPsmOpt->configurable();
     }
 
-    SocketAddress ConfigLocal::getLocalAddress() const {
-        utils::Config::instance().parse(true);
-
+    SocketAddress ConfigLocal::getAddress() const {
         return SocketAddress(bindHost, bindPsm);
     }
 

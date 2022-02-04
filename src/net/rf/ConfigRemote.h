@@ -19,6 +19,7 @@
 #ifndef NET_RF_STREAM_CONFIGREMOTE_H
 #define NET_RF_STREAM_CONFIGREMOTE_H
 
+#include "net/ConfigRemote.h"
 #include "net/rf/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,11 +36,9 @@ namespace CLI {
 
 namespace net::rf {
 
-    class ConfigRemote {
+    class ConfigRemote : public net::ConfigRemote<SocketAddress> {
     public:
         explicit ConfigRemote(CLI::App* baseSc);
-
-        SocketAddress getRemoteAddress() const;
 
     protected:
         void required() const;
@@ -49,6 +48,8 @@ namespace net::rf {
         CLI::Option* connectChannelOpt = nullptr;
 
     private:
+        SocketAddress getAddress() const override;
+
         std::string connectHost = "";
         uint8_t connectChannel = 0;
     };
