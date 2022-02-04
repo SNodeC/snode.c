@@ -20,6 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "core/AcceptEventReceiver.h"
+#include "core/ListenEventReceiver.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -46,6 +47,7 @@ namespace core::socket::stream {
     template <typename ServerConfigT, typename SocketConnectionT>
     class SocketAcceptor
         : protected SocketConnectionT::Socket
+        , protected ListenEventReceiver
         , protected AcceptEventReceiver {
         SocketAcceptor() = delete;
         SocketAcceptor(const SocketAcceptor&) = delete;
@@ -83,20 +85,39 @@ namespace core::socket::stream {
         virtual ~SocketAcceptor() = default;
 
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
+            this->bindAddress = bindAddress;
+            this->backlog = backlog;
+            this->onError = onError;
+
+            ListenEventReceiver::publish(0);
+        }
+
+    private:
+        void reuseAddress(const std::function<void(int)>& onError) {
+            int sockopt = 1;
+
+            if (core::system::setsockopt(Socket::fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+                onError(errno);
+            } else {
+                onError(0);
+            }
+        }
+
+        void listenEvent() override {
             Socket::open(
-                [this, &bindAddress, &backlog, &onError](int errnum) -> void {
+                [this](int errnum) -> void {
                     if (errnum > 0) {
                         onError(static_cast<const Socket&>(*this), errnum);
                         destruct();
                     } else {
 #if !defined(NDEBUG)
-                        reuseAddress([this, &bindAddress, &backlog, &onError](int errnum) -> void {
+                        reuseAddress([this](int errnum) -> void {
                             if (errnum != 0) {
                                 onError(static_cast<const Socket&>(*this), errnum);
                                 destruct();
                             } else {
 #endif
-                                Socket::bind(bindAddress, [this, &backlog, &onError](int errnum) -> void {
+                                Socket::bind(bindAddress, [this](int errnum) -> void {
                                     if (errnum > 0) {
                                         onError(static_cast<const Socket&>(*this), errnum);
                                         destruct();
@@ -104,7 +125,7 @@ namespace core::socket::stream {
                                         int ret = core::system::listen(Socket::fd, backlog);
 
                                         if (ret == 0) {
-                                            enable(Socket::fd);
+                                            AcceptEventReceiver::enable(Socket::fd);
                                             onError(static_cast<const Socket&>(*this), 0);
                                         } else {
                                             onError(static_cast<const Socket&>(*this), errno);
@@ -119,17 +140,6 @@ namespace core::socket::stream {
                     }
                 },
                 SOCK_NONBLOCK);
-        }
-
-    private:
-        void reuseAddress(const std::function<void(int)>& onError) {
-            int sockopt = 1;
-
-            if (core::system::setsockopt(Socket::fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
-                onError(errno);
-            } else {
-                onError(0);
-            }
         }
 
         void acceptEvent() override {
@@ -189,10 +199,14 @@ namespace core::socket::stream {
     private:
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
 
+        SocketAddress bindAddress;
+        int backlog = 0;
+
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onDestruct;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
+        std::function<void(const Socket& socket, int)> onError = nullptr;
 
     protected:
         std::map<std::string, std::any> options;
