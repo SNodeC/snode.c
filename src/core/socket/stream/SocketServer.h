@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <any> // IWYU pragma: export
 #include <cerrno>
 #include <cstddef>
@@ -52,7 +54,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : serverConfig(name)
+            : serverConfig(std::make_shared<ServerConfig>(name))
             , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
@@ -67,14 +69,16 @@ namespace core::socket::stream {
         void listen(const SocketAddress& bindAddress,
                     int backlog,
                     const std::function<void(const Socket& socket, int)>& onError) const override {
-            SocketAcceptor* socketAcceptor =
-                new SocketAcceptor(serverConfig, socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+            serverConfig->setLocalAddress(bindAddress);
+            serverConfig->setBacklog(backlog);
 
-            socketAcceptor->listen(bindAddress, backlog, onError);
+            listen(onError);
         }
 
         void listen(const std::function<void(const Socket& socket, int)>& onError) const override {
-            listen(serverConfig.getLocalAddress(), serverConfig.getBacklog(), onError);
+            SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+
+            socketAcceptor->listen(serverConfig, onError);
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
@@ -98,8 +102,7 @@ namespace core::socket::stream {
         }
 
     protected:
-        ServerConfig serverConfig;
-
+        std::shared_ptr<ServerConfig> serverConfig;
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;

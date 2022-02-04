@@ -68,14 +68,12 @@ namespace core::socket::stream {
         !include core/socket/stream/pu/SocketAcceptor.pu!0
         @enduml
         */
-        SocketAcceptor(const ServerConfig& serverConfig,
-                       const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : serverConfig(serverConfig)
-            , socketContextFactory(socketContextFactory)
+            : socketContextFactory(socketContextFactory)
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
@@ -84,9 +82,8 @@ namespace core::socket::stream {
 
         virtual ~SocketAcceptor() = default;
 
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
-            this->bindAddress = bindAddress;
-            this->backlog = backlog;
+        void listen(const std::shared_ptr<ServerConfig>& serverConfig, const std::function<void(const Socket& socket, int)>& onError) {
+            this->serverConfig = serverConfig;
             this->onError = onError;
 
             ListenEventReceiver::publish(0);
@@ -117,12 +114,12 @@ namespace core::socket::stream {
                                 destruct();
                             } else {
 #endif
-                                Socket::bind(bindAddress, [this](int errnum) -> void {
+                                Socket::bind(serverConfig->getLocalAddress(), [this](int errnum) -> void {
                                     if (errnum > 0) {
                                         onError(static_cast<const Socket&>(*this), errnum);
                                         destruct();
                                     } else {
-                                        int ret = core::system::listen(Socket::fd, backlog);
+                                        int ret = core::system::listen(Socket::fd, serverConfig->getBacklog());
 
                                         if (ret == 0) {
                                             AcceptEventReceiver::enable(Socket::fd);
@@ -165,11 +162,11 @@ namespace core::socket::stream {
                                                                                   SocketAddress(remoteAddress),
                                                                                   onConnect,
                                                                                   onDisconnect,
-                                                                                  serverConfig.getReadTimeout(),
-                                                                                  serverConfig.getWriteTimeout(),
-                                                                                  serverConfig.getReadBlockSize(),
-                                                                                  serverConfig.getWriteBlockSize(),
-                                                                                  serverConfig.getTerminateTimeout());
+                                                                                  serverConfig->getReadTimeout(),
+                                                                                  serverConfig->getWriteTimeout(),
+                                                                                  serverConfig->getReadBlockSize(),
+                                                                                  serverConfig->getWriteBlockSize(),
+                                                                                  serverConfig->getTerminateTimeout());
 
                         onConnected(socketConnection);
                     } else {
@@ -194,13 +191,10 @@ namespace core::socket::stream {
             delete this;
         }
 
-        ServerConfig serverConfig;
+        std::shared_ptr<ServerConfig> serverConfig = nullptr;
 
     private:
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
-
-        SocketAddress bindAddress;
-        int backlog = 0;
 
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onDestruct;

@@ -40,13 +40,12 @@ namespace core::socket::stream::legacy {
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketAcceptor(const ServerConfig& serverConfig,
-                       const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : Super(serverConfig, socketContextFactory, onConnect, onConnected, onDisconnect, options) {
+            : Super(socketContextFactory, onConnect, onConnected, onDisconnect, options) {
         }
 
         using Super::listen;
