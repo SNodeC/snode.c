@@ -49,19 +49,17 @@ namespace core::socket::stream::tls {
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketAcceptor(const ServerConfig& serverConfig,
-                       const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
             : Super(
-                  serverConfig,
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void {
                       SSL* ssl = socketConnection->startSSL(
-                          this->masterSslCtx, this->serverConfig.getInitTimeout(), this->serverConfig.getShutdownTimeout());
+                          this->masterSslCtx, this->serverConfig->getInitTimeout(), this->serverConfig->getShutdownTimeout());
 
                       if (ssl != nullptr) {
                           SSL_CTX_set_tlsext_servername_arg(this->masterSslCtx, this);
@@ -104,13 +102,13 @@ namespace core::socket::stream::tls {
             ssl_ctx_free(masterSslCtx);
         }
 
-        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
+        void listen(const std::shared_ptr<ServerConfig>& serverConfig, const std::function<void(const Socket& socket, int)>& onError) {
             if (masterSslCtx == nullptr) {
                 errno = EINVAL;
                 onError(static_cast<const Socket&>(*this), errno);
                 Super::destruct();
             } else {
-                Super::listen(localAddress, backlog, onError);
+                Super::listen(serverConfig, onError);
             }
         }
 

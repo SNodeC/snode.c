@@ -81,7 +81,8 @@ namespace core::select {
             core::EventReceiver* eventReceiver = eventReceivers.front();
             if (fdSet.isSet(fd) && !eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                eventReceiver->dispatch(currentTime);
+                //                eventReceiver->dispatch(currentTime);
+                eventReceiver->publish(currentTime);
             }
         }
     }

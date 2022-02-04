@@ -121,7 +121,8 @@ namespace core::epoll {
             core::EventReceiver* eventReceiver = static_cast<core::EventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                eventReceiver->dispatch(currentTime);
+                //                eventReceiver->dispatch(currentTime);
+                eventReceiver->publish(currentTime);
             }
         }
     }

@@ -57,8 +57,8 @@ namespace core::socket::stream::tls {
             , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [this](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
                 freeSniCerts(sniSslCtxs);
             }) {
-            this->options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
-            this->options.insert({{"FORCE_SNI", &forceSni}});
+            Super::options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
+            Super::options.insert({{"FORCE_SNI", &forceSni}});
         }
 
     private:

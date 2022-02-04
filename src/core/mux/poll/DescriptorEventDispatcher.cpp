@@ -64,7 +64,8 @@ namespace core::poll {
                 core::EventReceiver* eventReceiver = eventReceivers.front();
                 if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                     eventCounter++;
-                    eventReceiver->dispatch(currentTime);
+                    //                    eventReceiver->dispatch(currentTime);
+                    eventReceiver->publish(currentTime);
                 }
             }
         }

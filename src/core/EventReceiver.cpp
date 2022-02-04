@@ -34,8 +34,17 @@ namespace core {
 
     EventReceiver::EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
         : descriptorEventDispatcher(descriptorEventDispatcher)
+        , event(this)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
+    }
+
+    void EventReceiver::publish(const utils::Timeval& currentTime) {
+        triggered(currentTime);
+
+        event.setPublishTime(currentTime);
+
+        descriptorEventDispatcher.publish(&event);
     }
 
     int EventReceiver::getRegisteredFd() {

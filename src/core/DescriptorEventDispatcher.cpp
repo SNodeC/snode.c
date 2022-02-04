@@ -37,6 +37,18 @@ namespace core {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
+    void DescriptorEventDispatcher::publish(Event* event) {
+        eventQueue.push_back(event);
+    }
+
+    void DescriptorEventDispatcher::executeEventQueue() {
+        for (Event* event : eventQueue) {
+            event->dispatch();
+        }
+
+        eventQueue.clear();
+    }
+
     void DescriptorEventDispatcher::enable(core::EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
@@ -116,7 +128,8 @@ namespace core {
             core::EventReceiver* eventReceiver = eventReceivers.front();
             if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                eventReceiver->dispatch(currentTime);
+                //                eventReceiver->dispatch(currentTime);
+                eventReceiver->publish(currentTime);
             } else if (eventReceiver->isEnabled()) {
                 eventReceiver->checkTimeout(currentTime);
             }

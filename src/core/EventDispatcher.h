@@ -66,6 +66,8 @@ namespace core {
         int getMaxFd();
 
     private:
+        void executeEventQueue();
+
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void observeEnabledEvents();
