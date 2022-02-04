@@ -57,7 +57,7 @@ namespace core {
         void suspend(EventReceiver* eventReceiver);
         void resume(EventReceiver* eventReceiver);
 
-        void observeEnabledEvents();
+        void observeEnabledEvents(const utils::Timeval& currentTime);
         virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
         void dispatchImmediateEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);

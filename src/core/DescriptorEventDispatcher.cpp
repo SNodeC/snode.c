@@ -106,10 +106,11 @@ namespace core {
         }
     }
 
-    void DescriptorEventDispatcher::observeEnabledEvents() {
+    void DescriptorEventDispatcher::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) { // cppcheck-suppress unassignedVariable
             for (core::EventReceiver* eventReceiver : eventReceivers) {
                 if (eventReceiver->isEnabled()) {
+                    eventReceiver->triggered(currentTime);
                     observedEventReceiver[fd].push_front(eventReceiver);
                     modAdd(eventReceiver);
                     if (eventReceiver->isSuspended()) {

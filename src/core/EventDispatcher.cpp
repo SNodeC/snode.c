@@ -81,7 +81,7 @@ namespace core {
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
         unobserveDisabledEvents(currentTime);
-        observeEnabledEvents();
+        observeEnabledEvents(currentTime);
 
         int observedEventReceiverCount = getObservedEventReceiverCount();
 
@@ -155,9 +155,9 @@ namespace core {
         }
     }
 
-    void EventDispatcher::observeEnabledEvents() {
+    void EventDispatcher::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->observeEnabledEvents();
+            eventDispatcher->observeEnabledEvents(currentTime);
         }
     }
 
