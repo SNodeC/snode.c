@@ -50,7 +50,7 @@ namespace core {
 
         void publish(Event* event);
 
-        void processEventQueue();
+        void executeEventQueue();
 
         void enable(EventReceiver* eventReceiver);
         void disable(EventReceiver* eventReceiver);

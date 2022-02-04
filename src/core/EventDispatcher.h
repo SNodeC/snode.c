@@ -61,12 +61,13 @@ namespace core {
         void stopDescriptorEvents();
         void stopTimerEvents();
 
-        void processEventQueue();
     protected:
         int getObservedEventReceiverCount();
         int getMaxFd();
 
     private:
+        void executeEventQueue();
+
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void observeEnabledEvents();

@@ -76,7 +76,7 @@ namespace core {
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        processEventQueue();
+        executeEventQueue();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
@@ -149,9 +149,9 @@ namespace core {
         return nextTimeout;
     }
 
-    void EventDispatcher::processEventQueue() {
+    void EventDispatcher::executeEventQueue() {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->processEventQueue();
+            eventDispatcher->executeEventQueue();
         }
     }
 

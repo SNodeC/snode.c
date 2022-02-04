@@ -41,7 +41,7 @@ namespace core {
         eventQueue.push_back(event);
     }
 
-    void DescriptorEventDispatcher::processEventQueue() {
+    void DescriptorEventDispatcher::executeEventQueue() {
         for (Event* event : eventQueue) {
             event->dispatch();
         }
