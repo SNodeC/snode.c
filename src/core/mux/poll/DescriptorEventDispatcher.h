@@ -22,7 +22,7 @@
 #include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
 
 namespace core {
-    class EventReceiver;
+    class DescriptorEventReceiver;
     namespace poll {
         class PollFds;
     } // namespace poll
@@ -46,10 +46,10 @@ namespace core::poll {
         DescriptorEventDispatcher(core::poll::PollFds& pollFds, short events, short revents);
 
     private:
-        void modAdd(core::EventReceiver* eventReceiver) override;
-        void modDel(core::EventReceiver* eventReceiver) override;
-        void modOn(core::EventReceiver* eventReceiver) override;
-        void modOff(core::EventReceiver* eventReceiver) override;
+        void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
+        void modDel(core::DescriptorEventReceiver* eventReceiver) override;
+        void modOn(core::DescriptorEventReceiver* eventReceiver) override;
+        void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents(const utils::Timeval& currentTime) override;
         void finishTick() override;

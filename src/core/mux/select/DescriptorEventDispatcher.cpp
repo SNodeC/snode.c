@@ -18,7 +18,7 @@
 
 #include "core/mux/select/DescriptorEventDispatcher.h"
 
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -60,25 +60,25 @@ namespace core::select {
         : fdSet(fdSet) {
     }
 
-    void DescriptorEventDispatcher::modAdd(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventDispatcher::modDel(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modDel(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventDispatcher::modOn(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOn(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventDispatcher::modOff(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOff(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
-            core::EventReceiver* eventReceiver = eventReceivers.front();
+            core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             if (fdSet.isSet(fd) && !eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
                 //                eventReceiver->dispatch(currentTime);

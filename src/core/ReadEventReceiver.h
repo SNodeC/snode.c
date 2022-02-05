@@ -19,7 +19,7 @@
 #ifndef CORE_READEVENTRECEIVER_H
 #define CORE_READEVENTRECEIVER_H
 
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace core {
 
-    class ReadEventReceiver : public EventReceiver {
+    class ReadEventReceiver : public DescriptorEventReceiver {
     protected:
         ReadEventReceiver(const utils::Timeval& timeout = MAX_READ_INACTIVITY);
 

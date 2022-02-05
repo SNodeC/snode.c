@@ -19,7 +19,7 @@
 #include "core/EventDispatcher.h"
 
 #include "core/DescriptorEventDispatcher.h"
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 #include "core/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -55,6 +55,10 @@ namespace core {
         return *timerEventDispatcher;
     }
 
+    void EventDispatcher::publish(core::Event* event) {
+        eventQueue.push_back(event);
+    }
+
     int EventDispatcher::getObservedEventReceiverCount() {
         return std::accumulate(descriptorEventDispatcher.begin(),
                                descriptorEventDispatcher.end(),
@@ -76,7 +80,10 @@ namespace core {
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        executeEventQueue();
+        for (core::Event* event : eventQueue) {
+            event->dispatch();
+        }
+        eventQueue.clear();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
@@ -141,7 +148,7 @@ namespace core {
     }
 
     utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
-        utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
+        utils::Timeval nextTimeout = core::DescriptorEventReceiver::TIMEOUT::MAX;
 
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             nextTimeout = std::min(eventDispatcher->getNextTimeout(currentTime), nextTimeout);

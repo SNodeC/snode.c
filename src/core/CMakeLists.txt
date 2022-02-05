@@ -10,7 +10,7 @@ set(CORE_CPP
     EventDispatcher.cpp
     EventLoop.cpp
     EventReceiver.cpp
-    EventReceiver.h
+    DescriptorEventReceiver.cpp
     ExceptionalConditionEventReceiver.cpp
     ListenEventReceiver.cpp
     InitConnectEventReceiver.cpp
@@ -49,6 +49,7 @@ set(CORE_H
     EventDispatcher.h
     EventLoop.h
     EventReceiver.h
+    DescriptorEventReceiver.h
     ExceptionalConditionEventReceiver.h
     ListenEventReceiver.h
     InitConnectEventReceiver.h

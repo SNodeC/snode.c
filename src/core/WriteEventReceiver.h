@@ -19,7 +19,7 @@
 #ifndef CORE_WRITEEVENTRECEIVER_H
 #define CORE_WRITEEVENTRECEIVER_H
 
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace core {
 
-    class WriteEventReceiver : public EventReceiver {
+    class WriteEventReceiver : public DescriptorEventReceiver {
     protected:
         WriteEventReceiver(const utils::Timeval& timeout = MAX_WRITE_INACTIVITY);
 

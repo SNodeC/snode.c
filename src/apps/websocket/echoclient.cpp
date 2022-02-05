@@ -199,7 +199,8 @@ int main(int argc, char* argv[]) {
             },
             {{"CaFile", SERVERCAFILE}});
 
-        legacyClient.connect("localhost", 8080, [](int err) -> void {
+        //        legacyClient.connect("localhost", 8080, [](int err) -> void {
+        legacyClient.connect([](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }

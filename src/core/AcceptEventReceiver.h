@@ -19,17 +19,17 @@
 #ifndef CORE_ACCEPTEVENTRECEIVER_H
 #define CORE_ACCEPTEVENTRECEIVER_H
 
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_ACCEPT_INACTIVITY EventReceiver::TIMEOUT::DISABLE
+#define MAX_ACCEPT_INACTIVITY DescriptorEventReceiver::TIMEOUT::DISABLE
 
 namespace core {
 
-    class AcceptEventReceiver : public EventReceiver {
+    class AcceptEventReceiver : public DescriptorEventReceiver {
     protected:
         AcceptEventReceiver(const utils::Timeval& timeout = MAX_ACCEPT_INACTIVITY);
 

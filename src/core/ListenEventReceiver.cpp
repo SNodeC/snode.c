@@ -28,7 +28,7 @@
 namespace core {
 
     ListenEventReceiver::ListenEventReceiver()
-        : EventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), 0) {
+        : DescriptorEventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), 0) {
     }
 
     void ListenEventReceiver::dispatchEvent() {

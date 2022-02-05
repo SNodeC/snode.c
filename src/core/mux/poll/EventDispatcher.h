@@ -22,7 +22,7 @@
 #include "core/EventDispatcher.h"
 
 namespace core {
-    class EventReceiver;
+    class DescriptorEventReceiver;
 }
 
 namespace utils {
@@ -53,11 +53,11 @@ namespace core::poll {
         using pollfds_size_type = std::vector<pollfd>::size_type;
         explicit PollFds();
 
-        void modAdd(core::EventReceiver* eventReceiver, short event);
-        void modDel(core::EventReceiver* eventReceiver, short event);
+        void modAdd(core::DescriptorEventReceiver* eventReceiver, short event);
+        void modDel(core::DescriptorEventReceiver* eventReceiver, short event);
 
-        void modOn(core::EventReceiver* eventReceiver, short event);
-        void modOff(core::EventReceiver* eventReceiver, short event);
+        void modOn(core::DescriptorEventReceiver* eventReceiver, short event);
+        void modOff(core::DescriptorEventReceiver* eventReceiver, short event);
 
         void compress();
 

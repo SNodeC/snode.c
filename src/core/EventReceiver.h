@@ -19,104 +19,29 @@
 #ifndef CORE_EVENTRECEIVER_H
 #define CORE_EVENTRECEIVER_H
 
-namespace core {
-    class DescriptorEventDispatcher;
-} // namespace core
-
-#include "core/Event.h" // IWYU pragma: export
+#include "core/Event.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h" // IWYU pragma: export
+namespace utils {
+    class Timeval;
+}
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
-    class Observer {
+    class EventReceiver {
     public:
-        bool isObserved() {
-            return observationCounter > 0;
-        }
-
-        void observed() {
-            observationCounter++;
-        }
-
-        void unObserved() {
-            observationCounter--;
-        }
-
-        int getObservationCounter() {
-            return observationCounter;
-        }
-
-        virtual void unobservedEvent() = 0;
-
-    private:
-        int observationCounter = 0;
-    };
-
-    class EventReceiver : virtual public Observer {
-        EventReceiver(const EventReceiver&) = delete;
-        EventReceiver& operator=(const EventReceiver&) = delete;
-
-    public:
-        class TIMEOUT {
-        public:
-            static const utils::Timeval DEFAULT;
-            static const utils::Timeval DISABLE;
-            static const utils::Timeval MAX;
-        };
-
-    protected:
-        explicit EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
+        EventReceiver();
         virtual ~EventReceiver() = default;
 
-    public:
         void publish(const utils::Timeval& currentTime);
 
-        int getRegisteredFd();
-        virtual bool continueImmediately() const = 0;
+        virtual void dispatch(const utils::Timeval& currentTime) = 0;
 
-        void enable(int fd);
-        void disable();
-        bool isEnabled() const;
-
-        void suspend();
-        void resume();
-        bool isSuspended() const;
-
-        void dispatch(const utils::Timeval& currentTime);
-
-        void triggered(const utils::Timeval& currentTime);
-
-        void disabled();
-
-        virtual void terminate();
-
-        void setTimeout(const utils::Timeval& timeout);
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
-        void checkTimeout(const utils::Timeval& currentTime);
-
-    private:
-        virtual void dispatchEvent() = 0;
-        virtual void timeoutEvent() = 0;
-
-        DescriptorEventDispatcher& descriptorEventDispatcher;
+    protected:
         Event event;
-
-        int registeredFd = -1;
-
-        bool enabled = false;
-        bool suspended = false;
-
-        utils::Timeval publisedTime;
-        utils::Timeval lastTriggered;
-        utils::Timeval maxInactivity;
-        const utils::Timeval initialTimeout;
-
-        int eventCounter = 0;
     };
 
 } // namespace core

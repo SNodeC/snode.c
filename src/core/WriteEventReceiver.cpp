@@ -28,7 +28,7 @@
 namespace core {
 
     WriteEventReceiver::WriteEventReceiver(const utils::Timeval& timeout)
-        : EventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR),
+        : DescriptorEventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR),
                         timeout) {
     }
 

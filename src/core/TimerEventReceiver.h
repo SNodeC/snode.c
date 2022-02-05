@@ -42,7 +42,7 @@ namespace core {
 
         virtual utils::Timeval getTimeout() const = 0;
 
-        virtual bool trigger() = 0;
+        virtual bool dispatch() = 0;
         virtual void unobservedEvent() = 0;
 
     protected:

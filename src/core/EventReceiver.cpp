@@ -18,121 +18,25 @@
 
 #include "core/EventReceiver.h"
 
-#include "core/DescriptorEventDispatcher.h"
+#include "core/EventDispatcher.h"
+#include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <climits>
+#include "utils/Timeval.h" // for Timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
-    const utils::Timeval EventReceiver::TIMEOUT::DEFAULT = {-2, 0};
-    const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {-1, 0};
-    const utils::Timeval EventReceiver::TIMEOUT::MAX = {LONG_MAX, 0};
-
-    EventReceiver::EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
-        : descriptorEventDispatcher(descriptorEventDispatcher)
-        , event(this)
-        , maxInactivity(timeout)
-        , initialTimeout(timeout) {
+    core::EventReceiver::EventReceiver()
+        : event(this) {
     }
 
-    void EventReceiver::publish(const utils::Timeval& currentTime) {
-        triggered(currentTime);
-
+    void core::EventReceiver::publish(const utils::Timeval& currentTime) {
         event.setPublishTime(currentTime);
 
-        descriptorEventDispatcher.publish(&event);
-    }
-
-    int EventReceiver::getRegisteredFd() {
-        return registeredFd;
-    }
-
-    void EventReceiver::enable(int fd) {
-        this->registeredFd = fd;
-        observed();
-
-        descriptorEventDispatcher.enable(this);
-
-        lastTriggered = utils::Timeval::currentTime();
-
-        enabled = true;
-    }
-
-    void EventReceiver::disable() {
-        if (!isSuspended()) {
-            suspend();
-        }
-
-        descriptorEventDispatcher.disable(this);
-        enabled = false;
-    }
-
-    void EventReceiver::disabled() {
-        unObserved();
-    }
-
-    bool EventReceiver::isEnabled() const {
-        return enabled;
-    }
-
-    void EventReceiver::suspend() {
-        if (isEnabled()) {
-            descriptorEventDispatcher.suspend(this);
-            suspended = true;
-        }
-    }
-
-    void EventReceiver::resume() {
-        if (isEnabled()) {
-            descriptorEventDispatcher.resume(this);
-            suspended = false;
-            lastTriggered = utils::Timeval::currentTime();
-        }
-    }
-
-    bool EventReceiver::isSuspended() const {
-        return suspended;
-    }
-
-    void EventReceiver::terminate() {
-        if (isEnabled()) {
-            disable();
-        }
-    }
-
-    void EventReceiver::setTimeout(const utils::Timeval& timeout) {
-        if (timeout == TIMEOUT::DEFAULT) {
-            this->maxInactivity = initialTimeout;
-        } else {
-            this->maxInactivity = timeout;
-        }
-
-        triggered(utils::Timeval::currentTime());
-    }
-
-    utils::Timeval EventReceiver::getTimeout(const utils::Timeval& currentTime) const {
-        return (maxInactivity >= 0) ? maxInactivity - (currentTime - lastTriggered) : TIMEOUT::MAX;
-    }
-
-    void EventReceiver::dispatch(const utils::Timeval& currentTime) {
-        eventCounter++;
-        triggered(currentTime);
-
-        dispatchEvent();
-    }
-
-    void EventReceiver::triggered(const utils::Timeval& currentTime) {
-        lastTriggered = currentTime;
-    }
-
-    void EventReceiver::checkTimeout(const utils::Timeval& currentTime) {
-        if (maxInactivity >= 0 && currentTime - lastTriggered >= maxInactivity) {
-            timeoutEvent();
-        }
+        core::EventLoop::instance().getEventDispatcher().publish(&event);
     }
 
 } // namespace core

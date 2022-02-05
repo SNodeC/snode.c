@@ -22,7 +22,7 @@
 #include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
 
 namespace core {
-    class EventReceiver;
+    class DescriptorEventReceiver;
 } // namespace core
 
 namespace utils {
@@ -50,14 +50,14 @@ namespace core::epoll {
             explicit EPollEvents(int& epfd, uint32_t event);
 
         private:
-            void mod(core::EventReceiver* eventReceiver, uint32_t events);
+            void mod(core::DescriptorEventReceiver* eventReceiver, uint32_t events);
 
         public:
-            void modAdd(core::EventReceiver* eventReceiver);
-            void modDel(core::EventReceiver* eventReceiver);
+            void modAdd(core::DescriptorEventReceiver* eventReceiver);
+            void modDel(core::DescriptorEventReceiver* eventReceiver);
 
-            void modOn(core::EventReceiver* eventReceiver);
-            void modOff(core::EventReceiver* eventReceiver);
+            void modOn(core::DescriptorEventReceiver* eventReceiver);
+            void modOff(core::DescriptorEventReceiver* eventReceiver);
 
             void compress();
 
@@ -77,10 +77,10 @@ namespace core::epoll {
         explicit DescriptorEventDispatcher(int& epfd, uint32_t events);
 
     private:
-        void modAdd(core::EventReceiver* eventReceiver) override;
-        void modDel(core::EventReceiver* eventReceiver) override;
-        void modOn(core::EventReceiver* eventReceiver) override;
-        void modOff(core::EventReceiver* eventReceiver) override;
+        void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
+        void modDel(core::DescriptorEventReceiver* eventReceiver) override;
+        void modOn(core::DescriptorEventReceiver* eventReceiver) override;
+        void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents(const utils::Timeval& currentTime) override;
         void finishTick() override;

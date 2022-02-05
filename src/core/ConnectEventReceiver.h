@@ -19,7 +19,7 @@
 #ifndef CORE_CONNECTEVENTRECEIVER_H
 #define CORE_CONNECTEVENTRECEIVER_H
 
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace core {
 
-    class ConnectEventReceiver : public EventReceiver {
+    class ConnectEventReceiver : public DescriptorEventReceiver {
     protected:
         ConnectEventReceiver(const utils::Timeval& timeout = MAX_CONNECT_INACTIVITY);
 

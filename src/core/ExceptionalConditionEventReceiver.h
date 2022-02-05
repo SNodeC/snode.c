@@ -19,7 +19,7 @@
 #ifndef CORE_EXCEPTIONALCONDITIONEVENTRECEIVER_H
 #define CORE_EXCEPTIONALCONDITIONEVENTRECEIVER_H
 
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace core {
 
-    class ExceptionalConditionEventReceiver : public EventReceiver {
+    class ExceptionalConditionEventReceiver : public DescriptorEventReceiver {
     protected:
         ExceptionalConditionEventReceiver(const utils::Timeval& timeout = MAX_OUTOFBAND_INACTIVITY);
 

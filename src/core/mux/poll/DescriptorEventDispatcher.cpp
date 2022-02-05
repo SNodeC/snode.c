@@ -18,7 +18,7 @@
 
 #include "core/mux/poll/DescriptorEventDispatcher.h"
 
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 #include "core/mux/poll/EventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,19 +36,19 @@ namespace core::poll {
         , revents(revents) {
     }
 
-    void DescriptorEventDispatcher::modAdd(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.modAdd(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modDel(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modDel(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.modDel(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modOn(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOn(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.modOn(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modOff(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOff(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.modOff(eventReceiver, events);
     }
 
@@ -61,7 +61,7 @@ namespace core::poll {
             pollfd& pollFd = pollfds[pollFdsIndices[fd].index];
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & this->revents) != 0) {
-                core::EventReceiver* eventReceiver = eventReceivers.front();
+                core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                     eventCounter++;
                     //                    eventReceiver->dispatch(currentTime);

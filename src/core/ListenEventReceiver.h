@@ -19,7 +19,7 @@
 #ifndef CORE_LISTENEVENTRECEIVER_H
 #define CORE_LISTENEVENTRECEIVER_H
 
-#include "core/EventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace core {
 
-    class ListenEventReceiver : public EventReceiver {
+    class ListenEventReceiver : public DescriptorEventReceiver {
     protected:
         ListenEventReceiver();
 

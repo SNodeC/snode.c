@@ -23,7 +23,7 @@
 
 namespace core {
     InitConnectEventReceiver::InitConnectEventReceiver()
-        : EventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), 0) {
+        : DescriptorEventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), 0) {
     }
 
     void InitConnectEventReceiver::dispatchEvent() {

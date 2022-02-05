@@ -22,6 +22,7 @@
 #include "core/TickStatus.h" // IWYU pragma: export
 
 namespace core {
+    class Event;
     class DescriptorEventDispatcher;
     class TimerEventDispatcher;
 } // namespace core
@@ -33,6 +34,7 @@ namespace utils {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <array> // IWYU pragma: export
+#include <deque>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -55,6 +57,8 @@ namespace core {
 
         DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType);
         TimerEventDispatcher& getTimerEventDispatcher();
+
+        void publish(core::Event* event);
 
         TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
         void stop();
@@ -79,6 +83,8 @@ namespace core {
         std::array<core::DescriptorEventDispatcher*, DISP_COUNT> descriptorEventDispatcher;
 
     private:
+        std::deque<Event*> eventQueue;
+
         core::TimerEventDispatcher* const timerEventDispatcher;
     };
 
