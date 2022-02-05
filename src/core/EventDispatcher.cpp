@@ -20,6 +20,7 @@
 
 #include "core/DescriptorEventDispatcher.h"
 #include "core/DescriptorEventReceiver.h"
+#include "core/Event.h" // for Event
 #include "core/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -80,10 +81,7 @@ namespace core {
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        for (core::Event* event : eventQueue) {
-            event->dispatch();
-        }
-        eventQueue.clear();
+        executeEventQueue();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
@@ -157,9 +155,11 @@ namespace core {
     }
 
     void EventDispatcher::executeEventQueue() {
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->executeEventQueue();
+        for (core::Event* event : eventQueue) {
+            event->dispatch();
         }
+
+        eventQueue.clear();
     }
 
     void EventDispatcher::observeEnabledEvents(const utils::Timeval& currentTime) {

@@ -19,9 +19,13 @@
 #ifndef CORE_LISTENEVENTRECEIVER_H
 #define CORE_LISTENEVENTRECEIVER_H
 
-#include "core/DescriptorEventReceiver.h"
+#include "core/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+namespace utils {
+    class Timeval;
+}
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -29,16 +33,14 @@
 
 namespace core {
 
-    class ListenEventReceiver : public DescriptorEventReceiver {
+    class ListenEventReceiver : public EventReceiver {
     protected:
-        ListenEventReceiver();
+        ListenEventReceiver() = default;
+
+        void dispatch(const utils::Timeval& currentTime) override;
 
     private:
         virtual void listenEvent() = 0;
-
-        void dispatchEvent() final;
-        void timeoutEvent() final;
-        bool continueImmediately() const final;
     };
 
 } // namespace core

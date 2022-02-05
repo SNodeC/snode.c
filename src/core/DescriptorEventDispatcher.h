@@ -50,8 +50,6 @@ namespace core {
 
         void publish(Event* event);
 
-        void executeEventQueue();
-
         void enable(DescriptorEventReceiver* eventReceiver);
         void disable(DescriptorEventReceiver* eventReceiver);
         void suspend(DescriptorEventReceiver* eventReceiver);
@@ -90,8 +88,6 @@ namespace core {
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
         std::map<int, EventReceiverList> unobservedEventReceiver;
-
-        std::deque<Event*> eventQueue;
 
         unsigned long eventCounter = 0;
     };

@@ -18,29 +18,16 @@
 
 #include "ListenEventReceiver.h"
 
-#include "core/EventDispatcher.h"
-#include "core/EventLoop.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
-    ListenEventReceiver::ListenEventReceiver()
-        : DescriptorEventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), 0) {
-    }
-
-    void ListenEventReceiver::dispatchEvent() {
+    void ListenEventReceiver::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
         listenEvent();
-    }
-
-    void ListenEventReceiver::timeoutEvent() {
-        // do nothing
-    }
-
-    bool ListenEventReceiver::continueImmediately() const {
-        return false;
     }
 
 } // namespace core

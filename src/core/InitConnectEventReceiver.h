@@ -19,9 +19,13 @@
 #ifndef CORE_INITCONNECTEVENTRECEIVER_H
 #define CORE_INITCONNECTEVENTRECEIVER_H
 
-#include "core/DescriptorEventReceiver.h"
+#include "core/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+namespace utils {
+    class Timeval;
+}
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -29,16 +33,14 @@
 
 namespace core {
 
-    class InitConnectEventReceiver : public DescriptorEventReceiver {
+    class InitConnectEventReceiver : public EventReceiver {
     protected:
-        InitConnectEventReceiver();
+        InitConnectEventReceiver() = default;
+
+        void dispatch(const utils::Timeval& currentTime) override;
 
     private:
         virtual void initConnectEvent() = 0;
-
-        void dispatchEvent() final;
-        void timeoutEvent() final;
-        bool continueImmediately() const final;
     };
 
 } // namespace core

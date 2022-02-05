@@ -37,15 +37,7 @@ namespace core {
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
-    /*
-        void DescriptorEventReceiver::publish(const utils::Timeval& currentTime) {
-            triggered(currentTime);
 
-            event.setPublishTime(currentTime);
-
-            descriptorEventDispatcher.publish(&event);
-        }
-    */
     int DescriptorEventReceiver::getRegisteredFd() {
         return registeredFd;
     }

@@ -37,18 +37,6 @@ namespace core {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    void DescriptorEventDispatcher::publish(Event* event) {
-        eventQueue.push_back(event);
-    }
-
-    void DescriptorEventDispatcher::executeEventQueue() {
-        for (Event* event : eventQueue) {
-            event->dispatch();
-        }
-
-        eventQueue.clear();
-    }
-
     void DescriptorEventDispatcher::enable(core::DescriptorEventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 

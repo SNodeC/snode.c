@@ -18,24 +18,16 @@
 
 #include "InitConnectEventReceiver.h"
 
-#include "core/EventDispatcher.h"
-#include "core/EventLoop.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-    InitConnectEventReceiver::InitConnectEventReceiver()
-        : DescriptorEventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), 0) {
-    }
 
-    void InitConnectEventReceiver::dispatchEvent() {
+    void InitConnectEventReceiver::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
         initConnectEvent();
-    }
-
-    void InitConnectEventReceiver::timeoutEvent() {
-        // do nothing
-    }
-
-    bool InitConnectEventReceiver::continueImmediately() const {
-        return false;
     }
 
 } // namespace core
