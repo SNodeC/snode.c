@@ -48,8 +48,6 @@ namespace core {
 
         descriptorEventDispatcher.enable(this);
 
-        lastTriggered = utils::Timeval::currentTime();
-
         enabled = true;
     }
 
@@ -102,7 +100,7 @@ namespace core {
             this->maxInactivity = timeout;
         }
 
-        triggered(utils::Timeval::currentTime());
+        //        triggered(utils::Timeval::currentTime());
     }
 
     utils::Timeval DescriptorEventReceiver::getTimeout(const utils::Timeval& currentTime) const {

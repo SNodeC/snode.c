@@ -114,15 +114,14 @@ namespace core::epoll {
         ePollEvents.modOff(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventDispatcher::dispatchActiveEvents() {
         int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                //                eventReceiver->dispatch(currentTime);
-                eventReceiver->publish(currentTime);
+                eventReceiver->publish();
             }
         }
     }

@@ -65,7 +65,7 @@ namespace core::select {
         void modOn(core::DescriptorEventReceiver* eventReceiver) override;
         void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
-        void dispatchActiveEvents(const utils::Timeval& currentTime) override;
+        void dispatchActiveEvents() override;
 
         FdSet& fdSet;
     };

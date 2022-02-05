@@ -26,7 +26,6 @@
 #include "log/Logger.h"
 
 #include <cstdlib>
-#include <memory>
 #include <ostream>   // for ofstream, basic_ostream
 #include <stdexcept> // for invalid_argument, out_of_range
 

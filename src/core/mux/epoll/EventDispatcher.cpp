@@ -57,15 +57,11 @@ namespace core::epoll {
         return core::system::epoll_wait(epfd, ePollEvents, 3, tickTimeout.ms());
     }
 
-    void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
+    void EventDispatcher::dispatchActiveEvents(int count) {
         for (int i = 0; i < count; i++) {
             if ((ePollEvents[i].events & EPOLLIN) != 0) {
-                static_cast<core::DescriptorEventDispatcher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents(currentTime);
+                static_cast<core::DescriptorEventDispatcher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents();
             }
-        }
-
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->dispatchImmediateEvents(currentTime);
         }
     }
 

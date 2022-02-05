@@ -44,15 +44,11 @@ namespace core::select {
             getMaxFd() + 1, &fdSets[DISP_TYPE::RD].get(), &fdSets[DISP_TYPE::WR].get(), &fdSets[DISP_TYPE::EX].get(), &tickTimeOut);
     }
 
-    void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
+    void EventDispatcher::dispatchActiveEvents(int count) {
         if (count > 0) {
             for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-                eventDispatcher->dispatchActiveEvents(currentTime);
+                eventDispatcher->dispatchActiveEvents();
             }
-        }
-
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->dispatchImmediateEvents(currentTime);
         }
     }
 

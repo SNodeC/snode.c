@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -30,8 +32,8 @@ namespace core {
         : eventReceiver(eventReceiver) {
     }
 
-    void Event::dispatch() {
-        eventReceiver->dispatch(publishTime);
+    void Event::dispatch(const utils::Timeval& currentTime) {
+        eventReceiver->dispatch(currentTime);
     }
 
 } // namespace core

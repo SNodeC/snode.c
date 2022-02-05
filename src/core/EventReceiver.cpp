@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h" // for Timeval
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -33,9 +31,7 @@ namespace core {
         : event(this) {
     }
 
-    void core::EventReceiver::publish(const utils::Timeval& currentTime) {
-        event.setPublishTime(currentTime);
-
+    void core::EventReceiver::publish() {
         core::EventLoop::instance().getEventDispatcher().publish(&event);
     }
 

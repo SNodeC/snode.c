@@ -51,7 +51,7 @@ namespace core::poll {
         void modOn(core::DescriptorEventReceiver* eventReceiver) override;
         void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
-        void dispatchActiveEvents(const utils::Timeval& currentTime) override;
+        void dispatchActiveEvents() override;
         void finishTick() override;
 
         core::poll::PollFds& pollFds;

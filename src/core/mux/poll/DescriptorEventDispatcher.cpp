@@ -52,7 +52,7 @@ namespace core::poll {
         pollFds.modOff(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventDispatcher::dispatchActiveEvents() {
         pollfd* pollfds = pollFds.getEvents();
 
         std::unordered_map<int, PollFds::PollFdIndex> pollFdsIndices = pollFds.getPollFdIndices();
@@ -64,8 +64,7 @@ namespace core::poll {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                     eventCounter++;
-                    //                    eventReceiver->dispatch(currentTime);
-                    eventReceiver->publish(currentTime);
+                    eventReceiver->publish();
                 }
             }
         }

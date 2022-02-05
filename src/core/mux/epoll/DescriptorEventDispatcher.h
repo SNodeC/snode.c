@@ -82,7 +82,7 @@ namespace core::epoll {
         void modOn(core::DescriptorEventReceiver* eventReceiver) override;
         void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
-        void dispatchActiveEvents(const utils::Timeval& currentTime) override;
+        void dispatchActiveEvents() override;
         void finishTick() override;
 
     private:

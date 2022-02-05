@@ -81,19 +81,18 @@ namespace core {
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        executeEventQueue();
-
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
+        executeEventQueue(currentTime);
+
+        checkTimedOutEvents(currentTime);
         unobserveDisabledEvents(currentTime);
         observeEnabledEvents(currentTime);
 
-        int observedEventReceiverCount = getObservedEventReceiverCount();
+        if (getObservedEventReceiverCount() > 0 || (!timerEventDispatcher->empty() && !stopped)) {
+            utils::Timeval nextEventTimeout = getNextTimeout(currentTime);
+            utils::Timeval nextTimerTimeout = timerEventDispatcher->getNextTimeout(currentTime);
 
-        utils::Timeval nextEventTimeout = getNextTimeout(currentTime);
-        utils::Timeval nextTimerTimeout = timerEventDispatcher->getNextTimeout(currentTime);
-
-        if (observedEventReceiverCount > 0 || (!timerEventDispatcher->empty() && !stopped)) {
             utils::Timeval nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
 
             nextTimeout = std::min(nextTimeout, tickTimeOut);
@@ -106,7 +105,8 @@ namespace core {
 
                 timerEventDispatcher->dispatchActiveEvents(currentTime);
 
-                dispatchActiveEvents(ret, currentTime);
+                dispatchActiveEvents(ret);
+                dispatchImmediateEvents(currentTime);
             } else {
                 if (errno != EINTR) {
                     tickStatus = TickStatus::ERROR;
@@ -154,17 +154,29 @@ namespace core {
         return nextTimeout;
     }
 
-    void EventDispatcher::executeEventQueue() {
+    void EventDispatcher::executeEventQueue(const utils::Timeval& currentTime) {
         for (core::Event* event : eventQueue) {
-            event->dispatch();
+            event->dispatch(currentTime);
         }
 
         eventQueue.clear();
     }
 
+    void EventDispatcher::checkTimedOutEvents(const utils::Timeval& currentTime) {
+        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+            eventDispatcher->checkTimedOutEvents(currentTime);
+        }
+    }
+
     void EventDispatcher::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->observeEnabledEvents(currentTime);
+        }
+    }
+
+    void EventDispatcher::dispatchImmediateEvents(const utils::Timeval& currentTime) {
+        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+            eventDispatcher->dispatchImmediateEvents(currentTime);
         }
     }
 

@@ -167,15 +167,11 @@ namespace core::poll {
         return core::system::poll(pollFds.getEvents(), pollFds.getInterestCount(), tickTimeOut.ms());
     }
 
-    void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
+    void EventDispatcher::dispatchActiveEvents(int count) {
         if (count > 0) {
             for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-                eventDispatcher->dispatchActiveEvents(currentTime);
+                eventDispatcher->dispatchActiveEvents();
             }
-        }
-
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->dispatchImmediateEvents(currentTime);
         }
     }
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ListenEventReceiver.h"
+#include "InitAcceptEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,8 +26,8 @@
 
 namespace core {
 
-    void ListenEventReceiver::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
-        listenEvent();
+    void InitAcceptEventReceiver::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
+        initAcceptEvent();
     }
 
 } // namespace core

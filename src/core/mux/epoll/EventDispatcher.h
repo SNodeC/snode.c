@@ -43,7 +43,7 @@ namespace core::epoll {
 
     private:
         int multiplex(utils::Timeval& tickTimeout) override;
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime) override;
+        void dispatchActiveEvents(int count) override;
 
         int epfd;
 

@@ -111,6 +111,7 @@ namespace core {
         bool enabled = false;
         bool suspended = false;
 
+    public:
         utils::Timeval publisedTime;
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;

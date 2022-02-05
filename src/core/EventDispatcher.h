@@ -70,13 +70,15 @@ namespace core {
         int getMaxFd();
 
     private:
-        void executeEventQueue();
+        void executeEventQueue(const utils::Timeval& currentTime);
+        void checkTimedOutEvents(const utils::Timeval& currentTime);
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void observeEnabledEvents(const utils::Timeval& currentTime);
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
-        virtual void dispatchActiveEvents(int count, const utils::Timeval& currentTime) = 0;
+        virtual void dispatchActiveEvents(int count) = 0;
+        void dispatchImmediateEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:

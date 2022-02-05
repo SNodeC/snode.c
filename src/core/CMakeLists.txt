@@ -12,7 +12,7 @@ set(CORE_CPP
     EventReceiver.cpp
     DescriptorEventReceiver.cpp
     ExceptionalConditionEventReceiver.cpp
-    ListenEventReceiver.cpp
+    InitAcceptEventReceiver.cpp
     InitConnectEventReceiver.cpp
     ReadEventReceiver.cpp
     TimerEventDispatcher.cpp
@@ -51,7 +51,7 @@ set(CORE_H
     EventReceiver.h
     DescriptorEventReceiver.h
     ExceptionalConditionEventReceiver.h
-    ListenEventReceiver.h
+    InitAcceptEventReceiver.h
     InitConnectEventReceiver.h
     ReadEventReceiver.h
     SNodeC.h

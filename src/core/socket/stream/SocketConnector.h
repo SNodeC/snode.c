@@ -77,7 +77,7 @@ namespace core::socket::stream {
             this->clientConfig = clientConfig;
             this->onError = onError;
 
-            InitConnectEventReceiver::publish(0);
+            InitConnectEventReceiver::publish();
         }
 
     private:
@@ -98,7 +98,7 @@ namespace core::socket::stream {
                                                                 clientConfig->getRemoteAddress().getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    ConnectEventReceiver::enable(Socket::fd);
+                                    enable(Socket::fd);
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -144,21 +144,21 @@ namespace core::socket::stream {
                             onError(0);
 
                             Socket::dontClose(true);
-                            ConnectEventReceiver::disable();
+                            disable();
                         } else {
                             onError(errno);
-                            ConnectEventReceiver::disable();
+                            disable();
                         }
                     } else {
                         onError(errno);
-                        ConnectEventReceiver::disable();
+                        disable();
                     }
                 } else {
                     // Do nothing: connect() still in progress
                 }
             } else {
                 onError(errno);
-                ConnectEventReceiver::disable();
+                disable();
             }
         }
 

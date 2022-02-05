@@ -20,7 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "core/AcceptEventReceiver.h"
-#include "core/ListenEventReceiver.h"
+#include "core/InitAcceptEventReceiver.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -47,7 +47,7 @@ namespace core::socket::stream {
     template <typename ServerConfigT, typename SocketConnectionT>
     class SocketAcceptor
         : protected SocketConnectionT::Socket
-        , protected ListenEventReceiver
+        , protected InitAcceptEventReceiver
         , protected AcceptEventReceiver {
         SocketAcceptor() = delete;
         SocketAcceptor(const SocketAcceptor&) = delete;
@@ -86,11 +86,11 @@ namespace core::socket::stream {
             this->serverConfig = serverConfig;
             this->onError = onError;
 
-            ListenEventReceiver::publish(0);
+            InitAcceptEventReceiver::publish();
         }
 
     private:
-        void listenEvent() override {
+        void initAcceptEvent() override {
             Socket::open(
                 [this](int errnum) -> void {
                     if (errnum > 0) {
@@ -112,7 +112,7 @@ namespace core::socket::stream {
                                         int ret = core::system::listen(Socket::fd, serverConfig->getBacklog());
 
                                         if (ret == 0) {
-                                            AcceptEventReceiver::enable(Socket::fd);
+                                            enable(Socket::fd);
                                             onError(static_cast<const Socket&>(*this), 0);
                                         } else {
                                             onError(static_cast<const Socket&>(*this), errno);

@@ -30,7 +30,6 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <deque>
 #include <list> // IWYU pragma: export
 #include <map>  // IWYU pragma: export
 
@@ -56,8 +55,9 @@ namespace core {
         void resume(DescriptorEventReceiver* eventReceiver);
 
         void observeEnabledEvents(const utils::Timeval& currentTime);
-        virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
+        virtual void dispatchActiveEvents() = 0;
         void dispatchImmediateEvents(const utils::Timeval& currentTime);
+        void checkTimedOutEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
         virtual void finishTick();
 
@@ -87,7 +87,6 @@ namespace core {
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
-        std::map<int, EventReceiverList> unobservedEventReceiver;
 
         unsigned long eventCounter = 0;
     };

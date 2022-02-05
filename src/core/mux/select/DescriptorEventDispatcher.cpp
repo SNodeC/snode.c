@@ -76,13 +76,12 @@ namespace core::select {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventDispatcher::dispatchActiveEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             if (fdSet.isSet(fd) && !eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                //                eventReceiver->dispatch(currentTime);
-                eventReceiver->publish(currentTime);
+                eventReceiver->publish();
             }
         }
     }

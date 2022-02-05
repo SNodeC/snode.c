@@ -33,14 +33,14 @@ namespace utils {
 
 namespace core {
 
-    class ListenEventReceiver : public EventReceiver {
+    class InitAcceptEventReceiver : public EventReceiver {
     protected:
-        ListenEventReceiver() = default;
+        InitAcceptEventReceiver() = default;
 
         void dispatch(const utils::Timeval& currentTime) override;
 
     private:
-        virtual void listenEvent() = 0;
+        virtual void initAcceptEvent() = 0;
     };
 
 } // namespace core

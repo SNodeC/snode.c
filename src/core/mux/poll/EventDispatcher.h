@@ -84,7 +84,7 @@ namespace core::poll {
 
     private:
         int multiplex(utils::Timeval& tickTimeOut) override;
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime) override;
+        void dispatchActiveEvents(int count) override;
 
     private:
         PollFds pollFds;

@@ -25,7 +25,9 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
+namespace utils {
+    class Timeval;
+}
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -37,16 +39,10 @@ namespace core {
 
         virtual ~Event() = default;
 
-        void dispatch();
-
-        void setPublishTime(const utils::Timeval& currentTime) {
-            this->publishTime = currentTime;
-        }
+        void dispatch(const utils::Timeval& currentTime);
 
     private:
         core::EventReceiver* eventReceiver;
-
-        utils::Timeval publishTime;
     };
 
 } // namespace core

@@ -112,20 +112,27 @@ namespace core {
         enabledEventReceiver.clear();
     }
 
-    void DescriptorEventDispatcher::dispatchImmediateEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventDispatcher::dispatchImmediateEvents([[maybe_unused]] const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                //                eventReceiver->dispatch(currentTime);
-                eventReceiver->publish(currentTime);
+                eventReceiver->publish();
             } else if (eventReceiver->isEnabled()) {
-                eventReceiver->checkTimeout(currentTime);
+                //                eventReceiver->checkTimeout(currentTime);
             }
         }
     }
 
-    void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventDispatcher::checkTimedOutEvents([[maybe_unused]] const utils::Timeval& currentTime) {
+        for ([[maybe_unused]] const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
+            eventReceivers.front()->checkTimeout(currentTime);
+        }
+    }
+
+    void DescriptorEventDispatcher::unobserveDisabledEvents([[maybe_unused]] const utils::Timeval& currentTime) {
+        std::map<int, EventReceiverList> unobservedEventReceiver;
+
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (core::DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
