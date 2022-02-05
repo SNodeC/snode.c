@@ -25,10 +25,6 @@ namespace core {
     class DescriptorEventReceiver;
 } // namespace core
 
-namespace utils {
-    class Timeval;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/epoll.h" // IWYU pragma: export
