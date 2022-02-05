@@ -23,7 +23,7 @@ namespace core {
     class DescriptorEventDispatcher;
 } // namespace core
 
-#include "core/Event.h"
+#include "core/Event.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
