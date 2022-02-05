@@ -78,7 +78,7 @@ namespace core {
         void observeEnabledEvents(const utils::Timeval& currentTime);
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
         virtual void dispatchActiveEvents(int count) = 0;
-        void dispatchImmediateEvents(const utils::Timeval& currentTime);
+        void dispatchImmediateEvents();
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:

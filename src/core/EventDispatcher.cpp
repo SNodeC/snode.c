@@ -106,7 +106,7 @@ namespace core {
                 timerEventDispatcher->dispatchActiveEvents(currentTime);
 
                 dispatchActiveEvents(ret);
-                dispatchImmediateEvents(currentTime);
+                dispatchImmediateEvents();
             } else {
                 if (errno != EINTR) {
                     tickStatus = TickStatus::ERROR;
@@ -174,9 +174,9 @@ namespace core {
         }
     }
 
-    void EventDispatcher::dispatchImmediateEvents(const utils::Timeval& currentTime) {
+    void EventDispatcher::dispatchImmediateEvents() {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->dispatchImmediateEvents(currentTime);
+            eventDispatcher->dispatchImmediateEvents();
         }
     }
 

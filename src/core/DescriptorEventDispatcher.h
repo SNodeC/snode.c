@@ -56,7 +56,7 @@ namespace core {
 
         void observeEnabledEvents(const utils::Timeval& currentTime);
         virtual void dispatchActiveEvents() = 0;
-        void dispatchImmediateEvents(const utils::Timeval& currentTime);
+        void dispatchImmediateEvents();
         void checkTimedOutEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
         virtual void finishTick();
