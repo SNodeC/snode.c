@@ -75,9 +75,9 @@ namespace core::socket::stream::tls {
                     this->doReadShutdown();
                     break;
                 case SSL_ERROR_SYSCALL:
-                    if (errno == ECONNRESET) {
-                        VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
-                        SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
+                    VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
+                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
+                    {
                         int tmpErrno = errno;
                         this->doReadShutdown();
                         errno = tmpErrno;

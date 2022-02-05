@@ -5,23 +5,23 @@ set(CORE_CPP
     ConnectEventReceiver.cpp
     Descriptor.cpp
     DescriptorEventDispatcher.cpp
+    DescriptorEventReceiver.cpp
     DynamicLoader.cpp
     Event.cpp
     EventDispatcher.cpp
     EventLoop.cpp
     EventReceiver.cpp
-    DescriptorEventReceiver.cpp
     ExceptionalConditionEventReceiver.cpp
     InitAcceptEventReceiver.cpp
     InitConnectEventReceiver.cpp
     ReadEventReceiver.cpp
-    TimerEventDispatcher.cpp
     SNodeC.cpp
+    TimerEventDispatcher.cpp
     WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
-    pipe/Source.cpp
     pipe/Sink.cpp
+    pipe/Source.cpp
     pipe/Pipe.cpp
     pipe/PipeSink.cpp
     pipe/PipeSource.cpp
@@ -44,12 +44,12 @@ set(CORE_H
     ConnectEventReceiver.h
     Descriptor.h
     DescriptorEventDispatcher.h
+    DescriptorEventReceiver.h
     DynamicLoader.h
     Event.h
     EventDispatcher.h
     EventLoop.h
     EventReceiver.h
-    DescriptorEventReceiver.h
     ExceptionalConditionEventReceiver.h
     InitAcceptEventReceiver.h
     InitConnectEventReceiver.h
@@ -61,8 +61,8 @@ set(CORE_H
     WriteEventReceiver.h
     file/File.h
     file/FileReader.h
-    pipe/Source.h
     pipe/Sink.h
+    pipe/Source.h
     pipe/Pipe.h
     pipe/PipeSink.h
     pipe/PipeSource.h
@@ -82,16 +82,16 @@ set(CORE_H
     socket/stream/SocketWriter.h
     system/dlfcn.h
     system/epoll.h
-    system/poll.h
     system/netdb.h
+    system/poll.h
     system/select.h
     system/signal.h
     system/socket.h
     system/time.h
     system/unistd.h
-    timer/Timer.h
     timer/IntervalTimer.h
     timer/SingleshotTimer.h
+    timer/Timer.h
 )
 
 add_library(core SHARED ${CORE_CPP} ${CORE_H})
