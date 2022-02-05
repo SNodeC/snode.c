@@ -139,11 +139,13 @@ namespace core {
                 if (observedEventReceiver[fd].empty()) {
                     modDel(eventReceiver);
                     observedEventReceiver.erase(fd);
-                } else if (!observedEventReceiver[fd].front()->isSuspended()) {
-                    modOn(observedEventReceiver[fd].front());
-                    observedEventReceiver[fd].front()->triggered(currentTime);
                 } else {
-                    modOff(observedEventReceiver[fd].front());
+                    observedEventReceiver[fd].front()->triggered(currentTime);
+                    if (!observedEventReceiver[fd].front()->isSuspended()) {
+                        modOn(observedEventReceiver[fd].front());
+                    } else {
+                        modOff(observedEventReceiver[fd].front());
+                    }
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
