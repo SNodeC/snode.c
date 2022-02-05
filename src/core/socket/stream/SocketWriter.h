@@ -31,10 +31,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_TERMINATE_TIMEOUT
-#define MAX_TERMINATE_TIMEOUT 1
-#endif
-
 namespace core::socket::stream {
 
     template <typename SocketT>
@@ -122,8 +118,11 @@ namespace core::socket::stream {
         }
 
         void terminate() override {
-            setTimeout(MAX_TERMINATE_TIMEOUT);
-            shutdown();
+            if (!terminateInProgress) {
+                setTimeout(terminateTimeout);
+                shutdown();
+                terminateInProgress = true;
+            }
         }
 
     private:
@@ -135,6 +134,8 @@ namespace core::socket::stream {
         bool markShutdown = false;
 
         bool shutdownInProgress = false;
+
+        bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;
     };

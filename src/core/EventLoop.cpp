@@ -174,7 +174,7 @@ namespace core {
 
         do {
             instance().eventDispatcher.stopDescriptorEvents();
-            tickStatus = instance()._tick(2, true);
+            tickStatus = instance()._tick(3, true);
         } while (tickStatus == TickStatus::SUCCESS);
 
         do {

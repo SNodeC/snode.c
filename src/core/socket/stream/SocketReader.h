@@ -33,10 +33,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_TERMINATE_TIMEOUT
-#define MAX_TERMINATE_TIMEOUT 1
-#endif
-
 namespace core::socket::stream {
 
     template <typename SocketT>
@@ -121,11 +117,14 @@ namespace core::socket::stream {
         }
 
         void terminate() override {
-            setTimeout(terminateTimeout);
-            // shutdown();
-            // do not shutdown our read side because we try to do a full tcp shutdown sequence.
-            // In case we do not receive a TCP-FIN (or equivalent depending on the protocol) the
-            // connection is hard closed after "terminateTimeout".
+            if (!terminateInProgress) {
+                setTimeout(terminateTimeout);
+                // shutdown();
+                // do not shutdown our read side because we try to do a full tcp shutdown sequence.
+                // In case we do not receive a TCP-FIN (or equivalent depending on the protocol) the
+                // connection is hard closed after "terminateTimeout".
+                terminateInProgress = true;
+            }
         }
 
     private:
@@ -138,6 +137,8 @@ namespace core::socket::stream {
         std::size_t cursor = 0;
 
         bool shutdownTriggered = false;
+
+        bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;
     };
