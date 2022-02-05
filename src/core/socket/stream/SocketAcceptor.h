@@ -90,16 +90,6 @@ namespace core::socket::stream {
         }
 
     private:
-        void reuseAddress(const std::function<void(int)>& onError) {
-            int sockopt = 1;
-
-            if (core::system::setsockopt(Socket::fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
-                onError(errno);
-            } else {
-                onError(0);
-            }
-        }
-
         void listenEvent() override {
             Socket::open(
                 [this](int errnum) -> void {
@@ -137,6 +127,16 @@ namespace core::socket::stream {
                     }
                 },
                 SOCK_NONBLOCK);
+        }
+
+        void reuseAddress(const std::function<void(int)>& onError) {
+            int sockopt = 1;
+
+            if (core::system::setsockopt(Socket::fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+                onError(errno);
+            } else {
+                onError(0);
+            }
         }
 
         void acceptEvent() override {

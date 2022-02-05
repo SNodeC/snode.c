@@ -122,7 +122,10 @@ namespace core::socket::stream {
 
         void terminate() override {
             setTimeout(terminateTimeout);
-            // shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
+            // shutdown();
+            // do not shutdown our read side because we try to do a full tcp shutdown sequence.
+            // In case we do not receive a TCP-FIN (or equivalent depending on the protocol) the
+            // connection is hard closed after "terminateTimeout".
         }
 
     private:

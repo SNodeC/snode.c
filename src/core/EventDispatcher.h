@@ -70,7 +70,7 @@ namespace core {
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        void observeEnabledEvents(const utils::Timeval &currentTime);
+        void observeEnabledEvents(const utils::Timeval& currentTime);
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
         virtual void dispatchActiveEvents(int count, const utils::Timeval& currentTime) = 0;
         void unobserveDisabledEvents(const utils::Timeval& currentTime);

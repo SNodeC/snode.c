@@ -20,6 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/ConnectEventReceiver.h"
+#include "core/InitConnectEventReceiver.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -42,6 +43,7 @@ namespace core::socket::stream {
     template <typename ClientConfigT, typename SocketConnectionT>
     class SocketConnector
         : protected SocketConnectionT::Socket
+        , protected InitConnectEventReceiver
         , protected ConnectEventReceiver {
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
@@ -57,14 +59,12 @@ namespace core::socket::stream {
         using SocketReader = typename SocketConnection::SocketReader;
         using SocketWriter = typename SocketConnection::SocketWriter;
 
-        SocketConnector(const ClientConfig& clientConfig,
-                        const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
-            : clientConfig(clientConfig)
-            , socketContextFactory(socketContextFactory)
+            : socketContextFactory(socketContextFactory)
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
@@ -73,24 +73,32 @@ namespace core::socket::stream {
 
         virtual ~SocketConnector() = default;
 
-        void connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
+        void connect(const std::shared_ptr<ClientConfig>& clientConfig, const std::function<void(int)>& onError) {
+            this->clientConfig = clientConfig;
             this->onError = onError;
 
+            InitConnectEventReceiver::publish(0);
+        }
+
+    private:
+        void initConnectEvent() override {
             Socket::open(
-                [this, &bindAddress, &remoteAddress, &onError](int errnum) -> void {
+                [this](int errnum) -> void {
                     if (errnum > 0) {
                         onError(errnum);
                         destruct();
                     } else {
-                        Socket::bind(bindAddress, [this, &remoteAddress, &onError](int errnum) -> void {
+                        Socket::bind(clientConfig->getLocalAddress(), [this](int errnum) -> void {
                             if (errnum > 0) {
                                 onError(errnum);
                                 destruct();
                             } else {
-                                int ret = core::system::connect(Socket::fd, &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
+                                int ret = core::system::connect(Socket::fd,
+                                                                &clientConfig->getRemoteAddress().getSockAddr(),
+                                                                clientConfig->getRemoteAddress().getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    enable(Socket::fd);
+                                    ConnectEventReceiver::enable(Socket::fd);
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -102,7 +110,6 @@ namespace core::socket::stream {
                 SOCK_NONBLOCK);
         }
 
-    private:
         void connectEvent() override {
             int cErrno = -1;
             socklen_t cErrnoLen = sizeof(cErrno);
@@ -127,31 +134,31 @@ namespace core::socket::stream {
                                                                                       SocketAddress(remoteAddress),
                                                                                       onConnect,
                                                                                       onDisconnect,
-                                                                                      clientConfig.getReadTimeout(),
-                                                                                      clientConfig.getWriteTimeout(),
-                                                                                      clientConfig.getReadBlockSize(),
-                                                                                      clientConfig.getWriteBlockSize(),
-                                                                                      clientConfig.getTerminateTimeout());
+                                                                                      clientConfig->getReadTimeout(),
+                                                                                      clientConfig->getWriteTimeout(),
+                                                                                      clientConfig->getReadBlockSize(),
+                                                                                      clientConfig->getWriteBlockSize(),
+                                                                                      clientConfig->getTerminateTimeout());
 
                             onConnected(socketConnection);
                             onError(0);
 
                             Socket::dontClose(true);
-                            disable();
+                            ConnectEventReceiver::disable();
                         } else {
                             onError(errno);
-                            disable();
+                            ConnectEventReceiver::disable();
                         }
                     } else {
                         onError(errno);
-                        disable();
+                        ConnectEventReceiver::disable();
                     }
                 } else {
                     // Do nothing: connect() still in progress
                 }
             } else {
                 onError(errno);
-                disable();
+                ConnectEventReceiver::disable();
             }
         }
 
@@ -164,7 +171,7 @@ namespace core::socket::stream {
             delete this;
         }
 
-        ClientConfig clientConfig;
+        std::shared_ptr<ClientConfig> clientConfig = nullptr;
 
     private:
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;

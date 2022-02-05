@@ -44,19 +44,17 @@ namespace core::socket::stream::tls {
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketConnector(const ClientConfig& clientConfig,
-                        const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
             : Super(
-                  clientConfig,
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
                       SSL* ssl = socketConnection->startSSL(
-                          this->ctx, this->clientConfig.getInitTimeout(), this->clientConfig.getShutdownTimeout());
+                          this->ctx, this->clientConfig->getInitTimeout(), this->clientConfig->getShutdownTimeout());
 
                       if (ssl != nullptr) {
                           ssl_set_sni(ssl, this->options);
@@ -94,13 +92,13 @@ namespace core::socket::stream::tls {
             ssl_ctx_free(ctx);
         }
 
-        void connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
+        void connect(const std::shared_ptr<ClientConfig>& clientConfig, const std::function<void(int)>& onError) {
             if (ctx == nullptr) {
                 errno = EINVAL;
                 onError(errno);
                 Super::destruct();
             } else {
-                Super::connect(remoteAddress, bindAddress, onError);
+                Super::connect(clientConfig, onError);
             }
         }
 

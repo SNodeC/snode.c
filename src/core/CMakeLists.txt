@@ -13,6 +13,7 @@ set(CORE_CPP
     EventReceiver.h
     ExceptionalConditionEventReceiver.cpp
     ListenEventReceiver.cpp
+    InitConnectEventReceiver.cpp
     ReadEventReceiver.cpp
     TimerEventDispatcher.cpp
     SNodeC.cpp
@@ -50,6 +51,7 @@ set(CORE_H
     EventReceiver.h
     ExceptionalConditionEventReceiver.h
     ListenEventReceiver.h
+    InitConnectEventReceiver.h
     ReadEventReceiver.h
     SNodeC.h
     TickStatus.h

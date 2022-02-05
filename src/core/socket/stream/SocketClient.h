@@ -58,7 +58,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : clientConfig(name)
+            : clientConfig(std::make_shared<ClientConfig>(name))
             , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
@@ -73,13 +73,10 @@ namespace core::socket::stream {
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& bindAddress,
                      const std::function<void(int)>& onError) const override {
-            clientConfig.setRemoteAddress(remoteAddress);
-            clientConfig.setLocalAddress(bindAddress);
+            clientConfig->setRemoteAddress(remoteAddress);
+            clientConfig->setLocalAddress(bindAddress);
 
-            SocketConnector* socketConnector =
-                new SocketConnector(clientConfig, socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
-
-            socketConnector->connect(remoteAddress, bindAddress, onError);
+            connect(onError);
         }
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const override {
@@ -87,7 +84,9 @@ namespace core::socket::stream {
         }
 
         void connect(const std::function<void(int)>& onError) const override {
-            connect(clientConfig.getRemoteAddress(), clientConfig.getLocalAddress(), onError);
+            SocketConnector* socketConnector = new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+
+            socketConnector->connect(clientConfig, onError);
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
@@ -107,7 +106,7 @@ namespace core::socket::stream {
         }
 
     protected:
-        ClientConfig clientConfig;
+        std::shared_ptr<ClientConfig> clientConfig;
 
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
