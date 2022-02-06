@@ -58,6 +58,7 @@ namespace core {
             ~EventQueue();
 
             void push_back(const Event* event);
+            void erase(const Event* event);
             void execute(const utils::Timeval& currentTime);
             bool empty() const;
 
@@ -73,6 +74,7 @@ namespace core {
         TimerEventDispatcher& getTimerEventDispatcher();
 
         void publish(const core::Event* event);
+        void unPublish(const Event* event);
 
         TickStatus tick(const utils::Timeval& tickTimeOut, bool stopped);
         void stop();

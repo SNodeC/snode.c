@@ -34,7 +34,7 @@ namespace core {
     class EventReceiver {
     public:
         EventReceiver();
-        virtual ~EventReceiver() = default;
+        virtual ~EventReceiver();
 
         void publish() const;
 

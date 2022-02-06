@@ -61,6 +61,10 @@ namespace core {
         eventQueue.push_back(event);
     }
 
+    void EventDispatcher::unPublish(const Event* event) {
+        eventQueue.erase(event);
+    }
+
     int EventDispatcher::getObservedEventReceiverCount() {
         return std::accumulate(descriptorEventDispatcher.begin(),
                                descriptorEventDispatcher.end(),
@@ -189,6 +193,10 @@ namespace core {
 
     void EventDispatcher::EventQueue::push_back(const Event* event) {
         publishQueue->insert(event); // do not allow two or more same events in one tick
+    }
+
+    void EventDispatcher::EventQueue::erase(const Event* event) {
+        publishQueue->erase(event); // in case of erase remove the event from the published queue
     }
 
     void EventDispatcher::EventQueue::execute(const utils::Timeval& currentTime) {
