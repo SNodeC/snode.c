@@ -155,6 +155,7 @@ namespace core {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             nextTimeout = std::min(eventDispatcher->getNextTimeout(currentTime), nextTimeout);
         }
+
         return nextTimeout;
     }
 

@@ -141,23 +141,29 @@ namespace utils {
                     exit(EXIT_FAILURE);
                 }
 
-                ::kill(pid, SIGTERM);
-                pidFile.close();
+                if (::kill(pid, SIGTERM) == 0) {
+                    pidFile.close();
 
-                pollfd.fd = pidfd;
-                pollfd.events = POLLIN;
+                    pollfd.fd = pidfd;
+                    pollfd.events = POLLIN;
 
-                int ready = poll(&pollfd, 1, -1);
-                if (ready == -1) {
-                    PLOG(ERROR) << "Poll";
+                    int ready = poll(&pollfd, 1, -1);
+                    if (ready == -1) {
+                        PLOG(ERROR) << "Poll";
+                        exit(EXIT_FAILURE);
+                    } else if (ready == 0) {
+                        PLOG(ERROR) << "Daemon not responding";
+                        exit(EXIT_FAILURE);
+                    } else {
+                        VLOG(0) << "Daemon terminated";
+                    }
+
+                    close(pidfd);
+                    exit(EXIT_SUCCESS);
+                } else {
+                    PLOG(ERROR) << "Kill daemon";
                     exit(EXIT_FAILURE);
                 }
-
-                VLOG(0) << "Daemon terminated";
-
-                close(pidfd);
-                exit(EXIT_SUCCESS);
-
             } else {
                 VLOG(0) << "Daemon not running";
 
