@@ -51,7 +51,7 @@ namespace core::socket::stream {
             , terminateTimeout(terminateTimeout) {
             setBlockSize(blockSize);
             setTimeout(timeout);
-            enable(Socket::fd);
+            enable(Socket::getFd());
             suspend();
         }
 

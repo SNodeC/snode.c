@@ -35,6 +35,10 @@ namespace core {
         close();
     }
 
+    void Descriptor::attachFd(int fd) {
+        this->fd = fd;
+    }
+
     int Descriptor::getFd() const {
         return fd;
     }

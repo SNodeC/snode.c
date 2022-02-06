@@ -28,7 +28,7 @@
 
 namespace core {
 
-    core::Event::Event(EventReceiver* eventReceiver)
+    core::Event::Event(core::EventReceiver* eventReceiver)
         : eventReceiver(eventReceiver) {
     }
 

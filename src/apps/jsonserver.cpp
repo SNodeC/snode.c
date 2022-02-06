@@ -26,17 +26,22 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace express;
+// using namespace express;
 using json = nlohmann::json;
 
 int main(int argc, char* argv[]) {
+    using WebApp = express::legacy::in::WebApp;
+
     WebApp::init(argc, argv);
 
-    legacy::in::WebApp legacyApp("legacy-jsonserver");
+    using Socket = WebApp::Socket;
+    using SocketConnection = WebApp::SocketConnection;
 
-    legacyApp.use(middleware::JsonMiddleware());
+    WebApp legacyApp("legacy-jsonserver");
 
-    legacyApp.listen(8080, [](const legacy::in::WebApp::Socket& socket, int err) -> void {
+    legacyApp.use(express::middleware::JsonMiddleware());
+
+    legacyApp.listen(8080, [](const Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
         } else {
@@ -63,14 +68,14 @@ int main(int argc, char* argv[]) {
         res.send("Wrong Url");
     });
 
-    legacyApp.onConnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onConnect([](SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
 
         VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
         VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " + socketConnection->getRemoteAddress().toString();
     });
 
-    legacyApp.onDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onDisconnect([](SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
 
         VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();

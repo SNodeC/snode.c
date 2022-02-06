@@ -51,14 +51,14 @@ namespace core {
 
         ~EventDispatcher();
 
-    public:
+    private:
         class EventQueue {
         public:
             EventQueue();
             ~EventQueue();
 
-            void push_back(const Event* event);
-            void erase(const Event* event);
+            void insert(const Event* event);
+            void remove(const Event* event);
             void execute(const utils::Timeval& currentTime);
             bool empty() const;
 
@@ -67,6 +67,7 @@ namespace core {
             std::set<const Event*>* publishQueue;
         };
 
+    public:
 #define DISP_COUNT 3
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 

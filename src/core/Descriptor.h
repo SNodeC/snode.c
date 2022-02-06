@@ -39,6 +39,7 @@ namespace core {
         Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
         ~Descriptor();
 
+        void attachFd(int fd);
         int getFd() const;
         void dontClose(bool dontClose);
         bool dontClose() const;
@@ -46,7 +47,7 @@ namespace core {
     private:
         void close();
 
-    protected:
+    private:
         int fd = -1;
 
         friend enum FLAGS operator|(const enum FLAGS& f1, const enum FLAGS& f2);

@@ -93,12 +93,12 @@ namespace core::socket::stream {
                                 onError(errnum);
                                 destruct();
                             } else {
-                                int ret = core::system::connect(Socket::fd,
+                                int ret = core::system::connect(Socket::getFd(),
                                                                 &clientConfig->getRemoteAddress().getSockAddr(),
                                                                 clientConfig->getRemoteAddress().getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    enable(Socket::fd);
+                                    enable(Socket::getFd());
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -126,8 +126,10 @@ namespace core::socket::stream {
                         typename SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                        if (core::system::getsockname(Socket::fd, reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
-                            core::system::getpeername(Socket::fd, reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
+                        if (core::system::getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) ==
+                                0 &&
+                            core::system::getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
+                                0) {
                             SocketConnection* socketConnection = new SocketConnection(SocketConnector::getFd(),
                                                                                       socketContextFactory,
                                                                                       SocketAddress(localAddress),

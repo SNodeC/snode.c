@@ -58,11 +58,11 @@ namespace core {
     }
 
     void EventDispatcher::publish(const Event* event) {
-        eventQueue.push_back(event);
+        eventQueue.insert(event);
     }
 
     void EventDispatcher::unPublish(const Event* event) {
-        eventQueue.erase(event);
+        eventQueue.remove(event);
     }
 
     int EventDispatcher::getObservedEventReceiverCount() {
@@ -95,16 +95,16 @@ namespace core {
         observeEnabledEvents(currentTime);
 
         if (getObservedEventReceiverCount() > 0 || (!timerEventDispatcher->empty() && !stopped)) {
-            utils::Timeval nextEventTimeout = getNextTimeout(currentTime);
-            utils::Timeval nextTimerTimeout = timerEventDispatcher->getNextTimeout(currentTime);
+            utils::Timeval nextTimeout = 0;
 
-            utils::Timeval nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
+            if (eventQueue.empty()) {
+                utils::Timeval nextEventTimeout = getNextTimeout(currentTime);
+                utils::Timeval nextTimerTimeout = timerEventDispatcher->getNextTimeout(currentTime);
 
-            nextTimeout = std::min(nextTimeout, tickTimeOut);
-            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
+                nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
 
-            if (!eventQueue.empty()) {
-                nextTimeout = 0;
+                nextTimeout = std::min(nextTimeout, tickTimeOut);
+                nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
             }
 
             int ret = multiplex(nextTimeout);
@@ -190,11 +190,11 @@ namespace core {
         delete publishQueue;
     }
 
-    void EventDispatcher::EventQueue::push_back(const Event* event) {
+    void EventDispatcher::EventQueue::insert(const Event* event) {
         publishQueue->insert(event); // do not allow two or more same events in one tick
     }
 
-    void EventDispatcher::EventQueue::erase(const Event* event) {
+    void EventDispatcher::EventQueue::remove(const Event* event) {
         publishQueue->erase(event); // in case of erase remove the event from the published queue
     }
 

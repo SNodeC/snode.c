@@ -34,10 +34,14 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> jsonClient(
+    using Request = web::http::client::Request;
+    using Response = web::http::client::Response;
+    using Client = web::http::legacy::in::Client<Request, Response>;
+    using SocketConnection = Client::SocketConnection;
+
+    Client jsonClient(
         "legacy",
-        [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
-            -> void {
+        [](SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
 
             VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
@@ -45,18 +49,17 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                            socketConnection->getLocalAddress().toString();
         },
-        []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-               socketConnection) -> void {
+        []([[maybe_unused]] SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnected";
         },
-        [](web::http::client::Request& request) -> void {
+        [](Request& request) -> void {
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");
             request.set("Connection", "close");
             request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        []([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
+        []([[maybe_unused]] Request& request, Response& response) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
             VLOG(0) << "       " << response.httpVersion;
@@ -84,8 +87,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
-            -> void {
+        [](SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
 
             VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
