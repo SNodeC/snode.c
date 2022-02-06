@@ -98,7 +98,7 @@ namespace core::socket::stream {
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
-                } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
+                } else if (errno != EINTR /* && errno != EAGAIN && errno != EWOULDBLOCK*/) {
                     disable();
                     onError(errno);
                 }

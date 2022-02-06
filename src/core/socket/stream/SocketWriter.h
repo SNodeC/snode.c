@@ -93,7 +93,7 @@ namespace core::socket::stream {
 
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-            } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
+            } else if (errno != EINTR /*&& errno != EAGAIN && errno != EWOULDBLOCK*/) {
                 disable();
                 onError(errno);
             }

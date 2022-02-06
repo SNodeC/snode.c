@@ -68,9 +68,11 @@ namespace core::socket::stream::tls {
                             ssl_log("SSL/TLS renegotiation", ssl_err);
                             sslErr = ssl_err;
                         });
+                    errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_READ (EAGAIN)
                     ret = -1;
                     break;
                 case SSL_ERROR_WANT_WRITE:
+                    errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_READ (EAGAIN)
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // shutdown cleanly

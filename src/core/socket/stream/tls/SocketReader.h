@@ -56,6 +56,7 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_NONE:
                     break;
                 case SSL_ERROR_WANT_READ:
+                    errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_READ (EAGAIN)
                     break;
                 case SSL_ERROR_WANT_WRITE:
                     LOG(INFO) << "SSL/TLS start renegotiation on read";
@@ -70,6 +71,7 @@ namespace core::socket::stream::tls {
                             ssl_log("SSL/TLS renegotiation", ssl_err);
                             sslErr = ssl_err;
                         });
+                    errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_WRITE (EAGAIN)
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
                     this->doReadShutdown();
