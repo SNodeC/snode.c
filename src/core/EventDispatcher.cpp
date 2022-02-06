@@ -70,6 +70,15 @@ namespace core {
                                });
     }
 
+    int EventDispatcher::getMaxFd() {
+        return std::accumulate(descriptorEventDispatcher.begin(),
+                               descriptorEventDispatcher.end(),
+                               -1,
+                               [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
+                                   return std::max(descriptorEventDispatcher->getMaxFd(), count);
+                               });
+    }
+
     TickStatus EventDispatcher::tick(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
