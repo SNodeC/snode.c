@@ -179,14 +179,8 @@ namespace core {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             const core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
 
-            if (eventReceiver->isEnabled()) {
-                if (!eventReceiver->isSuspended() /*&& eventReceiver->continueImmediately()*/) {
-                    nextTimeout = 0;
-                } else {
-                    nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
-                }
-            } else {
-                nextTimeout = 0;
+            if (!eventReceiver->isSuspended()) {
+                nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
             }
         }
 
