@@ -113,7 +113,6 @@ namespace core {
                 currentTime = utils::Timeval::currentTime();
 
                 timerEventDispatcher->dispatchActiveEvents(currentTime);
-
                 dispatchActiveEvents(ret);
             } else {
                 if (errno != EINTR) {

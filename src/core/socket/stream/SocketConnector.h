@@ -162,10 +162,6 @@ namespace core::socket::stream {
             }
         }
 
-        void unobservedEvent() override {
-            destruct();
-        }
-
     protected:
         void destruct() {
             delete this;
@@ -174,6 +170,10 @@ namespace core::socket::stream {
         std::shared_ptr<ClientConfig> clientConfig = nullptr;
 
     private:
+        void unobservedEvent() override {
+            destruct();
+        }
+
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
 
         std::function<void(SocketConnection*)> onConnect;
