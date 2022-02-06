@@ -183,12 +183,12 @@ namespace web::http {
     ssize_t Parser::readContent() {
         static char contentJunk[MAX_CONTENT_JUNK_LEN];
 
-        ssize_t ret = 0;
+        ssize_t consumed = 0;
 
         if (httpMinor == 0 && contentLength == 0) {
-            ret = socketContext->readFromPeer(contentJunk, MAX_CONTENT_JUNK_LEN);
+            consumed = socketContext->readFromPeer(contentJunk, MAX_CONTENT_JUNK_LEN);
 
-            std::size_t contentJunkLen = static_cast<std::size_t>(ret);
+            std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
             if (contentJunkLen > 0) {
                 content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
             } else {
@@ -198,9 +198,9 @@ namespace web::http {
             std::size_t contentJunkLenLeft =
                 (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
 
-            ret = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
+            consumed = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
 
-            std::size_t contentJunkLen = static_cast<std::size_t>(ret);
+            std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
             if (contentJunkLen > 0) {
                 if (contentRead + contentJunkLen <= contentLength) {
                     content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
@@ -215,7 +215,7 @@ namespace web::http {
             }
         }
 
-        return ret;
+        return consumed;
     }
 
     enum Parser::HTTPCompliance operator|(const enum Parser::HTTPCompliance& c1, const enum Parser::HTTPCompliance& c2) {

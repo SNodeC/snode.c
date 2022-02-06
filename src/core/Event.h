@@ -39,7 +39,7 @@ namespace core {
 
         virtual ~Event() = default;
 
-        void dispatch(const utils::Timeval& currentTime);
+        void dispatch(const utils::Timeval& currentTime) const;
 
     private:
         core::EventReceiver* eventReceiver;

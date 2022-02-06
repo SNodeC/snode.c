@@ -36,20 +36,12 @@ namespace core {
         disable();
     }
 
-    bool ConnectEventReceiver::continueConnectImmediately() const {
-        return false;
-    }
-
     void ConnectEventReceiver::dispatchEvent() {
         connectEvent();
     }
 
     void ConnectEventReceiver::timeoutEvent() {
         connectTimeout();
-    }
-
-    bool ConnectEventReceiver::continueImmediately() const {
-        return continueConnectImmediately();
     }
 
 } // namespace core

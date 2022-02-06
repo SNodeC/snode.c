@@ -36,20 +36,12 @@ namespace core {
         disable();
     }
 
-    bool AcceptEventReceiver::continueAcceptImmediately() const {
-        return false;
-    }
-
     void AcceptEventReceiver::dispatchEvent() {
         acceptEvent();
     }
 
     void AcceptEventReceiver::timeoutEvent() {
         acceptTimeout();
-    }
-
-    bool AcceptEventReceiver::continueImmediately() const {
-        return continueAcceptImmediately();
     }
 
 } // namespace core

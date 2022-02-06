@@ -39,9 +39,6 @@ namespace core {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
-        bool continueImmediately() const final;
-
-        virtual bool continueReadImmediately() const;
     };
 
 } // namespace core

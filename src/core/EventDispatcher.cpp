@@ -28,6 +28,7 @@
 #include <algorithm> // for min, max
 #include <cerrno>    // for EINTR, errno
 #include <numeric>
+#include <utility> // for swap
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -56,7 +57,7 @@ namespace core {
         return *timerEventDispatcher;
     }
 
-    void EventDispatcher::publish(core::Event* event) {
+    void EventDispatcher::publish(const Event* event) {
         eventQueue.push_back(event);
     }
 
@@ -74,7 +75,7 @@ namespace core {
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
-        executeEventQueue(currentTime);
+        eventQueue.execute(currentTime);
 
         checkTimedOutEvents(currentTime);
         unobserveDisabledEvents(currentTime);
@@ -89,6 +90,10 @@ namespace core {
             nextTimeout = std::min(nextTimeout, tickTimeOut);
             nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
 
+            if (!eventQueue.empty()) {
+                nextTimeout = 0;
+            }
+
             int ret = multiplex(nextTimeout);
 
             if (ret >= 0) {
@@ -97,7 +102,6 @@ namespace core {
                 timerEventDispatcher->dispatchActiveEvents(currentTime);
 
                 dispatchActiveEvents(ret);
-                dispatchImmediateEvents();
             } else {
                 if (errno != EINTR) {
                     tickStatus = TickStatus::ERROR;
@@ -145,14 +149,6 @@ namespace core {
         return nextTimeout;
     }
 
-    void EventDispatcher::executeEventQueue(const utils::Timeval& currentTime) {
-        for (core::Event* event : eventQueue) {
-            event->dispatch(currentTime);
-        }
-
-        eventQueue.clear();
-    }
-
     void EventDispatcher::checkTimedOutEvents(const utils::Timeval& currentTime) {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->checkTimedOutEvents(currentTime);
@@ -165,16 +161,38 @@ namespace core {
         }
     }
 
-    void EventDispatcher::dispatchImmediateEvents() {
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->dispatchImmediateEvents();
-        }
-    }
-
     void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->unobserveDisabledEvents(currentTime);
         }
+    }
+
+    EventDispatcher::EventQueue::EventQueue()
+        : executeQueue(new std::set<const Event*>())
+        , publishQueue(new std::set<const Event*>()) {
+    }
+
+    EventDispatcher::EventQueue::~EventQueue() {
+        delete executeQueue;
+        delete publishQueue;
+    }
+
+    void EventDispatcher::EventQueue::push_back(const Event* event) {
+        publishQueue->insert(event); // do not allow two or more same events in one tick
+    }
+
+    void EventDispatcher::EventQueue::execute(const utils::Timeval& currentTime) {
+        std::swap(executeQueue, publishQueue);
+
+        for (const Event* event : *executeQueue) {
+            event->dispatch(currentTime);
+        }
+
+        executeQueue->clear();
+    }
+
+    bool EventDispatcher::EventQueue::empty() const {
+        return publishQueue->empty();
     }
 
 } // namespace core

@@ -36,20 +36,12 @@ namespace core {
         disable();
     }
 
-    bool WriteEventReceiver::continueWriteImmediately() const {
-        return false;
-    }
-
     void WriteEventReceiver::dispatchEvent() {
         writeEvent();
     }
 
     void WriteEventReceiver::timeoutEvent() {
         writeTimeout();
-    }
-
-    bool WriteEventReceiver::continueImmediately() const {
-        return continueWriteImmediately();
     }
 
 } // namespace core

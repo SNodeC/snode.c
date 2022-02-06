@@ -34,7 +34,7 @@ namespace utils {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <array> // IWYU pragma: export
-#include <deque>
+#include <set>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -52,13 +52,27 @@ namespace core {
         ~EventDispatcher();
 
     public:
+        class EventQueue {
+        public:
+            EventQueue();
+            ~EventQueue();
+
+            void push_back(const Event* event);
+            void execute(const utils::Timeval& currentTime);
+            bool empty() const;
+
+        private:
+            std::set<const Event*>* executeQueue;
+            std::set<const Event*>* publishQueue;
+        };
+
 #define DISP_COUNT 3
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
         DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType);
         TimerEventDispatcher& getTimerEventDispatcher();
 
-        void publish(core::Event* event);
+        void publish(const core::Event* event);
 
         TickStatus tick(const utils::Timeval& tickTimeOut, bool stopped);
         void stop();
@@ -70,7 +84,6 @@ namespace core {
         int getMaxFd();
 
     private:
-        void executeEventQueue(const utils::Timeval& currentTime);
         void checkTimedOutEvents(const utils::Timeval& currentTime);
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
@@ -78,14 +91,13 @@ namespace core {
         void observeEnabledEvents(const utils::Timeval& currentTime);
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
         virtual void dispatchActiveEvents(int count) = 0;
-        void dispatchImmediateEvents();
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:
         std::array<core::DescriptorEventDispatcher*, DISP_COUNT> descriptorEventDispatcher;
 
     private:
-        std::deque<Event*> eventQueue;
+        EventQueue eventQueue;
 
         core::TimerEventDispatcher* const timerEventDispatcher;
     };

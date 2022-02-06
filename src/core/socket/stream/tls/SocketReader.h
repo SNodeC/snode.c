@@ -91,11 +91,11 @@ namespace core::socket::stream::tls {
             return ret;
         }
 
-        bool continueReadImmediately() const override {
-            return SSL_pending(ssl) || Super::continueReadImmediately();
+    protected:
+        bool hasBufferedData() const override {
+            return SSL_pending(ssl) || Super::hasBufferedData();
         }
 
-    protected:
         void terminate() override {
             Super::terminate();
         }

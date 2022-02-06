@@ -36,20 +36,12 @@ namespace core {
         disable();
     }
 
-    bool ExceptionalConditionEventReceiver::continueOutOfBandImmediately() const {
-        return false;
-    }
-
     void ExceptionalConditionEventReceiver::dispatchEvent() {
         outOfBandEvent();
     }
 
     void ExceptionalConditionEventReceiver::timeoutEvent() {
         outOfBandTimeout();
-    }
-
-    bool ExceptionalConditionEventReceiver::continueImmediately() const {
-        return continueOutOfBandImmediately();
     }
 
 } // namespace core

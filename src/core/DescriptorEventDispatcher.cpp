@@ -112,16 +112,6 @@ namespace core {
         enabledEventReceiver.clear();
     }
 
-    void DescriptorEventDispatcher::dispatchImmediateEvents() {
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-            if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
-                eventCounter++;
-                eventReceiver->publish();
-            }
-        }
-    }
-
     void DescriptorEventDispatcher::checkTimedOutEvents([[maybe_unused]] const utils::Timeval& currentTime) {
         for ([[maybe_unused]] const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             eventReceivers.front()->checkTimeout(currentTime);
@@ -190,7 +180,7 @@ namespace core {
             const core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
 
             if (eventReceiver->isEnabled()) {
-                if (!eventReceiver->isSuspended() && eventReceiver->continueImmediately()) {
+                if (!eventReceiver->isSuspended() /*&& eventReceiver->continueImmediately()*/) {
                     nextTimeout = 0;
                 } else {
                     nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);

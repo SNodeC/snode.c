@@ -62,7 +62,7 @@ namespace core::poll {
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & this->revents) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-                if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                if (!eventReceiver->isSuspended()) {
                     eventCounter++;
                     eventReceiver->publish();
                 }

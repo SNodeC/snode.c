@@ -32,7 +32,7 @@ namespace core {
         : eventReceiver(eventReceiver) {
     }
 
-    void Event::dispatch(const utils::Timeval& currentTime) {
+    void Event::dispatch(const utils::Timeval& currentTime) const {
         eventReceiver->dispatch(currentTime);
     }
 

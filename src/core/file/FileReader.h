@@ -51,11 +51,7 @@ namespace core::file {
     private:
         void terminate() override;
 
-        void sinkDisconnected() override;
-
         void unobservedEvent() override;
-
-        bool continueReadImmediately() const override;
     };
 
 } // namespace core::file

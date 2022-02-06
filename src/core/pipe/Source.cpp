@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::pipe {
@@ -46,14 +48,20 @@ namespace core::pipe {
     void Source::disconnect(Sink& sink) {
         if (&sink == this->sink) {
             this->sink = nullptr;
-            sinkDisconnected();
         }
     }
 
-    void Source::send(const char* junk, std::size_t junkLen) {
+    ssize_t Source::send(const char* junk, std::size_t junkLen) {
+        ssize_t ret = static_cast<ssize_t>(junkLen);
+
         if (this->sink != nullptr) {
             sink->receive(junk, junkLen);
+        } else {
+            ret = -1;
+            errno = EPIPE;
         }
+
+        return ret;
     }
 
     void Source::error(int errnum) {

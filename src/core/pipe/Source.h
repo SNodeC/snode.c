@@ -21,7 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
+#include <cstddef>     // for std::size_t
+#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -34,12 +35,12 @@ namespace core::pipe {
         Source();
         virtual ~Source();
 
-        virtual void sinkDisconnected() = 0;
+        //        virtual void sinkDisconnected() = 0;
 
         void connect(Sink& sink);
         void disconnect(Sink& sink);
 
-        void send(const char* junk, std::size_t junkLen);
+        ssize_t send(const char* junk, std::size_t junkLen);
         void eof();
         void error(int errnum);
 

@@ -36,20 +36,12 @@ namespace core {
         disable();
     }
 
-    bool ReadEventReceiver::continueReadImmediately() const {
-        return false;
-    }
-
     void ReadEventReceiver::dispatchEvent() {
         readEvent();
     }
 
     void ReadEventReceiver::timeoutEvent() {
         readTimeout();
-    }
-
-    bool ReadEventReceiver::continueImmediately() const {
-        return continueReadImmediately();
     }
 
 } // namespace core

@@ -151,6 +151,10 @@ namespace core::socket::stream {
             SocketReader::doRead();
 
             onReceiveFromPeer();
+
+            if (SocketReader::hasBufferedData()) {
+                SocketReader::publish();
+            }
         }
 
         void writeEvent() final {

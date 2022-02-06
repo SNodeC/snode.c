@@ -33,7 +33,10 @@ namespace core::file {
     FileReader::FileReader(int fd, core::pipe::Sink& sink)
         : Descriptor(fd) {
         ReadEventReceiver::enable(fd);
+        ReadEventReceiver::suspend();
         Source::connect(sink);
+
+        publish();
     }
 
     FileReader* FileReader::connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
@@ -57,7 +60,13 @@ namespace core::file {
         ssize_t ret = core::system::read(getFd(), junk, MFREADSIZE);
 
         if (ret > 0) {
-            this->send(junk, static_cast<std::size_t>(ret));
+            if (this->send(junk, static_cast<std::size_t>(ret)) < 0) {
+                ReadEventReceiver::disable();
+            } else {
+                if (isEnabled()) {
+                    publish();
+                }
+            }
         } else {
             ReadEventReceiver::disable();
             if (ret == 0) {
@@ -72,18 +81,8 @@ namespace core::file {
         core::ReadEventReceiver::terminate();
     }
 
-    void FileReader::sinkDisconnected() {
-        if (ReadEventReceiver::isEnabled()) {
-            ReadEventReceiver::disable();
-        }
-    }
-
     void FileReader::unobservedEvent() {
         delete this;
-    }
-
-    bool FileReader::continueReadImmediately() const {
-        return true;
     }
 
 } // namespace core::file

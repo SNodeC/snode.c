@@ -78,7 +78,6 @@ namespace core {
 
     public:
         int getRegisteredFd();
-        virtual bool continueImmediately() const = 0;
 
         void enable(int fd);
         void disable();

@@ -105,7 +105,7 @@ namespace core::socket::stream {
             }
         }
 
-        bool continueReadImmediately() const override {
+        virtual bool hasBufferedData() const {
             return size > 0;
         }
 
