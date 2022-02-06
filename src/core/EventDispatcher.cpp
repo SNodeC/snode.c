@@ -69,16 +69,7 @@ namespace core {
                                });
     }
 
-    int EventDispatcher::getMaxFd() {
-        return std::accumulate(descriptorEventDispatcher.begin(),
-                               descriptorEventDispatcher.end(),
-                               -1,
-                               [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
-                                   return std::max(descriptorEventDispatcher->getMaxFd(), count);
-                               });
-    }
-
-    TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
+    TickStatus EventDispatcher::tick(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
@@ -126,12 +117,12 @@ namespace core {
             for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
                 eventDispatcher->stop();
             }
-            tickStatus = dispatch(2, true);
+            tickStatus = tick(2, true);
         } while (tickStatus == TickStatus::SUCCESS);
 
         do {
             timerEventDispatcher->stop();
-            tickStatus = dispatch(0, false);
+            tickStatus = tick(0, false);
         } while (tickStatus == TickStatus::SUCCESS);
     }
 

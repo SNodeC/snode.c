@@ -47,7 +47,6 @@ namespace core {
         observed();
 
         descriptorEventDispatcher.enable(this);
-
         enabled = true;
     }
 

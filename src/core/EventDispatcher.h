@@ -60,7 +60,7 @@ namespace core {
 
         void publish(core::Event* event);
 
-        TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
+        TickStatus tick(const utils::Timeval& tickTimeOut, bool stopped);
         void stop();
         void stopDescriptorEvents();
         void stopTimerEvents();

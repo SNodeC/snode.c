@@ -90,7 +90,7 @@ namespace core {
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
         tickCounter++;
 
-        TickStatus tickStatus = eventDispatcher.dispatch(tickTimeOut, stopped);
+        TickStatus tickStatus = eventDispatcher.tick(tickTimeOut, stopped);
 
         DynamicLoader::execDlCloseDeleyed();
 

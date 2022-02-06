@@ -28,8 +28,8 @@
 namespace core {
 
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const utils::Timeval& timeout)
-        : DescriptorEventReceiver(EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::EX),
-                        timeout) {
+        : DescriptorEventReceiver(
+              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::EX), timeout) {
     }
 
     void ExceptionalConditionEventReceiver::outOfBandTimeout() {
