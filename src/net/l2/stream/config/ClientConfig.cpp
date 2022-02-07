@@ -22,15 +22,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::l2::stream::config {
 
     ClientConfig::ClientConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , net::l2::ConfigRemote(baseSc)
-        , net::l2::ConfigLocal(baseSc)
+        , net::l2::config::ConfigRemote(baseSc)
+        , net::l2::config::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::l2::ConfigRemote::required();
+        net::l2::config::ConfigRemote::required();
     }
 
-} // namespace net::l2::stream
+} // namespace net::l2::stream::config

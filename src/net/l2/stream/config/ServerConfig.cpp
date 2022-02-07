@@ -22,14 +22,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::l2::stream::config {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , net::l2::ConfigLocal(baseSc)
+        , net::l2::config::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::l2::ConfigLocal::required();
+        net::l2::config::ConfigLocal::required();
     }
 
-} // namespace net::l2::stream
+} // namespace net::l2::stream::config

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_LEGACY_CLIENTCONFIG_H
-#define NET_IN6_STREAM_LEGACY_CLIENTCONFIG_H
+#ifndef NET_IN6_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
+#define NET_IN6_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
 
 #include "net/config/ConfigLegacy.h"
 #include "net/in6/stream/config/ClientConfig.h"
@@ -28,7 +28,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in6::stream::legacy {
+namespace net::in6::stream::legacy::config {
 
     class ClientConfig
         : public net::in6::stream::ClientConfig
@@ -40,6 +40,6 @@ namespace net::in6::stream::legacy {
         }
     };
 
-} // namespace net::in6::stream::legacy
+} // namespace net::in6::stream::legacy::config
 
-#endif // NET_IN6_STREAM_LEGACY_CLIENTCONFIG_H
+#endif // NET_IN6_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H

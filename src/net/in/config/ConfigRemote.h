@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_CONFIGREMOTE_H
-#define NET_IN_CONFIGREMOTE_H
+#ifndef NET_IN_CONFIG_CONFIGREMOTE_H
+#define NET_IN_CONFIG_CONFIGREMOTE_H
 
 #include "net/config/ConfigRemote.h"
 #include "net/in/SocketAddress.h"
@@ -58,4 +58,4 @@ namespace net::in::config {
 
 } // namespace net::in::config
 
-#endif // NET_IN_CONFIGREMOTE_H
+#endif // NET_IN_CONFIG_CONFIGREMOTE_H

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CLIENTCONFIG_H
-#define NET_UN_STREAM_CLIENTCONFIG_H
+#ifndef NET_UN_STREAM_CONFIG_CLIENTCONFIG_H
+#define NET_UN_STREAM_CONFIG_CLIENTCONFIG_H
 
 #include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
@@ -31,18 +31,18 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::un::stream::config {
 
     class ClientConfig
         : public net::config::ConfigBase
         , public net::config::ConfigBacklog
-        , public net::un::ConfigRemote
-        , public net::un::ConfigLocal
+        , public net::un::config::ConfigRemote
+        , public net::un::config::ConfigLocal
         , public net::config::ConfigConnection {
     public:
         explicit ClientConfig(const std::string& name);
     };
 
-} // namespace net::un::stream
+} // namespace net::un::stream::config
 
-#endif // NET_UN_STREAM_CLIENTCONFIG_H
+#endif // NET_UN_STREAM_CONFIG_CLIENTCONFIG_H

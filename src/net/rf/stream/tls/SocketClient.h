@@ -30,8 +30,8 @@
 namespace net::rf::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketClient =
-        core::socket::stream::tls::SocketClient<net::rf::stream::ClientSocket, net::rf::stream::tls::ClientConfig, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::tls::
+        SocketClient<net::rf::stream::ClientSocket, net::rf::stream::tls::config::ClientConfig, SocketContextFactoryT>;
 
 } // namespace net::rf::stream::tls
 

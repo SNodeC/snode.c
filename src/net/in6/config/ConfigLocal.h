@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_CONFIGLOCAL_H
-#define NET_IN6_CONFIGLOCAL_H
+#ifndef NET_IN6_CONFIG_CONFIGLOCAL_H
+#define NET_IN6_CONFIG_CONFIGLOCAL_H
 
 #include "net/config/ConfigLocal.h"
 #include "net/in6/SocketAddress.h"
@@ -34,7 +34,7 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6 {
+namespace net::in6::config {
 
     class ConfigLocal : public net::config::ConfigLocal<SocketAddress> {
     public:
@@ -56,6 +56,6 @@ namespace net::in6 {
         uint16_t bindPort = 0;
     };
 
-} // namespace net::in6
+} // namespace net::in6::config
 
-#endif // NET_IN6_CONFIGLOCAL_H
+#endif // NET_IN6_CONFIG_CONFIGLOCAL_H

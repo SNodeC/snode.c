@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_CONFIGLOCAL_H
-#define NET_IN_CONFIGLOCAL_H
+#ifndef NET_IN_CONFIG_CONFIGLOCAL_H
+#define NET_IN_CONFIG_CONFIGLOCAL_H
 
 #include "net/config/ConfigLocal.h"
 #include "net/in/SocketAddress.h"
@@ -57,4 +57,4 @@ namespace net::in::config {
     };
 } // namespace net::in::config
 
-#endif // NET_IN_CONFIGLOCAL_H
+#endif // NET_IN_CONFIG_CONFIGLOCAL_H

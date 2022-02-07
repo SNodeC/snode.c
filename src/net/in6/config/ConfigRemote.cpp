@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6 {
+namespace net::in6::config {
 
     ConfigRemote::ConfigRemote(CLI::App* baseSc) {
         connectSc = baseSc->add_subcommand("remote");
@@ -67,4 +67,4 @@ namespace net::in6 {
         }
     }
 
-} // namespace net::in6
+} // namespace net::in6::config

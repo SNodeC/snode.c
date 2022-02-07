@@ -22,14 +22,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::un::stream::config {
     ClientConfig::ClientConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , net::un::ConfigRemote(baseSc)
-        , net::un::ConfigLocal(baseSc)
+        , net::un::config::ConfigRemote(baseSc)
+        , net::un::config::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::un::ConfigRemote::required();
+        net::un::config::ConfigRemote::required();
     }
 
-} // namespace net::un::stream
+} // namespace net::un::stream::config

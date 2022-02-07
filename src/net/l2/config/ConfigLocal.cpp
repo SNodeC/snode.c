@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2 {
+namespace net::l2::config {
 
     ConfigLocal::ConfigLocal(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("local");
@@ -67,4 +67,4 @@ namespace net::l2 {
         }
     }
 
-} // namespace net::l2
+} // namespace net::l2::config

@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un {
+namespace net::un::config {
 
     ConfigRemote::ConfigRemote(CLI::App* baseSc) {
         connectSc = baseSc->add_subcommand("remote");
@@ -57,4 +57,4 @@ namespace net::un {
         }
     }
 
-} // namespace net::un
+} // namespace net::un::config

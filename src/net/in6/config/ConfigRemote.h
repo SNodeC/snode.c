@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_CONFIGREMOTE_H
-#define NET_IN6_CONFIGREMOTE_H
+#ifndef NET_IN6_CONFIG_CONFIGREMOTE_H
+#define NET_IN6_CONFIG_CONFIGREMOTE_H
 
 #include "net/config/ConfigRemote.h"
 #include "net/in6/SocketAddress.h"
@@ -34,7 +34,7 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6 {
+namespace net::in6::config {
 
     class ConfigRemote : public net::config::ConfigRemote<SocketAddress> {
     public:
@@ -56,6 +56,6 @@ namespace net::in6 {
         uint16_t connectPort = 0;
     };
 
-} // namespace net::in6
+} // namespace net::in6::config
 
-#endif // NET_IN6_CONFIGREMOTE_H
+#endif // NET_IN6_CONFIG_CONFIGREMOTE_H

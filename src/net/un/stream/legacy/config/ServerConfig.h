@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_LEGACY_SERVERCONFIG_H
-#define NET_UN_STREAM_LEGACY_SERVERCONFIG_H
+#ifndef NET_UN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
+#define NET_UN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
 
 #include "net/config/ConfigLegacy.h"
 #include "net/un/stream/config/ServerConfig.h"
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::un::stream::legacy {
+namespace net::un::stream::legacy::config {
 
     class ServerConfig
-        : public net::un::stream::ServerConfig
+        : public net::un::stream::config::ServerConfig
         , public net::config::ConfigLegacy {
     public:
         explicit ServerConfig(const std::string& name)
-            : net::un::stream::ServerConfig(name)
+            : net::un::stream::config::ServerConfig(name)
             , net::config::ConfigLegacy(baseSc) {
         }
     };
 
-} // namespace net::un::stream::legacy
+} // namespace net::un::stream::legacy::config
 
-#endif // NET_UN_STREAM_TLS_SERVERCONFIG_H
+#endif // NET_UN_STREAM_TLS_CONFIG_SERVERCONFIG_H

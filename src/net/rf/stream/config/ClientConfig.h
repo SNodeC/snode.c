@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_CLIENTCONFIG_H
-#define NET_RF_STREAM_CLIENTCONFIG_H
+#ifndef NET_RF_STREAM_CONFIG_CLIENTCONFIG_H
+#define NET_RF_STREAM_CONFIG_CLIENTCONFIG_H
 
 #include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
@@ -31,18 +31,18 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net::rf::stream::config {
 
     class ClientConfig
         : public net::config::ConfigBase
         , public net::config::ConfigBacklog
-        , public net::rf::ConfigRemote
-        , public net::rf::ConfigLocal
+        , public net::rf::config::ConfigRemote
+        , public net::rf::config::ConfigLocal
         , public net::config::ConfigConnection {
     public:
         explicit ClientConfig(const std::string& name);
     };
 
-} // namespace net::rf::stream
+} // namespace net::rf::stream::config
 
-#endif // NET_RF_STREAM_CLIENTCONFIG_H
+#endif // NET_RF_STREAM_CONFIG_CLIENTCONFIG_H

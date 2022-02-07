@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_TLS_CLIENTCONFIG_H
-#define NET_IN6_STREAM_TLS_CLIENTCONFIG_H
+#ifndef NET_IN6_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#define NET_IN6_STREAM_TLS_CONFIG_CLIENTCONFIG_H
 
 #include "net/config/ConfigTls.h"               // IWYU pragma: export
 #include "net/in6/stream/config/ClientConfig.h" // IWYU pragma: export
@@ -28,7 +28,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in6::stream::tls {
+namespace net::in6::stream::tls::config {
 
     class ClientConfig
         : public net::in6::stream::ClientConfig
@@ -40,6 +40,6 @@ namespace net::in6::stream::tls {
         }
     };
 
-} // namespace net::in6::stream::tls
+} // namespace net::in6::stream::tls::config
 
-#endif // NET_IN6_STREAM_TLS_CLIENTCONFIG_H
+#endif // NET_IN6_STREAM_TLS_CONFIG_CLIENTCONFIG_H

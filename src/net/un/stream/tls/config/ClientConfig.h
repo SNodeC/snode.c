@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_TLS_CLIENTCONFIG_H
-#define NET_UN_STREAM_TLS_CLIENTCONFIG_H
+#ifndef NET_UN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#define NET_UN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
 
 #include "net/config/ConfigTls.h"              // IWYU pragma: export
 #include "net/un/stream/config/ClientConfig.h" // IWYU pragma: export
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::un::stream::tls {
+namespace net::un::stream::tls::config {
 
     class ClientConfig
-        : public net::un::stream::ClientConfig
+        : public net::un::stream::config::ClientConfig
         , public net::config::ConfigTls {
     public:
         explicit ClientConfig(const std::string& name)
-            : net::un::stream::ClientConfig(name)
+            : net::un::stream::config::ClientConfig(name)
             , net::config::ConfigTls(baseSc) {
         }
     };
 
-} // namespace net::un::stream::tls
+} // namespace net::un::stream::tls::config
 
-#endif // NET_UN_STREAM_TLS_CLIENTCONFIG_H
+#endif // NET_UN_STREAM_TLS_CONFIG_CLIENTCONFIG_H

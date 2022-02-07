@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_LEGACY_CLIENTCONFIG_H
-#define NET_L2_STREAM_LEGACY_CLIENTCONFIG_H
+#ifndef NET_L2_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
+#define NET_L2_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
 
 #include "net/config/ConfigLegacy.h"
 #include "net/l2/stream/config/ClientConfig.h"
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::l2::stream::legacy {
+namespace net::l2::stream::legacy::config {
 
     class ClientConfig
-        : public net::l2::stream::ClientConfig
+        : public net::l2::stream::config::ClientConfig
         , public net::config::ConfigLegacy {
     public:
         explicit ClientConfig(const std::string& name)
-            : net::l2::stream::ClientConfig(name)
+            : net::l2::stream::config::ClientConfig(name)
             , net::config::ConfigLegacy(baseSc) {
         }
     };
 
-} // namespace net::l2::stream::legacy
+} // namespace net::l2::stream::legacy::config
 
-#endif // NET_L2_STREAM_LEGACY_CLIENTCONFIG_H
+#endif // NET_L2_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H

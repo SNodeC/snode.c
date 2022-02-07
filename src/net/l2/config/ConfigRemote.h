@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_l2_CONFIGREMOTE_H
-#define NET_l2_CONFIGREMOTE_H
+#ifndef NET_l2_CONFIG_CONFIGREMOTE_H
+#define NET_l2_CONFIG_CONFIGREMOTE_H
 
 #include "net/config/ConfigRemote.h"
 #include "net/l2/SocketAddress.h"
@@ -34,7 +34,7 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2 {
+namespace net::l2::config {
 
     class ConfigRemote : public net::config::ConfigRemote<SocketAddress> {
     public:
@@ -56,6 +56,6 @@ namespace net::l2 {
         uint16_t connectPsm = 0;
     };
 
-} // namespace net::l2
+} // namespace net::l2::config
 
-#endif // NET_L2_CONFIGREMOTE_H
+#endif // NET_L2_CONFIG_CONFIGREMOTE_H

@@ -22,15 +22,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net::rf::stream::config {
 
     ClientConfig::ClientConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , net::rf::ConfigRemote(baseSc)
-        , net::rf::ConfigLocal(baseSc)
+        , net::rf::config::ConfigRemote(baseSc)
+        , net::rf::config::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::rf::ConfigRemote::required();
+        net::rf::config::ConfigRemote::required();
     }
 
-} // namespace net::rf::stream
+} // namespace net::rf::stream::config

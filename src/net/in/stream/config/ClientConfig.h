@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_CLIENTCONFIG_H
-#define NET_IN_STREAM_CLIENTCONFIG_H
+#ifndef NET_IN_STREAM_CONFIG_CLIENTCONFIG_H
+#define NET_IN_STREAM_CONFIG_CLIENTCONFIG_H
 
 #include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {
+namespace net::in::stream::config {
 
     class ClientConfig
         : public net::config::ConfigBase
@@ -43,6 +43,6 @@ namespace net::in::stream {
         explicit ClientConfig(const std::string& name);
     };
 
-} // namespace net::in::stream
+} // namespace net::in::stream::config
 
-#endif // NET_IN_STREAM_CLIENTCONFIG_H
+#endif // NET_IN_STREAM_CONFIG_CLIENTCONFIG_H

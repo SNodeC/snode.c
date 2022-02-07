@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un {
+namespace net::un::config {
 
     ConfigLocal::ConfigLocal(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("local");
@@ -57,4 +57,4 @@ namespace net::un {
         }
     }
 
-} // namespace net::un
+} // namespace net::un::config

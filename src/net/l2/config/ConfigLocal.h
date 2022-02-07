@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_CONFIGLOCAL_H
-#define NET_L2_CONFIGLOCAL_H
+#ifndef NET_L2_CONFIG_CONFIGLOCAL_H
+#define NET_L2_CONFIG_CONFIGLOCAL_H
 
 #include "net/config/ConfigLocal.h"
 #include "net/l2/SocketAddress.h"
@@ -34,7 +34,7 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2 {
+namespace net::l2::config {
 
     class ConfigLocal : public net::config::ConfigLocal<SocketAddress> {
     public:
@@ -56,6 +56,6 @@ namespace net::l2 {
         uint16_t bindPsm = 0;
     };
 
-} // namespace net::l2
+} // namespace net::l2::config
 
-#endif // NET_L2_CONFIGLOCAL_H
+#endif // NET_L2_CONFIG_CONFIGLOCAL_H

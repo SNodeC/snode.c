@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_TLS_CLIENTCONFIG_H
-#define NET_IN_STREAM_TLS_CLIENTCONFIG_H
+#ifndef NET_IN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#define NET_IN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
 
-#include "net/config/ConfigTls.h"       // IWYU pragma: export
+#include "net/config/ConfigTls.h"              // IWYU pragma: export
 #include "net/in/stream/config/ClientConfig.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in::stream::tls {
+namespace net::in::stream::tls::config {
 
     class ClientConfig
-        : public net::in::stream::ClientConfig
+        : public net::in::stream::config::ClientConfig
         , public net::config::ConfigTls {
     public:
         explicit ClientConfig(const std::string& name)
-            : net::in::stream::ClientConfig(name)
+            : net::in::stream::config::ClientConfig(name)
             , net::config::ConfigTls(baseSc) {
         }
     };
 
-} // namespace net::in::stream::tls
+} // namespace net::in::stream::tls::config
 
-#endif // NET_IN_STREAM_TLS_CLIENTCONFIG_H
+#endif // NET_IN_STREAM_TLS_CONFIG_CLIENTCONFIG_H

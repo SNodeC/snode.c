@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {
+namespace net::in::stream::config {
 
     ClientConfig::ClientConfig(const std::string& name)
         : net::config::ConfigBase(name)
@@ -33,4 +33,4 @@ namespace net::in::stream {
         net::in::config::ConfigRemote::required();
     }
 
-} // namespace net::in::stream
+} // namespace net::in::stream::config

@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::rf::stream::tls {
+namespace net::rf::stream::tls::config {
 
     class ServerConfig
-        : public net::rf::stream::ServerConfig
+        : public net::rf::stream::config::ServerConfig
         , public net::config::ConfigTls {
     public:
         explicit ServerConfig(const std::string& name)
-            : net::rf::stream::ServerConfig(name)
+            : net::rf::stream::config::ServerConfig(name)
             , net::config::ConfigTls(baseSc) {
         }
     };
 
-} // namespace net::rf::stream::tls
+} // namespace net::rf::stream::tls::config
 
 #endif // NET_RF_STREAM_TLS_SERVERCONFIG_H

@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {
+namespace net::in::stream::config {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::config::ConfigBase(name)
@@ -32,4 +32,4 @@ namespace net::in::stream {
         net::in::config::ConfigLocal::required();
     }
 
-} // namespace net::in::stream
+} // namespace net::in::stream::config

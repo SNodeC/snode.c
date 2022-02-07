@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIGLOCAL_H
-#define NET_UN_STREAM_CONFIGLOCAL_H
+#ifndef NET_UN_STREAM_CONFIG_CONFIGLOCAL_H
+#define NET_UN_STREAM_CONFIG_CONFIGLOCAL_H
 
 #include "net/config/ConfigLocal.h"
 #include "net/un/SocketAddress.h"
@@ -33,7 +33,7 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un {
+namespace net::un::config {
 
     class ConfigLocal : public net::config::ConfigLocal<SocketAddress> {
     public:
@@ -53,6 +53,6 @@ namespace net::un {
         std::string bindSunPath = "";
     };
 
-} // namespace net::un
+} // namespace net::un::config
 
-#endif // NET_UN_STREAM_CONFIGLOCAL_H
+#endif // NET_UN_STREAM_CONFIG_CONFIGLOCAL_H

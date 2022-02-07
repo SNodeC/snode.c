@@ -22,14 +22,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net::rf::stream::config {
 
     ServerConfig::ServerConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , net::rf::ConfigLocal(baseSc)
+        , net::rf::config::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::rf::ConfigLocal::required();
+        net::rf::config::ConfigLocal::required();
     }
 
-} // namespace net::rf::stream
+} // namespace net::rf::stream::config

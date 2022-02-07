@@ -22,13 +22,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::un::stream::config {
     ServerConfig::ServerConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , net::un::ConfigLocal(baseSc)
+        , net::un::config::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::un::ConfigLocal::required();
+        net::un::config::ConfigLocal::required();
     }
 
-} // namespace net::un::stream
+} // namespace net::un::stream::config

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_LEGACY_SERVERCONFIG_H
-#define NET_IN_STREAM_LEGACY_SERVERCONFIG_H
+#ifndef NET_IN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
+#define NET_IN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
 
 #include "net/config/ConfigLegacy.h"
 #include "net/in/stream/config/ServerConfig.h"
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in::stream::legacy {
+namespace net::in::stream::legacy::config {
 
     class ServerConfig
-        : public net::in::stream::ServerConfig
+        : public net::in::stream::config::ServerConfig
         , public net::config::ConfigLegacy {
     public:
         explicit ServerConfig(const std::string& name)
-            : net::in::stream::ServerConfig(name)
+            : net::in::stream::config::ServerConfig(name)
             , net::config::ConfigLegacy(baseSc) {
         }
     };
 
-} // namespace net::in::stream::legacy
+} // namespace net::in::stream::legacy::config
 
-#endif // NET_IN_STREAM_LEGACY_SERVERCONFIG_H
+#endif // NET_IN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H

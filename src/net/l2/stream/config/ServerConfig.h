@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_SERVERCONFIG_H
-#define NET_L2_STREAM_SERVERCONFIG_H
+#ifndef NET_L2_STREAM_CONFIG_SERVERCONFIG_H
+#define NET_L2_STREAM_CONFIG_SERVERCONFIG_H
 
 #include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
@@ -30,17 +30,17 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::l2::stream::config {
 
     class ServerConfig
         : public net::config::ConfigBase
         , public net::config::ConfigBacklog
-        , public net::l2::ConfigLocal
+        , public net::l2::config::ConfigLocal
         , public net::config::ConfigConnection {
     public:
         explicit ServerConfig(const std::string& name);
     };
 
-} // namespace net::l2::stream
+} // namespace net::l2::stream::config
 
-#endif
+#endif // NET_L2_STREAM_CONFIG_SERVERCONFIG_H

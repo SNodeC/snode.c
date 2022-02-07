@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_CONFIGREMOTE_H
-#define NET_RF_STREAM_CONFIGREMOTE_H
+#ifndef NET_RF_STREAM_CONFIG_CONFIGREMOTE_H
+#define NET_RF_STREAM_CONFIG_CONFIGREMOTE_H
 
 #include "net/config/ConfigRemote.h"
 #include "net/rf/SocketAddress.h"
@@ -34,7 +34,7 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf {
+namespace net::rf::config {
 
     class ConfigRemote : public net::config::ConfigRemote<SocketAddress> {
     public:
@@ -56,6 +56,6 @@ namespace net::rf {
         uint8_t connectChannel = 0;
     };
 
-} // namespace net::rf
+} // namespace net::rf::config
 
-#endif // NET_RF_STREAM_CONFIGREMOTE_H
+#endif // NET_RF_STREAM_CONFIG_CONFIGREMOTE_H

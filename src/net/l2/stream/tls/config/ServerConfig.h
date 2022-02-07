@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::l2::stream::tls {
+namespace net::l2::stream::tls::config {
 
     class ServerConfig
-        : public net::l2::stream::ServerConfig
+        : public net::l2::stream::config::ServerConfig
         , public net::config::ConfigTls {
     public:
         explicit ServerConfig(const std::string& name)
-            : net::l2::stream::ServerConfig(name)
+            : net::l2::stream::config::ServerConfig(name)
             , net::config::ConfigTls(baseSc) {
         }
     };
 
-} // namespace net::l2::stream::tls
+} // namespace net::l2::stream::tls::config
 
 #endif // NET_L2_STREAM_TLS_SERVERCONFIG_H
