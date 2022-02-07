@@ -32,19 +32,6 @@ namespace core {
     utils::Timeval TimerEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout({LONG_MAX, 0});
 
-        for (TimerEventReceiver* timer : addedList) {
-            timerList.push_back(timer);
-            timerListDirty = true;
-        }
-        addedList.clear();
-
-        for (TimerEventReceiver* timer : removedList) {
-            timerList.remove(timer);
-            timer->unobservedEvent();
-            timerListDirty = true;
-        }
-        removedList.clear();
-
         if (!timerList.empty()) {
             if (timerListDirty) {
                 timerList.sort(core::TimerEventDispatcher::timernode_lt());
@@ -63,6 +50,14 @@ namespace core {
         return nextTimeout;
     }
 
+    void TimerEventDispatcher::observeEnabledEvents() {
+        for (TimerEventReceiver* timer : addedList) {
+            timerList.push_back(timer);
+            timerListDirty = true;
+        }
+        addedList.clear();
+    }
+
     void TimerEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
@@ -71,6 +66,15 @@ namespace core {
                 break;
             }
         }
+    }
+
+    void TimerEventDispatcher::unobsereDisableEvents() {
+        for (TimerEventReceiver* timer : removedList) {
+            timerList.remove(timer);
+            timer->unobservedEvent();
+            timerListDirty = true;
+        }
+        removedList.clear();
     }
 
     void TimerEventDispatcher::remove(TimerEventReceiver* timer) {
@@ -89,15 +93,13 @@ namespace core {
     }
 
     void TimerEventDispatcher::stop() {
-        utils::Timeval currentTime = utils::Timeval::currentTime();
-
-        getNextTimeout(currentTime);
+        observeEnabledEvents();
 
         for (TimerEventReceiver* timer : timerList) {
             remove(timer);
         }
 
-        getNextTimeout(currentTime);
+        unobsereDisableEvents();
     }
 
     bool TimerEventDispatcher::timernode_lt::operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {

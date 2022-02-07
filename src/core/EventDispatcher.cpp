@@ -98,10 +98,7 @@ namespace core {
             utils::Timeval nextTimeout = 0;
 
             if (eventQueue.empty()) {
-                utils::Timeval nextEventTimeout = getNextTimeout(currentTime);
-                utils::Timeval nextTimerTimeout = timerEventDispatcher->getNextTimeout(currentTime);
-
-                nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
+                nextTimeout = getNextTimeout(currentTime);
 
                 nextTimeout = std::min(nextTimeout, tickTimeOut);
                 nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
@@ -111,9 +108,7 @@ namespace core {
 
             if (ret >= 0) {
                 currentTime = utils::Timeval::currentTime();
-
-                timerEventDispatcher->dispatchActiveEvents(currentTime);
-                dispatchActiveEvents(ret);
+                dispatchActiveEvents(ret, currentTime);
             } else {
                 if (errno != EINTR) {
                     tickStatus = TickStatus::ERROR;
@@ -158,6 +153,7 @@ namespace core {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             nextTimeout = std::min(eventDispatcher->getNextTimeout(currentTime), nextTimeout);
         }
+        nextTimeout = std::min(timerEventDispatcher->getNextTimeout(currentTime), nextTimeout);
 
         return nextTimeout;
     }
@@ -172,12 +168,19 @@ namespace core {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->observeEnabledEvents(currentTime);
         }
+        timerEventDispatcher->observeEnabledEvents();
+    }
+
+    void EventDispatcher::dispatchActiveEvents(int count, utils::Timeval& currentTime) {
+        timerEventDispatcher->dispatchActiveEvents(currentTime);
+        dispatchActiveEvents(count);
     }
 
     void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->unobserveDisabledEvents(currentTime);
         }
+        timerEventDispatcher->unobsereDisableEvents();
     }
 
     EventDispatcher::EventQueue::EventQueue()
