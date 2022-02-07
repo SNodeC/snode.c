@@ -201,11 +201,11 @@ namespace tls {
 
         SocketAddress remoteAddress("localhost", 8088);
 
-        client.connect(remoteAddress, [](int err) -> void {
+        client.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
             if (err) {
                 PLOG(ERROR) << "Connect: " + std::to_string(err);
             } else {
-                VLOG(0) << "Connected";
+                VLOG(0) << "Connected to " << socketAddress.toString();
             }
         });
 
@@ -246,11 +246,11 @@ namespace legacy {
 
         SocketAddress remoteAddress("localhost", 8080);
 
-        legacyClient.connect(remoteAddress, [](int err) -> void {
+        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
             } else {
-                VLOG(0) << "Connected";
+                VLOG(0) << "Connected to " << socketAddress.toString();
             }
         });
 
@@ -266,22 +266,23 @@ int main(int argc, char* argv[]) {
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
         legacy::SocketAddress legacyRemoteAddress("localhost", 8080);
-        legacyClient.connect(legacyRemoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
-            } else {
-                VLOG(0) << "Connected";
-            }
-        });
+        legacyClient.connect(legacyRemoteAddress,
+                             [](const legacy::SocketAddress& socketAddress, int err) -> void { // example.com:81 simulate connnect timeout
+                                 if (err) {
+                                     PLOG(ERROR) << "Connect: " << std::to_string(err);
+                                 } else {
+                                     VLOG(0) << "Connected to " << socketAddress.toString();
+                                 }
+                             });
 
         tls::SocketClient tlsClient = tls::getClient();
 
         tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
-        tlsClient.connect(tlsRemoteAddress, [](int err) -> void {
+        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int err) -> void {
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
             } else {
-                VLOG(0) << "Connected";
+                VLOG(0) << "Connected to " << socketAddress.toString();
             }
         });
     }

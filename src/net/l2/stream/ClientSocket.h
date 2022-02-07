@@ -36,15 +36,18 @@ namespace net::l2::stream {
     public:
         using core::socket::ClientSocket<net::l2::stream::Socket>::connect;
 
-        void connect(const std::string& address, uint16_t psm, const std::function<void(int)>& onError);
+        void connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void connect(const std::string& address, uint16_t psm, const std::string& bindAddress, const std::function<void(int)>& onError);
+        void connect(const std::string& address,
+                     uint16_t psm,
+                     const std::string& bindAddress,
+                     const std::function<void(const SocketAddress&, int)>& onError);
 
         void connect(const std::string& address,
                      uint16_t psm,
                      const std::string& bindAddress,
                      uint16_t bindPsm,
-                     const std::function<void(int)>& onError);
+                     const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::l2::stream

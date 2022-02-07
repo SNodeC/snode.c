@@ -24,7 +24,7 @@
 
 namespace net::un::stream {
 
-    void ClientSocket::connect(const std::string& sunPath, const std::function<void(int)>& onError) {
+    void ClientSocket::connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(sunPath), onError);
     }
 

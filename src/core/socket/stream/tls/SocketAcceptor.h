@@ -103,7 +103,7 @@ namespace core::socket::stream::tls {
         }
 
         void listen(const std::shared_ptr<ServerConfig>& serverConfig,
-                    const std::function<void(const SocketAddress& socketAddress, int)>& onError) {
+                    const std::function<void(const SocketAddress&, int)>& onError) {
             if (masterSslCtx == nullptr) {
                 errno = EINVAL;
                 onError(serverConfig->getLocalAddress(), errno);

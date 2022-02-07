@@ -36,18 +36,18 @@ namespace net::in::stream {
     public:
         using core::socket::ClientSocket<net::in::stream::Socket>::connect;
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError);
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError);
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      const std::string& bindIpOrHostname,
-                     const std::function<void(int)>& onError);
+                     const std::function<void(const SocketAddress&, int)>& onError);
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      const std::string& bindIpOrHostname,
                      uint16_t bindPort,
-                     const std::function<void(int)>& onError);
+                     const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::in::stream

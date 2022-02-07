@@ -24,14 +24,15 @@
 
 namespace net::in::stream {
 
-    void ClientSocket::connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+    void
+    ClientSocket::connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(ipOrHostname, port), onError);
     }
 
     void ClientSocket::connect(const std::string& ipOrHostname,
                                uint16_t port,
                                const std::string& bindIpOrHostname,
-                               const std::function<void(int)>& onError) {
+                               const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
     }
 
@@ -39,7 +40,7 @@ namespace net::in::stream {
                                uint16_t port,
                                const std::string& bindIpOrHostname,
                                uint16_t bindPort,
-                               const std::function<void(int)>& onError) {
+                               const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
     }
 

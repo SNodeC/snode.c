@@ -35,7 +35,7 @@ namespace net::un::stream {
     public:
         using core::socket::ClientSocket<net::un::stream::Socket>::connect;
 
-        void connect(const std::string& sunPath, const std::function<void(int)>& onError);
+        void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::un::stream

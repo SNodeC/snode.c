@@ -73,7 +73,8 @@ namespace core::socket::stream {
 
         virtual ~SocketConnector() = default;
 
-        void connect(const std::shared_ptr<ClientConfig>& clientConfig, const std::function<void(int)>& onError) {
+        void connect(const std::shared_ptr<ClientConfig>& clientConfig,
+                     const std::function<void(const SocketAddress&, int)>& onError) {
             this->clientConfig = clientConfig;
             this->onError = onError;
 
@@ -85,12 +86,12 @@ namespace core::socket::stream {
             Socket::open(
                 [this](int errnum) -> void {
                     if (errnum > 0) {
-                        onError(errnum);
+                        onError(clientConfig->getRemoteAddress(), errnum);
                         destruct();
                     } else {
                         Socket::bind(clientConfig->getLocalAddress(), [this](int errnum) -> void {
                             if (errnum > 0) {
-                                onError(errnum);
+                                onError(clientConfig->getRemoteAddress(), errnum);
                                 destruct();
                             } else {
                                 int ret = core::system::connect(Socket::getFd(),
@@ -99,9 +100,9 @@ namespace core::socket::stream {
 
                                 if (ret == 0 || errno == EINPROGRESS) {
                                     enable(Socket::getFd());
-                                    onError(0);
+                                    onError(clientConfig->getRemoteAddress(), 0);
                                 } else {
-                                    onError(errno);
+                                    onError(clientConfig->getRemoteAddress(), errno);
                                     destruct();
                                 }
                             }
@@ -144,23 +145,23 @@ namespace core::socket::stream {
                                                                                       clientConfig->getTerminateTimeout());
 
                             onConnected(socketConnection);
-                            onError(0);
+                            onError(clientConfig->getRemoteAddress(), 0);
 
                             Socket::dontClose(true);
                             disable();
                         } else {
-                            onError(errno);
+                            onError(clientConfig->getRemoteAddress(), errno);
                             disable();
                         }
                     } else {
-                        onError(errno);
+                        onError(clientConfig->getRemoteAddress(), errno);
                         disable();
                     }
                 } else {
                     // Do nothing: connect() still in progress
                 }
             } else {
-                onError(errno);
+                onError(clientConfig->getRemoteAddress(), errno);
                 disable();
             }
         }
@@ -185,7 +186,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onDisconnect;
 
     protected:
-        std::function<void(int err)> onError;
+        std::function<void(const SocketAddress& socketAddress, int err)> onError;
 
         std::map<std::string, std::any> options;
     };

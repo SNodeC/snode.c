@@ -43,6 +43,8 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     {
+        using LegacySocketAddress = web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress;
+
         web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
             "legacy",
             [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
@@ -98,6 +100,8 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
+
+        using TLSSocketAddress = web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress;
 
         web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
             "tls",
@@ -200,15 +204,19 @@ int main(int argc, char* argv[]) {
             {{"CaFile", SERVERCAFILE}});
 
         //        legacyClient.connect("localhost", 8080, [](int err) -> void {
-        legacyClient.connect([](int err) -> void {
+        legacyClient.connect([](const LegacySocketAddress& socketAddress, int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
+            } else {
+                PLOG(INFO) << "Legacy App connected to " << socketAddress.toString();
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        tlsClient.connect("localhost", 8088, [](int err) -> void {
+        tlsClient.connect("localhost", 8088, [](const TLSSocketAddress& socketAddress, int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
+            } else {
+                PLOG(INFO) << "TLS App connected to " << socketAddress.toString();
             }
         }); // Connection:keep-alive\r\n\r\n"
     }

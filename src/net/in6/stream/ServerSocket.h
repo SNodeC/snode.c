@@ -38,15 +38,15 @@ namespace net::in6::stream {
     public:
         using core::socket::ServerSocket<net::in6::stream::Socket>::listen;
 
-        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress& socketAddress, int)>& onError);
+        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
         void
-        listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress& socketAddress, int)>& onError);
+        listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
         void listen(const std::string& ipOrHostname,
                     uint16_t port,
                     int backlog,
-                    const std::function<void(const SocketAddress& socketAddress, int)>& onError);
+                    const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::in6::stream

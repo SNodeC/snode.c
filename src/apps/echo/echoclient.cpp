@@ -39,13 +39,14 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 #endif
 
     using SocketClient = apps::echo::model::STREAM::EchoSocketClient;
+    using SocketAddress = SocketClient::SocketAddress;
     SocketClient client = apps::echo::model::STREAM::getClient(options);
 
-    client.connect([](int errnum) -> void {
+    client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
         if (errnum != 0) {
             PLOG(ERROR) << "OnError: " << errnum;
         } else {
-            VLOG(0) << "snode.c connected";
+            VLOG(0) << "snode.c connected to " << socketAddress.toString();
         }
     });
 

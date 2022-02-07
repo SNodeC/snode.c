@@ -37,7 +37,7 @@ namespace net::un::stream {
     public:
         using core::socket::ServerSocket<net::un::stream::Socket>::listen;
 
-        void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress& socketAddress, int)>& onError);
+        void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::un::stream

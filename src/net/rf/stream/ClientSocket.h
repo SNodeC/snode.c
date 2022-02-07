@@ -36,15 +36,19 @@ namespace net::rf::stream {
     public:
         using core::socket::ClientSocket<net::rf::stream::Socket>::connect;
 
-        void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError);
+        void
+        connect(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void connect(const std::string& address, uint8_t channel, const std::string& bindAddress, const std::function<void(int)>& onError);
+        void connect(const std::string& address,
+                     uint8_t channel,
+                     const std::string& bindAddress,
+                     const std::function<void(const SocketAddress&, int)>& onError);
 
         void connect(const std::string& address,
                      uint8_t channel,
                      const std::string& bindAddress,
                      uint8_t bindChannel,
-                     const std::function<void(int)>& onError);
+                     const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::rf::stream

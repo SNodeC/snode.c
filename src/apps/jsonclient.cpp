@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     using Response = web::http::client::Response;
     using Client = web::http::legacy::in::Client<Request, Response>;
     using SocketConnection = Client::SocketConnection;
+    using SocketAddress = Client::SocketAddress;
 
     Client jsonClient(
         "legacy",
@@ -96,15 +97,19 @@ int main(int argc, char* argv[]) {
                            socketConnection->getLocalAddress().toString();
         });
 
-    jsonClient.connect("localhost", 8080, [](int err) -> void {
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
+        } else {
+            PLOG(INFO) << "Connected to " << socketAddress.toString();
         }
     });
 
-    jsonClient.connect("localhost", 8080, [](int err) -> void {
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
+        } else {
+            PLOG(INFO) << "Connected to " << socketAddress.toString();
         }
     });
 

@@ -36,13 +36,14 @@ namespace core::socket {
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
 
-        virtual void connect(const std::function<void(int)>& onError) const = 0;
+        virtual void connect(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
-        virtual void connect(const typename Socket::SocketAddress& remoteAddress,
-                             const typename Socket::SocketAddress& bindAddress,
-                             const std::function<void(int)>& onError) const = 0;
+        virtual void connect(const SocketAddress& remoteAddress,
+                             const SocketAddress& bindAddress,
+                             const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
-        virtual void connect(const typename Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+        virtual void connect(const SocketAddress& remoteAddress,
+                             const std::function<void(const SocketAddress&, int)>& onError) const = 0;
     };
 
 } // namespace core::socket

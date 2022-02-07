@@ -68,16 +68,16 @@ namespace core::socket::stream::tls {
                               },
                               [this](void) -> void { // onTimeout
                                   LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                                  this->onError(ETIMEDOUT);
+                                  this->onError(this->clientConfig->getRemoteAddress(), ETIMEDOUT);
                               },
                               [this](int sslErr) -> void { // onError
                                   ssl_log("SSL/TLS initial handshake failed", sslErr);
-                                  this->onError(-sslErr);
+                                  this->onError(this->clientConfig->getRemoteAddress(), -sslErr);
                               });
                       } else {
                           socketConnection->close();
                           ssl_log_error("SSL/TLS initialization failed");
-                          this->onError(-SSL_ERROR_SSL);
+                          this->onError(this->clientConfig->getRemoteAddress(), -SSL_ERROR_SSL);
                       }
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -92,10 +92,11 @@ namespace core::socket::stream::tls {
             ssl_ctx_free(ctx);
         }
 
-        void connect(const std::shared_ptr<ClientConfig>& clientConfig, const std::function<void(int)>& onError) {
+        void connect(const std::shared_ptr<ClientConfig>& clientConfig,
+                     const std::function<void(const SocketAddress&, int)>& onError) {
             if (ctx == nullptr) {
                 errno = EINVAL;
-                onError(errno);
+                onError(clientConfig->getRemoteAddress(), errno);
                 Super::destruct();
             } else {
                 Super::connect(clientConfig, onError);
