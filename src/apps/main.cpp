@@ -21,6 +21,7 @@
 #include "config.h"
 #include "core/timer/IntervalTimer.h"
 #include "express/legacy/in/WebApp.h"
+#include "log/Logger.h"
 
 #include <fcntl.h>
 #include <iostream>
