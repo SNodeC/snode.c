@@ -20,7 +20,7 @@
 #define NET_UN_STREAM_LEGACY_SERVERCONFIG_H
 
 #include "net/config/ConfigLegacy.h"
-#include "net/un/stream/ServerConfig.h"
+#include "net/un/stream/config/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

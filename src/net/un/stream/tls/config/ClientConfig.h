@@ -19,8 +19,8 @@
 #ifndef NET_UN_STREAM_TLS_CLIENTCONFIG_H
 #define NET_UN_STREAM_TLS_CLIENTCONFIG_H
 
-#include "net/config/ConfigTls.h"       // IWYU pragma: export
-#include "net/un/stream/ClientConfig.h" // IWYU pragma: export
+#include "net/config/ConfigTls.h"              // IWYU pragma: export
+#include "net/un/stream/config/ClientConfig.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

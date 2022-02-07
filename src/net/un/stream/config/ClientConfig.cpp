@@ -16,19 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ServerConfig.h"
+#include "net/un/stream/config/ClientConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream {
-    ServerConfig::ServerConfig(const std::string& name)
+    ClientConfig::ClientConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
+        , net::un::ConfigRemote(baseSc)
         , net::un::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::un::ConfigLocal::required();
+        net::un::ConfigRemote::required();
     }
 
 } // namespace net::un::stream

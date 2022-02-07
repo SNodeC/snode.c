@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/ConfigLocal.h"
+#include "net/un/config/ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,34 +26,34 @@
 
 namespace net::un {
 
-    ConfigLocal::ConfigLocal(CLI::App* baseSc) {
-        bindSc = baseSc->add_subcommand("local");
-        bindSc->description("Bind options");
-        bindSc->configurable();
+    ConfigRemote::ConfigRemote(CLI::App* baseSc) {
+        connectSc = baseSc->add_subcommand("remote");
+        connectSc->description("Connect options");
+        connectSc->configurable();
 
-        bindSunPathOpt = bindSc->add_option("-p,--path", bindSunPath, "Unix domain socket");
-        bindSunPathOpt->type_name("[filesystem path]");
-        bindSunPathOpt->default_val("/tmp/sun.sock");
-        bindSunPathOpt->take_first();
-        bindSunPathOpt->configurable();
+        connectSunPathOpt = connectSc->add_option("-p,--path", connectSunPath, "Unix domain socket");
+        connectSunPathOpt->type_name("[filesystem path]");
+        connectSunPathOpt->default_val("/tmp/sun.sock");
+        connectSunPathOpt->take_first();
+        connectSunPathOpt->configurable();
     }
 
-    SocketAddress ConfigLocal::getAddress() const {
-        return net::un::SocketAddress(bindSunPath);
+    SocketAddress ConfigRemote::getAddress() const {
+        return SocketAddress(connectSunPath);
     }
 
-    void ConfigLocal::required() const {
-        bindSc->required();
-        bindSunPathOpt->required();
+    void ConfigRemote::required() const {
+        connectSc->required();
+        connectSunPathOpt->required();
     }
 
-    bool ConfigLocal::isPresent() const {
-        return bindSunPathOpt->count() > 0;
+    bool ConfigRemote::isPresent() const {
+        return connectSunPathOpt->count() > 0;
     }
 
-    void ConfigLocal::updateFromCommandLine() {
-        if (bindSunPathOpt->count() > 0) {
-            localAddress.setSunPath(bindSunPath);
+    void ConfigRemote::updateFromCommandLine() {
+        if (connectSunPathOpt->count() > 0) {
+            remoteAddress.setSunPath(connectSunPath);
         }
     }
 
