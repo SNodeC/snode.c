@@ -40,10 +40,8 @@ namespace web::http {
 
         using SocketContextUpgradeFactory = web::http::SocketContextUpgradeFactory<Request, Response>;
 
-        SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
-                             core::socket::SocketContext::Role role,
-                             SocketContextUpgradeFactory* socketContextUpgradeFactory)
-            : core::socket::SocketContext(socketConnection, role)
+        SocketContextUpgrade(core::socket::SocketConnection* socketConnection, SocketContextUpgradeFactory* socketContextUpgradeFactory)
+            : core::socket::SocketContext(socketConnection)
             , socketContextUpgradeFactory(socketContextUpgradeFactory) {
             socketContextUpgradeFactory->incRefCount();
         }

@@ -32,7 +32,7 @@ namespace web::http::client {
     SocketContext<Request, Response>::SocketContext(core::socket::SocketConnection* socketConnection,
                                                     const std::function<void(Request&, Response&)>& onResponse,
                                                     const std::function<void(int, const std::string&)>& onError)
-        : Super(socketConnection, Role::CLIENT)
+        : Super(socketConnection)
         , request(this)
         , response(this)
         , parser(

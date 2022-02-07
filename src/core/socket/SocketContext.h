@@ -45,12 +45,11 @@ namespace core::socket {
         enum class Role { SERVER, CLIENT };
 
     protected:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection, Role role);
+        explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
         virtual ~SocketContext() = default;
 
     public:
-        Role getRole() const;
         void setTimeout(const utils::Timeval& timeout);
 
         std::string getLocalAddressAsString() const;
@@ -78,8 +77,6 @@ namespace core::socket {
         virtual void onReadError(int errnum);
 
         core::socket::SocketConnection* socketConnection;
-
-        Role role;
 
         friend class core::socket::SocketConnection;
     };

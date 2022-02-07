@@ -32,7 +32,7 @@ namespace web::http::server {
     template <typename Request, typename Response>
     SocketContext<Request, Response>::SocketContext(core::socket::SocketConnection* socketConnection,
                                                     const std::function<void(Request&, Response&)>& onRequestReady)
-        : Super(socketConnection, Role::SERVER)
+        : Super(socketConnection)
         , onRequestReady(onRequestReady)
         , parser(
               this,

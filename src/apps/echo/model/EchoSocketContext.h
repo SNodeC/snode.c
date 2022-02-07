@@ -34,22 +34,17 @@ namespace apps::echo::model {
 
     class EchoSocketContext : public core::socket::SocketContext {
     public:
+        enum class Role { SERVER, CLIENT };
+
         explicit EchoSocketContext(core::socket::SocketConnection* socketConnection, Role role);
 
         void onConnected() override;
         void onDisconnected() override;
 
         void onReceiveFromPeer() override;
-    };
 
-    class EchoServerSocketContext : public EchoSocketContext {
-    public:
-        explicit EchoServerSocketContext(core::socket::SocketConnection* socketConnection);
-    };
-
-    class EchoClientSocketContext : public EchoSocketContext {
-    public:
-        explicit EchoClientSocketContext(core::socket::SocketConnection* socketConnection);
+    private:
+        Role role;
     };
 
     class EchoServerSocketContextFactory : public core::socket::SocketContextFactory {

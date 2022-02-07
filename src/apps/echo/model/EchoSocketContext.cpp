@@ -31,13 +31,14 @@
 namespace apps::echo::model {
 
     EchoSocketContext::EchoSocketContext(core::socket::SocketConnection* socketConnection, Role role)
-        : core::socket::SocketContext(socketConnection, role) {
+        : core::socket::SocketContext(socketConnection)
+        , role(role) {
     }
 
     void EchoSocketContext::onConnected() {
         VLOG(0) << "Echo connected";
 
-        if (getRole() == Role::CLIENT) {
+        if (role == Role::CLIENT) {
             sendToPeer("Hello peer! Nice to see you!!!");
         }
     }
@@ -58,20 +59,12 @@ namespace apps::echo::model {
         }
     }
 
-    EchoServerSocketContext::EchoServerSocketContext(core::socket::SocketConnection* socketConnection)
-        : EchoSocketContext(socketConnection, Role::SERVER) {
-    }
-
-    EchoClientSocketContext::EchoClientSocketContext(core::socket::SocketConnection* socketConnection)
-        : EchoSocketContext(socketConnection, Role::CLIENT) {
-    }
-
     core::socket::SocketContext* EchoServerSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
-        return new EchoServerSocketContext(socketConnection);
+        return new EchoSocketContext(socketConnection, EchoSocketContext::Role::SERVER);
     }
 
     core::socket::SocketContext* EchoClientSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
-        return new EchoClientSocketContext(socketConnection);
+        return new EchoSocketContext(socketConnection, EchoSocketContext::Role::CLIENT);
     }
 
 } // namespace apps::echo::model

@@ -66,12 +66,14 @@ namespace web::websocket {
         using Super::shutdownWrite;
 
     protected:
+        enum class Role { SERVER, CLIENT };
+
         SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
                              SubProtocol* subProtocol,
-                             core::socket::SocketContext::Role role)
-            : web::http::SocketContextUpgrade<Request, Response>(socketConnection, role, socketContextUpgradeFactory)
-            , Transmitter(role == core::socket::SocketContext::Role::CLIENT)
+                             Role role)
+            : web::http::SocketContextUpgrade<Request, Response>(socketConnection, socketContextUpgradeFactory)
+            , Transmitter(role == Role::CLIENT)
             , subProtocol(subProtocol) {
         }
 

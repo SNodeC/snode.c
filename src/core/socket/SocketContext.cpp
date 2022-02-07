@@ -28,9 +28,8 @@
 
 namespace core::socket {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection, Role role)
-        : socketConnection(socketConnection)
-        , role(role) {
+    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
+        : socketConnection(socketConnection) {
     }
 
     void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) {
@@ -67,10 +66,6 @@ namespace core::socket {
 
     void SocketContext::onDisconnected() {
         PLOG(INFO) << "Protocol disconnected";
-    }
-
-    SocketContext::Role SocketContext::getRole() const {
-        return role;
     }
 
     void SocketContext::shutdownRead() {
