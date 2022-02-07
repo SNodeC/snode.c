@@ -16,23 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
-#define NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
+#ifndef NET_IN6_STREAM_LEGACY_CLIENTCONFIG_H
+#define NET_IN6_STREAM_LEGACY_CLIENTCONFIG_H
 
-#include "core/socket/stream/tls/SocketClient.h"   // IWYU pragma: export
-#include "net/l2/stream/ClientSocket.h"            // IWYU pragma: export
-#include "net/l2/stream/tls/config/ClientConfig.h" // IWYU pragma: export
+#include "net/config/ConfigLegacy.h"
+#include "net/in6/stream/config/ClientConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <string>
 
-namespace net::l2::stream::tls {
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    template <typename SocketContextFactoryT>
-    using SocketClient =
-        core::socket::stream::tls::SocketClient<net::l2::stream::ClientSocket, net::l2::stream::tls::ClientConfig, SocketContextFactoryT>;
+namespace net::in6::stream::legacy {
 
-} // namespace net::l2::stream::tls
+    class ClientConfig
+        : public net::in6::stream::ClientConfig
+        , public net::config::ConfigLegacy {
+    public:
+        explicit ClientConfig(const std::string& name)
+            : net::in6::stream::ClientConfig(name)
+            , net::config::ConfigLegacy(baseSc) {
+        }
+    };
 
-#endif // NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
+} // namespace net::in6::stream::legacy
+
+#endif // NET_IN6_STREAM_LEGACY_CLIENTCONFIG_H

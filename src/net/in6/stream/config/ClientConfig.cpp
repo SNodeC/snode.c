@@ -16,23 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
-#define NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
-
-#include "core/socket/stream/tls/SocketClient.h"   // IWYU pragma: export
-#include "net/l2/stream/ClientSocket.h"            // IWYU pragma: export
-#include "net/l2/stream/tls/config/ClientConfig.h" // IWYU pragma: export
+#include "net/in6/stream/config/ClientConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream::tls {
+namespace net::in6::stream {
 
-    template <typename SocketContextFactoryT>
-    using SocketClient =
-        core::socket::stream::tls::SocketClient<net::l2::stream::ClientSocket, net::l2::stream::tls::ClientConfig, SocketContextFactoryT>;
+    ClientConfig::ClientConfig(const std::string& name)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
+        , net::in6::ConfigRemote(baseSc)
+        , net::in6::ConfigLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        net::in6::ConfigRemote::required();
+    }
 
-} // namespace net::l2::stream::tls
-
-#endif // NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
+} // namespace net::in6::stream

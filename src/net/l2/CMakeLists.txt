@@ -6,33 +6,33 @@ pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
     set(NET-L2_CPP
-        ConfigLocal.cpp
-        ConfigRemote.cpp
         SocketAddress.cpp
-        stream/ClientConfig.cpp
+        config/ConfigLocal.cpp
+        config/ConfigRemote.cpp
         stream/ClientSocket.cpp
-        stream/ServerConfig.cpp
         stream/ServerSocket.cpp
         stream/Socket.cpp
+        stream/config/ClientConfig.cpp
+        stream/config/ServerConfig.cpp
     )
 
     set(NET-L2_H
-        ConfigLocal.h
-        ConfigRemote.h
         SocketAddress.h
-        stream/ClientConfig.h
+        config/ConfigLocal.h
+        config/ConfigRemote.h
         stream/ClientSocket.h
-        stream/ServerConfig.h
         stream/ServerSocket.h
         stream/Socket.h
-        stream/legacy/ClientConfig.h
-        stream/legacy/ServerConfig.h
+        stream/config/ClientConfig.h
+        stream/config/ServerConfig.h
         stream/legacy/SocketClient.h
         stream/legacy/SocketServer.h
-        stream/tls/ClientConfig.h
-        stream/tls/ServerConfig.h
+        stream/legacy/config/ClientConfig.h
+        stream/legacy/config/ServerConfig.h
         stream/tls/SocketClient.h
         stream/tls/SocketServer.h
+        stream/tls/config/ClientConfig.h
+        stream/tls/config/ServerConfig.h
     )
 
     add_library(net-l2 SHARED ${NET-L2_CPP} ${NET-L2_H})

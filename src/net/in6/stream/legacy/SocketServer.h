@@ -19,9 +19,9 @@
 #ifndef NET_IN6_STREAM_LEGACY_SOCKETSERVER_H
 #define NET_IN6_STREAM_LEGACY_SOCKETSERVER_H
 
-#include "core/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
-#include "net/in6/stream/ServerSocket.h"            // IWYU pragma: export
-#include "net/in6/stream/legacy/ServerConfig.h"     // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketServer.h"    // IWYU pragma: export
+#include "net/in6/stream/ServerSocket.h"               // IWYU pragma: export
+#include "net/in6/stream/legacy/config/ServerConfig.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
