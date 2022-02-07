@@ -114,6 +114,10 @@ namespace core::socket::stream {
             return localAddress;
         }
 
+        int getDescriptor() const {
+            return SocketConnection::getFd();
+        }
+
     private:
         std::string getLocalAddressAsString() const final {
             return localAddress.toString();
