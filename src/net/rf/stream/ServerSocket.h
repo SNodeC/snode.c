@@ -42,10 +42,8 @@ namespace net::rf::stream {
 
         void listen(const std::string& address, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void listen(const std::string& address,
-                    uint8_t channel,
-                    int backlog,
-                    const std::function<void(const SocketAddress&, int)>& onError);
+        void
+        listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::rf::stream

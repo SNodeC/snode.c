@@ -29,7 +29,7 @@ namespace net::rf::stream {
         , net::ConfigBacklog(baseSc)
         , net::rf::ConfigRemote(baseSc)
         , net::rf::ConfigLocal(baseSc)
-        , net::ConfigConn(baseSc) {
+        , net::ConfigConnection(baseSc) {
         net::rf::ConfigRemote::required();
     }
 

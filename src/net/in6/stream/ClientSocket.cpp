@@ -24,9 +24,8 @@
 
 namespace net::in6::stream {
 
-    void ClientSocket::connect(const std::string& ipOrHostname,
-                               uint16_t port,
-                               const std::function<void(const SocketAddress&, int)>& onError) {
+    void
+    ClientSocket::connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(ipOrHostname, port), onError);
     }
 

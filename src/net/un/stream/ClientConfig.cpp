@@ -28,7 +28,7 @@ namespace net::un::stream {
         , net::ConfigBacklog(baseSc)
         , net::un::ConfigRemote(baseSc)
         , net::un::ConfigLocal(baseSc)
-        , net::ConfigConn(baseSc) {
+        , net::ConfigConnection(baseSc) {
         net::un::ConfigRemote::required();
     }
 

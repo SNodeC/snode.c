@@ -21,7 +21,7 @@
 
 #include "net/ConfigBacklog.h"
 #include "net/ConfigBase.h"
-#include "net/ConfigConn.h"
+#include "net/ConfigConnection.h"
 #include "net/in/ConfigLocal.h"
 #include "net/in/ConfigRemote.h"
 
@@ -38,7 +38,7 @@ namespace net::in::stream {
         , public net::ConfigBacklog
         , public net::in::ConfigRemote
         , public net::in::ConfigLocal
-        , public net::ConfigConn {
+        , public net::ConfigConnection {
     public:
         explicit ClientConfig(const std::string& name);
     };

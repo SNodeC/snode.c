@@ -36,9 +36,7 @@ namespace net::in6::stream {
     public:
         using core::socket::ClientSocket<net::in6::stream::Socket>::connect;
 
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::function<void(const SocketAddress&, int)>& onError);
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError);
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,

@@ -73,8 +73,7 @@ namespace core::socket::stream {
 
         virtual ~SocketConnector() = default;
 
-        void connect(const std::shared_ptr<ClientConfig>& clientConfig,
-                     const std::function<void(const SocketAddress&, int)>& onError) {
+        void connect(const std::shared_ptr<ClientConfig>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
             this->clientConfig = clientConfig;
             this->onError = onError;
 

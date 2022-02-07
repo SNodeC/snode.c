@@ -24,9 +24,7 @@
 
 namespace net::rf::stream {
 
-    void ClientSocket::connect(const std::string& address,
-                               uint8_t channel,
-                               const std::function<void(const SocketAddress&, int)>& onError) {
+    void ClientSocket::connect(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(address, channel), onError);
     }
 

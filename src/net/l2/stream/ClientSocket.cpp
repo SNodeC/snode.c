@@ -24,9 +24,7 @@
 
 namespace net::l2::stream {
 
-    void ClientSocket::connect(const std::string& address,
-                               uint16_t psm,
-                               const std::function<void(const SocketAddress&, int)>& onError) {
+    void ClientSocket::connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(address, psm), onError);
     }
 

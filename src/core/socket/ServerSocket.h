@@ -40,9 +40,8 @@ namespace core::socket {
     protected:
         virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
-        virtual void listen(const SocketAddress& bindAddress,
-                            int backlog,
-                            const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+        virtual void
+        listen(const SocketAddress& bindAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
     };
 
 } // namespace core::socket

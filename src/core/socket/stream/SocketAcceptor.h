@@ -82,8 +82,7 @@ namespace core::socket::stream {
 
         virtual ~SocketAcceptor() = default;
 
-        void listen(const std::shared_ptr<ServerConfig>& serverConfig,
-                    const std::function<void(const SocketAddress&, int)>& onError) {
+        void listen(const std::shared_ptr<ServerConfig>& serverConfig, const std::function<void(const SocketAddress&, int)>& onError) {
             this->serverConfig = serverConfig;
             this->onError = onError;
 

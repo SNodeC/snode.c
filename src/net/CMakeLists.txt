@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NET_CPP ConfigBase.cpp ConfigBacklog.cpp ConfigConn.cpp ConfigLegacy.cpp
-            ConfigTls.cpp
+set(NET_CPP ConfigBase.cpp ConfigBacklog.cpp ConfigConnection.cpp
+            ConfigLegacy.cpp ConfigTls.cpp
 )
 
 set(NET_H
     ConfigBase.h
     ConfigBacklog.h
-    ConfigConn.h
+    ConfigConnection.h
     ConfigLocal.h
     ConfigLegacy.h
     ConfigRemote.h

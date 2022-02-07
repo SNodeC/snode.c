@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ConfigConn.h"
+#include "net/ConfigConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,8 +26,8 @@
 
 namespace net {
 
-    ConfigConn::ConfigConn(CLI::App* baseSc) {
-        connectionSc = baseSc->add_subcommand("conn");
+    ConfigConnection::ConfigConnection(CLI::App* baseSc) {
+        connectionSc = baseSc->add_subcommand("connection");
         connectionSc->description("Options for established client connections");
         connectionSc->configurable();
 
@@ -62,23 +62,23 @@ namespace net {
         terminateTimeoutOpt->configurable();
     }
 
-    const utils::Timeval& ConfigConn::getReadTimeout() const {
+    const utils::Timeval& ConfigConnection::getReadTimeout() const {
         return readTimeout;
     }
 
-    const utils::Timeval& ConfigConn::getWriteTimeout() const {
+    const utils::Timeval& ConfigConnection::getWriteTimeout() const {
         return writeTimeout;
     }
 
-    std::size_t ConfigConn::getReadBlockSize() const {
+    std::size_t ConfigConnection::getReadBlockSize() const {
         return readBlockSize;
     }
 
-    std::size_t ConfigConn::getWriteBlockSize() const {
+    std::size_t ConfigConnection::getWriteBlockSize() const {
         return writeBlockSize;
     }
 
-    const utils::Timeval& ConfigConn::getTerminateTimeout() const {
+    const utils::Timeval& ConfigConnection::getTerminateTimeout() const {
         return terminateTimeout;
     }
 

@@ -28,9 +28,7 @@ namespace net::in6::stream {
         listen(SocketAddress(port), backlog, onError);
     }
 
-    void ServerSocket::listen(const std::string& ipOrHostname,
-                              int backlog,
-                              const std::function<void(const SocketAddress&, int)>& onError) {
+    void ServerSocket::listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
         listen(SocketAddress(ipOrHostname), backlog, onError);
     }
 

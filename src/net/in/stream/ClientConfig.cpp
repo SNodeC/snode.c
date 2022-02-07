@@ -29,7 +29,7 @@ namespace net::in::stream {
         , net::ConfigBacklog(baseSc)
         , net::in::ConfigRemote(baseSc)
         , net::in::ConfigLocal(baseSc)
-        , net::ConfigConn(baseSc) {
+        , net::ConfigConnection(baseSc) {
         net::in::ConfigRemote::required();
     }
 

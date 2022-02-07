@@ -40,13 +40,10 @@ namespace net::in::stream {
 
         void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void
-        listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void listen(const std::string& ipOrHostname,
-                    uint16_t port,
-                    int backlog,
-                    const std::function<void(const SocketAddress&, int)>& onError);
+        void
+        listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::in::stream

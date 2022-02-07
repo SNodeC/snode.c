@@ -42,8 +42,7 @@ namespace core::socket {
                              const SocketAddress& bindAddress,
                              const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
-        virtual void connect(const SocketAddress& remoteAddress,
-                             const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
     };
 
 } // namespace core::socket

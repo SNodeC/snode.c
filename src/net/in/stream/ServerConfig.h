@@ -21,7 +21,7 @@
 
 #include "net/ConfigBacklog.h"
 #include "net/ConfigBase.h"
-#include "net/ConfigConn.h"
+#include "net/ConfigConnection.h"
 #include "net/in/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,7 +36,7 @@ namespace net::in::stream {
         : public net::ConfigBase
         , public net::ConfigBacklog
         , public net::in::ConfigLocal
-        , public net::ConfigConn {
+        , public net::ConfigConnection {
     public:
         explicit ServerConfig(const std::string& name);
     };

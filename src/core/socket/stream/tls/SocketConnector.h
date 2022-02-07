@@ -92,8 +92,7 @@ namespace core::socket::stream::tls {
             ssl_ctx_free(ctx);
         }
 
-        void connect(const std::shared_ptr<ClientConfig>& clientConfig,
-                     const std::function<void(const SocketAddress&, int)>& onError) {
+        void connect(const std::shared_ptr<ClientConfig>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
             if (ctx == nullptr) {
                 errno = EINVAL;
                 onError(clientConfig->getRemoteAddress(), errno);

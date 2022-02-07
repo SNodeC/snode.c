@@ -28,7 +28,7 @@ namespace net::l2::stream {
         : net::ConfigBase(name)
         , net::ConfigBacklog(baseSc)
         , net::l2::ConfigLocal(baseSc)
-        , net::ConfigConn(baseSc) {
+        , net::ConfigConnection(baseSc) {
         net::l2::ConfigLocal::required();
     }
 

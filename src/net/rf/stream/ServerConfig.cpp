@@ -28,7 +28,7 @@ namespace net::rf::stream {
         : net::ConfigBase(name)
         , net::ConfigBacklog(baseSc)
         , net::rf::ConfigLocal(baseSc)
-        , net::ConfigConn(baseSc) {
+        , net::ConfigConnection(baseSc) {
         net::rf::ConfigLocal::required();
     }
 
