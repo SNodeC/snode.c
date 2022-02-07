@@ -54,4 +54,8 @@ namespace net::l2 {
         bindPsmOpt->required();
     }
 
+    bool ConfigLocal::isPresent() const {
+        return bindHostOpt->count() > 0 || bindPsmOpt->count() > 0;
+    }
+
 } // namespace net::l2

@@ -53,4 +53,8 @@ namespace net::in {
         bindPortOpt->required();
     }
 
+    bool ConfigLocal::isPresent() const {
+        return bindHostOpt->count() > 0 || bindPortOpt->count() > 0;
+    }
+
 } // namespace net::in

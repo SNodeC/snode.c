@@ -40,7 +40,7 @@ namespace net::in6 {
         connectPortOpt = connectSc->add_option("-p,--port", connectPort, "Port number");
         connectPortOpt->type_name("[uint16_t]");
         connectPortOpt->default_val(0);
-        connectHostOpt->take_first();
+        connectPortOpt->take_first();
         connectPortOpt->configurable();
     }
 
@@ -52,6 +52,10 @@ namespace net::in6 {
         connectSc->required();
         connectHostOpt->required();
         connectPortOpt->required();
+    }
+
+    bool ConfigRemote::isPresent() const {
+        return connectHostOpt->count() > 0 || connectPortOpt->count() > 0;
     }
 
 } // namespace net::in6

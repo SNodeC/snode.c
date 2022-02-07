@@ -47,4 +47,8 @@ namespace net::un {
         connectSunPathOpt->required();
     }
 
+    bool ConfigRemote::isPresent() const {
+        return connectSunPathOpt->count() > 0;
+    }
+
 } // namespace net::un

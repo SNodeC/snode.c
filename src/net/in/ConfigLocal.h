@@ -49,6 +49,7 @@ namespace net::in {
 
     private:
         SocketAddress getAddress() const override;
+        bool isPresent() const override;
 
         std::string bindHost = "";
         uint16_t bindPort = 0;

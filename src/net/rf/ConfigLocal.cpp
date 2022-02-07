@@ -54,4 +54,8 @@ namespace net::rf {
         bindChannelOpt->required();
     }
 
+    bool ConfigLocal::isPresent() const {
+        return bindHostOpt->count() > 0 || bindChannelOpt->count() > 0;
+    }
+
 } // namespace net::rf

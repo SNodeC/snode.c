@@ -47,4 +47,8 @@ namespace net::un {
         bindSunPathOpt->required();
     }
 
+    bool ConfigLocal::isPresent() const {
+        return bindSunPathOpt->count() > 0;
+    }
+
 } // namespace net::un

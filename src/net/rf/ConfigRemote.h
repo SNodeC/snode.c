@@ -49,6 +49,7 @@ namespace net::rf {
 
     private:
         SocketAddress getAddress() const override;
+        bool isPresent() const override;
 
         std::string connectHost = "";
         uint8_t connectChannel = 0;

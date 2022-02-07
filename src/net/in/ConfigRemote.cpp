@@ -54,4 +54,8 @@ namespace net::in {
         connectPortOpt->required();
     }
 
+    bool ConfigRemote::isPresent() const {
+        return connectHostOpt->count() > 0 || connectPortOpt->count() > 0;
+    }
+
 } // namespace net::in

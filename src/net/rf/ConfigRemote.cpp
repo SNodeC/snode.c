@@ -55,4 +55,8 @@ namespace net::rf {
         connectChannelOpt->required();
     }
 
+    bool ConfigRemote::isPresent() const {
+        return connectHostOpt->count() > 0 || connectChannelOpt->count() > 0;
+    }
+
 } // namespace net::rf

@@ -55,4 +55,8 @@ namespace net::l2 {
         connectPsmOpt->required();
     }
 
+    bool ConfigRemote::isPresent() const {
+        return connectHostOpt->count() > 0 || connectPsmOpt->count() > 0;
+    }
+
 } // namespace net::l2

@@ -42,6 +42,10 @@ namespace net {
 
                 remoteAddress = getAddress();
                 initialized = true;
+            } else if (isPresent()) {
+                utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
+
+                remoteAddress = getAddress();
             }
 
             return remoteAddress;
@@ -54,6 +58,7 @@ namespace net {
 
     private:
         virtual SocketAddress getAddress() const = 0;
+        virtual bool isPresent() const = 0;
 
         mutable SocketAddress remoteAddress;
         mutable bool initialized = false;

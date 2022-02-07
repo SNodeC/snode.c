@@ -40,12 +40,14 @@ namespace net::un {
         explicit ConfigRemote(CLI::App* baseSc);
 
     protected:
-        SocketAddress getAddress() const override;
-
         void required() const;
 
         CLI::App* connectSc = nullptr;
         CLI::Option* connectSunPathOpt = nullptr;
+
+    private:
+        SocketAddress getAddress() const override;
+        bool isPresent() const override;
 
         std::string connectSunPath = "";
     };

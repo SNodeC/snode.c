@@ -40,12 +40,14 @@ namespace net::un {
         explicit ConfigLocal(CLI::App* baseSc);
 
     protected:
-        net::un::SocketAddress getAddress() const override;
-
         void required() const;
 
         CLI::App* bindSc = nullptr;
         CLI::Option* bindSunPathOpt = nullptr;
+
+    private:
+        net::un::SocketAddress getAddress() const override;
+        bool isPresent() const override;
 
         std::string bindSunPath = "";
     };
