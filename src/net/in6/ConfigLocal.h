@@ -50,6 +50,7 @@ namespace net::in6 {
     private:
         SocketAddress getAddress() const override;
         bool isPresent() const override;
+        void updateFromCommandLine() override;
 
         std::string bindHost = "";
         uint16_t bindPort = 0;

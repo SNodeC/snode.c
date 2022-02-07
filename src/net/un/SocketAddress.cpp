@@ -44,12 +44,18 @@ namespace net::un {
     std::string bad_sunpath::message;
 
     SocketAddress::SocketAddress() {
+        std::memset(&sockAddr, 0, sizeof(sockAddr));
+
         sockAddr.sun_family = AF_UNIX;
     }
 
-    SocketAddress::SocketAddress(const std::string& sunPath) {
+    SocketAddress::SocketAddress(const std::string& sunPath)
+        : SocketAddress() {
+        setSunPath(sunPath);
+    }
+
+    void SocketAddress::setSunPath(const std::string& sunPath) {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
-            sockAddr.sun_family = AF_UNIX;
             std::strncpy(sockAddr.sun_path, sunPath.data(), sizeof(sockAddr.sun_path) - 1);
         } else {
             throw bad_sunpath(sunPath);

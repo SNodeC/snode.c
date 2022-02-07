@@ -59,4 +59,13 @@ namespace net::rf {
         return connectHostOpt->count() > 0 || connectChannelOpt->count() > 0;
     }
 
+    void ConfigRemote::updateFromCommandLine() {
+        if (connectHostOpt->count() > 0) {
+            remoteAddress.setAddress(connectHost);
+        }
+        if (connectChannelOpt->count() > 0) {
+            remoteAddress.setChannel(connectChannel);
+        }
+    }
+
 } // namespace net::rf

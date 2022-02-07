@@ -58,4 +58,13 @@ namespace net::rf {
         return bindHostOpt->count() > 0 || bindChannelOpt->count() > 0;
     }
 
+    void ConfigLocal::updateFromCommandLine() {
+        if (bindHostOpt->count() > 0) {
+            localAddress.setAddress(bindHost);
+        }
+        if (bindChannelOpt->count() > 0) {
+            localAddress.setChannel(bindChannel);
+        }
+    }
+
 } // namespace net::rf

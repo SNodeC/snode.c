@@ -58,4 +58,13 @@ namespace net::l2 {
         return bindHostOpt->count() > 0 || bindPsmOpt->count() > 0;
     }
 
+    void ConfigLocal::updateFromCommandLine() {
+        if (bindHostOpt->count() > 0) {
+            localAddress.setAddress(bindHost);
+        }
+        if (bindPsmOpt->count() > 0) {
+            localAddress.setPsm(bindPsm);
+        }
+    }
+
 } // namespace net::l2

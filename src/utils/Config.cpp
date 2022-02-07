@@ -129,7 +129,7 @@ namespace utils {
     }
 
     void Config::prepare() {
-        parse();
+        parse(app["--help"]->count() > 0 || app["--help-all"]->count() > 0);
 
         if (_dumpConfig) {
             std::ofstream confFile(app["--config"]->as<std::string>());

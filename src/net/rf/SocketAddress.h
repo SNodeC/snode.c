@@ -41,6 +41,9 @@ namespace net::rf {
         SocketAddress(const std::string& btAddress, uint8_t channel);
         explicit SocketAddress(uint8_t channel);
 
+        void setAddress(const std::string& btAddress);
+        void setChannel(uint8_t channel);
+
         uint8_t channel() const;
 
         std::string address() const override;

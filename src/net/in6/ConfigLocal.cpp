@@ -58,4 +58,13 @@ namespace net::in6 {
         return bindHostOpt->count() > 0 || bindPortOpt->count() > 0;
     }
 
+    void ConfigLocal::updateFromCommandLine() {
+        if (bindHostOpt->count() > 0) {
+            localAddress.setHost(bindHost);
+        }
+        if (bindPortOpt->count() > 0) {
+            localAddress.setPort(bindPort);
+        }
+    }
+
 } // namespace net::in6

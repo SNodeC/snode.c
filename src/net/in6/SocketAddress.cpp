@@ -46,22 +46,36 @@ namespace net::in6 {
     std::string bad_hostname::message;
 
     SocketAddress::SocketAddress() {
+        std::memset(&sockAddr, 0, sizeof(sockAddr));
+
         sockAddr.sin6_family = AF_INET6;
         sockAddr.sin6_addr = in6addr_any;
         sockAddr.sin6_port = 0;
     }
 
     SocketAddress::SocketAddress(const std::string& ipOrHostname)
-        : SocketAddress(ipOrHostname, 0) {
+        : SocketAddress() {
+        setHost(ipOrHostname);
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port) {
+    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port)
+        : SocketAddress() {
+        setHost(ipOrHostname);
+        setPort(port);
+    }
+
+    SocketAddress::SocketAddress(uint16_t port) {
+        sockAddr.sin6_family = AF_INET6;
+        sockAddr.sin6_addr = in6addr_any;
+        sockAddr.sin6_port = htons(port);
+    }
+
+    void SocketAddress::setHost(const std::string& ipOrHostname) {
         struct addrinfo hints {};
         struct addrinfo* res;
         struct addrinfo* resalloc;
 
         std::memset(&hints, 0, sizeof(hints));
-        std::memset(&sockAddr, 0, sizeof(sockAddr));
 
         /* We only care about IPV6 results */
         hints.ai_family = AF_INET6;
@@ -79,12 +93,7 @@ namespace net::in6 {
         while (res) {
             /* Check to make sure we have a valid AF_INET6 address */
             if (res->ai_family == AF_INET6) {
-                /* Use memcpy since we're going to free the res variable later */
-                memcpy(&sockAddr, res->ai_addr, res->ai_addrlen);
-
-                /* Here we convert the port to network byte order */
-                sockAddr.sin6_port = htons(port);
-                sockAddr.sin6_family = AF_INET6;
+                sockAddr.sin6_addr = reinterpret_cast<sockaddr_in6*>(res->ai_addr)->sin6_addr;
                 break;
             }
 
@@ -94,9 +103,7 @@ namespace net::in6 {
         core::system::freeaddrinfo(resalloc);
     }
 
-    SocketAddress::SocketAddress(uint16_t port) {
-        sockAddr.sin6_family = AF_INET6;
-        sockAddr.sin6_addr = in6addr_any;
+    void SocketAddress::setPort(uint16_t port) {
         sockAddr.sin6_port = htons(port);
     }
 

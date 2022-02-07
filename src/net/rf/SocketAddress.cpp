@@ -43,24 +43,34 @@ namespace net::rf {
     std::string bad_bdaddress::message;
 
     SocketAddress::SocketAddress() {
+        std::memset(&sockAddr, 0, sizeof(sockAddr));
+
         sockAddr.rc_family = AF_BLUETOOTH;
         sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
         sockAddr.rc_channel = (uint8_t) 0;
     }
 
-    SocketAddress::SocketAddress(const std::string& btAddress) {
-        sockAddr.rc_family = AF_BLUETOOTH;
-        str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
-        sockAddr.rc_channel = (uint8_t) 0;
+    SocketAddress::SocketAddress(const std::string& btAddress)
+        : SocketAddress() {
+        setAddress(btAddress);
     }
 
     SocketAddress::SocketAddress(uint8_t channel)
         : SocketAddress() {
-        sockAddr.rc_channel = channel;
+        setChannel(channel);
     }
 
     SocketAddress::SocketAddress(const std::string& btAddress, uint8_t channel)
-        : SocketAddress(btAddress) {
+        : SocketAddress() {
+        setAddress(btAddress);
+        setChannel(channel);
+    }
+
+    void SocketAddress::setAddress(const std::string& btAddress) {
+        str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
+    }
+
+    void SocketAddress::setChannel(uint8_t channel) {
         sockAddr.rc_channel = channel;
     }
 

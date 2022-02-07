@@ -36,32 +36,37 @@ namespace net {
         using SocketAddress = SocketAddressT;
 
     public:
-        const SocketAddress& getRemoteAddress() const {
+        const SocketAddress& getRemoteAddress() {
             if (!initialized) {
                 utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
 
                 remoteAddress = getAddress();
                 initialized = true;
-            } else if (isPresent()) {
-                utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
-
-                remoteAddress = getAddress();
+            } else if (!updated) {
+                updateFromCommandLine();
+                updated = true;
             }
 
             return remoteAddress;
         }
 
-        void setRemoteAddress(const SocketAddress& remoteAddress) const {
+        void setRemoteAddress(const SocketAddress& remoteAddress) {
             this->remoteAddress = remoteAddress;
             this->initialized = true;
         }
 
     private:
+        virtual void updateFromCommandLine() = 0;
+
         virtual SocketAddress getAddress() const = 0;
         virtual bool isPresent() const = 0;
 
-        mutable SocketAddress remoteAddress;
-        mutable bool initialized = false;
+    protected:
+        SocketAddress remoteAddress;
+
+    private:
+        bool initialized = false;
+        bool updated = false;
     };
 
 } // namespace net

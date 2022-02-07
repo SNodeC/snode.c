@@ -59,4 +59,13 @@ namespace net::l2 {
         return connectHostOpt->count() > 0 || connectPsmOpt->count() > 0;
     }
 
+    void ConfigRemote::updateFromCommandLine() {
+        if (connectHostOpt->count() > 0) {
+            remoteAddress.setAddress(connectHost);
+        }
+        if (connectPsmOpt->count() > 0) {
+            remoteAddress.setPsm(connectPsm);
+        }
+    }
+
 } // namespace net::l2

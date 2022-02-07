@@ -46,22 +46,35 @@ namespace net::in {
     std::string bad_hostname::message;
 
     SocketAddress::SocketAddress() {
+        memset(&sockAddr, 0, sizeof(sockAddr));
+
         sockAddr.sin_family = AF_INET;
         sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
         sockAddr.sin_port = 0;
     }
 
     SocketAddress::SocketAddress(const std::string& ipOrHostname)
-        : SocketAddress(ipOrHostname, 0) {
+        : SocketAddress() {
+        setHost(ipOrHostname);
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port) {
+    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port)
+        : SocketAddress() {
+        setHost(ipOrHostname);
+        setPort(port);
+    }
+
+    SocketAddress::SocketAddress(uint16_t port)
+        : SocketAddress() {
+        setPort(port);
+    }
+
+    void SocketAddress::setHost(const std::string& ipOrHostname) {
         struct addrinfo hints {};
         struct addrinfo* res;
         struct addrinfo* resalloc;
 
         memset(&hints, 0, sizeof(hints));
-        memset(&sockAddr, 0, sizeof(sockAddr));
 
         /* We only care about IPV6 results */
         hints.ai_family = AF_INET;
@@ -79,12 +92,7 @@ namespace net::in {
         while (res) {
             /* Check to make sure we have a valid AF_INET6 address */
             if (res->ai_family == AF_INET) {
-                /* Use memcpy since we're going to free the res variable later */
-                memcpy(&sockAddr, res->ai_addr, res->ai_addrlen);
-
-                /* Here we convert the port to network byte order */
-                sockAddr.sin_port = htons(port);
-                sockAddr.sin_family = AF_INET;
+                sockAddr.sin_addr.s_addr = reinterpret_cast<sockaddr_in*>(res->ai_addr)->sin_addr.s_addr;
                 break;
             }
 
@@ -94,10 +102,8 @@ namespace net::in {
         core::system::freeaddrinfo(resalloc);
     }
 
-    SocketAddress::SocketAddress(uint16_t port) {
-        sockAddr.sin_family = AF_INET;
+    void SocketAddress::setPort(uint16_t port) {
         sockAddr.sin_port = htons(port);
-        sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
 
     uint16_t SocketAddress::port() const {

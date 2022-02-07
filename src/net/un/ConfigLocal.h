@@ -48,6 +48,7 @@ namespace net::un {
     private:
         net::un::SocketAddress getAddress() const override;
         bool isPresent() const override;
+        void updateFromCommandLine() override;
 
         std::string bindSunPath = "";
     };

@@ -50,6 +50,7 @@ namespace net::rf {
     private:
         SocketAddress getAddress() const override;
         bool isPresent() const override;
+        void updateFromCommandLine() override;
 
         std::string bindHost = "";
         uint8_t bindChannel = 0;

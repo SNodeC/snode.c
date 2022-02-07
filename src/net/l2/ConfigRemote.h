@@ -50,6 +50,7 @@ namespace net::l2 {
     private:
         SocketAddress getAddress() const override;
         bool isPresent() const override;
+        void updateFromCommandLine() override;
 
         std::string connectHost = "";
         uint16_t connectPsm = 0;

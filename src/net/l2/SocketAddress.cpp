@@ -43,24 +43,34 @@ namespace net::l2 {
     std::string bad_bdaddress::message;
 
     SocketAddress::SocketAddress() {
+        std::memset(&sockAddr, 0, sizeof(sockAddr));
+
         sockAddr.l2_family = AF_BLUETOOTH;
         sockAddr.l2_bdaddr = {{0, 0, 0, 0, 0, 0}};
         sockAddr.l2_psm = htobs(0);
     }
 
-    SocketAddress::SocketAddress(const std::string& btAddress) {
-        sockAddr.l2_family = AF_BLUETOOTH;
-        str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
-        sockAddr.l2_psm = htobs(0);
+    SocketAddress::SocketAddress(const std::string& btAddress)
+        : SocketAddress() {
+        setAddress(btAddress);
     }
 
     SocketAddress::SocketAddress(uint16_t psm)
         : SocketAddress() {
-        sockAddr.l2_psm = htobs(psm);
+        setPsm(psm);
     }
 
     SocketAddress::SocketAddress(const std::string& btAddress, uint16_t psm)
-        : SocketAddress(btAddress) {
+        : SocketAddress() {
+        setAddress(btAddress);
+        setPsm(psm);
+    }
+
+    void SocketAddress::setAddress(const std::string& btAddress) {
+        str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
+    }
+
+    void SocketAddress::setPsm(uint16_t psm) {
         sockAddr.l2_psm = htobs(psm);
     }
 

@@ -51,4 +51,10 @@ namespace net::un {
         return bindSunPathOpt->count() > 0;
     }
 
+    void ConfigLocal::updateFromCommandLine() {
+        if (bindSunPathOpt->count() > 0) {
+            localAddress.setSunPath(bindSunPath);
+        }
+    }
+
 } // namespace net::un

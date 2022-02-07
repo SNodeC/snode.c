@@ -51,4 +51,10 @@ namespace net::un {
         return connectSunPathOpt->count() > 0;
     }
 
+    void ConfigRemote::updateFromCommandLine() {
+        if (connectSunPathOpt->count() > 0) {
+            remoteAddress.setSunPath(connectSunPath);
+        }
+    }
+
 } // namespace net::un

@@ -58,4 +58,13 @@ namespace net::in6 {
         return connectHostOpt->count() > 0 || connectPortOpt->count() > 0;
     }
 
+    void ConfigRemote::updateFromCommandLine() {
+        if (connectHostOpt->count() > 0) {
+            remoteAddress.setHost(connectHost);
+        }
+        if (connectPortOpt->count() > 0) {
+            remoteAddress.setPort(connectPort);
+        }
+    }
+
 } // namespace net::in6
