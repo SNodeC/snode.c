@@ -25,10 +25,10 @@
 namespace net::l2::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::ConfigBase(name)
-        , net::ConfigBacklog(baseSc)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
         , net::l2::ConfigLocal(baseSc)
-        , net::ConfigConnection(baseSc) {
+        , net::config::ConfigConnection(baseSc) {
         net::l2::ConfigLocal::required();
     }
 

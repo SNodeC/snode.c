@@ -16,30 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_LEGACY_CLIENTCONFIG_H
-#define NET_IN_STREAM_LEGACY_CLIENTCONFIG_H
-
-#include "net/ConfigLegacy.h"
-#include "net/in/stream/ClientConfig.h"
+#include "net/config/ConfigBacklog.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
+
 #include <string>
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream::legacy {
+namespace net::config {
 
-    class ClientConfig
-        : public net::in::stream::ClientConfig
-        , public net::ConfigLegacy {
-    public:
-        explicit ClientConfig(const std::string& name)
-            : net::in::stream::ClientConfig(name)
-            , net::ConfigLegacy(baseSc) {
+    ConfigBacklog::ConfigBacklog(CLI::App* baseSc) {
+        backlogOpt = baseSc->add_option("-b,--backlog", backlog, "Listen backlog");
+        backlogOpt->type_name("[backlog]");
+        backlogOpt->default_val(5);
+        backlogOpt->take_first();
+        backlogOpt->configurable();
+    }
+
+    int ConfigBacklog::getBacklog() const {
+        int backlog = this->backlog;
+
+        if (initialized) {
+            backlog = this->initBacklog;
         }
-    };
 
-} // namespace net::in::stream::legacy
+        return backlog;
+    }
 
-#endif // NET_IN_STREAM_LEGACY_CLIENTCONFIG_H
+    void ConfigBacklog::setBacklog(int backlog) const {
+        this->initBacklog = backlog;
+    }
+
+} // namespace net::config

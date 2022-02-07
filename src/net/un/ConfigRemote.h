@@ -19,7 +19,7 @@
 #ifndef NET_UN_STREAM_CONFIGREMOTE_H
 #define NET_UN_STREAM_CONFIGREMOTE_H
 
-#include "net/ConfigRemote.h"
+#include "net/config/ConfigRemote.h"
 #include "net/un/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,7 +35,7 @@ namespace CLI {
 
 namespace net::un {
 
-    class ConfigRemote : public net::ConfigRemote<SocketAddress> {
+    class ConfigRemote : public net::config::ConfigRemote<SocketAddress> {
     public:
         explicit ConfigRemote(CLI::App* baseSc);
 

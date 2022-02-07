@@ -16,30 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_TLS_CLIENTCONFIG_H
-#define NET_IN_STREAM_TLS_CLIENTCONFIG_H
-
-#include "net/ConfigTls.h"              // IWYU pragma: export
-#include "net/in/stream/ClientConfig.h" // IWYU pragma: export
+#ifndef NET_CONFIGBACKLOG_H
+#define NET_CONFIGBACKLOG_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream::tls {
+namespace net::config {
 
-    class ClientConfig
-        : public net::in::stream::ClientConfig
-        , public net::ConfigTls {
+    class ConfigBacklog {
     public:
-        explicit ClientConfig(const std::string& name)
-            : net::in::stream::ClientConfig(name)
-            , net::ConfigTls(baseSc) {
-        }
+        explicit ConfigBacklog(CLI::App* baseSc);
+
+        int getBacklog() const;
+
+        void setBacklog(int backlog) const;
+
+    private:
+        CLI::Option* backlogOpt = nullptr;
+
+        mutable int initBacklog;
+        int backlog;
+        mutable bool initialized = false;
     };
 
-} // namespace net::in::stream::tls
+} // namespace net::config
 
-#endif // NET_IN_STREAM_TLS_CLIENTCONFIG_H
+#endif // NET_CONFIGBACKLOG_H

@@ -25,10 +25,10 @@
 namespace net::in6::stream {
 
     ServerConfig::ServerConfig(const std::string& name)
-        : net::ConfigBase(name)
-        , net::ConfigBacklog(baseSc)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
         , net::in6::ConfigLocal(baseSc)
-        , net::ConfigConnection(baseSc) {
+        , net::config::ConfigConnection(baseSc) {
         net::in6::ConfigLocal::required();
     }
 

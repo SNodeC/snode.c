@@ -19,7 +19,7 @@
 #ifndef NET_IN6_STREAM_LEGACY_CLIENTCONFIG_H
 #define NET_IN6_STREAM_LEGACY_CLIENTCONFIG_H
 
-#include "net/ConfigLegacy.h"
+#include "net/config/ConfigLegacy.h"
 #include "net/in6/stream/ClientConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,11 +32,11 @@ namespace net::in6::stream::legacy {
 
     class ClientConfig
         : public net::in6::stream::ClientConfig
-        , public net::ConfigLegacy {
+        , public net::config::ConfigLegacy {
     public:
         explicit ClientConfig(const std::string& name)
             : net::in6::stream::ClientConfig(name)
-            , net::ConfigLegacy(baseSc) {
+            , net::config::ConfigLegacy(baseSc) {
         }
     };
 

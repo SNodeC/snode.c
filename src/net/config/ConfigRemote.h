@@ -25,7 +25,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net {
+namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigRemote {
@@ -69,6 +69,6 @@ namespace net {
         bool updated = false;
     };
 
-} // namespace net
+} // namespace net::config
 
 #endif // CONFIGREMOTE_H

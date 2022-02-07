@@ -19,7 +19,7 @@
 #ifndef NET_RF_STREAM_CONFIGLOCAL_H
 #define NET_RF_STREAM_CONFIGLOCAL_H
 
-#include "net/ConfigLocal.h"
+#include "net/config/ConfigLocal.h"
 #include "net/rf/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,7 +36,7 @@ namespace CLI {
 
 namespace net::rf {
 
-    class ConfigLocal : public net::ConfigLocal<SocketAddress> {
+    class ConfigLocal : public net::config::ConfigLocal<SocketAddress> {
     public:
         explicit ConfigLocal(CLI::App* baseSc);
 

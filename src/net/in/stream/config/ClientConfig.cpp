@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in/stream/ClientConfig.h"
+#include "net/in/stream/config/ClientConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,12 +25,12 @@
 namespace net::in::stream {
 
     ClientConfig::ClientConfig(const std::string& name)
-        : net::ConfigBase(name)
-        , net::ConfigBacklog(baseSc)
-        , net::in::ConfigRemote(baseSc)
-        , net::in::ConfigLocal(baseSc)
-        , net::ConfigConnection(baseSc) {
-        net::in::ConfigRemote::required();
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
+        , net::in::config::ConfigRemote(baseSc)
+        , net::in::config::ConfigLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        net::in::config::ConfigRemote::required();
     }
 
 } // namespace net::in::stream

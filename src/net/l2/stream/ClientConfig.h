@@ -19,9 +19,9 @@
 #ifndef NET_L2_STREAM_CLIENTCONFIG_H
 #define NET_L2_STREAM_CLIENTCONFIG_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConnection.h"
+#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
 #include "net/l2/ConfigLocal.h"
 #include "net/l2/ConfigRemote.h"
 
@@ -34,11 +34,11 @@
 namespace net::l2::stream {
 
     class ClientConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
+        : public net::config::ConfigBase
+        , public net::config::ConfigBacklog
         , public net::l2::ConfigRemote
         , public net::l2::ConfigLocal
-        , public net::ConfigConnection {
+        , public net::config::ConfigConnection {
     public:
         explicit ClientConfig(const std::string& name);
     };

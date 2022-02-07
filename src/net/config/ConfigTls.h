@@ -16,33 +16,39 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ConfigBase.h"
+#ifndef NET_CONFIGTLS_H
+#define NET_CONFIGTLS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-#include "utils/Config.h"
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
+
+#include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::config {
 
-    ConfigBase::ConfigBase(const std::string& name)
-        : name(name) {
-        baseSc = utils::Config::instance().add_subcommand(name, name + " configuration");
-        baseSc->configurable();
-        baseSc->fallthrough();
-        baseSc->required();
-    }
+    class ConfigTls {
+    public:
+        explicit ConfigTls(CLI::App* baseSc);
 
-    const std::string& ConfigBase::getName() const {
-        return name;
-    }
+        const utils::Timeval& getInitTimeout() const;
 
-    int ConfigBase::parse() const {
-        utils::Config::instance().parse();
+        const utils::Timeval& getShutdownTimeout() const;
 
-        return 0;
-    }
+    private:
+        CLI::App* tlsSc = nullptr;
+        CLI::Option* tlsInitTimeoutOpt = nullptr;
+        CLI::Option* tlsShutdownTimeoutOpt = nullptr;
 
-} // namespace net
+        utils::Timeval initTimeout;
+        utils::Timeval shutdownTimeout;
+    };
+
+} // namespace net::config
+
+#endif // NET_CONFIGTLS_H

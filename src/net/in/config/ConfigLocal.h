@@ -16,24 +16,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGLEGACY_H
-#define NET_CONFIGLEGACY_H
+#ifndef NET_IN_CONFIGLOCAL_H
+#define NET_IN_CONFIGLOCAL_H
+
+#include "net/config/ConfigLocal.h"
+#include "net/in/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
     class App;
+    class Option;
 } // namespace CLI
+
+#include <cstdint>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::in::config {
 
-    class ConfigLegacy {
+    class ConfigLocal : public net::config::ConfigLocal<net::in::SocketAddress> {
     public:
-        explicit ConfigLegacy(CLI::App* baseSc);
+        explicit ConfigLocal(CLI::App* baseSc);
+
+    protected:
+        void required() const;
+
+        CLI::App* bindSc = nullptr;
+        CLI::Option* bindHostOpt = nullptr;
+        CLI::Option* bindPortOpt = nullptr;
+
+    private:
+        SocketAddress getAddress() const override;
+        bool isPresent() const override;
+        void updateFromCommandLine() override;
+
+        std::string bindHost = "";
+        uint16_t bindPort = 0;
     };
+} // namespace net::in::config
 
-} // namespace net
-
-#endif // CONFIGLEGACY_H
+#endif // NET_IN_CONFIGLOCAL_H

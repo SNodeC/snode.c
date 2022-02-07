@@ -19,9 +19,9 @@
 #ifndef NET_RF_STREAM_CLIENTCONFIG_H
 #define NET_RF_STREAM_CLIENTCONFIG_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConnection.h"
+#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
 #include "net/rf/ConfigLocal.h"
 #include "net/rf/ConfigRemote.h"
 
@@ -34,11 +34,11 @@
 namespace net::rf::stream {
 
     class ClientConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
+        : public net::config::ConfigBase
+        , public net::config::ConfigBacklog
         , public net::rf::ConfigRemote
         , public net::rf::ConfigLocal
-        , public net::ConfigConnection {
+        , public net::config::ConfigConnection {
     public:
         explicit ClientConfig(const std::string& name);
     };

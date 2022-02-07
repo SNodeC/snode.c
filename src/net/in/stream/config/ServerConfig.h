@@ -16,45 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_CONFIGLOCAL_H
-#define NET_IN_CONFIGLOCAL_H
+#ifndef NET_IN_STREAM_SERVERCONFIG_H
+#define NET_IN_STREAM_SERVERCONFIG_H
 
-#include "net/ConfigLocal.h"
-#include "net/in/SocketAddress.h"
+#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
+#include "net/in/config/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
-
-#include <cstdint>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in {
+namespace net::in::stream {
 
-    class ConfigLocal : public net::ConfigLocal<net::in::SocketAddress> {
+    class ServerConfig
+        : public net::config::ConfigBase
+        , public net::config::ConfigBacklog
+        , public net::in::config::ConfigLocal
+        , public net::config::ConfigConnection {
     public:
-        explicit ConfigLocal(CLI::App* baseSc);
-
-    protected:
-        void required() const;
-
-        CLI::App* bindSc = nullptr;
-        CLI::Option* bindHostOpt = nullptr;
-        CLI::Option* bindPortOpt = nullptr;
-
-    private:
-        SocketAddress getAddress() const override;
-        bool isPresent() const override;
-        void updateFromCommandLine() override;
-
-        std::string bindHost = "";
-        uint16_t bindPort = 0;
+        explicit ServerConfig(const std::string& name);
     };
-} // namespace net::in
 
-#endif // NET_IN_CONFIGLOCAL_H
+} // namespace net::in::stream
+
+#endif

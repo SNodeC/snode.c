@@ -16,38 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ConfigBacklog.h"
+#ifndef NET_IN_STREAM_TLS_CLIENTCONFIG_H
+#define NET_IN_STREAM_TLS_CLIENTCONFIG_H
+
+#include "net/config/ConfigTls.h"       // IWYU pragma: export
+#include "net/in/stream/config/ClientConfig.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-
 #include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net {
+namespace net::in::stream::tls {
 
-    ConfigBacklog::ConfigBacklog(CLI::App* baseSc) {
-        backlogOpt = baseSc->add_option("-b,--backlog", backlog, "Listen backlog");
-        backlogOpt->type_name("[backlog]");
-        backlogOpt->default_val(5);
-        backlogOpt->take_first();
-        backlogOpt->configurable();
-    }
-
-    int ConfigBacklog::getBacklog() const {
-        int backlog = this->backlog;
-
-        if (initialized) {
-            backlog = this->initBacklog;
+    class ClientConfig
+        : public net::in::stream::ClientConfig
+        , public net::config::ConfigTls {
+    public:
+        explicit ClientConfig(const std::string& name)
+            : net::in::stream::ClientConfig(name)
+            , net::config::ConfigTls(baseSc) {
         }
+    };
 
-        return backlog;
-    }
+} // namespace net::in::stream::tls
 
-    void ConfigBacklog::setBacklog(int backlog) const {
-        this->initBacklog = backlog;
-    }
-
-} // namespace net
+#endif // NET_IN_STREAM_TLS_CLIENTCONFIG_H

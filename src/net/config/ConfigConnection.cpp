@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ConfigConnection.h"
+#include "net/config/ConfigConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::config {
 
     ConfigConnection::ConfigConnection(CLI::App* baseSc) {
         connectionSc = baseSc->add_subcommand("connection");
@@ -82,4 +82,4 @@ namespace net {
         return terminateTimeout;
     }
 
-} // namespace net
+} // namespace net::config

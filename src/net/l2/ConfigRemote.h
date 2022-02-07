@@ -19,7 +19,7 @@
 #ifndef NET_l2_CONFIGREMOTE_H
 #define NET_l2_CONFIGREMOTE_H
 
-#include "net/ConfigRemote.h"
+#include "net/config/ConfigRemote.h"
 #include "net/l2/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,7 +36,7 @@ namespace CLI {
 
 namespace net::l2 {
 
-    class ConfigRemote : public net::ConfigRemote<SocketAddress> {
+    class ConfigRemote : public net::config::ConfigRemote<SocketAddress> {
     public:
         explicit ConfigRemote(CLI::App* baseSc);
 

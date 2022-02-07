@@ -16,30 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_TLS_SERVERCONFIG_H
-#define NET_IN_STREAM_TLS_SERVERCONFIG_H
-
-#include "net/ConfigTls.h"              // IWYU pragma: export
-#include "net/in/stream/ServerConfig.h" // IWYU pragma: export
+#include "net/config/ConfigBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream::tls {
+namespace net::config {
 
-    class ServerConfig
-        : public net::in::stream::ServerConfig
-        , public net::ConfigTls {
-    public:
-        explicit ServerConfig(const std::string& name)
-            : net::in::stream::ServerConfig(name)
-            , net::ConfigTls(baseSc) {
-        }
-    };
+    ConfigBase::ConfigBase(const std::string& name)
+        : name(name) {
+        baseSc = utils::Config::instance().add_subcommand(name, name + " configuration");
+        baseSc->configurable();
+        baseSc->fallthrough();
+        baseSc->required();
+    }
 
-} // namespace net::in::stream::tls
+    const std::string& ConfigBase::getName() const {
+        return name;
+    }
 
-#endif // NET_IN_STREAM_TLS_SERVERCONFIG_H
+    int ConfigBase::parse() const {
+        utils::Config::instance().parse();
+
+        return 0;
+    }
+
+} // namespace net::config

@@ -1,17 +1,18 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NET_CPP ConfigBase.cpp ConfigBacklog.cpp ConfigConnection.cpp
-            ConfigLegacy.cpp ConfigTls.cpp
+set(NET_CPP
+    config/ConfigBase.cpp config/ConfigBacklog.cpp config/ConfigConnection.cpp
+    config/ConfigLegacy.cpp config/ConfigTls.cpp
 )
 
 set(NET_H
-    ConfigBase.h
-    ConfigBacklog.h
-    ConfigConnection.h
-    ConfigLocal.h
-    ConfigLegacy.h
-    ConfigRemote.h
-    ConfigTls.h
+    config/ConfigBase.h
+    config/ConfigBacklog.h
+    config/ConfigConnection.h
+    config/ConfigLocal.h
+    config/ConfigLegacy.h
+    config/ConfigRemote.h
+    config/ConfigTls.h
 )
 
 add_library(net SHARED ${NET_CPP} ${NET_H})

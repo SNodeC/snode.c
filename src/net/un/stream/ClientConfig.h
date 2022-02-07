@@ -19,9 +19,9 @@
 #ifndef NET_UN_STREAM_CLIENTCONFIG_H
 #define NET_UN_STREAM_CLIENTCONFIG_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConnection.h"
+#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
 #include "net/un/ConfigLocal.h"
 #include "net/un/ConfigRemote.h"
 
@@ -34,11 +34,11 @@
 namespace net::un::stream {
 
     class ClientConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
+        : public net::config::ConfigBase
+        , public net::config::ConfigBacklog
         , public net::un::ConfigRemote
         , public net::un::ConfigLocal
-        , public net::ConfigConnection {
+        , public net::config::ConfigConnection {
     public:
         explicit ClientConfig(const std::string& name);
     };

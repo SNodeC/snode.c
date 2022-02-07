@@ -16,8 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGCONN_H
-#define NET_CONFIGCONN_H
+#ifndef NET_IN_CONFIGREMOTE_H
+#define NET_IN_CONFIGREMOTE_H
+
+#include "net/config/ConfigRemote.h"
+#include "net/in/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,48 +29,33 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include "utils/Timeval.h"
-
+#include <cstdint>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::in::config {
 
-    class ConfigConnection {
+    class ConfigRemote : public net::config::ConfigRemote<net::in::SocketAddress> {
     public:
-        explicit ConfigConnection(CLI::App* baseSc);
+        explicit ConfigRemote(CLI::App* baseSc);
 
-    public:
-        const utils::Timeval& getReadTimeout() const;
+    protected:
+        void required() const;
 
-        const utils::Timeval& getWriteTimeout() const;
-
-        std::size_t getReadBlockSize() const;
-
-        std::size_t getWriteBlockSize() const;
-
-        const utils::Timeval& getTerminateTimeout() const;
+        CLI::App* connectSc = nullptr;
+        CLI::Option* connectHostOpt = nullptr;
+        CLI::Option* connectPortOpt = nullptr;
 
     private:
-        CLI::App* connectionSc = nullptr;
-        CLI::Option* readTimeoutOpt = nullptr;
-        CLI::Option* writeTimeoutOpt = nullptr;
-        CLI::Option* readBlockSizeOpt = nullptr;
-        CLI::Option* writeBlockSizeOpt = nullptr;
-        CLI::Option* terminateTimeoutOpt = nullptr;
+        SocketAddress getAddress() const override;
+        bool isPresent() const override;
+        void updateFromCommandLine() override;
 
-        std::string name;
-
-        utils::Timeval readTimeout;
-        utils::Timeval writeTimeout;
-
-        std::size_t readBlockSize;
-        std::size_t writeBlockSize;
-
-        utils::Timeval terminateTimeout;
+        std::string connectHost = "";
+        uint16_t connectPort = 0;
     };
 
-} // namespace net
+} // namespace net::in::config
 
-#endif // CONFIGCONN_H
+#endif // NET_IN_CONFIGREMOTE_H

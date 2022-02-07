@@ -24,11 +24,11 @@
 
 namespace net::un::stream {
     ClientConfig::ClientConfig(const std::string& name)
-        : net::ConfigBase(name)
-        , net::ConfigBacklog(baseSc)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
         , net::un::ConfigRemote(baseSc)
         , net::un::ConfigLocal(baseSc)
-        , net::ConfigConnection(baseSc) {
+        , net::config::ConfigConnection(baseSc) {
         net::un::ConfigRemote::required();
     }
 

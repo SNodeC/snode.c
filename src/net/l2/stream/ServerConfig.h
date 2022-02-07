@@ -19,9 +19,9 @@
 #ifndef NET_L2_STREAM_SERVERCONFIG_H
 #define NET_L2_STREAM_SERVERCONFIG_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConnection.h"
+#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
 #include "net/l2/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,10 +33,10 @@
 namespace net::l2::stream {
 
     class ServerConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
+        : public net::config::ConfigBase
+        , public net::config::ConfigBacklog
         , public net::l2::ConfigLocal
-        , public net::ConfigConnection {
+        , public net::config::ConfigConnection {
     public:
         explicit ServerConfig(const std::string& name);
     };

@@ -25,11 +25,11 @@
 namespace net::l2::stream {
 
     ClientConfig::ClientConfig(const std::string& name)
-        : net::ConfigBase(name)
-        , net::ConfigBacklog(baseSc)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
         , net::l2::ConfigRemote(baseSc)
         , net::l2::ConfigLocal(baseSc)
-        , net::ConfigConnection(baseSc) {
+        , net::config::ConfigConnection(baseSc) {
         net::l2::ConfigRemote::required();
     }
 

@@ -19,7 +19,7 @@
 #ifndef NET_UN_STREAM_LEGACY_SERVERCONFIG_H
 #define NET_UN_STREAM_LEGACY_SERVERCONFIG_H
 
-#include "net/ConfigLegacy.h"
+#include "net/config/ConfigLegacy.h"
 #include "net/un/stream/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,11 +32,11 @@ namespace net::un::stream::legacy {
 
     class ServerConfig
         : public net::un::stream::ServerConfig
-        , public net::ConfigLegacy {
+        , public net::config::ConfigLegacy {
     public:
         explicit ServerConfig(const std::string& name)
             : net::un::stream::ServerConfig(name)
-            , net::ConfigLegacy(baseSc) {
+            , net::config::ConfigLegacy(baseSc) {
         }
     };
 

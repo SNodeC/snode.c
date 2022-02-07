@@ -19,7 +19,7 @@
 #ifndef NET_IN6_STREAM_LEGACY_SERVERCONFIG_H
 #define NET_IN6_STREAM_LEGACY_SERVERCONFIG_H
 
-#include "net/ConfigLegacy.h"
+#include "net/config/ConfigLegacy.h"
 #include "net/in6/stream/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,11 +32,11 @@ namespace net::in6::stream::legacy {
 
     class ServerConfig
         : public net::in6::stream::ServerConfig
-        , public net::ConfigLegacy {
+        , public net::config::ConfigLegacy {
     public:
         explicit ServerConfig(const std::string& name)
             : net::in6::stream::ServerConfig(name)
-            , net::ConfigLegacy(baseSc) {
+            , net::config::ConfigLegacy(baseSc) {
         }
     };
 

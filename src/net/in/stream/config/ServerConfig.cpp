@@ -16,36 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGBACKLOG_H
-#define NET_CONFIGBACKLOG_H
+#include "net/in/stream/config/ServerConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::in::stream {
 
-    class ConfigBacklog {
-    public:
-        explicit ConfigBacklog(CLI::App* baseSc);
+    ServerConfig::ServerConfig(const std::string& name)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
+        , net::in::config::ConfigLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        net::in::config::ConfigLocal::required();
+    }
 
-        int getBacklog() const;
-
-        void setBacklog(int backlog) const;
-
-    private:
-        CLI::Option* backlogOpt = nullptr;
-
-        mutable int initBacklog;
-        int backlog;
-        mutable bool initialized = false;
-    };
-
-} // namespace net
-
-#endif // NET_CONFIGBACKLOG_H
+} // namespace net::in::stream

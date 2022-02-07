@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in/ConfigLocal.h"
+#include "net/in/config/ConfigLocal.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in {
+namespace net::in::config {
 
     ConfigLocal::ConfigLocal(CLI::App* baseSc) {
         bindSc = baseSc->add_subcommand("local");
@@ -66,4 +66,4 @@ namespace net::in {
         }
     }
 
-} // namespace net::in
+} // namespace net::in::config

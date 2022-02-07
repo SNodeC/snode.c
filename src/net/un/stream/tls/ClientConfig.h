@@ -19,7 +19,7 @@
 #ifndef NET_UN_STREAM_TLS_CLIENTCONFIG_H
 #define NET_UN_STREAM_TLS_CLIENTCONFIG_H
 
-#include "net/ConfigTls.h"              // IWYU pragma: export
+#include "net/config/ConfigTls.h"       // IWYU pragma: export
 #include "net/un/stream/ClientConfig.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,11 +32,11 @@ namespace net::un::stream::tls {
 
     class ClientConfig
         : public net::un::stream::ClientConfig
-        , public net::ConfigTls {
+        , public net::config::ConfigTls {
     public:
         explicit ClientConfig(const std::string& name)
             : net::un::stream::ClientConfig(name)
-            , net::ConfigTls(baseSc) {
+            , net::config::ConfigTls(baseSc) {
         }
     };
 

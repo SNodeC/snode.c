@@ -16,36 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGBASE_H
-#define NET_CONFIGBASE_H
+#include "net/config/ConfigLegacy.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-} // namespace CLI
-
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::config {
 
-    class ConfigBase {
-    public:
-        explicit ConfigBase(const std::string& name);
+    ConfigLegacy::ConfigLegacy([[maybe_unused]] CLI::App* baseSc) {
+    }
 
-        const std::string& getName() const;
-
-        virtual int parse() const;
-
-    protected:
-        CLI::App* baseSc = nullptr;
-
-    private:
-        std::string name;
-    };
-
-} // namespace net
-
-#endif // NET_CONFIGBASE_H
+} // namespace net::config

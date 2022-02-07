@@ -16,31 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_SERVERCONFIG_H
-#define NET_IN_STREAM_SERVERCONFIG_H
-
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConnection.h"
-#include "net/in/ConfigLocal.h"
+#ifndef NET_CONFIGLEGACY_H
+#define NET_CONFIGLEGACY_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+namespace CLI {
+    class App;
+} // namespace CLI
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {
+namespace net::config {
 
-    class ServerConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
-        , public net::in::ConfigLocal
-        , public net::ConfigConnection {
+    class ConfigLegacy {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ConfigLegacy(CLI::App* baseSc);
     };
 
-} // namespace net::in::stream
+} // namespace net::config
 
-#endif
+#endif // CONFIGLEGACY_H

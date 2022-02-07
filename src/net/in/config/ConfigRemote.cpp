@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in/ConfigRemote.h"
+#include "net/in/config/ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in {
+namespace net::in::config {
 
     ConfigRemote::ConfigRemote(CLI::App* baseSc) {
         connectSc = baseSc->add_subcommand("remote");
@@ -67,4 +67,4 @@ namespace net::in {
         }
     }
 
-} // namespace net::in
+} // namespace net::in::config

@@ -16,33 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_CLIENTCONFIG_H
-#define NET_IN_STREAM_CLIENTCONFIG_H
+#ifndef NET_IN_STREAM_LEGACY_CLIENTCONFIG_H
+#define NET_IN_STREAM_LEGACY_CLIENTCONFIG_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConnection.h"
-#include "net/in/ConfigLocal.h"
-#include "net/in/ConfigRemote.h"
+#include "net/config/ConfigLegacy.h"
+#include "net/in/stream/config/ClientConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in::stream {
+namespace net::in::stream::legacy {
 
     class ClientConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
-        , public net::in::ConfigRemote
-        , public net::in::ConfigLocal
-        , public net::ConfigConnection {
+        : public net::in::stream::ClientConfig
+        , public net::config::ConfigLegacy {
     public:
-        explicit ClientConfig(const std::string& name);
+        explicit ClientConfig(const std::string& name)
+            : net::in::stream::ClientConfig(name)
+            , net::config::ConfigLegacy(baseSc) {
+        }
     };
 
-} // namespace net::in::stream
+} // namespace net::in::stream::legacy
 
-#endif // NET_IN_STREAM_CLIENTCONFIG_H
+#endif // NET_IN_STREAM_LEGACY_CLIENTCONFIG_H

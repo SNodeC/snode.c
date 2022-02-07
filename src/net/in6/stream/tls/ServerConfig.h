@@ -19,7 +19,7 @@
 #ifndef NET_IN6_STREAM_TLS_SERVERCONFIG_H
 #define NET_IN6_STREAM_TLS_SERVERCONFIG_H
 
-#include "net/ConfigTls.h"               // IWYU pragma: export
+#include "net/config/ConfigTls.h"        // IWYU pragma: export
 #include "net/in6/stream/ServerConfig.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,11 +32,11 @@ namespace net::in6::stream::tls {
 
     class ServerConfig
         : public net::in6::stream::ServerConfig
-        , public net::ConfigTls {
+        , public net::config::ConfigTls {
     public:
         explicit ServerConfig(const std::string& name)
             : net::in6::stream::ServerConfig(name)
-            , net::ConfigTls(baseSc) {
+            , net::config::ConfigTls(baseSc) {
         }
     };
 

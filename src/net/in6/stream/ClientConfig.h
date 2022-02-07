@@ -19,9 +19,9 @@
 #ifndef NET_IN6_STREAM_CLIENTCONFIG_H
 #define NET_IN6_STREAM_CLIENTCONFIG_H
 
-#include "net/ConfigBacklog.h"
-#include "net/ConfigBase.h"
-#include "net/ConfigConnection.h"
+#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
 #include "net/in6/ConfigLocal.h"
 #include "net/in6/ConfigRemote.h"
 
@@ -34,11 +34,11 @@
 namespace net::in6::stream {
 
     class ClientConfig
-        : public net::ConfigBase
-        , public net::ConfigBacklog
+        : public net::config::ConfigBase
+        , public net::config::ConfigBacklog
         , public net::in6::ConfigRemote
         , public net::in6::ConfigLocal
-        , public net::ConfigConnection {
+        , public net::config::ConfigConnection {
     public:
         explicit ClientConfig(const std::string& name);
     };

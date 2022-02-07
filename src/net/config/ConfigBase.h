@@ -16,30 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_LEGACY_SERVERCONFIG_H
-#define NET_IN_STREAM_LEGACY_SERVERCONFIG_H
-
-#include "net/ConfigLegacy.h"
-#include "net/in/stream/ServerConfig.h"
+#ifndef NET_CONFIGBASE_H
+#define NET_CONFIGBASE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace CLI {
+    class App;
+} // namespace CLI
+
 #include <string>
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream::legacy {
+namespace net::config {
 
-    class ServerConfig
-        : public net::in::stream::ServerConfig
-        , public net::ConfigLegacy {
+    class ConfigBase {
     public:
-        explicit ServerConfig(const std::string& name)
-            : net::in::stream::ServerConfig(name)
-            , net::ConfigLegacy(baseSc) {
-        }
+        explicit ConfigBase(const std::string& name);
+
+        const std::string& getName() const;
+
+        virtual int parse() const;
+
+    protected:
+        CLI::App* baseSc = nullptr;
+
+    private:
+        std::string name;
     };
 
-} // namespace net::in::stream::legacy
+} // namespace net::config
 
-#endif // NET_IN_STREAM_LEGACY_SERVERCONFIG_H
+#endif // NET_CONFIGBASE_H
