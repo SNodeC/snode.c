@@ -79,7 +79,9 @@ namespace core::socket::stream {
         }
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const override {
-            connect(remoteAddress, SocketAddress(), onError);
+            clientConfig->setRemoteAddress(remoteAddress);
+
+            connect(onError);
         }
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const override {
