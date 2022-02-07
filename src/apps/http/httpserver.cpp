@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     webApp.addSniCerts(sniCerts);
 #endif
 
-//#define USECONFIGUREDLISTEN
+#define USECONFIGUREDLISTEN
 #ifdef USECONFIGUREDLISTEN
 
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
