@@ -55,13 +55,13 @@ namespace core::socket::stream {
 
     protected:
         using ServerConfig = ServerConfigT;
-
         using SocketConnection = SocketConnectionT;
-        using Socket = typename SocketConnection::Socket;
-        using SocketAddress = typename Socket::SocketAddress;
 
-        using SocketReader = typename SocketConnection::SocketReader;
-        using SocketWriter = typename SocketConnection::SocketWriter;
+    private:
+        using Socket = typename SocketConnection::Socket;
+
+    public:
+        using SocketAddress = typename Socket::SocketAddress;
 
         /** Sequence diagramm of res.upgrade(req).
         @startuml
@@ -82,7 +82,8 @@ namespace core::socket::stream {
 
         virtual ~SocketAcceptor() = default;
 
-        void listen(const std::shared_ptr<ServerConfig>& serverConfig, const std::function<void(const Socket& socket, int)>& onError) {
+        void listen(const std::shared_ptr<ServerConfig>& serverConfig,
+                    const std::function<void(const SocketAddress& socketAddress, int)>& onError) {
             this->serverConfig = serverConfig;
             this->onError = onError;
 
@@ -94,28 +95,28 @@ namespace core::socket::stream {
             Socket::open(
                 [this](int errnum) -> void {
                     if (errnum > 0) {
-                        onError(static_cast<const Socket&>(*this), errnum);
+                        onError(serverConfig->getLocalAddress(), errnum);
                         destruct();
                     } else {
 #if !defined(NDEBUG)
                         reuseAddress([this](int errnum) -> void {
                             if (errnum != 0) {
-                                onError(static_cast<const Socket&>(*this), errnum);
+                                onError(serverConfig->getLocalAddress(), errnum);
                                 destruct();
                             } else {
 #endif
                                 Socket::bind(serverConfig->getLocalAddress(), [this](int errnum) -> void {
                                     if (errnum > 0) {
-                                        onError(static_cast<const Socket&>(*this), errnum);
+                                        onError(serverConfig->getLocalAddress(), errnum);
                                         destruct();
                                     } else {
                                         int ret = core::system::listen(Socket::getFd(), serverConfig->getBacklog());
 
                                         if (ret == 0) {
                                             enable(Socket::getFd());
-                                            onError(static_cast<const Socket&>(*this), 0);
+                                            onError(serverConfig->getLocalAddress(), 0);
                                         } else {
-                                            onError(static_cast<const Socket&>(*this), errno);
+                                            onError(serverConfig->getLocalAddress(), errno);
                                             destruct();
                                         }
                                     }
@@ -200,7 +201,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onDestruct;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
-        std::function<void(const Socket& socket, int)> onError = nullptr;
+        std::function<void(const SocketAddress&, int)> onError = nullptr;
 
     protected:
         std::map<std::string, std::any> options;

@@ -29,7 +29,9 @@
 
 namespace net::un::stream {
 
-    void ServerSocket::listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
+    void ServerSocket::listen(const std::string& sunPath,
+                              int backlog,
+                              const std::function<void(const SocketAddress& socketAddress, int)>& onError) {
         if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
             PLOG(ERROR) << "listen: sunPath: " << sunPath;
         } else {

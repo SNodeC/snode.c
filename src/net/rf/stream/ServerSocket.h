@@ -38,12 +38,14 @@ namespace net::rf::stream {
     public:
         using core::socket::ServerSocket<net::rf::stream::Socket>::listen;
 
-        void listen(uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError);
+        void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress& socketAddress, int)>& onError);
 
-        void listen(const std::string& address, int backlog, const std::function<void(const Socket& socket, int)>& onError);
+        void listen(const std::string& address, int backlog, const std::function<void(const SocketAddress& socketAddress, int)>& onError);
 
-        void
-        listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError);
+        void listen(const std::string& address,
+                    uint8_t channel,
+                    int backlog,
+                    const std::function<void(const SocketAddress& socketAddress, int)>& onError);
     };
 
 } // namespace net::rf::stream

@@ -37,19 +37,19 @@ int main(int argc, char* argv[]) {
         {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}});
     tlsApp.use(express::middleware::StaticMiddleware(SERVERROOT));
 
-    legacyApp.listen(8080, [](const express::legacy::in::WebApp::Socket& socket, int err) {
+    legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int err) {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080";
         } else {
-            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
+            VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }
     });
 
-    tlsApp.listen(8088, [](const express::tls::in::WebApp::Socket& socket, int err) {
+    tlsApp.listen(8088, [](const express::tls::in::WebApp::SocketAddress& socketAddress, int err) {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8088";
         } else {
-            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
+            VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }
     });
 

@@ -30,24 +30,25 @@ namespace web::http::tls::rf {
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
     class Server : public web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response> {
-        using web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>::Server;
-
-    protected:
-        using SocketServer = net::rf::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using Super = web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>;
+        using Super::Super;
 
     public:
-        using web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>::listen;
+        using SocketAddress = typename Super::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
 
-        void listen(uint8_t channel, const std::function<void(const net::rf::stream::Socket&, int)>& onError) {
-            SocketServer::listen(channel, LISTEN_BACKLOG, onError);
+        using Super::listen;
+
+        void listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(channel, LISTEN_BACKLOG, onError);
         }
 
-        void listen(const std::string& address, const std::function<void(const net::rf::stream::Socket&, int)>& onError) {
-            SocketServer::listen(address, LISTEN_BACKLOG, onError);
+        void listen(const std::string& address, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(address, LISTEN_BACKLOG, onError);
         }
 
-        void listen(const std::string& address, uint8_t channel, const std::function<void(const net::rf::stream::Socket&, int)>& onError) {
-            SocketServer::listen(address, channel, LISTEN_BACKLOG, onError);
+        void listen(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(address, channel, LISTEN_BACKLOG, onError);
         }
     };
 

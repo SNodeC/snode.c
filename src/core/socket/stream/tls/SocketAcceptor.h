@@ -43,11 +43,11 @@ namespace core::socket::stream::tls {
     private:
         using Super = core::socket::stream::SocketAcceptor<ServerConfigT, core::socket::stream::tls::SocketConnection<SocketT>>;
 
+        using SocketAddress = typename Super::SocketAddress;
+
     public:
         using ServerConfig = typename Super::ServerConfig;
-        using Socket = typename Super::Socket;
         using SocketConnection = typename Super::SocketConnection;
-        using SocketAddress = typename Super::SocketAddress;
 
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
@@ -102,10 +102,11 @@ namespace core::socket::stream::tls {
             ssl_ctx_free(masterSslCtx);
         }
 
-        void listen(const std::shared_ptr<ServerConfig>& serverConfig, const std::function<void(const Socket& socket, int)>& onError) {
+        void listen(const std::shared_ptr<ServerConfig>& serverConfig,
+                    const std::function<void(const SocketAddress& socketAddress, int)>& onError) {
             if (masterSslCtx == nullptr) {
                 errno = EINVAL;
-                onError(static_cast<const Socket&>(*this), errno);
+                onError(serverConfig->getLocalAddress(), errno);
                 Super::destruct();
             } else {
                 Super::listen(serverConfig, onError);

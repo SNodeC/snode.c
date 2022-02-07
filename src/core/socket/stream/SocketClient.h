@@ -42,16 +42,15 @@ namespace core::socket::stream {
 
         SocketClient() = delete;
 
-    protected:
-        using ClientSocket = ClientSocketT;
+    private:
+        using Super = ClientSocketT;
         using SocketConnector = SocketConnectorT;
         using ClientConfig = typename SocketConnector::ClientConfig;
         using SocketContextFactory = SocketContextFactoryT;
 
     public:
-        using Socket = typename ClientSocket::Socket;
         using SocketConnection = typename SocketConnector::SocketConnection;
-        using SocketAddress = typename SocketConnection::Socket::SocketAddress;
+        using SocketAddress = typename Super::SocketAddress;
 
         SocketClient(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
@@ -68,7 +67,7 @@ namespace core::socket::stream {
 
         virtual ~SocketClient() = default;
 
-        using ClientSocket::connect;
+        using Super::connect;
 
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& bindAddress,

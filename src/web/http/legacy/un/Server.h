@@ -30,16 +30,17 @@ namespace web::http::legacy::un {
 
     template <typename Request, typename Response>
     class Server : public web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response> {
-        using web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>::Server;
-
-    protected:
-        using SocketServer = net::un::stream::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using Super = web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>;
+        using Super::Super;
 
     public:
+        using SocketAddress = typename Super::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
+
         using web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>::listen;
 
-        void listen(const std::string& sunPath, const std::function<void(const net::un::stream::Socket&, int)>& onError) {
-            SocketServer::listen(sunPath, LISTEN_BACKLOG, onError);
+        void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(sunPath, LISTEN_BACKLOG, onError);
         }
     };
 

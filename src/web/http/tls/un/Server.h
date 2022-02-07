@@ -30,16 +30,17 @@ namespace web::http::tls::un {
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
     class Server : public web::http::server::Server<net::un::stream::tls::SocketServer, Request, Response> {
-        using web::http::server::Server<net::un::stream::tls::SocketServer, Request, Response>::Server;
-
-    protected:
-        using SocketServer = net::un::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using Super = web::http::server::Server<net::un::stream::tls::SocketServer, Request, Response>;
+        using Super::Super;
 
     public:
-        using web::http::server::Server<net::un::stream::tls::SocketServer, Request, Response>::listen;
+        using SocketAddress = typename Super::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
 
-        void listen(const std::string& sunPath, const std::function<void(const net::un::stream::Socket&, int)>& onError) {
-            SocketServer::listen(sunPath, LISTEN_BACKLOG, onError);
+        using Super::listen;
+
+        void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(sunPath, LISTEN_BACKLOG, onError);
         }
     };
 

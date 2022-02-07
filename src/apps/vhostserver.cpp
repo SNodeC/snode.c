@@ -59,11 +59,11 @@ int main(int argc, char* argv[]) {
             res.status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080, [](const legacy::in6::WebApp::Socket& socket, int err) -> void {
+        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int err) -> void {
             if (err != 0) {
                 PLOG(FATAL) << "listen on port 8080";
             } else {
-                VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
+                VLOG(0) << "snode.c listening on " << socketAddress.toString();
             }
         });
 
@@ -99,11 +99,11 @@ int main(int argc, char* argv[]) {
                                socketConnection->getRemoteAddress().toString();
             });
 
-            tlsApp.listen(8088, [](const express::tls::in6::WebApp::Socket& socket, int err) -> void {
+            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int err) -> void {
                 if (err != 0) {
                     PLOG(FATAL) << "listen on port 8088";
                 } else {
-                    VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
+                    VLOG(0) << "snode.c listening on " << socketAddress.toString();
                 }
             });
         }

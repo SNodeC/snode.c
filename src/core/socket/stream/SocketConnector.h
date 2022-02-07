@@ -51,13 +51,13 @@ namespace core::socket::stream {
 
     protected:
         using ClientConfig = ClientConfigT;
-
         using SocketConnection = SocketConnectionT;
-        using Socket = typename SocketConnection::Socket;
-        using SocketAddress = typename Socket::SocketAddress;
 
-        using SocketReader = typename SocketConnection::SocketReader;
-        using SocketWriter = typename SocketConnection::SocketWriter;
+    private:
+        using Socket = typename SocketConnection::Socket;
+
+    public:
+        using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
@@ -99,6 +99,7 @@ namespace core::socket::stream {
 
                                 if (ret == 0 || errno == EINPROGRESS) {
                                     enable(Socket::getFd());
+                                    onError(0);
                                 } else {
                                     onError(errno);
                                     destruct();

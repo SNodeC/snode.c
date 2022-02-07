@@ -34,11 +34,11 @@ namespace core::socket::stream::legacy {
     private:
         using Super = core::socket::stream::SocketConnector<ClientConfigT, core::socket::stream::legacy::SocketConnection<SocketT>>;
 
+        using SocketAddress = typename Super::SocketAddress;
+
     public:
         using ClientConfig = typename Super::ClientConfig;
-        using Socket = typename Super::Socket;
         using SocketConnection = typename Super::SocketConnection;
-        using SocketAddress = typename Super::SocketAddress;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,

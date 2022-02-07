@@ -38,17 +38,17 @@ namespace core::socket::stream {
     class SocketServer : public ServerSocketT {
         SocketServer() = delete;
 
-    protected:
-        using ServerSocket = ServerSocketT;
+    private:
+        using Super = ServerSocketT;
         using SocketAcceptor = SocketAcceptorT;
         using ServerConfig = typename SocketAcceptor::ServerConfig;
         using SocketContextFactory = SocketContextFactoryT;
 
     public:
-        using Socket = typename ServerSocket::Socket;
-        using SocketAddress = typename Socket::SocketAddress;
         using SocketConnection = typename SocketAcceptor::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
 
+    public:
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
@@ -64,18 +64,18 @@ namespace core::socket::stream {
 
         virtual ~SocketServer() = default;
 
-        using ServerSocket::listen;
+        using Super::listen;
 
         void listen(const SocketAddress& bindAddress,
                     int backlog,
-                    const std::function<void(const Socket& socket, int)>& onError) const override {
+                    const std::function<void(const SocketAddress& socketAddress, int)>& onError) const override {
             serverConfig->setLocalAddress(bindAddress);
             serverConfig->setBacklog(backlog);
 
             listen(onError);
         }
 
-        void listen(const std::function<void(const Socket& socket, int)>& onError) const override {
+        void listen(const std::function<void(const SocketAddress& socketAddress, int)>& onError) const override {
             SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketAcceptor->listen(serverConfig, onError);

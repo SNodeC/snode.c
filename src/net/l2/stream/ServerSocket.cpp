@@ -24,18 +24,20 @@
 
 namespace net::l2::stream {
 
-    void ServerSocket::listen(uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
+    void ServerSocket::listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
         listen(SocketAddress(psm), backlog, onError);
     }
 
-    void ServerSocket::listen(const std::string& address, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
+    void ServerSocket::listen(const std::string& address,
+                              int backlog,
+                              const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
         listen(SocketAddress(address), backlog, onError);
     }
 
     void ServerSocket::listen(const std::string& address,
                               uint16_t psm,
                               int backlog,
-                              const std::function<void(const Socket& socket, int)>& onError) {
+                              const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
         listen(SocketAddress(address, psm), backlog, onError);
     }
 

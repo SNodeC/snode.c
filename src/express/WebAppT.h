@@ -40,12 +40,12 @@ namespace express {
     class WebAppT
         : public WebApp
         , public ServerT {
-    public:
+    private:
         using Server = ServerT;
-        using SocketServer = typename Server::SocketServer;
-        using SocketConnection = typename SocketServer::SocketConnection;
-        using Socket = typename SocketConnection::Socket;
-        using SocketAddress = typename Socket::SocketAddress;
+
+    public:
+        using SocketConnection = typename Server::SocketConnection;
+        using SocketAddress = typename Server::SocketAddress;
 
         explicit WebAppT(const std::string& name, const std::map<std::string, std::any>& options = {{}})
             : WebAppT(name, Router(), options) {

@@ -34,6 +34,7 @@ namespace core::socket {
 
     public:
         using Socket = SocketT;
+        using SocketAddress = typename Socket::SocketAddress;
 
         virtual void connect(const std::function<void(int)>& onError) const = 0;
 

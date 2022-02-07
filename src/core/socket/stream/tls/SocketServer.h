@@ -44,9 +44,8 @@ namespace core::socket::stream::tls {
         using Super::Super;
 
     public:
-        using Socket = typename Super::Socket;
-        using SocketAddress = typename Super::SocketAddress;
         using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
 
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,

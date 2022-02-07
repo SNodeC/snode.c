@@ -30,25 +30,25 @@ namespace web::http::legacy::in {
 
     template <typename Request, typename Response>
     class Server : public web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response> {
-        using web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>::Server;
-
-    protected:
-        using SocketServer = net::in::stream::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using Super = web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>;
+        using Super::Super;
 
     public:
+        using SocketAddress = typename Super::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
+
         using web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>::listen;
 
-        void listen(uint16_t port, const std::function<void(const net::in::stream::Socket&, int)>& onError) {
-            SocketServer::listen(port, LISTEN_BACKLOG, onError);
+        void listen(uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(port, LISTEN_BACKLOG, onError);
         }
 
-        void listen(const std::string& ipOrHostname, const std::function<void(const net::in::stream::Socket&, int)>& onError) {
-            SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
+        void listen(const std::string& ipOrHostname, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(ipOrHostname, LISTEN_BACKLOG, onError);
         }
 
-        void
-        listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const net::in::stream::Socket&, int)>& onError) {
-            SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
+        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
         }
     };
 

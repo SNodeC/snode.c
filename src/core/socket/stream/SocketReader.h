@@ -41,10 +41,9 @@ namespace core::socket::stream {
         , virtual public SocketT {
         SocketReader() = delete;
 
-    public:
+    protected:
         using Socket = SocketT;
 
-    protected:
         explicit SocketReader(const std::function<void(int)>& onError,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,

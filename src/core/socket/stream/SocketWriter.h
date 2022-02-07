@@ -39,10 +39,9 @@ namespace core::socket::stream {
         , virtual public SocketT {
         SocketWriter() = delete;
 
-    public:
+    protected:
         using Socket = SocketT;
 
-    protected:
         explicit SocketWriter(const std::function<void(int)>& onError,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
