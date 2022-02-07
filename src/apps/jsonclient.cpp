@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         } else {
-            PLOG(INFO) << "Connected to " << socketAddress.toString();
+            VLOG(0) << "jsonclient.c connected to " << socketAddress.toString();
         }
     });
 
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         } else {
-            PLOG(INFO) << "Connected to " << socketAddress.toString();
+            VLOG(0) << "jsonclient.c connected to " << socketAddress.toString();
         }
     });
 

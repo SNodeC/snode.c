@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            VLOG(0) << "wsechoserver listening on " << socketAddress.toString();
         }
     });
 
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             } else {
-                VLOG(0) << "snode.c listening on " << socketAddress.toString();
+                VLOG(0) << "wsechoserver listening on " << socketAddress.toString();
             }
         });
     }

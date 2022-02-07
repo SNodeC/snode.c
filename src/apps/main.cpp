@@ -137,6 +137,7 @@ int timerApp() {
             });
 
             if (!canceled) {
+                VLOG(0) << "----------------------------- timer cancel";
                 tack.cancel();
                 canceled = true;
                 //                app.destroy();
