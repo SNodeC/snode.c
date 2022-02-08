@@ -23,6 +23,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream::config {
+
     ClientConfig::ClientConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::un::config::ConfigRemote(baseSc)

@@ -23,6 +23,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream::config {
+
     ServerConfig::ServerConfig(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
