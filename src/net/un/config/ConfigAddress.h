@@ -41,7 +41,7 @@ namespace net::un::config {
         using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
 
     public:
-        explicit ConfigAddress(CLI::App* baseSc);
+        explicit ConfigAddress(CLI::App* baseSc, bool abstract = false);
 
     protected:
         void required();

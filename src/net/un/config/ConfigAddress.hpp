@@ -17,21 +17,26 @@
  */
 
 #include "ConfigAddress.h"
+#include "net/config/ConfigLocal.h"
+#include "net/config/ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc)
+    ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc, bool abstract)
         : ConfigAddressType(baseSc) {
         sunPathOpt = ConfigAddressType::addressSc->add_option("-p,--path", sunPath, "Unix domain socket");
-        sunPathOpt->type_name("[filesystem path]");
-        sunPathOpt->default_val("/tmp/sun.sock");
+        sunPathOpt->type_name("[sun-path]");
+        if (abstract) {
+            sunPathOpt->default_val(std::string('\0' + utils::Config::instance().getApplicationName()));
+        }
         sunPathOpt->take_first();
         sunPathOpt->configurable();
     }
@@ -59,3 +64,8 @@ namespace net::un::config {
     }
 
 } // namespace net::un::config
+
+namespace net::config {
+    template class ConfigLocal<net::un::SocketAddress>;
+    template class ConfigRemote<net::un::SocketAddress>;
+} // namespace net::config
