@@ -18,6 +18,8 @@
 
 #include "net/in/stream/config/ConfigServerSocket.h"
 
+#include "net/in/config/ConfigAddress.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -27,9 +29,9 @@ namespace net::in::stream::config {
     ConfigServerSocket::ConfigServerSocket(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , net::in::config::ConfigLocal(baseSc)
+        , ConfigAddressLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::in::config::ConfigLocal::required();
+        ConfigAddressLocal::portRequired();
     }
 
 } // namespace net::in::stream::config

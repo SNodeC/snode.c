@@ -60,10 +60,10 @@ namespace net::rf::config {
 
     void ConfigLocal::updateFromCommandLine() {
         if (bindHostOpt->count() > 0) {
-            localAddress.setAddress(bindHost);
+            address.setAddress(bindHost);
         }
         if (bindChannelOpt->count() > 0) {
-            localAddress.setChannel(bindChannel);
+            address.setChannel(bindChannel);
         }
     }
 

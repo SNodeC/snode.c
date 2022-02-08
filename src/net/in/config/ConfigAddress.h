@@ -16,10 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_CONFIG_CONFIGLOCAL_H
-#define NET_IN_CONFIG_CONFIGLOCAL_H
+#ifndef NET_IN_CONFIG_CONFIGADDRESS_H
+#define NET_IN_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigLocal.h"
 #include "net/in/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,25 +35,30 @@ namespace CLI {
 
 namespace net::in::config {
 
-    class ConfigLocal : public net::config::ConfigLocal<net::in::SocketAddress> {
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    class ConfigAddress : public ConfigAddressTypeT<net::in::SocketAddress> {
+        using SocketAddress = net::in::SocketAddress;
+        using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
+
     public:
-        explicit ConfigLocal(CLI::App* baseSc);
+        explicit ConfigAddress(CLI::App* baseSc);
 
     protected:
-        void required() const;
+        void required();
+        void portRequired();
 
-        CLI::App* bindSc = nullptr;
-        CLI::Option* bindHostOpt = nullptr;
-        CLI::Option* bindPortOpt = nullptr;
+        CLI::Option* hostOpt = nullptr;
+        CLI::Option* portOpt = nullptr;
 
     private:
         SocketAddress getAddress() const override;
-        bool isPresent() const override;
+
         void updateFromCommandLine() override;
 
-        std::string bindHost = "";
-        uint16_t bindPort = 0;
+        std::string host{};
+        uint16_t port{};
     };
+
 } // namespace net::in::config
 
-#endif // NET_IN_CONFIG_CONFIGLOCAL_H
+#endif // NET_IN_CONFIG_CONFIGADDRESS_H

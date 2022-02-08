@@ -53,7 +53,7 @@ namespace net::un::config {
 
     void ConfigRemote::updateFromCommandLine() {
         if (connectSunPathOpt->count() > 0) {
-            remoteAddress.setSunPath(connectSunPath);
+            address.setSunPath(connectSunPath);
         }
     }
 

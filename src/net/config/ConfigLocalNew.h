@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
 #include "utils/Config.h"
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -30,8 +31,12 @@ namespace net::config {
     template <typename SocketAddressT>
     class ConfigLocal {
     protected:
-        ConfigLocal() = default;
-
+        ConfigLocal(CLI::App* baseSc) {
+            addressSc = baseSc->add_subcommand("local");
+            addressSc->description("Bind options");
+            addressSc->configurable();
+            addressSc->required();
+        }
         virtual ~ConfigLocal() = default;
 
         using SocketAddress = SocketAddressT;
@@ -60,9 +65,10 @@ namespace net::config {
         virtual void updateFromCommandLine() = 0;
 
         virtual SocketAddress getAddress() const = 0;
-        virtual bool isPresent() const = 0;
 
     protected:
+        CLI::App* addressSc = nullptr;
+
         SocketAddress address;
 
     private:

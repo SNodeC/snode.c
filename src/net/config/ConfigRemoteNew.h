@@ -16,11 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGLOCAL_H
-#define NET_CONFIGLOCAL_H
+#ifndef NET_CONFIGREMOTE_H
+#define NET_CONFIGREMOTE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
 #include "utils/Config.h"
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -28,16 +29,21 @@
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigLocal {
+    class ConfigRemote {
     protected:
-        ConfigLocal() = default;
+        ConfigRemote(CLI::App* baseSc) {
+            addressSc = baseSc->add_subcommand("remote");
+            addressSc->description("Connect options");
+            addressSc->configurable();
+            addressSc->required();
+        }
 
-        virtual ~ConfigLocal() = default;
+        virtual ~ConfigRemote() = default;
 
         using SocketAddress = SocketAddressT;
 
     public:
-        const SocketAddress& getLocalAddress() {
+        const SocketAddress& getRemoteAddress() {
             if (!initialized) {
                 utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
 
@@ -51,8 +57,8 @@ namespace net::config {
             return address;
         }
 
-        void setLocalAddress(const SocketAddress& localAddress) {
-            this->address = localAddress;
+        void setRemoteAddress(const SocketAddress& remoteAddress) {
+            this->address = remoteAddress;
             this->initialized = true;
         }
 
@@ -60,9 +66,10 @@ namespace net::config {
         virtual void updateFromCommandLine() = 0;
 
         virtual SocketAddress getAddress() const = 0;
-        virtual bool isPresent() const = 0;
 
     protected:
+        CLI::App* addressSc = nullptr;
+
         SocketAddress address;
 
     private:
@@ -72,4 +79,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // NET_CONFIGLOCAL_H
+#endif // CONFIGREMOTE_H

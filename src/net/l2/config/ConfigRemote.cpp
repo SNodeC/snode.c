@@ -61,10 +61,10 @@ namespace net::l2::config {
 
     void ConfigRemote::updateFromCommandLine() {
         if (connectHostOpt->count() > 0) {
-            remoteAddress.setAddress(connectHost);
+            address.setAddress(connectHost);
         }
         if (connectPsmOpt->count() > 0) {
-            remoteAddress.setPsm(connectPsm);
+            address.setPsm(connectPsm);
         }
     }
 

@@ -60,10 +60,10 @@ namespace net::l2::config {
 
     void ConfigLocal::updateFromCommandLine() {
         if (bindHostOpt->count() > 0) {
-            localAddress.setAddress(bindHost);
+            address.setAddress(bindHost);
         }
         if (bindPsmOpt->count() > 0) {
-            localAddress.setPsm(bindPsm);
+            address.setPsm(bindPsm);
         }
     }
 

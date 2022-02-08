@@ -60,10 +60,10 @@ namespace net::in6::config {
 
     void ConfigLocal::updateFromCommandLine() {
         if (bindHostOpt->count() > 0) {
-            localAddress.setHost(bindHost);
+            address.setHost(bindHost);
         }
         if (bindPortOpt->count() > 0) {
-            localAddress.setPort(bindPort);
+            address.setPort(bindPort);
         }
     }
 

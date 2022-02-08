@@ -60,10 +60,10 @@ namespace net::in6::config {
 
     void ConfigRemote::updateFromCommandLine() {
         if (connectHostOpt->count() > 0) {
-            remoteAddress.setHost(connectHost);
+            address.setHost(connectHost);
         }
         if (connectPortOpt->count() > 0) {
-            remoteAddress.setPort(connectPort);
+            address.setPort(connectPort);
         }
     }
 

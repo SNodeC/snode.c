@@ -58,6 +58,8 @@ namespace utils {
 
         logger::Logger::init(argc, argv);
 
+        app.option_defaults()->take_first();
+
         app.description("Configuration for application " + name);
         app.allow_extras();
         app.allow_config_extras();
@@ -104,7 +106,7 @@ namespace utils {
             app.set_config("--config", CONFFILEPATH + "/" + name + ".conf", "Read an config file", false);
         }
 
-        parse(); // for daemonize
+        parse(); // for daemonize, logfile and forceLogFile
 
         if (!_showConfig) {
             if (_daemonize) {

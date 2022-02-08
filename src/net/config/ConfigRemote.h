@@ -40,18 +40,18 @@ namespace net::config {
             if (!initialized) {
                 utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
 
-                remoteAddress = getAddress();
+                address = getAddress();
                 initialized = true;
             } else if (!updated) {
                 updateFromCommandLine();
                 updated = true;
             }
 
-            return remoteAddress;
+            return address;
         }
 
         void setRemoteAddress(const SocketAddress& remoteAddress) {
-            this->remoteAddress = remoteAddress;
+            this->address = remoteAddress;
             this->initialized = true;
         }
 
@@ -62,7 +62,7 @@ namespace net::config {
         virtual bool isPresent() const = 0;
 
     protected:
-        SocketAddress remoteAddress;
+        SocketAddress address;
 
     private:
         bool initialized = false;

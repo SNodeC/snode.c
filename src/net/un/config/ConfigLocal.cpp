@@ -53,7 +53,7 @@ namespace net::un::config {
 
     void ConfigLocal::updateFromCommandLine() {
         if (bindSunPathOpt->count() > 0) {
-            localAddress.setSunPath(bindSunPath);
+            address.setSunPath(bindSunPath);
         }
     }
 

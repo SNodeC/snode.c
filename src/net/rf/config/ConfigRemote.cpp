@@ -61,10 +61,10 @@ namespace net::rf::config {
 
     void ConfigRemote::updateFromCommandLine() {
         if (connectHostOpt->count() > 0) {
-            remoteAddress.setAddress(connectHost);
+            address.setAddress(connectHost);
         }
         if (connectChannelOpt->count() > 0) {
-            remoteAddress.setChannel(connectChannel);
+            address.setChannel(connectChannel);
         }
     }
 
