@@ -16,43 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIG_CONFIGREMOTE_H
-#define NET_UN_STREAM_CONFIG_CONFIGREMOTE_H
+#ifndef NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigRemote.h"
-#include "net/un/SocketAddress.h"
+#include "net/config/ConfigLegacy.h"
+#include "net/un/stream/config/ConfigServerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-    class Option;
-} // namespace CLI
-
 #include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::un::config {
+namespace net::un::stream::legacy::config {
 
-    class ConfigRemote : public net::config::ConfigRemote<SocketAddress> {
+    class ConfigSocketServer
+        : public net::un::stream::config::ConfigServerSocket
+        , public net::config::ConfigLegacy {
     public:
-        explicit ConfigRemote(CLI::App* baseSc);
-
-    protected:
-        void required() const;
-
-        CLI::App* connectSc = nullptr;
-        CLI::Option* connectSunPathOpt = nullptr;
-
-    private:
-        SocketAddress getAddress() const override;
-        bool isPresent() const override;
-        void updateFromCommandLine() override;
-
-        std::string connectSunPath = "";
+        explicit ConfigSocketServer(const std::string& name)
+            : net::un::stream::config::ConfigServerSocket(name)
+            , net::config::ConfigLegacy(baseSc) {
+        }
     };
 
-} // namespace net::un::config
+} // namespace net::un::stream::legacy::config
 
-#endif // NET_UN_STREAM_CONFIG_CONFIGREMOTE_H
+#endif // NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H

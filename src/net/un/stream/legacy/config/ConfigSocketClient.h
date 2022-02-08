@@ -16,20 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/config/ClientConfig.h"
+#ifndef NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
+
+#include "net/config/ConfigLegacy.h"
+#include "net/un/stream/config/ConfigClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <string>
 
-namespace net::un::stream::config {
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    ClientConfig::ClientConfig(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::un::config::ConfigRemote(baseSc)
-        , net::un::config::ConfigLocal(baseSc)
-        , net::config::ConfigConnection(baseSc) {
-        net::un::config::ConfigRemote::required();
-    }
+namespace net::un::stream::legacy::config {
 
-} // namespace net::un::stream::config
+    class ConfigSocketClient
+        : public net::un::stream::config::ConfigClientSocket
+        , public net::config::ConfigLegacy {
+    public:
+        explicit ConfigSocketClient(const std::string& name)
+            : net::un::stream::config::ConfigClientSocket(name)
+            , net::config::ConfigLegacy(baseSc) {
+        }
+    };
+
+} // namespace net::un::stream::legacy::config
+
+#endif // NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H

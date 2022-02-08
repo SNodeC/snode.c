@@ -16,30 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
-#define NET_UN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#include "net/un/stream/config/ConfigClientSocket.h"
 
-#include "net/config/ConfigTls.h"              // IWYU pragma: export
-#include "net/un/stream/config/ClientConfig.h" // IWYU pragma: export
+#include "net/config/ConfigLocalNew.hpp"
+#include "net/config/ConfigRemoteNew.hpp"
+#include "net/un/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace net::un::stream::config {
 
-namespace net::un::stream::tls::config {
+    ConfigClientSocket::ConfigClientSocket(const std::string& name)
+        : net::config::ConfigBase(name)
+        , ConfigAddressRemote(baseSc)
+        , ConfigAddressLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        ConfigAddressRemote::required();
+    }
 
-    class ClientConfig
-        : public net::un::stream::config::ClientConfig
-        , public net::config::ConfigTls {
-    public:
-        explicit ClientConfig(const std::string& name)
-            : net::un::stream::config::ClientConfig(name)
-            , net::config::ConfigTls(baseSc) {
-        }
-    };
+} // namespace net::un::stream::config
 
-} // namespace net::un::stream::tls::config
-
-#endif // NET_UN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+namespace net::config {
+    template class ConfigLocal<net::un::SocketAddress>;
+    template class ConfigRemote<net::un::SocketAddress>;
+} // namespace net::config

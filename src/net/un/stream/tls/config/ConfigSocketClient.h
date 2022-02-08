@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
-#define NET_UN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
+#ifndef NET_UN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_UN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/config/ConfigLegacy.h"
-#include "net/un/stream/config/ServerConfig.h"
+#include "net/config/ConfigTls.h"                    // IWYU pragma: export
+#include "net/un/stream/config/ConfigClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::un::stream::legacy::config {
+namespace net::un::stream::tls::config {
 
-    class ServerConfig
-        : public net::un::stream::config::ServerConfig
-        , public net::config::ConfigLegacy {
+    class ConfigSocketClient
+        : public net::un::stream::config::ConfigClientSocket
+        , public net::config::ConfigTls {
     public:
-        explicit ServerConfig(const std::string& name)
-            : net::un::stream::config::ServerConfig(name)
-            , net::config::ConfigLegacy(baseSc) {
+        explicit ConfigSocketClient(const std::string& name)
+            : net::un::stream::config::ConfigClientSocket(name)
+            , net::config::ConfigTls(baseSc) {
         }
     };
 
-} // namespace net::un::stream::legacy::config
+} // namespace net::un::stream::tls::config
 
-#endif // NET_UN_STREAM_TLS_CONFIG_SERVERCONFIG_H
+#endif // NET_UN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H

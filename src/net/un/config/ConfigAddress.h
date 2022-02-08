@@ -16,43 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIG_CONFIGLOCAL_H
-#define NET_UN_STREAM_CONFIG_CONFIGLOCAL_H
+#ifndef NET_UN_CONFIG_CONFIGADDRESS_H
+#define NET_UN_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigLocal.h"
 #include "net/un/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string> // for string
 
 namespace CLI {
     class App;
     class Option;
 } // namespace CLI
 
+#include <cstdint>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::config {
 
-    class ConfigLocal : public net::config::ConfigLocal<SocketAddress> {
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    class ConfigAddress : public ConfigAddressTypeT<net::un::SocketAddress> {
+        using SocketAddress = net::un::SocketAddress;
+        using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
+
     public:
-        explicit ConfigLocal(CLI::App* baseSc);
+        explicit ConfigAddress(CLI::App* baseSc);
 
     protected:
-        void required() const;
+        void required();
+        void sunPathRequired();
 
-        CLI::App* bindSc = nullptr;
-        CLI::Option* bindSunPathOpt = nullptr;
+        CLI::Option* sunPathOpt = nullptr;
 
     private:
-        net::un::SocketAddress getAddress() const override;
-        bool isPresent() const override;
+        SocketAddress getAddress() const override;
+
         void updateFromCommandLine() override;
 
-        std::string bindSunPath = "";
+        std::string sunPath{};
     };
 
 } // namespace net::un::config
 
-#endif // NET_UN_STREAM_CONFIG_CONFIGLOCAL_H
+#endif // NET_L2_CONFIG_CONFIGADDRESS_H

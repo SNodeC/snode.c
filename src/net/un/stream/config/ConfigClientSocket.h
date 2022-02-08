@@ -16,31 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIG_SERVERCONFIG_H
-#define NET_UN_STREAM_CONFIG_SERVERCONFIG_H
+#ifndef NET_UN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#define NET_UN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
 
-#include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
-#include "net/un/config/ConfigLocal.h"
+#include "net/config/ConfigLocalNew.h"
+#include "net/config/ConfigRemoteNew.h"
+#include "net/un/config/ConfigAddress.h"
+
+// IWYU pragma: no_include "net/un/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream::config {
 
-    class ServerConfig
+    class ConfigClientSocket
         : public net::config::ConfigBase
-        , public net::config::ConfigBacklog
-        , public net::un::config::ConfigLocal
+        , public net::un::config::ConfigAddress<net::config::ConfigRemote>
+        , public net::un::config::ConfigAddress<net::config::ConfigLocal>
         , public net::config::ConfigConnection {
+        using ConfigAddressRemote = net::un::config::ConfigAddress<net::config::ConfigRemote>;
+        using ConfigAddressLocal = net::un::config::ConfigAddress<net::config::ConfigLocal>;
+
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ConfigClientSocket(const std::string& name);
     };
 
 } // namespace net::un::stream::config
 
-#endif // NET_UN_STREAM_CONFIG_SERVERCONFIG_H
+#endif // NET_UN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H

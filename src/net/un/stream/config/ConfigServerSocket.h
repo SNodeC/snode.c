@@ -16,20 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/config/ServerConfig.h"
+#ifndef NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#define NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+
+#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
+#include "net/config/ConfigLocalNew.h"
+#include "net/un/config/ConfigAddress.h"
+
+// IWYU pragma: no_include "net/un/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream::config {
 
-    ServerConfig::ServerConfig(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::config::ConfigBacklog(baseSc)
-        , net::un::config::ConfigLocal(baseSc)
-        , net::config::ConfigConnection(baseSc) {
-        net::un::config::ConfigLocal::required();
-    }
+    class ConfigServerSocket
+        : public net::config::ConfigBase
+        , public net::config::ConfigBacklog
+        , public net::un::config::ConfigAddress<net::config::ConfigLocal>
+        , public net::config::ConfigConnection {
+        using ConfigAddressLocal = net::un::config::ConfigAddress<net::config::ConfigLocal>;
+
+    public:
+        explicit ConfigServerSocket(const std::string& name);
+    };
 
 } // namespace net::un::stream::config
+
+#endif // NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
