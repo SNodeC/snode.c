@@ -21,8 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-#include "utils/Config.h"
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,46 +33,20 @@ namespace net::config {
     template <typename SocketAddressT>
     class ConfigLocal {
     protected:
-        ConfigLocal(CLI::App* baseSc) {
-            addressSc = baseSc->add_subcommand("local");
-            addressSc->description("Bind options");
-            addressSc->configurable();
-        }
+        ConfigLocal(CLI::App* baseSc);
         virtual ~ConfigLocal() = default;
 
         using SocketAddress = SocketAddressT;
 
     public:
-        const SocketAddress& getLocalAddress() {
-            if (!initialized) {
-                utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
+        const SocketAddress& getLocalAddress();
 
-                address = getAddress();
-                initialized = true;
-            } else if (!updated) {
-                updateFromCommandLine();
-                updated = true;
-            }
-
-            return address;
-        }
-
-        void setLocalAddress(const SocketAddress& localAddress) {
-            this->address = localAddress;
-            this->initialized = true;
-        }
+        void setLocalAddress(const SocketAddress& localAddress);
 
     protected:
-        void require(CLI::Option* opt) {
-            addressSc->required();
-            opt->required();
-        }
+        void require(CLI::Option* opt);
 
-        void require(CLI::Option* opt1, CLI::Option* opt2) {
-            addressSc->required();
-            opt1->required();
-            opt2->required();
-        }
+        void require(CLI::Option* opt1, CLI::Option* opt2);
 
         CLI::App* addressSc = nullptr;
 

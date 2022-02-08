@@ -18,6 +18,7 @@
 
 #include "net/l2/stream/config/ConfigServerSocket.h"
 
+#include "net/config/ConfigLocalNew.hpp"
 #include "net/l2/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,3 +36,11 @@ namespace net::l2::stream::config {
     }
 
 } // namespace net::l2::stream::config
+
+/*
+ * Not necessary - already in ConfigClientSocket.cpp
+ *
+namespace net::config {
+    template class ConfigLocal<net::l2::SocketAddress>;
+}
+*/

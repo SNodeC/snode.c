@@ -10,7 +10,11 @@ set(NET_H
     config/ConfigBacklog.h
     config/ConfigConnection.h
     config/ConfigLocal.h
+    config/ConfigLocalNew.hpp
+    config/ConfigLocalNew.h
     config/ConfigLegacy.h
+    config/ConfigRemoteNew.hpp
+    config/ConfigRemoteNew.h
     config/ConfigRemote.h
     config/ConfigTls.h
 )
