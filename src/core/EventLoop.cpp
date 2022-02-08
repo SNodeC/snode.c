@@ -28,8 +28,7 @@
 #include "utils/Config.h"
 
 #include <cstdlib> // for exit
-#include <cstring>
-#include <string> // for string, to_string
+#include <string>  // for string, to_string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -82,7 +81,7 @@ namespace core {
     void EventLoop::init(int argc, char* argv[]) {
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
-        utils::Config::instance().init(std::string(basename(argv[0])), argc, argv);
+        utils::Config::instance().init(argc, argv);
 
         EventLoop::initialized = true;
     }
