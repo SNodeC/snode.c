@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
-#define NET_IN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
+#ifndef NET_IN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_IN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
 
 #include "net/config/ConfigLegacy.h"
-#include "net/in/stream/config/ServerConfig.h"
+#include "net/in/stream/config/ConfigClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,16 +30,16 @@
 
 namespace net::in::stream::legacy::config {
 
-    class ServerConfig
-        : public net::in::stream::config::ServerConfig
+    class ConfigSocketClient
+        : public net::in::stream::config::ConfigClientSocket
         , public net::config::ConfigLegacy {
     public:
-        explicit ServerConfig(const std::string& name)
-            : net::in::stream::config::ServerConfig(name)
+        explicit ConfigSocketClient(const std::string& name)
+            : net::in::stream::config::ConfigClientSocket(name)
             , net::config::ConfigLegacy(baseSc) {
         }
     };
 
 } // namespace net::in::stream::legacy::config
 
-#endif // NET_IN_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
+#endif // NET_IN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_CONFIG_SERVERCONFIG_H
-#define NET_IN_STREAM_CONFIG_SERVERCONFIG_H
+#ifndef NET_IN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#define NET_IN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
 
 #include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
@@ -32,15 +32,15 @@
 
 namespace net::in::stream::config {
 
-    class ServerConfig
+    class ConfigServerSocket
         : public net::config::ConfigBase
         , public net::config::ConfigBacklog
         , public net::in::config::ConfigLocal
         , public net::config::ConfigConnection {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ConfigServerSocket(const std::string& name);
     };
 
 } // namespace net::in::stream::config
 
-#endif // NET_IN_STREAM_CONFIG_SERVERCONFIG_H
+#endif // NET_IN_STREAM_CONFIG_CONFIGSERVERSOCKET_H

@@ -7,8 +7,8 @@ set(NET-IN_CPP
     stream/ClientSocket.cpp
     stream/ServerSocket.cpp
     stream/Socket.cpp
-    stream/config/ClientConfig.cpp
-    stream/config/ServerConfig.cpp
+    stream/config/ConfigClientSocket.cpp
+    stream/config/ConfigServerSocket.cpp
 )
 
 set(NET-IN_H
@@ -18,16 +18,16 @@ set(NET-IN_H
     stream/ClientSocket.h
     stream/ServerSocket.h
     stream/Socket.h
-    stream/config/ClientConfig.h
-    stream/config/ServerConfig.h
+    stream/config/ConfigClientSocket.h
+    stream/config/ConfigServerSocket.h
     stream/legacy/SocketClient.h
     stream/legacy/SocketServer.h
-    stream/legacy/config/ClientConfig.h
-    stream/legacy/config/ServerConfig.h
+    stream/legacy/config/ConfigSocketClient.h
+    stream/legacy/config/ConfigSocketServer.h
     stream/tls/SocketClient.h
     stream/tls/SocketServer.h
-    stream/tls/config/ClientConfig.h
-    stream/tls/config/ServerConfig.h
+    stream/tls/config/ConfigSocketClient.h
+    stream/tls/config/ConfigSocketServer.h
 )
 
 add_library(net-in SHARED ${NET-IN_CPP} ${NET-IN_H})

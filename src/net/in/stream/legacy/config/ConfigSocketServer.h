@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
-#define NET_IN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#ifndef NET_IN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_IN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigTls.h"              // IWYU pragma: export
-#include "net/in/stream/config/ClientConfig.h" // IWYU pragma: export
+#include "net/config/ConfigLegacy.h"
+#include "net/in/stream/config/ConfigServerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in::stream::tls::config {
+namespace net::in::stream::legacy::config {
 
-    class ClientConfig
-        : public net::in::stream::config::ClientConfig
-        , public net::config::ConfigTls {
+    class ConfigSocketServer
+        : public net::in::stream::config::ConfigServerSocket
+        , public net::config::ConfigLegacy {
     public:
-        explicit ClientConfig(const std::string& name)
-            : net::in::stream::config::ClientConfig(name)
-            , net::config::ConfigTls(baseSc) {
+        explicit ConfigSocketServer(const std::string& name)
+            : net::in::stream::config::ConfigServerSocket(name)
+            , net::config::ConfigLegacy(baseSc) {
         }
     };
 
-} // namespace net::in::stream::tls::config
+} // namespace net::in::stream::legacy::config
 
-#endif // NET_IN_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#endif // NET_IN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H

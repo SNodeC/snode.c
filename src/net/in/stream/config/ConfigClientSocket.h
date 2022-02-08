@@ -16,30 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
-#define NET_IN_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
+#ifndef NET_IN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#define NET_IN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
 
-#include "net/config/ConfigLegacy.h"
-#include "net/in/stream/config/ClientConfig.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
+#include "net/in/config/ConfigLocal.h"
+#include "net/in/config/ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream::legacy::config {
+namespace net::in::stream::config {
 
-    class ClientConfig
-        : public net::in::stream::config::ClientConfig
-        , public net::config::ConfigLegacy {
+    class ConfigClientSocket
+        : public net::config::ConfigBase
+        , public net::in::config::ConfigRemote
+        , public net::in::config::ConfigLocal
+        , public net::config::ConfigConnection {
     public:
-        explicit ClientConfig(const std::string& name)
-            : net::in::stream::config::ClientConfig(name)
-            , net::config::ConfigLegacy(baseSc) {
-        }
+        explicit ConfigClientSocket(const std::string& name);
     };
 
-} // namespace net::in::stream::legacy::config
+} // namespace net::in::stream::config
 
-#endif // NET_IN_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
+#endif // NET_IN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H

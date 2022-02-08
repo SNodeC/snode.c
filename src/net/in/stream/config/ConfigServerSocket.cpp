@@ -16,31 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_CONFIG_CLIENTCONFIG_H
-#define NET_IN_STREAM_CONFIG_CLIENTCONFIG_H
-
-#include "net/config/ConfigBase.h"
-#include "net/config/ConfigConnection.h"
-#include "net/in/config/ConfigLocal.h"
-#include "net/in/config/ConfigRemote.h"
+#include "net/in/stream/config/ConfigServerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in::stream::config {
 
-    class ClientConfig
-        : public net::config::ConfigBase
-        , public net::in::config::ConfigRemote
-        , public net::in::config::ConfigLocal
-        , public net::config::ConfigConnection {
-    public:
-        explicit ClientConfig(const std::string& name);
-    };
+    ConfigServerSocket::ConfigServerSocket(const std::string& name)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
+        , net::in::config::ConfigLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        net::in::config::ConfigLocal::required();
+    }
 
 } // namespace net::in::stream::config
-
-#endif // NET_IN_STREAM_CONFIG_CLIENTCONFIG_H

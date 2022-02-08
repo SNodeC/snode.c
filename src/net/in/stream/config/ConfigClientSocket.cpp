@@ -16,30 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_TLS_SERVERCONFIG_H
-#define NET_IN_STREAM_TLS_SERVERCONFIG_H
-
-#include "net/config/ConfigTls.h"              // IWYU pragma: export
-#include "net/in/stream/config/ServerConfig.h" // IWYU pragma: export
+#include "net/in/stream/config/ConfigClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace net::in::stream::config {
 
-namespace net::in::stream::tls::config {
+    ConfigClientSocket::ConfigClientSocket(const std::string& name)
+        : net::config::ConfigBase(name)
+        , net::in::config::ConfigRemote(baseSc)
+        , net::in::config::ConfigLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        net::in::config::ConfigRemote::required();
+    }
 
-    class ServerConfig
-        : public net::in::stream::config::ServerConfig
-        , public net::config::ConfigTls {
-    public:
-        explicit ServerConfig(const std::string& name)
-            : net::in::stream::config::ServerConfig(name)
-            , net::config::ConfigTls(baseSc) {
-        }
-    };
-
-} // namespace net::in::stream::tls::config
-
-#endif // NET_IN_STREAM_TLS_SERVERCONFIG_H
+} // namespace net::in::stream::config
