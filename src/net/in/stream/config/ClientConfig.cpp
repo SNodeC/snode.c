@@ -26,7 +26,6 @@ namespace net::in::stream::config {
 
     ClientConfig::ClientConfig(const std::string& name)
         : net::config::ConfigBase(name)
-        , net::config::ConfigBacklog(baseSc)
         , net::in::config::ConfigRemote(baseSc)
         , net::in::config::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {

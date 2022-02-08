@@ -25,7 +25,6 @@
 namespace net::un::stream::config {
     ClientConfig::ClientConfig(const std::string& name)
         : net::config::ConfigBase(name)
-        , net::config::ConfigBacklog(baseSc)
         , net::un::config::ConfigRemote(baseSc)
         , net::un::config::ConfigLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {

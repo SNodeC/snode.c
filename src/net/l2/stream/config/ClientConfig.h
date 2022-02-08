@@ -19,7 +19,6 @@
 #ifndef NET_L2_STREAM_CONFIG_CLIENTCONFIG_H
 #define NET_L2_STREAM_CONFIG_CLIENTCONFIG_H
 
-#include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
 #include "net/l2/config/ConfigLocal.h"
@@ -35,7 +34,6 @@ namespace net::l2::stream::config {
 
     class ClientConfig
         : public net::config::ConfigBase
-        , public net::config::ConfigBacklog
         , public net::l2::config::ConfigRemote
         , public net::l2::config::ConfigLocal
         , public net::config::ConfigConnection {

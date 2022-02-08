@@ -19,7 +19,6 @@
 #ifndef NET_UN_STREAM_CONFIG_CLIENTCONFIG_H
 #define NET_UN_STREAM_CONFIG_CLIENTCONFIG_H
 
-#include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
 #include "net/un/config/ConfigLocal.h"
@@ -35,7 +34,6 @@ namespace net::un::stream::config {
 
     class ClientConfig
         : public net::config::ConfigBase
-        , public net::config::ConfigBacklog
         , public net::un::config::ConfigRemote
         , public net::un::config::ConfigLocal
         , public net::config::ConfigConnection {

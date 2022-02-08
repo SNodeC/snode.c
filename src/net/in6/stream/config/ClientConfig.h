@@ -19,7 +19,6 @@
 #ifndef NET_IN6_STREAM_CONFIG_CLIENTCONFIG_H
 #define NET_IN6_STREAM_CONFIG_CLIENTCONFIG_H
 
-#include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
 #include "net/in6/config/ConfigLocal.h"
@@ -35,7 +34,6 @@ namespace net::in6::stream {
 
     class ClientConfig
         : public net::config::ConfigBase
-        , public net::config::ConfigBacklog
         , public net::in6::config::ConfigRemote
         , public net::in6::config::ConfigLocal
         , public net::config::ConfigConnection {
