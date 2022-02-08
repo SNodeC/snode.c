@@ -16,20 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/stream/config/ClientConfig.h"
+#ifndef NET_L2_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_L2_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
+
+#include "net/config/ConfigLegacy.h"
+#include "net/l2/stream/config/ConfigClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <string>
 
-namespace net::l2::stream::config {
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    ClientConfig::ClientConfig(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::l2::config::ConfigRemote(baseSc)
-        , net::l2::config::ConfigLocal(baseSc)
-        , net::config::ConfigConnection(baseSc) {
-        net::l2::config::ConfigRemote::required();
-    }
+namespace net::l2::stream::legacy::config {
 
-} // namespace net::l2::stream::config
+    class ConfigSocketClient
+        : public net::l2::stream::config::ConfigClientSocket
+        , public net::config::ConfigLegacy {
+    public:
+        explicit ConfigSocketClient(const std::string& name)
+            : net::l2::stream::config::ConfigClientSocket(name)
+            , net::config::ConfigLegacy(baseSc) {
+        }
+    };
+
+} // namespace net::l2::stream::legacy::config
+
+#endif // NET_L2_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H

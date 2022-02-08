@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
-#define NET_IN6_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
+#ifndef NET_L2_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_L2_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigLegacy.h"
-#include "net/in6/stream/config/ClientConfig.h"
+#include "net/l2/stream/config/ConfigServerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in6::stream::legacy::config {
+namespace net::l2::stream::legacy::config {
 
-    class ClientConfig
-        : public net::in6::stream::ClientConfig
+    class ConfigSocketServer
+        : public net::l2::stream::config::ConfigServerSocket
         , public net::config::ConfigLegacy {
     public:
-        explicit ClientConfig(const std::string& name)
-            : net::in6::stream::ClientConfig(name)
+        explicit ConfigSocketServer(const std::string& name)
+            : net::l2::stream::config::ConfigServerSocket(name)
             , net::config::ConfigLegacy(baseSc) {
         }
     };
 
-} // namespace net::in6::stream::legacy::config
+} // namespace net::l2::stream::legacy::config
 
-#endif // NET_IN6_STREAM_LEGACY_CONFIG_CLIENTCONFIG_H
+#endif // NET_L2_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H

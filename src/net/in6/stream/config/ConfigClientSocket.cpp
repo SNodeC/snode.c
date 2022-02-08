@@ -16,20 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in6/stream/config/ServerConfig.h"
+#include "net/in6/stream/config/ConfigClientSocket.h"
+
+#include "net/in6/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6::stream {
+namespace net::in6::stream::config {
 
-    ServerConfig::ServerConfig(const std::string& name)
+    ConfigClientSocket::ConfigClientSocket(const std::string& name)
         : net::config::ConfigBase(name)
-        , net::config::ConfigBacklog(baseSc)
-        , net::in6::config::ConfigLocal(baseSc)
+        , ConfigAddressRemote(baseSc)
+        , ConfigAddressLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::in6::config::ConfigLocal::required();
+        ConfigAddressRemote::required();
     }
 
-} // namespace net::in6::stream
+} // namespace net::in6::stream::config

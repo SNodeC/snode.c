@@ -2,32 +2,30 @@ cmake_minimum_required(VERSION 3.0)
 
 set(NET-IN6_CPP
     SocketAddress.cpp
-    config/ConfigLocal.cpp
-    config/ConfigRemote.cpp
     stream/ClientSocket.cpp
     stream/ServerSocket.cpp
     stream/Socket.cpp
-    stream/config/ClientConfig.cpp
-    stream/config/ServerConfig.cpp
+    stream/config/ConfigClientSocket.cpp
+    stream/config/ConfigServerSocket.cpp
 )
 
 set(NET-IN6_H
     SocketAddress.h
-    config/ConfigLocal.h
-    config/ConfigRemote.h
+    config/ConfigAddress.h
+    config/ConfigAddress.hpp
     stream/ClientSocket.h
     stream/ServerSocket.h
     stream/Socket.h
-    stream/config/ClientConfig.h
-    stream/config/ServerConfig.h
+    stream/config/ConfigClientSocket.h
+    stream/config/ConfigServerSocket.h
     stream/legacy/SocketClient.h
     stream/legacy/SocketServer.h
-    stream/legacy/config/ClientConfig.h
-    stream/legacy/config/ServerConfig.h
+    stream/legacy/config/ConfigSocketClient.h
+    stream/legacy/config/ConfigSocketServer.h
     stream/tls/SocketClient.h
     stream/tls/SocketServer.h
-    stream/tls/config/ClientConfig.h
-    stream/tls/config/ServerConfig.h
+    stream/tls/config/ConfigSocketClient.h
+    stream/tls/config/ConfigSocketServer.h
 )
 
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})

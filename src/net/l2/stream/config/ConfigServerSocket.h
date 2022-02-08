@@ -16,31 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_CONFIG_CLIENTCONFIG_H
-#define NET_IN6_STREAM_CONFIG_CLIENTCONFIG_H
+#ifndef NET_L2_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#define NET_L2_STREAM_CONFIG_CONFIGSERVERSOCKET_H
 
+#include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
-#include "net/in6/config/ConfigLocal.h"
-#include "net/in6/config/ConfigRemote.h"
+#include "net/config/ConfigLocalNew.h"
+#include "net/l2/config/ConfigAddress.h"
+
+// IWYU pragma: no_include "net/l2/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6::stream {
+namespace net::l2::stream::config {
 
-    class ClientConfig
+    class ConfigServerSocket
         : public net::config::ConfigBase
-        , public net::in6::config::ConfigRemote
-        , public net::in6::config::ConfigLocal
+        , public net::config::ConfigBacklog
+        , public net::l2::config::ConfigAddress<net::config::ConfigLocal>
         , public net::config::ConfigConnection {
+        using ConfigAddressLocal = net::l2::config::ConfigAddress<net::config::ConfigLocal>;
+
     public:
-        explicit ClientConfig(const std::string& name);
+        explicit ConfigServerSocket(const std::string& name);
     };
 
-} // namespace net::in6::stream
+} // namespace net::l2::stream::config
 
-#endif // NET_IN6_STREAM_CONFIG_CLIENTCONFIG_H
+#endif // NET_IN6_STREAM_CONFIG_CONFIGSERVERSOCKET_H

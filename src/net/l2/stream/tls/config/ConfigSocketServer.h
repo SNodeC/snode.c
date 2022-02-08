@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_TLS_SERVERCONFIG_H
-#define NET_IN6_STREAM_TLS_SERVERCONFIG_H
+#ifndef NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigTls.h"               // IWYU pragma: export
-#include "net/in6/stream/config/ServerConfig.h" // IWYU pragma: export
+#include "net/config/ConfigTls.h"                    // IWYU pragma: export
+#include "net/l2/stream/config/ConfigServerSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,18 +28,18 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in6::stream::tls::config {
+namespace net::l2::stream::tls::config {
 
-    class ServerConfig
-        : public net::in6::stream::ServerConfig
+    class ConfigSocketServer
+        : public net::l2::stream::config::ConfigServerSocket
         , public net::config::ConfigTls {
     public:
-        explicit ServerConfig(const std::string& name)
-            : net::in6::stream::ServerConfig(name)
+        explicit ConfigSocketServer(const std::string& name)
+            : net::l2::stream::config::ConfigServerSocket(name)
             , net::config::ConfigTls(baseSc) {
         }
     };
 
-} // namespace net::in6::stream::tls::config
+} // namespace net::l2::stream::tls::config
 
-#endif // NET_IN6_STREAM_TLS_SERVERCONFIG_H
+#endif // NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H

@@ -16,31 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_CONFIG_SERVERCONFIG_H
-#define NET_L2_STREAM_CONFIG_SERVERCONFIG_H
+#include "net/l2/stream/config/ConfigServerSocket.h"
 
-#include "net/config/ConfigBacklog.h"
-#include "net/config/ConfigBase.h"
-#include "net/config/ConfigConnection.h"
-#include "net/l2/config/ConfigLocal.h"
+#include "net/l2/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream::config {
 
-    class ServerConfig
-        : public net::config::ConfigBase
-        , public net::config::ConfigBacklog
-        , public net::l2::config::ConfigLocal
-        , public net::config::ConfigConnection {
-    public:
-        explicit ServerConfig(const std::string& name);
-    };
+    ConfigServerSocket::ConfigServerSocket(const std::string& name)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
+        , ConfigAddressLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        ConfigAddressLocal::portRequired();
+    }
 
 } // namespace net::l2::stream::config
-
-#endif // NET_L2_STREAM_CONFIG_SERVERCONFIG_H

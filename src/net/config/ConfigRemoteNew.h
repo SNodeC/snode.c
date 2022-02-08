@@ -35,7 +35,6 @@ namespace net::config {
             addressSc = baseSc->add_subcommand("remote");
             addressSc->description("Connect options");
             addressSc->configurable();
-            addressSc->required();
         }
 
         virtual ~ConfigRemote() = default;
@@ -62,17 +61,25 @@ namespace net::config {
             this->initialized = true;
         }
 
-    private:
-        virtual void updateFromCommandLine() = 0;
-
-        virtual SocketAddress getAddress() const = 0;
-
     protected:
-        CLI::App* addressSc = nullptr;
+        void require(CLI::Option* opt) {
+            addressSc->required();
+            opt->required();
+        }
 
+        void require(CLI::Option* opt1, CLI::Option* opt2) {
+            addressSc->required();
+            opt1->required();
+            opt2->required();
+        }
+
+        CLI::App* addressSc = nullptr;
         SocketAddress address;
 
     private:
+        virtual void updateFromCommandLine() = 0;
+        virtual SocketAddress getAddress() const = 0;
+
         bool initialized = false;
         bool updated = false;
     };

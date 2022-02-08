@@ -16,30 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_TLS_CONFIG_CLIENTCONFIG_H
-#define NET_L2_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#include "net/l2/stream/config/ConfigClientSocket.h"
 
-#include "net/config/ConfigTls.h"              // IWYU pragma: export
-#include "net/l2/stream/config/ClientConfig.h" // IWYU pragma: export
+#include "net/l2/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace net::l2::stream::config {
 
-namespace net::l2::stream::tls::config {
+    ConfigClientSocket::ConfigClientSocket(const std::string& name)
+        : net::config::ConfigBase(name)
+        , ConfigAddressRemote(baseSc)
+        , ConfigAddressLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        ConfigAddressRemote::required();
+    }
 
-    class ClientConfig
-        : public net::l2::stream::config::ClientConfig
-        , public net::config::ConfigTls {
-    public:
-        explicit ClientConfig(const std::string& name)
-            : net::l2::stream::config::ClientConfig(name)
-            , net::config::ConfigTls(baseSc) {
-        }
-    };
-
-} // namespace net::l2::stream::tls::config
-
-#endif // NET_L2_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+} // namespace net::l2::stream::config

@@ -24,14 +24,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::config {
+namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc)
         : ConfigAddressType(baseSc) {
         hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Host name or IP address");
         hostOpt->type_name("[hostname|ip]");
-        hostOpt->default_val("0.0.0.0");
+        hostOpt->default_val("::");
         hostOpt->take_first();
         hostOpt->configurable();
 
@@ -67,4 +67,4 @@ namespace net::in::config {
         }
     }
 
-} // namespace net::in::config
+} // namespace net::in6::config

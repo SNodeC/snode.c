@@ -19,9 +19,9 @@
 #ifndef NET_IN6_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_IN6_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/legacy/SocketClient.h"    // IWYU pragma: export
-#include "net/in6/stream/ClientSocket.h"               // IWYU pragma: export
-#include "net/in6/stream/legacy/config/ClientConfig.h" // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketClient.h"          // IWYU pragma: export
+#include "net/in6/stream/ClientSocket.h"                     // IWYU pragma: export
+#include "net/in6/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace net::in6::stream::legacy {
 
     template <typename SocketContextFactoryT>
     using SocketClient = core::socket::stream::legacy::
-        SocketClient<net::in6::stream::ClientSocket, net::in6::stream::legacy::config::ClientConfig, SocketContextFactoryT>;
+        SocketClient<net::in6::stream::ClientSocket, net::in6::stream::legacy::config::ConfigSocketClient, SocketContextFactoryT>;
 
 } // namespace net::in6::stream::legacy
 

@@ -16,46 +16,49 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_CONFIG_CONFIGLOCAL_H
-#define NET_L2_CONFIG_CONFIGLOCAL_H
+#ifndef NET_IN6_CONFIG_CONFIGADDRESS_H
+#define NET_IN6_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigLocal.h"
-#include "net/l2/SocketAddress.h"
+#include "net/in6/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint> // for uint16_t
-#include <string>  // for string
 
 namespace CLI {
     class App;
     class Option;
 } // namespace CLI
 
+#include <cstdint>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::config {
+namespace net::in6::config {
 
-    class ConfigLocal : public net::config::ConfigLocal<SocketAddress> {
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    class ConfigAddress : public ConfigAddressTypeT<net::in6::SocketAddress> {
+        using SocketAddress = net::in6::SocketAddress;
+        using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
+
     public:
-        explicit ConfigLocal(CLI::App* baseSc);
+        explicit ConfigAddress(CLI::App* baseSc);
 
     protected:
-        void required() const;
+        void required();
+        void portRequired();
 
-        CLI::App* bindSc = nullptr;
-        CLI::Option* bindHostOpt = nullptr;
-        CLI::Option* bindPsmOpt = nullptr;
+        CLI::Option* hostOpt = nullptr;
+        CLI::Option* portOpt = nullptr;
 
     private:
         SocketAddress getAddress() const override;
-        bool isPresent() const override;
+
         void updateFromCommandLine() override;
 
-        std::string bindHost = "";
-        uint16_t bindPsm = 0;
+        std::string host{};
+        uint16_t port{};
     };
 
-} // namespace net::l2::config
+} // namespace net::in6::config
 
-#endif // NET_L2_CONFIG_CONFIGLOCAL_H
+#endif // NET_IN6_CONFIG_CONFIGADDRESS_H

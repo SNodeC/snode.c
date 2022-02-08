@@ -19,9 +19,9 @@
 #ifndef NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/tls/SocketClient.h"   // IWYU pragma: export
-#include "net/l2/stream/ClientSocket.h"            // IWYU pragma: export
-#include "net/l2/stream/tls/config/ClientConfig.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketClient.h"         // IWYU pragma: export
+#include "net/l2/stream/ClientSocket.h"                  // IWYU pragma: export
+#include "net/l2/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace net::l2::stream::tls {
 
     template <typename SocketContextFactoryT>
     using SocketClient = core::socket::stream::tls::
-        SocketClient<net::l2::stream::ClientSocket, net::l2::stream::tls::config::ClientConfig, SocketContextFactoryT>;
+        SocketClient<net::l2::stream::ClientSocket, net::l2::stream::tls::config::ConfigSocketClient, SocketContextFactoryT>;
 
 } // namespace net::l2::stream::tls
 
