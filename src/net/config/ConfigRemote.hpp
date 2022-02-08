@@ -16,7 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ConfigLocalNew.h"
+#ifndef NET_CONFIGREMOTE_HPP
+#define NET_CONFIGREMOTE_HPP
+
+#include "ConfigRemote.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,14 +31,14 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigLocal<SocketAddress>::ConfigLocal(CLI::App* baseSc) {
-        addressSc = baseSc->add_subcommand("local");
-        addressSc->description("Bind options");
+    ConfigRemote<SocketAddress>::ConfigRemote(CLI::App* baseSc) {
+        addressSc = baseSc->add_subcommand("remote");
+        addressSc->description("Connect options");
         addressSc->configurable();
     }
 
     template <typename SocketAddress>
-    const SocketAddress& ConfigLocal<SocketAddress>::getLocalAddress() {
+    const SocketAddress& ConfigRemote<SocketAddress>::getRemoteAddress() {
         if (!initialized) {
             utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
 
@@ -50,22 +53,24 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    void ConfigLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
-        this->address = localAddress;
+    void ConfigRemote<SocketAddress>::setRemoteAddress(const SocketAddress& remoteAddress) {
+        this->address = remoteAddress;
         this->initialized = true;
     }
 
-    template <typename SocketAddress>
-    void ConfigLocal<SocketAddress>::require(CLI::Option* opt) {
+    template <typename SocketAddressT>
+    void ConfigRemote<SocketAddressT>::require(CLI::Option* opt) {
         addressSc->required();
         opt->required();
     }
 
-    template <typename SocketAddress>
-    void ConfigLocal<SocketAddress>::require(CLI::Option* opt1, CLI::Option* opt2) {
+    template <typename SocketAddressT>
+    void ConfigRemote<SocketAddressT>::require(CLI::Option* opt1, CLI::Option* opt2) {
         addressSc->required();
         opt1->required();
         opt2->required();
     }
 
 } // namespace net::config
+
+#endif // NET_CONFIGREMOTE_HPP

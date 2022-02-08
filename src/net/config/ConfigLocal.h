@@ -21,7 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Config.h"
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,42 +33,29 @@ namespace net::config {
     template <typename SocketAddressT>
     class ConfigLocal {
     protected:
-        ConfigLocal() = default;
-
+        ConfigLocal(CLI::App* baseSc);
         virtual ~ConfigLocal() = default;
 
         using SocketAddress = SocketAddressT;
 
     public:
-        const SocketAddress& getLocalAddress() {
-            if (!initialized) {
-                utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
+        const SocketAddress& getLocalAddress();
 
-                address = getAddress();
-                initialized = true;
-            } else if (!updated) {
-                updateFromCommandLine();
-                updated = true;
-            }
-
-            return address;
-        }
-
-        void setLocalAddress(const SocketAddress& localAddress) {
-            this->address = localAddress;
-            this->initialized = true;
-        }
-
-    private:
-        virtual void updateFromCommandLine() = 0;
-
-        virtual SocketAddress getAddress() const = 0;
-        virtual bool isPresent() const = 0;
+        void setLocalAddress(const SocketAddress& localAddress);
 
     protected:
+        void require(CLI::Option* opt);
+
+        void require(CLI::Option* opt1, CLI::Option* opt2);
+
+        CLI::App* addressSc = nullptr;
+
         SocketAddress address;
 
     private:
+        virtual void updateFromCommandLine() = 0;
+        virtual SocketAddress getAddress() const = 0;
+
         bool initialized = false;
         bool updated = false;
     };
