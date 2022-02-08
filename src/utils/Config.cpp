@@ -25,7 +25,9 @@
 
 #include "log/Logger.h"
 
+#include <cerrno>
 #include <cstdlib>
+#include <filesystem>
 #include <ostream>   // for ofstream, basic_ostream
 #include <stdexcept> // for invalid_argument, out_of_range
 
@@ -51,8 +53,9 @@ namespace utils {
         return config;
     }
 
-    int Config::init(const std::string& name, int argc, char* argv[]) {
-        this->name = name;
+    int Config::init(int argc, char* argv[]) {
+        this->name = std::filesystem::path(argv[0]).filename();
+        this->name = std::string(basename(argv[0]));
         this->argc = argc;
         this->argv = argv;
 
@@ -167,9 +170,15 @@ namespace utils {
         return app.add_subcommand(subcommand_name, subcommand_description);
     }
 
+    std::string Config::getApplicationName() {
+        return name;
+    }
+
     int Config::parse(bool stopOnError) {
         try {
+            int errnotmp = errno;
             Config::app.parse(argc, argv);
+            errno = errnotmp;
         } catch (const CLI::ParseError& e) {
             if (stopOnError && !_showConfig) {
                 exit(Config::app.exit(e));

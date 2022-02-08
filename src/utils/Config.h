@@ -38,7 +38,7 @@ namespace utils {
 
     public:
         static Config& instance();
-        int init(const std::string& name, int argc, char* argv[]);
+        int init(int argc, char* argv[]);
 
         void prepare();
 
@@ -51,6 +51,8 @@ namespace utils {
         bool kill() const;
 
         CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
+
+        std::string getApplicationName();
 
         int parse(bool stopOnError = false);
 
