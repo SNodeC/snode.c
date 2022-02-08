@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_TLS_CONFIG_CLIENTCONFIG_H
-#define NET_RF_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#ifndef NET_RF_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_RF_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/config/ConfigTls.h"              // IWYU pragma: export
-#include "net/rf/stream/config/ClientConfig.h" // IWYU pragma: export
+#include "net/config/ConfigTls.h"                    // IWYU pragma: export
+#include "net/rf/stream/config/ConfigClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,16 +30,16 @@
 
 namespace net::rf::stream::tls::config {
 
-    class ClientConfig
-        : public net::rf::stream::config::ClientConfig
+    class ConfigSocketClient
+        : public net::rf::stream::config::ConfigClientSocket
         , public net::config::ConfigTls {
     public:
-        explicit ClientConfig(const std::string& name)
-            : net::rf::stream::config::ClientConfig(name)
+        explicit ConfigSocketClient(const std::string& name)
+            : net::rf::stream::config::ConfigClientSocket(name)
             , net::config::ConfigTls(baseSc) {
         }
     };
 
 } // namespace net::rf::stream::tls::config
 
-#endif // NET_RF_STREAM_TLS_CONFIG_CLIENTCONFIG_H
+#endif // NET_RF_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H

@@ -48,4 +48,4 @@ namespace net::l2::stream::config {
 
 } // namespace net::l2::stream::config
 
-#endif // NET_IN6_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#endif // NET_L2_STREAM_CONFIG_CONFIGSERVERSOCKET_H

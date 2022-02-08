@@ -16,20 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rf/stream/config/ClientConfig.h"
+#ifndef NET_RF_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#define NET_RF_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+
+#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
+#include "net/config/ConfigLocalNew.h"
+#include "net/rf/config/ConfigAddress.h"
+
+// IWYU pragma: no_include "net/rf/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rf::stream::config {
 
-    ClientConfig::ClientConfig(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::rf::config::ConfigRemote(baseSc)
-        , net::rf::config::ConfigLocal(baseSc)
-        , net::config::ConfigConnection(baseSc) {
-        net::rf::config::ConfigRemote::required();
-    }
+    class ConfigServerSocket
+        : public net::config::ConfigBase
+        , public net::config::ConfigBacklog
+        , public net::rf::config::ConfigAddress<net::config::ConfigLocal>
+        , public net::config::ConfigConnection {
+        using ConfigAddressLocal = net::rf::config::ConfigAddress<net::config::ConfigLocal>;
+
+    public:
+        explicit ConfigServerSocket(const std::string& name);
+    };
 
 } // namespace net::rf::stream::config
+
+#endif // NET_RF_STREAM_CONFIG_CONFIGSERVERSOCKET_H

@@ -16,10 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_CONFIG_CONFIGREMOTE_H
-#define NET_RF_STREAM_CONFIG_CONFIGREMOTE_H
+#ifndef NET_RF_CONFIG_CONFIGADDRESS_H
+#define NET_RF_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigRemote.h"
 #include "net/rf/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,26 +35,30 @@ namespace CLI {
 
 namespace net::rf::config {
 
-    class ConfigRemote : public net::config::ConfigRemote<SocketAddress> {
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    class ConfigAddress : public ConfigAddressTypeT<net::rf::SocketAddress> {
+        using SocketAddress = net::rf::SocketAddress;
+        using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
+
     public:
-        explicit ConfigRemote(CLI::App* baseSc);
+        explicit ConfigAddress(CLI::App* baseSc);
 
     protected:
-        void required() const;
+        void required();
+        void channelRequired();
 
-        CLI::App* connectSc = nullptr;
-        CLI::Option* connectHostOpt = nullptr;
-        CLI::Option* connectChannelOpt = nullptr;
+        CLI::Option* hostOpt = nullptr;
+        CLI::Option* channelOpt = nullptr;
 
     private:
         SocketAddress getAddress() const override;
-        bool isPresent() const override;
+
         void updateFromCommandLine() override;
 
-        std::string connectHost = "";
-        uint8_t connectChannel = 0;
+        std::string host{};
+        uint8_t channel{};
     };
 
 } // namespace net::rf::config
 
-#endif // NET_RF_STREAM_CONFIG_CONFIGREMOTE_H
+#endif // NET_RF_CONFIG_CONFIGADDRESS_H

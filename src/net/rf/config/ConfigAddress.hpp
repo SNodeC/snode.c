@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::config {
+namespace net::rf::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc)
@@ -35,26 +35,26 @@ namespace net::l2::config {
         hostOpt->take_first();
         hostOpt->configurable();
 
-        psmOpt = ConfigAddressType::addressSc->add_option("-p,--psm", psm, "Protocol service multiplexer");
-        psmOpt->type_name("[uint16_t]");
-        psmOpt->default_val(0);
-        psmOpt->take_first();
-        psmOpt->configurable();
+        channelOpt = ConfigAddressType::addressSc->add_option("-c,--channel", channel, "Channel number");
+        channelOpt->type_name("[uint8_t]");
+        channelOpt->default_val(0);
+        channelOpt->take_first();
+        channelOpt->configurable();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
-        ConfigAddressType::require(hostOpt, psmOpt);
+        ConfigAddressType::require(hostOpt, channelOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::psmRequired() {
-        ConfigAddressType::require(psmOpt);
+    void ConfigAddress<ConfigAddressType>::channelRequired() {
+        ConfigAddressType::require(channelOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
-        return SocketAddress(host, psm);
+        return SocketAddress(host, channel);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -62,9 +62,9 @@ namespace net::l2::config {
         if (hostOpt->count() > 0) {
             ConfigAddressType::address.setAddress(host);
         }
-        if (psmOpt->count() > 0) {
-            ConfigAddressType::address.setPsm(psm);
+        if (channelOpt->count() > 0) {
+            ConfigAddressType::address.setChannel(channel);
         }
     }
 
-} // namespace net::l2::config
+} // namespace net::rf::config

@@ -16,31 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_CONFIG_SERVERCONFIG_H
-#define NET_RF_STREAM_CONFIG_SERVERCONFIG_H
+#ifndef NET_RF_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_RF_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/config/ConfigBacklog.h"
-#include "net/config/ConfigBase.h"
-#include "net/config/ConfigConnection.h"
-#include "net/rf/config/ConfigLocal.h"
+#include "net/config/ConfigLegacy.h"
+#include "net/rf/stream/config/ConfigClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::rf::stream::config {
+namespace net::rf::stream::legacy::config {
 
-    class ServerConfig
-        : public net::config::ConfigBase
-        , public net::config::ConfigBacklog
-        , public net::rf::config::ConfigLocal
-        , public net::config::ConfigConnection {
+    class ConfigSocketClient
+        : public net::rf::stream::config::ConfigClientSocket
+        , public net::config::ConfigLegacy {
     public:
-        explicit ServerConfig(const std::string& name);
+        explicit ConfigSocketClient(const std::string& name)
+            : net::rf::stream::config::ConfigClientSocket(name)
+            , net::config::ConfigLegacy(baseSc) {
+        }
     };
 
-} // namespace net::rf::stream::config
+} // namespace net::rf::stream::legacy::config
 
-#endif // NET_RF_STREAM_CONFIG_SERVERCONFIG_H
+#endif // NET_RF_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H

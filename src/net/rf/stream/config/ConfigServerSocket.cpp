@@ -16,30 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
-#define NET_RF_STREAM_LEGACY_CONFIG_SERVERCONFIG_H
+#include "net/rf/stream/config/ConfigServerSocket.h"
 
-#include "net/config/ConfigLegacy.h"
-#include "net/rf/stream/config/ServerConfig.h"
+#include "net/config/ConfigLocalNew.hpp"
+#include "net/rf/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace net::rf::stream::config {
 
-namespace net::rf::stream::legacy::config {
+    ConfigServerSocket::ConfigServerSocket(const std::string& name)
+        : net::config::ConfigBase(name)
+        , net::config::ConfigBacklog(baseSc)
+        , ConfigAddressLocal(baseSc)
+        , net::config::ConfigConnection(baseSc) {
+        ConfigAddressLocal::channelRequired();
+    }
 
-    class ServerConfig
-        : public net::rf::stream::config::ServerConfig
-        , public net::config::ConfigLegacy {
-    public:
-        explicit ServerConfig(const std::string& name)
-            : net::rf::stream::config::ServerConfig(name)
-            , net::config::ConfigLegacy(baseSc) {
-        }
-    };
+} // namespace net::rf::stream::config
 
-} // namespace net::rf::stream::legacy::config
-
-#endif // NET_RF_STREAM_TLS_CONFIG_SERVERCONFIG_H
+/*
+ * Not necessary - already in ConfigClientSocket.cpp
+ *
+namespace net::config {
+    template class ConfigLocal<net::rf::SocketAddress>;
+}
+*/

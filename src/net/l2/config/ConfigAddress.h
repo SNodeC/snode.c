@@ -45,7 +45,7 @@ namespace net::l2::config {
 
     protected:
         void required();
-        void portRequired();
+        void psmRequired();
 
         CLI::Option* hostOpt = nullptr;
         CLI::Option* psmOpt = nullptr;

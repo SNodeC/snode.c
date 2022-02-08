@@ -40,8 +40,5 @@ namespace net::l2::stream::config {
 
 namespace net::config {
     template class ConfigLocal<net::l2::SocketAddress>;
-}
-
-namespace net::config {
     template class ConfigRemote<net::l2::SocketAddress>;
-}
+} // namespace net::config

@@ -19,9 +19,9 @@
 #ifndef NET_RF_STREAM_TLS_SOCKETSERVER_H
 #define NET_RF_STREAM_TLS_SOCKETSERVER_H
 
-#include "core/socket/stream/tls/SocketServer.h"   // IWYU pragma: export
-#include "net/rf/stream/ServerSocket.h"            // IWYU pragma: export
-#include "net/rf/stream/tls/config/ServerConfig.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketServer.h"         // IWYU pragma: export
+#include "net/rf/stream/ServerSocket.h"                  // IWYU pragma: export
+#include "net/rf/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace net::rf::stream::tls {
 
     template <typename SocketContextFactoryT>
     using SocketServer = core::socket::stream::tls::
-        SocketServer<net::rf::stream::ServerSocket, net::rf::stream::tls::config::ServerConfig, SocketContextFactoryT>;
+        SocketServer<net::rf::stream::ServerSocket, net::rf::stream::tls::config::ConfigSocketServer, SocketContextFactoryT>;
 
 } // namespace net::rf::stream::tls
 

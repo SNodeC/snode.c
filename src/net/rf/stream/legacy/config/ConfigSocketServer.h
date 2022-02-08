@@ -16,20 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rf/stream/config/ServerConfig.h"
+#ifndef NET_RF_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_RF_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
+
+#include "net/config/ConfigLegacy.h"
+#include "net/rf/stream/config/ConfigServerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <string>
 
-namespace net::rf::stream::config {
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    ServerConfig::ServerConfig(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::config::ConfigBacklog(baseSc)
-        , net::rf::config::ConfigLocal(baseSc)
-        , net::config::ConfigConnection(baseSc) {
-        net::rf::config::ConfigLocal::required();
-    }
+namespace net::rf::stream::legacy::config {
 
-} // namespace net::rf::stream::config
+    class ConfigSocketServer
+        : public net::rf::stream::config::ConfigServerSocket
+        , public net::config::ConfigLegacy {
+    public:
+        explicit ConfigSocketServer(const std::string& name)
+            : net::rf::stream::config::ConfigServerSocket(name)
+            , net::config::ConfigLegacy(baseSc) {
+        }
+    };
+
+} // namespace net::rf::stream::legacy::config
+
+#endif // NET_RF_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H

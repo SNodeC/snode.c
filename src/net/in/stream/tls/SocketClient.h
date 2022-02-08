@@ -19,8 +19,8 @@
 #ifndef NET_IN_STREAM_TLS_SOCKETCLIENT_H
 #define NET_IN_STREAM_TLS_SOCKETCLIENT_H
 
-#include "core/socket/stream/tls/SocketClient.h"   // IWYU pragma: export
-#include "net/in/stream/ClientSocket.h"            // IWYU pragma: export
+#include "core/socket/stream/tls/SocketClient.h"         // IWYU pragma: export
+#include "net/in/stream/ClientSocket.h"                  // IWYU pragma: export
 #include "net/in/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

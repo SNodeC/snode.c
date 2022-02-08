@@ -32,7 +32,7 @@ namespace net::l2::stream::config {
         , net::config::ConfigBacklog(baseSc)
         , ConfigAddressLocal(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        ConfigAddressLocal::portRequired();
+        ConfigAddressLocal::psmRequired();
     }
 
 } // namespace net::l2::stream::config

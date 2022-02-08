@@ -19,9 +19,9 @@
 #ifndef NET_RF_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_RF_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/legacy/SocketClient.h"   // IWYU pragma: export
-#include "net/rf/stream/ClientSocket.h"               // IWYU pragma: export
-#include "net/rf/stream/legacy/config/ClientConfig.h" // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketClient.h"         // IWYU pragma: export
+#include "net/rf/stream/ClientSocket.h"                     // IWYU pragma: export
+#include "net/rf/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace net::rf::stream::legacy {
 
     template <typename SocketContextFactoryT>
     using SocketClient = core::socket::stream::legacy::
-        SocketClient<net::rf::stream::ClientSocket, net::rf::stream::legacy::config::ClientConfig, SocketContextFactoryT>;
+        SocketClient<net::rf::stream::ClientSocket, net::rf::stream::legacy::config::ConfigSocketClient, SocketContextFactoryT>;
 
 } // namespace net::rf::stream::legacy
 
