@@ -19,7 +19,7 @@
 #ifndef NET_CONFIGLOCAL_HPP
 #define NET_CONFIGLOCAL_HPP
 
-#include "ConfigLocal.h"
+#include "ConfigLocal.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

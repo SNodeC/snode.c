@@ -19,7 +19,7 @@
 #ifndef NET_CONFIGREMOTE_HPP
 #define NET_CONFIGREMOTE_HPP
 
-#include "ConfigRemote.h"
+#include "ConfigRemote.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
