@@ -36,11 +36,3 @@ namespace net::in6::stream::config {
     }
 
 } // namespace net::in6::stream::config
-
-/*
- * Not necessary - already in ConfigClientSocket.cpp
- *
-namespace net::config {
-    template class ConfigLocal<net::in6::SocketAddress>;
-}
-*/

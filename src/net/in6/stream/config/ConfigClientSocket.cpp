@@ -20,7 +20,6 @@
 
 #include "net/config/ConfigLocal.hpp"
 #include "net/config/ConfigRemote.hpp"
-#include "net/in6/SocketAddress.h"
 #include "net/in6/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,8 +37,3 @@ namespace net::in6::stream::config {
     }
 
 } // namespace net::in6::stream::config
-
-namespace net::config {
-    template class ConfigLocal<net::in6::SocketAddress>;
-    template class ConfigRemote<net::in6::SocketAddress>;
-} // namespace net::config

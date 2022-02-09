@@ -17,6 +17,8 @@
  */
 
 #include "ConfigAddress.h"
+#include "net/config/ConfigLocal.hpp"
+#include "net/config/ConfigRemote.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -68,3 +70,8 @@ namespace net::rf::config {
     }
 
 } // namespace net::rf::config
+
+namespace net::config {
+    template class ConfigLocal<net::rf::SocketAddress>;
+    template class ConfigRemote<net::rf::SocketAddress>;
+} // namespace net::config

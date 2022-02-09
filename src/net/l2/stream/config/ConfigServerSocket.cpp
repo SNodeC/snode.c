@@ -36,11 +36,3 @@ namespace net::l2::stream::config {
     }
 
 } // namespace net::l2::stream::config
-
-/*
- * Not necessary - already in ConfigClientSocket.cpp
- *
-namespace net::config {
-    template class ConfigLocal<net::l2::SocketAddress>;
-}
-*/

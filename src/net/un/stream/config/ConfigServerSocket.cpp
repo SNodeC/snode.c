@@ -36,11 +36,3 @@ namespace net::un::stream::config {
     }
 
 } // namespace net::un::stream::config
-
-/*
- * Not necessary - already in ConfigClientSocket.cpp
- *
-namespace net::config {
-    template class ConfigLocal<net::un::SocketAddress>;
-}
-*/
