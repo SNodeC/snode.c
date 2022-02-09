@@ -18,7 +18,7 @@
 
 #include "net/l2/stream/config/ConfigServerSocket.h"
 
-#include "net/config/ConfigLocalNew.hpp"
+#include "net/config/ConfigLocal.hpp"
 #include "net/l2/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,9 +30,9 @@ namespace net::l2::stream::config {
     ConfigServerSocket::ConfigServerSocket(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , ConfigAddressLocal(baseSc)
+        , net::l2::config::ConfigAddress<net::config::ConfigLocal>(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        ConfigAddressLocal::psmRequired();
+        net::l2::config::ConfigAddress<net::config::ConfigLocal>::psmRequired();
     }
 
 } // namespace net::l2::stream::config

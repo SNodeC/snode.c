@@ -18,7 +18,7 @@
 
 #include "net/un/stream/config/ConfigServerSocket.h"
 
-#include "net/config/ConfigLocalNew.hpp"
+#include "net/config/ConfigLocal.hpp"
 #include "net/un/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,9 +30,9 @@ namespace net::un::stream::config {
     ConfigServerSocket::ConfigServerSocket(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , ConfigAddressLocal(baseSc)
+        , net::un::config::ConfigAddress<net::config::ConfigLocal>(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        ConfigAddressLocal::sunPathRequired();
+        net::un::config::ConfigAddress<net::config::ConfigLocal>::sunPathRequired();
     }
 
 } // namespace net::un::stream::config

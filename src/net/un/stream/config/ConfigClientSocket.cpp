@@ -18,8 +18,9 @@
 
 #include "net/un/stream/config/ConfigClientSocket.h"
 
-#include "net/config/ConfigLocalNew.hpp"
-#include "net/config/ConfigRemoteNew.hpp"
+#include "net/config/ConfigLocal.hpp"
+#include "net/config/ConfigRemote.hpp"
+#include "net/un/SocketAddress.h"
 #include "net/un/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,10 +31,10 @@ namespace net::un::stream::config {
 
     ConfigClientSocket::ConfigClientSocket(const std::string& name)
         : net::config::ConfigBase(name)
-        , ConfigAddressRemote(baseSc)
-        , ConfigAddressLocal(baseSc)
+        , net::un::config::ConfigAddress<net::config::ConfigRemote>(baseSc)
+        , net::un::config::ConfigAddress<net::config::ConfigLocal>(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        ConfigAddressRemote::required();
+        net::un::config::ConfigAddress<net::config::ConfigRemote>::required();
     }
 
 } // namespace net::un::stream::config

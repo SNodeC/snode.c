@@ -22,7 +22,7 @@
 #include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
-#include "net/config/ConfigLocalNew.h"
+#include "net/config/ConfigLocal.h"
 #include "net/in6/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/in6/config/ConfigAddress.hpp"
@@ -40,8 +40,6 @@ namespace net::in6::stream::config {
         , public net::config::ConfigBacklog
         , public net::in6::config::ConfigAddress<net::config::ConfigLocal>
         , public net::config::ConfigConnection {
-        using ConfigAddressLocal = net::in6::config::ConfigAddress<net::config::ConfigLocal>;
-
     public:
         explicit ConfigServerSocket(const std::string& name);
     };

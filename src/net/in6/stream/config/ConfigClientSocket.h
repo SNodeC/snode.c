@@ -21,8 +21,8 @@
 
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
-#include "net/config/ConfigLocalNew.h"
-#include "net/config/ConfigRemoteNew.h"
+#include "net/config/ConfigLocal.h"
+#include "net/config/ConfigRemote.h"
 #include "net/in6/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/in6/config/ConfigAddress.hpp"
@@ -40,9 +40,6 @@ namespace net::in6::stream::config {
         , public net::in6::config::ConfigAddress<net::config::ConfigRemote>
         , public net::in6::config::ConfigAddress<net::config::ConfigLocal>
         , public net::config::ConfigConnection {
-        using ConfigAddressRemote = net::in6::config::ConfigAddress<net::config::ConfigRemote>;
-        using ConfigAddressLocal = net::in6::config::ConfigAddress<net::config::ConfigLocal>;
-
     public:
         explicit ConfigClientSocket(const std::string& name);
     };

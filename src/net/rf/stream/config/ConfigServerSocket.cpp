@@ -18,7 +18,7 @@
 
 #include "net/rf/stream/config/ConfigServerSocket.h"
 
-#include "net/config/ConfigLocalNew.hpp"
+#include "net/config/ConfigLocal.hpp"
 #include "net/rf/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,9 +30,9 @@ namespace net::rf::stream::config {
     ConfigServerSocket::ConfigServerSocket(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , ConfigAddressLocal(baseSc)
+        , net::rf::config::ConfigAddress<net::config::ConfigLocal>(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        ConfigAddressLocal::channelRequired();
+        net::rf::config::ConfigAddress<net::config::ConfigLocal>::channelRequired();
     }
 
 } // namespace net::rf::stream::config
