@@ -19,9 +19,9 @@
 #ifndef NET_RF_STREAM_TLS_SOCKETSERVER_H
 #define NET_RF_STREAM_TLS_SOCKETSERVER_H
 
-#include "core/socket/stream/tls/SocketServer.h"         // IWYU pragma: export
-#include "net/rf/stream/ServerSocket.h"                  // IWYU pragma: export
-#include "net/rf/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketServer.h" // IWYU pragma: export
+#include "net/rf/stream/ServerSocket.h"          // IWYU pragma: export
+#include "net/rf/stream/tls/config/ConfigSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -19,10 +19,9 @@
 #ifndef NET_IN6_STREAM_TLS_SOCKETSERVER_H
 #define NET_IN6_STREAM_TLS_SOCKETSERVER_H
 
-#include "core/socket/stream/tls/SocketServer.h"          // IWYU pragma: export
-#include "net/in6/stream/ServerSocket.h"                  // IWYU pragma: export
-#include "net/in6/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: export
-
+#include "core/socket/stream/tls/SocketServer.h" // IWYU pragma: export
+#include "net/in6/stream/ServerSocket.h"         // IWYU pragma: export
+#include "net/in6/stream/tls/config/ConfigSocketServer.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

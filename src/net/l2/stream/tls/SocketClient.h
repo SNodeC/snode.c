@@ -19,9 +19,9 @@
 #ifndef NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/tls/SocketClient.h"         // IWYU pragma: export
-#include "net/l2/stream/ClientSocket.h"                  // IWYU pragma: export
-#include "net/l2/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "net/l2/stream/ClientSocket.h"          // IWYU pragma: export
+#include "net/l2/stream/tls/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
