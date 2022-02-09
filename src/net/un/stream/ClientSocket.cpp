@@ -28,4 +28,10 @@ namespace net::un::stream {
         connect(SocketAddress(sunPath), onError);
     }
 
+    void ClientSocket::connect(const std::string& remoteSunPath,
+                               const std::string& localSunPath,
+                               const std::function<void(const SocketAddress&, int)>& onError) {
+        connect(SocketAddress(remoteSunPath), SocketAddress(localSunPath), onError);
+    }
+
 } // namespace net::un::stream
