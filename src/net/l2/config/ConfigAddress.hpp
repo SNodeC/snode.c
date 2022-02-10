@@ -53,11 +53,6 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
-        return SocketAddress(host, psm);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
         if (hostOpt->count() > 0) {
             ConfigAddressType::address.setAddress(host);

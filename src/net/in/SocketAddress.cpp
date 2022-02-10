@@ -76,7 +76,7 @@ namespace net::in {
 
         memset(&hints, 0, sizeof(hints));
 
-        /* We only care about IPV6 results */
+        /* We only care about IPV results */
         hints.ai_family = AF_INET;
         hints.ai_socktype = 0;
         hints.ai_flags = AI_ADDRCONFIG;
@@ -90,7 +90,7 @@ namespace net::in {
         resalloc = res;
 
         while (res) {
-            /* Check to make sure we have a valid AF_INET6 address */
+            /* Check to make sure we have a valid AF_INET address */
             if (res->ai_family == AF_INET) {
                 sockAddr.sin_addr.s_addr = reinterpret_cast<sockaddr_in*>(res->ai_addr)->sin_addr.s_addr;
                 break;

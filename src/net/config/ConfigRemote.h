@@ -32,16 +32,14 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigRemote {
+        using SocketAddress = SocketAddressT;
+
     protected:
         ConfigRemote(CLI::App* baseSc);
-
         virtual ~ConfigRemote() = default;
-
-        using SocketAddress = SocketAddressT;
 
     public:
         const SocketAddress& getRemoteAddress();
-
         void setRemoteAddress(const SocketAddress& remoteAddress);
 
     protected:
@@ -53,7 +51,6 @@ namespace net::config {
 
     private:
         virtual void updateFromCommandLine() = 0;
-        virtual SocketAddress getAddress() const = 0;
 
         bool initialized = false;
         bool updated = false;

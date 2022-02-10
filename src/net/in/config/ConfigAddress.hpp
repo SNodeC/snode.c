@@ -53,11 +53,6 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
-        return SocketAddress(host, port);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
         if (hostOpt->count() > 0) {
             ConfigAddressType::address.setHost(host);

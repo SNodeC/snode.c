@@ -33,44 +33,40 @@ namespace utils {
 
     class Config {
     private:
-        Config();
-        ~Config();
+        Config() = default;
+        ~Config() = default;
 
     public:
-        static Config& instance();
-        int init(int argc, char* argv[]);
+        static int init(int argc, char* argv[]);
 
-        void prepare();
+        static void prepare();
 
-        void terminate();
+        static void terminate();
 
-        const std::string getLogFile() const;
+        static const std::string getLogFile();
 
-        bool daemonize() const;
+        static bool daemonize();
 
-        bool kill() const;
+        static bool kill();
 
-        CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
+        static CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
 
-        std::string getApplicationName();
+        static std::string getApplicationName();
 
-        int parse(bool stopOnError = false);
+        static int parse(bool stopOnError = false);
 
     private:
-        std::string name;
-
+        static int argc;
+        static char** argv;
         static CLI::App app;
-
-        int argc = 0;
-        char** argv = nullptr;
-
-        bool _dumpConfig = false;
-        bool _daemonize = false;
-        bool _kill = false;
-        bool _forceLogFile = false;
-        bool _showConfig = false;
-
-        std::string _logFile = "";
+        static std::string name;
+        static bool _daemonize;
+        static std::string outputConfigFile;
+        static bool _dumpConfig;
+        static bool _kill;
+        static bool _forceLogFile;
+        static bool _showConfig;
+        static std::string _logFile;
     };
 
 } // namespace utils

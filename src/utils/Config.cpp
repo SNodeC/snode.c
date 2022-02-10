@@ -39,25 +39,23 @@
 
 namespace utils {
 
+    int Config::argc = 0;
+    char** Config::argv = nullptr;
     CLI::App Config::app;
-
-    Config::Config() {
-    }
-
-    Config::~Config() {
-    }
-
-    Config& Config::instance() {
-        static Config config;
-
-        return config;
-    }
+    std::string Config::name;
+    bool Config::_dumpConfig = false;
+    bool Config::_daemonize = false;
+    bool Config::_kill = false;
+    bool Config::_forceLogFile = false;
+    bool Config::_showConfig = false;
+    std::string Config::_logFile;
+    std::string Config::outputConfigFile;
 
     int Config::init(int argc, char* argv[]) {
-        this->name = std::filesystem::path(argv[0]).filename();
-        this->name = std::string(basename(argv[0]));
-        this->argc = argc;
-        this->argv = argv;
+        Config::argc = argc;
+        Config::argv = argv;
+
+        name = std::filesystem::path(argv[0]).filename();
 
         logger::Logger::init(argc, argv);
 
@@ -67,11 +65,14 @@ namespace utils {
         app.allow_extras();
         app.allow_config_extras();
 
+        CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
+        allHelpOpt->configurable(false);
+
         CLI::Option* showConfigFlag = app.add_flag("-s,--show-config", _showConfig, "Show current configuration and exit");
         showConfigFlag->configurable(false);
 
-        CLI::Option* dumpConfigFlg = app.add_flag("-w,--write-config", _dumpConfig, "Write config file");
-        dumpConfigFlg->disable_flag_override();
+        CLI::Option* dumpConfigFlg =
+            app.add_flag("-w,--write-config{" + CONFFILEPATH + "/" + name + ".conf" + "}", outputConfigFile, "Write config file");
         dumpConfigFlg->configurable(false);
 
         CLI::Option* logFileOpt = app.add_option("-l,--log-file", _logFile, "Log to file");
@@ -84,9 +85,6 @@ namespace utils {
             "-g,!-n,--force-log-file,!--no-log-file", _forceLogFile, "Force writing logs to file for foureground applications");
         forceLogFileFlag->excludes(showConfigFlag);
         forceLogFileFlag->configurable();
-
-        CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
-        allHelpOpt->configurable(false);
 
         CLI::Option* daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", _daemonize, "Start application as daemon");
         daemonizeOpt->excludes(showConfigFlag);
@@ -136,8 +134,9 @@ namespace utils {
     void Config::prepare() {
         parse(app["--help"]->count() > 0 || app["--help-all"]->count() > 0);
 
-        if (_dumpConfig) {
-            std::ofstream confFile(app["--config"]->as<std::string>());
+        if (app["--write-config"]->count() > 0) {
+            VLOG(0) << "Write config file";
+            std::ofstream confFile(outputConfigFile);
             confFile << app.config_to_str(true, true);
         }
 
@@ -154,15 +153,15 @@ namespace utils {
         }
     }
 
-    const std::string Config::getLogFile() const {
+    const std::string Config::getLogFile() {
         return _logFile;
     }
 
-    bool Config::daemonize() const {
+    bool Config::daemonize() {
         return _daemonize;
     }
 
-    bool Config::kill() const {
+    bool Config::kill() {
         return _kill;
     }
 

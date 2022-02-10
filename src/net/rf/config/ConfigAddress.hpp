@@ -53,11 +53,6 @@ namespace net::rf::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
-        return SocketAddress(host, channel);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
         if (hostOpt->count() > 0) {
             ConfigAddressType::address.setAddress(host);

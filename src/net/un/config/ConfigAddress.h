@@ -50,8 +50,6 @@ namespace net::un::config {
         CLI::Option* sunPathOpt = nullptr;
 
     private:
-        SocketAddress getAddress() const override;
-
         void updateFromCommandLine() override;
 
         std::string sunPath{};

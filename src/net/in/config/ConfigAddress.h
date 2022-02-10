@@ -51,8 +51,6 @@ namespace net::in::config {
         CLI::Option* portOpt = nullptr;
 
     private:
-        SocketAddress getAddress() const override;
-
         void updateFromCommandLine() override;
 
         std::string host{};

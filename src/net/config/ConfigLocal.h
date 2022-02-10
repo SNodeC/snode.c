@@ -32,29 +32,25 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigLocal {
+        using SocketAddress = SocketAddressT;
+
     protected:
         ConfigLocal(CLI::App* baseSc);
         virtual ~ConfigLocal() = default;
 
-        using SocketAddress = SocketAddressT;
-
     public:
         const SocketAddress& getLocalAddress();
-
         void setLocalAddress(const SocketAddress& localAddress);
 
     protected:
         void require(CLI::Option* opt);
-
         void require(CLI::Option* opt1, CLI::Option* opt2);
 
         CLI::App* addressSc = nullptr;
-
         SocketAddress address;
 
     private:
         virtual void updateFromCommandLine() = 0;
-        virtual SocketAddress getAddress() const = 0;
 
         bool initialized = false;
         bool updated = false;

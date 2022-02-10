@@ -51,8 +51,6 @@ namespace net::l2::config {
         CLI::Option* psmOpt = nullptr;
 
     private:
-        SocketAddress getAddress() const override;
-
         void updateFromCommandLine() override;
 
         std::string host{};

@@ -51,8 +51,6 @@ namespace net::rf::config {
         CLI::Option* channelOpt = nullptr;
 
     private:
-        SocketAddress getAddress() const override;
-
         void updateFromCommandLine() override;
 
         std::string host{};

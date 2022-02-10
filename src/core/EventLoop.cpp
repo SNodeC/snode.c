@@ -81,7 +81,7 @@ namespace core {
     void EventLoop::init(int argc, char* argv[]) {
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
-        utils::Config::instance().init(argc, argv);
+        utils::Config::init(argc, argv);
 
         EventLoop::initialized = true;
     }
@@ -117,7 +117,7 @@ namespace core {
             exit(1);
         }
 
-        utils::Config::instance().prepare();
+        utils::Config::prepare();
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
         sighandler_t oldSigQuitHandler = core::system::signal(SIGQUIT, EventLoop::stoponsig);
@@ -184,7 +184,7 @@ namespace core {
         DynamicLoader::execDlCloseDeleyed();
         DynamicLoader::execDlCloseAll();
 
-        utils::Config::instance().terminate();
+        utils::Config::terminate();
 
         LOG(INFO) << "All resources released";
     }

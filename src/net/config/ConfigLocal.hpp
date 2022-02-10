@@ -40,9 +40,8 @@ namespace net::config {
     template <typename SocketAddress>
     const SocketAddress& ConfigLocal<SocketAddress>::getLocalAddress() {
         if (!initialized) {
-            utils::Config::instance().parse(true); // Try command line parsing in case Address is not initialized using setLocalAddress
-
-            address = getAddress();
+            utils::Config::parse(true); // Try command line parsing honoring required options
+            updateFromCommandLine();
             initialized = true;
         } else if (!updated) {
             updateFromCommandLine();
@@ -54,8 +53,8 @@ namespace net::config {
 
     template <typename SocketAddress>
     void ConfigLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
-        this->address = localAddress;
-        this->initialized = true;
+        address = localAddress;
+        initialized = true;
     }
 
     template <typename SocketAddress>
