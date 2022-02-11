@@ -19,7 +19,8 @@
 #ifndef NET_CONFIG_CONFIGADDRESSREMOTE_HPP
 #define NET_CONFIG_CONFIGADDRESSREMOTE_HPP
 
-#include "ConfigAddressRemote.h" // IWYU pragma: export
+#include "ConfigAddressRemote.h"        // IWYU pragma: export
+#include "net/config/ConfigAddress.hpp" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,43 +32,18 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote(CLI::App* baseSc) {
-        addressSc = baseSc->add_subcommand("remote");
-        addressSc->description("Connect options");
-        addressSc->configurable();
+    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote(CLI::App* baseSc)
+        : Super::ConfigAddress(baseSc, "remote") {
     }
 
     template <typename SocketAddress>
     const SocketAddress& ConfigAddressRemote<SocketAddress>::getRemoteAddress() {
-        if (!initialized) {
-            utils::Config::parse(true); // Try command line parsing honoring required options
-            updateFromCommandLine();
-            initialized = true;
-        } else if (!updated) {
-            updateFromCommandLine();
-            updated = true;
-        }
-
-        return address;
+        return Super::getAddress();
     }
 
     template <typename SocketAddress>
     void ConfigAddressRemote<SocketAddress>::setRemoteAddress(const SocketAddress& remoteAddress) {
-        address = remoteAddress;
-        initialized = true;
-    }
-
-    template <typename SocketAddressT>
-    void ConfigAddressRemote<SocketAddressT>::require(CLI::Option* opt) {
-        addressSc->required();
-        opt->required();
-    }
-
-    template <typename SocketAddressT>
-    void ConfigAddressRemote<SocketAddressT>::require(CLI::Option* opt1, CLI::Option* opt2) {
-        addressSc->required();
-        opt1->required();
-        opt2->required();
+        Super::setAddress(remoteAddress);
     }
 
 } // namespace net::config

@@ -19,6 +19,8 @@
 #ifndef NET_CONFIG_CONFIGADDRESSREMOTE_H
 #define NET_CONFIG_CONFIGADDRESSREMOTE_H
 
+#include "net/config/ConfigAddress.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -31,29 +33,17 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddressRemote {
+    class ConfigAddressRemote : public net::config::ConfigAddress<SocketAddressT> {
+        using Super = net::config::ConfigAddress<SocketAddressT>;
+
         using SocketAddress = SocketAddressT;
 
     protected:
-        ConfigAddressRemote(CLI::App* baseSc);
-        virtual ~ConfigAddressRemote() = default;
+        explicit ConfigAddressRemote(CLI::App* baseSc);
 
     public:
         const SocketAddress& getRemoteAddress();
-        void setRemoteAddress(const SocketAddress& remoteAddress);
-
-    protected:
-        void require(CLI::Option* opt);
-        void require(CLI::Option* opt1, CLI::Option* opt2);
-
-        CLI::App* addressSc = nullptr;
-        SocketAddress address;
-
-    private:
-        virtual void updateFromCommandLine() = 0;
-
-        bool initialized = false;
-        bool updated = false;
+        void setRemoteAddress(const SocketAddress& localAddress);
     };
 
 } // namespace net::config

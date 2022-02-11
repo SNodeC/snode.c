@@ -16,10 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGADDRESSLOCAL_H
-#define NET_CONFIG_CONFIGADDRESSLOCAL_H
-
-#include "net/config/ConfigAddress.h"
+#ifndef NET_CONFIG_CONFIGADDRESS_H
+#define NET_CONFIG_CONFIGADDRESS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,24 +26,36 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
+#include <string>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddressLocal : public net::config::ConfigAddress<SocketAddressT> {
-        using Super = net::config::ConfigAddress<SocketAddressT>;
-
+    class ConfigAddress {
         using SocketAddress = SocketAddressT;
 
     protected:
-        explicit ConfigAddressLocal(CLI::App* baseSc);
+        ConfigAddress(CLI::App* baseSc, const std::string& addressOptionName);
+        virtual ~ConfigAddress() = default;
 
-    public:
-        const SocketAddress& getLocalAddress();
-        void setLocalAddress(const SocketAddress& localAddress);
+        const SocketAddress& getAddress();
+        void setAddress(const SocketAddress& address);
+
+        void require(CLI::Option* opt);
+        void require(CLI::Option* opt1, CLI::Option* opt2);
+
+        CLI::App* addressSc = nullptr;
+        SocketAddress address;
+
+    private:
+        virtual void updateFromCommandLine() = 0;
+
+        bool initialized = false;
+        bool updated = false;
     };
 
 } // namespace net::config
 
-#endif // NET_CONFIG_CONFIGADDRESSLOCAL_H
+#endif // NET_CONFIG_CONFIGADDRESS_H

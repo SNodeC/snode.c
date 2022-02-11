@@ -6,6 +6,8 @@ set(NET_CPP
 )
 
 set(NET_H
+    config/ConfigAddress.h
+    config/ConfigAddress.hpp
     config/ConfigAddressLocal.h
     config/ConfigAddressLocal.hpp
     config/ConfigAddressRemote.h

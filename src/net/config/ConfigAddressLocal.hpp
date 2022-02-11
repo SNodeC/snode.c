@@ -19,7 +19,8 @@
 #ifndef NET_CONFIG_CONFIGADDRESSLOCAL_HPP
 #define NET_CONFIG_CONFIGADDRESSLOCAL_HPP
 
-#include "ConfigAddressLocal.h" // IWYU pragma: export
+#include "ConfigAddressLocal.h"         // IWYU pragma: export
+#include "net/config/ConfigAddress.hpp" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,43 +32,18 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(CLI::App* baseSc) {
-        addressSc = baseSc->add_subcommand("local");
-        addressSc->description("Bind options");
-        addressSc->configurable();
+    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(CLI::App* baseSc)
+        : Super::ConfigAddress(baseSc, "local") {
     }
 
     template <typename SocketAddress>
     const SocketAddress& ConfigAddressLocal<SocketAddress>::getLocalAddress() {
-        if (!initialized) {
-            utils::Config::parse(true); // Try command line parsing honoring required options
-            updateFromCommandLine();
-            initialized = true;
-        } else if (!updated) {
-            updateFromCommandLine();
-            updated = true;
-        }
-
-        return address;
+        return Super::getAddress();
     }
 
     template <typename SocketAddress>
     void ConfigAddressLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
-        address = localAddress;
-        initialized = true;
-    }
-
-    template <typename SocketAddress>
-    void ConfigAddressLocal<SocketAddress>::require(CLI::Option* opt) {
-        addressSc->required();
-        opt->required();
-    }
-
-    template <typename SocketAddress>
-    void ConfigAddressLocal<SocketAddress>::require(CLI::Option* opt1, CLI::Option* opt2) {
-        addressSc->required();
-        opt1->required();
-        opt2->required();
+        Super::setAddress(localAddress);
     }
 
 } // namespace net::config
