@@ -70,10 +70,10 @@ namespace core::socket::stream {
         using Super::connect;
 
         void connect(const SocketAddress& remoteAddress,
-                     const SocketAddress& bindAddress,
+                     const SocketAddress& localAddress,
                      const std::function<void(const SocketAddress&, int)>& onError) const override {
             clientConfig->setRemoteAddress(remoteAddress);
-            clientConfig->setLocalAddress(bindAddress);
+            clientConfig->setLocalAddress(localAddress);
 
             connect(onError);
         }

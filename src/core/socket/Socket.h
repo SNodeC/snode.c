@@ -58,13 +58,13 @@ namespace core::socket {
             }
         }
 
-        void bind(const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
-            int ret = core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+        void bind(const SocketAddress& localAddress, const std::function<void(int)>& onError) {
+            int ret = core::system::bind(getFd(), &localAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
             if (ret < 0) {
                 onError(errno);
             } else {
-                this->bindAddress = bindAddress;
+                this->localAddress = localAddress;
                 onError(0);
             }
         }
@@ -76,11 +76,11 @@ namespace core::socket {
         }
 
         const SocketAddress& getBindAddress() const {
-            return bindAddress;
+            return localAddress;
         }
 
     protected:
-        SocketAddress bindAddress{};
+        SocketAddress localAddress{};
     };
 
 } // namespace core::socket

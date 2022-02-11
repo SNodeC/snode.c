@@ -66,10 +66,10 @@ namespace core::socket::stream {
 
         using Super::listen;
 
-        void listen(const SocketAddress& bindAddress,
+        void listen(const SocketAddress& localAddress,
                     int backlog,
                     const std::function<void(const SocketAddress&, int)>& onError) const override {
-            serverConfig->setLocalAddress(bindAddress);
+            serverConfig->setLocalAddress(localAddress);
             serverConfig->setBacklog(backlog);
 
             listen(onError);

@@ -30,17 +30,17 @@ namespace net::rf::stream {
 
     void ClientSocket::connect(const std::string& address,
                                uint8_t channel,
-                               const std::string& bindAddress,
+                               const std::string& localAddress,
                                const std::function<void(const SocketAddress&, int)>& onError) {
-        connect(SocketAddress(address, channel), SocketAddress(bindAddress), onError);
+        connect(SocketAddress(address, channel), SocketAddress(localAddress), onError);
     }
 
     void ClientSocket::connect(const std::string& address,
                                uint8_t channel,
-                               const std::string& bindAddress,
+                               const std::string& localAddress,
                                uint8_t bindChannel,
                                const std::function<void(const SocketAddress&, int)>& onError) {
-        connect(SocketAddress(address, channel), SocketAddress(bindAddress, bindChannel), onError);
+        connect(SocketAddress(address, channel), SocketAddress(localAddress, bindChannel), onError);
     }
 
 } // namespace net::rf::stream

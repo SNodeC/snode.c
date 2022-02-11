@@ -40,12 +40,12 @@ namespace net::rf::stream {
 
         void connect(const std::string& address,
                      uint8_t channel,
-                     const std::string& bindAddress,
+                     const std::string& localAddress,
                      const std::function<void(const SocketAddress&, int)>& onError);
 
         void connect(const std::string& address,
                      uint8_t channel,
-                     const std::string& bindAddress,
+                     const std::string& localAddress,
                      uint8_t bindChannel,
                      const std::function<void(const SocketAddress&, int)>& onError);
     };
