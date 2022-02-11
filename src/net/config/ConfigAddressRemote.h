@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGREMOTE_H
-#define NET_CONFIGREMOTE_H
+#ifndef NET_CONFIG_CONFIGADDRESSREMOTE_H
+#define NET_CONFIG_CONFIGADDRESSREMOTE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,12 +31,12 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigRemote {
+    class ConfigAddressRemote {
         using SocketAddress = SocketAddressT;
 
     protected:
-        ConfigRemote(CLI::App* baseSc);
-        virtual ~ConfigRemote() = default;
+        ConfigAddressRemote(CLI::App* baseSc);
+        virtual ~ConfigAddressRemote() = default;
 
     public:
         const SocketAddress& getRemoteAddress();
@@ -58,4 +58,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // CONFIGREMOTE_H
+#endif // NET_CONFIG_CONFIGADDRESSREMOTE_H

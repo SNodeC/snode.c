@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGBASE_H
-#define NET_CONFIGBASE_H
+#ifndef NET_CONFIG_CONFIGBASE_H
+#define NET_CONFIG_CONFIGBASE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -48,4 +48,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // NET_CONFIGBASE_H
+#endif // NET_CONFIG_CONFIGBASE_H

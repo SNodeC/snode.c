@@ -18,7 +18,7 @@
 
 #include "net/in6/stream/config/ConfigServerSocket.h"
 
-#include "net/config/ConfigLocal.hpp"
+#include "net/config/ConfigAddressLocal.hpp"
 #include "net/in6/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,9 +30,9 @@ namespace net::in6::stream::config {
     ConfigServerSocket::ConfigServerSocket(const std::string& name)
         : net::config::ConfigBase(name)
         , net::config::ConfigBacklog(baseSc)
-        , net::in6::config::ConfigAddress<net::config::ConfigLocal>(baseSc)
+        , net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::in6::config::ConfigAddress<net::config::ConfigLocal>::portRequired();
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
     }
 
 } // namespace net::in6::stream::config

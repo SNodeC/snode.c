@@ -22,7 +22,7 @@
 #include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
-#include "net/config/ConfigLocal.h"
+#include "net/config/ConfigAddressLocal.h"
 #include "net/un/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/un/config/ConfigAddress.hpp"
@@ -38,7 +38,7 @@ namespace net::un::stream::config {
     class ConfigServerSocket
         : public net::config::ConfigBase
         , public net::config::ConfigBacklog
-        , public net::un::config::ConfigAddress<net::config::ConfigLocal>
+        , public net::un::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
         explicit ConfigServerSocket(const std::string& name);

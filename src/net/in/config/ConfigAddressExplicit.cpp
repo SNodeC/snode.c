@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/ConfigLocal.hpp"
-#include "net/config/ConfigRemote.hpp"
+#include "net/config/ConfigAddressLocal.hpp"
+#include "net/config/ConfigAddressRemote.hpp"
 #include "net/in/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,7 +26,7 @@
 
 namespace net::config {
 
-    template class ConfigLocal<net::in::SocketAddress>;
-    template class ConfigRemote<net::in::SocketAddress>;
+    template class ConfigAddressLocal<net::in::SocketAddress>;
+    template class ConfigAddressRemote<net::in::SocketAddress>;
 
 } // namespace net::config

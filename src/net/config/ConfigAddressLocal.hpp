@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGLOCAL_HPP
-#define NET_CONFIGLOCAL_HPP
+#ifndef NET_CONFIG_CONFIGADDRESSLOCAL_HPP
+#define NET_CONFIG_CONFIGADDRESSLOCAL_HPP
 
-#include "ConfigLocal.h" // IWYU pragma: export
+#include "ConfigAddressLocal.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,14 +31,14 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigLocal<SocketAddress>::ConfigLocal(CLI::App* baseSc) {
+    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(CLI::App* baseSc) {
         addressSc = baseSc->add_subcommand("local");
         addressSc->description("Bind options");
         addressSc->configurable();
     }
 
     template <typename SocketAddress>
-    const SocketAddress& ConfigLocal<SocketAddress>::getLocalAddress() {
+    const SocketAddress& ConfigAddressLocal<SocketAddress>::getLocalAddress() {
         if (!initialized) {
             utils::Config::parse(true); // Try command line parsing honoring required options
             updateFromCommandLine();
@@ -52,19 +52,19 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    void ConfigLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
+    void ConfigAddressLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
         address = localAddress;
         initialized = true;
     }
 
     template <typename SocketAddress>
-    void ConfigLocal<SocketAddress>::require(CLI::Option* opt) {
+    void ConfigAddressLocal<SocketAddress>::require(CLI::Option* opt) {
         addressSc->required();
         opt->required();
     }
 
     template <typename SocketAddress>
-    void ConfigLocal<SocketAddress>::require(CLI::Option* opt1, CLI::Option* opt2) {
+    void ConfigAddressLocal<SocketAddress>::require(CLI::Option* opt1, CLI::Option* opt2) {
         addressSc->required();
         opt1->required();
         opt2->required();
@@ -72,4 +72,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // NET_CONFIGLOCAL_HPP
+#endif // NET_CONFIG_CONFIGADDRESSLOCAL_HPP

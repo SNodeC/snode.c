@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGLOCAL_H
-#define NET_CONFIGLOCAL_H
+#ifndef NET_CONFIG_CONFIGADDRESSLOCAL_H
+#define NET_CONFIG_CONFIGADDRESSLOCAL_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,12 +31,12 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigLocal {
+    class ConfigAddressLocal {
         using SocketAddress = SocketAddressT;
 
     protected:
-        ConfigLocal(CLI::App* baseSc);
-        virtual ~ConfigLocal() = default;
+        ConfigAddressLocal(CLI::App* baseSc);
+        virtual ~ConfigAddressLocal() = default;
 
     public:
         const SocketAddress& getLocalAddress();
@@ -58,4 +58,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // NET_CONFIGLOCAL_H
+#endif // NET_CONFIG_CONFIGADDRESSLOCAL_H

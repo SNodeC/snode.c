@@ -21,8 +21,8 @@
 
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
-#include "net/config/ConfigLocal.h"
-#include "net/config/ConfigRemote.h"
+#include "net/config/ConfigAddressLocal.h"
+#include "net/config/ConfigAddressRemote.h"
 #include "net/l2/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/l2/config/ConfigAddress.hpp"
@@ -37,8 +37,8 @@ namespace net::l2::stream::config {
 
     class ConfigClientSocket
         : public net::config::ConfigBase
-        , public net::l2::config::ConfigAddress<net::config::ConfigRemote>
-        , public net::l2::config::ConfigAddress<net::config::ConfigLocal>
+        , public net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>
+        , public net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
         explicit ConfigClientSocket(const std::string& name);

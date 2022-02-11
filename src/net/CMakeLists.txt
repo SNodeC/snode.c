@@ -6,14 +6,14 @@ set(NET_CPP
 )
 
 set(NET_H
+    config/ConfigAddressLocal.h
+    config/ConfigAddressLocal.hpp
+    config/ConfigAddressRemote.h
+    config/ConfigAddressRemote.hpp
     config/ConfigBase.h
     config/ConfigBacklog.h
     config/ConfigConnection.h
-    config/ConfigLocal.h
-    config/ConfigLocal.hpp
     config/ConfigLegacy.h
-    config/ConfigRemote.hpp
-    config/ConfigRemote.h
     config/ConfigTls.h
 )
 

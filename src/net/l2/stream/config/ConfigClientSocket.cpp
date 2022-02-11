@@ -18,8 +18,8 @@
 
 #include "net/l2/stream/config/ConfigClientSocket.h"
 
-#include "net/config/ConfigLocal.hpp"
-#include "net/config/ConfigRemote.hpp"
+#include "net/config/ConfigAddressLocal.hpp"
+#include "net/config/ConfigAddressRemote.hpp"
 #include "net/l2/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,10 +30,10 @@ namespace net::l2::stream::config {
 
     ConfigClientSocket::ConfigClientSocket(const std::string& name)
         : net::config::ConfigBase(name)
-        , net::l2::config::ConfigAddress<net::config::ConfigRemote>(baseSc)
-        , net::l2::config::ConfigAddress<net::config::ConfigLocal>(baseSc)
+        , net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>(baseSc)
+        , net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>(baseSc)
         , net::config::ConfigConnection(baseSc) {
-        net::l2::config::ConfigAddress<net::config::ConfigRemote>::required();
+        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
     }
 
 } // namespace net::l2::stream::config

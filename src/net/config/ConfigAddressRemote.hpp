@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGREMOTE_HPP
-#define NET_CONFIGREMOTE_HPP
+#ifndef NET_CONFIG_CONFIGADDRESSREMOTE_HPP
+#define NET_CONFIG_CONFIGADDRESSREMOTE_HPP
 
-#include "ConfigRemote.h" // IWYU pragma: export
+#include "ConfigAddressRemote.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,14 +31,14 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigRemote<SocketAddress>::ConfigRemote(CLI::App* baseSc) {
+    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote(CLI::App* baseSc) {
         addressSc = baseSc->add_subcommand("remote");
         addressSc->description("Connect options");
         addressSc->configurable();
     }
 
     template <typename SocketAddress>
-    const SocketAddress& ConfigRemote<SocketAddress>::getRemoteAddress() {
+    const SocketAddress& ConfigAddressRemote<SocketAddress>::getRemoteAddress() {
         if (!initialized) {
             utils::Config::parse(true); // Try command line parsing honoring required options
             updateFromCommandLine();
@@ -52,19 +52,19 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    void ConfigRemote<SocketAddress>::setRemoteAddress(const SocketAddress& remoteAddress) {
+    void ConfigAddressRemote<SocketAddress>::setRemoteAddress(const SocketAddress& remoteAddress) {
         address = remoteAddress;
         initialized = true;
     }
 
     template <typename SocketAddressT>
-    void ConfigRemote<SocketAddressT>::require(CLI::Option* opt) {
+    void ConfigAddressRemote<SocketAddressT>::require(CLI::Option* opt) {
         addressSc->required();
         opt->required();
     }
 
     template <typename SocketAddressT>
-    void ConfigRemote<SocketAddressT>::require(CLI::Option* opt1, CLI::Option* opt2) {
+    void ConfigAddressRemote<SocketAddressT>::require(CLI::Option* opt1, CLI::Option* opt2) {
         addressSc->required();
         opt1->required();
         opt2->required();
@@ -72,4 +72,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // NET_CONFIGREMOTE_HPP
+#endif // NET_CONFIG_CONFIGADDRESSREMOTE_HPP
