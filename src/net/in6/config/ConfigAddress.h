@@ -21,6 +21,9 @@
 
 #include "net/in6/SocketAddress.h"
 
+// IWYU pragma: no_include "net/config/ConfigAddressLocal.hpp"
+// IWYU pragma: no_include "net/config/ConfigAddressRemote.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {

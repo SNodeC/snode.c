@@ -21,6 +21,9 @@
 
 #include "net/un/SocketAddress.h"
 
+// IWYU pragma: no_include "net/config/ConfigAddressLocal.hpp"
+// IWYU pragma: no_include "net/config/ConfigAddressRemote.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -28,7 +31,6 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include <cstdint>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
