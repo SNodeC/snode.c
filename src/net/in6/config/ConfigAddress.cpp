@@ -17,43 +17,61 @@
  */
 
 #include "ConfigAddress.h"
+#include "net/config/ConfigAddressLocal.hpp"
+#include "net/config/ConfigAddressRemote.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
-#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::config {
+namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc, bool abstract)
+    ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc)
         : ConfigAddressType(baseSc) {
-        sunPathOpt = ConfigAddressType::addressSc->add_option("-p,--path", sunPath, "Unix domain socket");
-        sunPathOpt->type_name("[sun-path]");
-        if (abstract) {
-            sunPathOpt->default_val(std::string('\0' + utils::Config::getApplicationName()));
-        }
-        sunPathOpt->take_first();
-        sunPathOpt->configurable();
+        hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Host name or IP address");
+        hostOpt->type_name("[hostname|ip]");
+        hostOpt->default_val("::");
+        hostOpt->take_first();
+        hostOpt->configurable();
+
+        portOpt = ConfigAddressType::addressSc->add_option("-p,--port", port, "Port number");
+        portOpt->type_name("[uint16_t]");
+        portOpt->default_val(0);
+        portOpt->take_first();
+        portOpt->configurable();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
-        ConfigAddressType::require(sunPathOpt);
+        ConfigAddressType::require(hostOpt, portOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::sunPathRequired() {
-        ConfigAddressType::require(sunPathOpt);
+    void ConfigAddress<ConfigAddressType>::portRequired() {
+        ConfigAddressType::require(portOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
-        if (sunPathOpt->count() > 0) {
-            ConfigAddressType::address.setSunPath(sunPath);
+        if (hostOpt->count() > 0) {
+            ConfigAddressType::address.setHost(host);
+        }
+        if (portOpt->count() > 0) {
+            ConfigAddressType::address.setPort(port);
         }
     }
 
-} // namespace net::un::config
+    template class ConfigAddress<net::config::ConfigAddressLocal>;
+    template class ConfigAddress<net::config::ConfigAddressRemote>;
+
+} // namespace net::in6::config
+
+namespace net::config {
+
+    template class ConfigAddressLocal<net::in6::SocketAddress>;
+    template class ConfigAddressRemote<net::in6::SocketAddress>;
+
+} // namespace net::config

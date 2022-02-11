@@ -18,48 +18,61 @@
 
 #include "ConfigAddress.h"
 
+#include "net/config/ConfigAddressLocal.hpp"
+#include "net/config/ConfigAddressRemote.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::config {
+namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc)
         : ConfigAddressType(baseSc) {
-        hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Bluetooth address");
-        hostOpt->type_name("[bluetooth address]");
-        hostOpt->default_val("00:00:00:00:00:00");
+        hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Host name or IP address");
+        hostOpt->type_name("[hostname|ip]");
+        hostOpt->default_val("0.0.0.0");
         hostOpt->take_first();
         hostOpt->configurable();
 
-        channelOpt = ConfigAddressType::addressSc->add_option("-c,--channel", channel, "Channel number");
-        channelOpt->type_name("[uint8_t]");
-        channelOpt->default_val(0);
-        channelOpt->take_first();
-        channelOpt->configurable();
+        portOpt = ConfigAddressType::addressSc->add_option("-p,--port", port, "Port number");
+        portOpt->type_name("[uint16_t]");
+        portOpt->default_val(0);
+        portOpt->take_first();
+        portOpt->configurable();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
-        ConfigAddressType::require(hostOpt, channelOpt);
+        ConfigAddressType::require(hostOpt, portOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::channelRequired() {
-        ConfigAddressType::require(channelOpt);
+    void ConfigAddress<ConfigAddressType>::portRequired() {
+        ConfigAddressType::require(portOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
         if (hostOpt->count() > 0) {
-            ConfigAddressType::address.setAddress(host);
+            ConfigAddressType::address.setHost(host);
         }
-        if (channelOpt->count() > 0) {
-            ConfigAddressType::address.setChannel(channel);
+        if (portOpt->count() > 0) {
+            ConfigAddressType::address.setPort(port);
         }
     }
 
-} // namespace net::rf::config
+    template class ConfigAddress<net::config::ConfigAddressLocal>;
+    template class ConfigAddress<net::config::ConfigAddressRemote>;
+
+} // namespace net::in::config
+
+namespace net::config {
+
+    template class ConfigAddressLocal<net::in::SocketAddress>;
+    template class ConfigAddressRemote<net::in::SocketAddress>;
+
+} // namespace net::config

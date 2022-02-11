@@ -19,10 +19,10 @@
 #ifndef NET_IN6_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
 #define NET_IN6_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
 
-#include "net/config/ConfigBase.h"
-#include "net/config/ConfigConnection.h"
 #include "net/config/ConfigAddressLocal.h"
 #include "net/config/ConfigAddressRemote.h"
+#include "net/config/ConfigBase.h"
+#include "net/config/ConfigConnection.h"
 #include "net/in6/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/in6/config/ConfigAddress.hpp"

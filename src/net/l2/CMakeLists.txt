@@ -7,7 +7,7 @@ pkg_check_modules(BLUEZ bluez)
 if(BLUEZ_FOUND)
     set(NET-L2_CPP
         SocketAddress.cpp
-        config/ConfigAddressExplicit.cpp
+        config/ConfigAddress.cpp
         stream/ClientSocket.cpp
         stream/ServerSocket.cpp
         stream/Socket.cpp
@@ -18,7 +18,6 @@ if(BLUEZ_FOUND)
     set(NET-L2_H
         SocketAddress.h
         config/ConfigAddress.h
-        config/ConfigAddress.hpp
         stream/ClientSocket.h
         stream/ServerSocket.h
         stream/Socket.h

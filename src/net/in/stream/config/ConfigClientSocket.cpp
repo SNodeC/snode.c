@@ -18,9 +18,7 @@
 
 #include "net/in/stream/config/ConfigClientSocket.h"
 
-#include "net/config/ConfigAddressLocal.hpp"
-#include "net/config/ConfigAddressRemote.hpp"
-#include "net/in/config/ConfigAddress.hpp"
+//#include "net/in/config/ConfigAddress.cpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

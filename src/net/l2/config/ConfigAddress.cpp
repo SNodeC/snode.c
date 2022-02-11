@@ -17,6 +17,8 @@
  */
 
 #include "ConfigAddress.h"
+#include "net/config/ConfigAddressLocal.hpp"
+#include "net/config/ConfigAddressRemote.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,42 +26,52 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6::config {
+namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc)
         : ConfigAddressType(baseSc) {
-        hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Host name or IP address");
-        hostOpt->type_name("[hostname|ip]");
-        hostOpt->default_val("::");
+        hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Bluetooth address");
+        hostOpt->type_name("[bluetooth address]");
+        hostOpt->default_val("00:00:00:00:00:00");
         hostOpt->take_first();
         hostOpt->configurable();
 
-        portOpt = ConfigAddressType::addressSc->add_option("-p,--port", port, "Port number");
-        portOpt->type_name("[uint16_t]");
-        portOpt->default_val(0);
-        portOpt->take_first();
-        portOpt->configurable();
+        psmOpt = ConfigAddressType::addressSc->add_option("-p,--psm", psm, "Protocol service multiplexer");
+        psmOpt->type_name("[uint16_t]");
+        psmOpt->default_val(0);
+        psmOpt->take_first();
+        psmOpt->configurable();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
-        ConfigAddressType::require(hostOpt, portOpt);
+        ConfigAddressType::require(hostOpt, psmOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::portRequired() {
-        ConfigAddressType::require(portOpt);
+    void ConfigAddress<ConfigAddressType>::psmRequired() {
+        ConfigAddressType::require(psmOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
         if (hostOpt->count() > 0) {
-            ConfigAddressType::address.setHost(host);
+            ConfigAddressType::address.setAddress(host);
         }
-        if (portOpt->count() > 0) {
-            ConfigAddressType::address.setPort(port);
+        if (psmOpt->count() > 0) {
+            ConfigAddressType::address.setPsm(psm);
         }
     }
 
-} // namespace net::in6::config
+    template class ConfigAddress<net::config::ConfigAddressLocal>;
+    template class ConfigAddress<net::config::ConfigAddressRemote>;
+
+} // namespace net::l2::config
+
+namespace net::config {
+
+    template class ConfigAddressLocal<net::l2::SocketAddress>;
+    template class ConfigAddressRemote<net::l2::SocketAddress>;
+
+} // namespace net::config

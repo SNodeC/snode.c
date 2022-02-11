@@ -19,10 +19,10 @@
 #ifndef NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
 #define NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
 
+#include "net/config/ConfigAddressLocal.h"
 #include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
-#include "net/config/ConfigAddressLocal.h"
 #include "net/un/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/un/config/ConfigAddress.hpp"
