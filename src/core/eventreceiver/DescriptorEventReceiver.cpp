@@ -18,7 +18,7 @@
 
 #include "DescriptorEventReceiver.h"
 
-#include "core/DescriptorEventPublisher.h"
+#include "core/multiplexer/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

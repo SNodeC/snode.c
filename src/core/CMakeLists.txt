@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CORE_CPP
     Descriptor.cpp
-    DescriptorEventPublisher.cpp
     DynamicLoader.cpp
     Event.cpp
     EventLoop.cpp
@@ -21,6 +20,7 @@ set(CORE_CPP
     eventreceiver/WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
+    multiplexer/DescriptorEventPublisher.cpp
     pipe/Sink.cpp
     pipe/Source.cpp
     pipe/Pipe.cpp
@@ -42,7 +42,6 @@ set(CORE_CPP
 
 set(CORE_H
     Descriptor.h
-    DescriptorEventPublisher.h
     DynamicLoader.h
     Event.h
     EventLoop.h
@@ -62,6 +61,7 @@ set(CORE_H
     eventreceiver/WriteEventReceiver.h
     file/File.h
     file/FileReader.h
+    multiplexer/DescriptorEventPublisher.h
     pipe/Sink.h
     pipe/Source.h
     pipe/Pipe.h

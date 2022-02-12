@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/DescriptorEventPublisher.h"
+#include "DescriptorEventPublisher.h"
 
 #include "core/eventreceiver/DescriptorEventReceiver.h"
 

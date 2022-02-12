@@ -19,7 +19,7 @@
 #ifndef CORE_SELECT_DESCRIPTOREVENTPUBLISHER_H
 #define CORE_SELECT_DESCRIPTOREVENTPUBLISHER_H
 
-#include "core/DescriptorEventPublisher.h" // IWYU pragma: export
+#include "core/multiplexer/DescriptorEventPublisher.h" // IWYU pragma: export
 
 namespace core {
     class DescriptorEventReceiver;

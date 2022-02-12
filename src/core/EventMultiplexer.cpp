@@ -18,10 +18,10 @@
 
 #include "core/EventMultiplexer.h"
 
-#include "core/DescriptorEventPublisher.h"
 #include "core/Event.h" // for Event
 #include "core/TimerEventDispatcher.h"
 #include "core/eventreceiver/DescriptorEventReceiver.h"
+#include "core/multiplexer/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
