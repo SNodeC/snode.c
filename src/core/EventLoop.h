@@ -22,7 +22,7 @@
 #include "core/TickStatus.h"
 
 namespace core {
-    class EventDispatcher;
+    class EventMultiplexer;
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -46,7 +46,7 @@ namespace core {
         static EventLoop& instance();
 
         static unsigned long getTickCounter();
-        EventDispatcher& getEventDispatcher();
+        EventMultiplexer& getEventDispatcher();
 
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -58,7 +58,7 @@ namespace core {
 
         static void stoponsig(int sig);
 
-        core::EventDispatcher& eventDispatcher;
+        core::EventMultiplexer& eventDispatcher;
 
     private:
         static bool running;

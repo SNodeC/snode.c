@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/mux/poll/EventDispatcher.h"
+#include "core/mux/poll/EventMultiplexer.h"
 
 #include "core/DescriptorEventReceiver.h"
 #include "core/mux/poll/DescriptorEventDispatcher.h"
@@ -31,8 +31,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-core::EventDispatcher& EventDispatcher() {
-    static core::poll::EventDispatcher eventDispatcher;
+core::EventMultiplexer& EventDispatcher() {
+    static core::poll::EventMultiplexer eventDispatcher;
 
     return eventDispatcher;
 }
@@ -157,17 +157,17 @@ namespace core::poll {
         return interestCount;
     }
 
-    EventDispatcher::EventDispatcher()
-        : core::EventDispatcher(new core::poll::DescriptorEventDispatcher(pollFds, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
-                                new core::poll::DescriptorEventDispatcher(pollFds, POLLOUT, POLLOUT),
-                                new core::poll::DescriptorEventDispatcher(pollFds, POLLPRI, POLLPRI)) {
+    EventMultiplexer::EventMultiplexer()
+        : core::EventMultiplexer(new core::poll::DescriptorEventDispatcher(pollFds, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
+                                 new core::poll::DescriptorEventDispatcher(pollFds, POLLOUT, POLLOUT),
+                                 new core::poll::DescriptorEventDispatcher(pollFds, POLLPRI, POLLPRI)) {
     }
 
-    int EventDispatcher::multiplex(utils::Timeval& tickTimeOut) {
+    int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
         return core::system::poll(pollFds.getEvents(), pollFds.getInterestCount(), tickTimeOut.ms());
     }
 
-    void EventDispatcher::dispatchActiveEvents(int count) {
+    void EventMultiplexer::dispatchActiveEvents(int count) {
         if (count > 0) {
             for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
                 eventDispatcher->dispatchActiveEvents();

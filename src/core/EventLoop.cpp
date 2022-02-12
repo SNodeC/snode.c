@@ -19,7 +19,7 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
-#include "core/EventDispatcher.h"
+#include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,7 +37,7 @@
 #define MAX_OUTOFBAND_INACTIVITY 60
 
 /* Must be implemented in every variant of a multiplexer api */
-core::EventDispatcher& EventDispatcher();
+core::EventMultiplexer& EventDispatcher();
 
 namespace core {
 
@@ -73,7 +73,7 @@ namespace core {
         return tickCounter;
     }
 
-    EventDispatcher& EventLoop::getEventDispatcher() {
+    EventMultiplexer& EventLoop::getEventDispatcher() {
         return eventDispatcher;
     }
 

@@ -16,10 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EPOLL_EVENTDISPATCHER_H
-#define CORE_EPOLL_EVENTDISPATCHER_H
+#ifndef CORE_SELECT_EVENTDISPATCHER_H
+#define CORE_SELECT_EVENTDISPATCHER_H
 
-#include "core/EventDispatcher.h"
+#include "core/EventMultiplexer.h"
+#include "core/mux/select/DescriptorEventDispatcher.h"
 
 namespace utils {
     class Timeval;
@@ -27,30 +28,25 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/epoll.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::epoll {
+namespace core::select {
 
-    class EventDispatcher : public core::EventDispatcher {
-        EventDispatcher(const EventDispatcher&) = delete;
-        EventDispatcher& operator=(const EventDispatcher&) = delete;
+    class EventMultiplexer : public core::EventMultiplexer {
+        EventMultiplexer(const EventMultiplexer&) = delete;
+        EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     public:
-        EventDispatcher();
-        ~EventDispatcher() = default;
+        EventMultiplexer();
+        ~EventMultiplexer() = default;
 
     private:
-        int multiplex(utils::Timeval& tickTimeout) override;
+        int multiplex(utils::Timeval& tickTimeOut) override;
         void dispatchActiveEvents(int count) override;
 
-        int epfd;
-
-        int epfds[3];
-        epoll_event ePollEvents[3];
+        FdSet fdSets[3];
     };
 
-} // namespace core::epoll
+} // namespace core::select
 
-#endif // CORE_EPOLL_EVENTDISPATCHER_H
+#endif // CORE_SELECT_EVENTDISPATCHER_H

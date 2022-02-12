@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(MUX_POLL_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
+set(MUX_POLL_CPP DescriptorEventDispatcher.cpp EventMultiplexer.cpp)
 
-set(MUX_POLL_H DescriptorEventDispatcher.h EventDispatcher.h)
+set(MUX_POLL_H DescriptorEventDispatcher.h EventMultiplexer.h)
 
 add_library(mux-poll SHARED ${MUX_POLL_CPP} ${MUX_POLL_H})
 add_library(snodec::mux-poll ALIAS mux-poll)

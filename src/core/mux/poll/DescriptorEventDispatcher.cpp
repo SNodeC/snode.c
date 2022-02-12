@@ -19,7 +19,7 @@
 #include "core/mux/poll/DescriptorEventDispatcher.h"
 
 #include "core/DescriptorEventReceiver.h"
-#include "core/mux/poll/EventDispatcher.h"
+#include "core/mux/poll/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

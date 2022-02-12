@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/mux/select/EventDispatcher.h"
+#include "core/mux/select/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,26 +25,26 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-core::EventDispatcher& EventDispatcher() {
-    static core::select::EventDispatcher eventDispatcher;
+core::EventMultiplexer& EventDispatcher() {
+    static core::select::EventMultiplexer eventDispatcher;
 
     return eventDispatcher;
 }
 
 namespace core::select {
 
-    EventDispatcher::EventDispatcher()
-        : core::EventDispatcher(new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::RD]),
-                                new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::WR]),
-                                new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::EX])) {
+    EventMultiplexer::EventMultiplexer()
+        : core::EventMultiplexer(new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::RD]),
+                                 new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::WR]),
+                                 new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::EX])) {
     }
 
-    int EventDispatcher::multiplex(utils::Timeval& tickTimeOut) {
+    int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
         return core::system::select(
             getMaxFd() + 1, &fdSets[DISP_TYPE::RD].get(), &fdSets[DISP_TYPE::WR].get(), &fdSets[DISP_TYPE::EX].get(), &tickTimeOut);
     }
 
-    void EventDispatcher::dispatchActiveEvents(int count) {
+    void EventMultiplexer::dispatchActiveEvents(int count) {
         if (count > 0) {
             for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
                 eventDispatcher->dispatchActiveEvents();

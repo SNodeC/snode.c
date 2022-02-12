@@ -18,7 +18,7 @@
 
 #include "core/ConnectEventReceiver.h"
 
-#include "core/EventDispatcher.h"
+#include "core/EventMultiplexer.h"
 #include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,7 +29,7 @@ namespace core {
 
     ConnectEventReceiver::ConnectEventReceiver(const utils::Timeval& timeout)
         : DescriptorEventReceiver(
-              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), timeout) {
+              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::WR), timeout) {
     }
 
     void ConnectEventReceiver::connectTimeout() {

@@ -8,8 +8,8 @@ set(CORE_CPP
     DescriptorEventReceiver.cpp
     DynamicLoader.cpp
     Event.cpp
-    EventDispatcher.cpp
     EventLoop.cpp
+    EventMultiplexer.cpp
     EventReceiver.cpp
     ExceptionalConditionEventReceiver.cpp
     InitAcceptEventReceiver.cpp
@@ -47,8 +47,8 @@ set(CORE_H
     DescriptorEventReceiver.h
     DynamicLoader.h
     Event.h
-    EventDispatcher.h
     EventLoop.h
+    EventMultiplexer.h
     EventReceiver.h
     ExceptionalConditionEventReceiver.h
     InitAcceptEventReceiver.h

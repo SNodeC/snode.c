@@ -19,7 +19,7 @@
 #ifndef CORE_POLL_EVENTDISPATCHER_H
 #define CORE_POLL_EVENTDISPATCHER_H
 
-#include "core/EventDispatcher.h"
+#include "core/EventMultiplexer.h"
 
 namespace core {
     class DescriptorEventReceiver;
@@ -74,13 +74,13 @@ namespace core::poll {
         uint32_t interestCount;
     };
 
-    class EventDispatcher : public core::EventDispatcher {
-        EventDispatcher(const EventDispatcher&) = delete;
-        EventDispatcher& operator=(const EventDispatcher&) = delete;
+    class EventMultiplexer : public core::EventMultiplexer {
+        EventMultiplexer(const EventMultiplexer&) = delete;
+        EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     public:
-        EventDispatcher();
-        ~EventDispatcher() = default;
+        EventMultiplexer();
+        ~EventMultiplexer() = default;
 
     private:
         int multiplex(utils::Timeval& tickTimeOut) override;

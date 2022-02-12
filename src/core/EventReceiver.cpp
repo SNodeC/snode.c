@@ -18,7 +18,7 @@
 
 #include "core/EventReceiver.h"
 
-#include "core/EventDispatcher.h"
+#include "core/EventMultiplexer.h"
 #include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

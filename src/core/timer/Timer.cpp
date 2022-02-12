@@ -18,7 +18,7 @@
 
 #include "core/timer/Timer.h"
 
-#include "core/EventDispatcher.h"
+#include "core/EventMultiplexer.h"
 #include "core/EventLoop.h"
 #include "core/TimerEventDispatcher.h" // for ManagedTimer
 #include "core/timer/IntervalTimer.h"

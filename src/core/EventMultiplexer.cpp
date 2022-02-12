@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/EventDispatcher.h"
+#include "core/EventMultiplexer.h"
 
 #include "core/DescriptorEventDispatcher.h"
 #include "core/DescriptorEventReceiver.h"
@@ -34,14 +34,14 @@
 
 namespace core {
 
-    core::EventDispatcher::EventDispatcher(DescriptorEventDispatcher* const readDescriptorEventDispatcher,
+    core::EventMultiplexer::EventMultiplexer(DescriptorEventDispatcher* const readDescriptorEventDispatcher,
                                            DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
                                            DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher)
         : descriptorEventDispatcher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
         , timerEventDispatcher(new core::TimerEventDispatcher()) {
     }
 
-    EventDispatcher::~EventDispatcher() {
+    EventMultiplexer::~EventMultiplexer() {
         for (core::DescriptorEventDispatcher* descriptorEventDispatcher : descriptorEventDispatcher) {
             delete descriptorEventDispatcher;
         }
@@ -49,23 +49,23 @@ namespace core {
         delete timerEventDispatcher;
     }
 
-    core::DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) {
+    core::DescriptorEventDispatcher& EventMultiplexer::getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType) {
         return *descriptorEventDispatcher[dispType];
     }
 
-    core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
+    core::TimerEventDispatcher& EventMultiplexer::getTimerEventDispatcher() {
         return *timerEventDispatcher;
     }
 
-    void EventDispatcher::publish(const Event* event) {
+    void EventMultiplexer::publish(const Event* event) {
         eventQueue.insert(event);
     }
 
-    void EventDispatcher::unPublish(const Event* event) {
+    void EventMultiplexer::unPublish(const Event* event) {
         eventQueue.remove(event);
     }
 
-    int EventDispatcher::getObservedEventReceiverCount() {
+    int EventMultiplexer::getObservedEventReceiverCount() {
         return std::accumulate(descriptorEventDispatcher.begin(),
                                descriptorEventDispatcher.end(),
                                0,
@@ -74,7 +74,7 @@ namespace core {
                                });
     }
 
-    int EventDispatcher::getMaxFd() {
+    int EventMultiplexer::getMaxFd() {
         return std::accumulate(descriptorEventDispatcher.begin(),
                                descriptorEventDispatcher.end(),
                                -1,
@@ -83,7 +83,7 @@ namespace core {
                                });
     }
 
-    TickStatus EventDispatcher::tick(const utils::Timeval& tickTimeOut, bool stopped) {
+    TickStatus EventMultiplexer::tick(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
@@ -121,7 +121,7 @@ namespace core {
         return tickStatus;
     }
 
-    void EventDispatcher::stop() {
+    void EventMultiplexer::stop() {
         core::TickStatus tickStatus;
 
         do {
@@ -137,17 +137,17 @@ namespace core {
         } while (tickStatus == TickStatus::SUCCESS);
     }
 
-    void EventDispatcher::stopDescriptorEvents() {
+    void EventMultiplexer::stopDescriptorEvents() {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->stop();
         }
     }
 
-    void EventDispatcher::stopTimerEvents() {
+    void EventMultiplexer::stopTimerEvents() {
         timerEventDispatcher->stop();
     }
 
-    utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
+    utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = core::DescriptorEventReceiver::TIMEOUT::MAX;
 
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
@@ -158,50 +158,50 @@ namespace core {
         return nextTimeout;
     }
 
-    void EventDispatcher::checkTimedOutEvents(const utils::Timeval& currentTime) {
+    void EventMultiplexer::checkTimedOutEvents(const utils::Timeval& currentTime) {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->checkTimedOutEvents(currentTime);
         }
     }
 
-    void EventDispatcher::observeEnabledEvents(const utils::Timeval& currentTime) {
+    void EventMultiplexer::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->observeEnabledEvents(currentTime);
         }
         timerEventDispatcher->observeEnabledEvents();
     }
 
-    void EventDispatcher::dispatchActiveEvents(int count, utils::Timeval& currentTime) {
+    void EventMultiplexer::dispatchActiveEvents(int count, utils::Timeval& currentTime) {
         timerEventDispatcher->dispatchActiveEvents(currentTime);
         dispatchActiveEvents(count);
     }
 
-    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+    void EventMultiplexer::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
             eventDispatcher->unobserveDisabledEvents(currentTime);
         }
         timerEventDispatcher->unobsereDisableEvents();
     }
 
-    EventDispatcher::EventQueue::EventQueue()
+    EventMultiplexer::EventQueue::EventQueue()
         : executeQueue(new std::set<const Event*>())
         , publishQueue(new std::set<const Event*>()) {
     }
 
-    EventDispatcher::EventQueue::~EventQueue() {
+    EventMultiplexer::EventQueue::~EventQueue() {
         delete executeQueue;
         delete publishQueue;
     }
 
-    void EventDispatcher::EventQueue::insert(const Event* event) {
+    void EventMultiplexer::EventQueue::insert(const Event* event) {
         publishQueue->insert(event); // do not allow two or more same events in one tick
     }
 
-    void EventDispatcher::EventQueue::remove(const Event* event) {
+    void EventMultiplexer::EventQueue::remove(const Event* event) {
         publishQueue->erase(event); // in case of erase remove the event from the published queue
     }
 
-    void EventDispatcher::EventQueue::execute(const utils::Timeval& currentTime) {
+    void EventMultiplexer::EventQueue::execute(const utils::Timeval& currentTime) {
         std::swap(executeQueue, publishQueue);
 
         for (const Event* event : *executeQueue) {
@@ -211,7 +211,7 @@ namespace core {
         executeQueue->clear();
     }
 
-    bool EventDispatcher::EventQueue::empty() const {
+    bool EventMultiplexer::EventQueue::empty() const {
         return publishQueue->empty();
     }
 

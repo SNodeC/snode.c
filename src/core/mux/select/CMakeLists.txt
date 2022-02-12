@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(MUX_SELECT_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp)
+set(MUX_SELECT_CPP DescriptorEventDispatcher.cpp EventMultiplexer.cpp)
 
-set(MUX_SELECT_H DescriptorEventDispatcher.h EventDispatcher.h)
+set(MUX_SELECT_H DescriptorEventDispatcher.h EventMultiplexer.h)
 
 add_library(mux-select SHARED ${MUX_SELECT_CPP} ${MUX_SELECT_H})
 add_library(snodec::mux-select ALIAS mux-select)

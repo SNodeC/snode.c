@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTDISPATCHER_H
-#define CORE_EVENTDISPATCHER_H
+#ifndef CORE_EVENTMULTIPLEXER_H
+#define CORE_EVENTMULTIPLEXER_H
 
 #include "core/TickStatus.h" // IWYU pragma: export
 
@@ -40,16 +40,16 @@ namespace utils {
 
 namespace core {
 
-    class EventDispatcher {
-        EventDispatcher(const EventDispatcher&) = delete;
-        EventDispatcher& operator=(const EventDispatcher&) = delete;
+    class EventMultiplexer {
+        EventMultiplexer(const EventMultiplexer&) = delete;
+        EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     protected:
-        EventDispatcher(core::DescriptorEventDispatcher* const readDescriptorEventDispatcher,
-                        core::DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
-                        core::DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher);
+        EventMultiplexer(core::DescriptorEventDispatcher* const readDescriptorEventDispatcher,
+                         core::DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
+                         core::DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher);
 
-        ~EventDispatcher();
+        ~EventMultiplexer();
 
     private:
         class EventQueue {
@@ -71,7 +71,7 @@ namespace core {
 #define DISP_COUNT 3
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
-        DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType);
+        DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType);
         TimerEventDispatcher& getTimerEventDispatcher();
 
         void publish(const core::Event* event);
@@ -108,4 +108,4 @@ namespace core {
 
 } // namespace core
 
-#endif // CORE_EVENTDISPATCHER_H
+#endif // CORE_EVENTMULTIPLEXER_H
