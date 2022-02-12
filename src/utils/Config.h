@@ -33,14 +33,15 @@ namespace utils {
 
     class Config {
     private:
-        Config() = default;
-        ~Config() = default;
+        Config() = delete;
+        Config(const Config&) = delete;
+        ~Config() = delete;
+
+        Config& operator=(const Config&) = delete;
 
     public:
         static int init(int argc, char* argv[]);
-
         static void prepare();
-
         static void terminate();
 
         static CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
