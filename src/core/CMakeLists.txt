@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(CORE_CPP
-    eventreceiver/AcceptEventReceiver.cpp
-    eventreceiver/ConnectEventReceiver.cpp
     Descriptor.cpp
     DescriptorEventPublisher.cpp
     DescriptorEventReceiver.cpp
@@ -11,12 +9,14 @@ set(CORE_CPP
     EventLoop.cpp
     EventMultiplexer.cpp
     EventReceiver.cpp
+    SNodeC.cpp
+    TimerEventDispatcher.cpp
+    eventreceiver/AcceptEventReceiver.cpp
+    eventreceiver/ConnectEventReceiver.cpp
     eventreceiver/ExceptionalConditionEventReceiver.cpp
     eventreceiver/InitAcceptEventReceiver.cpp
     eventreceiver/InitConnectEventReceiver.cpp
     eventreceiver/ReadEventReceiver.cpp
-    SNodeC.cpp
-    TimerEventDispatcher.cpp
     eventreceiver/TimerEventReceiver.cpp
     eventreceiver/WriteEventReceiver.cpp
     file/File.cpp
@@ -41,8 +41,6 @@ set(CORE_CPP
 )
 
 set(CORE_H
-    eventreceiver/AcceptEventReceiver.h
-    eventreceiver/ConnectEventReceiver.h
     Descriptor.h
     DescriptorEventPublisher.h
     DescriptorEventReceiver.h
@@ -51,13 +49,15 @@ set(CORE_H
     EventLoop.h
     EventMultiplexer.h
     EventReceiver.h
+    SNodeC.h
+    TickStatus.h
+    TimerEventDispatcher.h
+    eventreceiver/AcceptEventReceiver.h
+    eventreceiver/ConnectEventReceiver.h
     eventreceiver/ExceptionalConditionEventReceiver.h
     eventreceiver/InitAcceptEventReceiver.h
     eventreceiver/InitConnectEventReceiver.h
     eventreceiver/ReadEventReceiver.h
-    SNodeC.h
-    TickStatus.h
-    TimerEventDispatcher.h
     eventreceiver/TimerEventReceiver.h
     eventreceiver/WriteEventReceiver.h
     file/File.h
