@@ -87,7 +87,9 @@ namespace utils {
         showConfigFlag->configurable(false);
 
         CLI::Option* dumpConfigFlg =
-            app.add_flag("-w,--write-config{" + CONFFILEPATH + "/" + name + ".conf" + "}", outputConfigFile, "Write config file");
+            app.add_flag("-w{" + CONFFILEPATH + "/" + name + ".conf" + "},--write-config{" + CONFFILEPATH + "/" + name + ".conf" + "}",
+                         outputConfigFile,
+                         "Write config file");
         dumpConfigFlg->configurable(false);
 
         CLI::Option* logFileOpt = app.add_option("-l,--log-file", _logFile, "Log to file");
@@ -147,7 +149,7 @@ namespace utils {
         parse(app["--help"]->count() > 0 || app["--help-all"]->count() > 0);
 
         if (app["--write-config"]->count() > 0) {
-            VLOG(0) << "Write config file";
+            VLOG(0) << "Write config file " << outputConfigFile;
             std::ofstream confFile(outputConfigFile);
             confFile << app.config_to_str(true, true);
         }
