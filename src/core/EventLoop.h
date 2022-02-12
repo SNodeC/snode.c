@@ -58,7 +58,7 @@ namespace core {
 
         static void stoponsig(int sig);
 
-        core::EventMultiplexer& eventDispatcher;
+        core::EventMultiplexer& eventMultiplexer;
 
     private:
         static bool running;

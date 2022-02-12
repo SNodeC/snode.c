@@ -26,17 +26,17 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventDispatcher() {
-    static core::select::EventMultiplexer eventDispatcher;
+    static core::select::EventMultiplexer eventMultiplexer;
 
-    return eventDispatcher;
+    return eventMultiplexer;
 }
 
 namespace core::select {
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::RD]),
-                                 new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::WR]),
-                                 new core::select::DescriptorEventDispatcher(fdSets[DISP_TYPE::EX])) {
+        : core::EventMultiplexer(new core::select::DescriptorEventPublisher(fdSets[DISP_TYPE::RD]),
+                                 new core::select::DescriptorEventPublisher(fdSets[DISP_TYPE::WR]),
+                                 new core::select::DescriptorEventPublisher(fdSets[DISP_TYPE::EX])) {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
@@ -46,8 +46,8 @@ namespace core::select {
 
     void EventMultiplexer::dispatchActiveEvents(int count) {
         if (count > 0) {
-            for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-                eventDispatcher->dispatchActiveEvents();
+            for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+                eventMultiplexer->dispatchActiveEvents();
             }
         }
     }

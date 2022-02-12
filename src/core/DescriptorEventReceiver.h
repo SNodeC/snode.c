@@ -20,7 +20,7 @@
 #define CORE_DESCRIPTOREVENTRECEIVER_H
 
 namespace core {
-    class DescriptorEventDispatcher;
+    class DescriptorEventPublisher;
 } // namespace core
 
 #include "core/EventReceiver.h"
@@ -72,7 +72,7 @@ namespace core {
         };
 
     protected:
-        explicit DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher,
+        explicit DescriptorEventReceiver(DescriptorEventPublisher& descriptorEventPublisher,
                                          const utils::Timeval& timeout = TIMEOUT::DISABLE);
         ~DescriptorEventReceiver() = default;
 
@@ -103,7 +103,7 @@ namespace core {
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
-        DescriptorEventDispatcher& descriptorEventDispatcher;
+        DescriptorEventPublisher& descriptorEventPublisher;
 
         int registeredFd = -1;
 

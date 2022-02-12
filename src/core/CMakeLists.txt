@@ -4,7 +4,7 @@ set(CORE_CPP
     AcceptEventReceiver.cpp
     ConnectEventReceiver.cpp
     Descriptor.cpp
-    DescriptorEventDispatcher.cpp
+    DescriptorEventPublisher.cpp
     DescriptorEventReceiver.cpp
     DynamicLoader.cpp
     Event.cpp
@@ -43,7 +43,7 @@ set(CORE_H
     AcceptEventReceiver.h
     ConnectEventReceiver.h
     Descriptor.h
-    DescriptorEventDispatcher.h
+    DescriptorEventPublisher.h
     DescriptorEventReceiver.h
     DynamicLoader.h
     Event.h

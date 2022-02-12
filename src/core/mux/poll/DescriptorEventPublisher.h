@@ -19,7 +19,7 @@
 #ifndef CORE_POLL_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_POLL_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
+#include "core/DescriptorEventPublisher.h" // IWYU pragma: export
 
 namespace core {
     class DescriptorEventReceiver;
@@ -34,12 +34,12 @@ namespace core {
 
 namespace core::poll {
 
-    class DescriptorEventDispatcher : public core::DescriptorEventDispatcher {
-        DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
-        DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
+    class DescriptorEventPublisher : public core::DescriptorEventPublisher {
+        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     public:
-        DescriptorEventDispatcher(core::poll::PollFds& pollFds, short events, short revents);
+        DescriptorEventPublisher(core::poll::PollFds& pollFds, short events, short revents);
 
     private:
         void modAdd(core::DescriptorEventReceiver* eventReceiver) override;

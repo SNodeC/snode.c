@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/mux/select/DescriptorEventDispatcher.h"
+#include "core/mux/select/DescriptorEventPublisher.h"
 
 #include "core/DescriptorEventReceiver.h"
 
@@ -56,27 +56,27 @@ namespace core::select {
         return active;
     }
 
-    DescriptorEventDispatcher::DescriptorEventDispatcher(FdSet& fdSet)
+    DescriptorEventPublisher::DescriptorEventPublisher(FdSet& fdSet)
         : fdSet(fdSet) {
     }
 
-    void DescriptorEventDispatcher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventDispatcher::modDel(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventDispatcher::modOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventDispatcher::modOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventDispatcher::dispatchActiveEvents() {
+    void DescriptorEventPublisher::dispatchActiveEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             if (fdSet.isSet(fd) && !eventReceiver->isSuspended()) {

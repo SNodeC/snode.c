@@ -18,7 +18,7 @@
 
 #include "core/mux/epoll/EventMultiplexer.h"
 
-#include "core/mux/epoll/DescriptorEventDispatcher.h"
+#include "core/mux/epoll/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,29 +27,29 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventDispatcher() {
-    static core::epoll::EventMultiplexer eventDispatcher;
+    static core::epoll::EventMultiplexer eventMultiplexer;
 
-    return eventDispatcher;
+    return eventMultiplexer;
 }
 
 namespace core::epoll {
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::epoll::DescriptorEventDispatcher(epfds[DISP_TYPE::RD], EPOLLIN),
-                                 new core::epoll::DescriptorEventDispatcher(epfds[DISP_TYPE::WR], EPOLLOUT),
-                                 new core::epoll::DescriptorEventDispatcher(epfds[DISP_TYPE::EX], EPOLLPRI)) {
+        : core::EventMultiplexer(new core::epoll::DescriptorEventPublisher(epfds[DISP_TYPE::RD], EPOLLIN),
+                                 new core::epoll::DescriptorEventPublisher(epfds[DISP_TYPE::WR], EPOLLOUT),
+                                 new core::epoll::DescriptorEventPublisher(epfds[DISP_TYPE::EX], EPOLLPRI)) {
         epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
 
         epoll_event event;
         event.events = EPOLLIN;
 
-        event.data.ptr = descriptorEventDispatcher[DISP_TYPE::RD];
+        event.data.ptr = descriptorEventPublisher[DISP_TYPE::RD];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::RD], &event);
 
-        event.data.ptr = descriptorEventDispatcher[WR];
+        event.data.ptr = descriptorEventPublisher[WR];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::WR], &event);
 
-        event.data.ptr = descriptorEventDispatcher[EX];
+        event.data.ptr = descriptorEventPublisher[EX];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::EX], &event);
     }
 
@@ -60,7 +60,7 @@ namespace core::epoll {
     void EventMultiplexer::dispatchActiveEvents(int count) {
         for (int i = 0; i < count; i++) {
             if ((ePollEvents[i].events & EPOLLIN) != 0) {
-                static_cast<core::DescriptorEventDispatcher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents();
+                static_cast<core::DescriptorEventPublisher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents();
             }
         }
     }

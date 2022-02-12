@@ -19,7 +19,7 @@
 #include "core/mux/poll/EventMultiplexer.h"
 
 #include "core/DescriptorEventReceiver.h"
-#include "core/mux/poll/DescriptorEventDispatcher.h"
+#include "core/mux/poll/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,9 +32,9 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventDispatcher() {
-    static core::poll::EventMultiplexer eventDispatcher;
+    static core::poll::EventMultiplexer eventMultiplexer;
 
-    return eventDispatcher;
+    return eventMultiplexer;
 }
 
 namespace core::poll {
@@ -158,9 +158,9 @@ namespace core::poll {
     }
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::poll::DescriptorEventDispatcher(pollFds, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
-                                 new core::poll::DescriptorEventDispatcher(pollFds, POLLOUT, POLLOUT),
-                                 new core::poll::DescriptorEventDispatcher(pollFds, POLLPRI, POLLPRI)) {
+        : core::EventMultiplexer(new core::poll::DescriptorEventPublisher(pollFds, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
+                                 new core::poll::DescriptorEventPublisher(pollFds, POLLOUT, POLLOUT),
+                                 new core::poll::DescriptorEventPublisher(pollFds, POLLPRI, POLLPRI)) {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
@@ -169,8 +169,8 @@ namespace core::poll {
 
     void EventMultiplexer::dispatchActiveEvents(int count) {
         if (count > 0) {
-            for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-                eventDispatcher->dispatchActiveEvents();
+            for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+                eventMultiplexer->dispatchActiveEvents();
             }
         }
     }

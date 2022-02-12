@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/mux/poll/DescriptorEventDispatcher.h"
+#include "core/mux/poll/DescriptorEventPublisher.h"
 
 #include "core/DescriptorEventReceiver.h"
 #include "core/mux/poll/EventMultiplexer.h"
@@ -30,29 +30,29 @@
 
 namespace core::poll {
 
-    DescriptorEventDispatcher::DescriptorEventDispatcher(PollFds& pollFds, short events, short revents)
+    DescriptorEventPublisher::DescriptorEventPublisher(PollFds& pollFds, short events, short revents)
         : pollFds(pollFds)
         , events(events)
         , revents(revents) {
     }
 
-    void DescriptorEventDispatcher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.modAdd(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modDel(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.modDel(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.modOn(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::modOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.modOff(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::dispatchActiveEvents() {
+    void DescriptorEventPublisher::dispatchActiveEvents() {
         pollfd* pollfds = pollFds.getEvents();
 
         std::unordered_map<int, PollFds::PollFdIndex> pollFdsIndices = pollFds.getPollFdIndices();
@@ -70,7 +70,7 @@ namespace core::poll {
         }
     }
 
-    void core::poll::DescriptorEventDispatcher::finishTick() {
+    void core::poll::DescriptorEventPublisher::finishTick() {
         pollFds.compress();
     }
 

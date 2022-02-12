@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
-#define CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
+#ifndef CORE_SELECT_DESCRIPTOREVENTPUBLISHER_H
+#define CORE_SELECT_DESCRIPTOREVENTPUBLISHER_H
 
-#include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
+#include "core/DescriptorEventPublisher.h" // IWYU pragma: export
 
 namespace core {
     class DescriptorEventReceiver;
@@ -48,12 +48,12 @@ namespace core::select {
         fd_set active;
     };
 
-    class DescriptorEventDispatcher : public core::DescriptorEventDispatcher {
-        DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
-        DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
+    class DescriptorEventPublisher : public core::DescriptorEventPublisher {
+        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     public:
-        explicit DescriptorEventDispatcher(FdSet& fdSet);
+        explicit DescriptorEventPublisher(FdSet& fdSet);
 
     private:
         void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
@@ -68,4 +68,4 @@ namespace core::select {
 
 } // namespace core::select
 
-#endif // CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
+#endif // CORE_SELECT_DESCRIPTOREVENTPUBLISHER_H

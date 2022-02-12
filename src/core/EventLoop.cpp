@@ -58,7 +58,7 @@ namespace core {
     }
 
     EventLoop::EventLoop()
-        : eventDispatcher(::EventDispatcher())
+        : eventMultiplexer(::EventDispatcher())
 
     {
     }
@@ -74,7 +74,7 @@ namespace core {
     }
 
     EventMultiplexer& EventLoop::getEventDispatcher() {
-        return eventDispatcher;
+        return eventMultiplexer;
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -89,7 +89,7 @@ namespace core {
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
         tickCounter++;
 
-        TickStatus tickStatus = eventDispatcher.tick(tickTimeOut, stopped);
+        TickStatus tickStatus = eventMultiplexer.tick(tickTimeOut, stopped);
 
         DynamicLoader::execDlCloseDeleyed();
 
@@ -172,12 +172,12 @@ namespace core {
         core::TickStatus tickStatus;
 
         do {
-            instance().eventDispatcher.stopDescriptorEvents();
+            instance().eventMultiplexer.stopDescriptorEvents();
             tickStatus = instance()._tick(3, true);
         } while (tickStatus == TickStatus::SUCCESS);
 
         do {
-            instance().eventDispatcher.stopTimerEvents();
+            instance().eventMultiplexer.stopTimerEvents();
             tickStatus = instance()._tick(0, false);
         } while (tickStatus == TickStatus::SUCCESS);
 

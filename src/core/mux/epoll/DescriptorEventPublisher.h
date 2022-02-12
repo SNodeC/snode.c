@@ -19,7 +19,7 @@
 #ifndef CORE_EPOLL_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_EPOLL_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
+#include "core/DescriptorEventPublisher.h" // IWYU pragma: export
 
 namespace core {
     class DescriptorEventReceiver;
@@ -36,9 +36,9 @@ namespace core {
 
 namespace core::epoll {
 
-    class DescriptorEventDispatcher : public core::DescriptorEventDispatcher {
-        DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
-        DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
+    class DescriptorEventPublisher : public core::DescriptorEventPublisher {
+        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     private:
         class EPollEvents {
@@ -70,7 +70,7 @@ namespace core::epoll {
         };
 
     public:
-        explicit DescriptorEventDispatcher(int& epfd, uint32_t events);
+        explicit DescriptorEventPublisher(int& epfd, uint32_t events);
 
     private:
         void modAdd(core::DescriptorEventReceiver* eventReceiver) override;

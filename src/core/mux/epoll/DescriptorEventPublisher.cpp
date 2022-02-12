@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/mux/epoll/DescriptorEventDispatcher.h"
+#include "core/mux/epoll/DescriptorEventPublisher.h"
 
 #include "core/DescriptorEventReceiver.h"
 
@@ -28,7 +28,7 @@
 
 namespace core::epoll {
 
-    DescriptorEventDispatcher::EPollEvents::EPollEvents(int& epfd, uint32_t events)
+    DescriptorEventPublisher::EPollEvents::EPollEvents(int& epfd, uint32_t events)
         : epfd(epfd)
         , events(events) {
         epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
@@ -36,7 +36,7 @@ namespace core::epoll {
         ePollEvents.resize(1);
     }
 
-    void DescriptorEventDispatcher::EPollEvents::modAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::modAdd(core::DescriptorEventReceiver* eventReceiver) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -53,13 +53,13 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventDispatcher::EPollEvents::modDel(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::modDel(core::DescriptorEventReceiver* eventReceiver) {
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
         }
     }
 
-    void DescriptorEventDispatcher::EPollEvents::mod(core::DescriptorEventReceiver* eventReceiver, uint32_t events) {
+    void DescriptorEventPublisher::EPollEvents::mod(core::DescriptorEventReceiver* eventReceiver, uint32_t events) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -68,53 +68,53 @@ namespace core::epoll {
         core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, eventReceiver->getRegisteredFd(), &ePollEvent);
     }
 
-    void DescriptorEventDispatcher::EPollEvents::modOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::modOn(core::DescriptorEventReceiver* eventReceiver) {
         mod(eventReceiver, events);
     }
 
-    void DescriptorEventDispatcher::EPollEvents::modOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::modOff(core::DescriptorEventReceiver* eventReceiver) {
         mod(eventReceiver, 0);
     }
 
-    void DescriptorEventDispatcher::EPollEvents::compress() {
+    void DescriptorEventPublisher::EPollEvents::compress() {
         while (ePollEvents.size() > (interestCount * 2) + 1) {
             ePollEvents.resize(ePollEvents.size() / 2);
         }
     }
 
-    int DescriptorEventDispatcher::EPollEvents::getEPFd() const {
+    int DescriptorEventPublisher::EPollEvents::getEPFd() const {
         return epfd;
     }
 
-    epoll_event* DescriptorEventDispatcher::EPollEvents::getEvents() {
+    epoll_event* DescriptorEventPublisher::EPollEvents::getEvents() {
         return ePollEvents.data();
     }
 
-    int DescriptorEventDispatcher::EPollEvents::getInterestCount() const {
+    int DescriptorEventPublisher::EPollEvents::getInterestCount() const {
         return static_cast<int>(interestCount);
     }
 
-    DescriptorEventDispatcher::DescriptorEventDispatcher(int& epfd, uint32_t events)
+    DescriptorEventPublisher::DescriptorEventPublisher(int& epfd, uint32_t events)
         : ePollEvents(epfd, events) {
     }
 
-    void DescriptorEventDispatcher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.modAdd(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::modDel(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.modDel(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::modOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.modOn(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::modOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.modOff(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::dispatchActiveEvents() {
+    void DescriptorEventPublisher::dispatchActiveEvents() {
         int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
@@ -126,7 +126,7 @@ namespace core::epoll {
         }
     }
 
-    void core::epoll::DescriptorEventDispatcher::finishTick() {
+    void core::epoll::DescriptorEventPublisher::finishTick() {
         ePollEvents.compress();
     }
 

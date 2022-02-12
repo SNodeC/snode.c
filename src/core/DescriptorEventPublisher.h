@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_DESCRIPTOREVENTDISPATCHER_H
-#define CORE_DESCRIPTOREVENTDISPATCHER_H
+#ifndef CORE_DESCRIPTOREVENTPUBLISHER_H
+#define CORE_DESCRIPTOREVENTPUBLISHER_H
 
 namespace core {
     class Event;
@@ -37,15 +37,15 @@ namespace utils {
 
 namespace core {
 
-    class DescriptorEventDispatcher {
-        DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
-        DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
+    class DescriptorEventPublisher {
+        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     protected:
-        DescriptorEventDispatcher() = default;
+        DescriptorEventPublisher() = default;
 
     public:
-        virtual ~DescriptorEventDispatcher() = default;
+        virtual ~DescriptorEventPublisher() = default;
 
         void publish(Event* event);
 
@@ -92,4 +92,4 @@ namespace core {
 
 } // namespace core
 
-#endif // CORE_DESCRIPTOREVENTDISPATCHER_H
+#endif // CORE_DESCRIPTOREVENTPUBLISHER_H

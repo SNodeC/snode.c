@@ -18,7 +18,7 @@
 
 #include "core/EventMultiplexer.h"
 
-#include "core/DescriptorEventDispatcher.h"
+#include "core/DescriptorEventPublisher.h"
 #include "core/DescriptorEventReceiver.h"
 #include "core/Event.h" // for Event
 #include "core/TimerEventDispatcher.h"
@@ -34,23 +34,23 @@
 
 namespace core {
 
-    core::EventMultiplexer::EventMultiplexer(DescriptorEventDispatcher* const readDescriptorEventDispatcher,
-                                           DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
-                                           DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher)
-        : descriptorEventDispatcher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
+    core::EventMultiplexer::EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventDispatcher,
+                                           DescriptorEventPublisher* const writeDescriptorEventDispatcher,
+                                           DescriptorEventPublisher* const exceptionDescriptorEventDispatcher)
+        : descriptorEventPublisher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
         , timerEventDispatcher(new core::TimerEventDispatcher()) {
     }
 
     EventMultiplexer::~EventMultiplexer() {
-        for (core::DescriptorEventDispatcher* descriptorEventDispatcher : descriptorEventDispatcher) {
-            delete descriptorEventDispatcher;
+        for (core::DescriptorEventPublisher* descriptorEventPublisher : descriptorEventPublisher) {
+            delete descriptorEventPublisher;
         }
 
         delete timerEventDispatcher;
     }
 
-    core::DescriptorEventDispatcher& EventMultiplexer::getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType) {
-        return *descriptorEventDispatcher[dispType];
+    core::DescriptorEventPublisher& EventMultiplexer::getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType) {
+        return *descriptorEventPublisher[dispType];
     }
 
     core::TimerEventDispatcher& EventMultiplexer::getTimerEventDispatcher() {
@@ -66,20 +66,20 @@ namespace core {
     }
 
     int EventMultiplexer::getObservedEventReceiverCount() {
-        return std::accumulate(descriptorEventDispatcher.begin(),
-                               descriptorEventDispatcher.end(),
+        return std::accumulate(descriptorEventPublisher.begin(),
+                               descriptorEventPublisher.end(),
                                0,
-                               [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
-                                   return count + descriptorEventDispatcher->getObservedEventReceiverCount();
+                               [](int count, core::DescriptorEventPublisher* descriptorEventPublisher) -> int {
+                                   return count + descriptorEventPublisher->getObservedEventReceiverCount();
                                });
     }
 
     int EventMultiplexer::getMaxFd() {
-        return std::accumulate(descriptorEventDispatcher.begin(),
-                               descriptorEventDispatcher.end(),
+        return std::accumulate(descriptorEventPublisher.begin(),
+                               descriptorEventPublisher.end(),
                                -1,
-                               [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
-                                   return std::max(descriptorEventDispatcher->getMaxFd(), count);
+                               [](int count, core::DescriptorEventPublisher* descriptorEventPublisher) -> int {
+                                   return std::max(descriptorEventPublisher->getMaxFd(), count);
                                });
     }
 
@@ -125,8 +125,8 @@ namespace core {
         core::TickStatus tickStatus;
 
         do {
-            for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-                eventDispatcher->stop();
+            for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+                eventMultiplexer->stop();
             }
             tickStatus = tick(2, true);
         } while (tickStatus == TickStatus::SUCCESS);
@@ -138,8 +138,8 @@ namespace core {
     }
 
     void EventMultiplexer::stopDescriptorEvents() {
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->stop();
+        for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+            eventMultiplexer->stop();
         }
     }
 
@@ -150,8 +150,8 @@ namespace core {
     utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = core::DescriptorEventReceiver::TIMEOUT::MAX;
 
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            nextTimeout = std::min(eventDispatcher->getNextTimeout(currentTime), nextTimeout);
+        for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+            nextTimeout = std::min(eventMultiplexer->getNextTimeout(currentTime), nextTimeout);
         }
         nextTimeout = std::min(timerEventDispatcher->getNextTimeout(currentTime), nextTimeout);
 
@@ -159,14 +159,14 @@ namespace core {
     }
 
     void EventMultiplexer::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->checkTimedOutEvents(currentTime);
+        for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+            eventMultiplexer->checkTimedOutEvents(currentTime);
         }
     }
 
     void EventMultiplexer::observeEnabledEvents(const utils::Timeval& currentTime) {
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->observeEnabledEvents(currentTime);
+        for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+            eventMultiplexer->observeEnabledEvents(currentTime);
         }
         timerEventDispatcher->observeEnabledEvents();
     }
@@ -177,8 +177,8 @@ namespace core {
     }
 
     void EventMultiplexer::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->unobserveDisabledEvents(currentTime);
+        for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+            eventMultiplexer->unobserveDisabledEvents(currentTime);
         }
         timerEventDispatcher->unobsereDisableEvents();
     }

@@ -23,7 +23,7 @@
 
 namespace core {
     class Event;
-    class DescriptorEventDispatcher;
+    class DescriptorEventPublisher;
     class TimerEventDispatcher;
 } // namespace core
 
@@ -45,9 +45,9 @@ namespace core {
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     protected:
-        EventMultiplexer(core::DescriptorEventDispatcher* const readDescriptorEventDispatcher,
-                         core::DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
-                         core::DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher);
+        EventMultiplexer(core::DescriptorEventPublisher* const readDescriptorEventDispatcher,
+                         core::DescriptorEventPublisher* const writeDescriptorEventDispatcher,
+                         core::DescriptorEventPublisher* const exceptionDescriptorEventDispatcher);
 
         ~EventMultiplexer();
 
@@ -71,7 +71,7 @@ namespace core {
 #define DISP_COUNT 3
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
-        DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType);
+        DescriptorEventPublisher& getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType);
         TimerEventDispatcher& getTimerEventDispatcher();
 
         void publish(const core::Event* event);
@@ -98,7 +98,7 @@ namespace core {
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:
-        std::array<core::DescriptorEventDispatcher*, DISP_COUNT> descriptorEventDispatcher;
+        std::array<core::DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublisher;
 
     private:
         EventQueue eventQueue;
