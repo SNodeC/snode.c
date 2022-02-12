@@ -19,8 +19,8 @@
 #ifndef CORE_SELECT_EVENTDISPATCHER_H
 #define CORE_SELECT_EVENTDISPATCHER_H
 
+#include "DescriptorEventPublisher.h"
 #include "core/EventMultiplexer.h"
-#include "core/mux/select/DescriptorEventPublisher.h"
 
 namespace utils {
     class Timeval;

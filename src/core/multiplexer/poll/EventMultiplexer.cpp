@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/mux/poll/EventMultiplexer.h"
+#include "EventMultiplexer.h"
 
+#include "DescriptorEventPublisher.h"
 #include "core/DescriptorEventReceiver.h"
-#include "core/mux/poll/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

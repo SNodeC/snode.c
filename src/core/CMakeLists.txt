@@ -137,7 +137,7 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
-add_subdirectory(mux)
+add_subdirectory(multiplexer)
 
 add_subdirectory(socket/stream/legacy)
 add_subdirectory(socket/stream/tls)

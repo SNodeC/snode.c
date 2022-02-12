@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/mux/epoll/EventMultiplexer.h"
+#include "EventMultiplexer.h"
 
-#include "core/mux/epoll/DescriptorEventPublisher.h"
+#include "DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
