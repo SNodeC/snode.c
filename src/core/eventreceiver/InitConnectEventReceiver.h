@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_INITCONNECTEVENTRECEIVER_H
-#define CORE_INITCONNECTEVENTRECEIVER_H
+#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
 
 #include "core/EventReceiver.h"
 
@@ -31,7 +31,7 @@ namespace utils {
 
 #define MAX_WRITE_INACTIVITY 60
 
-namespace core {
+namespace core::eventreceiver {
 
     class InitConnectEventReceiver : public EventReceiver {
     protected:
@@ -43,6 +43,6 @@ namespace core {
         virtual void initConnectEvent() = 0;
     };
 
-} // namespace core
+} // namespace core::eventreceiver
 
-#endif // CORE_INITCONNECTEVENTRECEIVER_H
+#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H

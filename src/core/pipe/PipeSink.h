@@ -33,7 +33,7 @@ namespace core::pipe {
 
     class PipeSink
         : public core::Descriptor
-        , public core::ReadEventReceiver {
+        , public core::eventreceiver::ReadEventReceiver {
         PipeSink(const PipeSink&) = delete;
         PipeSink& operator=(const PipeSink&) = delete;
 

@@ -42,10 +42,10 @@ namespace core::poll {
         DescriptorEventPublisher(core::poll::PollFds& pollFds, short events, short revents);
 
     private:
-        void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
-        void modDel(core::DescriptorEventReceiver* eventReceiver) override;
-        void modOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void modOff(core::DescriptorEventReceiver* eventReceiver) override;
+        void modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents() override;
         void finishTick() override;

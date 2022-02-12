@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/DescriptorEventReceiver.h"
+#include "DescriptorEventReceiver.h"
 
 #include "core/DescriptorEventPublisher.h"
 
@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::eventreceiver {
 
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DEFAULT = {-2, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {-1, 0};
@@ -123,4 +123,4 @@ namespace core {
         }
     }
 
-} // namespace core
+} // namespace core::eventreceiver

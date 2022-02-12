@@ -35,7 +35,7 @@ namespace core::socket::stream {
 
     template <typename SocketT>
     class SocketWriter
-        : public WriteEventReceiver
+        : public core::eventreceiver::WriteEventReceiver
         , virtual public SocketT {
         SocketWriter() = delete;
 

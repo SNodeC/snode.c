@@ -51,7 +51,7 @@ namespace core {
     }
 
     void TimerEventDispatcher::observeEnabledEvents() {
-        for (TimerEventReceiver* timer : addedList) {
+        for (core::eventreceiver::TimerEventReceiver* timer : addedList) {
             timerList.push_back(timer);
             timerListDirty = true;
         }
@@ -59,7 +59,7 @@ namespace core {
     }
 
     void TimerEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
-        for (TimerEventReceiver* timer : timerList) {
+        for (core::eventreceiver::TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
                 timerListDirty = timer->dispatch();
             } else {
@@ -69,7 +69,7 @@ namespace core {
     }
 
     void TimerEventDispatcher::unobsereDisableEvents() {
-        for (TimerEventReceiver* timer : removedList) {
+        for (core::eventreceiver::TimerEventReceiver* timer : removedList) {
             timerList.remove(timer);
             timer->unobservedEvent();
             timerListDirty = true;
@@ -77,14 +77,14 @@ namespace core {
         removedList.clear();
     }
 
-    void TimerEventDispatcher::remove(TimerEventReceiver* timer) {
+    void TimerEventDispatcher::remove(core::eventreceiver::TimerEventReceiver* timer) {
         if (std::find(timerList.begin(), timerList.end(), timer) != timerList.end() &&
             std::find(removedList.begin(), removedList.end(), timer) == removedList.end()) {
             removedList.push_back(timer);
         }
     }
 
-    void TimerEventDispatcher::add(TimerEventReceiver* timer) {
+    void TimerEventDispatcher::add(core::eventreceiver::TimerEventReceiver* timer) {
         addedList.push_back(timer);
     }
 
@@ -95,14 +95,15 @@ namespace core {
     void TimerEventDispatcher::stop() {
         observeEnabledEvents();
 
-        for (TimerEventReceiver* timer : timerList) {
+        for (core::eventreceiver::TimerEventReceiver* timer : timerList) {
             remove(timer);
         }
 
         unobsereDisableEvents();
     }
 
-    bool TimerEventDispatcher::timernode_lt::operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
+    bool TimerEventDispatcher::timernode_lt::operator()(const core::eventreceiver::TimerEventReceiver* t1,
+                                                        const core::eventreceiver::TimerEventReceiver* t2) const {
         return t1->getTimeout() < t2->getTimeout();
     }
 

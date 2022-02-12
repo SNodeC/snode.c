@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::eventreceiver {
 
     ConnectEventReceiver::ConnectEventReceiver(const utils::Timeval& timeout)
         : DescriptorEventReceiver(
@@ -44,4 +44,4 @@ namespace core {
         connectTimeout();
     }
 
-} // namespace core
+} // namespace core::eventreceiver

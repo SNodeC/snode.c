@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.0)
 set(CORE_CPP
     Descriptor.cpp
     DescriptorEventPublisher.cpp
-    DescriptorEventReceiver.cpp
     DynamicLoader.cpp
     Event.cpp
     EventLoop.cpp
@@ -13,6 +12,7 @@ set(CORE_CPP
     TimerEventDispatcher.cpp
     eventreceiver/AcceptEventReceiver.cpp
     eventreceiver/ConnectEventReceiver.cpp
+    eventreceiver/DescriptorEventReceiver.cpp
     eventreceiver/ExceptionalConditionEventReceiver.cpp
     eventreceiver/InitAcceptEventReceiver.cpp
     eventreceiver/InitConnectEventReceiver.cpp
@@ -43,7 +43,6 @@ set(CORE_CPP
 set(CORE_H
     Descriptor.h
     DescriptorEventPublisher.h
-    DescriptorEventReceiver.h
     DynamicLoader.h
     Event.h
     EventLoop.h
@@ -54,6 +53,7 @@ set(CORE_H
     TimerEventDispatcher.h
     eventreceiver/AcceptEventReceiver.h
     eventreceiver/ConnectEventReceiver.h
+    eventreceiver/DescriptorEventReceiver.h
     eventreceiver/ExceptionalConditionEventReceiver.h
     eventreceiver/InitAcceptEventReceiver.h
     eventreceiver/InitConnectEventReceiver.h

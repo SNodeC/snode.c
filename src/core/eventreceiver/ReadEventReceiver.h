@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_READEVENTRECEIVER_H
-#define CORE_READEVENTRECEIVER_H
+#ifndef CORE_EVENTRECEIVER_READEVENTRECEIVER_H
+#define CORE_EVENTRECEIVER_READEVENTRECEIVER_H
 
-#include "core/DescriptorEventReceiver.h"
+#include "core/eventreceiver/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 #define MAX_READ_INACTIVITY 60
 
-namespace core {
+namespace core::eventreceiver {
 
     class ReadEventReceiver : public DescriptorEventReceiver {
     protected:
@@ -41,6 +41,6 @@ namespace core {
         void timeoutEvent() final;
     };
 
-} // namespace core
+} // namespace core::eventreceiver
 
-#endif // CORE_READEVENTRECEIVER_H
+#endif // CORE_EVENTRECEIVER_READEVENTRECEIVER_H

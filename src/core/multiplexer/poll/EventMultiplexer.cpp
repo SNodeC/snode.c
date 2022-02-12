@@ -19,7 +19,7 @@
 #include "EventMultiplexer.h"
 
 #include "DescriptorEventPublisher.h"
-#include "core/DescriptorEventReceiver.h"
+#include "core/eventreceiver/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,7 +50,7 @@ namespace core::poll {
         pollfds.resize(1, pollFd);
     }
 
-    void PollFds::modAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFds::modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
@@ -81,7 +81,7 @@ namespace core::poll {
         }
     }
 
-    void PollFds::modDel(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFds::modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
@@ -100,13 +100,13 @@ namespace core::poll {
         }
     }
 
-    void PollFds::modOn(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFds::modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         pollfds[pollFdIndices.find(fd)->second.index].events |= event;
     }
 
-    void PollFds::modOff(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFds::modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         pollfds[pollFdIndices.find(fd)->second.index].events &= static_cast<short>(~event); // Tilde promotes to int

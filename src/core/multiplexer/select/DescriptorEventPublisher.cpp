@@ -18,7 +18,7 @@
 
 #include "DescriptorEventPublisher.h"
 
-#include "core/DescriptorEventReceiver.h"
+#include "core/eventreceiver/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -60,25 +60,25 @@ namespace core::select {
         : fdSet(fdSet) {
     }
 
-    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
     void DescriptorEventPublisher::dispatchActiveEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
-            core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+            core::eventreceiver::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             if (fdSet.isSet(fd) && !eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->publish();

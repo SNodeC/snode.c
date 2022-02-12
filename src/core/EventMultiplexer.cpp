@@ -19,9 +19,9 @@
 #include "core/EventMultiplexer.h"
 
 #include "core/DescriptorEventPublisher.h"
-#include "core/DescriptorEventReceiver.h"
 #include "core/Event.h" // for Event
 #include "core/TimerEventDispatcher.h"
+#include "core/eventreceiver/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,8 +35,8 @@
 namespace core {
 
     core::EventMultiplexer::EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventDispatcher,
-                                           DescriptorEventPublisher* const writeDescriptorEventDispatcher,
-                                           DescriptorEventPublisher* const exceptionDescriptorEventDispatcher)
+                                             DescriptorEventPublisher* const writeDescriptorEventDispatcher,
+                                             DescriptorEventPublisher* const exceptionDescriptorEventDispatcher)
         : descriptorEventPublisher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
         , timerEventDispatcher(new core::TimerEventDispatcher()) {
     }
@@ -148,7 +148,7 @@ namespace core {
     }
 
     utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
-        utils::Timeval nextTimeout = core::DescriptorEventReceiver::TIMEOUT::MAX;
+        utils::Timeval nextTimeout = core::eventreceiver::DescriptorEventReceiver::TIMEOUT::MAX;
 
         for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
             nextTimeout = std::min(eventMultiplexer->getNextTimeout(currentTime), nextTimeout);

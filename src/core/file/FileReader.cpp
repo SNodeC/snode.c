@@ -78,7 +78,7 @@ namespace core::file {
     }
 
     void FileReader::terminate() {
-        core::ReadEventReceiver::terminate();
+        core::eventreceiver::ReadEventReceiver::terminate();
     }
 
     void FileReader::unobservedEvent() {

@@ -37,7 +37,7 @@ namespace core::pipe {
 namespace core::file {
 
     class FileReader
-        : public core::ReadEventReceiver
+        : public core::eventreceiver::ReadEventReceiver
         , public core::pipe::Source
         , virtual public File {
     protected:

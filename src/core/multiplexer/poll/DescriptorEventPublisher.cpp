@@ -19,7 +19,7 @@
 #include "DescriptorEventPublisher.h"
 
 #include "EventMultiplexer.h"
-#include "core/DescriptorEventReceiver.h"
+#include "core/eventreceiver/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,19 +36,19 @@ namespace core::poll {
         , revents(revents) {
     }
 
-    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
         pollFds.modAdd(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
         pollFds.modDel(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
         pollFds.modOn(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
         pollFds.modOff(eventReceiver, events);
     }
 
@@ -61,7 +61,7 @@ namespace core::poll {
             pollfd& pollFd = pollfds[pollFdsIndices[fd].index];
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & this->revents) != 0) {
-                core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+                core::eventreceiver::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 if (!eventReceiver->isSuspended()) {
                     eventCounter++;
                     eventReceiver->publish();

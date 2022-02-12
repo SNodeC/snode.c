@@ -56,10 +56,10 @@ namespace core::select {
         explicit DescriptorEventPublisher(FdSet& fdSet);
 
     private:
-        void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
-        void modDel(core::DescriptorEventReceiver* eventReceiver) override;
-        void modOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void modOff(core::DescriptorEventReceiver* eventReceiver) override;
+        void modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents() override;
 

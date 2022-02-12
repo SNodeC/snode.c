@@ -43,8 +43,8 @@ namespace core::socket::stream {
     template <typename ClientConfigT, typename SocketConnectionT>
     class SocketConnector
         : protected SocketConnectionT::Socket
-        , protected InitConnectEventReceiver
-        , protected ConnectEventReceiver {
+        , protected core::eventreceiver::InitConnectEventReceiver
+        , protected core::eventreceiver::ConnectEventReceiver {
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;

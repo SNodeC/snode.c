@@ -46,14 +46,14 @@ namespace core::epoll {
             explicit EPollEvents(int& epfd, uint32_t event);
 
         private:
-            void mod(core::DescriptorEventReceiver* eventReceiver, uint32_t events);
+            void mod(core::eventreceiver::DescriptorEventReceiver* eventReceiver, uint32_t events);
 
         public:
-            void modAdd(core::DescriptorEventReceiver* eventReceiver);
-            void modDel(core::DescriptorEventReceiver* eventReceiver);
+            void modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver);
+            void modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver);
 
-            void modOn(core::DescriptorEventReceiver* eventReceiver);
-            void modOff(core::DescriptorEventReceiver* eventReceiver);
+            void modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver);
+            void modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver);
 
             void compress();
 
@@ -73,10 +73,10 @@ namespace core::epoll {
         explicit DescriptorEventPublisher(int& epfd, uint32_t events);
 
     private:
-        void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
-        void modDel(core::DescriptorEventReceiver* eventReceiver) override;
-        void modOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void modOff(core::DescriptorEventReceiver* eventReceiver) override;
+        void modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents() override;
         void finishTick() override;

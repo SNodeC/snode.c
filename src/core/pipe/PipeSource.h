@@ -35,7 +35,7 @@ namespace core::pipe {
 
     class PipeSource
         : public core::Descriptor
-        , public core::WriteEventReceiver {
+        , public core::eventreceiver::WriteEventReceiver {
         PipeSource(const PipeSource&) = delete;
         PipeSource& operator=(const PipeSource&) = delete;
 

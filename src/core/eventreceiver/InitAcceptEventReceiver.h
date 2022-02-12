@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_LISTENEVENTRECEIVER_H
-#define CORE_LISTENEVENTRECEIVER_H
+#ifndef CORE_EVENTRECEIVER_LISTENEVENTRECEIVER_H
+#define CORE_EVENTRECEIVER_LISTENEVENTRECEIVER_H
 
 #include "core/EventReceiver.h"
 
@@ -31,7 +31,7 @@ namespace utils {
 
 #define MAX_WRITE_INACTIVITY 60
 
-namespace core {
+namespace core::eventreceiver {
 
     class InitAcceptEventReceiver : public EventReceiver {
     protected:
@@ -43,6 +43,6 @@ namespace core {
         virtual void initAcceptEvent() = 0;
     };
 
-} // namespace core
+} // namespace core::eventreceiver
 
-#endif // CORE_LISTENEVENTRECEIVER_H
+#endif // CORE_EVENTRECEIVER_LISTENEVENTRECEIVER_H

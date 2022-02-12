@@ -24,10 +24,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::eventreceiver {
 
     void InitAcceptEventReceiver::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
         initAcceptEvent();
     }
 
-} // namespace core
+} // namespace core::eventreceiver

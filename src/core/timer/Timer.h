@@ -34,7 +34,7 @@ namespace core::timer {
 
 namespace core::timer {
 
-    class Timer : protected TimerEventReceiver {
+    class Timer : protected core::eventreceiver::TimerEventReceiver {
     protected:
         using TimerEventReceiver::TimerEventReceiver;
 

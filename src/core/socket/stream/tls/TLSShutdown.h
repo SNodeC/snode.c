@@ -34,8 +34,8 @@
 namespace core::socket::stream::tls {
 
     class TLSShutdown
-        : public ReadEventReceiver
-        , public WriteEventReceiver {
+        : public core::eventreceiver::ReadEventReceiver
+        , public core::eventreceiver::WriteEventReceiver {
     public:
         static void doShutdown(SSL* ssl,
                                const std::function<void(void)>& onSuccess,

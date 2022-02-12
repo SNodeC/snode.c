@@ -47,8 +47,8 @@ namespace core::socket::stream {
     template <typename ServerConfigT, typename SocketConnectionT>
     class SocketAcceptor
         : protected SocketConnectionT::Socket
-        , protected InitAcceptEventReceiver
-        , protected AcceptEventReceiver {
+        , protected core::eventreceiver::InitAcceptEventReceiver
+        , protected core::eventreceiver::AcceptEventReceiver {
         SocketAcceptor() = delete;
         SocketAcceptor(const SocketAcceptor&) = delete;
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;

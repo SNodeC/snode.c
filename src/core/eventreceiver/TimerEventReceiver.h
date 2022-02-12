@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_TIMEREVENTRECEIVER_H
-#define CORE_TIMEREVENTRECEIVER_H
+#ifndef CORE_EVENTRECEIVER_TIMEREVENTRECEIVER_H
+#define CORE_EVENTRECEIVER_TIMEREVENTRECEIVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::eventreceiver {
 
     class TimerEventReceiver {
     public:
@@ -50,6 +50,6 @@ namespace core {
         friend class TimerEventDispatcher;
     };
 
-} // namespace core
+} // namespace core::eventreceiver
 
-#endif // CORE_TIMEREVENTRECEIVER_H
+#endif // CORE_EVENTRECEIVER_TIMEREVENTRECEIVER_H

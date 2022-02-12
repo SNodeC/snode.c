@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::eventreceiver {
 
     ReadEventReceiver::ReadEventReceiver(const utils::Timeval& timeout)
         : DescriptorEventReceiver(
@@ -44,4 +44,4 @@ namespace core {
         readTimeout();
     }
 
-} // namespace core
+} // namespace core::eventreceiver
