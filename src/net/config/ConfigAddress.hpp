@@ -42,6 +42,7 @@ namespace net::config {
             utils::Config::parse(true); // Try command line parsing honoring required options
             updateFromCommandLine();
             initialized = true;
+            updated = true;
         } else if (!updated) {
             updateFromCommandLine();
             updated = true;
