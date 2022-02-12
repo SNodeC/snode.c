@@ -29,37 +29,26 @@ namespace net::config {
     ConfigConnection::ConfigConnection(CLI::App* baseSc) {
         connectionSc = baseSc->add_subcommand("connection");
         connectionSc->description("Options for established client connections");
-        connectionSc->configurable();
 
         readTimeoutOpt = connectionSc->add_option("-r,--read-timeout", readTimeout, "Read timeout");
         readTimeoutOpt->type_name("[sec]");
         readTimeoutOpt->default_val(60);
-        readTimeoutOpt->take_first();
-        readTimeoutOpt->configurable();
 
         writeTimeoutOpt = connectionSc->add_option("-w,--write-timeout", writeTimeout, "Write timeout");
         writeTimeoutOpt->type_name("[sec]");
         writeTimeoutOpt->default_val(60);
-        writeTimeoutOpt->take_first();
-        writeTimeoutOpt->configurable();
 
         readBlockSizeOpt = connectionSc->add_option("--read-block-size", readBlockSize, "Read block size");
         readBlockSizeOpt->type_name("[bytes]");
         readBlockSizeOpt->default_val(16384);
-        readBlockSizeOpt->take_first();
-        readBlockSizeOpt->configurable();
 
         writeBlockSizeOpt = connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size");
         writeBlockSizeOpt->type_name("[bytes]");
         writeBlockSizeOpt->default_val(16384);
-        writeBlockSizeOpt->take_first();
-        writeBlockSizeOpt->configurable();
 
         terminateTimeoutOpt = connectionSc->add_option("-t,--terminate-timeout", terminateTimeout, "Terminate timeout");
         terminateTimeoutOpt->type_name("[sec]");
         terminateTimeoutOpt->default_val(1);
-        terminateTimeoutOpt->take_first();
-        terminateTimeoutOpt->configurable();
     }
 
     const utils::Timeval& ConfigConnection::getReadTimeout() const {

@@ -17,6 +17,7 @@
  */
 
 #include "ConfigAddress.h"
+
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
 
@@ -34,14 +35,10 @@ namespace net::rf::config {
         hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Bluetooth address");
         hostOpt->type_name("[bluetooth address]");
         hostOpt->default_val("00:00:00:00:00:00");
-        hostOpt->take_first();
-        hostOpt->configurable();
 
         channelOpt = ConfigAddressType::addressSc->add_option("-c,--channel", channel, "Channel number");
         channelOpt->type_name("[uint8_t]");
         channelOpt->default_val(0);
-        channelOpt->take_first();
-        channelOpt->configurable();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

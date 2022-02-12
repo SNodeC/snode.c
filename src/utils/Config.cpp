@@ -33,9 +33,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CONFFILEPATH std::string("/home/voc/etc/snode.c")
-#define LOGFILEPATH std::string("/home/voc/etc/snode.c")
-#define PIDFILEPATH std::string("/home/voc/etc/snode.c")
+#define CONFFILEPATH std::string("/home/voc/etc/snode.c/conf")
+#define LOGFILEPATH std::string("/home/voc/etc/snode.c/log")
+#define PIDFILEPATH std::string("/home/voc/etc/snode.c/pid")
 
 namespace utils {
 
@@ -58,8 +58,23 @@ namespace utils {
         name = std::filesystem::path(argv[0]).filename();
 
         logger::Logger::init(argc, argv);
+        std::filesystem::create_directories(CONFFILEPATH);
+        std::filesystem::permissions(
+            CONFFILEPATH,
+            (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
+                ~std::filesystem::perms::others_all);
+
+        std::filesystem::create_directories(LOGFILEPATH);
+        std::filesystem::permissions(
+            LOGFILEPATH, (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) & ~std::filesystem::perms::others_all);
+
+        std::filesystem::create_directories(PIDFILEPATH);
+        std::filesystem::permissions(
+            LOGFILEPATH, (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) & ~std::filesystem::perms::others_all);
 
         app.option_defaults()->take_first();
+        app.option_defaults()->configurable();
+        app.configurable();
 
         app.description("Configuration for application " + name);
         app.allow_extras();
@@ -79,16 +94,13 @@ namespace utils {
         logFileOpt->default_val(LOGFILEPATH + "/" + name + ".log");
         logFileOpt->type_name("[path]");
         logFileOpt->excludes(showConfigFlag);
-        logFileOpt->configurable();
 
         CLI::Option* forceLogFileFlag = app.add_flag(
             "-g,!-n,--force-log-file,!--no-log-file", _forceLogFile, "Force writing logs to file for foureground applications");
         forceLogFileFlag->excludes(showConfigFlag);
-        forceLogFileFlag->configurable();
 
         CLI::Option* daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", _daemonize, "Start application as daemon");
         daemonizeOpt->excludes(showConfigFlag);
-        daemonizeOpt->configurable();
 
         CLI::Option* killDaemonOpt = app.add_flag("-k,--kill", _kill, "Kill running daemon");
         killDaemonOpt->disable_flag_override();
@@ -151,18 +163,6 @@ namespace utils {
         if (_daemonize) {
             Daemon::erasePidFile(PIDFILEPATH + "/" + name + ".pid");
         }
-    }
-
-    const std::string Config::getLogFile() {
-        return _logFile;
-    }
-
-    bool Config::daemonize() {
-        return _daemonize;
-    }
-
-    bool Config::kill() {
-        return _kill;
     }
 
     CLI::App* Config::add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description) {

@@ -31,19 +31,14 @@ namespace net::config {
     ConfigTls::ConfigTls(CLI::App* baseSc) {
         tlsSc = baseSc->add_subcommand("tls");
         tlsSc->description("Options for SSL/TLS behaviour");
-        tlsSc->configurable();
 
         tlsInitTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "SSL/TLS initialization timeout");
         tlsInitTimeoutOpt->type_name("[sec]");
         tlsInitTimeoutOpt->default_val(10);
-        tlsInitTimeoutOpt->take_first();
-        tlsInitTimeoutOpt->configurable();
 
         tlsShutdownTimeoutOpt = tlsSc->add_option("-s,--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
         tlsShutdownTimeoutOpt->type_name("[sec]");
         tlsShutdownTimeoutOpt->default_val(2);
-        tlsShutdownTimeoutOpt->take_first();
-        tlsShutdownTimeoutOpt->configurable();
     }
 
     const utils::Timeval& ConfigTls::getShutdownTimeout() const {

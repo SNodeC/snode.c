@@ -17,6 +17,7 @@
  */
 
 #include "ConfigAddress.h"
+
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
 
@@ -34,14 +35,10 @@ namespace net::in6::config {
         hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Host name or IP address");
         hostOpt->type_name("[hostname|ip]");
         hostOpt->default_val("::");
-        hostOpt->take_first();
-        hostOpt->configurable();
 
         portOpt = ConfigAddressType::addressSc->add_option("-p,--port", port, "Port number");
         portOpt->type_name("[uint16_t]");
         portOpt->default_val(0);
-        portOpt->take_first();
-        portOpt->configurable();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

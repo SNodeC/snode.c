@@ -34,7 +34,6 @@ namespace net::config {
     ConfigAddress<SocketAddress>::ConfigAddress(CLI::App* baseSc, const std::string& addressOptionName) {
         addressSc = baseSc->add_subcommand(addressOptionName);
         addressSc->description("Bind options");
-        addressSc->configurable();
     }
 
     template <typename SocketAddress>

@@ -30,7 +30,6 @@ namespace net::config {
     ConfigBase::ConfigBase(const std::string& name)
         : name(name) {
         baseSc = utils::Config::add_subcommand(name, name + " configuration");
-        baseSc->configurable();
         baseSc->fallthrough();
         baseSc->required();
     }

@@ -17,6 +17,7 @@
  */
 
 #include "ConfigAddress.h"
+
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
 
@@ -34,14 +35,10 @@ namespace net::l2::config {
         hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Bluetooth address");
         hostOpt->type_name("[bluetooth address]");
         hostOpt->default_val("00:00:00:00:00:00");
-        hostOpt->take_first();
-        hostOpt->configurable();
 
         psmOpt = ConfigAddressType::addressSc->add_option("-p,--psm", psm, "Protocol service multiplexer");
         psmOpt->type_name("[uint16_t]");
         psmOpt->default_val(0);
-        psmOpt->take_first();
-        psmOpt->configurable();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

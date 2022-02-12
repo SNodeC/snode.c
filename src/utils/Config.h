@@ -43,12 +43,6 @@ namespace utils {
 
         static void terminate();
 
-        static const std::string getLogFile();
-
-        static bool daemonize();
-
-        static bool kill();
-
         static CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
 
         static std::string getApplicationName();

@@ -17,6 +17,7 @@
  */
 
 #include "ConfigAddress.h"
+
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
 
@@ -37,8 +38,6 @@ namespace net::un::config {
         if (abstract) {
             sunPathOpt->default_val(std::string('\0' + utils::Config::getApplicationName()));
         }
-        sunPathOpt->take_first();
-        sunPathOpt->configurable();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
