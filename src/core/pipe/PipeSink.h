@@ -20,7 +20,7 @@
 #define STREAM_PIPESINK_H
 
 #include "core/Descriptor.h"
-#include "core/ReadEventReceiver.h"
+#include "core/eventreceiver/ReadEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

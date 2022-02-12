@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(CORE_CPP
-    AcceptEventReceiver.cpp
-    ConnectEventReceiver.cpp
+    eventreceiver/AcceptEventReceiver.cpp
+    eventreceiver/ConnectEventReceiver.cpp
     Descriptor.cpp
     DescriptorEventPublisher.cpp
     DescriptorEventReceiver.cpp
@@ -11,13 +11,13 @@ set(CORE_CPP
     EventLoop.cpp
     EventMultiplexer.cpp
     EventReceiver.cpp
-    ExceptionalConditionEventReceiver.cpp
-    InitAcceptEventReceiver.cpp
-    InitConnectEventReceiver.cpp
-    ReadEventReceiver.cpp
+    eventreceiver/ExceptionalConditionEventReceiver.cpp
+    eventreceiver/InitAcceptEventReceiver.cpp
+    eventreceiver/InitConnectEventReceiver.cpp
+    eventreceiver/ReadEventReceiver.cpp
     SNodeC.cpp
     TimerEventDispatcher.cpp
-    WriteEventReceiver.cpp
+    eventreceiver/WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
     pipe/Sink.cpp
@@ -40,8 +40,8 @@ set(CORE_CPP
 )
 
 set(CORE_H
-    AcceptEventReceiver.h
-    ConnectEventReceiver.h
+    eventreceiver/AcceptEventReceiver.h
+    eventreceiver/ConnectEventReceiver.h
     Descriptor.h
     DescriptorEventPublisher.h
     DescriptorEventReceiver.h
@@ -50,15 +50,15 @@ set(CORE_H
     EventLoop.h
     EventMultiplexer.h
     EventReceiver.h
-    ExceptionalConditionEventReceiver.h
-    InitAcceptEventReceiver.h
-    InitConnectEventReceiver.h
-    ReadEventReceiver.h
+    eventreceiver/ExceptionalConditionEventReceiver.h
+    eventreceiver/InitAcceptEventReceiver.h
+    eventreceiver/InitConnectEventReceiver.h
+    eventreceiver/ReadEventReceiver.h
     SNodeC.h
     TickStatus.h
     TimerEventDispatcher.h
     TimerEventReceiver.h
-    WriteEventReceiver.h
+    eventreceiver/WriteEventReceiver.h
     file/File.h
     file/FileReader.h
     pipe/Sink.h

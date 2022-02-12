@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/ReadEventReceiver.h"
+#include "WriteEventReceiver.h"
 
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
@@ -27,21 +27,21 @@
 
 namespace core {
 
-    ReadEventReceiver::ReadEventReceiver(const utils::Timeval& timeout)
+    WriteEventReceiver::WriteEventReceiver(const utils::Timeval& timeout)
         : DescriptorEventReceiver(
-              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::RD), timeout) {
+              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::WR), timeout) {
     }
 
-    void ReadEventReceiver::readTimeout() {
+    void WriteEventReceiver::writeTimeout() {
         disable();
     }
 
-    void ReadEventReceiver::dispatchEvent() {
-        readEvent();
+    void WriteEventReceiver::dispatchEvent() {
+        writeEvent();
     }
 
-    void ReadEventReceiver::timeoutEvent() {
-        readTimeout();
+    void WriteEventReceiver::timeoutEvent() {
+        writeTimeout();
     }
 
 } // namespace core

@@ -19,8 +19,8 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
-#include "core/ConnectEventReceiver.h"
-#include "core/InitConnectEventReceiver.h"
+#include "core/eventreceiver/ConnectEventReceiver.h"
+#include "core/eventreceiver/InitConnectEventReceiver.h"
 
 namespace core::socket {
     class SocketContextFactory;

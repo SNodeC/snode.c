@@ -20,7 +20,7 @@
 #define STREAM_PIPESOURCE_H
 
 #include "core/Descriptor.h"
-#include "core/WriteEventReceiver.h"
+#include "core/eventreceiver/WriteEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

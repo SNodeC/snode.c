@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/WriteEventReceiver.h"
+#include "AcceptEventReceiver.h"
 
-#include "core/EventMultiplexer.h"
 #include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,21 +27,21 @@
 
 namespace core {
 
-    WriteEventReceiver::WriteEventReceiver(const utils::Timeval& timeout)
+    AcceptEventReceiver::AcceptEventReceiver(const utils::Timeval& timeout)
         : DescriptorEventReceiver(
-              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::WR), timeout) {
+              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::RD), timeout) {
     }
 
-    void WriteEventReceiver::writeTimeout() {
+    void AcceptEventReceiver::acceptTimeout() {
         disable();
     }
 
-    void WriteEventReceiver::dispatchEvent() {
-        writeEvent();
+    void AcceptEventReceiver::dispatchEvent() {
+        acceptEvent();
     }
 
-    void WriteEventReceiver::timeoutEvent() {
-        writeTimeout();
+    void AcceptEventReceiver::timeoutEvent() {
+        acceptTimeout();
     }
 
 } // namespace core

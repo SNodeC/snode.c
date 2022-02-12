@@ -19,7 +19,7 @@
 #ifndef CORE_FILE_FILEREADER_H
 #define CORE_FILE_FILEREADER_H
 
-#include "core/ReadEventReceiver.h"
+#include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/file/File.h" // IWYU pragma: export
 #include "core/pipe/Source.h"
 

@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/ConnectEventReceiver.h"
+#include "ConnectEventReceiver.h"
 
-#include "core/EventMultiplexer.h"
 #include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

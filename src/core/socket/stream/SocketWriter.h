@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETWRITER_H
 #define CORE_SOCKET_STREAM_SOCKETWRITER_H
 
-#include "core/WriteEventReceiver.h"
+#include "core/eventreceiver/WriteEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

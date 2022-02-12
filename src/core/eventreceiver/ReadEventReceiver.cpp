@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/ExceptionalConditionEventReceiver.h"
+#include "ReadEventReceiver.h"
 
-#include "core/EventMultiplexer.h"
 #include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,21 +27,21 @@
 
 namespace core {
 
-    ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const utils::Timeval& timeout)
+    ReadEventReceiver::ReadEventReceiver(const utils::Timeval& timeout)
         : DescriptorEventReceiver(
-              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::EX), timeout) {
+              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::RD), timeout) {
     }
 
-    void ExceptionalConditionEventReceiver::outOfBandTimeout() {
+    void ReadEventReceiver::readTimeout() {
         disable();
     }
 
-    void ExceptionalConditionEventReceiver::dispatchEvent() {
-        outOfBandEvent();
+    void ReadEventReceiver::dispatchEvent() {
+        readEvent();
     }
 
-    void ExceptionalConditionEventReceiver::timeoutEvent() {
-        outOfBandTimeout();
+    void ReadEventReceiver::timeoutEvent() {
+        readTimeout();
     }
 
 } // namespace core

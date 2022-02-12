@@ -19,8 +19,8 @@
 #ifndef CORE_SOCKET_STREAM_TLS_TLSSHUTDOWN_H
 #define CORE_SOCKET_STREAM_TLS_TLSSHUTDOWN_H
 
-#include "core/ReadEventReceiver.h"
-#include "core/WriteEventReceiver.h"
+#include "core/eventreceiver/ReadEventReceiver.h"
+#include "core/eventreceiver/WriteEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
