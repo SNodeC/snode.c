@@ -18,7 +18,7 @@
 
 #include "core/TimerEventDispatcher.h"
 
-#include "core/TimerEventReceiver.h"
+#include "core/eventreceiver/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

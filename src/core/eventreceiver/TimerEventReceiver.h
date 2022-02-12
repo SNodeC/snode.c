@@ -34,11 +34,7 @@ namespace core {
         TimerEventReceiver(const TimerEventReceiver&) = delete;
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
 
-        TimerEventReceiver(const utils::Timeval& delay, const void* arg)
-            : absoluteTimeout(utils::Timeval::currentTime() + delay)
-            , delay(delay)
-            , arg(arg) {
-        }
+        TimerEventReceiver(const utils::Timeval& delay, const void* arg);
 
         virtual utils::Timeval getTimeout() const = 0;
 
@@ -46,9 +42,7 @@ namespace core {
         virtual void unobservedEvent() = 0;
 
     protected:
-        void update() {
-            absoluteTimeout += delay;
-        }
+        void update();
 
         utils::Timeval absoluteTimeout;
         utils::Timeval delay;

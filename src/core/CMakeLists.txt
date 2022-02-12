@@ -17,6 +17,7 @@ set(CORE_CPP
     eventreceiver/ReadEventReceiver.cpp
     SNodeC.cpp
     TimerEventDispatcher.cpp
+    eventreceiver/TimerEventReceiver.cpp
     eventreceiver/WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
@@ -57,7 +58,7 @@ set(CORE_H
     SNodeC.h
     TickStatus.h
     TimerEventDispatcher.h
-    TimerEventReceiver.h
+    eventreceiver/TimerEventReceiver.h
     eventreceiver/WriteEventReceiver.h
     file/File.h
     file/FileReader.h

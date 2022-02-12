@@ -19,7 +19,7 @@
 #ifndef NET_TIMER_TIMER_H
 #define NET_TIMER_TIMER_H
 
-#include "core/TimerEventReceiver.h"
+#include "core/eventreceiver/TimerEventReceiver.h"
 
 namespace core::timer {
     class IntervalTimer;
