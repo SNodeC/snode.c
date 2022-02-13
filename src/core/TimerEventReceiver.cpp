@@ -18,53 +18,16 @@
 
 #include "TimerEventReceiver.h"
 
-#include "core/EventLoop.h"
-#include "core/EventMultiplexer.h"
-#include "core/TimerEventPublisher.h"
+#include "EventLoop.h"
+#include "EventMultiplexer.h"
+#include "Timer.h"
+#include "TimerEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-
-    Timer::Timer(TimerEventReceiver* timerEventReceiver)
-        : timerEventReceiver(timerEventReceiver) {
-        timerEventReceiver->setTimer(this);
-        timerEventReceiver->enable();
-    }
-
-    Timer::Timer(Timer&& timer) {
-        timerEventReceiver = std::move(timer.timerEventReceiver);
-        timerEventReceiver->setTimer(this);
-        timer.timerEventReceiver = nullptr;
-    }
-
-    Timer& Timer::operator=(Timer&& timer) {
-        timerEventReceiver = timer.timerEventReceiver;
-        timerEventReceiver->setTimer(this);
-        timer.timerEventReceiver = nullptr;
-
-        return *this;
-    }
-
-    Timer::~Timer() {
-        if (timerEventReceiver != nullptr) {
-            timerEventReceiver->setTimer(nullptr);
-        }
-    }
-
-    void Timer::cancel() {
-        if (timerEventReceiver != nullptr) {
-            timerEventReceiver->cancel();
-        }
-    }
-
-    void Timer::removeTimerEventReceiver() {
-        timerEventReceiver = nullptr;
-    }
 
     TimerEventReceiver::TimerEventReceiver(const utils::Timeval& delay)
         : timerEventPublisher(EventLoop::instance().getEventMultiplexer().getTimerEventPublisher())

@@ -26,33 +26,13 @@
 #include "utils/Timeval.h" // IWYU pragma: export
 
 namespace core {
+    class Timer;
     class TimerEventPublisher;
-}
+} // namespace core
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-    class TimerEventReceiver;
-
-    class Timer {
-    protected:
-        explicit Timer(core::TimerEventReceiver* timerEventReceiver);
-        explicit Timer(Timer&& timer);
-
-        virtual ~Timer();
-
-        Timer& operator=(Timer&& timer);
-
-    public:
-        void cancel();
-
-    private:
-        void removeTimerEventReceiver();
-
-        TimerEventReceiver* timerEventReceiver = nullptr;
-
-        friend TimerEventReceiver;
-    };
 
     class TimerEventReceiver : public EventReceiver {
     public:

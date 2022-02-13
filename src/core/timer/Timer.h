@@ -19,9 +19,15 @@
 #ifndef NET_TIMER_TIMER_H
 #define NET_TIMER_TIMER_H
 
-#include "core/TimerEventReceiver.h"
+#include "core/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
+
+namespace core {
+    class TimerEventReceiver;
+}
 
 #include <functional>
 

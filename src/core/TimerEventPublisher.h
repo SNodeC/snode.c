@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_TIMEREVENTDISPATCHER_H
-#define CORE_TIMEREVENTDISPATCHER_H
+#ifndef CORE_TIMEREVENTPUBLISHER_H
+#define CORE_TIMEREVENTPUBLISHER_H
 
 namespace core {
     class TimerEventReceiver;
@@ -67,4 +67,4 @@ namespace core {
 
 } // namespace core
 
-#endif // CORE_TIMEREVENTDISPATCHER_H
+#endif // CORE_TIMEREVENTPUBLISHER_H

@@ -16,8 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_DESCRIPTOR_H
-#define CORE_DESCRIPTOR_H
+#ifndef CORE_TIMER_H
+#define CORE_TIMER_H
+
+namespace core {
+    class TimerEventReceiver;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,34 +29,26 @@
 
 namespace core {
 
-    class Descriptor {
-        Descriptor(const Descriptor& d) = delete;
-        Descriptor& operator=(const Descriptor& descriptor) = delete;
+    class Timer {
+    protected:
+        explicit Timer(core::TimerEventReceiver* timerEventReceiver);
+        explicit Timer(Timer&& timer);
+
+        virtual ~Timer();
+
+        Timer& operator=(Timer&& timer);
 
     public:
-        enum struct FLAGS : unsigned short {
-            none = 0,
-            dontClose = 0x01 << 0 // do not close sys-descriptor in case of desctruction
-        } flags{FLAGS::none};
-
-    protected:
-        Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
-        ~Descriptor();
-
-        void attachFd(int fd);
-        int getFd() const;
-        void dontClose(bool dontClose);
-        bool dontClose() const;
+        void cancel();
 
     private:
-        void close();
+        void removeTimerEventReceiver();
 
-        int fd = -1;
+        TimerEventReceiver* timerEventReceiver = nullptr;
 
-        friend enum FLAGS operator|(const enum FLAGS& f1, const enum FLAGS& f2);
-        friend enum FLAGS operator&(const enum FLAGS& f1, const enum FLAGS& f2);
+        friend TimerEventReceiver;
     };
 
 } // namespace core
 
-#endif // CORE_DESCRIPTOR_H
+#endif // CORE_TIMER_H
