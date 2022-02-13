@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
-
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -33,6 +31,7 @@ namespace core::timer {
 
     class IntervalTimer : public core::TimerEventReceiver {
         IntervalTimer(const IntervalTimer&) = delete;
+
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
     public:
@@ -47,8 +46,6 @@ namespace core::timer {
         void dispatch(const utils::Timeval& currentTime) override;
 
     private:
-        void update();
-
         void unobservedEvent() override;
 
         std::function<void(const void*, const std::function<void()>&)> dispatcherS = nullptr;

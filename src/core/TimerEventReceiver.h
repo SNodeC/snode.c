@@ -21,17 +21,38 @@
 
 #include "EventReceiver.h"
 
-namespace core::timer {
-    class Timer;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h" // IWYU pragma: export
 
+namespace core {
+    class TimerEventPublisher;
+}
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
+    class TimerEventReceiver;
+
+    class Timer {
+    protected:
+        explicit Timer(core::TimerEventReceiver* timerEventReceiver);
+        explicit Timer(Timer&& timer);
+
+        virtual ~Timer();
+
+        Timer& operator=(Timer&& timer);
+
+    public:
+        void cancel();
+
+    private:
+        void removeTimerEventReceiver();
+
+        TimerEventReceiver* timerEventReceiver = nullptr;
+
+        friend TimerEventReceiver;
+    };
 
     class TimerEventReceiver : public EventReceiver {
     public:
@@ -45,17 +66,18 @@ namespace core {
         utils::Timeval getTimeout() const;
         void updateTimeout();
 
+        void enable();
+        void update();
         void cancel();
 
         virtual void unobservedEvent() = 0;
 
-        void setTimer(core::timer::Timer* timer);
-        core::timer::Timer* getTimer() {
-            return timer;
-        }
+        void setTimer(Timer* timer);
 
     private:
-        core::timer::Timer* timer = nullptr;
+        TimerEventPublisher& timerEventPublisher;
+
+        Timer* timer = nullptr;
         utils::Timeval absoluteTimeout;
         utils::Timeval delay;
     };

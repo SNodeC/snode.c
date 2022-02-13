@@ -127,10 +127,11 @@ install(
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
+    PATTERN "." EXCLUDE
     PATTERN "cmake" EXCLUDE
     PATTERN "socket/stream/tls" EXCLUDE
     PATTERN "socket/stream/legacy" EXCLUDE
-    PATTERN "mux" EXCLUDE
+    PATTERN "multiplexer" EXCLUDE
 )
 
 install(

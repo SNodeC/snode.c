@@ -19,13 +19,9 @@
 #ifndef NET_TIMER_TIMER_H
 #define NET_TIMER_TIMER_H
 
-namespace core {
-    class TimerEventReceiver;
-} // namespace core
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "utils/Timeval.h"
 
 #include <functional>
 
@@ -33,19 +29,17 @@ namespace core {
 
 namespace core::timer {
 
-    class Timer {
+    class Timer : public core::Timer {
     private:
-        explicit Timer(core::TimerEventReceiver* timerEventReceiver);
-
         Timer() = delete;
         Timer(const Timer&) = delete;
         Timer& operator=(const Timer&) = delete;
 
     public:
+        using core::Timer::Timer;
+
         Timer(Timer&& timer);
         Timer& operator=(Timer&& timer);
-
-        ~Timer();
 
         static Timer intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
                                    const utils::Timeval& timeout,
@@ -54,15 +48,6 @@ namespace core::timer {
         static Timer intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
 
         static Timer singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
-
-        virtual void cancel();
-
-        core::TimerEventReceiver* getTimerEventReceiver();
-
-        void removeTimerEventReceiver();
-
-    protected:
-        core::TimerEventReceiver* timerEventReceiver = nullptr;
     };
 
 } // namespace core::timer

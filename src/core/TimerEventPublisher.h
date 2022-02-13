@@ -46,7 +46,9 @@ namespace core {
 
         void remove(TimerEventReceiver* timer);
         void add(TimerEventReceiver* timer);
-        void update(TimerEventReceiver* timer);
+
+        void erase(TimerEventReceiver* timer);
+        void insert(TimerEventReceiver* timer);
 
         bool empty();
 

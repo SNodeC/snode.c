@@ -18,19 +18,26 @@
 
 #include "core/timer/Timer.h"
 
-#include "core/EventLoop.h"
-#include "core/EventMultiplexer.h"
-#include "core/TimerEventPublisher.h" // for ManagedTimer
 #include "core/timer/IntervalTimer.h"
 #include "core/timer/SingleshotTimer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <type_traits> // for remove_reference<>::type
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
+
+    Timer::Timer(Timer&& timer)
+        : core::Timer(std::move(timer)) {
+    }
+
+    Timer& Timer::operator=(Timer&& timer) {
+        core::Timer::operator=(std::move(timer));
+        return *this;
+    }
 
     Timer Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
         return Timer(new SingleshotTimer(dispatcher, timeout, arg));
@@ -44,46 +51,6 @@ namespace core::timer {
 
     Timer Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
         return Timer(new IntervalTimer(dispatcher, timeout, arg));
-    }
-
-    Timer::Timer(core::TimerEventReceiver* timerEventReceiver)
-        : timerEventReceiver(timerEventReceiver) {
-        EventLoop::instance().getEventMultiplexer().getTimerEventPublisher().add(timerEventReceiver);
-        timerEventReceiver->setTimer(this);
-    }
-
-    Timer::Timer(Timer&& timer) {
-        timerEventReceiver = std::move(timer.timerEventReceiver);
-        timerEventReceiver->setTimer(this);
-        timer.timerEventReceiver = nullptr;
-    }
-
-    Timer& Timer::operator=(Timer&& timer) {
-        timerEventReceiver = timer.timerEventReceiver;
-        timerEventReceiver->setTimer(this);
-        timer.timerEventReceiver = nullptr;
-
-        return *this;
-    }
-
-    Timer::~Timer() {
-        if (timerEventReceiver != nullptr) {
-            timerEventReceiver->setTimer(nullptr);
-        }
-    }
-
-    void Timer::cancel() {
-        if (timerEventReceiver != nullptr) {
-            EventLoop::instance().getEventMultiplexer().getTimerEventPublisher().remove(timerEventReceiver);
-        }
-    }
-
-    TimerEventReceiver* Timer::getTimerEventReceiver() {
-        return timerEventReceiver;
-    }
-
-    void Timer::removeTimerEventReceiver() {
-        timerEventReceiver = nullptr;
     }
 
 } // namespace core::timer

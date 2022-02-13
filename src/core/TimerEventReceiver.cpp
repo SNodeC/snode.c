@@ -18,16 +18,57 @@
 
 #include "TimerEventReceiver.h"
 
-#include "core/timer/Timer.h"
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
+#include "core/TimerEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
+    Timer::Timer(TimerEventReceiver* timerEventReceiver)
+        : timerEventReceiver(timerEventReceiver) {
+        timerEventReceiver->setTimer(this);
+        timerEventReceiver->enable();
+    }
+
+    Timer::Timer(Timer&& timer) {
+        timerEventReceiver = std::move(timer.timerEventReceiver);
+        timerEventReceiver->setTimer(this);
+        timer.timerEventReceiver = nullptr;
+    }
+
+    Timer& Timer::operator=(Timer&& timer) {
+        timerEventReceiver = timer.timerEventReceiver;
+        timerEventReceiver->setTimer(this);
+        timer.timerEventReceiver = nullptr;
+
+        return *this;
+    }
+
+    Timer::~Timer() {
+        if (timerEventReceiver != nullptr) {
+            timerEventReceiver->setTimer(nullptr);
+        }
+    }
+
+    void Timer::cancel() {
+        if (timerEventReceiver != nullptr) {
+            timerEventReceiver->cancel();
+        }
+    }
+
+    void Timer::removeTimerEventReceiver() {
+        timerEventReceiver = nullptr;
+    }
+
     TimerEventReceiver::TimerEventReceiver(const utils::Timeval& delay)
-        : absoluteTimeout(utils::Timeval::currentTime() + delay)
+        : timerEventPublisher(EventLoop::instance().getEventMultiplexer().getTimerEventPublisher())
+        , absoluteTimeout(utils::Timeval::currentTime() + delay)
         , delay(delay) {
     }
 
@@ -45,13 +86,21 @@ namespace core {
         absoluteTimeout += delay;
     }
 
-    void TimerEventReceiver::cancel() {
-        if (timer != nullptr) {
-            timer->cancel();
-        }
+    void TimerEventReceiver::enable() {
+        timerEventPublisher.add(this);
     }
 
-    void TimerEventReceiver::setTimer(timer::Timer* timer) {
+    void TimerEventReceiver::update() {
+        timerEventPublisher.erase(this);
+        absoluteTimeout += delay;
+        timerEventPublisher.insert(this);
+    }
+
+    void TimerEventReceiver::cancel() {
+        timerEventPublisher.remove(this);
+    }
+
+    void TimerEventReceiver::setTimer(Timer* timer) {
         this->timer = timer;
     }
 

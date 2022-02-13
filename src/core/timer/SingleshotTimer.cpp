@@ -18,7 +18,7 @@
 
 #include "SingleshotTimer.h"
 
-#include "core/TimerEventReceiver.h" // IWYU pragma: export
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,23 +28,23 @@
 
 namespace core::timer {
 
-SingleshotTimer::SingleshotTimer(const std::function<void (const void *)> &dispatcher, const utils::Timeval &timeout, const void *arg)
-    : TimerEventReceiver(timeout)
-    , dispatcher(dispatcher)
-    , arg(arg) {
-}
-
-void SingleshotTimer::dispatch(const utils::Timeval &currentTime) {
-    if (dispatcher) {
-        LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
-        dispatcher(arg);
-        cancel();
+    SingleshotTimer::SingleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
+        : TimerEventReceiver(timeout)
+        , dispatcher(dispatcher)
+        , arg(arg) {
     }
-}
 
-void SingleshotTimer::unobservedEvent() {
-    dispatcher = nullptr;
-    delete this;
-}
+    void SingleshotTimer::dispatch(const utils::Timeval& currentTime) {
+        if (dispatcher) {
+            LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
+            dispatcher(arg);
+            cancel();
+        }
+    }
 
-}
+    void SingleshotTimer::unobservedEvent() {
+        dispatcher = nullptr;
+        delete this;
+    }
+
+} // namespace core::timer

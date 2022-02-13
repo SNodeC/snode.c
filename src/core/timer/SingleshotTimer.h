@@ -30,6 +30,8 @@
 namespace core::timer {
 
     class SingleshotTimer : public core::TimerEventReceiver {
+        SingleshotTimer(const SingleshotTimer&) = delete;
+
         SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 
     public:

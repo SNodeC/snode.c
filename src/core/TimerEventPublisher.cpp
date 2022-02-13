@@ -81,9 +81,11 @@ namespace core {
         addedList.push_back(timer);
     }
 
-    void TimerEventPublisher::update(TimerEventReceiver* timer) {
+    void TimerEventPublisher::erase(TimerEventReceiver* timer) {
         timerList.erase(timer);
-        timer->updateTimeout();
+    }
+
+    void TimerEventPublisher::insert(TimerEventReceiver* timer) {
         timerList.insert(timer);
     }
 

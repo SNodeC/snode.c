@@ -18,10 +18,7 @@
 
 #include "IntervalTimer.h"
 
-#include "core/EventLoop.h"
-#include "core/EventMultiplexer.h"
-#include "core/TimerEventPublisher.h"
-#include "core/TimerEventReceiver.h" // IWYU pragma: export
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,13 +35,13 @@ namespace core::timer {
         , arg(arg) {
     }
 
-    IntervalTimer::IntervalTimer(const std::function<void (const void *)> &dispatcher, const utils::Timeval &timeout, const void *arg)
+    IntervalTimer::IntervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
         : core::TimerEventReceiver(timeout)
         , dispatcherC(dispatcher)
         , arg(arg) {
     }
 
-    void IntervalTimer::dispatch(const utils::Timeval &currentTime) {
+    void IntervalTimer::dispatch(const utils::Timeval& currentTime) {
         if (dispatcherS) {
             LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
             bool stop = false;
@@ -61,10 +58,6 @@ namespace core::timer {
             dispatcherC(arg);
             update();
         }
-    }
-
-    void IntervalTimer::update() {
-        EventLoop::instance().getEventMultiplexer().getTimerEventPublisher().update(this);
     }
 
     void IntervalTimer::unobservedEvent() {
