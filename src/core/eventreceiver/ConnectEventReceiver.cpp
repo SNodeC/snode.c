@@ -29,7 +29,7 @@ namespace core::eventreceiver {
 
     ConnectEventReceiver::ConnectEventReceiver(const utils::Timeval& timeout)
         : DescriptorEventReceiver(
-              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::WR), timeout) {
+              EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR), timeout) {
     }
 
     void ConnectEventReceiver::connectTimeout() {

@@ -19,11 +19,8 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 #define WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 
+#include "core/timer/Timer.h"
 #include "web/websocket/client/SubProtocol.h"
-
-namespace core::timer {
-    class Timer;
-} // namespace core::timer
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -53,7 +50,7 @@ namespace web::websocket::subprotocol::echo::client {
 
         int flyingPings = 0;
 
-        core::timer::Timer& pingTimer;
+        core::timer::Timer pingTimer;
     };
 
 } // namespace web::websocket::subprotocol::echo::client

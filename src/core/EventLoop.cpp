@@ -73,7 +73,7 @@ namespace core {
         return tickCounter;
     }
 
-    EventMultiplexer& EventLoop::getEventDispatcher() {
+    EventMultiplexer& EventLoop::getEventMultiplexer() {
         return eventMultiplexer;
     }
 
@@ -90,8 +90,6 @@ namespace core {
         tickCounter++;
 
         TickStatus tickStatus = eventMultiplexer.tick(tickTimeOut, stopped);
-
-        DynamicLoader::execDlCloseDeleyed();
 
         return tickStatus;
     }

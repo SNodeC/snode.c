@@ -19,14 +19,13 @@
 #ifndef NET_TIMER_TIMER_H
 #define NET_TIMER_TIMER_H
 
-#include "core/TimerEventReceiver.h"
-
-namespace core::timer {
-    class IntervalTimer;
-    class SingleshotTimer;
-} // namespace core::timer
+namespace core {
+    class TimerEventReceiver;
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #include <functional>
 
@@ -34,32 +33,33 @@ namespace core::timer {
 
 namespace core::timer {
 
-    class Timer : protected core::TimerEventReceiver {
+    class Timer {
     protected:
-        using TimerEventReceiver::TimerEventReceiver;
+        explicit Timer(core::TimerEventReceiver* timerEventReceiver);
 
-        Timer(const utils::Timeval& delay, const void* arg);
-        virtual ~Timer() = default;
+        Timer(const Timer&) = delete;
+        Timer& operator=(const Timer&) = delete;
 
     public:
-        static IntervalTimer& intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                                            const utils::Timeval& timeout,
-                                            const void* arg);
+        Timer(Timer&&);
+        ~Timer();
 
-        static IntervalTimer&
-        intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
+        static Timer intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
+                                   const utils::Timeval& timeout,
+                                   const void* arg);
 
-        static SingleshotTimer&
-        singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
+        static Timer intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
+
+        static Timer singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
 
         virtual void cancel();
 
+        core::TimerEventReceiver* getTimerEventReceiver();
+
+        void removeTimerEventReceiver();
+
     protected:
-        void update();
-
-        void unobservedEvent() override;
-
-        const void* arg = nullptr;
+        core::TimerEventReceiver* timerEventReceiver = nullptr;
     };
 
 } // namespace core::timer

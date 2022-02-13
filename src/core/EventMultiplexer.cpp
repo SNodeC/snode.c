@@ -20,6 +20,7 @@
 
 #include "DescriptorEventPublisher.h"
 #include "DescriptorEventReceiver.h"
+#include "DynamicLoader.h"
 #include "Event.h" // for Event
 #include "TimerEventPublisher.h"
 
@@ -49,11 +50,11 @@ namespace core {
         delete timerEventPublisher;
     }
 
-    DescriptorEventPublisher& EventMultiplexer::getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType) {
+    DescriptorEventPublisher& EventMultiplexer::getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE dispType) {
         return *descriptorEventPublisher[dispType];
     }
 
-    core::TimerEventPublisher& EventMultiplexer::getTimerEventDispatcher() {
+    core::TimerEventPublisher& EventMultiplexer::getTimerEventPublisher() {
         return *timerEventPublisher;
     }
 
@@ -93,6 +94,8 @@ namespace core {
         checkTimedOutEvents(currentTime);
         unobserveDisabledEvents(currentTime);
         observeEnabledEvents(currentTime);
+
+        DynamicLoader::execDlCloseDeleyed();
 
         if (getObservedEventReceiverCount() > 0 || (!timerEventPublisher->empty() && !stopped)) {
             utils::Timeval nextTimeout = 0;

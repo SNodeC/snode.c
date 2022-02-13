@@ -32,11 +32,11 @@ namespace core {
     }
 
     EventReceiver::~EventReceiver() {
-        core::EventLoop::instance().getEventDispatcher().unPublish(&event);
+        core::EventLoop::instance().getEventMultiplexer().unPublish(&event);
     }
 
     void EventReceiver::publish() const {
-        core::EventLoop::instance().getEventDispatcher().publish(&event);
+        core::EventLoop::instance().getEventMultiplexer().publish(&event);
     }
 
 } // namespace core

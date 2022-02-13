@@ -18,13 +18,9 @@
 
 #include "Echo.h"
 
-#include "core/timer/IntervalTimer.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-
-#include <functional> // for function
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -36,7 +32,7 @@ namespace web::websocket::subprotocol::echo::client {
     Echo::Echo(const std::string& name)
         : web::websocket::client::SubProtocol(name)
         , pingTimer(core::timer::Timer::intervalTimer(
-              [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+              [this]([[maybe_unused]] const void* arg) -> void {
                   this->sendPing();
                   this->flyingPings++;
                   if (this->flyingPings >= MAX_FLYING_PINGS) {

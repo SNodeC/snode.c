@@ -19,7 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h"
-#include "core/timer/IntervalTimer.h"
+#include "core/TimerEventReceiver.h"
+#include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
 
@@ -88,7 +89,7 @@ public:
 };
 
 int timerApp() {
-    [[maybe_unused]] const Timer& tick = Timer::intervalTimer(
+    [[maybe_unused]] const Timer tick = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
@@ -96,7 +97,7 @@ int timerApp() {
         0.5,
         "Tick");
 
-    [[maybe_unused]] Timer& tack = Timer::intervalTimer(
+    Timer tack = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
@@ -104,7 +105,9 @@ int timerApp() {
         1.1,
         "Tack");
 
-    [[maybe_unused]] bool canceled = false;
+    VLOG(0) << "Timer1: " << &tack << ", " << tack.getTimerEventReceiver()->getTimer();
+
+    bool canceled = false;
 
     express::legacy::in::WebApp app("testapp");
 

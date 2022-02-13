@@ -60,6 +60,7 @@ namespace core {
         static std::map<void*, std::size_t> registeredForDlClose;
 
         friend class EventLoop;
+        friend class EventMultiplexer;
     };
 
 } // namespace core

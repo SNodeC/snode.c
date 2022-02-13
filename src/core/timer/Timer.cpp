@@ -26,53 +26,60 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
+#include <utility>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
 
-    SingleshotTimer&
-    Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
-        SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
-
-        EventLoop::instance().getEventDispatcher().getTimerEventDispatcher().add(st);
-
-        return *st;
+    Timer Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
+        return Timer(new SingleshotTimer(dispatcher, timeout, arg));
     }
 
-    IntervalTimer& Timer::intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                                        const utils::Timeval& timeout,
-                                        const void* arg) {
-        IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
-
-        EventLoop::instance().getEventDispatcher().getTimerEventDispatcher().add(ct);
-
-        return *ct;
+    Timer Timer::intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
+                               const utils::Timeval& timeout,
+                               const void* arg) {
+        return Timer(new IntervalTimer(dispatcher, timeout, arg));
     }
 
-    IntervalTimer&
-    Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
-        IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
-
-        EventLoop::instance().getEventDispatcher().getTimerEventDispatcher().add(ct);
-
-        return *ct;
+    Timer Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
+        return Timer(new IntervalTimer(dispatcher, timeout, arg));
     }
 
-    Timer::Timer(const utils::Timeval& delay, const void* arg)
-        : core::TimerEventReceiver(delay)
-        , arg(arg) {
+    Timer::Timer(core::TimerEventReceiver* timerEventReceiver)
+        : timerEventReceiver(timerEventReceiver) {
+        EventLoop::instance().getEventMultiplexer().getTimerEventPublisher().add(timerEventReceiver);
+        timerEventReceiver->setTimer(this);
+    }
+
+    Timer::Timer(Timer&& timer) {
+        VLOG(0) << "Timer moving";
+
+        timerEventReceiver = std::move(timer.timerEventReceiver);
+        timerEventReceiver->setTimer(this);
+        timer.timerEventReceiver = nullptr;
+    }
+
+    Timer::~Timer() {
+        if (timerEventReceiver != nullptr) {
+            timerEventReceiver->setTimer(nullptr);
+        }
     }
 
     void Timer::cancel() {
-        EventLoop::instance().getEventDispatcher().getTimerEventDispatcher().remove(this);
+        if (timerEventReceiver != nullptr) {
+            EventLoop::instance().getEventMultiplexer().getTimerEventPublisher().remove(timerEventReceiver);
+        }
     }
 
-    void Timer::update() {
-        EventLoop::instance().getEventDispatcher().getTimerEventDispatcher().update(this);
+    TimerEventReceiver* Timer::getTimerEventReceiver() {
+        return timerEventReceiver;
     }
 
-    void Timer::unobservedEvent() {
-        delete this;
+    void Timer::removeTimerEventReceiver() {
+        timerEventReceiver = nullptr;
     }
 
 } // namespace core::timer

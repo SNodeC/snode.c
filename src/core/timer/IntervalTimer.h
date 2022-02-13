@@ -19,7 +19,10 @@
 #ifndef NET_TIMER_INTERVALTIMER_H
 #define NET_TIMER_INTERVALTIMER_H
 
-#include "core/timer/Timer.h" // IWYU pragma: export
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
+#include "core/TimerEventPublisher.h"
+#include "core/TimerEventReceiver.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,20 +32,22 @@
 
 namespace core::timer {
 
-    class IntervalTimer : public Timer {
+    class IntervalTimer : public core::TimerEventReceiver {
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
     public:
         IntervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
                       const utils::Timeval& timeout,
                       const void* arg)
-            : Timer(timeout, arg)
-            , dispatcherS(dispatcher) {
+            : core::TimerEventReceiver(timeout)
+            , dispatcherS(dispatcher)
+            , arg(arg) {
         }
 
         IntervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
-            : Timer(timeout, arg)
-            , dispatcherC(dispatcher) {
+            : core::TimerEventReceiver(timeout)
+            , dispatcherC(dispatcher)
+            , arg(arg) {
         }
 
         ~IntervalTimer() override = default;
@@ -67,18 +72,20 @@ namespace core::timer {
         }
 
     private:
-        void cancel() override {
-            dispatcherS = nullptr;
-            dispatcherC = nullptr;
-            core::timer::Timer::cancel();
+        void update() {
+            EventLoop::instance().getEventMultiplexer().getTimerEventPublisher().update(this);
         }
 
         void unobservedEvent() override {
-            core::timer::Timer::unobservedEvent();
+            dispatcherS = nullptr;
+            dispatcherC = nullptr;
+            delete this;
         }
 
         std::function<void(const void*, const std::function<void()>&)> dispatcherS = nullptr;
         std::function<void(const void*)> dispatcherC = nullptr;
+
+        const void* arg;
     };
 
 } // namespace core::timer

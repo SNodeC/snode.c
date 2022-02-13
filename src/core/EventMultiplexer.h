@@ -73,8 +73,8 @@ namespace core {
 #define DISP_COUNT 3
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
-        DescriptorEventPublisher& getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType);
-        TimerEventPublisher& getTimerEventDispatcher();
+        DescriptorEventPublisher& getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE dispType);
+        TimerEventPublisher& getTimerEventPublisher();
 
         void publish(const core::Event* event);
         void unPublish(const Event* event);

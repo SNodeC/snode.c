@@ -29,7 +29,7 @@ namespace core::eventreceiver {
 
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const utils::Timeval& timeout)
         : DescriptorEventReceiver(
-              EventLoop::instance().getEventDispatcher().getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE::EX), timeout) {
+              EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::EX), timeout) {
     }
 
     void ExceptionalConditionEventReceiver::outOfBandTimeout() {

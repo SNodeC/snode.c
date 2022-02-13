@@ -21,6 +21,10 @@
 
 #include "EventReceiver.h"
 
+namespace core::timer {
+    class Timer;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h" // IWYU pragma: export
@@ -36,12 +40,22 @@ namespace core {
 
         TimerEventReceiver(const utils::Timeval& delay);
 
+        virtual ~TimerEventReceiver();
+
         utils::Timeval getTimeout() const;
         void updateTimeout();
 
+        void cancel();
+
         virtual void unobservedEvent() = 0;
 
+        void setTimer(core::timer::Timer* timer);
+        core::timer::Timer* getTimer() {
+            return timer;
+        }
+
     private:
+        core::timer::Timer* timer = nullptr;
         utils::Timeval absoluteTimeout;
         utils::Timeval delay;
     };

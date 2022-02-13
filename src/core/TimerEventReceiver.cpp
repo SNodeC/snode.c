@@ -18,6 +18,8 @@
 
 #include "TimerEventReceiver.h"
 
+#include "core/timer/Timer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -29,12 +31,28 @@ namespace core {
         , delay(delay) {
     }
 
+    TimerEventReceiver::~TimerEventReceiver() {
+        if (timer != nullptr) {
+            timer->removeTimerEventReceiver();
+        }
+    }
+
     utils::Timeval TimerEventReceiver::getTimeout() const {
         return absoluteTimeout;
     }
 
     void TimerEventReceiver::updateTimeout() {
         absoluteTimeout += delay;
+    }
+
+    void TimerEventReceiver::cancel() {
+        if (timer != nullptr) {
+            timer->cancel();
+        }
+    }
+
+    void TimerEventReceiver::setTimer(timer::Timer* timer) {
+        this->timer = timer;
     }
 
 } // namespace core

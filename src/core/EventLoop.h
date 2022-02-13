@@ -46,7 +46,7 @@ namespace core {
         static EventLoop& instance();
 
         static unsigned long getTickCounter();
-        EventMultiplexer& getEventDispatcher();
+        EventMultiplexer& getEventMultiplexer();
 
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
