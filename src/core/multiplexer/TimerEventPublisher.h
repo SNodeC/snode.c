@@ -33,9 +33,9 @@ namespace core::eventreceiver {
 
 namespace core {
 
-    class TimerEventDispatcher {
+    class TimerEventPublisher {
     public:
-        TimerEventDispatcher() = default;
+        TimerEventPublisher() = default;
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 

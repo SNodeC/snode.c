@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
@@ -38,10 +40,12 @@ namespace core::timer {
 
         ~SingleshotTimer() override = default;
 
-        bool dispatch() override {
-            dispatcher(arg);
-            cancel();
-            return false;
+        void dispatch([[maybe_unused]] const utils::Timeval& currentTime) override {
+            if (dispatcher) {
+                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - absoluteTimeout).msd() << " ms";
+                dispatcher(arg);
+                cancel();
+            }
         }
 
     private:

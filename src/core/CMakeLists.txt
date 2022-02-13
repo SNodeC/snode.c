@@ -8,7 +8,6 @@ set(CORE_CPP
     EventMultiplexer.cpp
     EventReceiver.cpp
     SNodeC.cpp
-    TimerEventDispatcher.cpp
     eventreceiver/AcceptEventReceiver.cpp
     eventreceiver/ConnectEventReceiver.cpp
     eventreceiver/DescriptorEventReceiver.cpp
@@ -21,6 +20,7 @@ set(CORE_CPP
     file/File.cpp
     file/FileReader.cpp
     multiplexer/DescriptorEventPublisher.cpp
+    multiplexer/TimerEventPublisher.cpp
     pipe/Sink.cpp
     pipe/Source.cpp
     pipe/Pipe.cpp
@@ -49,7 +49,6 @@ set(CORE_H
     EventReceiver.h
     SNodeC.h
     TickStatus.h
-    TimerEventDispatcher.h
     eventreceiver/AcceptEventReceiver.h
     eventreceiver/ConnectEventReceiver.h
     eventreceiver/DescriptorEventReceiver.h
@@ -62,6 +61,7 @@ set(CORE_H
     file/File.h
     file/FileReader.h
     multiplexer/DescriptorEventPublisher.h
+    multiplexer/TimerEventPublisher.h
     pipe/Sink.h
     pipe/Source.h
     pipe/Pipe.h

@@ -64,6 +64,7 @@ namespace utils {
         const timeval* operator&() const;
 
         int ms() const;
+        double msd() const;
 
     private:
         const Timeval& normalize();

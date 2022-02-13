@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/TimerEventDispatcher.h"
+#include "TimerEventPublisher.h"
 
 #include "core/eventreceiver/TimerEventReceiver.h"
 
@@ -29,12 +29,12 @@
 
 namespace core {
 
-    utils::Timeval TimerEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
+    utils::Timeval TimerEventPublisher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout({LONG_MAX, 0});
 
         if (!timerList.empty()) {
             if (timerListDirty) {
-                timerList.sort(core::TimerEventDispatcher::timernode_lt());
+                timerList.sort(core::TimerEventPublisher::timernode_lt());
                 timerListDirty = false;
             }
 
@@ -50,7 +50,7 @@ namespace core {
         return nextTimeout;
     }
 
-    void TimerEventDispatcher::observeEnabledEvents() {
+    void TimerEventPublisher::observeEnabledEvents() {
         for (core::eventreceiver::TimerEventReceiver* timer : addedList) {
             timerList.push_back(timer);
             timerListDirty = true;
@@ -58,17 +58,18 @@ namespace core {
         addedList.clear();
     }
 
-    void TimerEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
+    void TimerEventPublisher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (core::eventreceiver::TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
-                timerListDirty = timer->dispatch();
+                timer->publish();
+                timerListDirty = true;
             } else {
                 break;
             }
         }
     }
 
-    void TimerEventDispatcher::unobsereDisableEvents() {
+    void TimerEventPublisher::unobsereDisableEvents() {
         for (core::eventreceiver::TimerEventReceiver* timer : removedList) {
             timerList.remove(timer);
             timer->unobservedEvent();
@@ -77,22 +78,22 @@ namespace core {
         removedList.clear();
     }
 
-    void TimerEventDispatcher::remove(core::eventreceiver::TimerEventReceiver* timer) {
+    void TimerEventPublisher::remove(core::eventreceiver::TimerEventReceiver* timer) {
         if (std::find(timerList.begin(), timerList.end(), timer) != timerList.end() &&
             std::find(removedList.begin(), removedList.end(), timer) == removedList.end()) {
             removedList.push_back(timer);
         }
     }
 
-    void TimerEventDispatcher::add(core::eventreceiver::TimerEventReceiver* timer) {
+    void TimerEventPublisher::add(core::eventreceiver::TimerEventReceiver* timer) {
         addedList.push_back(timer);
     }
 
-    bool TimerEventDispatcher::empty() {
+    bool TimerEventPublisher::empty() {
         return timerList.empty();
     }
 
-    void TimerEventDispatcher::stop() {
+    void TimerEventPublisher::stop() {
         observeEnabledEvents();
 
         for (core::eventreceiver::TimerEventReceiver* timer : timerList) {
@@ -102,8 +103,8 @@ namespace core {
         unobsereDisableEvents();
     }
 
-    bool TimerEventDispatcher::timernode_lt::operator()(const core::eventreceiver::TimerEventReceiver* t1,
-                                                        const core::eventreceiver::TimerEventReceiver* t2) const {
+    bool TimerEventPublisher::timernode_lt::operator()(const core::eventreceiver::TimerEventReceiver* t1,
+                                                       const core::eventreceiver::TimerEventReceiver* t2) const {
         return t1->getTimeout() < t2->getTimeout();
     }
 

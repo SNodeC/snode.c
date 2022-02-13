@@ -19,6 +19,8 @@
 #ifndef CORE_EVENTRECEIVER_TIMEREVENTRECEIVER_H
 #define CORE_EVENTRECEIVER_TIMEREVENTRECEIVER_H
 
+#include "core/EventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h" // IWYU pragma: export
@@ -27,7 +29,7 @@
 
 namespace core::eventreceiver {
 
-    class TimerEventReceiver {
+    class TimerEventReceiver : public core::EventReceiver {
     public:
         TimerEventReceiver(const TimerEventReceiver&) = delete;
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
@@ -36,7 +38,6 @@ namespace core::eventreceiver {
 
         virtual utils::Timeval getTimeout() const = 0;
 
-        virtual bool dispatch() = 0;
         virtual void unobservedEvent() = 0;
 
     protected:

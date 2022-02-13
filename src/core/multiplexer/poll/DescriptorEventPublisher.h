@@ -22,7 +22,9 @@
 #include "core/multiplexer/DescriptorEventPublisher.h" // IWYU pragma: export
 
 namespace core {
-    class DescriptorEventReceiver;
+    namespace eventreceiver {
+        class DescriptorEventReceiver;
+    }
     namespace poll {
         class PollFds;
     } // namespace poll

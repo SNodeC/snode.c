@@ -21,9 +21,9 @@
 
 #include "core/multiplexer/DescriptorEventPublisher.h" // IWYU pragma: export
 
-namespace core {
+namespace core::eventreceiver {
     class DescriptorEventReceiver;
-} // namespace core
+} // namespace core::eventreceiver
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

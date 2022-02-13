@@ -19,9 +19,9 @@
 #include "core/EventMultiplexer.h"
 
 #include "core/Event.h" // for Event
-#include "core/TimerEventDispatcher.h"
 #include "core/eventreceiver/DescriptorEventReceiver.h"
 #include "core/multiplexer/DescriptorEventPublisher.h"
+#include "core/multiplexer/TimerEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,7 +38,7 @@ namespace core {
                                              DescriptorEventPublisher* const writeDescriptorEventDispatcher,
                                              DescriptorEventPublisher* const exceptionDescriptorEventDispatcher)
         : descriptorEventPublisher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
-        , timerEventDispatcher(new core::TimerEventDispatcher()) {
+        , timerEventDispatcher(new core::TimerEventPublisher()) {
     }
 
     EventMultiplexer::~EventMultiplexer() {
@@ -53,7 +53,7 @@ namespace core {
         return *descriptorEventPublisher[dispType];
     }
 
-    core::TimerEventDispatcher& EventMultiplexer::getTimerEventDispatcher() {
+    core::TimerEventPublisher& EventMultiplexer::getTimerEventDispatcher() {
         return *timerEventDispatcher;
     }
 

@@ -170,6 +170,17 @@ namespace utils {
         return ms;
     }
 
+    double Timeval::msd() const {
+        double msd = 0;
+        if (timeVal.tv_sec > INT_MAX - 1) {
+            msd = INT_MAX;
+        } else {
+            msd = static_cast<double>(timeVal.tv_sec) * 1'000. + static_cast<double>(timeVal.tv_usec) / 1'000.;
+        }
+
+        return msd;
+    }
+
     const timeval* Timeval::operator&() const {
         return &timeVal;
     }

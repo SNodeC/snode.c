@@ -24,7 +24,7 @@
 namespace core {
     class Event;
     class DescriptorEventPublisher;
-    class TimerEventDispatcher;
+    class TimerEventPublisher;
 } // namespace core
 
 namespace utils {
@@ -72,7 +72,7 @@ namespace core {
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
         DescriptorEventPublisher& getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType);
-        TimerEventDispatcher& getTimerEventDispatcher();
+        TimerEventPublisher& getTimerEventDispatcher();
 
         void publish(const core::Event* event);
         void unPublish(const Event* event);
@@ -103,7 +103,7 @@ namespace core {
     private:
         EventQueue eventQueue;
 
-        core::TimerEventDispatcher* const timerEventDispatcher;
+        core::TimerEventPublisher* const timerEventDispatcher;
     };
 
 } // namespace core
