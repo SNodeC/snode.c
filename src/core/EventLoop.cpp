@@ -18,8 +18,8 @@
 
 #include "core/EventLoop.h" // for EventLoop
 
-#include "core/DynamicLoader.h"
-#include "core/EventMultiplexer.h"
+#include "DynamicLoader.h"
+#include "EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

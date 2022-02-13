@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/EventReceiver.h"
+#include "EventReceiver.h"
 
-#include "core/EventMultiplexer.h"
-#include "core/EventLoop.h"
+#include "EventLoop.h"
+#include "EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 namespace core {
 
-    core::EventReceiver::EventReceiver()
+    EventReceiver::EventReceiver()
         : event(this) {
     }
 
@@ -35,7 +35,7 @@ namespace core {
         core::EventLoop::instance().getEventDispatcher().unPublish(&event);
     }
 
-    void core::EventReceiver::publish() const {
+    void EventReceiver::publish() const {
         core::EventLoop::instance().getEventDispatcher().publish(&event);
     }
 

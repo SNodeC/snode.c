@@ -18,7 +18,7 @@
 
 #include "TimerEventPublisher.h"
 
-#include "core/TimerEventReceiver.h"
+#include "TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,14 +46,14 @@ namespace core {
     }
 
     void TimerEventPublisher::observeEnabledEvents() {
-        for (core::TimerEventReceiver* timer : addedList) {
+        for (TimerEventReceiver* timer : addedList) {
             timerList.insert(timer);
         }
         addedList.clear();
     }
 
     void TimerEventPublisher::dispatchActiveEvents(const utils::Timeval& currentTime) {
-        for (core::TimerEventReceiver* timer : timerList) {
+        for (TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
                 timer->publish();
             } else {
@@ -63,21 +63,21 @@ namespace core {
     }
 
     void TimerEventPublisher::unobsereDisableEvents() {
-        for (core::TimerEventReceiver* timer : removedList) {
+        for (TimerEventReceiver* timer : removedList) {
             timerList.erase(timer);
             timer->unobservedEvent();
         }
         removedList.clear();
     }
 
-    void TimerEventPublisher::remove(core::TimerEventReceiver* timer) {
+    void TimerEventPublisher::remove(TimerEventReceiver* timer) {
         if (std::find(timerList.begin(), timerList.end(), timer) != timerList.end() &&
             std::find(removedList.begin(), removedList.end(), timer) == removedList.end()) {
             removedList.push_back(timer);
         }
     }
 
-    void TimerEventPublisher::add(core::TimerEventReceiver* timer) {
+    void TimerEventPublisher::add(TimerEventReceiver* timer) {
         addedList.push_back(timer);
     }
 
@@ -94,15 +94,14 @@ namespace core {
     void TimerEventPublisher::stop() {
         observeEnabledEvents();
 
-        for (core::TimerEventReceiver* timer : timerList) {
+        for (TimerEventReceiver* timer : timerList) {
             remove(timer);
         }
 
         unobsereDisableEvents();
     }
 
-    bool TimerEventPublisher::timernode_lt::operator()(const core::TimerEventReceiver* t1,
-                                                       const core::TimerEventReceiver* t2) const {
+    bool TimerEventPublisher::timernode_lt::operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
         return t1->getTimeout() < t2->getTimeout();
     }
 

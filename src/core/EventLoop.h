@@ -19,7 +19,7 @@
 #ifndef CORE_EVENTLOOP_H
 #define CORE_EVENTLOOP_H
 
-#include "core/TickStatus.h"
+#include "TickStatus.h"
 
 namespace core {
     class EventMultiplexer;

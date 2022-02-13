@@ -35,14 +35,14 @@ namespace core {
 
     class Event {
     public:
-        explicit Event(core::EventReceiver* eventReceiver);
+        explicit Event(EventReceiver* eventReceiver);
 
         virtual ~Event() = default;
 
         void dispatch(const utils::Timeval& currentTime) const;
 
     private:
-        core::EventReceiver* eventReceiver;
+        EventReceiver* eventReceiver;
     };
 
 } // namespace core

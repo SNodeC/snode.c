@@ -23,7 +23,6 @@
 #include "log/Logger.h"
 
 #include <climits>
-#include <cmath>
 #include <string>
 #include <sys/types.h>
 

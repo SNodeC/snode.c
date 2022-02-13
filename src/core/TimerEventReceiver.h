@@ -19,7 +19,7 @@
 #ifndef CORE_TIMEREVENTRECEIVER_H
 #define CORE_TIMEREVENTRECEIVER_H
 
-#include "core/EventReceiver.h"
+#include "EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace core {
 
-    class TimerEventReceiver : public core::EventReceiver {
+    class TimerEventReceiver : public EventReceiver {
     public:
         TimerEventReceiver(const TimerEventReceiver&) = delete;
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;

@@ -111,7 +111,7 @@ namespace core {
                 int ret = execDlClose(handle);
 
                 if (ret != 0) {
-                    VLOG(0) << "Error execDeleyedDlClose: " << core::DynamicLoader::dlError();
+                    VLOG(0) << "Error execDeleyedDlClose: " << DynamicLoader::dlError();
                 }
             } while (--refCount > 0);
         }
@@ -132,7 +132,7 @@ namespace core {
                 int ret = execDlClose(tmpIt->first);
 
                 if (ret != 0) {
-                    VLOG(0) << "Error execDlCloseAll: " << core::DynamicLoader::dlError();
+                    VLOG(0) << "Error execDlCloseAll: " << DynamicLoader::dlError();
                 }
             } while (it->second.refCount > 0);
         }

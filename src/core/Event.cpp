@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/Event.h"
+#include "Event.h"
 
-#include "core/EventReceiver.h"
+#include "EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 
 namespace core {
 
-    core::Event::Event(core::EventReceiver* eventReceiver)
+    core::Event::Event(EventReceiver* eventReceiver)
         : eventReceiver(eventReceiver) {
     }
 

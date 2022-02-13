@@ -18,7 +18,7 @@
 
 #include "DescriptorEventPublisher.h"
 
-#include "core/DescriptorEventReceiver.h"
+#include "DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,11 +33,11 @@
 
 namespace core {
 
-    bool DescriptorEventPublisher::EventReceiverList::contains(core::DescriptorEventReceiver* eventReceiver) const {
+    bool DescriptorEventPublisher::EventReceiverList::contains(DescriptorEventReceiver* eventReceiver) const {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    void DescriptorEventPublisher::enable(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::enable(DescriptorEventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (disabledEventReceiver.contains(fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
@@ -52,7 +52,7 @@ namespace core {
         }
     }
 
-    void DescriptorEventPublisher::disable(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::disable(DescriptorEventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
@@ -70,7 +70,7 @@ namespace core {
         }
     }
 
-    void DescriptorEventPublisher::suspend(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::suspend(DescriptorEventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (!eventReceiver->isSuspended()) {
@@ -82,7 +82,7 @@ namespace core {
         }
     }
 
-    void DescriptorEventPublisher::resume(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::resume(DescriptorEventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (eventReceiver->isSuspended()) {
@@ -96,7 +96,7 @@ namespace core {
 
     void DescriptorEventPublisher::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) { // cppcheck-suppress unassignedVariable
-            for (core::DescriptorEventReceiver* eventReceiver : eventReceivers) {
+            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 if (eventReceiver->isEnabled()) {
                     eventReceiver->triggered(currentTime);
                     observedEventReceiver[fd].push_front(eventReceiver);
@@ -112,17 +112,17 @@ namespace core {
         enabledEventReceiver.clear();
     }
 
-    void DescriptorEventPublisher::checkTimedOutEvents([[maybe_unused]] const utils::Timeval& currentTime) {
+    void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
         for ([[maybe_unused]] const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
 
-    void DescriptorEventPublisher::unobserveDisabledEvents([[maybe_unused]] const utils::Timeval& currentTime) {
+    void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         std::map<int, EventReceiverList> unobservedEventReceiver;
 
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
-            for (core::DescriptorEventReceiver* eventReceiver : eventReceivers) {
+            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty()) {
                     modDel(eventReceiver);
@@ -146,7 +146,7 @@ namespace core {
 
         if (!unobservedEventReceiver.empty()) {
             for (const auto& [fd, eventReceivers] : unobservedEventReceiver) { // cppcheck-suppress unusedVariable
-                for (core::DescriptorEventReceiver* eventReceiver : eventReceivers) {
+                for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                     eventReceiver->unobservedEvent();
                 }
             }
@@ -174,10 +174,10 @@ namespace core {
     }
 
     utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
-        utils::Timeval nextTimeout = core::DescriptorEventReceiver::TIMEOUT::MAX;
+        utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            const core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+            const DescriptorEventReceiver* eventReceiver = eventReceivers.front();
 
             if (!eventReceiver->isSuspended()) {
                 nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
@@ -189,7 +189,7 @@ namespace core {
 
     void DescriptorEventPublisher::stop() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            for (core::DescriptorEventReceiver* eventReceiver : eventReceivers) {
+            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 if (eventReceiver->isEnabled()) {
                     eventReceiver->terminate();
                 }

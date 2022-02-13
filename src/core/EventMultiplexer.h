@@ -19,7 +19,9 @@
 #ifndef CORE_EVENTMULTIPLEXER_H
 #define CORE_EVENTMULTIPLEXER_H
 
-#include "core/TickStatus.h" // IWYU pragma: export
+#include "TickStatus.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "core/TickStatus.h"
 
 namespace core {
     class Event;
@@ -45,9 +47,9 @@ namespace core {
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     protected:
-        EventMultiplexer(core::DescriptorEventPublisher* const readDescriptorEventDispatcher,
-                         core::DescriptorEventPublisher* const writeDescriptorEventDispatcher,
-                         core::DescriptorEventPublisher* const exceptionDescriptorEventDispatcher);
+        EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventDispatcher,
+                         DescriptorEventPublisher* const writeDescriptorEventDispatcher,
+                         DescriptorEventPublisher* const exceptionDescriptorEventDispatcher);
 
         ~EventMultiplexer();
 
@@ -93,12 +95,12 @@ namespace core {
 
         void observeEnabledEvents(const utils::Timeval& currentTime);
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
-        void dispatchActiveEvents(int count, utils::Timeval& currentTime);
+        void dispatchActiveEvents(int count, const utils::Timeval &currentTime);
         virtual void dispatchActiveEvents(int count) = 0;
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:
-        std::array<core::DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublisher;
+        std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublisher;
 
     private:
         EventQueue eventQueue;

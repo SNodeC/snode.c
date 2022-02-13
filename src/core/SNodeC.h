@@ -19,7 +19,9 @@
 #ifndef CORE_SNODEC_H
 #define CORE_SNODEC_H
 
-#include "core/TickStatus.h"
+#include "TickStatus.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "core/TickStatus.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
