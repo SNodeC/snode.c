@@ -18,6 +18,7 @@
 
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
+#include "web/http/SocketContextUpgrade.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/client/Response.h" // IWYU pragma: keep
 #include "web/http/http_utils.h"
@@ -47,7 +48,7 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return load(upgradeContextName, core::socket::SocketContext::Role::CLIENT);
+        return load(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::CLIENT);
     }
 
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {

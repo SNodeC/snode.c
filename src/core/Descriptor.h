@@ -29,13 +29,12 @@ namespace core {
         Descriptor(const Descriptor& d) = delete;
         Descriptor& operator=(const Descriptor& descriptor) = delete;
 
-    public:
+    protected:
         enum struct FLAGS : unsigned short {
             none = 0,
             dontClose = 0x01 << 0 // do not close sys-descriptor in case of desctruction
         } flags{FLAGS::none};
 
-    protected:
         Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
         ~Descriptor();
 

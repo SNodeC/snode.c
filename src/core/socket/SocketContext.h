@@ -41,9 +41,6 @@ namespace core::socket {
 namespace core::socket {
 
     class SocketContext {
-    public:
-        enum class Role { SERVER, CLIENT };
-
     protected:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 

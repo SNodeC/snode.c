@@ -18,6 +18,7 @@
 
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
+#include "web/http/SocketContextUpgrade.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h" // IWYU pragma: keep
@@ -49,7 +50,7 @@ namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return load(upgradeContextName, core::socket::SocketContext::Role::SERVER);
+        return load(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::SERVER);
     }
 
     /* do not remove */
