@@ -16,37 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_TIMER_SINGLESHOTTIMER_H
-#define NET_TIMER_SINGLESHOTTIMER_H
+#include "SingleshotTimer.h"
 
 #include "core/TimerEventReceiver.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
 
-    class SingleshotTimer : public core::TimerEventReceiver {
-        SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
+SingleshotTimer::SingleshotTimer(const std::function<void (const void *)> &dispatcher, const utils::Timeval &timeout, const void *arg)
+    : TimerEventReceiver(timeout)
+    , dispatcher(dispatcher)
+    , arg(arg) {
+}
 
-    public:
-        SingleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
+void SingleshotTimer::dispatch(const utils::Timeval &currentTime) {
+    if (dispatcher) {
+        LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
+        dispatcher(arg);
+        cancel();
+    }
+}
 
-        ~SingleshotTimer() override = default;
+void SingleshotTimer::unobservedEvent() {
+    dispatcher = nullptr;
+    delete this;
+}
 
-        void dispatch(const utils::Timeval& currentTime) override;
-
-    private:
-        void unobservedEvent() override;
-
-        std::function<void(const void*)> dispatcher;
-
-        const void* arg;
-    };
-
-} // namespace core::timer
-
-#endif // NET_TIMER_SINGLESHOTTIMER_H
+}

@@ -34,14 +34,17 @@ namespace core {
 namespace core::timer {
 
     class Timer {
-    protected:
+    private:
         explicit Timer(core::TimerEventReceiver* timerEventReceiver);
 
+        Timer() = delete;
         Timer(const Timer&) = delete;
         Timer& operator=(const Timer&) = delete;
 
     public:
-        Timer(Timer&&);
+        Timer(Timer&& timer);
+        Timer& operator=(Timer&& timer);
+
         ~Timer();
 
         static Timer intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,

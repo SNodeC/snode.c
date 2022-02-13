@@ -37,6 +37,8 @@ set(CORE_CPP
     system/socket.cpp
     system/time.cpp
     system/unistd.cpp
+    timer/IntervalTimer.cpp
+    timer/SingleshotTimer.cpp
     timer/Timer.cpp
 )
 

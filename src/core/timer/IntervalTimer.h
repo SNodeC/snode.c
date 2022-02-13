@@ -19,68 +19,37 @@
 #ifndef NET_TIMER_INTERVALTIMER_H
 #define NET_TIMER_INTERVALTIMER_H
 
-#include "core/EventLoop.h"
-#include "core/EventMultiplexer.h"
-#include "core/TimerEventPublisher.h"
 #include "core/TimerEventReceiver.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "utils/Timeval.h"
+
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
 
     class IntervalTimer : public core::TimerEventReceiver {
+        IntervalTimer(const IntervalTimer&) = delete;
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
     public:
         IntervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
                       const utils::Timeval& timeout,
-                      const void* arg)
-            : core::TimerEventReceiver(timeout)
-            , dispatcherS(dispatcher)
-            , arg(arg) {
-        }
+                      const void* arg);
 
-        IntervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
-            : core::TimerEventReceiver(timeout)
-            , dispatcherC(dispatcher)
-            , arg(arg) {
-        }
+        IntervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
 
         ~IntervalTimer() override = default;
 
-        void dispatch(const utils::Timeval& currentTime) override {
-            if (dispatcherS) {
-                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
-                bool stop = false;
-                dispatcherS(arg, [&stop]() -> void {
-                    stop = true;
-                });
-                if (stop) {
-                    cancel();
-                } else {
-                    update();
-                }
-            } else if (dispatcherC) {
-                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
-                dispatcherC(arg);
-                update();
-            }
-        }
+        void dispatch(const utils::Timeval& currentTime) override;
 
     private:
-        void update() {
-            EventLoop::instance().getEventMultiplexer().getTimerEventPublisher().update(this);
-        }
+        void update();
 
-        void unobservedEvent() override {
-            dispatcherS = nullptr;
-            dispatcherC = nullptr;
-            delete this;
-        }
+        void unobservedEvent() override;
 
         std::function<void(const void*, const std::function<void()>&)> dispatcherS = nullptr;
         std::function<void(const void*)> dispatcherC = nullptr;

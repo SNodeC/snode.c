@@ -26,8 +26,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -55,11 +53,17 @@ namespace core::timer {
     }
 
     Timer::Timer(Timer&& timer) {
-        VLOG(0) << "Timer moving";
-
         timerEventReceiver = std::move(timer.timerEventReceiver);
         timerEventReceiver->setTimer(this);
         timer.timerEventReceiver = nullptr;
+    }
+
+    Timer& Timer::operator=(Timer&& timer) {
+        timerEventReceiver = timer.timerEventReceiver;
+        timerEventReceiver->setTimer(this);
+        timer.timerEventReceiver = nullptr;
+
+        return *this;
     }
 
     Timer::~Timer() {
