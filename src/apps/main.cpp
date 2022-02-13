@@ -105,8 +105,6 @@ int timerApp() {
         1.1,
         "Tack");
 
-    VLOG(0) << "Timer1: " << &tack << ", " << tack.getTimerEventReceiver()->getTimer();
-
     bool canceled = false;
 
     express::legacy::in::WebApp app("testapp");
