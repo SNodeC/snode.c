@@ -34,21 +34,16 @@ namespace core::eventreceiver {
         TimerEventReceiver(const TimerEventReceiver&) = delete;
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
 
-        TimerEventReceiver(const utils::Timeval& delay, const void* arg);
+        TimerEventReceiver(const utils::Timeval& delay);
 
-        virtual utils::Timeval getTimeout() const = 0;
+        utils::Timeval getTimeout() const;
+        void updateTimeout();
 
         virtual void unobservedEvent() = 0;
 
-    protected:
-        void update();
-
+    private:
         utils::Timeval absoluteTimeout;
         utils::Timeval delay;
-
-        const void* arg;
-
-        friend class TimerEventDispatcher;
     };
 
 } // namespace core::eventreceiver

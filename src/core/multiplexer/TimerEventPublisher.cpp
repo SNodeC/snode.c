@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <algorithm>
 #include <climits>
 
@@ -33,11 +35,6 @@ namespace core {
         utils::Timeval nextTimeout({LONG_MAX, 0});
 
         if (!timerList.empty()) {
-            if (timerListDirty) {
-                timerList.sort(core::TimerEventPublisher::timernode_lt());
-                timerListDirty = false;
-            }
-
             nextTimeout = (*(timerList.begin()))->getTimeout();
 
             if (nextTimeout < currentTime) {
@@ -52,7 +49,7 @@ namespace core {
 
     void TimerEventPublisher::observeEnabledEvents() {
         for (core::eventreceiver::TimerEventReceiver* timer : addedList) {
-            timerList.push_back(timer);
+            timerList.insert(timer);
             timerListDirty = true;
         }
         addedList.clear();
@@ -71,7 +68,7 @@ namespace core {
 
     void TimerEventPublisher::unobsereDisableEvents() {
         for (core::eventreceiver::TimerEventReceiver* timer : removedList) {
-            timerList.remove(timer);
+            timerList.erase(timer);
             timer->unobservedEvent();
             timerListDirty = true;
         }
@@ -87,6 +84,12 @@ namespace core {
 
     void TimerEventPublisher::add(core::eventreceiver::TimerEventReceiver* timer) {
         addedList.push_back(timer);
+    }
+
+    void TimerEventPublisher::update(eventreceiver::TimerEventReceiver* timer) {
+        timerList.erase(timer);
+        timer->updateTimeout();
+        timerList.insert(timer);
     }
 
     bool TimerEventPublisher::empty() {

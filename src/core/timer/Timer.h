@@ -38,6 +38,7 @@ namespace core::timer {
     protected:
         using TimerEventReceiver::TimerEventReceiver;
 
+        Timer(const utils::Timeval& delay, const void* arg);
         virtual ~Timer() = default;
 
     public:
@@ -54,9 +55,11 @@ namespace core::timer {
         virtual void cancel();
 
     protected:
+        void update();
+
         void unobservedEvent() override;
 
-        utils::Timeval getTimeout() const override;
+        const void* arg = nullptr;
     };
 
 } // namespace core::timer

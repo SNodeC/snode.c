@@ -28,6 +28,7 @@ namespace core::eventreceiver {
 #include "utils/Timeval.h"
 
 #include <list>
+#include <set>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,22 +46,23 @@ namespace core {
 
         void remove(core::eventreceiver::TimerEventReceiver* timer);
         void add(core::eventreceiver::TimerEventReceiver* timer);
+        void update(core::eventreceiver::TimerEventReceiver* timer);
 
         bool empty();
 
         void stop();
 
     private:
-        std::list<core::eventreceiver::TimerEventReceiver*> timerList;
-        std::list<core::eventreceiver::TimerEventReceiver*> addedList;
-        std::list<core::eventreceiver::TimerEventReceiver*> removedList;
-
-        bool timerListDirty = false;
-
         class timernode_lt {
         public:
             bool operator()(const core::eventreceiver::TimerEventReceiver* t1, const core::eventreceiver::TimerEventReceiver* t2) const;
         };
+
+        std::set<core::eventreceiver::TimerEventReceiver*, timernode_lt> timerList;
+        std::list<core::eventreceiver::TimerEventReceiver*> addedList;
+        std::list<core::eventreceiver::TimerEventReceiver*> removedList;
+
+        bool timerListDirty = false;
     };
 
 } // namespace core

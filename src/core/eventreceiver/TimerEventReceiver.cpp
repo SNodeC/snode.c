@@ -24,13 +24,16 @@
 
 namespace core::eventreceiver {
 
-    TimerEventReceiver::TimerEventReceiver(const utils::Timeval& delay, const void* arg)
+    TimerEventReceiver::TimerEventReceiver(const utils::Timeval& delay)
         : absoluteTimeout(utils::Timeval::currentTime() + delay)
-        , delay(delay)
-        , arg(arg) {
+        , delay(delay) {
     }
 
-    void TimerEventReceiver::update() {
+    utils::Timeval TimerEventReceiver::getTimeout() const {
+        return absoluteTimeout;
+    }
+
+    void TimerEventReceiver::updateTimeout() {
         absoluteTimeout += delay;
     }
 

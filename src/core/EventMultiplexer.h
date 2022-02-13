@@ -103,7 +103,7 @@ namespace core {
     private:
         EventQueue eventQueue;
 
-        core::TimerEventPublisher* const timerEventDispatcher;
+        core::TimerEventPublisher* const timerEventPublisher;
     };
 
 } // namespace core

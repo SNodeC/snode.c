@@ -38,7 +38,7 @@ namespace core {
                                              DescriptorEventPublisher* const writeDescriptorEventDispatcher,
                                              DescriptorEventPublisher* const exceptionDescriptorEventDispatcher)
         : descriptorEventPublisher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
-        , timerEventDispatcher(new core::TimerEventPublisher()) {
+        , timerEventPublisher(new core::TimerEventPublisher()) {
     }
 
     EventMultiplexer::~EventMultiplexer() {
@@ -46,7 +46,7 @@ namespace core {
             delete descriptorEventPublisher;
         }
 
-        delete timerEventDispatcher;
+        delete timerEventPublisher;
     }
 
     core::DescriptorEventPublisher& EventMultiplexer::getDescriptorEventDispatcher(core::EventMultiplexer::DISP_TYPE dispType) {
@@ -54,7 +54,7 @@ namespace core {
     }
 
     core::TimerEventPublisher& EventMultiplexer::getTimerEventDispatcher() {
-        return *timerEventDispatcher;
+        return *timerEventPublisher;
     }
 
     void EventMultiplexer::publish(const Event* event) {
@@ -94,7 +94,7 @@ namespace core {
         unobserveDisabledEvents(currentTime);
         observeEnabledEvents(currentTime);
 
-        if (getObservedEventReceiverCount() > 0 || (!timerEventDispatcher->empty() && !stopped)) {
+        if (getObservedEventReceiverCount() > 0 || (!timerEventPublisher->empty() && !stopped)) {
             utils::Timeval nextTimeout = 0;
 
             if (eventQueue.empty()) {
@@ -132,7 +132,7 @@ namespace core {
         } while (tickStatus == TickStatus::SUCCESS);
 
         do {
-            timerEventDispatcher->stop();
+            timerEventPublisher->stop();
             tickStatus = tick(0, false);
         } while (tickStatus == TickStatus::SUCCESS);
     }
@@ -144,7 +144,7 @@ namespace core {
     }
 
     void EventMultiplexer::stopTimerEvents() {
-        timerEventDispatcher->stop();
+        timerEventPublisher->stop();
     }
 
     utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
@@ -153,7 +153,7 @@ namespace core {
         for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
             nextTimeout = std::min(eventMultiplexer->getNextTimeout(currentTime), nextTimeout);
         }
-        nextTimeout = std::min(timerEventDispatcher->getNextTimeout(currentTime), nextTimeout);
+        nextTimeout = std::min(timerEventPublisher->getNextTimeout(currentTime), nextTimeout);
 
         return nextTimeout;
     }
@@ -168,11 +168,11 @@ namespace core {
         for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
             eventMultiplexer->observeEnabledEvents(currentTime);
         }
-        timerEventDispatcher->observeEnabledEvents();
+        timerEventPublisher->observeEnabledEvents();
     }
 
     void EventMultiplexer::dispatchActiveEvents(int count, utils::Timeval& currentTime) {
-        timerEventDispatcher->dispatchActiveEvents(currentTime);
+        timerEventPublisher->dispatchActiveEvents(currentTime);
         dispatchActiveEvents(count);
     }
 
@@ -180,7 +180,7 @@ namespace core {
         for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
             eventMultiplexer->unobserveDisabledEvents(currentTime);
         }
-        timerEventDispatcher->unobsereDisableEvents();
+        timerEventPublisher->unobsereDisableEvents();
     }
 
     EventMultiplexer::EventQueue::EventQueue()

@@ -58,16 +58,21 @@ namespace core::timer {
         return *ct;
     }
 
+    Timer::Timer(const utils::Timeval& delay, const void* arg)
+        : core::eventreceiver::TimerEventReceiver(delay)
+        , arg(arg) {
+    }
+
     void Timer::cancel() {
         EventLoop::instance().getEventDispatcher().getTimerEventDispatcher().remove(this);
     }
 
-    void Timer::unobservedEvent() {
-        delete this;
+    void Timer::update() {
+        EventLoop::instance().getEventDispatcher().getTimerEventDispatcher().update(this);
     }
 
-    utils::Timeval Timer::getTimeout() const {
-        return absoluteTimeout;
+    void Timer::unobservedEvent() {
+        delete this;
     }
 
 } // namespace core::timer

@@ -23,6 +23,7 @@
 #include "log/Logger.h"
 
 #include <climits>
+#include <cmath>
 #include <string>
 #include <sys/types.h>
 
@@ -164,7 +165,7 @@ namespace utils {
         if (timeVal.tv_sec > INT_MAX - 1) {
             ms = INT_MAX;
         } else {
-            ms = static_cast<int>(timeVal.tv_sec * 1'000 + timeVal.tv_usec / 1'000);
+            ms = static_cast<int>(static_cast<double>(timeVal.tv_sec) * 1'000. + static_cast<double>(timeVal.tv_usec) / 1'000. + 0.5);
         }
 
         return ms;

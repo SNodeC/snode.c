@@ -48,10 +48,9 @@ namespace core::timer {
         ~IntervalTimer() override = default;
 
         void dispatch(const utils::Timeval& currentTime) override {
-            bool stop = false;
-
             if (dispatcherS) {
-                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - absoluteTimeout).msd() << " ms";
+                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
+                bool stop = false;
                 dispatcherS(arg, [&stop]() -> void {
                     stop = true;
                 });
@@ -61,7 +60,7 @@ namespace core::timer {
                     update();
                 }
             } else if (dispatcherC) {
-                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - absoluteTimeout).msd() << " ms";
+                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
                 dispatcherC(arg);
                 update();
             }

@@ -40,9 +40,9 @@ namespace core::timer {
 
         ~SingleshotTimer() override = default;
 
-        void dispatch([[maybe_unused]] const utils::Timeval& currentTime) override {
+        void dispatch(const utils::Timeval& currentTime) override {
             if (dispatcher) {
-                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - absoluteTimeout).msd() << " ms";
+                LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
                 dispatcher(arg);
                 cancel();
             }
