@@ -19,7 +19,7 @@
 #ifndef CORE_TIMEREVENTDISPATCHER_H
 #define CORE_TIMEREVENTDISPATCHER_H
 
-namespace core::eventreceiver {
+namespace core {
     class TimerEventReceiver;
 }
 
@@ -44,9 +44,9 @@ namespace core {
         void dispatchActiveEvents(const utils::Timeval& currentTime);
         void unobsereDisableEvents();
 
-        void remove(core::eventreceiver::TimerEventReceiver* timer);
-        void add(core::eventreceiver::TimerEventReceiver* timer);
-        void update(core::eventreceiver::TimerEventReceiver* timer);
+        void remove(core::TimerEventReceiver* timer);
+        void add(core::TimerEventReceiver* timer);
+        void update(core::TimerEventReceiver* timer);
 
         bool empty();
 
@@ -55,14 +55,12 @@ namespace core {
     private:
         class timernode_lt {
         public:
-            bool operator()(const core::eventreceiver::TimerEventReceiver* t1, const core::eventreceiver::TimerEventReceiver* t2) const;
+            bool operator()(const core::TimerEventReceiver* t1, const core::TimerEventReceiver* t2) const;
         };
 
-        std::set<core::eventreceiver::TimerEventReceiver*, timernode_lt> timerList;
-        std::list<core::eventreceiver::TimerEventReceiver*> addedList;
-        std::list<core::eventreceiver::TimerEventReceiver*> removedList;
-
-        bool timerListDirty = false;
+        std::set<core::TimerEventReceiver*, timernode_lt> timerList;
+        std::list<core::TimerEventReceiver*> addedList;
+        std::list<core::TimerEventReceiver*> removedList;
     };
 
 } // namespace core

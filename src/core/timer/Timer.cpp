@@ -20,7 +20,7 @@
 
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
-#include "core/multiplexer/TimerEventPublisher.h" // for ManagedTimer
+#include "core/TimerEventPublisher.h" // for ManagedTimer
 #include "core/timer/IntervalTimer.h"
 #include "core/timer/SingleshotTimer.h"
 
@@ -59,7 +59,7 @@ namespace core::timer {
     }
 
     Timer::Timer(const utils::Timeval& delay, const void* arg)
-        : core::eventreceiver::TimerEventReceiver(delay)
+        : core::TimerEventReceiver(delay)
         , arg(arg) {
     }
 

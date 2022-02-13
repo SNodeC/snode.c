@@ -19,12 +19,11 @@
 #ifndef CORE_POLL_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_POLL_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/multiplexer/DescriptorEventPublisher.h" // IWYU pragma: export
+#include "core/DescriptorEventPublisher.h" // IWYU pragma: export
 
 namespace core {
-    namespace eventreceiver {
-        class DescriptorEventReceiver;
-    }
+    class DescriptorEventReceiver;
+
     namespace poll {
         class PollFds;
     } // namespace poll
@@ -44,10 +43,10 @@ namespace core::poll {
         DescriptorEventPublisher(core::poll::PollFds& pollFds, short events, short revents);
 
     private:
-        void modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
-        void modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
-        void modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
-        void modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
+        void modDel(core::DescriptorEventReceiver* eventReceiver) override;
+        void modOn(core::DescriptorEventReceiver* eventReceiver) override;
+        void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents() override;
         void finishTick() override;

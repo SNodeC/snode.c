@@ -19,11 +19,11 @@
 #ifndef CORE_SELECT_DESCRIPTOREVENTPUBLISHER_H
 #define CORE_SELECT_DESCRIPTOREVENTPUBLISHER_H
 
-#include "core/multiplexer/DescriptorEventPublisher.h" // IWYU pragma: export
+#include "core/DescriptorEventPublisher.h" // IWYU pragma: export
 
-namespace core::eventreceiver {
+namespace core {
     class DescriptorEventReceiver;
-} // namespace core::eventreceiver
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,10 +56,10 @@ namespace core::select {
         explicit DescriptorEventPublisher(FdSet& fdSet);
 
     private:
-        void modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
-        void modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
-        void modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
-        void modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) override;
+        void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
+        void modDel(core::DescriptorEventReceiver* eventReceiver) override;
+        void modOn(core::DescriptorEventReceiver* eventReceiver) override;
+        void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents() override;
 

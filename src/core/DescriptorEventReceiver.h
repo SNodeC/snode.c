@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_DESCRIPTOREVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_DESCRIPTOREVENTRECEIVER_H
+#ifndef CORE_DESCRIPTOREVENTRECEIVER_H
+#define CORE_DESCRIPTOREVENTRECEIVER_H
 
 namespace core {
     class DescriptorEventPublisher;
@@ -31,7 +31,7 @@ namespace core {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::eventreceiver {
+namespace core {
 
     class Observer {
     public:
@@ -119,6 +119,6 @@ namespace core::eventreceiver {
         int eventCounter = 0;
     };
 
-} // namespace core::eventreceiver
+} // namespace core
 
-#endif // CORE_EVENTRECEIVER_DESCRIPTOREVENTRECEIVER_H
+#endif // CORE_DESCRIPTOREVENTRECEIVER_H

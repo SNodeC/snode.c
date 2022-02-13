@@ -21,9 +21,8 @@
 
 namespace core {
     class Event;
-    namespace eventreceiver {
-        class DescriptorEventReceiver;
-    }
+    class DescriptorEventReceiver;
+
 } // namespace core
 
 namespace utils {
@@ -51,10 +50,10 @@ namespace core {
 
         void publish(Event* event);
 
-        void enable(core::eventreceiver::DescriptorEventReceiver* eventReceiver);
-        void disable(core::eventreceiver::DescriptorEventReceiver* eventReceiver);
-        void suspend(core::eventreceiver::DescriptorEventReceiver* eventReceiver);
-        void resume(core::eventreceiver::DescriptorEventReceiver* eventReceiver);
+        void enable(core::DescriptorEventReceiver* eventReceiver);
+        void disable(core::DescriptorEventReceiver* eventReceiver);
+        void suspend(core::DescriptorEventReceiver* eventReceiver);
+        void resume(core::DescriptorEventReceiver* eventReceiver);
 
         void observeEnabledEvents(const utils::Timeval& currentTime);
         virtual void dispatchActiveEvents() = 0;
@@ -70,19 +69,19 @@ namespace core {
         void stop();
 
     protected:
-        virtual void modAdd(eventreceiver::DescriptorEventReceiver* eventReceiver) = 0;
-        virtual void modDel(eventreceiver::DescriptorEventReceiver* eventReceiver) = 0;
-        virtual void modOn(eventreceiver::DescriptorEventReceiver* eventReceiver) = 0;
-        virtual void modOff(eventreceiver::DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void modAdd(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void modDel(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void modOn(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void modOff(DescriptorEventReceiver* eventReceiver) = 0;
 
     protected:
-        class EventReceiverList : public std::list<core::eventreceiver::DescriptorEventReceiver*> {
+        class EventReceiverList : public std::list<core::DescriptorEventReceiver*> {
         public:
-            using std::list<core::eventreceiver::DescriptorEventReceiver*>::begin;
-            using std::list<core::eventreceiver::DescriptorEventReceiver*>::end;
-            using std::list<core::eventreceiver::DescriptorEventReceiver*>::front;
+            using std::list<core::DescriptorEventReceiver*>::begin;
+            using std::list<core::DescriptorEventReceiver*>::end;
+            using std::list<core::DescriptorEventReceiver*>::front;
 
-            bool contains(core::eventreceiver::DescriptorEventReceiver* descriptorEventReceiver) const;
+            bool contains(core::DescriptorEventReceiver* descriptorEventReceiver) const;
         };
 
         std::map<int, EventReceiverList> enabledEventReceiver;

@@ -19,7 +19,7 @@
 #ifndef CORE_EVENTRECEIVER_ACCEPTEVENTRECEIVER_H
 #define CORE_EVENTRECEIVER_ACCEPTEVENTRECEIVER_H
 
-#include "core/eventreceiver/DescriptorEventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -21,7 +21,7 @@
 
 #include "core/EventMultiplexer.h"
 
-namespace core::eventreceiver {
+namespace core {
     class DescriptorEventReceiver;
 }
 
@@ -53,11 +53,11 @@ namespace core::poll {
         using pollfds_size_type = std::vector<pollfd>::size_type;
         explicit PollFds();
 
-        void modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver, short event);
-        void modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver, short event);
+        void modAdd(core::DescriptorEventReceiver* eventReceiver, short event);
+        void modDel(core::DescriptorEventReceiver* eventReceiver, short event);
 
-        void modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver, short event);
-        void modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver, short event);
+        void modOn(core::DescriptorEventReceiver* eventReceiver, short event);
+        void modOff(core::DescriptorEventReceiver* eventReceiver, short event);
 
         void compress();
 

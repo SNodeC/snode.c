@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::eventreceiver {
+namespace core {
 
     TimerEventReceiver::TimerEventReceiver(const utils::Timeval& delay)
         : absoluteTimeout(utils::Timeval::currentTime() + delay)
@@ -37,4 +37,4 @@ namespace core::eventreceiver {
         absoluteTimeout += delay;
     }
 
-} // namespace core::eventreceiver
+} // namespace core

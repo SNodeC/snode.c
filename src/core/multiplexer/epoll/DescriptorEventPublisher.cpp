@@ -18,7 +18,7 @@
 
 #include "DescriptorEventPublisher.h"
 
-#include "core/eventreceiver/DescriptorEventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +36,7 @@ namespace core::epoll {
         ePollEvents.resize(1);
     }
 
-    void DescriptorEventPublisher::EPollEvents::modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::modAdd(core::DescriptorEventReceiver* eventReceiver) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -53,13 +53,13 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::modDel(core::DescriptorEventReceiver* eventReceiver) {
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::mod(core::eventreceiver::DescriptorEventReceiver* eventReceiver, uint32_t events) {
+    void DescriptorEventPublisher::EPollEvents::mod(core::DescriptorEventReceiver* eventReceiver, uint32_t events) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -68,11 +68,11 @@ namespace core::epoll {
         core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, eventReceiver->getRegisteredFd(), &ePollEvent);
     }
 
-    void DescriptorEventPublisher::EPollEvents::modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::modOn(core::DescriptorEventReceiver* eventReceiver) {
         mod(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::EPollEvents::modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::modOff(core::DescriptorEventReceiver* eventReceiver) {
         mod(eventReceiver, 0);
     }
 
@@ -98,19 +98,19 @@ namespace core::epoll {
         : ePollEvents(epfd, events) {
     }
 
-    void DescriptorEventPublisher::modAdd(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.modAdd(eventReceiver);
     }
 
-    void DescriptorEventPublisher::modDel(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.modDel(eventReceiver);
     }
 
-    void DescriptorEventPublisher::modOn(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.modOn(eventReceiver);
     }
 
-    void DescriptorEventPublisher::modOff(core::eventreceiver::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.modOff(eventReceiver);
     }
 
@@ -118,8 +118,8 @@ namespace core::epoll {
         int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
-            core::eventreceiver::DescriptorEventReceiver* eventReceiver =
-                static_cast<core::eventreceiver::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
+            core::DescriptorEventReceiver* eventReceiver =
+                static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (!eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->publish();

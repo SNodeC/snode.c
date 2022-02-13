@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_TIMEREVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_TIMEREVENTRECEIVER_H
+#ifndef CORE_TIMEREVENTRECEIVER_H
+#define CORE_TIMEREVENTRECEIVER_H
 
 #include "core/EventReceiver.h"
 
@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::eventreceiver {
+namespace core {
 
     class TimerEventReceiver : public core::EventReceiver {
     public:
@@ -46,6 +46,6 @@ namespace core::eventreceiver {
         utils::Timeval delay;
     };
 
-} // namespace core::eventreceiver
+} // namespace core
 
-#endif // CORE_EVENTRECEIVER_TIMEREVENTRECEIVER_H
+#endif // CORE_TIMEREVENTRECEIVER_H

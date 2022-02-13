@@ -18,11 +18,9 @@
 
 #include "TimerEventPublisher.h"
 
-#include "core/eventreceiver/TimerEventReceiver.h"
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #include <algorithm>
 #include <climits>
@@ -48,18 +46,16 @@ namespace core {
     }
 
     void TimerEventPublisher::observeEnabledEvents() {
-        for (core::eventreceiver::TimerEventReceiver* timer : addedList) {
+        for (core::TimerEventReceiver* timer : addedList) {
             timerList.insert(timer);
-            timerListDirty = true;
         }
         addedList.clear();
     }
 
     void TimerEventPublisher::dispatchActiveEvents(const utils::Timeval& currentTime) {
-        for (core::eventreceiver::TimerEventReceiver* timer : timerList) {
+        for (core::TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
                 timer->publish();
-                timerListDirty = true;
             } else {
                 break;
             }
@@ -67,26 +63,25 @@ namespace core {
     }
 
     void TimerEventPublisher::unobsereDisableEvents() {
-        for (core::eventreceiver::TimerEventReceiver* timer : removedList) {
+        for (core::TimerEventReceiver* timer : removedList) {
             timerList.erase(timer);
             timer->unobservedEvent();
-            timerListDirty = true;
         }
         removedList.clear();
     }
 
-    void TimerEventPublisher::remove(core::eventreceiver::TimerEventReceiver* timer) {
+    void TimerEventPublisher::remove(core::TimerEventReceiver* timer) {
         if (std::find(timerList.begin(), timerList.end(), timer) != timerList.end() &&
             std::find(removedList.begin(), removedList.end(), timer) == removedList.end()) {
             removedList.push_back(timer);
         }
     }
 
-    void TimerEventPublisher::add(core::eventreceiver::TimerEventReceiver* timer) {
+    void TimerEventPublisher::add(core::TimerEventReceiver* timer) {
         addedList.push_back(timer);
     }
 
-    void TimerEventPublisher::update(eventreceiver::TimerEventReceiver* timer) {
+    void TimerEventPublisher::update(TimerEventReceiver* timer) {
         timerList.erase(timer);
         timer->updateTimeout();
         timerList.insert(timer);
@@ -99,15 +94,15 @@ namespace core {
     void TimerEventPublisher::stop() {
         observeEnabledEvents();
 
-        for (core::eventreceiver::TimerEventReceiver* timer : timerList) {
+        for (core::TimerEventReceiver* timer : timerList) {
             remove(timer);
         }
 
         unobsereDisableEvents();
     }
 
-    bool TimerEventPublisher::timernode_lt::operator()(const core::eventreceiver::TimerEventReceiver* t1,
-                                                       const core::eventreceiver::TimerEventReceiver* t2) const {
+    bool TimerEventPublisher::timernode_lt::operator()(const core::TimerEventReceiver* t1,
+                                                       const core::TimerEventReceiver* t2) const {
         return t1->getTimeout() < t2->getTimeout();
     }
 

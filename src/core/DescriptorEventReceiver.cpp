@@ -18,7 +18,7 @@
 
 #include "DescriptorEventReceiver.h"
 
-#include "core/multiplexer/DescriptorEventPublisher.h"
+#include "core/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::eventreceiver {
+namespace core {
 
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DEFAULT = {-2, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {-1, 0};
@@ -123,4 +123,4 @@ namespace core::eventreceiver {
         }
     }
 
-} // namespace core::eventreceiver
+} // namespace core
