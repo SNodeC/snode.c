@@ -54,6 +54,8 @@ namespace core::socket {
     public:
         core::socket::SocketContext* getSocketContext();
 
+        virtual int getDescriptor() const = 0;
+
         virtual void close() = 0;
 
         virtual void shutdownRead() = 0;

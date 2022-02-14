@@ -35,11 +35,9 @@ namespace core::timer {
     }
 
     void SingleshotTimer::dispatch(const utils::Timeval& currentTime) {
-        if (dispatcher) {
-            LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
-            dispatcher(arg);
-            cancel();
-        }
+        LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
+        dispatcher(arg);
+        cancel();
     }
 
     void SingleshotTimer::unobservedEvent() {

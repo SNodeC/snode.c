@@ -114,7 +114,7 @@ namespace core::socket::stream {
             return localAddress;
         }
 
-        int getDescriptor() const {
+        int getDescriptor() const override {
             return SocketConnection::getFd();
         }
 
