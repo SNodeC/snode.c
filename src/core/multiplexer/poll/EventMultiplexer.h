@@ -71,8 +71,6 @@ namespace core::poll {
 
         std::vector<pollfd> pollfds;
         std::unordered_map<int, PollFdIndex> pollFdIndices;
-
-        uint32_t interestCount;
     };
 
     class EventMultiplexer : public core::EventMultiplexer {

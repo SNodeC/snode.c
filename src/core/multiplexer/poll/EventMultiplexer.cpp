@@ -39,8 +39,7 @@ core::EventMultiplexer& EventDispatcher() {
 
 namespace core::poll {
 
-    PollFds::PollFds()
-        : interestCount(0) {
+    PollFds::PollFds() {
         pollfd pollFd;
 
         pollFd.fd = -1;
@@ -56,15 +55,13 @@ namespace core::poll {
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
         if (itPollFdIndex == pollFdIndices.end()) {
-            pollfds[interestCount].events = event;
-            pollfds[interestCount].fd = fd;
+            pollfds[pollFdIndices.size()].events = event;
+            pollfds[pollFdIndices.size()].fd = fd;
 
-            pollFdIndices[fd].index = interestCount;
+            pollFdIndices[fd].index = pollFdIndices.size();
             pollFdIndices[fd].events = event;
 
-            interestCount++;
-
-            if (interestCount == pollfds.size()) {
+            if (pollFdIndices.size() == pollfds.size()) {
                 pollfd pollFd;
 
                 pollFd.fd = -1;
@@ -94,11 +91,10 @@ namespace core::poll {
         if (pollFdIndex.events == 0) {
             pollfds[pollFdIndex.index].fd = -1; // Compress will keep track of that descriptor
 
-            pollFdIndices.erase(itPollFdIndex);
+            //            pollFdIndices.erase(itPollFdIndex);
+            pollFdIndices.erase(fd);
 
-            interestCount--;
-
-            //            if (pollfds.size() > (interestCount * 2) + 1) { // Do not know why this is not working
+            //            if (pollfds.size() > (pollFdIndices.size() * 2) + 1) { // Do not know why this is not working
             compress();
             //            }
         }
@@ -138,11 +134,11 @@ namespace core::poll {
             }
         }
 
-        while (pollfds.size() > (interestCount * 2) + 1) {
+        while (pollfds.size() > (pollFdIndices.size() * 2) + 1) {
             pollfds.resize(pollfds.size() / 2);
         }
 
-        for (uint32_t i = 0; i < interestCount; i++) {
+        for (uint32_t i = 0; i < pollFdIndices.size(); i++) {
             if (pollfds[i].fd >= 0) {
                 pollFdIndices[pollfds[i].fd].index = i;
             }
@@ -158,7 +154,7 @@ namespace core::poll {
     }
 
     nfds_t PollFds::getInterestCount() const {
-        return interestCount;
+        return pollFdIndices.size();
     }
 
     nfds_t PollFds::getSize() const {
@@ -172,13 +168,13 @@ namespace core::poll {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
-        return core::system::poll(pollFds.getEvents(), pollFds.getSize(), tickTimeOut.ms());
+        return core::system::poll(pollFds.getEvents(), pollFds.getInterestCount(), tickTimeOut.ms());
     }
 
     void EventMultiplexer::dispatchActiveEvents(int count) {
         if (count > 0) {
-            for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
-                eventMultiplexer->dispatchActiveEvents();
+            for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublisher) {
+                descriptorEventPublisher->dispatchActiveEvents();
             }
         }
     }
