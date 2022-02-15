@@ -39,10 +39,12 @@ namespace core {
 
         virtual ~Event() = default;
 
+    private:
         void dispatch(const utils::Timeval& currentTime) const;
 
-    private:
         EventReceiver* eventReceiver;
+
+        friend class EventMultiplexer;
     };
 
 } // namespace core

@@ -64,10 +64,9 @@ namespace net::in6 {
         setPort(port);
     }
 
-    SocketAddress::SocketAddress(uint16_t port) {
-        sockAddr.sin6_family = AF_INET6;
-        sockAddr.sin6_addr = in6addr_any;
-        sockAddr.sin6_port = htons(port);
+    SocketAddress::SocketAddress(uint16_t port)
+        : SocketAddress() {
+        setPort(port);
     }
 
     void SocketAddress::setHost(const std::string& ipOrHostname) {

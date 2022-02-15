@@ -71,38 +71,33 @@ namespace core {
             static const utils::Timeval MAX;
         };
 
+        int getRegisteredFd();
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+
+        bool isEnabled() const;
+        bool isSuspended() const;
+
     protected:
         explicit DescriptorEventReceiver(DescriptorEventPublisher& descriptorEventPublisher,
                                          const utils::Timeval& timeout = TIMEOUT::DISABLE);
         ~DescriptorEventReceiver() = default;
 
-    public:
-        int getRegisteredFd();
-
-    protected:
         void enable(int fd);
         void disable();
 
-    public:
-        bool isEnabled() const;
-
         void suspend();
         void resume();
-        bool isSuspended() const;
 
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        void triggered(const utils::Timeval& currentTime);
-
-        void disabled();
+        void setTimeout(const utils::Timeval& timeout);
+        void checkTimeout(const utils::Timeval& currentTime);
 
         virtual void terminate();
 
-        void setTimeout(const utils::Timeval& timeout);
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
-        void checkTimeout(const utils::Timeval& currentTime);
-
     private:
+        void dispatch(const utils::Timeval& currentTime) override;
+        void triggered(const utils::Timeval& currentTime);
+        void disabled();
+
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
@@ -113,12 +108,13 @@ namespace core {
         bool enabled = false;
         bool suspended = false;
 
-    public:
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;
         const utils::Timeval initialTimeout;
 
         int eventCounter = 0;
+
+        friend class DescriptorEventPublisher;
     };
 
 } // namespace core

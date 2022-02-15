@@ -130,6 +130,10 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "." EXCLUDE
+    PATTERN "EventLoop.h" EXCLUDE
+    PATTERN "EventMultiplexer.h" EXCLUDE
+    PATTERN "DescriptorEventPublisher.h" EXCLUDE
+    PATTERN "TimerEventPublisher.h" EXCLUDE
     PATTERN "cmake" EXCLUDE
     PATTERN "socket/stream/tls" EXCLUDE
     PATTERN "socket/stream/legacy" EXCLUDE

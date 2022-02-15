@@ -73,7 +73,6 @@ namespace core {
         virtual void modOn(DescriptorEventReceiver* eventReceiver) = 0;
         virtual void modOff(DescriptorEventReceiver* eventReceiver) = 0;
 
-    protected:
         class EventReceiverList : public std::list<DescriptorEventReceiver*> {
         public:
             using std::list<DescriptorEventReceiver*>::begin;
