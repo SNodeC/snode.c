@@ -57,7 +57,10 @@ namespace core {
 
         if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
-            enabledEventReceiver[fd].remove(eventReceiver);
+            eventReceiver->disabled();
+            if (eventReceiver->getObservationCounter() > 0) {
+                enabledEventReceiver[fd].remove(eventReceiver);
+            }
         } else if (eventReceiver->isEnabled() &&
                    (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
             // next tick as enable
@@ -94,13 +97,16 @@ namespace core {
     void DescriptorEventPublisher::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) { // cppcheck-suppress unassignedVariable
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                eventReceiver->triggered(currentTime);
-                observedEventReceiver[fd].push_front(eventReceiver);
-                modAdd(eventReceiver);
-                if (eventReceiver->isSuspended()) {
-                    modOff(eventReceiver);
+                if (eventReceiver->isEnabled()) {
+                    eventReceiver->triggered(currentTime);
+                    observedEventReceiver[fd].push_front(eventReceiver);
+                    modAdd(eventReceiver);
+                    if (eventReceiver->isSuspended()) {
+                        modOff(eventReceiver);
+                    }
+                } else {
+                    eventReceiver->unobservedEvent();
                 }
-                eventReceiver->observed();
             }
         }
         enabledEventReceiver.clear();
@@ -115,7 +121,6 @@ namespace core {
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                eventReceiver->unObserved();
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty()) {
                     modDel(eventReceiver);
@@ -128,7 +133,8 @@ namespace core {
                         modOff(observedEventReceiver[fd].front());
                     }
                 }
-                if (!eventReceiver->isObserved()) {
+                eventReceiver->disabled();
+                if (eventReceiver->getObservationCounter() == 0) {
                     eventReceiver->unobservedEvent();
                 }
             }

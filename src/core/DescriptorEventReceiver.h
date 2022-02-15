@@ -34,7 +34,11 @@ namespace core {
 namespace core {
 
     class Observer {
-    private:
+    public:
+        bool isObserved() {
+            return observationCounter > 0;
+        }
+
         void observed() {
             observationCounter++;
         }
@@ -43,22 +47,18 @@ namespace core {
             observationCounter--;
         }
 
-        bool isObserved() {
-            return observationCounter > 0;
+        int getObservationCounter() {
+            return observationCounter;
         }
 
-    protected:
         virtual void unobservedEvent() = 0;
 
     private:
         int observationCounter = 0;
-
-        friend class DescriptorEventReceiver;
-        friend class DescriptorEventPublisher;
     };
 
     class DescriptorEventReceiver
-        : virtual protected Observer
+        : virtual public Observer
         , public EventReceiver {
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
@@ -78,31 +78,31 @@ namespace core {
 
     public:
         int getRegisteredFd();
-        bool isSuspended() const;
 
     protected:
         void enable(int fd);
         void disable();
-        void suspend();
-        void resume();
 
-        void setTimeout(const utils::Timeval& timeout);
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
-
+    public:
         bool isEnabled() const;
 
-        virtual void terminate();
+        void suspend();
+        void resume();
+        bool isSuspended() const;
 
-    private:
         void dispatch(const utils::Timeval& currentTime) override;
 
         void triggered(const utils::Timeval& currentTime);
 
-        void setEnabled();
-        void setDisabled();
+        void disabled();
 
+        virtual void terminate();
+
+        void setTimeout(const utils::Timeval& timeout);
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
         void checkTimeout(const utils::Timeval& currentTime);
 
+    private:
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
@@ -113,13 +113,12 @@ namespace core {
         bool enabled = false;
         bool suspended = false;
 
+    public:
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;
         const utils::Timeval initialTimeout;
 
         int eventCounter = 0;
-
-        friend class DescriptorEventPublisher;
     };
 
 } // namespace core
