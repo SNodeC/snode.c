@@ -26,11 +26,7 @@
 
 namespace net::in6::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::config::ConfigBacklog(baseSc)
-        , net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>(baseSc)
-        , net::config::ConfigConnection(baseSc) {
+    ConfigServerSocket::ConfigServerSocket() {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
     }
 

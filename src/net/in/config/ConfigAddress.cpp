@@ -30,8 +30,7 @@
 namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc)
-        : ConfigAddressType(baseSc) {
+    ConfigAddress<ConfigAddressType>::ConfigAddress() {
         hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Host name or IP address");
         hostOpt->type_name("[hostname|ip]");
         hostOpt->default_val("0.0.0.0");

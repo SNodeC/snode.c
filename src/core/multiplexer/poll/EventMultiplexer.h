@@ -33,7 +33,6 @@ namespace utils {
 
 #include "core/system/poll.h" // IWYU pragma: export
 
-#include <cstdint> // for uint32_t
 #include <unordered_map>
 #include <vector>
 

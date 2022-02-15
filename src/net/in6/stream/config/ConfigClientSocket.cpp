@@ -26,11 +26,7 @@
 
 namespace net::in6::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>(baseSc)
-        , net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>(baseSc)
-        , net::config::ConfigConnection(baseSc) {
+    ConfigClientSocket::ConfigClientSocket() {
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
     }
 

@@ -35,8 +35,7 @@ namespace net::in6::stream::tls::config {
         , public net::config::ConfigTls {
     public:
         explicit ConfigSocketServer(const std::string& name)
-            : net::in6::stream::config::ConfigServerSocket(name)
-            , net::config::ConfigTls(baseSc) {
+            : net::config::ConfigBase(name) {
         }
     };
 

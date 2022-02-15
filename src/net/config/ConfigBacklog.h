@@ -19,10 +19,11 @@
 #ifndef NET_CONFIG_CONFIGBACKLOG_H
 #define NET_CONFIG_CONFIGBACKLOG_H
 
+#include "net/config/ConfigBase.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
-    class App;
     class Option;
 } // namespace CLI
 
@@ -30,9 +31,9 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigBacklog {
+    class ConfigBacklog : virtual protected ConfigBase {
     public:
-        explicit ConfigBacklog(CLI::App* baseSc);
+        explicit ConfigBacklog();
 
         int getBacklog() const;
 

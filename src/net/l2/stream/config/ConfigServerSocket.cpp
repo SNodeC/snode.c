@@ -26,11 +26,7 @@
 
 namespace net::l2::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::config::ConfigBacklog(baseSc)
-        , net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>(baseSc)
-        , net::config::ConfigConnection(baseSc) {
+    ConfigServerSocket::ConfigServerSocket() {
         net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
     }
 

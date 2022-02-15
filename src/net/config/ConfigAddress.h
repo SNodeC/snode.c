@@ -19,10 +19,11 @@
 #ifndef NET_CONFIG_CONFIGADDRESS_H
 #define NET_CONFIG_CONFIGADDRESS_H
 
+#include "net/config/ConfigBase.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
-    class App;
     class Option;
 } // namespace CLI
 
@@ -33,11 +34,11 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddress {
+    class ConfigAddress : virtual protected ConfigBase {
         using SocketAddress = SocketAddressT;
 
     protected:
-        ConfigAddress(CLI::App* baseSc, const std::string& addressOptionName);
+        ConfigAddress(const std::string& addressOptionName);
         virtual ~ConfigAddress() = default;
 
         const SocketAddress& getAddress();

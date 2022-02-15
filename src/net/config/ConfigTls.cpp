@@ -28,7 +28,7 @@
 
 namespace net::config {
 
-    ConfigTls::ConfigTls(CLI::App* baseSc) {
+    ConfigTls::ConfigTls() {
         tlsSc = baseSc->add_subcommand("tls");
         tlsSc->description("Options for SSL/TLS behaviour");
 

@@ -32,13 +32,13 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddressLocal : public net::config::ConfigAddress<SocketAddressT> {
+    class ConfigAddressLocal : protected net::config::ConfigAddress<SocketAddressT> {
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
         using SocketAddress = SocketAddressT;
 
     protected:
-        explicit ConfigAddressLocal(CLI::App* baseSc);
+        explicit ConfigAddressLocal();
 
     public:
         const SocketAddress& getLocalAddress();

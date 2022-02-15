@@ -21,7 +21,6 @@
 
 #include "net/config/ConfigAddressLocal.h"
 #include "net/config/ConfigBacklog.h"
-#include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
 #include "net/l2/config/ConfigAddress.h"
 
@@ -29,19 +28,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream::config {
 
     class ConfigServerSocket
-        : public net::config::ConfigBase
-        , public net::config::ConfigBacklog
+        : public net::config::ConfigBacklog
         , public net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
-        explicit ConfigServerSocket(const std::string& name);
+        explicit ConfigServerSocket();
     };
 
 } // namespace net::l2::stream::config

@@ -35,8 +35,7 @@ namespace net::rf::stream::legacy::config {
         , public net::config::ConfigLegacy {
     public:
         explicit ConfigSocketClient(const std::string& name)
-            : net::rf::stream::config::ConfigClientSocket(name)
-            , net::config::ConfigLegacy(baseSc) {
+            : net::config::ConfigBase(name) {
         }
     };
 

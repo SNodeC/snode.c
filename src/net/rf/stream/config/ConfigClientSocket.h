@@ -21,7 +21,6 @@
 
 #include "net/config/ConfigAddressLocal.h"
 #include "net/config/ConfigAddressRemote.h"
-#include "net/config/ConfigBase.h"
 #include "net/config/ConfigConnection.h"
 #include "net/rf/config/ConfigAddress.h"
 
@@ -29,19 +28,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rf::stream::config {
 
     class ConfigClientSocket
-        : public net::config::ConfigBase
-        , public net::rf::config::ConfigAddress<net::config::ConfigAddressRemote>
+        : public net::rf::config::ConfigAddress<net::config::ConfigAddressRemote>
         , public net::rf::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
-        explicit ConfigClientSocket(const std::string& name);
+        explicit ConfigClientSocket();
     };
 
 } // namespace net::rf::stream::config

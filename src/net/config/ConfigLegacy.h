@@ -19,19 +19,17 @@
 #ifndef NET_CONFIG_CONFIGLEGACY_H
 #define NET_CONFIG_CONFIGLEGACY_H
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "net/config/ConfigBase.h"
 
-namespace CLI {
-    class App;
-} // namespace CLI
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
 
-    class ConfigLegacy {
+    class ConfigLegacy : virtual protected ConfigBase {
     public:
-        explicit ConfigLegacy(CLI::App* baseSc);
+        explicit ConfigLegacy();
     };
 
 } // namespace net::config

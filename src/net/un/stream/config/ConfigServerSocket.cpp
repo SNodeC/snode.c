@@ -26,11 +26,7 @@
 
 namespace net::un::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::config::ConfigBacklog(baseSc)
-        , net::un::config::ConfigAddress<net::config::ConfigAddressLocal>(baseSc)
-        , net::config::ConfigConnection(baseSc) {
+    ConfigServerSocket::ConfigServerSocket() {
         net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
     }
 

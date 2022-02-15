@@ -35,8 +35,7 @@ namespace net::un::stream::tls::config {
         , public net::config::ConfigTls {
     public:
         explicit ConfigSocketClient(const std::string& name)
-            : net::un::stream::config::ConfigClientSocket(name)
-            , net::config::ConfigTls(baseSc) {
+            : net::config::ConfigBase(name) {
         }
     };
 

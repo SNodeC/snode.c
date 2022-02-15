@@ -19,6 +19,8 @@
 #ifndef NET_CONFIG_CONFIGCONN_H
 #define NET_CONFIG_CONFIGCONN_H
 
+#include "net/config/ConfigBase.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -34,9 +36,9 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigConnection {
+    class ConfigConnection : virtual protected ConfigBase {
     public:
-        explicit ConfigConnection(CLI::App* baseSc);
+        explicit ConfigConnection();
 
     public:
         const utils::Timeval& getReadTimeout() const;

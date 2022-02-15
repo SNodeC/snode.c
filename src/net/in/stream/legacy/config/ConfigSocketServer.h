@@ -35,8 +35,7 @@ namespace net::in::stream::legacy::config {
         , public net::config::ConfigLegacy {
     public:
         explicit ConfigSocketServer(const std::string& name)
-            : net::in::stream::config::ConfigServerSocket(name)
-            , net::config::ConfigLegacy(baseSc) {
+            : net::config::ConfigBase(name) {
         }
     };
 

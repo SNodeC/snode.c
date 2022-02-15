@@ -33,13 +33,13 @@ namespace net::config {
 
     class ConfigBase {
     public:
+        ConfigBase() = default;
         explicit ConfigBase(const std::string& name);
 
         const std::string& getName() const;
 
         virtual int parse() const;
 
-    protected:
         CLI::App* baseSc = nullptr;
 
     private:

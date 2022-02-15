@@ -26,11 +26,7 @@
 
 namespace net::un::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket(const std::string& name)
-        : net::config::ConfigBase(name)
-        , net::un::config::ConfigAddress<net::config::ConfigAddressRemote>(baseSc)
-        , net::un::config::ConfigAddress<net::config::ConfigAddressLocal>(baseSc)
-        , net::config::ConfigConnection(baseSc) {
+    ConfigClientSocket::ConfigClientSocket() {
         net::un::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
     }
 

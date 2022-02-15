@@ -24,7 +24,7 @@
 
 namespace net::config {
 
-    ConfigLegacy::ConfigLegacy([[maybe_unused]] CLI::App* baseSc) {
+    ConfigLegacy::ConfigLegacy() {
     }
 
 } // namespace net::config

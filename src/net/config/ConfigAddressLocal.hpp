@@ -32,8 +32,8 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(CLI::App* baseSc)
-        : Super::ConfigAddress(baseSc, "local") {
+    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal()
+        : Super::ConfigAddress("local") {
     }
 
     template <typename SocketAddress>

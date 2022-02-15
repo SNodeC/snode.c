@@ -27,7 +27,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
-    class App;
     class Option;
 } // namespace CLI
 
@@ -44,7 +43,7 @@ namespace net::l2::config {
         using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
 
     public:
-        explicit ConfigAddress(CLI::App* baseSc);
+        explicit ConfigAddress();
 
     protected:
         void required();

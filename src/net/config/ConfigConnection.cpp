@@ -26,7 +26,7 @@
 
 namespace net::config {
 
-    ConfigConnection::ConfigConnection(CLI::App* baseSc) {
+    ConfigConnection::ConfigConnection() {
         connectionSc = baseSc->add_subcommand("connection");
         connectionSc->description("Options for established client connections");
 

@@ -30,8 +30,7 @@
 namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc)
-        : ConfigAddressType(baseSc) {
+    ConfigAddress<ConfigAddressType>::ConfigAddress() {
         hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Bluetooth address");
         hostOpt->type_name("[bluetooth address]");
         hostOpt->default_val("00:00:00:00:00:00");

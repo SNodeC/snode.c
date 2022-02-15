@@ -31,7 +31,7 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddress<SocketAddress>::ConfigAddress(CLI::App* baseSc, const std::string& addressOptionName) {
+    ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName) {
         addressSc = baseSc->add_subcommand(addressOptionName);
         addressSc->description("Bind options");
     }

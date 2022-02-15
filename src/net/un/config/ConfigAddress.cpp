@@ -31,8 +31,7 @@
 namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(CLI::App* baseSc, bool abstract)
-        : ConfigAddressType(baseSc) {
+    ConfigAddress<ConfigAddressType>::ConfigAddress(bool abstract) {
         sunPathOpt = ConfigAddressType::addressSc->add_option("-p,--path", sunPath, "Unix domain socket");
         sunPathOpt->type_name("[sun-path]");
         if (abstract) {
