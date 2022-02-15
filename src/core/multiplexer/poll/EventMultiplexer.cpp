@@ -47,6 +47,7 @@ namespace core::poll {
         pollFd.revents = 0;
 
         pollfds.resize(1, pollFd);
+        pollFdIndices.reserve(1);
     }
 
     void PollFds::modAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
@@ -55,13 +56,16 @@ namespace core::poll {
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
         if (itPollFdIndex == pollFdIndices.end()) {
-            pollfds[pollFdIndices.size()].events = event;
-            pollfds[pollFdIndices.size()].fd = fd;
+            pollfds[currentIndex].events = event;
+            pollfds[currentIndex].fd = fd;
 
-            pollFdIndices[fd].index = pollFdIndices.size();
+            pollFdIndices[fd].index = currentIndex;
             pollFdIndices[fd].events = event;
 
-            if (pollFdIndices.size() == pollfds.size()) {
+            ++currentIndex;
+            ++interestCount;
+
+            if (currentIndex == pollfds.size()) {
                 pollfd pollFd;
 
                 pollFd.fd = -1;
@@ -69,6 +73,7 @@ namespace core::poll {
                 pollFd.revents = 0;
 
                 pollfds.resize(pollfds.size() * 2, pollFd);
+                pollFdIndices.reserve(pollfds.size());
             }
         } else {
             PollFdIndex& pollFdIndex = itPollFdIndex->second;
@@ -90,13 +95,13 @@ namespace core::poll {
 
         if (pollFdIndex.events == 0) {
             pollfds[pollFdIndex.index].fd = -1; // Compress will keep track of that descriptor
-
-            //            pollFdIndices.erase(itPollFdIndex);
             pollFdIndices.erase(fd);
 
-            //            if (pollfds.size() > (pollFdIndices.size() * 2) + 1) { // Do not know why this is not working
-            compress();
-            //            }
+            --interestCount;
+
+            if (pollfds.size() > (interestCount * 2) + 1) {
+                compress();
+            }
         }
     }
 
@@ -138,11 +143,15 @@ namespace core::poll {
             pollfds.resize(pollfds.size() / 2);
         }
 
+        pollFdIndices.reserve(pollfds.size());
+
         for (uint32_t i = 0; i < pollFdIndices.size(); i++) {
             if (pollfds[i].fd >= 0) {
                 pollFdIndices[pollfds[i].fd].index = i;
             }
         }
+
+        currentIndex = interestCount;
     }
 
     pollfd* PollFds::getEvents() {
@@ -153,12 +162,8 @@ namespace core::poll {
         return pollFdIndices;
     }
 
-    nfds_t PollFds::getInterestCount() const {
-        return pollFdIndices.size();
-    }
-
-    nfds_t PollFds::getSize() const {
-        return pollfds.size();
+    nfds_t PollFds::getCurrentIndex() const {
+        return currentIndex;
     }
 
     EventMultiplexer::EventMultiplexer()
@@ -168,7 +173,7 @@ namespace core::poll {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
-        return core::system::poll(pollFds.getEvents(), pollFds.getInterestCount(), tickTimeOut.ms());
+        return core::system::poll(pollFds.getEvents(), pollFds.getCurrentIndex(), tickTimeOut.ms());
     }
 
     void EventMultiplexer::dispatchActiveEvents(int count) {

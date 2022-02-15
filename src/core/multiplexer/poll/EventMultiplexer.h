@@ -63,10 +63,11 @@ namespace core::poll {
 
         const std::unordered_map<int, PollFdIndex>& getPollFdIndices() const;
 
-        nfds_t getInterestCount() const;
-        nfds_t getSize() const;
+        nfds_t getCurrentIndex() const;
 
     private:
+        nfds_t interestCount = 0;
+        nfds_t currentIndex = 0;
         void compress();
 
         std::vector<pollfd> pollfds;
