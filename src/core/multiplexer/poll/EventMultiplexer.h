@@ -59,15 +59,16 @@ namespace core::poll {
         void modOn(core::DescriptorEventReceiver* eventReceiver, short event);
         void modOff(core::DescriptorEventReceiver* eventReceiver, short event);
 
-        void compress();
-
         pollfd* getEvents();
 
         const std::unordered_map<int, PollFdIndex>& getPollFdIndices() const;
 
         nfds_t getInterestCount() const;
+        nfds_t getSize() const;
 
     private:
+        void compress();
+
         std::vector<pollfd> pollfds;
         std::unordered_map<int, PollFdIndex> pollFdIndices;
 

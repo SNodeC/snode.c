@@ -79,8 +79,11 @@ namespace core {
     public:
         int getRegisteredFd();
 
+    protected:
         void enable(int fd);
         void disable();
+
+    public:
         bool isEnabled() const;
 
         void suspend();
@@ -111,7 +114,6 @@ namespace core {
         bool suspended = false;
 
     public:
-        utils::Timeval publisedTime;
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;
         const utils::Timeval initialTimeout;

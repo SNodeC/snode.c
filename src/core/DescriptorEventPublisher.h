@@ -59,7 +59,6 @@ namespace core {
         virtual void dispatchActiveEvents() = 0;
         void checkTimedOutEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
-        virtual void finishTick();
 
         int getObservedEventReceiverCount() const;
         int getMaxFd() const;

@@ -119,8 +119,6 @@ namespace core {
     }
 
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        std::map<int, EventReceiverList> unobservedEventReceiver;
-
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
@@ -137,26 +135,12 @@ namespace core {
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
-                    unobservedEventReceiver[fd].push_back(eventReceiver);
+                    eventReceiver->unobservedEvent();
                 }
             }
         }
 
         disabledEventReceiver.clear();
-
-        if (!unobservedEventReceiver.empty()) {
-            for (const auto& [fd, eventReceivers] : unobservedEventReceiver) { // cppcheck-suppress unusedVariable
-                for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                    eventReceiver->unobservedEvent();
-                }
-            }
-            unobservedEventReceiver.clear();
-
-            finishTick();
-        }
-    }
-
-    void DescriptorEventPublisher::finishTick() {
     }
 
     int DescriptorEventPublisher::getObservedEventReceiverCount() const {

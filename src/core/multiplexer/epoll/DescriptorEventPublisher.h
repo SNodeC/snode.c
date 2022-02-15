@@ -55,8 +55,6 @@ namespace core::epoll {
             void modOn(core::DescriptorEventReceiver* eventReceiver);
             void modOff(core::DescriptorEventReceiver* eventReceiver);
 
-            void compress();
-
             int getEPFd() const;
             epoll_event* getEvents();
             int getInterestCount() const;
@@ -79,7 +77,6 @@ namespace core::epoll {
         void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents() override;
-        void finishTick() override;
 
     private:
         EPollEvents ePollEvents;

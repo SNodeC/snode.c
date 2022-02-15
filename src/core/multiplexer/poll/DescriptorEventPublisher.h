@@ -49,7 +49,6 @@ namespace core::poll {
         void modOff(core::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents() override;
-        void finishTick() override;
 
         core::poll::PollFds& pollFds;
         short events;

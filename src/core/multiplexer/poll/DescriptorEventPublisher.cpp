@@ -70,8 +70,4 @@ namespace core::poll {
         }
     }
 
-    void core::poll::DescriptorEventPublisher::finishTick() {
-        pollFds.compress();
-    }
-
 } // namespace core::poll

@@ -57,6 +57,10 @@ namespace core::epoll {
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
         }
+
+        while (ePollEvents.size() > (interestCount * 2) + 1) {
+            ePollEvents.resize(ePollEvents.size() / 2);
+        }
     }
 
     void DescriptorEventPublisher::EPollEvents::mod(core::DescriptorEventReceiver* eventReceiver, uint32_t events) {
@@ -74,12 +78,6 @@ namespace core::epoll {
 
     void DescriptorEventPublisher::EPollEvents::modOff(core::DescriptorEventReceiver* eventReceiver) {
         mod(eventReceiver, 0);
-    }
-
-    void DescriptorEventPublisher::EPollEvents::compress() {
-        while (ePollEvents.size() > (interestCount * 2) + 1) {
-            ePollEvents.resize(ePollEvents.size() / 2);
-        }
     }
 
     int DescriptorEventPublisher::EPollEvents::getEPFd() const {
@@ -118,17 +116,12 @@ namespace core::epoll {
         int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
-            core::DescriptorEventReceiver* eventReceiver =
-                static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
+            core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (!eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->publish();
             }
         }
-    }
-
-    void core::epoll::DescriptorEventPublisher::finishTick() {
-        ePollEvents.compress();
     }
 
 } // namespace core::epoll

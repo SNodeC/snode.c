@@ -97,6 +97,10 @@ namespace core::poll {
             pollFdIndices.erase(itPollFdIndex);
 
             interestCount--;
+
+            //            if (pollfds.size() > (interestCount * 2) + 1) { // Do not know why this is not working
+            compress();
+            //            }
         }
     }
 
@@ -157,6 +161,10 @@ namespace core::poll {
         return interestCount;
     }
 
+    nfds_t PollFds::getSize() const {
+        return pollfds.size();
+    }
+
     EventMultiplexer::EventMultiplexer()
         : core::EventMultiplexer(new core::poll::DescriptorEventPublisher(pollFds, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
                                  new core::poll::DescriptorEventPublisher(pollFds, POLLOUT, POLLOUT),
@@ -164,7 +172,7 @@ namespace core::poll {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
-        return core::system::poll(pollFds.getEvents(), pollFds.getInterestCount(), tickTimeOut.ms());
+        return core::system::poll(pollFds.getEvents(), pollFds.getSize(), tickTimeOut.ms());
     }
 
     void EventMultiplexer::dispatchActiveEvents(int count) {
