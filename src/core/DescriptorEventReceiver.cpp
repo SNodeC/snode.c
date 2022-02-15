@@ -44,7 +44,6 @@ namespace core {
 
     void DescriptorEventReceiver::enable(int fd) {
         this->registeredFd = fd;
-        observed();
 
         descriptorEventPublisher.enable(this);
         enabled = true;
@@ -59,7 +58,11 @@ namespace core {
         enabled = false;
     }
 
-    void DescriptorEventReceiver::disabled() {
+    void DescriptorEventReceiver::setEnabled() {
+        observed();
+    }
+
+    void DescriptorEventReceiver::setDisabled() {
         unObserved();
     }
 

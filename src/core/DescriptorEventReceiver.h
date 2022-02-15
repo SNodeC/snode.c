@@ -34,11 +34,7 @@ namespace core {
 namespace core {
 
     class Observer {
-    public:
-        bool isObserved() {
-            return observationCounter > 0;
-        }
-
+    private:
         void observed() {
             observationCounter++;
         }
@@ -47,18 +43,22 @@ namespace core {
             observationCounter--;
         }
 
-        int getObservationCounter() {
-            return observationCounter;
+        bool isObserved() {
+            return observationCounter > 0;
         }
 
+    protected:
         virtual void unobservedEvent() = 0;
 
     private:
         int observationCounter = 0;
+
+        friend class DescriptorEventReceiver;
+        friend class DescriptorEventPublisher;
     };
 
     class DescriptorEventReceiver
-        : virtual public Observer
+        : virtual protected Observer
         , public EventReceiver {
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
@@ -78,31 +78,31 @@ namespace core {
 
     public:
         int getRegisteredFd();
+        bool isSuspended() const;
 
     protected:
         void enable(int fd);
         void disable();
-
-    public:
-        bool isEnabled() const;
-
         void suspend();
         void resume();
-        bool isSuspended() const;
 
+        void setTimeout(const utils::Timeval& timeout);
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+
+        bool isEnabled() const;
+
+        virtual void terminate();
+
+    private:
         void dispatch(const utils::Timeval& currentTime) override;
 
         void triggered(const utils::Timeval& currentTime);
 
-        void disabled();
+        void setEnabled();
+        void setDisabled();
 
-        virtual void terminate();
-
-        void setTimeout(const utils::Timeval& timeout);
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
         void checkTimeout(const utils::Timeval& currentTime);
 
-    private:
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
@@ -113,12 +113,13 @@ namespace core {
         bool enabled = false;
         bool suspended = false;
 
-    public:
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;
         const utils::Timeval initialTimeout;
 
         int eventCounter = 0;
+
+        friend class DescriptorEventPublisher;
     };
 
 } // namespace core
