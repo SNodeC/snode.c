@@ -31,7 +31,3 @@ namespace net::in6::stream::config {
     }
 
 } // namespace net::in6::stream::config
-
-namespace net::in6::config {
-    template class ConfigAddress<net::config::ConfigAddressLocal>;
-} // namespace net::in6::config
