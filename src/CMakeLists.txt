@@ -59,7 +59,8 @@ add_compile_options(
 #    -fno-omit-frame-pointer
 )
 # set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
-# link_libraries(asan)
+#     link_libraries(asan)
+#     link_libraries(ubsan)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

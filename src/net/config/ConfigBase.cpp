@@ -38,8 +38,8 @@ namespace net::config {
         return name;
     }
 
-    int ConfigBase::parse() const {
-        utils::Config::parse();
+    int ConfigBase::parse(bool forceError) const {
+        utils::Config::parse(forceError);
 
         return 0;
     }

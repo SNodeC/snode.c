@@ -40,11 +40,11 @@ namespace net::config {
 
         const std::string& getName() const;
 
-        virtual int parse() const;
+    protected:
+        int parse(bool forceError = false) const;
 
         CLI::App* baseSc = nullptr;
 
-    private:
         std::string name;
     };
 

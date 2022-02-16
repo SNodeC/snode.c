@@ -24,7 +24,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
-#include "utils/Config.h"
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,7 +38,7 @@ namespace net::config {
     template <typename SocketAddress>
     const SocketAddress& ConfigAddress<SocketAddress>::getAddress() {
         if (!initialized) {
-            utils::Config::parse(true); // Try command line parsing honoring required options
+            parse(true); // Try command line parsing honoring required options
             updateFromCommandLine();
             initialized = true;
             updated = true;
