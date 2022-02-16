@@ -65,7 +65,9 @@ namespace core::socket::stream {
             , options(options) {
         }
 
-        virtual ~SocketClient() = default;
+        SocketClient(const SocketClient&) = default;
+
+        ~SocketClient() override = default;
 
         using Super::connect;
 

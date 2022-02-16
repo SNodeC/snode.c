@@ -26,6 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+core::EventMultiplexer& EventDispatcher();
 core::EventMultiplexer& EventDispatcher() {
     static core::epoll::EventMultiplexer eventMultiplexer;
 

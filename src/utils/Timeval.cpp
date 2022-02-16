@@ -50,7 +50,7 @@ namespace utils {
 
     Timeval::Timeval(double time) {
         timeVal.tv_sec = static_cast<time_t>(time);
-        timeVal.tv_usec = static_cast<useconds_t>((time - (double) timeVal.tv_sec) * 1'000'000.0);
+        timeVal.tv_usec = static_cast<useconds_t>((time - static_cast<double>(timeVal.tv_sec)) * 1'000'000.0);
 
         normalize();
     }
@@ -61,7 +61,7 @@ namespace utils {
 
     Timeval Timeval::currentTime() {
         utils::Timeval currentTime;
-        core::system::gettimeofday(&currentTime, NULL);
+        core::system::gettimeofday(&currentTime, nullptr);
 
         return currentTime;
     }

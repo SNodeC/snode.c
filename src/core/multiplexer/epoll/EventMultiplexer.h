@@ -39,7 +39,7 @@ namespace core::epoll {
 
     public:
         EventMultiplexer();
-        ~EventMultiplexer() = default;
+        ~EventMultiplexer() override = default;
 
     private:
         int multiplex(utils::Timeval& tickTimeout) override;

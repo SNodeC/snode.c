@@ -32,6 +32,9 @@ namespace core::socket {
     class ServerSocket {
     protected:
         ServerSocket() = default;
+        ServerSocket(const ServerSocket&) = default;
+
+        virtual ~ServerSocket() = default;
 
     public:
         using Socket = SocketT;

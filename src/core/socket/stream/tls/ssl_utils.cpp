@@ -113,7 +113,7 @@ namespace core::socket::stream::tls {
             bool sslErr = false;
 
             if (server) {
-                SSL_CTX_set_session_id_context(ctx, (const unsigned char*) &sslSessionCtxId, sizeof(sslSessionCtxId));
+                SSL_CTX_set_session_id_context(ctx, reinterpret_cast<const unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
                 sslSessionCtxId++;
             }
             if (!caFile.empty() || !caDir.empty()) {
@@ -196,7 +196,7 @@ namespace core::socket::stream::tls {
             default:
                 ssl_log_warning(message);
                 break;
-        };
+        }
         errno = errnum;
     }
 

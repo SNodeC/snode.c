@@ -69,7 +69,7 @@ namespace web::http {
                 case ParserState::ERROR:
                     parsingError = true;
                     break;
-            };
+            }
         } while (consumed > 0 && parserState != ParserState::BEGIN && !parsingError); // && parserState != ParserState::BEGIN);
     }
 

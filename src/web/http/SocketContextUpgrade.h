@@ -49,7 +49,7 @@ namespace web::http {
             socketContextUpgradeFactory->incRefCount();
         }
 
-        virtual ~SocketContextUpgrade() {
+        ~SocketContextUpgrade() override {
             socketContextUpgradeFactory->decRefCount();
         }
 

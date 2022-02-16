@@ -79,7 +79,7 @@ namespace core::poll {
 
     public:
         EventMultiplexer();
-        ~EventMultiplexer() = default;
+        ~EventMultiplexer() override = default;
 
     private:
         int multiplex(utils::Timeval& tickTimeOut) override;

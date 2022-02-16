@@ -32,6 +32,8 @@ namespace core::pipe {
     class Sink {
     public:
         Sink();
+        Sink(const Sink&) = default;
+
         virtual ~Sink();
 
         virtual void receive(const char* junk, std::size_t junkLen) = 0;

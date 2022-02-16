@@ -32,10 +32,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_READ_INACTIVITY 60
-#define MAX_WRITE_INACTIVITY 60
-#define MAX_OUTOFBAND_INACTIVITY 60
-
 /* Must be implemented in every variant of a multiplexer api */
 core::EventMultiplexer& EventDispatcher();
 

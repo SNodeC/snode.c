@@ -41,7 +41,7 @@ namespace web::websocket::server {
         SubProtocol(const std::string& name);
 
     public:
-        ~SubProtocol();
+        ~SubProtocol() override;
 
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         using Super::sendMessage;

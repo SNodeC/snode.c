@@ -81,7 +81,7 @@ namespace web::websocket {
         SocketContextUpgrade(const SocketContextUpgrade&) = delete;
         SocketContextUpgrade& operator=(const SocketContextUpgrade&) = delete;
 
-        virtual ~SocketContextUpgrade() = default;
+        ~SocketContextUpgrade() override = default;
 
     public:
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {

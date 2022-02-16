@@ -96,7 +96,7 @@ namespace logger {
             case 0:
                 [[fallthrough]];
             default:;
-        };
+        }
 
         el::Loggers::reconfigureLogger("default", conf);
     }

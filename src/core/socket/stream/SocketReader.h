@@ -55,7 +55,7 @@ namespace core::socket::stream {
             enable(Socket::getFd());
         }
 
-        virtual ~SocketReader() = default;
+        ~SocketReader() override = default;
 
     private:
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;

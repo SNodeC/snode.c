@@ -170,11 +170,11 @@ int main(int argc, char* argv[]) {
 
             VLOG(0) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
-            char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
+            char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), nullptr, 0);
             VLOG(0) << "\t   Subject: " + std::string(str);
             OPENSSL_free(str);
 
-            str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
+            str = X509_NAME_oneline(X509_get_issuer_name(client_cert), nullptr, 0);
             VLOG(0) << "\t   Issuer: " + std::string(str);
             OPENSSL_free(str);
 

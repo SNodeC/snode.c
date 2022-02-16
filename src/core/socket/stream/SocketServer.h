@@ -62,7 +62,9 @@ namespace core::socket::stream {
             , options(options) {
         }
 
-        virtual ~SocketServer() = default;
+        SocketServer(const SocketServer&) = default;
+
+        ~SocketServer() override = default;
 
         using Super::listen;
 

@@ -9,16 +9,16 @@
 
 using namespace express;
 
-std::map<std::string, std::string> jalousien = {{"kueche", "kueche"},
-                                                {"strasse", "strasse"},
-                                                {"esstisch", "esstisch"},
-                                                {"balkon", "balkon"},
-                                                {"schlafzimmer", "schlafzimmer"},
-                                                {"arbeitszimmer", "arbeitszimmer"},
-                                                {"comfort", "komfort"},
-                                                {"all", "alle"}};
+static std::map<std::string, std::string> jalousien = {{"kueche", "kueche"},
+                                                       {"strasse", "strasse"},
+                                                       {"esstisch", "esstisch"},
+                                                       {"balkon", "balkon"},
+                                                       {"schlafzimmer", "schlafzimmer"},
+                                                       {"arbeitszimmer", "arbeitszimmer"},
+                                                       {"comfort", "komfort"},
+                                                       {"all", "alle"}};
 
-std::map<std::string, std::string> actions = {{"open", "up"}, {"close", "down"}, {"stop", "stop"}};
+static std::map<std::string, std::string> actions = {{"open", "up"}, {"close", "down"}, {"stop", "stop"}};
 
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
             case 127:
                 res.status(404).send("ERROR not found: " + arguments);
                 break;
-        };
+        }
     });
 
     webApp.use([] APPLICATION(req, res) {

@@ -35,6 +35,8 @@ namespace core {
 
     class Observer {
     public:
+        virtual ~Observer() = default;
+
         bool isObserved() {
             return observationCounter > 0;
         }
@@ -80,7 +82,6 @@ namespace core {
     protected:
         explicit DescriptorEventReceiver(DescriptorEventPublisher& descriptorEventPublisher,
                                          const utils::Timeval& timeout = TIMEOUT::DISABLE);
-        ~DescriptorEventReceiver() = default;
 
         void enable(int fd);
         void disable();

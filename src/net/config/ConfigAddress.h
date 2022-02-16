@@ -39,7 +39,6 @@ namespace net::config {
 
     protected:
         ConfigAddress(const std::string& addressOptionName);
-        virtual ~ConfigAddress() = default;
 
         const SocketAddress& getAddress();
         void setAddress(const SocketAddress& address);

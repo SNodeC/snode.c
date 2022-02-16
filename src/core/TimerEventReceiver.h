@@ -41,7 +41,7 @@ namespace core {
 
         TimerEventReceiver(const utils::Timeval& delay);
 
-        virtual ~TimerEventReceiver();
+        virtual ~TimerEventReceiver() override;
 
         utils::Timeval getTimeout() const;
         void updateTimeout();

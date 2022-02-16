@@ -54,7 +54,7 @@ namespace core::socket::stream {
             suspend();
         }
 
-        virtual ~SocketWriter() = default;
+        ~SocketWriter() override = default;
 
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;

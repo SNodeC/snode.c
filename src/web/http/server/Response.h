@@ -44,8 +44,9 @@ namespace web::http::server {
     class Response : public core::pipe::Sink {
     protected:
         explicit Response(web::http::SocketContext* serverContext);
+        Response(const Response&) = default;
 
-        virtual ~Response() = default;
+        ~Response() override = default;
 
     public:
         void send(const char* junk, std::size_t junkLen);

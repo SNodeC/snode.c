@@ -40,6 +40,8 @@ namespace web::websocket {
         Receiver(const Receiver&) = delete;
         Receiver& operator=(const Receiver&) = delete;
 
+        virtual ~Receiver() = default;
+
         void receive();
 
     private:

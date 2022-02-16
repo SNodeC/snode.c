@@ -36,7 +36,27 @@ add_compile_options(
     -Wpedantic
     -pedantic-errors
     -fexec-charset=UTF-8
-    # -fsanitize=address -fno-omit-frame-pointer
+#    -Weverything
+#    -Wno-c++17-compat
+#    -Wno-c++98-compat
+#    -Wno-c++98-compat-pedantic
+#    -Wno-reserved-identifier
+#    -Wno-shadow-field-in-constructor
+#    -Wno-padded
+#    -Wno-shadow
+#    -Wno-global-constructors
+#    -Wno-shadow-field
+#    -Wno-weak-vtables
+#    -Wno-weak-template-vtables
+#    -Wno-exit-time-destructors
+#    -Wno-missing-prototypes
+#    -Wno-undefined-func-template # has to be investigated why
+#    -Wno-documentation-unknown-command
+#    -Wno-double-promotion
+#    -Wno-covered-switch-default
+#    -Wno-used-but-marked-unused
+#    -fsanitize=address
+#    -fno-omit-frame-pointer
 )
 # set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
 # link_libraries(asan)

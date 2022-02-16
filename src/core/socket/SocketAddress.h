@@ -47,6 +47,8 @@ namespace core::socket {
             *this = sockAddr;
         }
 
+        virtual ~SocketAddress() = default;
+
         SocketAddress& operator=(const SocketAddress& socketAddress) {
             if (this != &socketAddress) {
                 *this = socketAddress.sockAddr;

@@ -36,6 +36,8 @@ namespace net::config {
         ConfigBase() = default;
         explicit ConfigBase(const std::string& name);
 
+        virtual ~ConfigBase() = default;
+
         const std::string& getName() const;
 
         virtual int parse() const;

@@ -80,7 +80,7 @@ namespace core::socket::stream {
             , options(options) {
         }
 
-        virtual ~SocketAcceptor() = default;
+        ~SocketAcceptor() override = default;
 
         void listen(const std::shared_ptr<ServerConfig>& serverConfig, const std::function<void(const SocketAddress&, int)>& onError) {
             this->serverConfig = serverConfig;

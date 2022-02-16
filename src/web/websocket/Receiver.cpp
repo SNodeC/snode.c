@@ -62,7 +62,7 @@ namespace web::websocket {
                     parsingError = true;
                     reset();
                     break;
-            };
+            }
         } while (ret > 0 && parserState != ParserState::BEGIN && !parsingError); // && parserState != ParserState::BEGIN);
     }
 
@@ -225,7 +225,8 @@ namespace web::websocket {
         std::stringstream stringStream;
 
         for (std::size_t i = 0; i < frameLength; i++) {
-            stringStream << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+            stringStream << std::setfill('0') << std::setw(2) << std::hex << static_cast<unsigned int>(static_cast<unsigned char>(frame[i]))
+                         << " ";
 
             if ((i + 1) % modul == 0 || i == frameLength) {
                 stringStream.str("");

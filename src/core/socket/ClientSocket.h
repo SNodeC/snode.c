@@ -31,6 +31,9 @@ namespace core::socket {
     class ClientSocket {
     protected:
         ClientSocket() = default;
+        ClientSocket(const ClientSocket&) = default;
+
+        virtual ~ClientSocket() = default;
 
     public:
         using Socket = SocketT;

@@ -51,7 +51,7 @@ namespace core {
                          DescriptorEventPublisher* const writeDescriptorEventDispatcher,
                          DescriptorEventPublisher* const exceptionDescriptorEventDispatcher);
 
-        ~EventMultiplexer();
+        virtual ~EventMultiplexer();
 
     private:
         class EventQueue {
