@@ -63,10 +63,8 @@ namespace core::poll {
             pollFdIndices[fd].events = event;
 
             ++nextIndex;
-            ++interestCount;
 
             if (nextIndex == pollfds.size()) {
-                VLOG(0) << "Resize : " << nextIndex * 2;
                 pollfd pollFd;
 
                 pollFd.fd = -1;
@@ -96,10 +94,7 @@ namespace core::poll {
             pollfds[pollFdIndex.index].fd = -1; // Compress will keep track of that descriptor
             pollFdIndices.erase(fd);
 
-            --interestCount;
-
-            VLOG(0) << "PollFds size: " << pollfds.size() << " - " << interestCount;
-            if (pollfds.size() > (interestCount * 2) + 1) {
+            if (pollfds.size() > (pollFdIndices.size() * 2) + 1) {
                 compress();
             }
         }
@@ -137,9 +132,7 @@ namespace core::poll {
             }
         }
 
-        VLOG(0) << "Compress: " << pollFdIndices.size() + 1 << " ... " << interestCount + 1;
-
-        pollfds.resize(interestCount + 1);
+        pollfds.resize(pollFdIndices.size() + 1);
 
         pollFdIndices.reserve(pollfds.size());
 
@@ -149,7 +142,7 @@ namespace core::poll {
             }
         }
 
-        nextIndex = interestCount;
+        nextIndex = pollFdIndices.size();
     }
 
     pollfd* PollFds::getEvents() {

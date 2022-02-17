@@ -64,7 +64,6 @@ namespace core::poll {
         nfds_t getCurrentIndex() const;
 
     private:
-        nfds_t interestCount = 0;
         nfds_t nextIndex = 0;
         void compress();
 
