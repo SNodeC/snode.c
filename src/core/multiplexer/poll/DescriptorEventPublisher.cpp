@@ -36,20 +36,20 @@ namespace core::poll {
         , revents(revents) {
     }
 
-    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
-        pollFds.modAdd(eventReceiver, events);
+    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+        pollFds.muxAdd(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
-        pollFds.modDel(eventReceiver, events);
+    void DescriptorEventPublisher::muxDel(core::DescriptorEventReceiver* eventReceiver) {
+        pollFds.muxDel(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
-        pollFds.modOn(eventReceiver, events);
+    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
+        pollFds.muxOn(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
-        pollFds.modOff(eventReceiver, events);
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
+        pollFds.muxOff(eventReceiver, events);
     }
 
     void DescriptorEventPublisher::dispatchActiveEvents() {

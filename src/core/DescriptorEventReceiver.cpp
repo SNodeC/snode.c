@@ -50,7 +50,6 @@ namespace core {
     void DescriptorEventReceiver::enable(int fd) {
         if (!enabled) {
             observedFd = fd;
-            lastTriggered = utils::Timeval::currentTime();
 
             enabled = true;
             descriptorEventPublisher.enable(this);
@@ -59,7 +58,9 @@ namespace core {
         }
     }
 
-    void DescriptorEventReceiver::setEnabled() {
+    void DescriptorEventReceiver::setEnabled(const utils::Timeval& currentTime) {
+        lastTriggered = currentTime;
+
         observed();
     }
 
@@ -87,8 +88,11 @@ namespace core {
     void DescriptorEventReceiver::suspend() {
         if (enabled) {
             if (!suspended) {
-                descriptorEventPublisher.suspend(this);
                 suspended = true;
+
+                if (isObserved()) {
+                    descriptorEventPublisher.suspend(this);
+                }
             } else {
                 LOG(WARNING) << "Double suspend: " << getName() << ": fd = " << observedFd;
             }
@@ -100,9 +104,12 @@ namespace core {
     void DescriptorEventReceiver::resume() {
         if (enabled) {
             if (suspended) {
-                descriptorEventPublisher.resume(this);
                 suspended = false;
                 lastTriggered = utils::Timeval::currentTime();
+
+                if (isObserved()) {
+                    descriptorEventPublisher.resume(this);
+                }
             } else {
                 LOG(WARNING) << "Double resume: " << getName() << ": fd = " << observedFd;
             }

@@ -51,7 +51,7 @@ namespace core::poll {
         pollFdIndices.reserve(1);
     }
 
-    void PollFds::modAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFds::muxAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
@@ -84,7 +84,7 @@ namespace core::poll {
         }
     }
 
-    void PollFds::modDel(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFds::muxDel(core::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
@@ -106,13 +106,13 @@ namespace core::poll {
         }
     }
 
-    void PollFds::modOn(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFds::muxOn(core::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         pollfds[pollFdIndices.find(fd)->second.index].events |= event;
     }
 
-    void PollFds::modOff(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFds::muxOff(core::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         pollfds[pollFdIndices.find(fd)->second.index].events &= static_cast<short>(~event); // Tilde promotes to int

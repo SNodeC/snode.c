@@ -46,14 +46,14 @@ namespace core::epoll {
             explicit EPollEvents(int& epfd, uint32_t event);
 
         private:
-            void mod(core::DescriptorEventReceiver* eventReceiver, uint32_t events);
+            void muxMod(core::DescriptorEventReceiver* eventReceiver, uint32_t events);
 
         public:
-            void modAdd(core::DescriptorEventReceiver* eventReceiver);
-            void modDel(core::DescriptorEventReceiver* eventReceiver);
+            void muxAdd(core::DescriptorEventReceiver* eventReceiver);
+            void muxDel(core::DescriptorEventReceiver* eventReceiver);
 
-            void modOn(core::DescriptorEventReceiver* eventReceiver);
-            void modOff(core::DescriptorEventReceiver* eventReceiver);
+            void muxOn(core::DescriptorEventReceiver* eventReceiver);
+            void muxOff(core::DescriptorEventReceiver* eventReceiver);
 
             int getEPFd() const;
             epoll_event* getEvents();
@@ -71,10 +71,10 @@ namespace core::epoll {
         explicit DescriptorEventPublisher(int& epfd, uint32_t events);
 
     private:
-        void modAdd(core::DescriptorEventReceiver* eventReceiver) override;
-        void modDel(core::DescriptorEventReceiver* eventReceiver) override;
-        void modOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void modOff(core::DescriptorEventReceiver* eventReceiver) override;
+        void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
+        void muxDel(core::DescriptorEventReceiver* eventReceiver) override;
+        void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
+        void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
 
         void dispatchActiveEvents() override;
 

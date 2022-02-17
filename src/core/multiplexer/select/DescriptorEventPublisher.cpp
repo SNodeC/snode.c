@@ -60,19 +60,19 @@ namespace core::select {
         : fdSet(fdSet) {
     }
 
-    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxDel(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 

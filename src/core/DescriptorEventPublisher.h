@@ -68,23 +68,14 @@ namespace core {
         void stop();
 
     protected:
-        virtual void modAdd(DescriptorEventReceiver* eventReceiver) = 0;
-        virtual void modDel(DescriptorEventReceiver* eventReceiver) = 0;
-        virtual void modOn(DescriptorEventReceiver* eventReceiver) = 0;
-        virtual void modOff(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void muxAdd(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void muxDel(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void muxOn(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void muxOff(DescriptorEventReceiver* eventReceiver) = 0;
 
-        class EventReceiverList : public std::list<DescriptorEventReceiver*> {
-        public:
-            using std::list<DescriptorEventReceiver*>::begin;
-            using std::list<DescriptorEventReceiver*>::end;
-            using std::list<DescriptorEventReceiver*>::front;
-
-            bool contains(DescriptorEventReceiver* descriptorEventReceiver) const;
-        };
-
-        std::map<int, EventReceiverList> enabledEventReceiver;
-        std::map<int, EventReceiverList> observedEventReceiver;
-        std::map<int, EventReceiverList> disabledEventReceiver;
+        std::list<DescriptorEventReceiver*> enabledEventReceiver;
+        std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceiver;
+        std::list<DescriptorEventReceiver*> disabledEventReceiver;
 
         unsigned long eventCounter = 0;
     };

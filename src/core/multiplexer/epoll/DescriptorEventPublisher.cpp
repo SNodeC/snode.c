@@ -36,7 +36,7 @@ namespace core::epoll {
         ePollEvents.resize(1);
     }
 
-    void DescriptorEventPublisher::EPollEvents::modAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -49,11 +49,11 @@ namespace core::epoll {
                 ePollEvents.resize(ePollEvents.size() * 2);
             }
         } else if (errno == EEXIST) {
-            mod(eventReceiver, events);
+            muxMod(eventReceiver, events);
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::modDel(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::muxDel(core::DescriptorEventReceiver* eventReceiver) {
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
             interestCount--;
         }
@@ -63,7 +63,7 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::mod(core::DescriptorEventReceiver* eventReceiver, uint32_t events) {
+    void DescriptorEventPublisher::EPollEvents::muxMod(core::DescriptorEventReceiver* eventReceiver, uint32_t events) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
@@ -72,12 +72,12 @@ namespace core::epoll {
         core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, eventReceiver->getRegisteredFd(), &ePollEvent);
     }
 
-    void DescriptorEventPublisher::EPollEvents::modOn(core::DescriptorEventReceiver* eventReceiver) {
-        mod(eventReceiver, events);
+    void DescriptorEventPublisher::EPollEvents::muxOn(core::DescriptorEventReceiver* eventReceiver) {
+        muxMod(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::EPollEvents::modOff(core::DescriptorEventReceiver* eventReceiver) {
-        mod(eventReceiver, 0);
+    void DescriptorEventPublisher::EPollEvents::muxOff(core::DescriptorEventReceiver* eventReceiver) {
+        muxMod(eventReceiver, 0);
     }
 
     int DescriptorEventPublisher::EPollEvents::getEPFd() const {
@@ -96,20 +96,20 @@ namespace core::epoll {
         : ePollEvents(epfd, events) {
     }
 
-    void DescriptorEventPublisher::modAdd(core::DescriptorEventReceiver* eventReceiver) {
-        ePollEvents.modAdd(eventReceiver);
+    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+        ePollEvents.muxAdd(eventReceiver);
     }
 
-    void DescriptorEventPublisher::modDel(core::DescriptorEventReceiver* eventReceiver) {
-        ePollEvents.modDel(eventReceiver);
+    void DescriptorEventPublisher::muxDel(core::DescriptorEventReceiver* eventReceiver) {
+        ePollEvents.muxDel(eventReceiver);
     }
 
-    void DescriptorEventPublisher::modOn(core::DescriptorEventReceiver* eventReceiver) {
-        ePollEvents.modOn(eventReceiver);
+    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
+        ePollEvents.muxOn(eventReceiver);
     }
 
-    void DescriptorEventPublisher::modOff(core::DescriptorEventReceiver* eventReceiver) {
-        ePollEvents.modOff(eventReceiver);
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
+        ePollEvents.muxOff(eventReceiver);
     }
 
     void DescriptorEventPublisher::dispatchActiveEvents() {
