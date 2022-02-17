@@ -35,7 +35,14 @@
 namespace core {
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* eventReceiver) {
-        enabledEventReceiver.push_back(eventReceiver);
+        int fd = eventReceiver->getRegisteredFd();
+        VLOG(0) << "Observed: " << eventReceiver->getName() << ", fd = " << fd;
+        eventReceiver->setEnabled();
+        observedEventReceiver[fd].push_front(eventReceiver);
+        muxAdd(eventReceiver);
+        if (eventReceiver->isSuspended()) {
+            muxOff(eventReceiver);
+        }
     }
 
     void DescriptorEventPublisher::disable(DescriptorEventReceiver* eventReceiver) {
@@ -50,26 +57,25 @@ namespace core {
         muxOn(eventReceiver);
     }
 
-    void DescriptorEventPublisher::observeEnabledEvents(const utils::Timeval& currentTime) {
-        for (DescriptorEventReceiver* eventReceiver : enabledEventReceiver) {
-            int fd = eventReceiver->getRegisteredFd();
-            VLOG(0) << "Observed: " << eventReceiver->getName() << ", fd = " << fd;
-            eventReceiver->setEnabled(currentTime);
-            observedEventReceiver[fd].push_front(eventReceiver);
-            muxAdd(eventReceiver);
-            if (eventReceiver->isSuspended()) {
-                muxOff(eventReceiver);
-            }
-        }
-        enabledEventReceiver.clear();
-    }
-
     void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
-
+    /*
+        void DescriptorEventPublisher::newUnobserveDisabledEvents([[maybe_unused]] const utils::Timeval& currentTime) {
+            std::erase_if(observedEventReceiver, [](auto& observedEventReceiverEntry) -> bool {
+                auto& [fd, observedEventReceiverList] = observedEventReceiverEntry;
+                std::erase_if(observedEventReceiverList, [fd](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
+                    return !descriptorEventReceiver->isEnabled();
+                });
+                if (observedEventReceiverList.empty()) {
+    //                muxDel(eventReceiver);
+                }
+                return observedEventReceiverList.empty();
+            });
+        }
+    */
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (DescriptorEventReceiver* eventReceiver : disabledEventReceiver) {
             int fd = eventReceiver->getRegisteredFd();
