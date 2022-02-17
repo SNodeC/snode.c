@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -43,20 +45,29 @@ namespace core {
     }
 
     void DescriptorEventReceiver::enable(int fd) {
-        this->registeredFd = fd;
-        observed();
+        if (!enabled) {
+            this->registeredFd = fd;
 
-        descriptorEventPublisher.enable(this);
-        enabled = true;
+            observed();
+
+            enabled = true;
+            descriptorEventPublisher.enable(this);
+        } else {
+            LOG(WARNING) << "EventReceiver double enable " << registeredFd;
+        }
     }
 
     void DescriptorEventReceiver::disable() {
-        if (!isSuspended()) {
-            suspend();
-        }
+        if (enabled) {
+            if (!isSuspended()) {
+                suspend();
+            }
 
-        descriptorEventPublisher.disable(this);
-        enabled = false;
+            enabled = false;
+            descriptorEventPublisher.disable(this);
+        } else {
+            LOG(WARNING) << "EventReceiver double disable " << registeredFd;
+        }
     }
 
     void DescriptorEventReceiver::disabled() {
@@ -107,10 +118,12 @@ namespace core {
     }
 
     void DescriptorEventReceiver::dispatch(const utils::Timeval& currentTime) {
-        eventCounter++;
-        triggered(currentTime);
+        if (!isSuspended()) {
+            eventCounter++;
+            triggered(currentTime);
 
-        dispatchEvent();
+            dispatchEvent();
+        }
     }
 
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {

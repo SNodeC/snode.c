@@ -70,14 +70,14 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::resume();
                 break;
             case SSL_ERROR_NONE:
+                onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onSuccess();
                 break;
             default:
+                onError(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onError(sslErr);
                 break;
         }
     }
@@ -98,14 +98,14 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::resume();
                 break;
             case SSL_ERROR_NONE:
+                onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onSuccess();
                 break;
             default:
+                onError(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onError(sslErr);
                 break;
         }
     }
@@ -126,14 +126,14 @@ namespace core::socket::stream::tls {
             case SSL_ERROR_WANT_WRITE:
                 break;
             case SSL_ERROR_NONE:
+                onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onSuccess();
                 break;
             default:
+                onError(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onError(sslErr);
                 break;
         }
     }
@@ -141,18 +141,18 @@ namespace core::socket::stream::tls {
     void TLSHandshake::readTimeout() {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
+            onTimeout();
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
-            onTimeout();
         }
     }
 
     void TLSHandshake::writeTimeout() {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
+            onTimeout();
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
-            onTimeout();
         }
     }
 

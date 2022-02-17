@@ -20,6 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <openssl/ssl.h> // IWYU pragma: keep
 
 // IWYU pragma: no_include <openssl/ssl3.h>
@@ -70,14 +72,14 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::resume();
                 break;
             case SSL_ERROR_NONE:
+                onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onSuccess();
                 break;
             default:
+                onError(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onError(sslErr);
                 break;
         }
     }
@@ -98,14 +100,14 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::resume();
                 break;
             case SSL_ERROR_NONE:
+                onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onSuccess();
                 break;
             default:
+                onError(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onError(sslErr);
                 break;
         }
     }
@@ -126,14 +128,14 @@ namespace core::socket::stream::tls {
             case SSL_ERROR_WANT_WRITE:
                 break;
             case SSL_ERROR_NONE:
+                onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onSuccess();
                 break;
             default:
+                onError(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
-                onError(sslErr);
                 break;
         }
     }
@@ -141,22 +143,23 @@ namespace core::socket::stream::tls {
     void TLSShutdown::readTimeout() {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
+            onTimeout();
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
-            onTimeout();
         }
     }
 
     void TLSShutdown::writeTimeout() {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
+            onTimeout();
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
-            onTimeout();
         }
     }
 
     void TLSShutdown::unobservedEvent() {
+        VLOG(0) << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% " << this;
         delete this;
     }
 

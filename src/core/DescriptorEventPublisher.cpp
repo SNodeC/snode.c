@@ -43,12 +43,9 @@ namespace core {
         if (disabledEventReceiver.contains(fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as disable
             disabledEventReceiver[fd].remove(eventReceiver);
-        } else if (!eventReceiver->isEnabled() &&
-                   (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
-            // next tick as disable
-            enabledEventReceiver[fd].push_back(eventReceiver);
         } else {
-            LOG(WARNING) << "EventReceiver double enable " << fd;
+            // not same tick as disable
+            enabledEventReceiver[fd].push_back(eventReceiver);
         }
     }
 
@@ -58,15 +55,13 @@ namespace core {
         if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
             eventReceiver->disabled();
-            if (eventReceiver->getObservationCounter() > 0) {
-                enabledEventReceiver[fd].remove(eventReceiver);
+            enabledEventReceiver[fd].remove(eventReceiver);
+            if (eventReceiver->getObservationCounter() == 0) {
+                eventReceiver->unobservedEvent();
             }
-        } else if (eventReceiver->isEnabled() &&
-                   (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
-            // next tick as enable
-            disabledEventReceiver[fd].push_back(eventReceiver);
         } else {
-            LOG(WARNING) << "EventReceiver double disable " << fd;
+            // not same tick as enable
+            disabledEventReceiver[fd].push_back(eventReceiver);
         }
     }
 
@@ -97,6 +92,7 @@ namespace core {
     void DescriptorEventPublisher::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) { // cppcheck-suppress unassignedVariable
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
+                VLOG(0) << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& " << eventReceiver;
                 if (eventReceiver->isEnabled()) {
                     eventReceiver->triggered(currentTime);
                     observedEventReceiver[fd].push_front(eventReceiver);
@@ -105,6 +101,7 @@ namespace core {
                         modOff(eventReceiver);
                     }
                 } else {
+                    VLOG(0) << "?????????????????????????????? " << eventReceiver;
                     eventReceiver->unobservedEvent();
                 }
             }

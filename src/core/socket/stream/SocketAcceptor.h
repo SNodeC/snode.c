@@ -40,7 +40,7 @@ namespace core::socket {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_ACCEPTS_PER_TICK 20
+#define MAX_ACCEPTS_PER_TICK 1
 
 namespace core::socket::stream {
 
