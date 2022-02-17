@@ -25,7 +25,7 @@ namespace core {
     class DescriptorEventReceiver;
 
     namespace poll {
-        class PollFds;
+        class PollFdsManager;
     } // namespace poll
 } // namespace core
 
@@ -40,7 +40,7 @@ namespace core::poll {
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     public:
-        DescriptorEventPublisher(core::poll::PollFds& pollFds, short events, short revents);
+        DescriptorEventPublisher(core::poll::PollFdsManager& pollFds, short events, short revents);
 
     private:
         void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
@@ -50,7 +50,7 @@ namespace core::poll {
 
         void dispatchActiveEvents() override;
 
-        core::poll::PollFds& pollFds;
+        core::poll::PollFdsManager& pollFds;
         short events;
         short revents;
     };

@@ -30,7 +30,7 @@
 
 namespace core::poll {
 
-    DescriptorEventPublisher::DescriptorEventPublisher(PollFds& pollFds, short events, short revents)
+    DescriptorEventPublisher::DescriptorEventPublisher(PollFdsManager& pollFds, short events, short revents)
         : pollFds(pollFds)
         , events(events)
         , revents(revents) {
@@ -55,10 +55,10 @@ namespace core::poll {
     void DescriptorEventPublisher::dispatchActiveEvents() {
         pollfd* pollfds = pollFds.getEvents();
 
-        std::unordered_map<int, PollFds::PollFdIndex> pollFdsIndices = pollFds.getPollFdIndices();
+        const std::unordered_map<int, PollFdsManager::PollFdIndex>& pollFdsIndices = pollFds.getPollFdIndices();
 
         for (auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unassignedVariable
-            pollfd& pollFd = pollfds[pollFdsIndices[fd].index];
+            pollfd& pollFd = pollfds[pollFdsIndices.find(fd)->second.index];
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & revents) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();

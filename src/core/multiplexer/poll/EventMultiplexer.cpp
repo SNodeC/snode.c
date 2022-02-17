@@ -40,7 +40,7 @@ core::EventMultiplexer& EventDispatcher() {
 
 namespace core::poll {
 
-    PollFds::PollFds() {
+    PollFdsManager::PollFdsManager() {
         pollfd pollFd;
 
         pollFd.fd = -1;
@@ -51,7 +51,7 @@ namespace core::poll {
         pollFdIndices.reserve(1);
     }
 
-    void PollFds::muxAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFdsManager::muxAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (!pollFdIndices.contains(fd)) {
@@ -75,7 +75,7 @@ namespace core::poll {
         }
     }
 
-    void PollFds::muxDel(int fd, short event) {
+    void PollFdsManager::muxDel(int fd, short event) {
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
         PollFdIndex& pollFdIndex = itPollFdIndex->second;
@@ -93,17 +93,17 @@ namespace core::poll {
         }
     }
 
-    void PollFds::muxOn(core::DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFdsManager::muxOn(core::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
         pollfds[pollFdIndices.find(fd)->second.index].events |= event;
     }
 
-    void PollFds::muxOff(int fd, short event) {
+    void PollFdsManager::muxOff(int fd, short event) {
         pollfds[pollFdIndices.find(fd)->second.index].events &= static_cast<short>(~event); // Tilde promotes to int
     }
 
-    void PollFds::compress() {
+    void PollFdsManager::compress() {
         remove_if(pollfds.begin(), pollfds.end(), [](const pollfd& pollFd) -> bool {
             return pollFd.fd < 0;
         });
@@ -121,26 +121,26 @@ namespace core::poll {
         nextIndex = pollFdIndices.size();
     }
 
-    pollfd* PollFds::getEvents() {
+    pollfd* PollFdsManager::getEvents() {
         return pollfds.data();
     }
 
-    const std::unordered_map<int, PollFds::PollFdIndex>& PollFds::getPollFdIndices() const {
+    const std::unordered_map<int, PollFdsManager::PollFdIndex>& PollFdsManager::getPollFdIndices() const {
         return pollFdIndices;
     }
 
-    nfds_t PollFds::getCurrentIndex() const {
+    nfds_t PollFdsManager::getCurrentIndex() const {
         return nextIndex;
     }
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::poll::DescriptorEventPublisher(pollFds, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
-                                 new core::poll::DescriptorEventPublisher(pollFds, POLLOUT, POLLOUT),
-                                 new core::poll::DescriptorEventPublisher(pollFds, POLLPRI, POLLPRI)) {
+        : core::EventMultiplexer(new core::poll::DescriptorEventPublisher(pollFdsManager, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
+                                 new core::poll::DescriptorEventPublisher(pollFdsManager, POLLOUT, POLLOUT),
+                                 new core::poll::DescriptorEventPublisher(pollFdsManager, POLLPRI, POLLPRI)) {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
-        return core::system::poll(pollFds.getEvents(), pollFds.getCurrentIndex(), tickTimeOut.ms());
+        return core::system::poll(pollFdsManager.getEvents(), pollFdsManager.getCurrentIndex(), tickTimeOut.ms());
     }
 
     void EventMultiplexer::dispatchActiveEvents(int count) {

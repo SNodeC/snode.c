@@ -40,7 +40,7 @@ namespace utils {
 
 namespace core::poll {
 
-    class PollFds {
+    class PollFdsManager {
     public:
         struct PollFdIndex {
             using pollfds_size_type = std::vector<pollfd>::size_type;
@@ -50,7 +50,7 @@ namespace core::poll {
         };
 
         using pollfds_size_type = std::vector<pollfd>::size_type;
-        explicit PollFds();
+        explicit PollFdsManager();
 
         void muxAdd(core::DescriptorEventReceiver* eventReceiver, short event);
         void muxDel(int fd, short event);
@@ -84,7 +84,7 @@ namespace core::poll {
         void dispatchActiveEvents(int count) override;
 
     private:
-        PollFds pollFds;
+        PollFdsManager pollFdsManager;
     };
 
 } // namespace core::poll
