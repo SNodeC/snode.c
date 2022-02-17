@@ -19,7 +19,7 @@
 #ifndef CORE_FILE_FILEREADER_H
 #define CORE_FILE_FILEREADER_H
 
-#include "core/eventreceiver/ReadEventReceiver.h"
+#include "core/EventReceiver.h"
 #include "core/file/File.h" // IWYU pragma: export
 #include "core/pipe/Source.h"
 
@@ -37,7 +37,7 @@ namespace core::pipe {
 namespace core::file {
 
     class FileReader
-        : public core::eventreceiver::ReadEventReceiver
+        : public core::EventReceiver
         , public core::pipe::Source
         , virtual public File {
     protected:
@@ -46,12 +46,7 @@ namespace core::file {
     public:
         static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
 
-        void readEvent() override;
-
-    private:
-        void terminate() override;
-
-        void unobservedEvent() override;
+        void dispatch(const utils::Timeval& currentTime) override;
     };
 
 } // namespace core::file

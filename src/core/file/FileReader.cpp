@@ -32,8 +32,6 @@ namespace core::file {
 
     FileReader::FileReader(int fd, core::pipe::Sink& sink)
         : Descriptor(fd) {
-        ReadEventReceiver::enable(fd);
-        ReadEventReceiver::suspend();
         Source::connect(sink);
 
         publish();
@@ -53,36 +51,26 @@ namespace core::file {
         return fileReader;
     }
 
-    void FileReader::readEvent() {
+    void FileReader::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static char junk[MFREADSIZE];
 
         ssize_t ret = core::system::read(getFd(), junk, MFREADSIZE);
 
         if (ret > 0) {
-            if (this->send(junk, static_cast<std::size_t>(ret)) < 0) {
-                ReadEventReceiver::disable();
+            if (this->send(junk, static_cast<std::size_t>(ret)) >= 0) {
+                publish();
             } else {
-                if (isEnabled()) {
-                    publish();
-                }
+                delete this;
             }
         } else {
-            ReadEventReceiver::disable();
             if (ret == 0) {
                 this->eof();
             } else {
                 this->error(errno);
             }
+            delete this;
         }
-    }
-
-    void FileReader::terminate() {
-        core::eventreceiver::ReadEventReceiver::terminate();
-    }
-
-    void FileReader::unobservedEvent() {
-        delete this;
     }
 
 } // namespace core::file
