@@ -34,27 +34,27 @@
 
 namespace core {
 
-    void DescriptorEventPublisher::enable(DescriptorEventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-        VLOG(0) << "Observed: " << eventReceiver->getName() << ", fd = " << fd;
-        eventReceiver->setEnabled();
-        observedEventReceivers[fd].push_front(eventReceiver);
-        muxAdd(eventReceiver);
-        if (eventReceiver->isSuspended()) {
+    void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
+        int fd = descriptorEventReceiver->getRegisteredFd();
+        VLOG(0) << "Observed: " << descriptorEventReceiver->getName() << ", fd = " << fd;
+        descriptorEventReceiver->setEnabled();
+        observedEventReceivers[fd].push_front(descriptorEventReceiver);
+        muxAdd(descriptorEventReceiver);
+        if (descriptorEventReceiver->isSuspended()) {
             muxOff(fd);
         }
     }
 
-    void DescriptorEventPublisher::disable() {
-        observedEventReceiverMapDirty = true;
+    void DescriptorEventPublisher::disable([[maybe_unused]] DescriptorEventReceiver* descriptorEventReceiver) {
+        observedEventReceiversDirty = true;
     }
 
-    void DescriptorEventPublisher::suspend(DescriptorEventReceiver* eventReceiver) {
-        muxOff(eventReceiver->getRegisteredFd());
+    void DescriptorEventPublisher::suspend(DescriptorEventReceiver* descriptorEventReceiver) {
+        muxOff(descriptorEventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::resume(DescriptorEventReceiver* eventReceiver) {
-        muxOn(eventReceiver);
+    void DescriptorEventPublisher::resume(DescriptorEventReceiver* descriptorEventReceiver) {
+        muxOn(descriptorEventReceiver);
     }
 
     void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
@@ -64,7 +64,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        if (observedEventReceiverMapDirty) {
+        if (observedEventReceiversDirty) {
             std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
                 auto& [fdTmp, observedEventReceiverList] = observedEventReceiversEntry; // cppcheck-suppress constVariable
                 int fd = fdTmp; // Needed because clang did not capture compound initialized variables. Bug in clang?
@@ -82,16 +82,17 @@ namespace core {
                 if (observedEventReceiverList.empty()) {
                     muxDel(fd);
                 } else {
-                    observedEventReceivers[fd].front()->triggered(currentTime);
-                    if (!observedEventReceivers[fd].front()->isSuspended()) {
-                        muxOn(observedEventReceivers[fd].front());
+                    DescriptorEventReceiver* descriptorEventReceiver = observedEventReceivers[fd].front();
+                    descriptorEventReceiver->triggered(currentTime);
+                    if (!descriptorEventReceiver->isSuspended()) {
+                        muxOn(descriptorEventReceiver);
                     } else {
                         muxOff(fd);
                     }
                 }
                 return observedEventReceiverList.empty();
             });
-            observedEventReceiverMapDirty = false;
+            observedEventReceiversDirty = false;
         }
     }
 

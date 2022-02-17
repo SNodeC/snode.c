@@ -30,7 +30,7 @@ namespace core::eventreceiver {
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const std::string& name, const utils::Timeval& timeout)
         : core::DescriptorEventReceiver(
               "ExceptionalConditionEventReceiver: " + name,
-              EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::EX),
+              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::EX),
               timeout) {
     }
 

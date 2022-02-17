@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Timeval.h" // IWYU pragma: keep
 
 #include <compare> // for operator<, __synth3way_t, operator>=
@@ -65,6 +66,7 @@ namespace core::poll {
             ++interestCount;
 
             if (nextIndex == pollfds.size()) {
+                VLOG(0) << "Resize : " << nextIndex * 2;
                 pollfd pollFd;
 
                 pollFd.fd = -1;
@@ -96,6 +98,7 @@ namespace core::poll {
 
             --interestCount;
 
+            VLOG(0) << "PollFds size: " << pollfds.size() << " - " << interestCount;
             if (pollfds.size() > (interestCount * 2) + 1) {
                 compress();
             }
@@ -134,9 +137,9 @@ namespace core::poll {
             }
         }
 
-        while (pollfds.size() > (pollFdIndices.size() * 2) + 1) {
-            pollfds.resize(pollfds.size() / 2);
-        }
+        VLOG(0) << "Compress: " << pollFdIndices.size() + 1 << " ... " << interestCount + 1;
+
+        pollfds.resize(interestCount + 1);
 
         pollFdIndices.reserve(pollfds.size());
 

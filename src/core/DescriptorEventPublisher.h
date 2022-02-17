@@ -50,10 +50,10 @@ namespace core {
 
         void publish(Event* event);
 
-        void enable(DescriptorEventReceiver* eventReceiver);
-        void disable();
-        void suspend(DescriptorEventReceiver* eventReceiver);
-        void resume(DescriptorEventReceiver* eventReceiver);
+        void enable(DescriptorEventReceiver* descriptorEventReceiver);
+        void disable(DescriptorEventReceiver *descriptorEventReceiver);
+        void suspend(DescriptorEventReceiver* descriptorEventReceiver);
+        void resume(DescriptorEventReceiver* descriptorEventReceiver);
 
         virtual void dispatchActiveEvents() = 0;
         void checkTimedOutEvents(const utils::Timeval& currentTime);
@@ -67,15 +67,15 @@ namespace core {
         void stop();
 
     protected:
-        virtual void muxAdd(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void muxAdd(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxDel(int fd) = 0;
-        virtual void muxOn(DescriptorEventReceiver* eventReceiver) = 0;
+        virtual void muxOn(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxOff(int fd) = 0;
 
         std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceivers;
 
         unsigned long eventCounter = 0;
-        bool observedEventReceiverMapDirty = false;
+        bool observedEventReceiversDirty = false;
     };
 
 } // namespace core
