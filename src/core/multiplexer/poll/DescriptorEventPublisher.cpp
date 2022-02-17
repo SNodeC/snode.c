@@ -40,16 +40,16 @@ namespace core::poll {
         pollFds.muxAdd(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::muxDel(core::DescriptorEventReceiver* eventReceiver) {
-        pollFds.muxDel(eventReceiver, events);
+    void DescriptorEventPublisher::muxDel(int fd) {
+        pollFds.muxDel(fd, events);
     }
 
     void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.muxOn(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
-        pollFds.muxOff(eventReceiver, events);
+    void DescriptorEventPublisher::muxOff(int fd) {
+        pollFds.muxOff(fd, events);
     }
 
     void DescriptorEventPublisher::dispatchActiveEvents() {

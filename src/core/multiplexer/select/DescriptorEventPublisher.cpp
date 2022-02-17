@@ -64,16 +64,16 @@ namespace core::select {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::muxDel(core::DescriptorEventReceiver* eventReceiver) {
-        fdSet.clr(eventReceiver->getRegisteredFd());
+    void DescriptorEventPublisher::muxDel(int fd) {
+        fdSet.clr(fd);
     }
 
     void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
-        fdSet.clr(eventReceiver->getRegisteredFd());
+    void DescriptorEventPublisher::muxOff(int fd) {
+        fdSet.clr(fd);
     }
 
     void DescriptorEventPublisher::dispatchActiveEvents() {

@@ -53,9 +53,9 @@ namespace core::poll {
         explicit PollFds();
 
         void muxAdd(core::DescriptorEventReceiver* eventReceiver, short event);
-        void muxDel(core::DescriptorEventReceiver* eventReceiver, short event);
+        void muxDel(int fd, short event);
         void muxOn(core::DescriptorEventReceiver* eventReceiver, short event);
-        void muxOff(core::DescriptorEventReceiver* eventReceiver, short event);
+        void muxOff(int fd, short event);
 
         pollfd* getEvents();
 

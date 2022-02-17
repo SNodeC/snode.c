@@ -51,7 +51,7 @@ namespace core {
     }
 
     void TimerEventReceiver::enable() {
-        timerEventPublisher.add(this);
+        timerEventPublisher.insert(this);
     }
 
     void TimerEventReceiver::update() {

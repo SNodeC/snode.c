@@ -98,7 +98,7 @@ namespace core {
     private:
         void dispatch(const utils::Timeval& currentTime) override;
         void triggered(const utils::Timeval& currentTime);
-        void setEnabled(const utils::Timeval& currentTime);
+        void setEnabled(const utils::Timeval& currentTime = utils::Timeval::currentTime());
         void setDisabled();
 
         virtual void dispatchEvent() = 0;
