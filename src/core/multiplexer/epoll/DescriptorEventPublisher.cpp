@@ -117,7 +117,7 @@ namespace core::epoll {
 
         for (int i = 0; i < count; i++) {
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
-            if (eventReceiver != nullptr /*&& !eventReceiver->isSuspended()*/) {
+            if (eventReceiver != nullptr) {
                 eventCounter++;
                 eventReceiver->publish();
             }

@@ -33,7 +33,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 /* Must be implemented in every variant of a multiplexer api */
-core::EventMultiplexer& EventDispatcher();
+core::EventMultiplexer& EventMultiplexer();
 
 namespace core {
 
@@ -54,7 +54,7 @@ namespace core {
     }
 
     EventLoop::EventLoop()
-        : eventMultiplexer(::EventDispatcher())
+        : eventMultiplexer(::EventMultiplexer())
 
     {
     }
@@ -138,7 +138,7 @@ namespace core {
                     LOG(INFO) << "EventLoop: No Observer - exiting";
                     break;
                 case TickStatus::ERROR:
-                    PLOG(ERROR) << "EventDispatcher::dispatch()";
+                    PLOG(ERROR) << "EventPublisher::publish()";
                     break;
             }
 

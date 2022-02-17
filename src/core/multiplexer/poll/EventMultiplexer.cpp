@@ -32,7 +32,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-core::EventMultiplexer& EventDispatcher() {
+core::EventMultiplexer& EventMultiplexer() {
     static core::poll::EventMultiplexer eventMultiplexer;
 
     return eventMultiplexer;
@@ -145,7 +145,7 @@ namespace core::poll {
 
     void EventMultiplexer::dispatchActiveEvents(int count) {
         if (count > 0) {
-            for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublisher) {
+            for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
                 descriptorEventPublisher->dispatchActiveEvents();
             }
         }

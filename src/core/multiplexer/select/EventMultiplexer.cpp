@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-core::EventMultiplexer& EventDispatcher() {
+core::EventMultiplexer& EventMultiplexer() {
     static core::select::EventMultiplexer eventMultiplexer;
 
     return eventMultiplexer;
@@ -46,8 +46,8 @@ namespace core::select {
 
     void EventMultiplexer::dispatchActiveEvents(int count) {
         if (count > 0) {
-            for (core::DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
-                eventMultiplexer->dispatchActiveEvents();
+            for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+                descriptorEventPublisher->dispatchActiveEvents();
             }
         }
     }

@@ -35,23 +35,22 @@
 
 namespace core {
 
-    core::EventMultiplexer::EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventDispatcher,
-                                             DescriptorEventPublisher* const writeDescriptorEventDispatcher,
-                                             DescriptorEventPublisher* const exceptionDescriptorEventDispatcher)
-        : descriptorEventPublisher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
+    core::EventMultiplexer::EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventPublisher,
+                                             DescriptorEventPublisher* const writeDescriptorEventPublisher,
+                                             DescriptorEventPublisher* const exceptionDescriptorEventPublisher)
+        : descriptorEventPublishers{readDescriptorEventPublisher, writeDescriptorEventPublisher, exceptionDescriptorEventPublisher}
         , timerEventPublisher(new core::TimerEventPublisher()) {
     }
 
     EventMultiplexer::~EventMultiplexer() {
-        for (DescriptorEventPublisher* descriptorEventPublisher : descriptorEventPublisher) {
+        for (DescriptorEventPublisher* descriptorEventPublisher : descriptorEventPublishers) {
             delete descriptorEventPublisher;
         }
-
         delete timerEventPublisher;
     }
 
     DescriptorEventPublisher& EventMultiplexer::getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE dispType) {
-        return *descriptorEventPublisher[dispType];
+        return *descriptorEventPublishers[dispType];
     }
 
     core::TimerEventPublisher& EventMultiplexer::getTimerEventPublisher() {
@@ -67,8 +66,8 @@ namespace core {
     }
 
     int EventMultiplexer::getObservedEventReceiverCount() {
-        return std::accumulate(descriptorEventPublisher.begin(),
-                               descriptorEventPublisher.end(),
+        return std::accumulate(descriptorEventPublishers.begin(),
+                               descriptorEventPublishers.end(),
                                0,
                                [](int count, DescriptorEventPublisher* descriptorEventPublisher) -> int {
                                    return count + descriptorEventPublisher->getObservedEventReceiverCount();
@@ -76,8 +75,8 @@ namespace core {
     }
 
     int EventMultiplexer::getMaxFd() {
-        return std::accumulate(descriptorEventPublisher.begin(),
-                               descriptorEventPublisher.end(),
+        return std::accumulate(descriptorEventPublishers.begin(),
+                               descriptorEventPublishers.end(),
                                -1,
                                [](int count, DescriptorEventPublisher* descriptorEventPublisher) -> int {
                                    return std::max(descriptorEventPublisher->getMaxFd(), count);
@@ -111,10 +110,10 @@ namespace core {
             if (ret >= 0) {
                 currentTime = utils::Timeval::currentTime();
                 dispatchActiveEvents(ret, currentTime);
+            } else if (errno != EINTR) {
+                tickStatus = TickStatus::ERROR;
             } else {
-                if (errno != EINTR) {
-                    tickStatus = TickStatus::ERROR;
-                }
+                // ignore EINTR - it is no error
             }
         } else {
             tickStatus = TickStatus::NO_OBSERVER;
@@ -127,7 +126,7 @@ namespace core {
         core::TickStatus tickStatus;
 
         do {
-            for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+            for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
                 eventMultiplexer->stop();
             }
             tickStatus = tick(2, true);
@@ -140,7 +139,7 @@ namespace core {
     }
 
     void EventMultiplexer::stopDescriptorEvents() {
-        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
             eventMultiplexer->stop();
         }
     }
@@ -152,7 +151,7 @@ namespace core {
     utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
-        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
             nextTimeout = std::min(eventMultiplexer->getNextTimeout(currentTime), nextTimeout);
         }
         nextTimeout = std::min(timerEventPublisher->getNextTimeout(currentTime), nextTimeout);
@@ -161,7 +160,7 @@ namespace core {
     }
 
     void EventMultiplexer::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
             eventMultiplexer->checkTimedOutEvents(currentTime);
         }
     }
@@ -172,7 +171,7 @@ namespace core {
     }
 
     void EventMultiplexer::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublisher) {
+        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
             eventMultiplexer->unobserveDisabledEvents(currentTime);
         }
         timerEventPublisher->unobsereDisableEvents();

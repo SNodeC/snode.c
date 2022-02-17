@@ -47,9 +47,9 @@ namespace core {
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     protected:
-        EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventDispatcher,
-                         DescriptorEventPublisher* const writeDescriptorEventDispatcher,
-                         DescriptorEventPublisher* const exceptionDescriptorEventDispatcher);
+        EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventPublisher,
+                         DescriptorEventPublisher* const writeDescriptorEventPublisher,
+                         DescriptorEventPublisher* const exceptionDescriptorEventPublisher);
 
         virtual ~EventMultiplexer();
 
@@ -99,7 +99,7 @@ namespace core {
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:
-        std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublisher;
+        std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;
 
     private:
         EventQueue eventQueue;

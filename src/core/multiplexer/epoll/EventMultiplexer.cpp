@@ -26,8 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-core::EventMultiplexer& EventDispatcher();
-core::EventMultiplexer& EventDispatcher() {
+core::EventMultiplexer& EventMultiplexer() {
     static core::epoll::EventMultiplexer eventMultiplexer;
 
     return eventMultiplexer;
@@ -44,13 +43,13 @@ namespace core::epoll {
         epoll_event event;
         event.events = EPOLLIN;
 
-        event.data.ptr = descriptorEventPublisher[DISP_TYPE::RD];
+        event.data.ptr = descriptorEventPublishers[DISP_TYPE::RD];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::RD], &event);
 
-        event.data.ptr = descriptorEventPublisher[WR];
+        event.data.ptr = descriptorEventPublishers[WR];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::WR], &event);
 
-        event.data.ptr = descriptorEventPublisher[EX];
+        event.data.ptr = descriptorEventPublishers[EX];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::EX], &event);
     }
 
