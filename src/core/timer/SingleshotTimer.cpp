@@ -28,8 +28,11 @@
 
 namespace core::timer {
 
-    SingleshotTimer::SingleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
-        : TimerEventReceiver(timeout)
+    SingleshotTimer::SingleshotTimer(const std::function<void(const void*)>& dispatcher,
+                                     const utils::Timeval& timeout,
+                                     const void* arg,
+                                     const std::string& name)
+        : TimerEventReceiver(name, timeout)
         , dispatcher(dispatcher)
         , arg(arg) {
     }

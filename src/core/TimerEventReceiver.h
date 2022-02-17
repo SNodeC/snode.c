@@ -39,7 +39,7 @@ namespace core {
         TimerEventReceiver(const TimerEventReceiver&) = delete;
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
 
-        TimerEventReceiver(const utils::Timeval& delay);
+        TimerEventReceiver(const std::string& name, const utils::Timeval& delay);
 
         virtual ~TimerEventReceiver() override;
 

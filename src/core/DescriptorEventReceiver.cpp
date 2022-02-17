@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,34 +34,49 @@ namespace core {
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {-1, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::MAX = {LONG_MAX, 0};
 
-    DescriptorEventReceiver::DescriptorEventReceiver(DescriptorEventPublisher& descriptorEventPublisher, const utils::Timeval& timeout)
-        : descriptorEventPublisher(descriptorEventPublisher)
+    DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name,
+                                                     DescriptorEventPublisher& descriptorEventPublisher,
+                                                     const utils::Timeval& timeout)
+        : EventReceiver(name)
+        , descriptorEventPublisher(descriptorEventPublisher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
 
     int DescriptorEventReceiver::getRegisteredFd() {
-        return registeredFd;
+        return observedFd;
     }
 
     void DescriptorEventReceiver::enable(int fd) {
-        this->registeredFd = fd;
-        observed();
+        if (!enabled) {
+            observedFd = fd;
+            lastTriggered = utils::Timeval::currentTime();
 
-        descriptorEventPublisher.enable(this);
-        enabled = true;
+            enabled = true;
+            descriptorEventPublisher.enable(this);
+        } else {
+            LOG(WARNING) << "Double enable: " << getName() << ": fd = " << observedFd;
+        }
+    }
+
+    void DescriptorEventReceiver::setEnabled() {
+        observed();
     }
 
     void DescriptorEventReceiver::disable() {
-        if (!isSuspended()) {
-            suspend();
-        }
+        if (enabled) {
+            if (!isSuspended()) {
+                suspend();
+            }
 
-        descriptorEventPublisher.disable(this);
-        enabled = false;
+            enabled = false;
+            descriptorEventPublisher.disable(this);
+        } else {
+            LOG(WARNING) << "Double disable: " << getName() << ": fd = " << observedFd;
+        }
     }
 
-    void DescriptorEventReceiver::disabled() {
+    void DescriptorEventReceiver::setDisabled() {
         unObserved();
     }
 
@@ -68,17 +85,29 @@ namespace core {
     }
 
     void DescriptorEventReceiver::suspend() {
-        if (isEnabled()) {
-            descriptorEventPublisher.suspend(this);
-            suspended = true;
+        if (enabled) {
+            if (!suspended) {
+                descriptorEventPublisher.suspend(this);
+                suspended = true;
+            } else {
+                LOG(WARNING) << "Double suspend: " << getName() << ": fd = " << observedFd;
+            }
+        } else {
+            LOG(ERROR) << "Suspend while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 
     void DescriptorEventReceiver::resume() {
-        if (isEnabled()) {
-            descriptorEventPublisher.resume(this);
-            suspended = false;
-            lastTriggered = utils::Timeval::currentTime();
+        if (enabled) {
+            if (suspended) {
+                descriptorEventPublisher.resume(this);
+                suspended = false;
+                lastTriggered = utils::Timeval::currentTime();
+            } else {
+                LOG(WARNING) << "Double resume: " << getName() << ": fd = " << observedFd;
+            }
+        } else {
+            LOG(ERROR) << "Resume while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -107,10 +136,12 @@ namespace core {
     }
 
     void DescriptorEventReceiver::dispatch(const utils::Timeval& currentTime) {
-        eventCounter++;
-        triggered(currentTime);
+        if (!isSuspended()) {
+            eventCounter++;
+            triggered(currentTime);
 
-        dispatchEvent();
+            dispatchEvent();
+        }
     }
 
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {

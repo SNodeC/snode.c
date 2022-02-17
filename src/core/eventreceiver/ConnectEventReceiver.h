@@ -29,9 +29,9 @@
 
 namespace core::eventreceiver {
 
-    class ConnectEventReceiver : public DescriptorEventReceiver {
+    class ConnectEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        ConnectEventReceiver(const utils::Timeval& timeout = MAX_CONNECT_INACTIVITY);
+        ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_CONNECT_INACTIVITY);
 
     private:
         virtual void connectEvent() = 0;

@@ -26,6 +26,10 @@
 
 namespace core::eventreceiver {
 
+    InitConnectEventReceiver::InitConnectEventReceiver(const std::string& name)
+        : core::EventReceiver("InitConnectEventReceiver: " + name) {
+    }
+
     void InitConnectEventReceiver::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
         initConnectEvent();
     }

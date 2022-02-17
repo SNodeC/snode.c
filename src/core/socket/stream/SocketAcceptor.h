@@ -40,7 +40,7 @@ namespace core::socket {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_ACCEPTS_PER_TICK 20
+#define MAX_ACCEPTS_PER_TICK 1
 
 namespace core::socket::stream {
 
@@ -73,7 +73,9 @@ namespace core::socket::stream {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : socketContextFactory(socketContextFactory)
+            : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
+            , core::eventreceiver::AcceptEventReceiver("SocketAcceptor")
+            , socketContextFactory(socketContextFactory)
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)

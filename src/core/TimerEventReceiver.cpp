@@ -29,8 +29,9 @@
 
 namespace core {
 
-    TimerEventReceiver::TimerEventReceiver(const utils::Timeval& delay)
-        : timerEventPublisher(EventLoop::instance().getEventMultiplexer().getTimerEventPublisher())
+    TimerEventReceiver::TimerEventReceiver(const std::string& name, const utils::Timeval& delay)
+        : EventReceiver(name)
+        , timerEventPublisher(EventLoop::instance().getEventMultiplexer().getTimerEventPublisher())
         , absoluteTimeout(utils::Timeval::currentTime() + delay)
         , delay(delay) {
     }

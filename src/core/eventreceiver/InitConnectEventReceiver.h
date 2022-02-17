@@ -33,9 +33,9 @@ namespace utils {
 
 namespace core::eventreceiver {
 
-    class InitConnectEventReceiver : public EventReceiver {
+    class InitConnectEventReceiver : public core::EventReceiver {
     protected:
-        InitConnectEventReceiver() = default;
+        InitConnectEventReceiver(const std::string& name);
 
         void dispatch(const utils::Timeval& currentTime) override;
 

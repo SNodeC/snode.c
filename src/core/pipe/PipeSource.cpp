@@ -34,7 +34,8 @@
 namespace core::pipe {
 
     PipeSource::PipeSource(int fd)
-        : Descriptor(fd) {
+        : Descriptor(fd)
+        , core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd)) {
         WriteEventReceiver::enable(fd);
         WriteEventReceiver::suspend();
     }

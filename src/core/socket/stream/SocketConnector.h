@@ -64,7 +64,9 @@ namespace core::socket::stream {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
-            : socketContextFactory(socketContextFactory)
+            : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
+            , core::eventreceiver::ConnectEventReceiver("SocketConnector")
+            , socketContextFactory(socketContextFactory)
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)

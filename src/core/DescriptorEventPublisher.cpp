@@ -18,6 +18,7 @@
 
 #include "DescriptorEventPublisher.h"
 
+#include "Descriptor.h"
 #include "DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,73 +40,36 @@ namespace core {
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
-
-        if (disabledEventReceiver.contains(fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
-            // same tick as disable
-            disabledEventReceiver[fd].remove(eventReceiver);
-        } else if (!eventReceiver->isEnabled() &&
-                   (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
-            // next tick as disable
-            enabledEventReceiver[fd].push_back(eventReceiver);
-        } else {
-            LOG(WARNING) << "EventReceiver double enable " << fd;
-        }
+        enabledEventReceiver[fd].push_back(eventReceiver);
     }
 
     void DescriptorEventPublisher::disable(DescriptorEventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
-
-        if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
-            // same tick as enable
-            eventReceiver->disabled();
-            if (eventReceiver->getObservationCounter() > 0) {
-                enabledEventReceiver[fd].remove(eventReceiver);
-            }
-        } else if (eventReceiver->isEnabled() &&
-                   (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
-            // next tick as enable
-            disabledEventReceiver[fd].push_back(eventReceiver);
-        } else {
-            LOG(WARNING) << "EventReceiver double disable " << fd;
-        }
+        disabledEventReceiver[fd].push_back(eventReceiver);
     }
 
     void DescriptorEventPublisher::suspend(DescriptorEventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-
-        if (!eventReceiver->isSuspended()) {
-            if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                modOff(eventReceiver);
-            }
-        } else {
-            LOG(WARNING) << "EventReceiver double suspend";
+        if (eventReceiver->isObserved()) {
+            modOff(eventReceiver);
         }
     }
 
     void DescriptorEventPublisher::resume(DescriptorEventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-
-        if (eventReceiver->isSuspended()) {
-            if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                modOn(eventReceiver);
-            }
-        } else {
-            LOG(WARNING) << "EventReceiver double resume " << fd;
+        if (eventReceiver->isObserved()) {
+            modOn(eventReceiver);
         }
     }
 
     void DescriptorEventPublisher::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) { // cppcheck-suppress unassignedVariable
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                if (eventReceiver->isEnabled()) {
-                    eventReceiver->triggered(currentTime);
-                    observedEventReceiver[fd].push_front(eventReceiver);
-                    modAdd(eventReceiver);
-                    if (eventReceiver->isSuspended()) {
-                        modOff(eventReceiver);
-                    }
-                } else {
-                    eventReceiver->unobservedEvent();
+                VLOG(0) << "Observed: " << eventReceiver->getName() << ", fd = " << fd;
+                eventReceiver->setEnabled();
+                eventReceiver->triggered(currentTime);
+                observedEventReceiver[fd].push_front(eventReceiver);
+                modAdd(eventReceiver);
+                if (eventReceiver->isSuspended()) {
+                    modOff(eventReceiver);
                 }
             }
         }
@@ -121,6 +85,7 @@ namespace core {
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
+                VLOG(0) << "Unobserved: " << eventReceiver->getName() << ", fd = " << fd;
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty()) {
                     modDel(eventReceiver);
@@ -133,8 +98,9 @@ namespace core {
                         modOff(observedEventReceiver[fd].front());
                     }
                 }
-                eventReceiver->disabled();
+                eventReceiver->setDisabled();
                 if (eventReceiver->getObservationCounter() == 0) {
+                    VLOG(0) << "UnobservedEvent: " << eventReceiver->getName() << ", fd = " << fd;
                     eventReceiver->unobservedEvent();
                 }
             }

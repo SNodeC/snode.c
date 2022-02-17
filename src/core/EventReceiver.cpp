@@ -27,8 +27,9 @@
 
 namespace core {
 
-    EventReceiver::EventReceiver()
-        : event(this) {
+    EventReceiver::EventReceiver(const std::string& name)
+        : name(name)
+        , event(this) {
     }
 
     EventReceiver::~EventReceiver() {
@@ -37,6 +38,10 @@ namespace core {
 
     void EventReceiver::publish() const {
         core::EventLoop::instance().getEventMultiplexer().publish(&event);
+    }
+
+    const std::string& EventReceiver::getName() {
+        return name;
     }
 
 } // namespace core

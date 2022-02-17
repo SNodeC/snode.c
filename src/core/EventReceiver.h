@@ -27,18 +27,25 @@ namespace utils {
     class Timeval;
 }
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     class EventReceiver {
     public:
-        EventReceiver();
+        EventReceiver(const std::string& name);
         virtual ~EventReceiver();
 
         void publish() const;
 
         virtual void dispatch(const utils::Timeval& currentTime) = 0;
+
+        const std::string& getName();
+
+    private:
+        std::string name;
 
     protected:
         Event event;
