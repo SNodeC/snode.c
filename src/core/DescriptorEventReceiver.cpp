@@ -71,7 +71,7 @@ namespace core {
             }
 
             enabled = false;
-            descriptorEventPublisher.disable(this);
+            descriptorEventPublisher.disable();
         } else {
             LOG(WARNING) << "Double disable: " << getName() << ": fd = " << observedFd;
         }

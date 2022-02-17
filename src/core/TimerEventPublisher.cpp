@@ -44,14 +44,14 @@ namespace core {
 
         return nextTimeout;
     }
-
-    void TimerEventPublisher::observeEnabledEvents() {
-        for (TimerEventReceiver* timer : addedList) {
-            timerList.insert(timer);
+    /*
+        void TimerEventPublisher::observeEnabledEvents() {
+            for (TimerEventReceiver* timer : addedList) {
+                timerList.insert(timer);
+            }
+            addedList.clear();
         }
-        addedList.clear();
-    }
-
+    */
     void TimerEventPublisher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
@@ -77,10 +77,6 @@ namespace core {
         }
     }
 
-    void TimerEventPublisher::add(TimerEventReceiver* timer) {
-        addedList.push_back(timer);
-    }
-
     void TimerEventPublisher::erase(TimerEventReceiver* timer) {
         timerList.erase(timer);
     }
@@ -94,8 +90,6 @@ namespace core {
     }
 
     void TimerEventPublisher::stop() {
-        observeEnabledEvents();
-
         for (TimerEventReceiver* timer : timerList) {
             remove(timer);
         }

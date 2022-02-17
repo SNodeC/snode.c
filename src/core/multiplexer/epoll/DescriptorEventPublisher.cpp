@@ -49,12 +49,12 @@ namespace core::epoll {
                 ePollEvents.resize(ePollEvents.size() * 2);
             }
         } else if (errno == EEXIST) {
-            muxMod(eventReceiver, events);
+            muxMod(eventReceiver->getRegisteredFd(), events, eventReceiver);
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxDel(core::DescriptorEventReceiver* eventReceiver) {
-        if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
+    void DescriptorEventPublisher::EPollEvents::muxDel(int fd) {
+        if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr) == 0) {
             interestCount--;
         }
 
@@ -63,21 +63,21 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxMod(core::DescriptorEventReceiver* eventReceiver, uint32_t events) {
+    void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) {
         epoll_event ePollEvent;
 
         ePollEvent.data.ptr = eventReceiver;
         ePollEvent.events = events;
 
-        core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, eventReceiver->getRegisteredFd(), &ePollEvent);
+        core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ePollEvent);
     }
 
     void DescriptorEventPublisher::EPollEvents::muxOn(core::DescriptorEventReceiver* eventReceiver) {
-        muxMod(eventReceiver, events);
+        muxMod(eventReceiver->getRegisteredFd(), events, eventReceiver);
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxOff(core::DescriptorEventReceiver* eventReceiver) {
-        muxMod(eventReceiver, 0);
+    void DescriptorEventPublisher::EPollEvents::muxOff(int fd) {
+        muxMod(fd, 0, nullptr);
     }
 
     int DescriptorEventPublisher::EPollEvents::getEPFd() const {
@@ -100,16 +100,16 @@ namespace core::epoll {
         ePollEvents.muxAdd(eventReceiver);
     }
 
-    void DescriptorEventPublisher::muxDel(core::DescriptorEventReceiver* eventReceiver) {
-        ePollEvents.muxDel(eventReceiver);
+    void DescriptorEventPublisher::muxDel(int fd) {
+        ePollEvents.muxDel(fd);
     }
 
     void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.muxOn(eventReceiver);
     }
 
-    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
-        ePollEvents.muxOff(eventReceiver);
+    void DescriptorEventPublisher::muxOff(int fd) {
+        ePollEvents.muxOff(fd);
     }
 
     void DescriptorEventPublisher::dispatchActiveEvents() {
@@ -117,7 +117,7 @@ namespace core::epoll {
 
         for (int i = 0; i < count; i++) {
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
-            if (!eventReceiver->isSuspended()) {
+            if (eventReceiver != nullptr /*&& !eventReceiver->isSuspended()*/) {
                 eventCounter++;
                 eventReceiver->publish();
             }

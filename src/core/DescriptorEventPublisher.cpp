@@ -41,16 +41,16 @@ namespace core {
         observedEventReceiver[fd].push_front(eventReceiver);
         muxAdd(eventReceiver);
         if (eventReceiver->isSuspended()) {
-            muxOff(eventReceiver);
+            muxOff(fd);
         }
     }
 
-    void DescriptorEventPublisher::disable(DescriptorEventReceiver* eventReceiver) {
-        disabledEventReceiver.push_back(eventReceiver);
+    void DescriptorEventPublisher::disable() {
+        observedEventReceiverMapDirty = true;
     }
 
     void DescriptorEventPublisher::suspend(DescriptorEventReceiver* eventReceiver) {
-        muxOff(eventReceiver);
+        muxOff(eventReceiver->getRegisteredFd());
     }
 
     void DescriptorEventPublisher::resume(DescriptorEventReceiver* eventReceiver) {
@@ -62,44 +62,38 @@ namespace core {
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
-    /*
-        void DescriptorEventPublisher::newUnobserveDisabledEvents([[maybe_unused]] const utils::Timeval& currentTime) {
-            std::erase_if(observedEventReceiver, [](auto& observedEventReceiverEntry) -> bool {
+
+    void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        if (observedEventReceiverMapDirty) {
+            std::erase_if(observedEventReceiver, [this, &currentTime](auto& observedEventReceiverEntry) -> bool {
                 auto& [fd, observedEventReceiverList] = observedEventReceiverEntry;
                 std::erase_if(observedEventReceiverList, [fd](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
-                    return !descriptorEventReceiver->isEnabled();
+                    bool isDisabled = !descriptorEventReceiver->isEnabled();
+                    if (isDisabled) {
+                        descriptorEventReceiver->setDisabled();
+                        if (descriptorEventReceiver->getObservationCounter() == 0) {
+                            VLOG(0) << "UnobservedEvent: " << descriptorEventReceiver->getName() << ", fd = " << fd;
+                            descriptorEventReceiver->unobservedEvent();
+                        }
+                    }
+                    return isDisabled;
                 });
                 if (observedEventReceiverList.empty()) {
-    //                muxDel(eventReceiver);
+                    muxDel(fd);
+                } else {
+                    observedEventReceiver[fd].front()->triggered(currentTime);
+                    if (!observedEventReceiver[fd].front()->isSuspended()) {
+                        muxOn(observedEventReceiver[fd].front());
+                    } else {
+                        muxOff(fd);
+                    }
                 }
+
                 return observedEventReceiverList.empty();
             });
-        }
-    */
-    void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        for (DescriptorEventReceiver* eventReceiver : disabledEventReceiver) {
-            int fd = eventReceiver->getRegisteredFd();
-            VLOG(0) << "Unobserved: " << eventReceiver->getName() << ", fd = " << fd;
-            observedEventReceiver[fd].remove(eventReceiver);
-            if (observedEventReceiver[fd].empty()) {
-                muxDel(eventReceiver);
-                observedEventReceiver.erase(fd);
-            } else {
-                observedEventReceiver[fd].front()->triggered(currentTime);
-                if (!observedEventReceiver[fd].front()->isSuspended()) {
-                    muxOn(observedEventReceiver[fd].front());
-                } else {
-                    muxOff(observedEventReceiver[fd].front());
-                }
-            }
-            eventReceiver->setDisabled();
-            if (eventReceiver->getObservationCounter() == 0) {
-                VLOG(0) << "UnobservedEvent: " << eventReceiver->getName() << ", fd = " << fd;
-                eventReceiver->unobservedEvent();
-            }
-        }
 
-        disabledEventReceiver.clear();
+            observedEventReceiverMapDirty = false;
+        }
     }
 
     int DescriptorEventPublisher::getObservedEventReceiverCount() const {
