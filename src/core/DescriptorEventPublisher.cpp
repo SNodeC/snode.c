@@ -67,7 +67,7 @@ namespace core {
         if (observedEventReceiversDirty) {
             std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
                 auto& [fdTmp, observedEventReceiverList] = observedEventReceiversEntry; // cppcheck-suppress constVariable
-                int fd = fdTmp; // Needed because clang did not capture compound initialized variables. Bug in clang?
+                int fd = fdTmp; // NOTE: Needed because clang did not capture compound initialized variables. Bug in clang?
                 std::erase_if(observedEventReceiverList, [fd](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
                     bool isDisabled = !descriptorEventReceiver->isEnabled();
                     if (isDisabled) {

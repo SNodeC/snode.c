@@ -32,10 +32,6 @@ namespace core {
         , event(this) {
     }
 
-    EventReceiver::~EventReceiver() {
-        core::EventLoop::instance().getEventMultiplexer().unPublish(&event);
-    }
-
     void EventReceiver::publish() const {
         core::EventLoop::instance().getEventMultiplexer().publish(&event);
     }
