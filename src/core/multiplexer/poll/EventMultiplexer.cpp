@@ -23,7 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/Timeval.h" // IWYU pragma: keep
 
 #include <compare> // for operator<, __synth3way_t, operator>=
@@ -65,13 +64,7 @@ namespace core::poll {
             ++nextIndex;
 
             if (nextIndex == pollfds.size()) {
-                pollfd pollFd;
-
-                pollFd.fd = -1;
-                pollFd.events = 0;
-                pollFd.revents = 0;
-
-                pollfds.resize(pollfds.size() * 2, pollFd);
+                pollfds.resize(pollfds.size() * 2, {-1, 0, 0});
                 pollFdIndices.reserve(pollfds.size());
             }
         } else {
@@ -111,30 +104,13 @@ namespace core::poll {
     }
 
     void PollFds::compress() {
-        std::vector<pollfd>::iterator it = pollfds.begin();
-        std::vector<pollfd>::iterator rit = pollfds.begin() + static_cast<long>(pollfds.size()) - 1;
+        remove_if(pollfds.begin(), pollfds.end(), [](const pollfd& pollFd) -> bool {
+            return pollFd.fd < 0;
+        });
 
-        while (it < rit) {
-            while (it != pollfds.end() && it->fd != -1) {
-                ++it;
-            }
+        pollfds.resize(pollFdIndices.size() + 1, {-1, 0, 0});
 
-            while (rit >= it && rit->fd == -1) {
-                --rit;
-            }
-
-            while (it < rit && it->fd == -1 && rit->fd != -1) {
-                pollfd tPollFd = *it;
-                *it = *rit;
-                *rit = tPollFd;
-                ++it;
-                --rit;
-            }
-        }
-
-        pollfds.resize(pollFdIndices.size() + 1);
-
-        pollFdIndices.reserve(pollfds.size());
+        pollFdIndices.reserve(pollFdIndices.size() + 1);
 
         for (uint32_t i = 0; i < pollFdIndices.size(); i++) {
             if (pollfds[i].fd >= 0) {
