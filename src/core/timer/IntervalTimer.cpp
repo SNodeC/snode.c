@@ -29,14 +29,18 @@
 namespace core::timer {
     IntervalTimer::IntervalTimer(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
                                  const utils::Timeval& timeout,
-                                 const void* arg)
-        : core::TimerEventReceiver(timeout)
+                                 const void* arg,
+                                 const std::string& name)
+        : core::TimerEventReceiver(name, timeout)
         , dispatcherS(dispatcher)
         , arg(arg) {
     }
 
-    IntervalTimer::IntervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
-        : core::TimerEventReceiver(timeout)
+    IntervalTimer::IntervalTimer(const std::function<void(const void*)>& dispatcher,
+                                 const utils::Timeval& timeout,
+                                 const void* arg,
+                                 const std::string& name)
+        : core::TimerEventReceiver(name, timeout)
         , dispatcherC(dispatcher)
         , arg(arg) {
     }

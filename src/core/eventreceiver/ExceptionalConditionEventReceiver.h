@@ -29,9 +29,9 @@
 
 namespace core::eventreceiver {
 
-    class ExceptionalConditionEventReceiver : public DescriptorEventReceiver {
+    class ExceptionalConditionEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        ExceptionalConditionEventReceiver(const utils::Timeval& timeout = MAX_OUTOFBAND_INACTIVITY);
+        ExceptionalConditionEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_OUTOFBAND_INACTIVITY);
 
     private:
         virtual void outOfBandEvent() = 0;

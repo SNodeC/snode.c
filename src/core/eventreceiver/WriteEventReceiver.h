@@ -29,9 +29,9 @@
 
 namespace core::eventreceiver {
 
-    class WriteEventReceiver : public DescriptorEventReceiver {
+    class WriteEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        WriteEventReceiver(const utils::Timeval& timeout = MAX_WRITE_INACTIVITY);
+        WriteEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_WRITE_INACTIVITY);
 
     private:
         virtual void writeEvent() = 0;

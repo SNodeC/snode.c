@@ -30,8 +30,9 @@
 
 namespace core::file {
 
-    FileReader::FileReader(int fd, core::pipe::Sink& sink)
-        : Descriptor(fd) {
+    FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name)
+        : Descriptor(fd)
+        , EventReceiver(name) {
         Source::connect(sink);
 
         publish();
@@ -43,7 +44,7 @@ namespace core::file {
         int fd = core::system::open(path.c_str(), O_RDONLY);
 
         if (fd >= 0) {
-            fileReader = new FileReader(fd, writeStream);
+            fileReader = new FileReader(fd, writeStream, "FileReader: " + path);
         } else {
             onError(errno);
         }

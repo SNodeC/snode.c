@@ -34,8 +34,11 @@ namespace core {
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {-1, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::MAX = {LONG_MAX, 0};
 
-    DescriptorEventReceiver::DescriptorEventReceiver(DescriptorEventPublisher& descriptorEventPublisher, const utils::Timeval& timeout)
-        : descriptorEventPublisher(descriptorEventPublisher)
+    DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name,
+                                                     DescriptorEventPublisher& descriptorEventPublisher,
+                                                     const utils::Timeval& timeout)
+        : EventReceiver(name)
+        , descriptorEventPublisher(descriptorEventPublisher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
@@ -52,7 +55,7 @@ namespace core {
             enabled = true;
             descriptorEventPublisher.enable(this);
         } else {
-            LOG(WARNING) << "EventReceiver double enable " << observedFd;
+            LOG(WARNING) << "Double enable: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -69,7 +72,7 @@ namespace core {
             enabled = false;
             descriptorEventPublisher.disable(this);
         } else {
-            LOG(WARNING) << "EventReceiver double disable " << observedFd;
+            LOG(WARNING) << "Double disable: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -87,10 +90,10 @@ namespace core {
                 descriptorEventPublisher.suspend(this);
                 suspended = true;
             } else {
-                LOG(WARNING) << "EventReceiver double suspend: fd = " << observedFd;
+                LOG(WARNING) << "Double suspend: " << getName() << ": fd = " << observedFd;
             }
         } else {
-            LOG(ERROR) << "Suspend while not enabled: fd = " << observedFd;
+            LOG(ERROR) << "Suspend while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -101,10 +104,10 @@ namespace core {
                 suspended = false;
                 lastTriggered = utils::Timeval::currentTime();
             } else {
-                LOG(WARNING) << "EventReceiver double resume: fd = " << observedFd;
+                LOG(WARNING) << "Double resume: " << getName() << ": fd = " << observedFd;
             }
         } else {
-            LOG(ERROR) << "Resume while not enabled: fd = " << observedFd;
+            LOG(ERROR) << "Resume while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 

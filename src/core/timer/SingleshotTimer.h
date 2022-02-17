@@ -35,7 +35,10 @@ namespace core::timer {
         SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 
     public:
-        SingleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
+        SingleshotTimer(const std::function<void(const void*)>& dispatcher,
+                        const utils::Timeval& timeout,
+                        const void* arg,
+                        const std::string& name = "SingleshotTimer");
 
         ~SingleshotTimer() override = default;
 

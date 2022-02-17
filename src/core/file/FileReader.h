@@ -41,7 +41,7 @@ namespace core::file {
         , public core::pipe::Source
         , virtual public File {
     protected:
-        FileReader(int fd, core::pipe::Sink& writeStream);
+        FileReader(int fd, core::pipe::Sink& writeStream, const std::string& name);
 
     public:
         static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);

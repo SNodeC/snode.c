@@ -63,6 +63,7 @@ namespace core {
     void DescriptorEventPublisher::observeEnabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) { // cppcheck-suppress unassignedVariable
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
+                VLOG(0) << "Observed: " << eventReceiver->getName() << ", fd = " << fd;
                 eventReceiver->setEnabled();
                 eventReceiver->triggered(currentTime);
                 observedEventReceiver[fd].push_front(eventReceiver);
@@ -84,7 +85,7 @@ namespace core {
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                VLOG(0) << "Unobserve: " << fd << ", " << eventReceiver;
+                VLOG(0) << "Unobserved: " << eventReceiver->getName() << ", fd = " << fd;
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty()) {
                     modDel(eventReceiver);
@@ -99,7 +100,7 @@ namespace core {
                 }
                 eventReceiver->setDisabled();
                 if (eventReceiver->getObservationCounter() == 0) {
-                    VLOG(0) << "Unobserve EventReceiver: " << fd << ", " << eventReceiver;
+                    VLOG(0) << "UnobservedEvent: " << eventReceiver->getName() << ", fd = " << fd;
                     eventReceiver->unobservedEvent();
                 }
             }

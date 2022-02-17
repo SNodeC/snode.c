@@ -37,9 +37,13 @@ namespace core::timer {
     public:
         IntervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
                       const utils::Timeval& timeout,
-                      const void* arg);
+                      const void* arg,
+                      const std::string& name = "IntervalTimer");
 
-        IntervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
+        IntervalTimer(const std::function<void(const void*)>& dispatcher,
+                      const utils::Timeval& timeout,
+                      const void* arg,
+                      const std::string& name = "IntervalTimer");
 
         ~IntervalTimer() override = default;
 

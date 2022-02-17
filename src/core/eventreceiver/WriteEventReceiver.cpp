@@ -27,9 +27,11 @@
 
 namespace core::eventreceiver {
 
-    WriteEventReceiver::WriteEventReceiver(const utils::Timeval& timeout)
-        : DescriptorEventReceiver(
-              EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR), timeout) {
+    WriteEventReceiver::WriteEventReceiver(const std::string& name, const utils::Timeval& timeout)
+        : core::DescriptorEventReceiver(
+              "WriteEventReceiver: " + name,
+              EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR),
+              timeout) {
     }
 
     void WriteEventReceiver::writeTimeout() {

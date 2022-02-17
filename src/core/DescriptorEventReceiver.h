@@ -80,7 +80,8 @@ namespace core {
         bool isSuspended() const;
 
     protected:
-        explicit DescriptorEventReceiver(DescriptorEventPublisher& descriptorEventPublisher,
+        explicit DescriptorEventReceiver(const std::string& name,
+                                         DescriptorEventPublisher& descriptorEventPublisher,
                                          const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
         void enable(int fd);

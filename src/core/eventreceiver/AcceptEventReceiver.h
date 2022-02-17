@@ -29,9 +29,9 @@
 
 namespace core::eventreceiver {
 
-    class AcceptEventReceiver : public DescriptorEventReceiver {
+    class AcceptEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        AcceptEventReceiver(const utils::Timeval& timeout = MAX_ACCEPT_INACTIVITY);
+        AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_ACCEPT_INACTIVITY);
 
     private:
         virtual void acceptEvent() = 0;

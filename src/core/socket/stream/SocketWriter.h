@@ -46,7 +46,8 @@ namespace core::socket::stream {
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout)
-            : onError(onError)
+            : core::eventreceiver::WriteEventReceiver("SocketWriter")
+            , onError(onError)
             , terminateTimeout(terminateTimeout) {
             setBlockSize(blockSize);
             setTimeout(timeout);

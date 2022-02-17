@@ -29,9 +29,9 @@
 
 namespace core::eventreceiver {
 
-    class ReadEventReceiver : public DescriptorEventReceiver {
+    class ReadEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        ReadEventReceiver(const utils::Timeval& timeout = MAX_READ_INACTIVITY);
+        ReadEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_READ_INACTIVITY);
 
     private:
         virtual void readEvent() = 0;
