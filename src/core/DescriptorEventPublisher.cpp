@@ -38,7 +38,7 @@ namespace core {
         int fd = eventReceiver->getRegisteredFd();
         VLOG(0) << "Observed: " << eventReceiver->getName() << ", fd = " << fd;
         eventReceiver->setEnabled();
-        observedEventReceiver[fd].push_front(eventReceiver);
+        observedEventReceivers[fd].push_front(eventReceiver);
         muxAdd(eventReceiver);
         if (eventReceiver->isSuspended()) {
             muxOff(fd);
@@ -58,20 +58,21 @@ namespace core {
     }
 
     void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
+        for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
 
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         if (observedEventReceiverMapDirty) {
-            std::erase_if(observedEventReceiver, [this, &currentTime](auto& observedEventReceiverEntry) -> bool {
-                auto& [fd, observedEventReceiverList] = observedEventReceiverEntry;
+            std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
+                auto& [fdTmp, observedEventReceiverList] = observedEventReceiversEntry; // cppcheck-suppress constVariable
+                int fd = fdTmp; // Needed because clang did not capture compound initialized variables. Bug in clang?
                 std::erase_if(observedEventReceiverList, [fd](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
                     bool isDisabled = !descriptorEventReceiver->isEnabled();
                     if (isDisabled) {
                         descriptorEventReceiver->setDisabled();
-                        if (descriptorEventReceiver->getObservationCounter() == 0) {
+                        if (!descriptorEventReceiver->isObserved()) {
                             VLOG(0) << "UnobservedEvent: " << descriptorEventReceiver->getName() << ", fd = " << fd;
                             descriptorEventReceiver->unobservedEvent();
                         }
@@ -81,30 +82,28 @@ namespace core {
                 if (observedEventReceiverList.empty()) {
                     muxDel(fd);
                 } else {
-                    observedEventReceiver[fd].front()->triggered(currentTime);
-                    if (!observedEventReceiver[fd].front()->isSuspended()) {
-                        muxOn(observedEventReceiver[fd].front());
+                    observedEventReceivers[fd].front()->triggered(currentTime);
+                    if (!observedEventReceivers[fd].front()->isSuspended()) {
+                        muxOn(observedEventReceivers[fd].front());
                     } else {
                         muxOff(fd);
                     }
                 }
-
                 return observedEventReceiverList.empty();
             });
-
             observedEventReceiverMapDirty = false;
         }
     }
 
     int DescriptorEventPublisher::getObservedEventReceiverCount() const {
-        return static_cast<int>(observedEventReceiver.size());
+        return static_cast<int>(observedEventReceivers.size());
     }
 
     int DescriptorEventPublisher::getMaxFd() const {
         int maxFd = -1;
 
-        if (!observedEventReceiver.empty()) {
-            maxFd = observedEventReceiver.rbegin()->first;
+        if (!observedEventReceivers.empty()) {
+            maxFd = observedEventReceivers.rbegin()->first;
         }
 
         return maxFd;
@@ -113,7 +112,7 @@ namespace core {
     utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
+        for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
             const DescriptorEventReceiver* eventReceiver = eventReceivers.front();
 
             if (!eventReceiver->isSuspended()) {
@@ -125,7 +124,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::stop() {
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
+        for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 if (eventReceiver->isEnabled()) {
                     eventReceiver->terminate();

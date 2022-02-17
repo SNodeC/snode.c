@@ -57,10 +57,10 @@ namespace core::poll {
 
         std::unordered_map<int, PollFds::PollFdIndex> pollFdsIndices = pollFds.getPollFdIndices();
 
-        for (auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unassignedVariable
+        for (auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unassignedVariable
             pollfd& pollFd = pollfds[pollFdsIndices[fd].index];
 
-            if ((pollFd.events & events) != 0 && (pollFd.revents & this->revents) != 0) {
+            if ((pollFd.events & events) != 0 && (pollFd.revents & revents) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 if (!eventReceiver->isSuspended()) {
                     eventCounter++;
