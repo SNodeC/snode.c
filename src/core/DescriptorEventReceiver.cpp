@@ -41,20 +41,23 @@ namespace core {
     }
 
     int DescriptorEventReceiver::getRegisteredFd() {
-        return registeredFd;
+        return observedFd;
     }
 
     void DescriptorEventReceiver::enable(int fd) {
         if (!enabled) {
-            this->registeredFd = fd;
-
-            observed();
+            observedFd = fd;
+            lastTriggered = utils::Timeval::currentTime();
 
             enabled = true;
             descriptorEventPublisher.enable(this);
         } else {
-            LOG(WARNING) << "EventReceiver double enable " << registeredFd;
+            LOG(WARNING) << "EventReceiver double enable " << observedFd;
         }
+    }
+
+    void DescriptorEventReceiver::setEnabled() {
+        observed();
     }
 
     void DescriptorEventReceiver::disable() {
@@ -66,11 +69,11 @@ namespace core {
             enabled = false;
             descriptorEventPublisher.disable(this);
         } else {
-            LOG(WARNING) << "EventReceiver double disable " << registeredFd;
+            LOG(WARNING) << "EventReceiver double disable " << observedFd;
         }
     }
 
-    void DescriptorEventReceiver::disabled() {
+    void DescriptorEventReceiver::setDisabled() {
         unObserved();
     }
 
@@ -79,17 +82,29 @@ namespace core {
     }
 
     void DescriptorEventReceiver::suspend() {
-        if (isEnabled()) {
-            descriptorEventPublisher.suspend(this);
-            suspended = true;
+        if (enabled) {
+            if (!suspended) {
+                descriptorEventPublisher.suspend(this);
+                suspended = true;
+            } else {
+                LOG(WARNING) << "EventReceiver double suspend: fd = " << observedFd;
+            }
+        } else {
+            LOG(ERROR) << "Suspend while not enabled: fd = " << observedFd;
         }
     }
 
     void DescriptorEventReceiver::resume() {
-        if (isEnabled()) {
-            descriptorEventPublisher.resume(this);
-            suspended = false;
-            lastTriggered = utils::Timeval::currentTime();
+        if (enabled) {
+            if (suspended) {
+                descriptorEventPublisher.resume(this);
+                suspended = false;
+                lastTriggered = utils::Timeval::currentTime();
+            } else {
+                LOG(WARNING) << "EventReceiver double resume: fd = " << observedFd;
+            }
+        } else {
+            LOG(ERROR) << "Resume while not enabled: fd = " << observedFd;
         }
     }
 

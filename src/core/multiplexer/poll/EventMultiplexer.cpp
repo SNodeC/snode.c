@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Timeval.h" // IWYU pragma: keep
 
 #include <compare> // for operator<, __synth3way_t, operator>=
@@ -86,6 +87,7 @@ namespace core::poll {
 
     void PollFds::modDel(core::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
+        VLOG(0) << "ModDel: " << fd;
 
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 

@@ -97,14 +97,15 @@ namespace core {
     private:
         void dispatch(const utils::Timeval& currentTime) override;
         void triggered(const utils::Timeval& currentTime);
-        void disabled();
+        void setEnabled();
+        void setDisabled();
 
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
         DescriptorEventPublisher& descriptorEventPublisher;
 
-        int registeredFd = -1;
+        int observedFd = -1;
 
         bool enabled = false;
         bool suspended = false;
