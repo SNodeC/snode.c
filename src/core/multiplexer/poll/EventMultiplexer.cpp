@@ -54,19 +54,17 @@ namespace core::poll {
     void PollFds::muxAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
+        if (!pollFdIndices.contains(fd)) {
+            pollfds[nextIndex].events = event;
+            pollfds[nextIndex].fd = fd;
 
-        if (itPollFdIndex == pollFdIndices.end()) {
-            pollfds[currentIndex].events = event;
-            pollfds[currentIndex].fd = fd;
-
-            pollFdIndices[fd].index = currentIndex;
+            pollFdIndices[fd].index = nextIndex;
             pollFdIndices[fd].events = event;
 
-            ++currentIndex;
+            ++nextIndex;
             ++interestCount;
 
-            if (currentIndex == pollfds.size()) {
+            if (nextIndex == pollfds.size()) {
                 pollfd pollFd;
 
                 pollFd.fd = -1;
@@ -77,7 +75,7 @@ namespace core::poll {
                 pollFdIndices.reserve(pollfds.size());
             }
         } else {
-            PollFdIndex& pollFdIndex = itPollFdIndex->second;
+            PollFdIndex& pollFdIndex = pollFdIndices[fd];
 
             pollfds[pollFdIndex.index].events |= event;
             pollFdIndex.events |= event;
@@ -152,7 +150,7 @@ namespace core::poll {
             }
         }
 
-        currentIndex = interestCount;
+        nextIndex = interestCount;
     }
 
     pollfd* PollFds::getEvents() {
@@ -164,7 +162,7 @@ namespace core::poll {
     }
 
     nfds_t PollFds::getCurrentIndex() const {
-        return currentIndex;
+        return nextIndex;
     }
 
     EventMultiplexer::EventMultiplexer()

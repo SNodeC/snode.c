@@ -65,7 +65,7 @@ namespace core::poll {
 
     private:
         nfds_t interestCount = 0;
-        nfds_t currentIndex = 0;
+        nfds_t nextIndex = 0;
         void compress();
 
         std::vector<pollfd> pollfds;
