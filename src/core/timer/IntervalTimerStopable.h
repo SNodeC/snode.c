@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_TIMER_INTERVALTIMER_H
-#define NET_TIMER_INTERVALTIMER_H
+#ifndef NET_TIMER_INTERVALTIMERSTOPABLE_H
+#define NET_TIMER_INTERVALTIMERSTOPABLE_H
 
 #include "core/TimerEventReceiver.h" // IWYU pragma: export
 
@@ -30,23 +30,23 @@
 
 namespace core::timer {
 
-    class IntervalTimer : public core::TimerEventReceiver {
-        IntervalTimer(const IntervalTimer&) = delete;
+    class IntervalTimerStopable : public core::TimerEventReceiver {
+        IntervalTimerStopable(const IntervalTimerStopable&) = delete;
 
-        IntervalTimer& operator=(const IntervalTimer& timer) = delete;
+        IntervalTimerStopable& operator=(const IntervalTimerStopable& timer) = delete;
 
     private:
-        IntervalTimer(const std::function<void(const void*)>& dispatcher,
-                      const utils::Timeval& timeout,
-                      const void* arg,
-                      const std::string& name = "IntervalTimer");
+        IntervalTimerStopable(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
+                              const utils::Timeval& timeout,
+                              const void* arg,
+                              const std::string& name = "IntervalTimer");
 
-        ~IntervalTimer() override = default;
+        ~IntervalTimerStopable() override = default;
 
         void dispatchEvent() final;
         void unobservedEvent() override;
 
-        std::function<void(const void*)> dispatcher = nullptr;
+        std::function<void(const void*, const std::function<void()>&)> dispatcher = nullptr;
 
         const void* arg;
 
@@ -55,4 +55,4 @@ namespace core::timer {
 
 } // namespace core::timer
 
-#endif // NET_TIMER_INTERVALTIMER_H
+#endif // NET_TIMER_INTERVALTIMERSTOPABLE_H

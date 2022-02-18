@@ -18,7 +18,6 @@
 
 #include "DescriptorEventPublisher.h"
 
-#include "Descriptor.h"
 #include "DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,7 +35,7 @@ namespace core {
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         int fd = descriptorEventReceiver->getRegisteredFd();
-        VLOG(0) << "Observed: " << descriptorEventReceiver->getName() << ", fd = " << fd;
+        LOG(INFO) << "Observed: " << descriptorEventReceiver->getName() << ", fd = " << fd;
         descriptorEventReceiver->setEnabled();
         observedEventReceivers[fd].push_front(descriptorEventReceiver);
         muxAdd(descriptorEventReceiver);
@@ -73,8 +72,10 @@ namespace core {
                     if (isDisabled) {
                         descriptorEventReceiver->setDisabled();
                         if (!descriptorEventReceiver->isObserved()) {
-                            VLOG(0) << "UnobservedEvent: " << descriptorEventReceiver->getName() << ", fd = " << fd;
+                            LOG(INFO) << "UnobservedEvent: " << descriptorEventReceiver->getName() << ", fd = " << fd;
                             descriptorEventReceiver->unobservedEvent();
+                        } else {
+                            LOG(INFO) << "Unobserved: " << descriptorEventReceiver->getName() << ", fd = " << fd;
                         }
                     }
                     return isDisabled;

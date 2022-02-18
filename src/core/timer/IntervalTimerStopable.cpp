@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SingleshotTimer.h"
+#include "IntervalTimerStopable.h"
 
 #include "core/TimerEventReceiver.h"
 
@@ -26,21 +26,28 @@
 
 namespace core::timer {
 
-    SingleshotTimer::SingleshotTimer(const std::function<void(const void*)>& dispatcher,
-                                     const utils::Timeval& timeout,
-                                     const void* arg,
-                                     const std::string& name)
-        : TimerEventReceiver(name, timeout)
+    IntervalTimerStopable::IntervalTimerStopable(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
+                                                 const utils::Timeval& timeout,
+                                                 const void* arg,
+                                                 const std::string& name)
+        : core::TimerEventReceiver(name, timeout)
         , dispatcher(dispatcher)
         , arg(arg) {
     }
 
-    void SingleshotTimer::dispatchEvent() {
-        dispatcher(arg);
-        cancel();
+    void IntervalTimerStopable::dispatchEvent() {
+        bool stop = false;
+        dispatcher(arg, [&stop]() -> void {
+            stop = true;
+        });
+        if (stop) {
+            cancel();
+        } else {
+            update();
+        }
     }
 
-    void SingleshotTimer::unobservedEvent() {
+    void IntervalTimerStopable::unobservedEvent() {
         delete this;
     }
 

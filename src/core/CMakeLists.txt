@@ -39,6 +39,7 @@ set(CORE_CPP
     system/time.cpp
     system/unistd.cpp
     timer/IntervalTimer.cpp
+    timer/IntervalTimerStopable.cpp
     timer/SingleshotTimer.cpp
     timer/Timer.cpp
 )
@@ -95,6 +96,7 @@ set(CORE_H
     system/time.h
     system/unistd.h
     timer/IntervalTimer.h
+    timer/IntervalTimerStopable.h
     timer/SingleshotTimer.h
     timer/Timer.h
 )
@@ -134,6 +136,9 @@ install(
     PATTERN "EventMultiplexer.h" EXCLUDE
     PATTERN "DescriptorEventPublisher.h" EXCLUDE
     PATTERN "TimerEventPublisher.h" EXCLUDE
+    PATTERN "timer/IntervalTimer.h" EXCLUDE
+    PATTERN "timer/IntervalTimerStopable.h" EXCLUDE
+    PATTERN "timer/SingleshoTimer.h" EXCLUDE
     PATTERN "cmake" EXCLUDE
     PATTERN "socket/stream/tls" EXCLUDE
     PATTERN "socket/stream/legacy" EXCLUDE

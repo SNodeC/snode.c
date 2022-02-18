@@ -23,6 +23,7 @@
 #include "core/system/unistd.h"
 
 #include <cerrno>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

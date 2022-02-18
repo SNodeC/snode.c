@@ -25,7 +25,7 @@
 
 #include "utils/Timeval.h" // IWYU pragma: keep
 
-#include <compare> // for operator<, __synth3way_t, operator>=
+#include <algorithm> // for remove_if
 #include <cstdint>
 #include <memory>  // for allocator_traits<>::value_type
 #include <utility> // for pair

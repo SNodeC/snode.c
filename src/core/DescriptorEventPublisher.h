@@ -51,7 +51,7 @@ namespace core {
         void publish(Event* event);
 
         void enable(DescriptorEventReceiver* descriptorEventReceiver);
-        void disable(DescriptorEventReceiver *descriptorEventReceiver);
+        void disable(DescriptorEventReceiver* descriptorEventReceiver);
         void suspend(DescriptorEventReceiver* descriptorEventReceiver);
         void resume(DescriptorEventReceiver* descriptorEventReceiver);
 

@@ -19,6 +19,7 @@
 #include "core/timer/Timer.h"
 
 #include "core/timer/IntervalTimer.h"
+#include "core/timer/IntervalTimerStopable.h"
 #include "core/timer/SingleshotTimer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -46,7 +47,7 @@ namespace core::timer {
     Timer Timer::intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
                                const utils::Timeval& timeout,
                                const void* arg) {
-        return Timer(new IntervalTimer(dispatcher, timeout, arg));
+        return Timer(new IntervalTimerStopable(dispatcher, timeout, arg));
     }
 
     Timer Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {

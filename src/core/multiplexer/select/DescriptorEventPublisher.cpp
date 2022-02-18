@@ -23,7 +23,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>::type, pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

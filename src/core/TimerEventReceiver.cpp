@@ -25,6 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -62,6 +64,12 @@ namespace core {
 
     void TimerEventReceiver::cancel() {
         timerEventPublisher.remove(this);
+    }
+
+    void TimerEventReceiver::dispatch(const utils::Timeval& currentTime) {
+        LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
+
+        dispatchEvent();
     }
 
     void TimerEventReceiver::setTimer(Timer* timer) {

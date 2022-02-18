@@ -19,7 +19,7 @@
 #ifndef CORE_TIMEREVENTRECEIVER_H
 #define CORE_TIMEREVENTRECEIVER_H
 
-#include "EventReceiver.h"
+#include "EventReceiver.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,36 +30,45 @@ namespace core {
     class TimerEventPublisher;
 } // namespace core
 
+#include <string> // for string
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     class TimerEventReceiver : public EventReceiver {
-    public:
+    private:
         TimerEventReceiver(const TimerEventReceiver&) = delete;
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
 
+    protected:
         TimerEventReceiver(const std::string& name, const utils::Timeval& delay);
-
         virtual ~TimerEventReceiver() override;
 
         utils::Timeval getTimeout() const;
-        void updateTimeout();
 
         void enable();
         void update();
         void cancel();
 
+    private:
+        void dispatch(const utils::Timeval& currentTime) final;
+
+        virtual void dispatchEvent() = 0;
         virtual void unobservedEvent() = 0;
 
         void setTimer(Timer* timer);
 
-    private:
+        void updateTimeout();
+
         TimerEventPublisher& timerEventPublisher;
 
         Timer* timer = nullptr;
         utils::Timeval absoluteTimeout;
         utils::Timeval delay;
+
+        friend class Timer;
+        friend class TimerEventPublisher;
     };
 
 } // namespace core

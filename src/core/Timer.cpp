@@ -41,7 +41,7 @@ namespace core {
     }
 
     Timer& Timer::operator=(Timer&& timer) {
-        timerEventReceiver = timer.timerEventReceiver;
+        timerEventReceiver = std::move(timer.timerEventReceiver);
         timerEventReceiver->setTimer(this);
         timer.timerEventReceiver = nullptr;
 

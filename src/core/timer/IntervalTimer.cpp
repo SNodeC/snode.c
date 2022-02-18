@@ -22,51 +22,25 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
-    IntervalTimer::IntervalTimer(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
-                                 const utils::Timeval& timeout,
-                                 const void* arg,
-                                 const std::string& name)
-        : core::TimerEventReceiver(name, timeout)
-        , dispatcherS(dispatcher)
-        , arg(arg) {
-    }
 
     IntervalTimer::IntervalTimer(const std::function<void(const void*)>& dispatcher,
                                  const utils::Timeval& timeout,
                                  const void* arg,
                                  const std::string& name)
         : core::TimerEventReceiver(name, timeout)
-        , dispatcherC(dispatcher)
+        , dispatcher(dispatcher)
         , arg(arg) {
     }
 
-    void IntervalTimer::dispatch(const utils::Timeval& currentTime) {
-        if (dispatcherS) {
-            LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
-            bool stop = false;
-            dispatcherS(arg, [&stop]() -> void {
-                stop = true;
-            });
-            if (stop) {
-                cancel();
-            } else {
-                update();
-            }
-        } else if (dispatcherC) {
-            LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
-            dispatcherC(arg);
-            update();
-        }
+    void IntervalTimer::dispatchEvent() {
+        dispatcher(arg);
+        update();
     }
 
     void IntervalTimer::unobservedEvent() {
-        dispatcherS = nullptr;
-        dispatcherC = nullptr;
         delete this;
     }
 

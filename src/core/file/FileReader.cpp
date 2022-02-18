@@ -23,6 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
+#include "utils/Timeval.h"
 
 #include <cerrno>
 

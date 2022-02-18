@@ -29,6 +29,8 @@ namespace core {
 
 #include "utils/Timeval.h" // IWYU pragma: export
 
+#include <string> // for string
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -96,7 +98,7 @@ namespace core {
         virtual void terminate();
 
     private:
-        void dispatch(const utils::Timeval& currentTime) override;
+        void dispatch(const utils::Timeval& currentTime) final;
         void triggered(const utils::Timeval& currentTime);
         void setEnabled(const utils::Timeval& currentTime = utils::Timeval::currentTime());
         void setDisabled();

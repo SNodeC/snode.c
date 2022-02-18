@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <string> // for allocator, string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -34,7 +35,7 @@ namespace core::timer {
 
         SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 
-    public:
+    private:
         SingleshotTimer(const std::function<void(const void*)>& dispatcher,
                         const utils::Timeval& timeout,
                         const void* arg,
@@ -42,14 +43,14 @@ namespace core::timer {
 
         ~SingleshotTimer() override = default;
 
-        void dispatch(const utils::Timeval& currentTime) override;
-
-    private:
+        void dispatchEvent() final;
         void unobservedEvent() override;
 
         std::function<void(const void*)> dispatcher;
 
         const void* arg;
+
+        friend class Timer;
     };
 
 } // namespace core::timer

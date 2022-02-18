@@ -27,6 +27,8 @@ namespace utils {
     class Timeval;
 }
 
+#include <string> // for string
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MAX_WRITE_INACTIVITY 60

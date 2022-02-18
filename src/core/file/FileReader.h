@@ -25,6 +25,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace utils {
+    class Timeval;
+}
+
 #include <functional>
 #include <string>
 
