@@ -18,8 +18,6 @@
 
 #include "net/in/stream/config/ConfigClientSocket.h"
 
-//#include "net/in/config/ConfigAddress.cpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
