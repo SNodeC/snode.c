@@ -45,7 +45,7 @@ set_source_files_properties(
 )
 
 target_compile_definitions(
-    logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE ELPP_NO_LOG_TO_FILE
+    logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE ELPP_NO_LOG_TO_FILE ELPP_FEATURE_ALL ELPP_STACKTRACE_ON_CRASH ELPP_STACKTRACE
                    ELPP_CUSTOM_COUT=std::cerr
 )
 

@@ -59,19 +59,18 @@ GNU Lesser General Public License
     **sudo apt install doxygen iwyu clang-format cmake-format libmagic-dev libbackward-cpp-dev
     libdw-dev libdwarf-dev binutils-dev librange-v3-dev libssl-dev libeasyloggingpp-dev libbluetooth-dev nlohmann-json3-dev**  
   to install all neccesarry dependencies.
-- GCC Version 10: As snode.c uses most recent C++-20 language features
-- libeasyloggingpp: For logging
-- openssl: For SSL/TLS support
-- libbluez: For bluetooth support
-- doxygen: For creating the API-documentation
-- cmake:
-- iwyu: To check for correct and complete included headers
-- libmagic: To recognize the type of data in a file using "magic" numbers
-- clang-format: To format the sourcecode consistently
-- cmake-format: To format all CMakeLists.txt files consistently
-- libbackward-cpp, libdw, libdward, binutils-dev: For creating stacktraces for debugging
-- nlohmann-json3-dev: For JSON support
-- librange-v3-dev: For C++20 range support also in clang (as long as the compilers didn't support them natively)
+- cmake-format
+- doxygen
+- libeasyloggingpp-dev
+- clang-format
+- libbackward-cpp-dev
+- binutils-dev libdw-dev libunwind-dev
+- libbluetooth-dev
+- libssl-dev
+- nlohmann-json3-dev
+- libmagic-dev
+- iwyu
+- cmake
 
 ## Components
 - libnet (directory net) low level multiplexed network-layer (server/client) with event-loop supporting legacy- and tls-connections

@@ -104,7 +104,7 @@ namespace core::poll {
     }
 
     void PollFdsManager::compress() {
-        remove_if(pollfds.begin(), pollfds.end(), [](const pollfd& pollFd) -> bool {
+        std::remove_if(pollfds.begin(), pollfds.end(), [](const pollfd& pollFd) -> bool {
             return pollFd.fd < 0;
         });
 

@@ -100,9 +100,7 @@ namespace core {
 
             if (eventQueue.empty()) {
                 nextTimeout = getNextTimeout(currentTime);
-
-                nextTimeout = std::min(nextTimeout, tickTimeOut);
-                nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
+                nextTimeout = std::min(nextTimeout, tickTimeOut); // In case nextEventTimeout is negativ
             }
 
             int ret = multiplex(nextTimeout);
@@ -113,7 +111,7 @@ namespace core {
             } else if (errno != EINTR) {
                 tickStatus = TickStatus::ERROR;
             } else {
-                // ignore EINTR - it is no error
+                // ignore EINTR - it is not an error
             }
         } else {
             tickStatus = TickStatus::NO_OBSERVER;
@@ -155,6 +153,7 @@ namespace core {
             nextTimeout = std::min(eventMultiplexer->getNextTimeout(currentTime), nextTimeout);
         }
         nextTimeout = std::min(timerEventPublisher->getNextTimeout(currentTime), nextTimeout);
+        nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextTimeout is negative
 
         return nextTimeout;
     }

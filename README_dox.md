@@ -40,16 +40,18 @@ GNU Lesser General Public License
 
 
 ## Requirements
-- GCC Version 10: As snode.c uses most recent C++-20 language features
-- libeasyloggingpp: For logging
-- openssl: For SSL/TLS support
-- doxygen: For creating the API-documentation
-- cmake:
-- iwyu: To check for correct and complete included headers
-- libmagic: To recognize the type of data in a file using "magic" numbers
-- clang-format: To format the sourcecode consistently
-- nlohmann-json3-dev: For JSON support
-- librange-v3-dev: For C++20 range support also in clang (as long as the compilers didn't support them natively)
+- cmake-format
+- doxygen
+- libeasyloggingpp-dev
+- clang-format
+- libbackward-cpp-dev
+- binutils-dev libdw-dev libunwind-dev
+- libbluetooth-dev
+- libssl-dev
+- nlohmann-json3-dev
+- libmagic-dev
+- iwyu
+
 
 ## Components
 - libnet (directory net) low level multiplexed network-layer (server/client) with event-loop supporting legacy- and tls-connections
