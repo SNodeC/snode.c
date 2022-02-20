@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <algorithm>
 #include <iterator>    // for reverse_iterator
 #include <type_traits> // for add_const<>::type
@@ -35,7 +33,6 @@ namespace core {
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         int fd = descriptorEventReceiver->getRegisteredFd();
-        //        LOG(INFO) << "Observed: " << descriptorEventReceiver->getName() << ", fd = " << fd;
         descriptorEventReceiver->setEnabled();
         observedEventReceivers[fd].push_front(descriptorEventReceiver);
         muxAdd(descriptorEventReceiver);
@@ -65,19 +62,13 @@ namespace core {
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         if (observedEventReceiversDirty) {
             std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
-                auto& [fdTmp, observedEventReceiverList] = observedEventReceiversEntry; // cppcheck-suppress constVariable
-                int fd = fdTmp; // NOTE: Needed because clang did not capture compound initialized variables. Bug in clang?
-                std::erase_if(observedEventReceiverList, [fd](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
+                auto& [fd, observedEventReceiverList] = observedEventReceiversEntry; // cppcheck-suppress constVariable
+                std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
                     bool isDisabled = !descriptorEventReceiver->isEnabled();
                     if (isDisabled) {
                         descriptorEventReceiver->setDisabled();
                         if (!descriptorEventReceiver->isObserved()) {
-                            //                            LOG(INFO) << "UnobservedEvent: " << descriptorEventReceiver->getName() << ", fd =
-                            //                            " << fd;
                             descriptorEventReceiver->unobservedEvent();
-                        } else {
-                            //                            LOG(INFO) << "Unobserved: " << descriptorEventReceiver->getName() << ", fd = " <<
-                            //                            fd;
                         }
                     }
                     return isDisabled;

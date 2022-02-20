@@ -21,6 +21,8 @@
 
 #include "EventReceiver.h" // IWYU pragma: export
 
+// IWYU pragma: no_include "core/EventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h" // IWYU pragma: export

@@ -23,7 +23,9 @@ namespace core {
     class DescriptorEventPublisher;
 } // namespace core
 
-#include "core/EventReceiver.h"
+#include "EventReceiver.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "core/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
