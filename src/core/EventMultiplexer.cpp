@@ -159,8 +159,8 @@ namespace core {
     }
 
     void EventMultiplexer::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
-            eventMultiplexer->checkTimedOutEvents(currentTime);
+        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+            descriptorEventPublisher->checkTimedOutEvents(currentTime);
         }
     }
 

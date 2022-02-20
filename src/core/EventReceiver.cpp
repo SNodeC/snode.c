@@ -29,7 +29,7 @@ namespace core {
 
     EventReceiver::EventReceiver(const std::string& name)
         : name(name)
-        , event(name, this) {
+        , event(this) {
     }
 
     void EventReceiver::publish() const {

@@ -103,6 +103,7 @@ namespace core {
         void setEnabled(const utils::Timeval& currentTime = utils::Timeval::currentTime());
         void setDisabled();
 
+        virtual bool isToBeContinued();
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 

@@ -37,14 +37,13 @@ namespace core {
 
     class Event {
     public:
-        explicit Event(const std::string& name, EventReceiver* eventReceiver);
+        explicit Event(EventReceiver* eventReceiver);
 
-        ~Event();
+        ~Event() = default;
 
     private:
         void dispatch(const utils::Timeval& currentTime) const;
 
-        std::string name;
         EventReceiver* eventReceiver;
 
         friend class EventMultiplexer;

@@ -81,6 +81,10 @@ namespace core {
         unObserved();
     }
 
+    bool DescriptorEventReceiver::isToBeContinued() {
+        return false; // defaults to false
+    }
+
     bool DescriptorEventReceiver::isEnabled() const {
         return enabled;
     }
@@ -158,6 +162,8 @@ namespace core {
     void DescriptorEventReceiver::checkTimeout(const utils::Timeval& currentTime) {
         if (maxInactivity >= 0 && currentTime - lastTriggered >= maxInactivity) {
             timeoutEvent();
+        } else if (isToBeContinued()) {
+            publish();
         }
     }
 

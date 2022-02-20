@@ -63,6 +63,10 @@ namespace core::socket::stream {
 
         void readEvent() override = 0;
 
+        bool isToBeContinued() override {
+            return hasBufferedData();
+        }
+
     protected:
         void setBlockSize(std::size_t readBlockSize) {
             readBuffer.resize(readBlockSize);
