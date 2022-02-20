@@ -35,7 +35,7 @@ namespace core {
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         int fd = descriptorEventReceiver->getRegisteredFd();
-        LOG(INFO) << "Observed: " << descriptorEventReceiver->getName() << ", fd = " << fd;
+        //        LOG(INFO) << "Observed: " << descriptorEventReceiver->getName() << ", fd = " << fd;
         descriptorEventReceiver->setEnabled();
         observedEventReceivers[fd].push_front(descriptorEventReceiver);
         muxAdd(descriptorEventReceiver);
@@ -72,10 +72,12 @@ namespace core {
                     if (isDisabled) {
                         descriptorEventReceiver->setDisabled();
                         if (!descriptorEventReceiver->isObserved()) {
-                            LOG(INFO) << "UnobservedEvent: " << descriptorEventReceiver->getName() << ", fd = " << fd;
+                            //                            LOG(INFO) << "UnobservedEvent: " << descriptorEventReceiver->getName() << ", fd =
+                            //                            " << fd;
                             descriptorEventReceiver->unobservedEvent();
                         } else {
-                            LOG(INFO) << "Unobserved: " << descriptorEventReceiver->getName() << ", fd = " << fd;
+                            //                            LOG(INFO) << "Unobserved: " << descriptorEventReceiver->getName() << ", fd = " <<
+                            //                            fd;
                         }
                     }
                     return isDisabled;
