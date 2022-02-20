@@ -39,7 +39,7 @@ namespace core {
     public:
         explicit Event(const std::string& name, EventReceiver* eventReceiver);
 
-        ~Event() = default;
+        ~Event();
 
     private:
         void dispatch(const utils::Timeval& currentTime) const;

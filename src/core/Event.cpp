@@ -34,8 +34,12 @@ namespace core {
         , eventReceiver(eventReceiver) {
     }
 
+    Event::~Event() {
+        VLOG(0) << "Deleting Event: name = " << name << ", this = " << this;
+    }
+
     void Event::dispatch(const utils::Timeval& currentTime) const {
-        VLOG(0) << "Dispatch: name = " << name;
+        VLOG(0) << "Dispatch Event: name = " << name << ", this = " << this;
         eventReceiver->dispatch(currentTime);
     }
 
