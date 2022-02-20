@@ -29,19 +29,22 @@ namespace utils {
     class Timeval;
 }
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     class Event {
     public:
-        explicit Event(EventReceiver* eventReceiver);
+        explicit Event(const std::string& name, EventReceiver* eventReceiver);
 
         ~Event() = default;
 
     private:
         void dispatch(const utils::Timeval& currentTime) const;
 
+        std::string name;
         EventReceiver* eventReceiver;
 
         friend class EventMultiplexer;

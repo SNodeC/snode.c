@@ -22,17 +22,20 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
-    core::Event::Event(EventReceiver* eventReceiver)
-        : eventReceiver(eventReceiver) {
+    core::Event::Event(const std::string& name, EventReceiver* eventReceiver)
+        : name(name)
+        , eventReceiver(eventReceiver) {
     }
 
     void Event::dispatch(const utils::Timeval& currentTime) const {
+        VLOG(0) << "Dispatch: name = " << name;
         eventReceiver->dispatch(currentTime);
     }
 

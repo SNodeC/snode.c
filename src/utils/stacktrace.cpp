@@ -37,16 +37,18 @@ namespace stacktrace {
 
     void stacktrace([[maybe_unused]] std::size_t trace_cnt_max) {
 #ifdef BACKTRACE_SUPPORTED
-        void* buffer[2];
-        backtrace(buffer, 2);
+        //        void* buffer[2];
+        //        backtrace(buffer, 2);
 
         backward::StackTrace st;
         //        st.load_here(trace_cnt_max);
-        st.load_from(reinterpret_cast<char*>(buffer[1]) - 1, trace_cnt_max);
+        //        st.load_from(reinterpret_cast<char*>(buffer[1]) - 1, trace_cnt_max);
+        st.load_here(trace_cnt_max);
+        st.skip_n_firsts(3);
 
         backward::Printer p;
         p.snippet = true;
-        p.object = false;
+        p.object = true;
         p.color_mode = backward::ColorMode::automatic;
         p.address = true;
         p.print(st, stderr);
