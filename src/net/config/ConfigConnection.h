@@ -41,33 +41,46 @@ namespace net::config {
         explicit ConfigConnection();
 
     public:
-        const utils::Timeval& getReadTimeout() const;
-
-        const utils::Timeval& getWriteTimeout() const;
+        utils::Timeval getReadTimeout() const;
+        utils::Timeval getWriteTimeout() const;
 
         std::size_t getReadBlockSize() const;
-
         std::size_t getWriteBlockSize() const;
 
-        const utils::Timeval& getTerminateTimeout() const;
+        utils::Timeval getTerminateTimeout() const;
+
+        void setReadTimeoutSet(const utils::Timeval& newReadTimeoutSet);
+        void setWriteTimeoutSet(const utils::Timeval& newWriteTimeoutSet);
+
+        void setReadBlockSizeSet(std::size_t newReadBlockSizeSet);
+        void setWriteBlockSizeSet(std::size_t newWriteBlockSizeSet);
+
+        void setTerminateTimeoutSet(const utils::Timeval& newTerminateTimeoutSet);
 
     private:
         CLI::App* connectionSc = nullptr;
         CLI::Option* readTimeoutOpt = nullptr;
         CLI::Option* writeTimeoutOpt = nullptr;
+
         CLI::Option* readBlockSizeOpt = nullptr;
         CLI::Option* writeBlockSizeOpt = nullptr;
+
         CLI::Option* terminateTimeoutOpt = nullptr;
 
-        std::string name;
-
         utils::Timeval readTimeout;
+        utils::Timeval readTimeoutSet = -1;
+
         utils::Timeval writeTimeout;
+        utils::Timeval writeTimeoutSet = -1;
 
         std::size_t readBlockSize;
+        std::size_t readBlockSizeSet = 0;
+
         std::size_t writeBlockSize;
+        std::size_t writeBlockSizeSet = 0;
 
         utils::Timeval terminateTimeout;
+        utils::Timeval terminateTimeoutSet = -1;
     };
 
 } // namespace net::config

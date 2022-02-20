@@ -38,17 +38,22 @@ namespace net::config {
     public:
         explicit ConfigTls();
 
-        const utils::Timeval& getInitTimeout() const;
+        utils::Timeval getInitTimeout() const;
+        utils::Timeval getShutdownTimeout() const;
 
-        const utils::Timeval& getShutdownTimeout() const;
+        void setInitTimeoutSet(const utils::Timeval& newInitTimeoutSet);
+        void setShutdownTimeoutSet(const utils::Timeval& newShutdownTimeoutSet);
 
     private:
         CLI::App* tlsSc = nullptr;
-        CLI::Option* tlsInitTimeoutOpt = nullptr;
-        CLI::Option* tlsShutdownTimeoutOpt = nullptr;
+        CLI::Option* initTimeoutOpt = nullptr;
+        CLI::Option* shutdownTimeoutOpt = nullptr;
 
         utils::Timeval initTimeout;
+        utils::Timeval initTimeoutSet = -1;
+
         utils::Timeval shutdownTimeout;
+        utils::Timeval shutdownTimeoutSet = -1;
     };
 
 } // namespace net::config

@@ -29,24 +29,44 @@
 namespace net::config {
 
     ConfigTls::ConfigTls() {
-        tlsSc = baseSc->add_subcommand("tls");
+        tlsSc = add_subcommand("tls");
         tlsSc->description("Options for SSL/TLS behaviour");
 
-        tlsInitTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "SSL/TLS initialization timeout");
-        tlsInitTimeoutOpt->type_name("[sec]");
-        tlsInitTimeoutOpt->default_val(10);
+        initTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "SSL/TLS initialization timeout");
+        initTimeoutOpt->type_name("[sec]");
+        initTimeoutOpt->default_val(10);
 
-        tlsShutdownTimeoutOpt = tlsSc->add_option("-s,--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
-        tlsShutdownTimeoutOpt->type_name("[sec]");
-        tlsShutdownTimeoutOpt->default_val(2);
+        shutdownTimeoutOpt = tlsSc->add_option("-s,--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
+        shutdownTimeoutOpt->type_name("[sec]");
+        shutdownTimeoutOpt->default_val(2);
     }
 
-    const utils::Timeval& ConfigTls::getShutdownTimeout() const {
+    utils::Timeval ConfigTls::getInitTimeout() const {
+        utils::Timeval initTimeout = this->initTimeout;
+
+        if (initTimeout >= 0 && initTimeoutOpt->count() == 0) {
+            initTimeout = initTimeoutSet;
+        }
+
+        return initTimeout;
+    }
+
+    utils::Timeval ConfigTls::getShutdownTimeout() const {
+        utils::Timeval shutdownTimeout = this->shutdownTimeout;
+
+        if (shutdownTimeout >= 0 && shutdownTimeoutOpt->count() == 0) {
+            shutdownTimeout = shutdownTimeoutSet;
+        }
+
         return shutdownTimeout;
     }
 
-    const utils::Timeval& ConfigTls::getInitTimeout() const {
-        return initTimeout;
+    void ConfigTls::setInitTimeoutSet(const utils::Timeval& newInitTimeoutSet) {
+        initTimeoutSet = newInitTimeoutSet;
+    }
+
+    void ConfigTls::setShutdownTimeoutSet(const utils::Timeval& newShutdownTimeoutSet) {
+        shutdownTimeoutSet = newShutdownTimeoutSet;
     }
 
 } // namespace net::config

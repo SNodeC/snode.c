@@ -37,14 +37,13 @@ namespace net::config {
 
         int getBacklog() const;
 
-        void setBacklog(int backlog) const;
+        void setBacklog(int backlog);
 
     private:
         CLI::Option* backlogOpt = nullptr;
 
-        mutable int initBacklog;
-        int backlog;
-        mutable bool initialized = false;
+        int backlog = 0;
+        int backlogSet = -1;
     };
 
 } // namespace net::config

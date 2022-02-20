@@ -38,7 +38,7 @@ namespace net::config {
         using SocketAddress = SocketAddressT;
 
     protected:
-        ConfigAddress(const std::string& addressOptionName);
+        ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription);
 
         const SocketAddress& getAddress();
         void setAddress(const SocketAddress& address);

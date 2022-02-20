@@ -42,7 +42,7 @@ namespace utils {
         static Timeval currentTime();
 
         Timeval& operator=(const Timeval& timeVal);
-        Timeval& operator=(const std::initializer_list<time_t>& initList);
+        //        Timeval& operator=(const std::initializer_list<time_t>& initList);
         Timeval& operator=(const timeval& timeVal);
 
         Timeval operator+(const Timeval& timeVal) const;

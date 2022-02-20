@@ -27,8 +27,7 @@
 namespace net::config {
 
     ConfigConnection::ConfigConnection() {
-        connectionSc = baseSc->add_subcommand("connection");
-        connectionSc->description("Options for established client connections");
+        connectionSc = add_subcommand("connection", "Options for established client connections");
 
         readTimeoutOpt = connectionSc->add_option("-r,--read-timeout", readTimeout, "Read timeout");
         readTimeoutOpt->type_name("[sec]");
@@ -51,24 +50,74 @@ namespace net::config {
         terminateTimeoutOpt->default_val(1);
     }
 
-    const utils::Timeval& ConfigConnection::getReadTimeout() const {
+    utils::Timeval ConfigConnection::getReadTimeout() const {
+        utils::Timeval readTimeout = this->readTimeout;
+
+        if (readTimeoutSet >= 0 && readTimeoutOpt->count() == 0) {
+            readTimeout = readTimeoutSet;
+        }
+
         return readTimeout;
     }
 
-    const utils::Timeval& ConfigConnection::getWriteTimeout() const {
+    utils::Timeval ConfigConnection::getWriteTimeout() const {
+        utils::Timeval writeTimeout = this->writeTimeout;
+
+        if (writeTimeoutSet >= 0 && writeTimeoutOpt->count() == 0) {
+            writeTimeout = writeTimeoutSet;
+        }
+
         return writeTimeout;
     }
 
     std::size_t ConfigConnection::getReadBlockSize() const {
+        std::size_t readBlockSize = this->readBlockSize;
+
+        if (readBlockSizeSet > 0 && readBlockSizeOpt->count() == 0) {
+            readBlockSize = readBlockSizeSet;
+        }
+
         return readBlockSize;
     }
 
     std::size_t ConfigConnection::getWriteBlockSize() const {
+        std::size_t writeBlockSize = this->writeBlockSize;
+
+        if (writeBlockSizeSet > 0 && writeBlockSizeOpt->count() == 0) {
+            writeBlockSize = writeBlockSizeSet;
+        }
+
         return writeBlockSize;
     }
 
-    const utils::Timeval& ConfigConnection::getTerminateTimeout() const {
+    utils::Timeval ConfigConnection::getTerminateTimeout() const {
+        utils::Timeval terminateTimeout = this->terminateTimeout;
+
+        if (terminateTimeoutSet >= 0 && terminateTimeoutOpt->count() == 0) {
+            terminateTimeout = this->terminateTimeoutSet;
+        }
+
         return terminateTimeout;
+    }
+
+    void ConfigConnection::setReadTimeoutSet(const utils::Timeval& newReadTimeoutSet) {
+        readTimeoutSet = newReadTimeoutSet;
+    }
+
+    void ConfigConnection::setWriteTimeoutSet(const utils::Timeval& newWriteTimeoutSet) {
+        writeTimeoutSet = newWriteTimeoutSet;
+    }
+
+    void ConfigConnection::setReadBlockSizeSet(std::size_t newReadBlockSizeSet) {
+        readBlockSizeSet = newReadBlockSizeSet;
+    }
+
+    void ConfigConnection::setWriteBlockSizeSet(std::size_t newWriteBlockSizeSet) {
+        writeBlockSizeSet = newWriteBlockSizeSet;
+    }
+
+    void ConfigConnection::setTerminateTimeoutSet(const utils::Timeval& newTerminateTimeoutSet) {
+        terminateTimeoutSet = newTerminateTimeoutSet;
     }
 
 } // namespace net::config

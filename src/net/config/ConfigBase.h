@@ -23,7 +23,10 @@
 
 namespace CLI {
     class App;
+    class Option;
 } // namespace CLI
+
+//#include "utils/CLI11.hpp"
 
 #include <string>
 
@@ -41,8 +44,12 @@ namespace net::config {
         const std::string& getName() const;
 
     protected:
+        CLI::App* add_subcommand(const std::string& name, const std::string& description = "");
+        CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
+
         int parse(bool forceError = false) const;
 
+    private:
         CLI::App* baseSc = nullptr;
 
         std::string name;

@@ -38,6 +38,14 @@ namespace net::config {
         return name;
     }
 
+    CLI::App* ConfigBase::add_subcommand(const std::string& name, const std::string& description) {
+        return baseSc->add_subcommand(name, description);
+    }
+
+    CLI::Option* ConfigBase::add_option(const std::string& name, int& variable, const std::string& description) {
+        return baseSc->add_option(name, variable, description);
+    }
+
     int ConfigBase::parse(bool forceError) const {
         utils::Config::parse(forceError);
 

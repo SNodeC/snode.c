@@ -29,10 +29,7 @@
 namespace net::config {
 
     ConfigBacklog::ConfigBacklog() {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull" // it seams this is a bug in g++. clang did not complain about it
-        backlogOpt = baseSc->add_option("-b,--backlog", backlog, "Listen backlog");
-#pragma GCC diagnostic pop
+        backlogOpt = add_option("-b,--backlog", backlog, "Listen backlog");
         backlogOpt->type_name("[backlog]");
         backlogOpt->default_val(5);
     }
@@ -40,15 +37,15 @@ namespace net::config {
     int ConfigBacklog::getBacklog() const {
         int backlog = this->backlog;
 
-        if (initialized) {
-            backlog = this->initBacklog;
+        if (backlogSet >= 0 && backlogOpt->count() == 0) {
+            backlog = this->backlogSet;
         }
 
         return backlog;
     }
 
-    void ConfigBacklog::setBacklog(int backlog) const {
-        this->initBacklog = backlog;
+    void ConfigBacklog::setBacklog(int backlog) {
+        this->backlogSet = backlog;
     }
 
 } // namespace net::config
