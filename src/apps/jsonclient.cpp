@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         } else {
-            VLOG(0) << "jsonclient.c connected to " << socketAddress.toString();
+            VLOG(0) << "jsonclient.c connecting to " << socketAddress.toString();
         }
     });
 

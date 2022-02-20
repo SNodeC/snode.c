@@ -271,7 +271,7 @@ int main(int argc, char* argv[]) {
                                  if (err) {
                                      PLOG(ERROR) << "Connect: " << std::to_string(err);
                                  } else {
-                                     VLOG(0) << "Connected to " << socketAddress.toString();
+                                     VLOG(0) << "Connecting to " << socketAddress.toString();
                                  }
                              });
 
@@ -282,7 +282,7 @@ int main(int argc, char* argv[]) {
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
             } else {
-                VLOG(0) << "Connected to " << socketAddress.toString();
+                VLOG(0) << "Connecting to " << socketAddress.toString();
             }
         });
     }

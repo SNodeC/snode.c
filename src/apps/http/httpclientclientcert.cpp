@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
         if (errnum != 0) {
             PLOG(ERROR) << "OnError: " << errnum;
         } else {
-            VLOG(0) << "snode.c connected to " << socketAddress.toString();
+            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }
     });
 
