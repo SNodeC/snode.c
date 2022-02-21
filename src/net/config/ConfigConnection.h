@@ -30,8 +30,6 @@ namespace CLI {
 
 #include "utils/Timeval.h"
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {

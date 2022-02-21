@@ -28,6 +28,7 @@
 #include <cerrno>
 #include <cstdlib>
 #include <filesystem>
+#include <memory>    // for __shared_ptr_access, shared_ptr
 #include <ostream>   // for ofstream, basic_ostream
 #include <stdexcept> // for invalid_argument, out_of_range
 

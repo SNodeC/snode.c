@@ -22,6 +22,8 @@
 
 #include "utils/CLI11.hpp"
 
+#include <string> // for allocator
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #ifndef DEFAULT_READTIMEOUT
