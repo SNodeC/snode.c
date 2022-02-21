@@ -28,7 +28,9 @@ namespace net::un::stream::config {
         : net::config::ConfigBacklog(withCommandLine)
         , net::un::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
         , net::config::ConfigConnection(withCommandLine) {
-        net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
+        if (withCommandLine) {
+            net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
+        }
     }
 
 } // namespace net::un::stream::config

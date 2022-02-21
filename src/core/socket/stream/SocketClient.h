@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <any> // IWYU pragma: export
 #include <cerrno>
 #include <cstddef>
@@ -87,9 +89,14 @@ namespace core::socket::stream {
         }
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const override {
-            SocketConnector* socketConnector = new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+            if (config->isRemoteInitialized()) {
+                SocketConnector* socketConnector =
+                    new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
-            socketConnector->connect(config, onError);
+                socketConnector->connect(config, onError);
+            } else {
+                LOG(ERROR) << "Parameterless connect with anonymous client instance";
+            }
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {

@@ -28,7 +28,9 @@ namespace net::in6::stream::config {
         : net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>(withCommandLine)
         , net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
         , net::config::ConfigConnection(withCommandLine) {
-        net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
+        if (withCommandLine) {
+            net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
+        }
     }
 
 } // namespace net::in6::stream::config

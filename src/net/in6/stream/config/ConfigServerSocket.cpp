@@ -28,7 +28,9 @@ namespace net::in6::stream::config {
         : net::config::ConfigBacklog(withCommandLine)
         , net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
         , net::config::ConfigConnection(withCommandLine) {
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
+        if (withCommandLine) {
+            net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
+        }
     }
 
 } // namespace net::in6::stream::config

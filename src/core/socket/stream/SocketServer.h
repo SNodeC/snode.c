@@ -78,9 +78,13 @@ namespace core::socket::stream {
         }
 
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
-            SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+            if (config->isLocalInitialized()) {
+                SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
-            socketAcceptor->listen(config, onError);
+                socketAcceptor->listen(config, onError);
+            } else {
+                LOG(ERROR) << "Parameterless listen on anonymous server instance";
+            }
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {

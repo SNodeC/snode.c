@@ -37,6 +37,11 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
+    bool ConfigAddressRemote<SocketAddress>::isRemoteInitialized() {
+        return Super::isInitialized();
+    }
+
+    template <typename SocketAddress>
     const SocketAddress& ConfigAddressRemote<SocketAddress>::getRemoteAddress() {
         return Super::getAddress();
     }

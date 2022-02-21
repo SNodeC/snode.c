@@ -60,6 +60,13 @@ namespace core::socket::stream::tls {
             Super::options.insert({{"FORCE_SNI", &forceSni}});
         }
 
+        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     const std::map<std::string, std::any>& options = {{}})
+            : SocketServer("", onConnect, onConnected, onDisconnect, options) {
+        }
+
     private:
         void addSniCtx(const std::string& domain, SSL_CTX* sslCtx) {
             if (sslCtx != nullptr) {

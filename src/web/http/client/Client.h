@@ -75,6 +75,16 @@ namespace web::http::client {
             Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
             Super::getSocketContextFactory()->setOnResponseError(onResponseError);
         }
+
+        Client(const std::function<void(SocketConnection*)>& onConnect,
+               const std::function<void(SocketConnection*)>& onConnected,
+               const std::function<void(Request&)>& onRequestBegin,
+               const std::function<void(Request&, Response&)>& onResponseReady,
+               const std::function<void(int, const std::string&)>& onResponseError,
+               const std::function<void(SocketConnection*)>& onDisconnect,
+               const std::map<std::string, std::any>& options = {{}})
+            : Client("", onConnect, onConnected, onRequestBegin, onResponseReady, onResponseError, onDisconnect, options) {
+        }
     };
 
 } // namespace web::http::client

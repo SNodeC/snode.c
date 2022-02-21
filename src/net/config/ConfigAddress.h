@@ -37,6 +37,9 @@ namespace net::config {
     class ConfigAddress : virtual protected ConfigBase {
         using SocketAddress = SocketAddressT;
 
+    public:
+        bool isInitialized() const;
+
     protected:
         ConfigAddress(bool withCommandLine, const std::string& addressOptionName, const std::string& addressOptionDescription);
 
@@ -52,8 +55,9 @@ namespace net::config {
     private:
         virtual void updateFromCommandLine() = 0;
 
-        bool initialized = false;
+        bool parsedRequired = false;
         bool updated = false;
+        bool initialized = false;
     };
 
 } // namespace net::config

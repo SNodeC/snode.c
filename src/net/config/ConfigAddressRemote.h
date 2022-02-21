@@ -41,6 +41,8 @@ namespace net::config {
         explicit ConfigAddressRemote(bool withCommandLine);
 
     public:
+        bool isRemoteInitialized();
+
         const SocketAddress& getRemoteAddress();
         void setRemoteAddress(const SocketAddress& localAddress);
     };

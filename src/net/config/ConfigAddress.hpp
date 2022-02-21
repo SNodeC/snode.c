@@ -36,16 +36,17 @@ namespace net::config {
         if (withCommandLine) {
             addressSc = add_subcommand(addressOptionName, addressOptionDescription);
             addressSc->group("Option groups");
+            initialized = true;
         }
     }
 
     template <typename SocketAddress>
     const SocketAddress& ConfigAddress<SocketAddress>::getAddress() {
         if (addressSc != nullptr) {
-            if (!initialized) {
+            if (!parsedRequired) {
                 parse(true); // Try command line parsing honoring required options
                 updateFromCommandLine();
-                initialized = true;
+                parsedRequired = true;
                 updated = true;
             } else if (!updated) {
                 updateFromCommandLine();
@@ -60,6 +61,11 @@ namespace net::config {
     void ConfigAddress<SocketAddress>::setAddress(const SocketAddress& localAddress) {
         address = localAddress;
         initialized = true;
+    }
+
+    template <typename SocketAddressT>
+    bool ConfigAddress<SocketAddressT>::isInitialized() const {
+        return initialized;
     }
 
     template <typename SocketAddress>

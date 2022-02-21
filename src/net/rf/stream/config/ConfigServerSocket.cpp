@@ -28,7 +28,9 @@ namespace net::rf::stream::config {
         : net::config::ConfigBacklog(withCommandLine)
         , net::rf::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
         , net::config::ConfigConnection(withCommandLine) {
-        net::rf::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
+        if (withCommandLine) {
+            net::rf::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
+        }
     }
 
 } // namespace net::rf::stream::config

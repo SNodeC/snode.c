@@ -68,6 +68,14 @@ namespace web::http::server {
             Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
+        Server(const std::function<void(SocketConnection*)>& onConnect,
+               const std::function<void(SocketConnection*)>& onConnected,
+               const std::function<void(Request&, Response&)>& onRequestReady,
+               const std::function<void(SocketConnection*)>& onDisconnect,
+               const std::map<std::string, std::any>& options = {{}})
+            : Server("", onConnect, onConnected, onRequestReady, onDisconnect, options) {
+        }
+
         using Super::listen;
 
         void listen(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {

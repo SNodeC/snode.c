@@ -28,7 +28,9 @@ namespace net::l2::stream::config {
         : net::config::ConfigBacklog(withCommandLine)
         , net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
         , net::config::ConfigConnection(withCommandLine) {
-        net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
+        if (withCommandLine) {
+            net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
+        }
     }
 
 } // namespace net::l2::stream::config

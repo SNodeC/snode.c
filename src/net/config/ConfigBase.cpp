@@ -29,10 +29,12 @@ namespace net::config {
 
     ConfigBase::ConfigBase(const std::string& name)
         : name(name) {
-        baseSc = utils::Config::add_subcommand(name, name + " configuration");
-        baseSc->fallthrough();
-        baseSc->required();
-        baseSc->group("Instances");
+        if (!name.empty()) {
+            baseSc = utils::Config::add_subcommand(name, name + " configuration");
+            baseSc->fallthrough();
+            baseSc->required();
+            baseSc->group("Instances");
+        }
     }
 
     const std::string& ConfigBase::getName() const {

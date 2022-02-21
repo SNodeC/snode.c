@@ -36,8 +36,8 @@ namespace net::l2::stream::tls::config {
     public:
         explicit ConfigSocketServer(const std::string& name)
             : net::config::ConfigBase(name)
-            , net::l2::stream::config::ConfigServerSocket(true)
-            , net::config::ConfigTls(true) {
+            , net::l2::stream::config::ConfigServerSocket(!name.empty())
+            , net::config::ConfigTls(!name.empty()) {
         }
     };
 

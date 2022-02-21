@@ -41,6 +41,8 @@ namespace net::config {
         explicit ConfigAddressLocal(bool withCommandLine);
 
     public:
+        bool isLocalInitialized();
+
         const SocketAddress& getLocalAddress();
         void setLocalAddress(const SocketAddress& localAddress);
     };
