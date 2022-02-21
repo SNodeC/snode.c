@@ -35,7 +35,9 @@ namespace net::l2::stream::legacy::config {
         , public net::config::ConfigLegacy {
     public:
         explicit ConfigSocketServer(const std::string& name)
-            : net::config::ConfigBase(name) {
+            : net::config::ConfigBase(name)
+            , net::l2::stream::config::ConfigServerSocket(true)
+            , net::config::ConfigLegacy(true) {
         }
     };
 

@@ -24,7 +24,10 @@
 
 namespace net::un::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket() {
+    ConfigServerSocket::ConfigServerSocket(bool withCommandLine)
+        : net::config::ConfigBacklog(withCommandLine)
+        , net::un::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
+        , net::config::ConfigConnection(withCommandLine) {
         net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
     }
 

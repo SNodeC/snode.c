@@ -29,7 +29,7 @@ namespace net::config {
 
     class ConfigLegacy : virtual protected ConfigBase {
     public:
-        explicit ConfigLegacy(bool withCommandLine = true);
+        explicit ConfigLegacy(bool withCommandLine);
     };
 
 } // namespace net::config

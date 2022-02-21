@@ -24,7 +24,10 @@
 
 namespace net::l2::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket() {
+    ConfigClientSocket::ConfigClientSocket(bool withCommandLine)
+        : net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>(withCommandLine)
+        , net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
+        , net::config::ConfigConnection(withCommandLine) {
         net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
     }
 

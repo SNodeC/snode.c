@@ -35,7 +35,9 @@ namespace net::rf::stream::tls::config {
         , public net::config::ConfigTls {
     public:
         explicit ConfigSocketClient(const std::string& name)
-            : net::config::ConfigBase(name) {
+            : net::config::ConfigBase(name)
+            , net::rf::stream::config::ConfigClientSocket(true)
+            , net::config::ConfigTls(true) {
         }
     };
 

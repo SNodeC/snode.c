@@ -24,7 +24,10 @@
 
 namespace net::rf::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket() {
+    ConfigClientSocket::ConfigClientSocket(bool withCommandLine)
+        : net::rf::config::ConfigAddress<net::config::ConfigAddressRemote>(withCommandLine)
+        , net::rf::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
+        , net::config::ConfigConnection(withCommandLine) {
         net::rf::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
     }
 

@@ -24,7 +24,10 @@
 
 namespace net::in::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket() {
+    ConfigServerSocket::ConfigServerSocket(bool withCommandLine)
+        : net::config::ConfigBacklog(withCommandLine)
+        , net::in::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
+        , net::config::ConfigConnection(withCommandLine) {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
     }
 

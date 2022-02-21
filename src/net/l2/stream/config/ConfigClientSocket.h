@@ -37,7 +37,7 @@ namespace net::l2::stream::config {
         , public net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
-        explicit ConfigClientSocket();
+        explicit ConfigClientSocket(bool withCommandLine);
     };
 
 } // namespace net::l2::stream::config
