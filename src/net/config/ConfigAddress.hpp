@@ -35,6 +35,7 @@ namespace net::config {
                                                 const std::string& addressOptionDescription) {
         if (withCommandLine) {
             addressSc = add_subcommand(addressOptionName, addressOptionDescription);
+            addressSc->group("Option groups");
         }
     }
 

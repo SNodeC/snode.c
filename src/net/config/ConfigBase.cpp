@@ -32,6 +32,7 @@ namespace net::config {
         baseSc = utils::Config::add_subcommand(name, name + " configuration");
         baseSc->fallthrough();
         baseSc->required();
+        baseSc->group("Instances");
     }
 
     const std::string& ConfigBase::getName() const {

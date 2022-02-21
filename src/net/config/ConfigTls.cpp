@@ -38,8 +38,8 @@ namespace net::config {
 
     ConfigTls::ConfigTls(bool withCommandLine) {
         if (withCommandLine) {
-            tlsSc = add_subcommand("tls");
-            tlsSc->description("Options for SSL/TLS behaviour");
+            tlsSc = add_subcommand("tls", "Options for SSL/TLS behaviour");
+            tlsSc->group("Option groups");
 
             initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout");
             initTimeoutOpt->type_name("[sec]");
