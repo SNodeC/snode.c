@@ -31,11 +31,11 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Host name or IP address");
+        hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Host name or IP address");
         hostOpt->type_name("[hostname|ip]");
         hostOpt->default_val("0.0.0.0");
 
-        portOpt = ConfigAddressType::addressSc->add_option("-p,--port", port, "Port number");
+        portOpt = ConfigAddressType::addressSc->add_option("--port", port, "Port number");
         portOpt->type_name("[uint16_t]");
         portOpt->default_val(0);
     }

@@ -29,7 +29,7 @@
 namespace net::config {
 
     ConfigBacklog::ConfigBacklog() {
-        backlogOpt = add_option("-b,--backlog", backlog, "Listen backlog");
+        backlogOpt = add_option("--backlog", backlog, "Listen backlog");
         backlogOpt->type_name("[backlog]");
         backlogOpt->default_val(5);
     }

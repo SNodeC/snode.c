@@ -31,11 +31,11 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        hostOpt = ConfigAddressType::addressSc->add_option("-a,--host", host, "Bluetooth address");
-        hostOpt->type_name("[bluetooth address]");
+        hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Bluetooth address");
+        hostOpt->type_name("[bt address]");
         hostOpt->default_val("00:00:00:00:00:00");
 
-        psmOpt = ConfigAddressType::addressSc->add_option("-p,--psm", psm, "Protocol service multiplexer");
+        psmOpt = ConfigAddressType::addressSc->add_option("--psm", psm, "Protocol service multiplexer");
         psmOpt->type_name("[uint16_t]");
         psmOpt->default_val(0);
     }

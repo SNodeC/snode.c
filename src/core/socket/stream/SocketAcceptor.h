@@ -44,7 +44,7 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ServerConfigT, typename SocketConnectionT>
+    template <typename ConfigT, typename SocketConnectionT>
     class SocketAcceptor
         : protected SocketConnectionT::Socket
         , protected core::eventreceiver::InitAcceptEventReceiver
@@ -54,7 +54,7 @@ namespace core::socket::stream {
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
     protected:
-        using ServerConfig = ServerConfigT;
+        using Config = ConfigT;
         using SocketConnection = SocketConnectionT;
 
     private:
@@ -84,8 +84,8 @@ namespace core::socket::stream {
 
         ~SocketAcceptor() override = default;
 
-        void listen(const std::shared_ptr<ServerConfig>& serverConfig, const std::function<void(const SocketAddress&, int)>& onError) {
-            this->serverConfig = serverConfig;
+        void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
+            this->config = config;
             this->onError = onError;
 
             InitAcceptEventReceiver::publish();
@@ -96,29 +96,29 @@ namespace core::socket::stream {
             Socket::open(
                 [this](int errnum) -> void {
                     if (errnum > 0) {
-                        onError(serverConfig->getLocalAddress(), errnum);
+                        onError(config->getLocalAddress(), errnum);
                         destruct();
                     } else {
 #if !defined(NDEBUG)
                         reuseAddress([this](int errnum) -> void {
                             if (errnum != 0) {
-                                onError(serverConfig->getLocalAddress(), errnum);
+                                onError(config->getLocalAddress(), errnum);
                                 destruct();
                             } else {
 #endif
-                                Socket::bind(serverConfig->getLocalAddress(), [this](int errnum) -> void {
+                                Socket::bind(config->getLocalAddress(), [this](int errnum) -> void {
                                     if (errnum > 0) {
-                                        serverConfig->getLocalAddress();
-                                        onError(serverConfig->getLocalAddress(), errnum);
+                                        config->getLocalAddress();
+                                        onError(config->getLocalAddress(), errnum);
                                         destruct();
                                     } else {
-                                        int ret = core::system::listen(Socket::getFd(), serverConfig->getBacklog());
+                                        int ret = core::system::listen(Socket::getFd(), config->getBacklog());
 
                                         if (ret == 0) {
                                             enable(Socket::getFd());
-                                            onError(serverConfig->getLocalAddress(), 0);
+                                            onError(config->getLocalAddress(), 0);
                                         } else {
-                                            onError(serverConfig->getLocalAddress(), errno);
+                                            onError(config->getLocalAddress(), errno);
                                             destruct();
                                         }
                                     }
@@ -165,11 +165,11 @@ namespace core::socket::stream {
                                                                                   SocketAddress(remoteAddress),
                                                                                   onConnect,
                                                                                   onDisconnect,
-                                                                                  serverConfig->getReadTimeout(),
-                                                                                  serverConfig->getWriteTimeout(),
-                                                                                  serverConfig->getReadBlockSize(),
-                                                                                  serverConfig->getWriteBlockSize(),
-                                                                                  serverConfig->getTerminateTimeout());
+                                                                                  config->getReadTimeout(),
+                                                                                  config->getWriteTimeout(),
+                                                                                  config->getReadBlockSize(),
+                                                                                  config->getWriteBlockSize(),
+                                                                                  config->getTerminateTimeout());
 
                         onConnected(socketConnection);
                     } else {
@@ -190,7 +190,7 @@ namespace core::socket::stream {
             delete this;
         }
 
-        std::shared_ptr<ServerConfig> serverConfig = nullptr;
+        std::shared_ptr<Config> config = nullptr;
 
     private:
         void unobservedEvent() override {

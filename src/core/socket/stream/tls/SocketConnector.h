@@ -41,7 +41,7 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
 
     public:
-        using ClientConfig = typename Super::ClientConfig;
+        using Config = typename Super::Config;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
@@ -54,7 +54,7 @@ namespace core::socket::stream::tls {
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
                       SSL* ssl = socketConnection->startSSL(
-                          this->ctx, this->clientConfig->getInitTimeout(), this->clientConfig->getShutdownTimeout());
+                          this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
 
                       if (ssl != nullptr) {
                           ssl_set_sni(ssl, this->options);
@@ -68,16 +68,16 @@ namespace core::socket::stream::tls {
                               },
                               [this](void) -> void { // onTimeout
                                   LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                                  this->onError(this->clientConfig->getRemoteAddress(), ETIMEDOUT);
+                                  this->onError(this->config->getRemoteAddress(), ETIMEDOUT);
                               },
                               [this](int sslErr) -> void { // onError
                                   ssl_log("SSL/TLS initial handshake failed", sslErr);
-                                  this->onError(this->clientConfig->getRemoteAddress(), -sslErr);
+                                  this->onError(this->config->getRemoteAddress(), -sslErr);
                               });
                       } else {
                           socketConnection->close();
                           ssl_log_error("SSL/TLS initialization failed");
-                          this->onError(this->clientConfig->getRemoteAddress(), -SSL_ERROR_SSL);
+                          this->onError(this->config->getRemoteAddress(), -SSL_ERROR_SSL);
                       }
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -92,7 +92,7 @@ namespace core::socket::stream::tls {
             ssl_ctx_free(ctx);
         }
 
-        void connect(const std::shared_ptr<ClientConfig>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
+        void connect(const std::shared_ptr<Config>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
             if (ctx == nullptr) {
                 errno = EINVAL;
                 onError(clientConfig->getRemoteAddress(), errno);

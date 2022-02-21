@@ -49,13 +49,13 @@ namespace net::config {
 
         utils::Timeval getTerminateTimeout() const;
 
-        void setReadTimeoutSet(const utils::Timeval& newReadTimeoutSet);
-        void setWriteTimeoutSet(const utils::Timeval& newWriteTimeoutSet);
+        void setReadTimeout(const utils::Timeval& newReadTimeoutSet);
+        void setWriteTimeout(const utils::Timeval& newWriteTimeoutSet);
 
-        void setReadBlockSizeSet(std::size_t newReadBlockSizeSet);
-        void setWriteBlockSizeSet(std::size_t newWriteBlockSizeSet);
+        void setReadBlockSize(std::size_t newReadBlockSizeSet);
+        void setWriteBlockSize(std::size_t newWriteBlockSizeSet);
 
-        void setTerminateTimeoutSet(const utils::Timeval& newTerminateTimeoutSet);
+        void setTerminateTimeout(const utils::Timeval& newTerminateTimeoutSet);
 
     private:
         CLI::App* connectionSc = nullptr;

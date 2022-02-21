@@ -40,7 +40,7 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ClientConfigT, typename SocketConnectionT>
+    template <typename ConfigT, typename SocketConnectionT>
     class SocketConnector
         : protected SocketConnectionT::Socket
         , protected core::eventreceiver::InitConnectEventReceiver
@@ -50,7 +50,7 @@ namespace core::socket::stream {
         SocketConnector& operator=(const SocketConnector&) = delete;
 
     protected:
-        using ClientConfig = ClientConfigT;
+        using Config = ConfigT;
         using SocketConnection = SocketConnectionT;
 
     private:
@@ -75,8 +75,8 @@ namespace core::socket::stream {
 
         ~SocketConnector() override = default;
 
-        void connect(const std::shared_ptr<ClientConfig>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
-            this->clientConfig = clientConfig;
+        void connect(const std::shared_ptr<Config>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
+            this->config = clientConfig;
             this->onError = onError;
 
             InitConnectEventReceiver::publish();
@@ -87,23 +87,23 @@ namespace core::socket::stream {
             Socket::open(
                 [this](int errnum) -> void {
                     if (errnum > 0) {
-                        onError(clientConfig->getRemoteAddress(), errnum);
+                        onError(config->getRemoteAddress(), errnum);
                         destruct();
                     } else {
-                        Socket::bind(clientConfig->getLocalAddress(), [this](int errnum) -> void {
+                        Socket::bind(config->getLocalAddress(), [this](int errnum) -> void {
                             if (errnum > 0) {
-                                onError(clientConfig->getRemoteAddress(), errnum);
+                                onError(config->getRemoteAddress(), errnum);
                                 destruct();
                             } else {
                                 int ret = core::system::connect(Socket::getFd(),
-                                                                &clientConfig->getRemoteAddress().getSockAddr(),
-                                                                clientConfig->getRemoteAddress().getSockAddrLen());
+                                                                &config->getRemoteAddress().getSockAddr(),
+                                                                config->getRemoteAddress().getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
                                     enable(Socket::getFd());
-                                    onError(clientConfig->getRemoteAddress(), 0);
+                                    onError(config->getRemoteAddress(), 0);
                                 } else {
-                                    onError(clientConfig->getRemoteAddress(), errno);
+                                    onError(config->getRemoteAddress(), errno);
                                     destruct();
                                 }
                             }
@@ -139,30 +139,30 @@ namespace core::socket::stream {
                                                                                       SocketAddress(remoteAddress),
                                                                                       onConnect,
                                                                                       onDisconnect,
-                                                                                      clientConfig->getReadTimeout(),
-                                                                                      clientConfig->getWriteTimeout(),
-                                                                                      clientConfig->getReadBlockSize(),
-                                                                                      clientConfig->getWriteBlockSize(),
-                                                                                      clientConfig->getTerminateTimeout());
+                                                                                      config->getReadTimeout(),
+                                                                                      config->getWriteTimeout(),
+                                                                                      config->getReadBlockSize(),
+                                                                                      config->getWriteBlockSize(),
+                                                                                      config->getTerminateTimeout());
 
                             onConnected(socketConnection);
-                            onError(clientConfig->getRemoteAddress(), 0);
+                            onError(config->getRemoteAddress(), 0);
 
                             Socket::dontClose(true);
                             disable();
                         } else {
-                            onError(clientConfig->getRemoteAddress(), errno);
+                            onError(config->getRemoteAddress(), errno);
                             disable();
                         }
                     } else {
-                        onError(clientConfig->getRemoteAddress(), errno);
+                        onError(config->getRemoteAddress(), errno);
                         disable();
                     }
                 } else {
                     // Do nothing: connect() still in progress
                 }
             } else {
-                onError(clientConfig->getRemoteAddress(), errno);
+                onError(config->getRemoteAddress(), errno);
                 disable();
             }
         }
@@ -172,7 +172,7 @@ namespace core::socket::stream {
             delete this;
         }
 
-        std::shared_ptr<ClientConfig> clientConfig = nullptr;
+        std::shared_ptr<Config> config = nullptr;
 
     private:
         void unobservedEvent() override {

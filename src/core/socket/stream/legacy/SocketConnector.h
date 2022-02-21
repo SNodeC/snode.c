@@ -37,7 +37,7 @@ namespace core::socket::stream::legacy {
         using SocketAddress = typename Super::SocketAddress;
 
     public:
-        using ClientConfig = typename Super::ClientConfig;
+        using Config = typename Super::Config;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,

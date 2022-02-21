@@ -80,6 +80,8 @@ namespace utils {
         app.allow_extras();
         app.allow_config_extras();
 
+        app.get_formatter()->column_width(40);
+
         CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
         allHelpOpt->configurable(false);
 

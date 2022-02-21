@@ -32,11 +32,11 @@ namespace net::config {
         tlsSc = add_subcommand("tls");
         tlsSc->description("Options for SSL/TLS behaviour");
 
-        initTimeoutOpt = tlsSc->add_option("-i,--init-timeout", initTimeout, "SSL/TLS initialization timeout");
+        initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout");
         initTimeoutOpt->type_name("[sec]");
         initTimeoutOpt->default_val(10);
 
-        shutdownTimeoutOpt = tlsSc->add_option("-s,--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
+        shutdownTimeoutOpt = tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
         shutdownTimeoutOpt->type_name("[sec]");
         shutdownTimeoutOpt->default_val(2);
     }
@@ -44,7 +44,7 @@ namespace net::config {
     utils::Timeval ConfigTls::getInitTimeout() const {
         utils::Timeval initTimeout = this->initTimeout;
 
-        if (initTimeout >= 0 && initTimeoutOpt->count() == 0) {
+        if (initTimeoutSet >= 0 && initTimeoutOpt->count() == 0) {
             initTimeout = initTimeoutSet;
         }
 
@@ -54,18 +54,18 @@ namespace net::config {
     utils::Timeval ConfigTls::getShutdownTimeout() const {
         utils::Timeval shutdownTimeout = this->shutdownTimeout;
 
-        if (shutdownTimeout >= 0 && shutdownTimeoutOpt->count() == 0) {
+        if (shutdownTimeoutSet >= 0 && shutdownTimeoutOpt->count() == 0) {
             shutdownTimeout = shutdownTimeoutSet;
         }
 
         return shutdownTimeout;
     }
 
-    void ConfigTls::setInitTimeoutSet(const utils::Timeval& newInitTimeoutSet) {
+    void ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeoutSet) {
         initTimeoutSet = newInitTimeoutSet;
     }
 
-    void ConfigTls::setShutdownTimeoutSet(const utils::Timeval& newShutdownTimeoutSet) {
+    void ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeoutSet) {
         shutdownTimeoutSet = newShutdownTimeoutSet;
     }
 

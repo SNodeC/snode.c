@@ -41,8 +41,8 @@ namespace net::config {
         utils::Timeval getInitTimeout() const;
         utils::Timeval getShutdownTimeout() const;
 
-        void setInitTimeoutSet(const utils::Timeval& newInitTimeoutSet);
-        void setShutdownTimeoutSet(const utils::Timeval& newShutdownTimeoutSet);
+        void setInitTimeout(const utils::Timeval& newInitTimeoutSet);
+        void setShutdownTimeout(const utils::Timeval& newShutdownTimeoutSet);
 
     private:
         CLI::App* tlsSc = nullptr;

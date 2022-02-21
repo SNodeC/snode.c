@@ -41,12 +41,12 @@ namespace core::socket::stream {
     private:
         using Super = ServerSocketT;
         using SocketAcceptor = SocketAcceptorT;
-        using ServerConfig = typename SocketAcceptor::ServerConfig;
         using SocketContextFactory = SocketContextFactoryT;
 
     public:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+        using Config = typename SocketAcceptor::Config;
 
     public:
         SocketServer(const std::string& name,
@@ -54,7 +54,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : serverConfig(std::make_shared<ServerConfig>(name))
+            : config(std::make_shared<Config>(name))
             , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
@@ -71,8 +71,8 @@ namespace core::socket::stream {
         void listen(const SocketAddress& localAddress,
                     int backlog,
                     const std::function<void(const SocketAddress&, int)>& onError) const override {
-            serverConfig->setLocalAddress(localAddress);
-            serverConfig->setBacklog(backlog);
+            config->setLocalAddress(localAddress);
+            config->setBacklog(backlog);
 
             listen(onError);
         }
@@ -80,7 +80,7 @@ namespace core::socket::stream {
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
             SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
-            socketAcceptor->listen(serverConfig, onError);
+            socketAcceptor->listen(config, onError);
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
@@ -99,12 +99,12 @@ namespace core::socket::stream {
             return socketContextFactory;
         }
 
-        ServerConfig& getServerConfig() {
-            return serverConfig;
+        Config& getConfig() {
+            return *config;
         }
 
     protected:
-        std::shared_ptr<ServerConfig> serverConfig;
+        std::shared_ptr<Config> config;
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;

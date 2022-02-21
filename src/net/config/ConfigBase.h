@@ -38,6 +38,9 @@ namespace net::config {
     public:
         ConfigBase() = default;
         explicit ConfigBase(const std::string& name);
+        ConfigBase(const ConfigBase&) = delete;
+
+        ConfigBase& operator=(const ConfigBase&) = delete;
 
         virtual ~ConfigBase() = default;
 

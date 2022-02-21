@@ -46,7 +46,7 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
 
     public:
-        using ServerConfig = typename Super::ServerConfig;
+        using Config = typename Super::Config;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
@@ -59,7 +59,7 @@ namespace core::socket::stream::tls {
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void {
                       SSL* ssl = socketConnection->startSSL(
-                          this->masterSslCtx, this->serverConfig->getInitTimeout(), this->serverConfig->getShutdownTimeout());
+                          this->masterSslCtx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
 
                       if (ssl != nullptr) {
                           SSL_CTX_set_tlsext_servername_arg(this->masterSslCtx, this);
@@ -102,13 +102,13 @@ namespace core::socket::stream::tls {
             ssl_ctx_free(masterSslCtx);
         }
 
-        void listen(const std::shared_ptr<ServerConfig>& serverConfig, const std::function<void(const SocketAddress&, int)>& onError) {
+        void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
             if (masterSslCtx == nullptr) {
                 errno = EINVAL;
-                onError(serverConfig->getLocalAddress(), errno);
+                onError(config->getLocalAddress(), errno);
                 Super::destruct();
             } else {
-                Super::listen(serverConfig, onError);
+                Super::listen(config, onError);
             }
         }
 

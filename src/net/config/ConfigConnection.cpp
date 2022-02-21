@@ -27,13 +27,13 @@
 namespace net::config {
 
     ConfigConnection::ConfigConnection() {
-        connectionSc = add_subcommand("connection", "Options for established client connections");
+        connectionSc = add_subcommand("connection", "Options for established connections");
 
-        readTimeoutOpt = connectionSc->add_option("-r,--read-timeout", readTimeout, "Read timeout");
+        readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, "Read timeout");
         readTimeoutOpt->type_name("[sec]");
         readTimeoutOpt->default_val(60);
 
-        writeTimeoutOpt = connectionSc->add_option("-w,--write-timeout", writeTimeout, "Write timeout");
+        writeTimeoutOpt = connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout");
         writeTimeoutOpt->type_name("[sec]");
         writeTimeoutOpt->default_val(60);
 
@@ -45,7 +45,7 @@ namespace net::config {
         writeBlockSizeOpt->type_name("[bytes]");
         writeBlockSizeOpt->default_val(16384);
 
-        terminateTimeoutOpt = connectionSc->add_option("-t,--terminate-timeout", terminateTimeout, "Terminate timeout");
+        terminateTimeoutOpt = connectionSc->add_option("--terminate-timeout", terminateTimeout, "Terminate timeout");
         terminateTimeoutOpt->type_name("[sec]");
         terminateTimeoutOpt->default_val(1);
     }
@@ -100,23 +100,23 @@ namespace net::config {
         return terminateTimeout;
     }
 
-    void ConfigConnection::setReadTimeoutSet(const utils::Timeval& newReadTimeoutSet) {
+    void ConfigConnection::setReadTimeout(const utils::Timeval& newReadTimeoutSet) {
         readTimeoutSet = newReadTimeoutSet;
     }
 
-    void ConfigConnection::setWriteTimeoutSet(const utils::Timeval& newWriteTimeoutSet) {
+    void ConfigConnection::setWriteTimeout(const utils::Timeval& newWriteTimeoutSet) {
         writeTimeoutSet = newWriteTimeoutSet;
     }
 
-    void ConfigConnection::setReadBlockSizeSet(std::size_t newReadBlockSizeSet) {
+    void ConfigConnection::setReadBlockSize(std::size_t newReadBlockSizeSet) {
         readBlockSizeSet = newReadBlockSizeSet;
     }
 
-    void ConfigConnection::setWriteBlockSizeSet(std::size_t newWriteBlockSizeSet) {
+    void ConfigConnection::setWriteBlockSize(std::size_t newWriteBlockSizeSet) {
         writeBlockSizeSet = newWriteBlockSizeSet;
     }
 
-    void ConfigConnection::setTerminateTimeoutSet(const utils::Timeval& newTerminateTimeoutSet) {
+    void ConfigConnection::setTerminateTimeout(const utils::Timeval& newTerminateTimeoutSet) {
         terminateTimeoutSet = newTerminateTimeoutSet;
     }
 
