@@ -31,17 +31,20 @@
 namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(bool abstract) {
-        sunPathOpt = ConfigAddressType::addressSc->add_option("--path", sunPath, "Unix domain socket");
-        sunPathOpt->type_name("[sun-path]");
-        if (abstract) {
+    ConfigAddress<ConfigAddressType>::ConfigAddress(bool withCommandLine)
+        : ConfigAddressType(withCommandLine) {
+        if (withCommandLine) {
+            sunPathOpt = ConfigAddressType::addressSc->add_option("--path", sunPath, "Unix domain socket");
+            sunPathOpt->type_name("[sun-path]");
             sunPathOpt->default_val(std::string('\0' + utils::Config::getApplicationName()));
         }
+        ConfigAddressType::address.setSunPath(std::string('\0' + utils::Config::getApplicationName()));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
         ConfigAddressType::require(sunPathOpt);
+        sunPathOpt->default_val("");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

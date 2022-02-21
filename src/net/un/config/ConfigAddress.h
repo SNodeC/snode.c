@@ -42,7 +42,7 @@ namespace net::un::config {
         using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
 
     public:
-        explicit ConfigAddress(bool abstract = false);
+        explicit ConfigAddress(bool withCommandLine = true);
 
     protected:
         void required();

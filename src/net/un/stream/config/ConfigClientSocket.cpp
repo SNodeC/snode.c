@@ -24,7 +24,8 @@
 
 namespace net::un::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket() {
+    ConfigClientSocket::ConfigClientSocket()
+        : net::un::config::ConfigAddress<net::config::ConfigAddressLocal>() {
         net::un::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
     }
 

@@ -30,24 +30,32 @@
 namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Host name or IP address");
-        hostOpt->type_name("[hostname|ip]");
-        hostOpt->default_val("0.0.0.0");
+    ConfigAddress<ConfigAddressType>::ConfigAddress(bool withCommandLine)
+        : ConfigAddressType(withCommandLine) {
+        if (withCommandLine) {
+            hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Host name or IP address");
+            hostOpt->type_name("[hostname|ip]");
+            hostOpt->default_val("0.0.0.0");
 
-        portOpt = ConfigAddressType::addressSc->add_option("--port", port, "Port number");
-        portOpt->type_name("[uint16_t]");
-        portOpt->default_val(0);
+            portOpt = ConfigAddressType::addressSc->add_option("--port", port, "Port number");
+            portOpt->type_name("[uint16_t]");
+            portOpt->default_val(0);
+        }
+        ConfigAddressType::address.setHost("0.0.0.0");
+        ConfigAddressType::address.setPort(0);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
         ConfigAddressType::require(hostOpt, portOpt);
+        hostOpt->default_val("");
+        portOpt->default_val("");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::portRequired() {
         ConfigAddressType::require(portOpt);
+        portOpt->default_val("");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

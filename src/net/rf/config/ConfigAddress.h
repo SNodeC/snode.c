@@ -43,7 +43,7 @@ namespace net::rf::config {
         using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
 
     public:
-        ConfigAddress();
+        ConfigAddress(bool withCommandLine = true);
 
     protected:
         void required();

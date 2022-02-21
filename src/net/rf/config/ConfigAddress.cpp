@@ -30,24 +30,32 @@
 namespace net::rf::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Bluetooth address");
-        hostOpt->type_name("[bt address]");
-        hostOpt->default_val("00:00:00:00:00:00");
+    ConfigAddress<ConfigAddressType>::ConfigAddress(bool withCommandLine)
+        : ConfigAddressType(withCommandLine) {
+        if (withCommandLine) {
+            hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Bluetooth address");
+            hostOpt->type_name("[bt address]");
+            hostOpt->default_val("00:00:00:00:00:00");
 
-        channelOpt = ConfigAddressType::addressSc->add_option("--channel", channel, "Channel number");
-        channelOpt->type_name("[uint8_t]");
-        channelOpt->default_val(0);
+            channelOpt = ConfigAddressType::addressSc->add_option("--channel", channel, "Channel number");
+            channelOpt->type_name("[uint8_t]");
+            channelOpt->default_val(0);
+        }
+        ConfigAddressType::address.setAddress("00:00:00:00:00:00");
+        ConfigAddressType::address.setChannel(0);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
         ConfigAddressType::require(hostOpt, channelOpt);
+        hostOpt->default_val("");
+        channelOpt->default_val("");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::channelRequired() {
         ConfigAddressType::require(channelOpt);
+        channelOpt->default_val("");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

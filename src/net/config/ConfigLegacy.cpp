@@ -24,7 +24,7 @@
 
 namespace net::config {
 
-    ConfigLegacy::ConfigLegacy() {
+    ConfigLegacy::ConfigLegacy([[maybe_unused]] bool withCommandLine) {
     }
 
 } // namespace net::config

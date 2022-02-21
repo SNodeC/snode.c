@@ -26,25 +26,38 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifndef DEFAULT_INITTIMEOUT
+#define DEFAULT_INITTIMEOUT 10
+#endif
+
+#ifndef DEFAULT_SHUTDOWNTIMEOUT
+#define DEFAULT_SHUTDOWNTIMEOUT 2
+#endif
+
 namespace net::config {
 
-    ConfigTls::ConfigTls() {
-        tlsSc = add_subcommand("tls");
-        tlsSc->description("Options for SSL/TLS behaviour");
+    ConfigTls::ConfigTls(bool withCommandLine) {
+        if (withCommandLine) {
+            tlsSc = add_subcommand("tls");
+            tlsSc->description("Options for SSL/TLS behaviour");
 
-        initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout");
-        initTimeoutOpt->type_name("[sec]");
-        initTimeoutOpt->default_val(10);
+            initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout");
+            initTimeoutOpt->type_name("[sec]");
+            initTimeoutOpt->default_val(DEFAULT_INITTIMEOUT);
 
-        shutdownTimeoutOpt = tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
-        shutdownTimeoutOpt->type_name("[sec]");
-        shutdownTimeoutOpt->default_val(2);
+            shutdownTimeoutOpt = tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
+            shutdownTimeoutOpt->type_name("[sec]");
+            shutdownTimeoutOpt->default_val(DEFAULT_SHUTDOWNTIMEOUT);
+        } else {
+            initTimeout = DEFAULT_INITTIMEOUT;
+            shutdownTimeout = DEFAULT_SHUTDOWNTIMEOUT;
+        }
     }
 
     utils::Timeval ConfigTls::getInitTimeout() const {
         utils::Timeval initTimeout = this->initTimeout;
 
-        if (initTimeoutSet >= 0 && initTimeoutOpt->count() == 0) {
+        if (initTimeoutSet >= 0 && initTimeoutOpt != nullptr && initTimeoutOpt->count() == 0) {
             initTimeout = initTimeoutSet;
         }
 
@@ -54,7 +67,7 @@ namespace net::config {
     utils::Timeval ConfigTls::getShutdownTimeout() const {
         utils::Timeval shutdownTimeout = this->shutdownTimeout;
 
-        if (shutdownTimeoutSet >= 0 && shutdownTimeoutOpt->count() == 0) {
+        if (shutdownTimeoutSet >= 0 && shutdownTimeoutOpt != nullptr && shutdownTimeoutOpt->count() == 0) {
             shutdownTimeout = shutdownTimeoutSet;
         }
 

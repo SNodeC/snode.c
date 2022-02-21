@@ -26,18 +26,26 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifndef DEFAULT_BACKLOG
+#define DEFAULT_BACKLOG 5
+#endif
+
 namespace net::config {
 
-    ConfigBacklog::ConfigBacklog() {
-        backlogOpt = add_option("--backlog", backlog, "Listen backlog");
-        backlogOpt->type_name("[backlog]");
-        backlogOpt->default_val(5);
+    ConfigBacklog::ConfigBacklog(bool withCommandLine) {
+        if (withCommandLine) {
+            backlogOpt = add_option("--backlog", backlog, "Listen backlog");
+            backlogOpt->type_name("[backlog]");
+            backlogOpt->default_val(DEFAULT_BACKLOG);
+        } else {
+            backlog = DEFAULT_BACKLOG;
+        }
     }
 
     int ConfigBacklog::getBacklog() const {
         int backlog = this->backlog;
 
-        if (backlogSet >= 0 && backlogOpt->count() == 0) {
+        if (backlogSet >= 0 && backlogOpt != nullptr && backlogOpt->count() == 0) {
             backlog = this->backlogSet;
         }
 

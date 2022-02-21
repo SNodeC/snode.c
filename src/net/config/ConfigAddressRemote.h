@@ -38,7 +38,7 @@ namespace net::config {
         using SocketAddress = SocketAddressT;
 
     protected:
-        explicit ConfigAddressRemote();
+        explicit ConfigAddressRemote(bool withCommandLine);
 
     public:
         const SocketAddress& getRemoteAddress();

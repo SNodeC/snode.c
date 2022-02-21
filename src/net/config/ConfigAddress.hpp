@@ -30,20 +30,26 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription) {
-        addressSc = add_subcommand(addressOptionName, addressOptionDescription);
+    ConfigAddress<SocketAddress>::ConfigAddress(bool withCommandLine,
+                                                const std::string& addressOptionName,
+                                                const std::string& addressOptionDescription) {
+        if (withCommandLine) {
+            addressSc = add_subcommand(addressOptionName, addressOptionDescription);
+        }
     }
 
     template <typename SocketAddress>
     const SocketAddress& ConfigAddress<SocketAddress>::getAddress() {
-        if (!initialized) {
-            parse(true); // Try command line parsing honoring required options
-            updateFromCommandLine();
-            initialized = true;
-            updated = true;
-        } else if (!updated) {
-            updateFromCommandLine();
-            updated = true;
+        if (addressSc != nullptr) {
+            if (!initialized) {
+                parse(true); // Try command line parsing honoring required options
+                updateFromCommandLine();
+                initialized = true;
+                updated = true;
+            } else if (!updated) {
+                updateFromCommandLine();
+                updated = true;
+            }
         }
 
         return address;

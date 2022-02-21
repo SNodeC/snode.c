@@ -38,7 +38,7 @@ namespace net::config {
 
     class ConfigConnection : virtual protected ConfigBase {
     public:
-        explicit ConfigConnection();
+        explicit ConfigConnection(bool withCommandLine = true);
 
     public:
         utils::Timeval getReadTimeout() const;

@@ -36,7 +36,7 @@ namespace net::config {
 
     class ConfigTls : virtual protected ConfigBase {
     public:
-        explicit ConfigTls();
+        explicit ConfigTls(bool withCommandLine = true);
 
         utils::Timeval getInitTimeout() const;
         utils::Timeval getShutdownTimeout() const;

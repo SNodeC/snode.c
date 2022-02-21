@@ -24,36 +24,64 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifndef DEFAULT_READTIMEOUT
+#define DEFAULT_READTIMEOUT 60
+#endif
+
+#ifndef DEFAULT_WRITETIMEOUT
+#define DEFAULT_WRITETIMEOUT 60
+#endif
+
+#ifndef DEFAULT_READBLOCKSIZE
+#define DEFAULT_READBLOCKSIZE 16384
+#endif
+
+#ifndef DEFAULT_WRITEBLOCKSIZE
+#define DEFAULT_WRITEBLOCKSIZE 16384
+#endif
+
+#ifndef DEFAULT_TERMINATETIMEOUT
+#define DEFAULT_TERMINATETIMEOUT 1
+#endif
+
 namespace net::config {
 
-    ConfigConnection::ConfigConnection() {
-        connectionSc = add_subcommand("connection", "Options for established connections");
+    ConfigConnection::ConfigConnection(bool withCommandLine) {
+        if (withCommandLine) {
+            connectionSc = add_subcommand("connection", "Options for established connections");
 
-        readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, "Read timeout");
-        readTimeoutOpt->type_name("[sec]");
-        readTimeoutOpt->default_val(60);
+            readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, "Read timeout");
+            readTimeoutOpt->type_name("[sec]");
+            readTimeoutOpt->default_val(DEFAULT_READTIMEOUT);
 
-        writeTimeoutOpt = connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout");
-        writeTimeoutOpt->type_name("[sec]");
-        writeTimeoutOpt->default_val(60);
+            writeTimeoutOpt = connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout");
+            writeTimeoutOpt->type_name("[sec]");
+            writeTimeoutOpt->default_val(DEFAULT_WRITETIMEOUT);
 
-        readBlockSizeOpt = connectionSc->add_option("--read-block-size", readBlockSize, "Read block size");
-        readBlockSizeOpt->type_name("[bytes]");
-        readBlockSizeOpt->default_val(16384);
+            readBlockSizeOpt = connectionSc->add_option("--read-block-size", readBlockSize, "Read block size");
+            readBlockSizeOpt->type_name("[bytes]");
+            readBlockSizeOpt->default_val(DEFAULT_READBLOCKSIZE);
 
-        writeBlockSizeOpt = connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size");
-        writeBlockSizeOpt->type_name("[bytes]");
-        writeBlockSizeOpt->default_val(16384);
+            writeBlockSizeOpt = connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size");
+            writeBlockSizeOpt->type_name("[bytes]");
+            writeBlockSizeOpt->default_val(DEFAULT_WRITEBLOCKSIZE);
 
-        terminateTimeoutOpt = connectionSc->add_option("--terminate-timeout", terminateTimeout, "Terminate timeout");
-        terminateTimeoutOpt->type_name("[sec]");
-        terminateTimeoutOpt->default_val(1);
+            terminateTimeoutOpt = connectionSc->add_option("--terminate-timeout", terminateTimeout, "Terminate timeout");
+            terminateTimeoutOpt->type_name("[sec]");
+            terminateTimeoutOpt->default_val(DEFAULT_TERMINATETIMEOUT);
+        } else {
+            readTimeout = DEFAULT_READTIMEOUT;
+            writeTimeout = DEFAULT_WRITETIMEOUT;
+            readBlockSize = DEFAULT_READBLOCKSIZE;
+            writeBlockSize = DEFAULT_WRITEBLOCKSIZE;
+            terminateTimeout = DEFAULT_TERMINATETIMEOUT;
+        }
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {
         utils::Timeval readTimeout = this->readTimeout;
 
-        if (readTimeoutSet >= 0 && readTimeoutOpt->count() == 0) {
+        if (readTimeoutSet >= 0 && readTimeoutOpt != nullptr && readTimeoutOpt->count() == 0) {
             readTimeout = readTimeoutSet;
         }
 
@@ -63,7 +91,7 @@ namespace net::config {
     utils::Timeval ConfigConnection::getWriteTimeout() const {
         utils::Timeval writeTimeout = this->writeTimeout;
 
-        if (writeTimeoutSet >= 0 && writeTimeoutOpt->count() == 0) {
+        if (writeTimeoutSet >= 0 && writeTimeoutOpt != nullptr && writeTimeoutOpt->count() == 0) {
             writeTimeout = writeTimeoutSet;
         }
 
@@ -73,7 +101,7 @@ namespace net::config {
     std::size_t ConfigConnection::getReadBlockSize() const {
         std::size_t readBlockSize = this->readBlockSize;
 
-        if (readBlockSizeSet > 0 && readBlockSizeOpt->count() == 0) {
+        if (readBlockSizeSet > 0 && readBlockSizeOpt != nullptr && readBlockSizeOpt->count() == 0) {
             readBlockSize = readBlockSizeSet;
         }
 
@@ -83,7 +111,7 @@ namespace net::config {
     std::size_t ConfigConnection::getWriteBlockSize() const {
         std::size_t writeBlockSize = this->writeBlockSize;
 
-        if (writeBlockSizeSet > 0 && writeBlockSizeOpt->count() == 0) {
+        if (writeBlockSizeSet > 0 && writeBlockSizeOpt != nullptr && writeBlockSizeOpt->count() == 0) {
             writeBlockSize = writeBlockSizeSet;
         }
 
@@ -93,7 +121,7 @@ namespace net::config {
     utils::Timeval ConfigConnection::getTerminateTimeout() const {
         utils::Timeval terminateTimeout = this->terminateTimeout;
 
-        if (terminateTimeoutSet >= 0 && terminateTimeoutOpt->count() == 0) {
+        if (terminateTimeoutSet >= 0 && terminateTimeoutOpt != nullptr && terminateTimeoutOpt->count() == 0) {
             terminateTimeout = this->terminateTimeoutSet;
         }
 
