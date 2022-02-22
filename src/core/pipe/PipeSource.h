@@ -19,7 +19,6 @@
 #ifndef STREAM_PIPESOURCE_H
 #define STREAM_PIPESOURCE_H
 
-#include "core/Descriptor.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
