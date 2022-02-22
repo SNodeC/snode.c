@@ -113,9 +113,7 @@ namespace core::poll {
         pollFdIndices.reserve(pollFdIndices.size() + 1);
 
         for (uint32_t i = 0; i < pollFdIndices.size(); i++) {
-            if (pollfds[i].fd >= 0) {
-                pollFdIndices[pollfds[i].fd].index = i;
-            }
+            pollFdIndices[pollfds[i].fd].index = i;
         }
 
         nextIndex = pollFdIndices.size();
