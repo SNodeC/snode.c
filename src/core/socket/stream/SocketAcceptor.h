@@ -146,7 +146,7 @@ namespace core::socket::stream {
 
             int fd = -1;
 
-            int count = config->getAcceptsPerTick();
+            int acceptsPerTick = config->getAcceptsPerTick();
 
             do {
                 fd = core::system::accept4(
@@ -176,7 +176,7 @@ namespace core::socket::stream {
                         core::system::close(fd);
                     }
                 }
-            } while (fd >= 0 && --count > 0);
+            } while (fd >= 0 && --acceptsPerTick > 0);
 
             if (fd < 0 && errno != EINTR && errno != EAGAIN) {
                 PLOG(ERROR) << "accept";

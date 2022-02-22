@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGBACKLOG_H
-#define NET_CONFIG_CONFIGBACKLOG_H
+#ifndef NET_CONFIG_CONFIGLISTEN_H
+#define NET_CONFIG_CONFIGLISTEN_H
 
 #include "net/config/ConfigBase.h"
 
@@ -31,9 +31,9 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigBacklog : virtual protected ConfigBase {
+    class ConfigListen : virtual protected ConfigBase {
     public:
-        explicit ConfigBacklog(bool withCommandLine);
+        explicit ConfigListen(bool withCommandLine);
 
         int getBacklog() const;
         void setBacklog(int backlog);
@@ -54,4 +54,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // NET_CONFIG_CONFIGBACKLOG_H
+#endif // NET_CONFIG_CONFIGLISTEN_H

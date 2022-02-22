@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/ConfigBacklog.h"
+#include "net/config/ConfigListen.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +36,7 @@
 
 namespace net::config {
 
-    ConfigBacklog::ConfigBacklog(bool withCommandLine) {
+    ConfigListen::ConfigListen(bool withCommandLine) {
         if (withCommandLine) {
             backlogOpt = add_option("--backlog", backlog, "Listen backlog");
             backlogOpt->type_name("[backlog]");
@@ -51,7 +51,7 @@ namespace net::config {
         }
     }
 
-    int ConfigBacklog::getBacklog() const {
+    int ConfigListen::getBacklog() const {
         int backlog = this->backlog;
 
         if (backlogSet >= 0 && backlogOpt != nullptr && backlogOpt->count() == 0) {
@@ -61,11 +61,11 @@ namespace net::config {
         return backlog;
     }
 
-    void ConfigBacklog::setBacklog(int backlog) {
+    void ConfigListen::setBacklog(int backlog) {
         backlogSet = backlog;
     }
 
-    int ConfigBacklog::getAcceptsPerTick() const {
+    int ConfigListen::getAcceptsPerTick() const {
         int acceptsPerTick = this->acceptsPerTick;
 
         if (acceptsPerTickSet > 0 && acceptsPerTickOpt != nullptr && acceptsPerTickOpt->count() == 0) {
@@ -75,7 +75,7 @@ namespace net::config {
         return acceptsPerTick;
     }
 
-    void ConfigBacklog::setAcceptsPerTick(int newAcceptsPerTick) {
+    void ConfigListen::setAcceptsPerTick(int newAcceptsPerTick) {
         acceptsPerTickSet = newAcceptsPerTick;
     }
 

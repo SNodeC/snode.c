@@ -25,7 +25,7 @@
 namespace net::in6::stream::config {
 
     ConfigServerSocket::ConfigServerSocket(bool withCommandLine)
-        : net::config::ConfigBacklog(withCommandLine)
+        : net::config::ConfigListen(withCommandLine)
         , net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
         , net::config::ConfigConnection(withCommandLine) {
         if (withCommandLine) {

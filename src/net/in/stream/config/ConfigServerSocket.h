@@ -20,8 +20,8 @@
 #define NET_IN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
 
 #include "net/config/ConfigAddressLocal.h"
-#include "net/config/ConfigBacklog.h"
 #include "net/config/ConfigConnection.h"
+#include "net/config/ConfigListen.h"
 #include "net/in/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/in/config/ConfigAddress.hpp"
@@ -33,7 +33,7 @@
 namespace net::in::stream::config {
 
     class ConfigServerSocket
-        : public net::config::ConfigBacklog
+        : public net::config::ConfigListen
         , public net::in::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
