@@ -35,9 +35,7 @@ namespace net::un::stream::legacy::config {
         , public net::config::ConfigLegacy {
     public:
         explicit ConfigSocketServer(const std::string& name)
-            : net::config::ConfigBase(name)
-            , net::un::stream::config::ConfigServerSocket(!name.empty())
-            , net::config::ConfigLegacy(!name.empty()) {
+            : net::config::ConfigBase(name) {
         }
     };
 

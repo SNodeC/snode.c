@@ -35,9 +35,7 @@ namespace net::l2::stream::legacy::config {
         , public net::config::ConfigLegacy {
     public:
         explicit ConfigSocketClient(const std::string& name)
-            : net::config::ConfigBase(name)
-            , net::l2::stream::config::ConfigClientSocket(!name.empty())
-            , net::config::ConfigLegacy(!name.empty()) {
+            : net::config::ConfigBase(name) {
         }
     };
 

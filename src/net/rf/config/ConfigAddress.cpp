@@ -25,14 +25,15 @@
 
 #include "utils/CLI11.hpp"
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rf::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(bool withCommandLine)
-        : ConfigAddressType(withCommandLine) {
-        if (withCommandLine) {
+    ConfigAddress<ConfigAddressType>::ConfigAddress() {
+        if (!net::config::ConfigBase::getName().empty()) {
             hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Bluetooth address");
             hostOpt->type_name("[bt address]");
             hostOpt->default_val("00:00:00:00:00:00");

@@ -43,7 +43,7 @@ namespace net::l2::config {
         using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
 
     public:
-        explicit ConfigAddress(bool withCommandLine);
+        explicit ConfigAddress();
 
     protected:
         void required();

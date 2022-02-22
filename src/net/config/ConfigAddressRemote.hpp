@@ -32,8 +32,8 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote(bool withCommandLine)
-        : Super::ConfigAddress(withCommandLine, "remote", "Connect options") {
+    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote()
+        : Super::ConfigAddress("remote", "Connect options") {
     }
 
     template <typename SocketAddress>

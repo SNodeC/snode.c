@@ -36,8 +36,8 @@
 
 namespace net::config {
 
-    ConfigTls::ConfigTls(bool withCommandLine) {
-        if (withCommandLine) {
+    ConfigTls::ConfigTls() {
+        if (!getName().empty()) {
             tlsSc = add_subcommand("tls", "Options for SSL/TLS behaviour");
             tlsSc->group("Option groups");
 

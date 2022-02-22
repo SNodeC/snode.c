@@ -25,14 +25,15 @@
 
 #include "utils/CLI11.hpp"
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(bool withCommandLine)
-        : ConfigAddressType(withCommandLine) {
-        if (withCommandLine) {
+    ConfigAddress<ConfigAddressType>::ConfigAddress() {
+        if (!net::config::ConfigBase::getName().empty()) {
             hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Host name or IP address");
             hostOpt->type_name("[hostname|ip]");
             hostOpt->default_val("::");

@@ -20,15 +20,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rf::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket(bool withCommandLine)
-        : net::config::ConfigListen(withCommandLine)
-        , net::rf::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
-        , net::config::ConfigConnection(withCommandLine) {
-        if (withCommandLine) {
+    ConfigServerSocket::ConfigServerSocket() {
+        if (!getName().empty()) {
             net::rf::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
         }
     }

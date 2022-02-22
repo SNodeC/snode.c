@@ -20,15 +20,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket(bool withCommandLine)
-        : net::config::ConfigListen(withCommandLine)
-        , net::un::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
-        , net::config::ConfigConnection(withCommandLine) {
-        if (withCommandLine) {
+    ConfigServerSocket::ConfigServerSocket() {
+        if (!getName().empty()) {
             net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
         }
     }

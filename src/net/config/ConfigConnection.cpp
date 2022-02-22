@@ -48,8 +48,8 @@
 
 namespace net::config {
 
-    ConfigConnection::ConfigConnection(bool withCommandLine) {
-        if (withCommandLine) {
+    ConfigConnection::ConfigConnection() {
+        if (!getName().empty()) {
             connectionSc = add_subcommand("connection", "Options for established connections");
             connectionSc->group("Option groups");
 

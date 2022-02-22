@@ -33,7 +33,7 @@ namespace net::config {
 
     class ConfigListen : virtual protected ConfigBase {
     public:
-        explicit ConfigListen(bool withCommandLine);
+        explicit ConfigListen();
 
         int getBacklog() const;
         void setBacklog(int backlog);

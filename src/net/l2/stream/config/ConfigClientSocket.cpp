@@ -20,15 +20,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket(bool withCommandLine)
-        : net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>(withCommandLine)
-        , net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>(withCommandLine)
-        , net::config::ConfigConnection(withCommandLine) {
-        if (withCommandLine) {
+    ConfigClientSocket::ConfigClientSocket() {
+        if (!getName().empty()) {
             net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
         }
     }

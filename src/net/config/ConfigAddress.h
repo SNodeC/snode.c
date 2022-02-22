@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGADDRESS_H
 #define NET_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigBase.h"
+#include "net/config/ConfigBase.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -41,7 +41,7 @@ namespace net::config {
         bool isInitialized() const;
 
     protected:
-        ConfigAddress(bool withCommandLine, const std::string& addressOptionName, const std::string& addressOptionDescription);
+        ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription);
 
         const SocketAddress& getAddress();
         void setAddress(const SocketAddress& address);

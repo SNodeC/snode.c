@@ -36,8 +36,8 @@
 
 namespace net::config {
 
-    ConfigListen::ConfigListen(bool withCommandLine) {
-        if (withCommandLine) {
+    ConfigListen::ConfigListen() {
+        if (!getName().empty()) {
             backlogOpt = add_option("--backlog", backlog, "Listen backlog");
             backlogOpt->type_name("[backlog]");
             backlogOpt->default_val(DEFAULT_BACKLOG);
