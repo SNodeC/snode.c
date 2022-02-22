@@ -52,7 +52,7 @@ namespace apps::echo::model::legacy {
 
     using EchoClientSocketContextFactory = apps::echo::model::EchoClientSocketContextFactory;
 
-    using EchoSocketClient = net::NET::stream::STREAM::SocketClient<EchoClientSocketContextFactory>;
+    using EchoSocketClient = net::NET::stream::legacy::SocketClient<EchoClientSocketContextFactory>;
 
     EchoSocketClient getClient(const std::map<std::string, std::any>& options) {
         using SocketConnection = typename EchoSocketClient::SocketConnection;
@@ -89,7 +89,7 @@ namespace apps::echo::model::tls {
 
     using EchoClientSocketContextFactory = apps::echo::model::EchoClientSocketContextFactory;
 
-    using EchoSocketClient = net::NET::stream::STREAM::SocketClient<EchoClientSocketContextFactory>;
+    using EchoSocketClient = net::NET::stream::tls::SocketClient<EchoClientSocketContextFactory>;
 
     EchoSocketClient getClient(const std::map<std::string, std::any>& options) {
         using SocketConnection = typename EchoSocketClient::SocketConnection;

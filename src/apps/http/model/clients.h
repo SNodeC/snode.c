@@ -29,7 +29,7 @@ namespace apps::http::legacy {
 
     using Request = web::http::client::Request;
     using Response = web::http::client::Response;
-    using Client = web::http::STREAM::NET::Client<Request, Response>;
+    using Client = web::http::legacy::NET::Client<Request, Response>;
 
     Client getClient(const std::map<std::string, std::any>& options) {
         return Client(
@@ -97,7 +97,7 @@ namespace apps::http::tls {
 
     using Request = web::http::client::Request;
     using Response = web::http::client::Response;
-    using Client = web::http::STREAM::NET::Client<Request, Response>;
+    using Client = web::http::tls::NET::Client<Request, Response>;
 
     Client getClient(const std::map<std::string, std::any>& options) {
         return Client(
