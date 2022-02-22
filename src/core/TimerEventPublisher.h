@@ -40,7 +40,6 @@ namespace core {
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        //        void observeEnabledEvents();
         void dispatchActiveEvents(const utils::Timeval& currentTime);
         void unobsereDisableEvents();
 

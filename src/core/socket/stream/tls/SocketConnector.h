@@ -53,8 +53,7 @@ namespace core::socket::stream::tls {
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
-                      SSL* ssl = socketConnection->startSSL(
-                          this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
+                      SSL* ssl = socketConnection->startSSL(this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
 
                       if (ssl != nullptr) {
                           ssl_set_sni(ssl, this->options);

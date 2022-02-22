@@ -36,14 +36,20 @@ namespace net::config {
         explicit ConfigBacklog(bool withCommandLine);
 
         int getBacklog() const;
-
         void setBacklog(int backlog);
+
+        int getAcceptsPerTick() const;
+        void setAcceptsPerTick(int newAcceptsPerTickSet);
 
     private:
         CLI::Option* backlogOpt = nullptr;
+        CLI::Option* acceptsPerTickOpt = nullptr;
 
         int backlog = 0;
         int backlogSet = -1;
+
+        int acceptsPerTick = 1;
+        int acceptsPerTickSet = 0;
     };
 
 } // namespace net::config

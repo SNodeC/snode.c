@@ -40,8 +40,6 @@ namespace core::socket {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_ACCEPTS_PER_TICK 1
-
 namespace core::socket::stream {
 
     template <typename ConfigT, typename SocketConnectionT>
@@ -148,7 +146,7 @@ namespace core::socket::stream {
 
             int fd = -1;
 
-            int count = MAX_ACCEPTS_PER_TICK;
+            int count = config->getAcceptsPerTick();
 
             do {
                 fd = core::system::accept4(

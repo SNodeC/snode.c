@@ -26,6 +26,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifndef DEFAULT_ACCEPTSPERTICK
+#define DEFAULT_ACCEPTSPERTICK 1
+#endif
+
 #ifndef DEFAULT_BACKLOG
 #define DEFAULT_BACKLOG 5
 #endif
@@ -37,8 +41,13 @@ namespace net::config {
             backlogOpt = add_option("--backlog", backlog, "Listen backlog");
             backlogOpt->type_name("[backlog]");
             backlogOpt->default_val(DEFAULT_BACKLOG);
+
+            acceptsPerTickOpt = add_option("--accepts-per-tick", acceptsPerTick, "Accepts per tick");
+            acceptsPerTickOpt->type_name("[count]");
+            acceptsPerTickOpt->default_val(DEFAULT_ACCEPTSPERTICK);
         } else {
             backlog = DEFAULT_BACKLOG;
+            acceptsPerTick = DEFAULT_ACCEPTSPERTICK;
         }
     }
 
@@ -53,7 +62,21 @@ namespace net::config {
     }
 
     void ConfigBacklog::setBacklog(int backlog) {
-        this->backlogSet = backlog;
+        backlogSet = backlog;
+    }
+
+    int ConfigBacklog::getAcceptsPerTick() const {
+        int acceptsPerTick = this->acceptsPerTick;
+
+        if (acceptsPerTickSet > 0 && acceptsPerTickOpt != nullptr && acceptsPerTickOpt->count() == 0) {
+            acceptsPerTick = this->acceptsPerTickSet;
+        }
+
+        return acceptsPerTick;
+    }
+
+    void ConfigBacklog::setAcceptsPerTick(int newAcceptsPerTick) {
+        acceptsPerTickSet = newAcceptsPerTick;
     }
 
 } // namespace net::config
