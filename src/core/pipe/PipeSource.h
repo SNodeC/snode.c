@@ -33,14 +33,13 @@
 
 namespace core::pipe {
 
-    class PipeSource
-        : public core::Descriptor
-        , public core::eventreceiver::WriteEventReceiver {
+    class PipeSource : public core::eventreceiver::WriteEventReceiver {
         PipeSource(const PipeSource&) = delete;
         PipeSource& operator=(const PipeSource&) = delete;
 
     public:
         explicit PipeSource(int fd);
+        ~PipeSource();
 
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& data);

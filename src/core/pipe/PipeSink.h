@@ -31,14 +31,13 @@
 
 namespace core::pipe {
 
-    class PipeSink
-        : public core::Descriptor
-        , public core::eventreceiver::ReadEventReceiver {
+    class PipeSink : public core::eventreceiver::ReadEventReceiver {
         PipeSink(const PipeSink&) = delete;
         PipeSink& operator=(const PipeSink&) = delete;
 
     public:
         explicit PipeSink(int fd);
+        ~PipeSink();
 
         void setOnData(const std::function<void(const char* junk, std::size_t junkLen)>& onData);
         void setOnEof(const std::function<void()>& onEof);

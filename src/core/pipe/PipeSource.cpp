@@ -34,10 +34,13 @@
 namespace core::pipe {
 
     PipeSource::PipeSource(int fd)
-        : Descriptor(fd)
-        , core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd)) {
+        : core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd)) {
         WriteEventReceiver::enable(fd);
         WriteEventReceiver::suspend();
+    }
+
+    PipeSource::~PipeSource() {
+        close(getRegisteredFd());
     }
 
     void PipeSource::setOnError(const std::function<void(int errnum)>& onError) {
@@ -62,7 +65,7 @@ namespace core::pipe {
 
     void PipeSource::writeEvent() {
         ssize_t ret = core::system::write(
-            getFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
+            getRegisteredFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
         if (ret > 0) {
             writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);

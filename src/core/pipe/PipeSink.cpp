@@ -34,16 +34,19 @@
 namespace core::pipe {
 
     PipeSink::PipeSink(int fd)
-        : Descriptor(fd)
-        , core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd)) {
+        : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd)) {
         ReadEventReceiver::enable(fd);
+    }
+
+    PipeSink::~PipeSink() {
+        close(getRegisteredFd());
     }
 
     void PipeSink::readEvent() {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static char junk[MAX_READ_JUNKSIZE];
 
-        ssize_t ret = core::system::read(Descriptor::getFd(), junk, MAX_READ_JUNKSIZE);
+        ssize_t ret = core::system::read(getRegisteredFd(), junk, MAX_READ_JUNKSIZE);
 
         if (ret > 0) {
             if (onData) {
