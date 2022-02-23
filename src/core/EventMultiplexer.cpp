@@ -83,7 +83,7 @@ namespace core {
                                });
     }
 
-    TickStatus EventMultiplexer::tick(const utils::Timeval& tickTimeOut, bool stopped) {
+    TickStatus EventMultiplexer::tick(const utils::Timeval& tickTimeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
@@ -95,7 +95,7 @@ namespace core {
 
         DynamicLoader::execDlCloseDeleyed();
 
-        if (getObservedEventReceiverCount() > 0 || (!timerEventPublisher->empty() && !stopped)) {
+        if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty()) {
             utils::Timeval nextTimeout = 0;
 
             if (eventQueue.empty()) {
@@ -121,28 +121,9 @@ namespace core {
     }
 
     void EventMultiplexer::stop() {
-        core::TickStatus tickStatus;
-
-        do {
-            for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
-                eventMultiplexer->stop();
-            }
-            tickStatus = tick(2, true);
-        } while (tickStatus == TickStatus::SUCCESS);
-
-        do {
-            timerEventPublisher->stop();
-            tickStatus = tick(0, false);
-        } while (tickStatus == TickStatus::SUCCESS);
-    }
-
-    void EventMultiplexer::stopDescriptorEvents() {
-        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
-            eventMultiplexer->stop();
+        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+            descriptorEventPublisher->stop();
         }
-    }
-
-    void EventMultiplexer::stopTimerEvents() {
         timerEventPublisher->stop();
     }
 

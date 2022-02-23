@@ -79,10 +79,8 @@ namespace core {
         void publish(const core::Event* event);
         void unPublish(const Event* event);
 
-        TickStatus tick(const utils::Timeval& tickTimeOut, bool stopped);
+        TickStatus tick(const utils::Timeval& tickTimeOut);
         void stop();
-        void stopDescriptorEvents();
-        void stopTimerEvents();
 
     protected:
         int getObservedEventReceiverCount();

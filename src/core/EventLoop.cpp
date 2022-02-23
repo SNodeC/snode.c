@@ -82,10 +82,10 @@ namespace core {
         EventLoop::initialized = true;
     }
 
-    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
+    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
         tickCounter++;
 
-        TickStatus tickStatus = eventMultiplexer.tick(tickTimeOut, stopped);
+        TickStatus tickStatus = eventMultiplexer.tick(tickTimeOut);
 
         return tickStatus;
     }
@@ -98,7 +98,7 @@ namespace core {
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
 
-        TickStatus tickStatus = EventLoop::instance()._tick(timeOut, stopped);
+        TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
 
         core::system::signal(SIGPIPE, oldSigPipeHandler);
 
@@ -127,7 +127,7 @@ namespace core {
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
             while (tickStatus == TickStatus::SUCCESS && !stopped) {
-                tickStatus = EventLoop::instance()._tick(timeOut, stopped);
+                tickStatus = EventLoop::instance()._tick(timeOut);
             }
 
             switch (tickStatus) {
@@ -166,13 +166,8 @@ namespace core {
         core::TickStatus tickStatus;
 
         do {
-            instance().eventMultiplexer.stopDescriptorEvents();
-            tickStatus = instance()._tick(3, true);
-        } while (tickStatus == TickStatus::SUCCESS);
-
-        do {
-            instance().eventMultiplexer.stopTimerEvents();
-            tickStatus = instance()._tick(0, false);
+            instance().eventMultiplexer.stop();
+            tickStatus = instance()._tick(3);
         } while (tickStatus == TickStatus::SUCCESS);
 
         DynamicLoader::execDlCloseDeleyed();
