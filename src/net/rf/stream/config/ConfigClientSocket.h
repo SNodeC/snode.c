@@ -37,7 +37,7 @@ namespace net::rf::stream::config {
         , public net::rf::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
-        explicit ConfigClientSocket();
+        ConfigClientSocket();
     };
 
 } // namespace net::rf::stream::config

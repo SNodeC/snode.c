@@ -37,7 +37,7 @@ namespace net::un::stream::config {
         , public net::un::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
-        explicit ConfigServerSocket();
+        ConfigServerSocket();
     };
 
 } // namespace net::un::stream::config
