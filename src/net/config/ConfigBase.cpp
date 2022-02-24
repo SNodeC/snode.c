@@ -49,10 +49,8 @@ namespace net::config {
         return baseSc->add_option(name, variable, description);
     }
 
-    int ConfigBase::parse(bool forceError) const {
+    void ConfigBase::parse(bool forceError) const {
         utils::Config::parse(forceError);
-
-        return 0;
     }
 
 } // namespace net::config

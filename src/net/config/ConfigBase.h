@@ -50,7 +50,7 @@ namespace net::config {
         CLI::App* add_subcommand(const std::string& name, const std::string& description = "");
         CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
 
-        int parse(bool forceError = false) const;
+        void parse(bool forceError = false) const;
 
     private:
         CLI::App* baseSc = nullptr;
