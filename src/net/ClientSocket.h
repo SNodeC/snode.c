@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_CLIENTSOCKET_H
-#define CORE_SOCKET_CLIENTSOCKET_H
+#ifndef NET_CLIENTSOCKET_H
+#define NET_CLIENTSOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net {
 
     template <typename SocketT>
     class ClientSocket {
@@ -48,6 +48,6 @@ namespace core::socket {
         virtual void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
     };
 
-} // namespace core::socket
+} // namespace net
 
-#endif // CORE_SOCKET_CLIENTSOCKET_H
+#endif // NET_CLIENTSOCKET_H

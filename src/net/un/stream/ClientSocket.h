@@ -19,8 +19,8 @@
 #ifndef NET_UN_STREAM_STREAM_CLIENTSOCKET_H
 #define NET_UN_STREAM_STREAM_CLIENTSOCKET_H
 
-#include "core/socket/ClientSocket.h" // IWYU pragma: export
-#include "net/un/stream/Socket.h"     // IWYU pragma: export
+#include "net/ClientSocket.h"     // IWYU pragma: export
+#include "net/un/stream/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,9 +31,9 @@
 
 namespace net::un::stream {
 
-    class ClientSocket : public core::socket::ClientSocket<net::un::stream::Socket> {
+    class ClientSocket : public net::ClientSocket<net::un::stream::Socket> {
     public:
-        using core::socket::ClientSocket<net::un::stream::Socket>::connect;
+        using net::ClientSocket<net::un::stream::Socket>::connect;
 
         void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError);
         void connect(const std::string& remoteSunPath,

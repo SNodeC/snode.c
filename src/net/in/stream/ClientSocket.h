@@ -19,8 +19,8 @@
 #ifndef NET_IN_STREAM_CLIENTSOCKET_H
 #define NET_IN_STREAM_CLIENTSOCKET_H
 
-#include "core/socket/ClientSocket.h" // IWYU pragma: export
-#include "net/in/stream/Socket.h"     // IWYU pragma: export
+#include "net/ClientSocket.h"     // IWYU pragma: export
+#include "net/in/stream/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,9 +32,9 @@
 
 namespace net::in::stream {
 
-    class ClientSocket : public core::socket::ClientSocket<net::in::stream::Socket> {
+    class ClientSocket : public net::ClientSocket<net::in::stream::Socket> {
     public:
-        using core::socket::ClientSocket<net::in::stream::Socket>::connect;
+        using net::ClientSocket<net::in::stream::Socket>::connect;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError);
 

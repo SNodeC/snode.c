@@ -6,6 +6,8 @@ set(NET_CPP
 )
 
 set(NET_H
+    ClientSocket.h
+    ServerSocket.h
     config/ConfigAddress.h
     config/ConfigAddress.hpp
     config/ConfigAddressLocal.h

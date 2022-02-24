@@ -19,8 +19,8 @@
 #ifndef NET_UN_STREAM_STREAM_SERVERSOCKET_H
 #define NET_UN_STREAM_STREAM_SERVERSOCKET_H
 
-#include "core/socket/ServerSocket.h" // IWYU pragma: export
-#include "net/un/stream/Socket.h"     // IWYU pragma: export
+#include "net/ServerSocket.h"     // IWYU pragma: export
+#include "net/un/stream/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,11 +31,11 @@
 
 namespace net::un::stream {
 
-    class ServerSocket : public core::socket::ServerSocket<net::un::stream::Socket> {
-        using Super = core::socket::ServerSocket<net::un::stream::Socket>;
+    class ServerSocket : public net::ServerSocket<net::un::stream::Socket> {
+        using Super = net::ServerSocket<net::un::stream::Socket>;
 
     public:
-        using core::socket::ServerSocket<net::un::stream::Socket>::listen;
+        using net::ServerSocket<net::un::stream::Socket>::listen;
 
         void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
     };

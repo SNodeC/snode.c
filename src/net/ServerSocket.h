@@ -16,17 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SERVERSOCKET_H
-#define CORE_SOCKET_SERVERSOCKET_H
+#ifndef NET_SERVERSOCKET_H
+#define NET_SERVERSOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net {
 
     template <typename SocketT>
     class ServerSocket {
@@ -47,6 +46,6 @@ namespace core::socket {
         listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
     };
 
-} // namespace core::socket
+} // namespace net
 
-#endif // CORE_SOCKET_SERVERSOCKET_H
+#endif // NET_SERVERSOCKET_H
