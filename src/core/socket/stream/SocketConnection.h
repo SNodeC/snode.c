@@ -119,14 +119,6 @@ namespace core::socket::stream {
         }
 
     private:
-        std::string getLocalAddressAsString() const final {
-            return localAddress.toString();
-        }
-
-        std::string getRemoteAddressAsString() const final {
-            return remoteAddress.toString();
-        }
-
         ssize_t readFromPeer(char* junk, std::size_t junkLen) final {
             ssize_t ret = 0;
 

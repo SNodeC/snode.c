@@ -49,9 +49,6 @@ namespace core::socket {
     public:
         void setTimeout(const utils::Timeval& timeout);
 
-        std::string getLocalAddressAsString() const;
-        std::string getRemoteAddressAsString() const;
-
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
         ssize_t readFromPeer(char* junk, std::size_t junklen);

@@ -73,9 +73,6 @@ namespace core::socket {
         void onReadError(int errnum);
 
     public: // will be called class SocketContext
-        virtual std::string getLocalAddressAsString() const = 0;
-        virtual std::string getRemoteAddressAsString() const = 0;
-
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
         virtual void sendToPeer(const std::string& data) = 0;
 

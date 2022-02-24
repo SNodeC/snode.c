@@ -44,14 +44,6 @@ namespace core::socket {
         return socketConnection->readFromPeer(junk, junklen);
     }
 
-    std::string SocketContext::getLocalAddressAsString() const {
-        return socketConnection->getLocalAddressAsString();
-    }
-
-    std::string SocketContext::getRemoteAddressAsString() const {
-        return socketConnection->getRemoteAddressAsString();
-    }
-
     SocketContext* SocketContext::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
