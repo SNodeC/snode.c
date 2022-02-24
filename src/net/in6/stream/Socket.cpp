@@ -18,6 +18,8 @@
 
 #include "net/in6/stream/Socket.h"
 
+#include "core/socket/Socket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -29,3 +31,7 @@ namespace net::in6::stream {
     }
 
 } // namespace net::in6::stream
+
+namespace core::socket {
+    template class Socket<net::in6::SocketAddress>;
+}

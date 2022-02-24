@@ -18,6 +18,8 @@
 
 #include "net/l2/stream/Socket.h"
 
+#include "core/socket/Socket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // for BTPROTO_L2CAP
@@ -31,3 +33,7 @@ namespace net::l2::stream {
     }
 
 } // namespace net::l2::stream
+
+namespace core::socket {
+    template class Socket<net::l2::SocketAddress>;
+}

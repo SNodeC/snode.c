@@ -18,6 +18,8 @@
 
 #include "net/un/stream/Socket.h"
 
+#include "core/socket/Socket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -40,3 +42,7 @@ namespace net::un::stream {
     }
 
 } // namespace net::un::stream
+
+namespace core::socket {
+    template class Socket<net::un::SocketAddress>;
+}

@@ -18,6 +18,8 @@
 
 #include "net/rf/stream/Socket.h"
 
+#include "core/socket/Socket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
@@ -31,3 +33,7 @@ namespace net::rf::stream {
     }
 
 } // namespace net::rf::stream
+
+namespace core::socket {
+    template class Socket<net::rf::SocketAddress>;
+}

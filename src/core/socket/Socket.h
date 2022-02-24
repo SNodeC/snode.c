@@ -48,36 +48,15 @@ namespace core::socket {
         virtual int create(int flags) = 0;
 
     public:
-        void open(const std::function<void(int)>& onError, int flags = 0) {
-            attachFd(create(flags));
+        void open(const std::function<void(int)>& onError, int flags = 0);
 
-            if (getFd() >= 0) {
-                onError(0);
-            } else {
-                onError(errno);
-            }
-        }
-
-        void bind(const SocketAddress& localAddress, const std::function<void(int)>& onError) {
-            int ret = core::system::bind(getFd(), &localAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
-
-            if (ret < 0) {
-                onError(errno);
-            } else {
-                this->localAddress = localAddress;
-                onError(0);
-            }
-        }
+        void bind(const SocketAddress& localAddress, const std::function<void(int)>& onError);
 
         enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
-        void shutdown(shutdown how) {
-            core::system::shutdown(getFd(), how);
-        }
+        void shutdown(shutdown how);
 
-        const SocketAddress& getBindAddress() const {
-            return localAddress;
-        }
+        const SocketAddress& getBindAddress() const;
 
     protected:
         SocketAddress localAddress{};
