@@ -35,41 +35,21 @@ namespace core::socket {
     public:
         using SockAddr = SockAddrT;
 
-        SocketAddress()
-            : sockAddr{} {
-        }
+        SocketAddress();
 
-        SocketAddress(const SocketAddress& socketAddress) {
-            *this = socketAddress;
-        }
+        SocketAddress(const SocketAddress& socketAddress);
 
-        explicit SocketAddress(const SockAddr& sockAddr) {
-            *this = sockAddr;
-        }
+        explicit SocketAddress(const SockAddr& sockAddr);
 
         virtual ~SocketAddress() = default;
 
-        SocketAddress& operator=(const SocketAddress& socketAddress) {
-            if (this != &socketAddress) {
-                *this = socketAddress.sockAddr;
-            }
+        SocketAddress& operator=(const SocketAddress& socketAddress);
 
-            return *this;
-        }
+        SocketAddress& operator=(const SockAddr& sockAddr);
 
-        SocketAddress& operator=(const SockAddr& sockAddr) {
-            memcpy(&this->sockAddr, &sockAddr, sizeof(SockAddr));
+        const sockaddr& getSockAddr() const;
 
-            return *this;
-        }
-
-        const sockaddr& getSockAddr() const {
-            return reinterpret_cast<const sockaddr&>(sockAddr);
-        }
-
-        socklen_t getSockAddrLen() const {
-            return sizeof(SockAddr);
-        }
+        socklen_t getSockAddrLen() const;
 
         virtual std::string address() const = 0;
         virtual std::string toString() const = 0;

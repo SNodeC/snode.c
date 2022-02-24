@@ -77,6 +77,7 @@ set(CORE_H
     socket/Socket.h
     socket/Socket.hpp
     socket/SocketAddress.h
+    socket/SocketAddress.hpp
     socket/SocketConnection.h
     socket/SocketContext.h
     socket/SocketContextFactory.h

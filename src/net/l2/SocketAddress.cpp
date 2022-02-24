@@ -18,6 +18,8 @@
 
 #include "net/l2/SocketAddress.h"
 
+#include "core/socket/SocketAddress.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring> // for memset
@@ -91,3 +93,7 @@ namespace net::l2 {
     }
 
 } // namespace net::l2
+
+namespace core::socket {
+    template class SocketAddress<struct sockaddr_l2>;
+}

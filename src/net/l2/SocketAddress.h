@@ -19,7 +19,9 @@
 #ifndef NET_L2_SOCKETADDRESS_H
 #define NET_L2_SOCKETADDRESS_H
 
-#include "core/socket/SocketAddress.h" // IWYU pragma: export
+#include "core/socket/SocketAddress.h"
+
+// IWYU pragma: no_include "core/socket/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

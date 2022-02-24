@@ -25,7 +25,6 @@
 
 #include "core/system/socket.h" // IWYU pragma: export
 
-#include <cerrno>
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
