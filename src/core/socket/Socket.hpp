@@ -20,10 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h" // IWYU pragma: export
-
 #include <cerrno>
-#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -47,7 +44,7 @@ namespace core::socket {
         if (ret < 0) {
             onError(errno);
         } else {
-            this->localAddress = localAddress;
+            this->bindAddress = localAddress;
             onError(0);
         }
     }
@@ -59,7 +56,7 @@ namespace core::socket {
 
     template <typename SocketAddress>
     const SocketAddress& Socket<SocketAddress>::getBindAddress() const {
-        return localAddress;
+        return bindAddress;
     }
 
 } // namespace core::socket

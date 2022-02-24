@@ -58,7 +58,7 @@ namespace core::socket {
         const SocketAddress& getBindAddress() const;
 
     protected:
-        SocketAddress localAddress{};
+        SocketAddress bindAddress{};
     };
 
 } // namespace core::socket

@@ -23,7 +23,6 @@
 
 #include "core/system/socket.h" // IWYU pragma: export
 
-#include <cstring>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
