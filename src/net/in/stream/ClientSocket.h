@@ -32,6 +32,7 @@
 
 namespace net::in::stream {
 
+    template <typename ConfigT>
     class ClientSocket : public net::ClientSocket<net::in::stream::Socket> {
     public:
         using net::ClientSocket<net::in::stream::Socket>::connect;

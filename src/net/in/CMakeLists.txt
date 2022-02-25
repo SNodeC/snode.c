@@ -3,17 +3,19 @@ cmake_minimum_required(VERSION 3.0)
 set(NET-IN_CPP
     SocketAddress.cpp
     config/ConfigAddress.cpp
-    stream/ClientSocket.cpp
     stream/ServerSocket.cpp
     stream/Socket.cpp
     stream/config/ConfigClientSocket.cpp
     stream/config/ConfigServerSocket.cpp
+    stream/legacy/SocketClient.cpp
+    stream/tls/SocketClient.cpp
 )
 
 set(NET-IN_H
     SocketAddress.h
     config/ConfigAddress.h
     stream/ClientSocket.h
+    stream/ClientSocket.hpp
     stream/ServerSocket.h
     stream/Socket.h
     stream/config/ConfigClientSocket.h
