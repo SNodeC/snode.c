@@ -24,22 +24,26 @@
 
 namespace net::l2::stream {
 
-    void ClientSocket::connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) {
+    template <typename Config>
+    void
+    ClientSocket<Config>::connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(address, psm), onError);
     }
 
-    void ClientSocket::connect(const std::string& address,
-                               uint16_t psm,
-                               const std::string& localAddress,
-                               const std::function<void(const SocketAddress&, int)>& onError) {
+    template <typename Config>
+    void ClientSocket<Config>::connect(const std::string& address,
+                                       uint16_t psm,
+                                       const std::string& localAddress,
+                                       const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(address, psm), SocketAddress(localAddress), onError);
     }
 
-    void ClientSocket::connect(const std::string& address,
-                               uint16_t psm,
-                               const std::string& localAddress,
-                               uint16_t bindPsm,
-                               const std::function<void(const SocketAddress&, int)>& onError) {
+    template <typename Config>
+    void ClientSocket<Config>::connect(const std::string& address,
+                                       uint16_t psm,
+                                       const std::string& localAddress,
+                                       uint16_t bindPsm,
+                                       const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(address, psm), SocketAddress(localAddress, bindPsm), onError);
     }
 

@@ -31,9 +31,12 @@
 
 namespace net::un::stream {
 
+    template <typename ConfigT>
     class ClientSocket : public net::ClientSocket<net::un::stream::Socket> {
+        using Super = net::ClientSocket<net::un::stream::Socket>;
+
     public:
-        using net::ClientSocket<net::un::stream::Socket>::connect;
+        using Super::connect;
 
         void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError);
         void connect(const std::string& remoteSunPath,

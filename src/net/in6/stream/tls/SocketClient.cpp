@@ -16,25 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/in6/stream/ClientSocket.hpp"
+
+namespace net::in6::stream::tls::config {
+    class ConfigSocketClient;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno> // for errno, ENOENT
-#include <cstdio> // for remove
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace net::un::stream {
-
-    void ServerSocket::listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
-        if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
-            PLOG(ERROR) << "listen: sunPath: " << sunPath;
-        } else {
-            listen(SocketAddress(sunPath), backlog, onError);
-        }
-    }
-
-} // namespace net::un::stream
+template class net::in6::stream::ClientSocket<net::in6::stream::tls::config::ConfigSocketClient>;

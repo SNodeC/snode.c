@@ -32,9 +32,12 @@
 
 namespace net::l2::stream {
 
+    template <typename ConfigT>
     class ClientSocket : public net::ClientSocket<net::l2::stream::Socket> {
+        using Super = net::ClientSocket<net::l2::stream::Socket>;
+
     public:
-        using net::ClientSocket<net::l2::stream::Socket>::connect;
+        using Super::connect;
 
         void connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError);
 

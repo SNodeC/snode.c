@@ -8,18 +8,22 @@ if(BLUEZ_FOUND)
     set(NET-L2_CPP
         SocketAddress.cpp
         config/ConfigAddress.cpp
-        stream/ClientSocket.cpp
-        stream/ServerSocket.cpp
         stream/Socket.cpp
         stream/config/ConfigClientSocket.cpp
         stream/config/ConfigServerSocket.cpp
+        stream/legacy/SocketClient.cpp
+        stream/legacy/SocketServer.cpp
+        stream/tls/SocketClient.cpp
+        stream/tls/SocketServer.cpp
     )
 
     set(NET-L2_H
         SocketAddress.h
         config/ConfigAddress.h
         stream/ClientSocket.h
+        stream/ClientSocket.hpp
         stream/ServerSocket.h
+        stream/ServerSocket.hpp
         stream/Socket.h
         stream/config/ConfigClientSocket.h
         stream/config/ConfigServerSocket.h

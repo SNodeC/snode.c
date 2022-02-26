@@ -30,8 +30,10 @@
 namespace net::rf::stream::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = core::socket::stream::legacy::
-        SocketClient<net::rf::stream::ClientSocket, net::rf::stream::legacy::config::ConfigSocketClient, SocketContextFactoryT>;
+    using SocketClient =
+        core::socket::stream::legacy::SocketClient<net::rf::stream::ClientSocket<net::rf::stream::legacy::config::ConfigSocketClient>,
+                                                   net::rf::stream::legacy::config::ConfigSocketClient,
+                                                   SocketContextFactoryT>;
 
 } // namespace net::rf::stream::legacy
 

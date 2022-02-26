@@ -32,9 +32,12 @@
 
 namespace net::rf::stream {
 
+    template <typename ConfigT>
     class ClientSocket : public net::ClientSocket<net::rf::stream::Socket> {
+        using Super = net::ClientSocket<net::rf::stream::Socket>;
+
     public:
-        using net::ClientSocket<net::rf::stream::Socket>::connect;
+        using Super::connect;
 
         void connect(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError);
 

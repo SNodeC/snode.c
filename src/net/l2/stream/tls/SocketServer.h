@@ -30,8 +30,10 @@
 namespace net::l2::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = core::socket::stream::tls::
-        SocketServer<net::l2::stream::ServerSocket, net::l2::stream::tls::config::ConfigSocketServer, SocketContextFactoryT>;
+    using SocketServer =
+        core::socket::stream::tls::SocketServer<net::l2::stream::ServerSocket<net::l2::stream::tls::config::ConfigSocketServer>,
+                                                net::l2::stream::tls::config::ConfigSocketServer,
+                                                SocketContextFactoryT>;
 
 } // namespace net::l2::stream::tls
 

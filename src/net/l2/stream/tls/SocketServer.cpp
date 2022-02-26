@@ -16,22 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ClientSocket.h" // IWYU pragma: export
+#include "net/l2/stream/ServerSocket.hpp"
+
+namespace net::l2::stream::tls::config {
+    class ConfigSocketServer;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::un::stream {
-
-    void ClientSocket::connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
-        connect(SocketAddress(sunPath), onError);
-    }
-
-    void ClientSocket::connect(const std::string& remoteSunPath,
-                               const std::string& localSunPath,
-                               const std::function<void(const SocketAddress&, int)>& onError) {
-        connect(SocketAddress(remoteSunPath), SocketAddress(localSunPath), onError);
-    }
-
-} // namespace net::un::stream
+template class net::l2::stream::ServerSocket<net::l2::stream::tls::config::ConfigSocketServer>;

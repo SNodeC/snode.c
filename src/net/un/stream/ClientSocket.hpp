@@ -16,27 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rf/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/un/stream/ClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rf::stream {
+namespace net::un::stream {
 
-    void ServerSocket::listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
-        listen(SocketAddress(channel), backlog, onError);
+    template <typename Config>
+    void ClientSocket<Config>::connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
+        connect(SocketAddress(sunPath), onError);
     }
 
-    void ServerSocket::listen(const std::string& address, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
-        listen(SocketAddress(address), backlog, onError);
+    template <typename Config>
+    void ClientSocket<Config>::connect(const std::string& remoteSunPath,
+                                       const std::string& localSunPath,
+                                       const std::function<void(const SocketAddress&, int)>& onError) {
+        connect(SocketAddress(remoteSunPath), SocketAddress(localSunPath), onError);
     }
 
-    void ServerSocket::listen(const std::string& address,
-                              uint8_t channel,
-                              int backlog,
-                              const std::function<void(const SocketAddress&, int)>& onError) {
-        listen(SocketAddress(address, channel), backlog, onError);
-    }
-
-} // namespace net::rf::stream
+} // namespace net::un::stream

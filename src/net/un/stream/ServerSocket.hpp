@@ -16,25 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_STREAM_TLS_SOCKETCLIENT_H
-#define NET_RF_STREAM_TLS_SOCKETCLIENT_H
-
-#include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
-#include "net/rf/stream/ClientSocket.h"          // IWYU pragma: export
-#include "net/rf/stream/tls/config/ConfigSocketClient.h"
+#include "net/un/stream/ServerSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#include "log/Logger.h"
 
-namespace net::rf::stream::tls {
+#include <cerrno> // for errno, ENOENT
+#include <cstdio> // for remove
 
-    template <typename SocketContextFactoryT>
-    using SocketClient =
-        core::socket::stream::tls::SocketClient<net::rf::stream::ClientSocket<net::rf::stream::tls::config::ConfigSocketClient>,
-                                                net::rf::stream::tls::config::ConfigSocketClient,
-                                                SocketContextFactoryT>;
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-} // namespace net::rf::stream::tls
+namespace net::un::stream {
 
-#endif // NET_RF_STREAM_TLS_SOCKETCLIENT_H
+    template <typename Config>
+    void
+    ServerSocket<Config>::listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
+        if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
+            PLOG(ERROR) << "listen: sunPath: " << sunPath;
+        } else {
+            listen(SocketAddress(sunPath), backlog, onError);
+        }
+    }
+
+} // namespace net::un::stream
