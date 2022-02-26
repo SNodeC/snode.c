@@ -16,25 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_TLS_SOCKETSERVER_H
-#define NET_IN_STREAM_TLS_SOCKETSERVER_H
+#include "net/in/stream/ServerSocket.hpp"
 
-#include "core/socket/stream/tls/SocketServer.h" // IWYU pragma: export
-#include "net/in/stream/ServerSocket.h"          // IWYU pragma: export
-#include "net/in/stream/tls/config/ConfigSocketServer.h"
+namespace net::in::stream::legacy::config {
+    class ConfigSocketServer;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in::stream::tls {
-
-    template <typename SocketContextFactoryT>
-    using SocketServer =
-        core::socket::stream::tls::SocketServer<net::in::stream::ServerSocket<net::in::stream::tls::config::ConfigSocketServer>,
-                                                net::in::stream::tls::config::ConfigSocketServer,
-                                                SocketContextFactoryT>;
-
-} // namespace net::in::stream::tls
-
-#endif // NET_IN_STREAM_TLS_SOCKETSERVER_H
+template class net::in::stream::ServerSocket<net::in::stream::legacy::config::ConfigSocketServer>;

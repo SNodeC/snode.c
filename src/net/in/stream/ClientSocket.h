@@ -34,8 +34,12 @@ namespace net::in::stream {
 
     template <typename ConfigT>
     class ClientSocket : public net::ClientSocket<net::in::stream::Socket> {
+        using Super = net::ClientSocket<net::in::stream::Socket>;
+
     public:
-        using net::ClientSocket<net::in::stream::Socket>::connect;
+        using Config = ConfigT;
+
+        using Super::connect;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError);
 
