@@ -19,7 +19,7 @@
 #ifndef NET_RF_STREAM_SOCKET_H
 #define NET_RF_STREAM_SOCKET_H
 
-#include "core/socket/Socket.h"
+#include "net/Socket.h"
 #include "net/rf/SocketAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,7 +28,7 @@
 
 namespace net::rf::stream {
 
-    class Socket : public core::socket::Socket<net::rf::SocketAddress> {
+    class Socket : public net::Socket<net::rf::SocketAddress> {
     protected:
         int create(int flags) override;
     };

@@ -72,8 +72,6 @@ set(CORE_H
     pipe/Pipe.h
     pipe/PipeSink.h
     pipe/PipeSource.h
-    socket/Socket.h
-    socket/Socket.hpp
     socket/SocketAddress.h
     socket/SocketAddress.hpp
     socket/SocketConnection.h

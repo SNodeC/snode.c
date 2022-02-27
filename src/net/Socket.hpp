@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/Socket.h"
+#include "net/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net {
 
     template <typename SocketAddress>
     void Socket<SocketAddress>::open(const std::function<void(int)>& onError, int flags) {
@@ -59,4 +59,4 @@ namespace core::socket {
         return bindAddress;
     }
 
-} // namespace core::socket
+} // namespace net

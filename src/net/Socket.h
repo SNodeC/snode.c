@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SOCKET_H
-#define CORE_SOCKET_SOCKET_H
+#ifndef NET_SOCKET_H
+#define NET_SOCKET_H
 
 #include "core/Descriptor.h"
 
@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net {
 
     template <typename SocketAddressT>
     class Socket : virtual public core::Descriptor {
@@ -61,6 +61,6 @@ namespace core::socket {
         SocketAddress bindAddress{};
     };
 
-} // namespace core::socket
+} // namespace net
 
-#endif // CORE_SOCKET_SOCKET_H
+#endif // NET_SOCKET_H
