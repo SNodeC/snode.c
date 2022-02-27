@@ -17,10 +17,7 @@
  */
 
 #include "net/rf/stream/ServerSocket.hpp"
-
-namespace net::rf::stream::tls::config {
-    class ConfigSocketServer;
-}
+#include "net/rf/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

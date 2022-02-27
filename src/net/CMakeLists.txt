@@ -9,6 +9,7 @@ set(NET_H
     ClientSocket.h
     ClientSocket.hpp
     ServerSocket.h
+    ServerSocket.hpp
     config/ConfigAddress.h
     config/ConfigAddress.hpp
     config/ConfigAddressLocal.h

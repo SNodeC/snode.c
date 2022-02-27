@@ -35,9 +35,11 @@ namespace net::un::stream {
     class ServerSocket : public net::ServerSocket<ConfigT, net::un::stream::Socket> {
         using Super = net::ServerSocket<ConfigT, net::un::stream::Socket>;
 
+    protected:
+        explicit ServerSocket(const std::string& name);
+
     public:
         using Super::listen;
-        using Super::Super;
 
         void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
     };

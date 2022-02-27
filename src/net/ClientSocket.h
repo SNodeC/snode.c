@@ -32,12 +32,7 @@ namespace net {
     template <typename ConfigT, typename SocketT>
     class ClientSocket {
     protected:
-        /*
-                ClientSocket(const std::string& name)
-                    : config(std::make_shared<ConfigT>(name)) {
-                }
-        */
-        ClientSocket(const std::string& name);
+        explicit ClientSocket(const std::string& name);
 
         ClientSocket(const ClientSocket&) = default;
 
@@ -55,15 +50,6 @@ namespace net {
                      const std::function<void(const SocketAddress&, int)>& onError) const;
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
-
-        /*
-                virtual void connect(const SocketAddress& remoteAddress,
-                                     const SocketAddress& localAddress,
-                                     const std::function<void(const SocketAddress&, int)>& onError) const = 0;
-
-                virtual void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError)
-           const = 0;
-        */
 
     protected:
         std::shared_ptr<Config> config;

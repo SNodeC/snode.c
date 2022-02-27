@@ -39,6 +39,7 @@ namespace core::socket::stream::tls {
             ClientSocketT,
             core::socket::stream::tls::SocketConnector<typename ClientSocketT::Config, typename ClientSocketT::Socket>,
             SocketContextFactoryT>;
+
         using Super::Super;
     };
 

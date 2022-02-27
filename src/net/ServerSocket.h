@@ -31,9 +31,7 @@ namespace net {
     template <typename ConfigT, typename SocketT>
     class ServerSocket {
     protected:
-        ServerSocket(const std::string& name)
-            : config(std::make_shared<ConfigT>(name)) {
-        }
+        explicit ServerSocket(const std::string& name);
 
         ServerSocket(const ServerSocket&) = default;
 
@@ -46,8 +44,7 @@ namespace net {
 
         virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
-        virtual void
-        listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
     protected:
         std::shared_ptr<Config> config;

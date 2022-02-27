@@ -16,11 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ServerSocket.hpp"
-#include "net/un/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: keep
+#include "net/ServerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#include <functional>
+#include <memory>
 
-template class net::un::stream::ServerSocket<net::un::stream::tls::config::ConfigSocketServer>;
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace net {
+
+    template <typename Config, typename Socket>
+    ServerSocket<Config, Socket>::ServerSocket(const std::string& name)
+        : config(std::make_shared<Config>(name)) {
+    }
+
+    template <typename Config, typename Socket>
+    void ServerSocket<Config, Socket>::listen(const SocketAddress& localAddress,
+                                              int backlog,
+                                              const std::function<void(const SocketAddress&, int)>& onError) const {
+        config->setLocalAddress(localAddress);
+        config->setBacklog(backlog);
+
+        listen(onError);
+    }
+
+} // namespace net

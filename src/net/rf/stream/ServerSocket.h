@@ -36,9 +36,11 @@ namespace net::rf::stream {
     class ServerSocket : public net::ServerSocket<ConfigT, net::rf::stream::Socket> {
         using Super = net::ServerSocket<ConfigT, net::rf::stream::Socket>;
 
+    protected:
+        explicit ServerSocket(const std::string& name);
+
     public:
         using Super::listen;
-        using Super::Super;
 
         void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 

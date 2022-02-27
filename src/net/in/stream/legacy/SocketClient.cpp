@@ -16,13 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ClientSocket.hpp"
 #include "net/in/stream/ClientSocket.hpp"
-#include "net/in/stream/legacy/config/ConfigSocketClient.h"
+#include "net/in/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::in::stream::ClientSocket<net::in::stream::legacy::config::ConfigSocketClient>;
-template class net::ClientSocket<net::in::stream::legacy::config::ConfigSocketClient, net::in::stream::Socket>;

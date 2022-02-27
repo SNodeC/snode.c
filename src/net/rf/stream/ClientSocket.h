@@ -36,9 +36,11 @@ namespace net::rf::stream {
     class ClientSocket : public net::ClientSocket<ConfigT, net::rf::stream::Socket> {
         using Super = net::ClientSocket<ConfigT, net::rf::stream::Socket>;
 
+    protected:
+        explicit ClientSocket(const std::string& name);
+
     public:
         using Super::connect;
-        using Super::Super;
 
         void connect(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError);
 

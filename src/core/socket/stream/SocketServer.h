@@ -68,15 +68,6 @@ namespace core::socket::stream {
 
         using Super::listen;
 
-        void listen(const SocketAddress& localAddress,
-                    int backlog,
-                    const std::function<void(const SocketAddress&, int)>& onError) const override {
-            Super::config->setLocalAddress(localAddress);
-            Super::config->setBacklog(backlog);
-
-            listen(onError);
-        }
-
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
             if (Super::config->isLocalInitialized()) {
                 SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);

@@ -38,8 +38,7 @@
 namespace core::socket::stream::tls {
 
     template <typename ConfigT, typename SocketT>
-    class SocketAcceptor
-        : protected core::socket::stream::SocketAcceptor<ConfigT, core::socket::stream::tls::SocketConnection<SocketT>> {
+    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<ConfigT, core::socket::stream::tls::SocketConnection<SocketT>> {
     private:
         using Super = core::socket::stream::SocketAcceptor<ConfigT, core::socket::stream::tls::SocketConnection<SocketT>>;
 

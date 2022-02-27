@@ -35,8 +35,12 @@ namespace net::un::stream {
     class ClientSocket : public net::ClientSocket<ConfigT, net::un::stream::Socket> {
         using Super = net::ClientSocket<ConfigT, net::un::stream::Socket>;
 
+    protected:
+        explicit ClientSocket(const std::string& name);
+
     public:
         using Super::connect;
+
         using Super::Super;
 
         void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError);

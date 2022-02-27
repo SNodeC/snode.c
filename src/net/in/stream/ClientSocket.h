@@ -36,11 +36,13 @@ namespace net::in::stream {
     class ClientSocket : public net::ClientSocket<ConfigT, net::in::stream::Socket> {
         using Super = net::ClientSocket<ConfigT, net::in::stream::Socket>;
 
+    protected:
+        explicit ClientSocket(const std::string& name);
+
     public:
         using Config = ConfigT;
 
         using Super::connect;
-        using Super::Super;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError);
 

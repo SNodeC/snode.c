@@ -17,10 +17,7 @@
  */
 
 #include "net/in6/stream/ServerSocket.hpp"
-
-namespace net::in6::stream::legacy::config {
-    class ConfigSocketServer;
-}
+#include "net/in6/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
