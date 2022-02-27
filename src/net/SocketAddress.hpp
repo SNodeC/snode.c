@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/SocketAddress.h"
+#include "net/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net {
 
     template <typename SockAddrT>
     SocketAddress<SockAddrT>::SocketAddress()
@@ -70,4 +70,4 @@ namespace core::socket {
         return sizeof(SockAddr);
     }
 
-} // namespace core::socket
+} // namespace net

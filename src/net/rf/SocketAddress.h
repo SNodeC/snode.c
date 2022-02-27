@@ -19,7 +19,7 @@
 #ifndef NET_RF_SOCKETADDRESS_H
 #define NET_RF_SOCKETADDRESS_H
 
-#include "core/socket/SocketAddress.h"
+#include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "core/socket/SocketAddress.hpp"
 
@@ -34,9 +34,9 @@
 
 namespace net::rf {
 
-    class SocketAddress : public core::socket::SocketAddress<struct sockaddr_rc> {
+    class SocketAddress : public net::SocketAddress<struct sockaddr_rc> {
     public:
-        using core::socket::SocketAddress<struct sockaddr_rc>::SocketAddress;
+        using net::SocketAddress<struct sockaddr_rc>::SocketAddress;
 
         SocketAddress();
         explicit SocketAddress(const std::string& btAddress);

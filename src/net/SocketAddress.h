@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SOCKETADDRESS_H
-#define CORE_SOCKET_SOCKETADDRESS_H
+#ifndef NET_SOCKETADDRESS_H
+#define NET_SOCKETADDRESS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net {
 
     template <typename SockAddrT>
     class SocketAddress {
@@ -57,6 +57,6 @@ namespace core::socket {
         SockAddr sockAddr;
     };
 
-} // namespace core::socket
+} // namespace net
 
-#endif // CORE_SOCKET_SOCKETADDRESS_H
+#endif // NET_SOCKETADDRESS_H

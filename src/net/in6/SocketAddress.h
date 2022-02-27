@@ -19,7 +19,7 @@
 #ifndef NET_IN6_SOCKETADDRESS_H
 #define NET_IN6_SOCKETADDRESS_H
 
-#include "core/socket/SocketAddress.h"
+#include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "core/socket/SocketAddress.hpp"
 
@@ -33,9 +33,9 @@
 
 namespace net::in6 {
 
-    class SocketAddress : public core::socket::SocketAddress<struct sockaddr_in6> {
+    class SocketAddress : public net::SocketAddress<struct sockaddr_in6> {
     public:
-        using core::socket::SocketAddress<struct sockaddr_in6>::SocketAddress;
+        using net::SocketAddress<struct sockaddr_in6>::SocketAddress;
 
         SocketAddress();
         explicit SocketAddress(const std::string& ipOrHostname);

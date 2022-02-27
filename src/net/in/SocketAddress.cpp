@@ -18,7 +18,7 @@
 
 #include "net/in/SocketAddress.h"
 
-#include "core/socket/SocketAddress.hpp"
+#include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -139,6 +139,6 @@ namespace net::in {
 
 } // namespace net::in
 
-namespace core::socket {
+namespace net {
     template class SocketAddress<struct sockaddr_in>;
 }
