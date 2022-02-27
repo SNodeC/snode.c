@@ -28,11 +28,11 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename ServerConfigT, typename SocketT>
+    template <typename ConfigT, typename SocketT>
     class SocketAcceptor
-        : protected core::socket::stream::SocketAcceptor<ServerConfigT, core::socket::stream::legacy::SocketConnection<SocketT>> {
+        : protected core::socket::stream::SocketAcceptor<ConfigT, core::socket::stream::legacy::SocketConnection<SocketT>> {
     private:
-        using Super = core::socket::stream::SocketAcceptor<ServerConfigT, core::socket::stream::legacy::SocketConnection<SocketT>>;
+        using Super = core::socket::stream::SocketAcceptor<ConfigT, core::socket::stream::legacy::SocketConnection<SocketT>>;
 
         using SocketAddress = typename Super::SocketAddress;
 

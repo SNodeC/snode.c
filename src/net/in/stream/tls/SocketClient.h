@@ -32,7 +32,6 @@ namespace net::in::stream::tls {
     template <typename SocketContextFactoryT>
     using SocketClient =
         core::socket::stream::tls::SocketClient<net::in::stream::ClientSocket<net::in::stream::tls::config::ConfigSocketClient>,
-                                                net::in::stream::tls::config::ConfigSocketClient,
                                                 SocketContextFactoryT>;
 
 } // namespace net::in::stream::tls

@@ -32,7 +32,6 @@ namespace net::in::stream::legacy {
     template <typename SocketContextFactoryT>
     using SocketServer =
         core::socket::stream::legacy::SocketServer<net::in::stream::ServerSocket<net::in::stream::legacy::config::ConfigSocketServer>,
-                                                   net::in::stream::legacy::config::ConfigSocketServer,
                                                    SocketContextFactoryT>;
 
 } // namespace net::in::stream::legacy
