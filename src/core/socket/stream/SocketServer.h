@@ -54,7 +54,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : config(std::make_shared<Config>(name))
+            : Super(name)
             , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
@@ -71,17 +71,17 @@ namespace core::socket::stream {
         void listen(const SocketAddress& localAddress,
                     int backlog,
                     const std::function<void(const SocketAddress&, int)>& onError) const override {
-            config->setLocalAddress(localAddress);
-            config->setBacklog(backlog);
+            Super::config->setLocalAddress(localAddress);
+            Super::config->setBacklog(backlog);
 
             listen(onError);
         }
 
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
-            if (config->isLocalInitialized()) {
+            if (Super::config->isLocalInitialized()) {
                 SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
-                socketAcceptor->listen(config, onError);
+                socketAcceptor->listen(Super::config, onError);
             } else {
                 LOG(ERROR) << "Parameterless listen on anonymous server instance";
             }
@@ -104,11 +104,10 @@ namespace core::socket::stream {
         }
 
         Config& getConfig() {
-            return *config;
+            return *Super::config;
         }
 
     protected:
-        std::shared_ptr<Config> config;
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;

@@ -33,11 +33,12 @@
 namespace net::rf::stream {
 
     template <typename ConfigT>
-    class ServerSocket : public net::ServerSocket<net::rf::stream::Socket> {
-        using Super = net::ServerSocket<net::rf::stream::Socket>;
+    class ServerSocket : public net::ServerSocket<ConfigT, net::rf::stream::Socket> {
+        using Super = net::ServerSocket<ConfigT, net::rf::stream::Socket>;
 
     public:
         using Super::listen;
+        using Super::Super;
 
         void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 

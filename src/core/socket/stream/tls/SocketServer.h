@@ -34,7 +34,7 @@ namespace core::socket::stream::tls {
     class SocketServer
         : public core::socket::stream::SocketServer<
               ServerSocketT,
-              core::socket::stream::tls::SocketAcceptor<ServerConfigT, typename ServerSocketT::Socket>,
+              core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Config, typename ServerSocketT::Socket>,
               SocketContextFactoryT> {
     private:
         using Super =

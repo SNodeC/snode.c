@@ -59,7 +59,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : config(std::make_shared<Config>(name))
+            : Super(name)
             , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
@@ -76,24 +76,24 @@ namespace core::socket::stream {
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& localAddress,
                      const std::function<void(const SocketAddress&, int)>& onError) const override {
-            config->setRemoteAddress(remoteAddress);
-            config->setLocalAddress(localAddress);
+            Super::config->setRemoteAddress(remoteAddress);
+            Super::config->setLocalAddress(localAddress);
 
             connect(onError);
         }
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const override {
-            config->setRemoteAddress(remoteAddress);
+            Super::config->setRemoteAddress(remoteAddress);
 
             connect(onError);
         }
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const override {
-            if (config->isRemoteInitialized()) {
+            if (Super::config->isRemoteInitialized()) {
                 SocketConnector* socketConnector =
                     new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
-                socketConnector->connect(config, onError);
+                socketConnector->connect(Super::config, onError);
             } else {
                 LOG(ERROR) << "Parameterless connect with anonymous client instance";
             }
@@ -116,12 +116,10 @@ namespace core::socket::stream {
         }
 
         Config& getConfig() {
-            return *config;
+            return *Super::config;
         }
 
     protected:
-        std::shared_ptr<Config> config;
-
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;

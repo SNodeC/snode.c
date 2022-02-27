@@ -33,11 +33,12 @@
 namespace net::l2::stream {
 
     template <typename ConfigT>
-    class ServerSocket : public net::ServerSocket<net::l2::stream::Socket> {
-        using Super = net::ServerSocket<net::l2::stream::Socket>;
+    class ServerSocket : public net::ServerSocket<ConfigT, net::l2::stream::Socket> {
+        using Super = net::ServerSocket<ConfigT, net::l2::stream::Socket>;
 
     public:
         using Super::listen;
+        using Super::Super;
 
         void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 

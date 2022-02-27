@@ -22,20 +22,26 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
-    template <typename SocketT>
+    template <typename ConfigT, typename SocketT>
     class ClientSocket {
     protected:
-        ClientSocket() = default;
+        ClientSocket(const std::string& name)
+            : config(std::make_shared<ConfigT>(name)) {
+        }
+
         ClientSocket(const ClientSocket&) = default;
 
         virtual ~ClientSocket() = default;
 
     public:
+        using Config = ConfigT;
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
 
@@ -46,6 +52,9 @@ namespace net {
                              const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
         virtual void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+
+    protected:
+        std::shared_ptr<Config> config;
     };
 
 } // namespace net

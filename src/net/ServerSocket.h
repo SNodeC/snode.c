@@ -22,28 +22,35 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
-    template <typename SocketT>
+    template <typename ConfigT, typename SocketT>
     class ServerSocket {
     protected:
-        ServerSocket() = default;
+        ServerSocket(const std::string& name)
+            : config(std::make_shared<ConfigT>(name)) {
+        }
+
         ServerSocket(const ServerSocket&) = default;
 
         virtual ~ServerSocket() = default;
 
     public:
+        using Config = ConfigT;
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
 
-    protected:
         virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
         virtual void
         listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+
+    protected:
+        std::shared_ptr<Config> config;
     };
 
 } // namespace net

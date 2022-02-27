@@ -33,13 +33,14 @@
 namespace net::in6::stream {
 
     template <typename ConfigT>
-    class ServerSocket : public net::ServerSocket<net::in6::stream::Socket> {
-        using Super = net::ServerSocket<net::in6::stream::Socket>;
+    class ServerSocket : public net::ServerSocket<ConfigT, net::in6::stream::Socket> {
+        using Super = net::ServerSocket<ConfigT, net::in6::stream::Socket>;
 
     public:
         using Config = ConfigT;
 
         using Super::listen;
+        using Super::Super;
 
         void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 

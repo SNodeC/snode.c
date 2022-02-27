@@ -32,11 +32,12 @@
 namespace net::un::stream {
 
     template <typename ConfigT>
-    class ServerSocket : public net::ServerSocket<net::un::stream::Socket> {
-        using Super = net::ServerSocket<net::un::stream::Socket>;
+    class ServerSocket : public net::ServerSocket<ConfigT, net::un::stream::Socket> {
+        using Super = net::ServerSocket<ConfigT, net::un::stream::Socket>;
 
     public:
         using Super::listen;
+        using Super::Super;
 
         void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
     };

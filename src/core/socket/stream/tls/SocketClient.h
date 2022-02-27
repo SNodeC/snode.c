@@ -32,7 +32,7 @@ namespace core::socket::stream::tls {
     class SocketClient
         : public core::socket::stream::SocketClient<
               ClientSocketT,
-              core::socket::stream::tls::SocketConnector<ClientConfigT, typename ClientSocketT::Socket>,
+              core::socket::stream::tls::SocketConnector<typename ClientSocketT::Config, typename ClientSocketT::Socket>,
               SocketContextFactoryT> {
     private:
         using Super =

@@ -32,7 +32,7 @@ namespace core::socket::stream::legacy {
     class SocketClient
         : public core::socket::stream::SocketClient<
               ClientSocketT,
-              core::socket::stream::legacy::SocketConnector<ClientConfigT, typename ClientSocketT::Socket>,
+              core::socket::stream::legacy::SocketConnector<typename ClientSocketT::Config, typename ClientSocketT::Socket>,
               SocketContextFactoryT> {
     private:
         using Super =

@@ -32,7 +32,7 @@ namespace core::socket::stream::legacy {
     class SocketServer
         : public core::socket::stream::SocketServer<
               ServerSocketT,
-              core::socket::stream::legacy::SocketAcceptor<ServerConfigT, typename ServerSocketT::Socket>,
+              core::socket::stream::legacy::SocketAcceptor<typename ServerSocketT::Config, typename ServerSocketT::Socket>,
               SocketContextFactoryT> {
     private:
         using Super =
