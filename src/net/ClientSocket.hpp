@@ -33,10 +33,9 @@ namespace net {
     void ClientSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
                                                const SocketAddress& localAddress,
                                                const std::function<void(const SocketAddress&, int)>& onError) const {
-        config->setRemoteAddress(remoteAddress);
         config->setLocalAddress(localAddress);
 
-        connect(onError);
+        connect(remoteAddress, onError);
     }
 
     template <typename Config, typename Socket>
@@ -45,6 +44,11 @@ namespace net {
         config->setRemoteAddress(remoteAddress);
 
         connect(onError);
+    }
+
+    template <typename Config, typename Socket>
+    Config& ClientSocket<Config, Socket>::getConfig() {
+        return *config;
     }
 
 } // namespace net

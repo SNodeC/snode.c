@@ -42,4 +42,9 @@ namespace net {
         listen(onError);
     }
 
+    template <typename Config, typename Socket>
+    Config& ServerSocket<Config, Socket>::getConfig() {
+        return *config;
+    }
+
 } // namespace net

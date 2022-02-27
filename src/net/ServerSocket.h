@@ -46,6 +46,8 @@ namespace net {
 
         void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
+        Config& getConfig();
+
     protected:
         std::shared_ptr<Config> config;
     };

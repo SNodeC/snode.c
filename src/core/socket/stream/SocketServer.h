@@ -94,10 +94,6 @@ namespace core::socket::stream {
             return socketContextFactory;
         }
 
-        Config& getConfig() {
-            return *Super::config;
-        }
-
     protected:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
