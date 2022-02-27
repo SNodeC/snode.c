@@ -16,14 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/ClientSocket.hpp"
 #include "net/in/stream/ClientSocket.hpp"
-
-namespace net::in::stream::tls::config {
-    class ConfigSocketClient;
-}
+#include "net/in/stream/tls/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::in::stream::ClientSocket<net::in::stream::tls::config::ConfigSocketClient>;
+template class net::ClientSocket<net::in::stream::tls::config::ConfigSocketClient, net::in::stream::Socket>;

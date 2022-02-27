@@ -16,14 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/ClientSocket.hpp"
 #include "net/un/stream/ClientSocket.hpp"
-
-namespace net::un::stream::legacy::config {
-    class ConfigSocketClient;
-}
+#include "net/un/stream/legacy/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::un::stream::ClientSocket<net::un::stream::legacy::config::ConfigSocketClient>;
+template class net::ClientSocket<net::un::stream::legacy::config::ConfigSocketClient, net::un::stream::Socket>;

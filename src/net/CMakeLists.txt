@@ -7,6 +7,7 @@ set(NET_CPP
 
 set(NET_H
     ClientSocket.h
+    ClientSocket.hpp
     ServerSocket.h
     config/ConfigAddress.h
     config/ConfigAddress.hpp
