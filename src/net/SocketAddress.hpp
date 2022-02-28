@@ -41,13 +41,13 @@ namespace net {
 
     template <typename SockAddrT>
     SocketAddress<SockAddrT>::SocketAddress(const SockAddr& sockAddr) {
-        *this = sockAddr;
+        this->sockAddr = sockAddr;
     }
 
     template <typename SockAddrT>
     SocketAddress<SockAddrT>& SocketAddress<SockAddrT>::operator=(const SocketAddress& socketAddress) {
         if (this != &socketAddress) {
-            *this = socketAddress.sockAddr;
+            this->sockAddr = socketAddress.sockAddr;
         }
 
         return *this;
@@ -55,7 +55,7 @@ namespace net {
 
     template <typename SockAddrT>
     SocketAddress<SockAddrT>& SocketAddress<SockAddrT>::operator=(const SockAddr& sockAddr) {
-        memcpy(&this->sockAddr, &sockAddr, sizeof(SockAddr));
+        this->sockAddr = sockAddr;
 
         return *this;
     }

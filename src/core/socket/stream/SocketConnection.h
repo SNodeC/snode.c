@@ -118,7 +118,6 @@ namespace core::socket::stream {
             return SocketConnection::getFd();
         }
 
-    private:
         ssize_t readFromPeer(char* junk, std::size_t junkLen) final {
             ssize_t ret = 0;
 
@@ -143,6 +142,7 @@ namespace core::socket::stream {
             sendToPeer(data.data(), data.size());
         }
 
+    private:
         void readEvent() final {
             SocketReader::doRead();
 
