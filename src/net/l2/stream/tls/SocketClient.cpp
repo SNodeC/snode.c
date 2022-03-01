@@ -24,3 +24,4 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::l2::stream::ClientSocket<net::l2::stream::tls::config::ConfigSocketClient>;
+template class net::ClientSocket<net::l2::stream::tls::config::ConfigSocketClient, net::l2::stream::Socket>;

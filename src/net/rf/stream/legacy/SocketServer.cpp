@@ -24,3 +24,4 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::rf::stream::ServerSocket<net::rf::stream::legacy::config::ConfigSocketServer>;
+template class net::ServerSocket<net::rf::stream::legacy::config::ConfigSocketServer, net::rf::stream::Socket>;
