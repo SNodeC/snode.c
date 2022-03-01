@@ -41,7 +41,7 @@ namespace core::socket::stream::legacy {
 
     protected:
         void terminate() override {
-            core::socket::stream::SocketWriter<SocketT>::terminate();
+            Super::terminate();
         }
     };
 
