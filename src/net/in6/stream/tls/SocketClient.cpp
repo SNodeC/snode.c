@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/ClientSocket.hpp"
 #include "net/in6/stream/ClientSocket.hpp"
 #include "net/in6/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: keep
 
