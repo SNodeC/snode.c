@@ -21,7 +21,7 @@
 
 #include "net/SocketAddress.h"
 
-// IWYU pragma: no_include "core/socket/SocketAddress.hpp"
+// IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

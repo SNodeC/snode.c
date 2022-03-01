@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ServerSocket.hpp"
+#include "net/ServerSocket.hpp" // IWYU pragma: keep
 #include "net/un/stream/ServerSocket.hpp"
 #include "net/un/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: keep
 
