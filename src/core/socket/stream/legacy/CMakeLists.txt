@@ -12,7 +12,7 @@ set(CORE-LEGACY_H
     SocketWriter.h
 )
 
-add_library(core-legacy INTERFACE ${CORE-LEGACY_CPP} ${CORE-LEGACY_H})
+add_library(core-legacy INTERFACE)
 add_library(snodec::core-legacy ALIAS core-legacy)
 
 target_include_directories(
