@@ -53,8 +53,10 @@ namespace core::socket::stream::tls {
                                                              core::socket::stream::tls::SocketWriter<SocketT>,
                                                              typename SocketT::SocketAddress>;
 
+    public:
         using Socket = SocketT;
 
+    private:
         using SocketReader = core::socket::stream::tls::SocketReader<Socket>;
         using SocketWriter = core::socket::stream::tls::SocketWriter<Socket>;
 
