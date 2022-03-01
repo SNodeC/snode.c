@@ -49,8 +49,10 @@ namespace core::socket::stream::legacy {
                                                              core::socket::stream::legacy::SocketWriter<SocketT>,
                                                              typename SocketT::SocketAddress>;
 
+    public:
         using Socket = SocketT;
 
+    private:
         using SocketReader = core::socket::stream::legacy::SocketReader<Socket>;
         using SocketWriter = core::socket::stream::legacy::SocketWriter<Socket>;
 
