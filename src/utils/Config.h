@@ -62,6 +62,9 @@ namespace utils {
         static bool _forceLogFile;
         static bool _showConfig;
         static std::string _logFile;
+        static std::string defaultConfDir;
+        static std::string defaultLogDir;
+        static std::string defaultPidDir;
     };
 
 } // namespace utils

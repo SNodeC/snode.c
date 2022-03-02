@@ -28,15 +28,25 @@
 #include <cerrno>
 #include <cstdlib>
 #include <filesystem>
-#include <memory>    // for __shared_ptr_access, shared_ptr
-#include <ostream>   // for ofstream, basic_ostream
+#include <memory>  // for __shared_ptr_access, shared_ptr
+#include <ostream> // for ofstream, basic_ostream
+#include <pwd.h>
 #include <stdexcept> // for invalid_argument, out_of_range
+#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CONFFILEPATH std::string("/home/voc/etc/snode.c/conf")
-#define LOGFILEPATH std::string("/home/voc/etc/snode.c/log")
-#define PIDFILEPATH std::string("/home/voc/etc/snode.c/pid")
+#ifndef CONFFILEPATH
+#define CONFFILEPATH std::string("/etc/snode.c/conf")
+#endif
+
+#ifndef LOGFILEPATH
+#define LOGFILEPATH std::string("/etc/snode.c/log")
+#endif
+
+#ifndef PIDFILEPATH
+#define PIDFILEPATH std::string("/etc/snode.c/pid")
+#endif
 
 namespace utils {
 
@@ -52,26 +62,41 @@ namespace utils {
     std::string Config::_logFile;
     std::string Config::outputConfigFile;
 
+    std::string Config::defaultConfDir;
+    std::string Config::defaultLogDir;
+    std::string Config::defaultPidDir;
+
     int Config::init(int argc, char* argv[]) {
         Config::argc = argc;
         Config::argv = argv;
 
         name = std::filesystem::path(argv[0]).filename();
 
+        const char* homedir;
+        if ((homedir = getenv("XDG_CONFIG_HOME")) == NULL) {
+            if ((homedir = getenv("HOME")) == NULL) {
+                homedir = getpwuid(getuid())->pw_dir;
+            }
+        }
+
+        defaultConfDir = homedir + CONFFILEPATH;
+        defaultLogDir = homedir + LOGFILEPATH;
+        defaultPidDir = homedir + PIDFILEPATH;
+
         logger::Logger::init(argc, argv);
-        std::filesystem::create_directories(CONFFILEPATH);
+        std::filesystem::create_directories(defaultConfDir);
         std::filesystem::permissions(
-            CONFFILEPATH,
+            defaultConfDir,
             (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
                 ~std::filesystem::perms::others_all);
 
-        std::filesystem::create_directories(LOGFILEPATH);
+        std::filesystem::create_directories(defaultLogDir);
         std::filesystem::permissions(
-            LOGFILEPATH, (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) & ~std::filesystem::perms::others_all);
+            defaultLogDir, (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) & ~std::filesystem::perms::others_all);
 
-        std::filesystem::create_directories(PIDFILEPATH);
+        std::filesystem::create_directories(defaultPidDir);
         std::filesystem::permissions(
-            LOGFILEPATH, (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) & ~std::filesystem::perms::others_all);
+            defaultPidDir, (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) & ~std::filesystem::perms::others_all);
 
         app.option_defaults()->take_first();
         app.option_defaults()->configurable();
@@ -90,13 +115,13 @@ namespace utils {
         showConfigFlag->configurable(false);
 
         CLI::Option* dumpConfigFlg =
-            app.add_flag("-w{" + CONFFILEPATH + "/" + name + ".conf" + "},--write-config{" + CONFFILEPATH + "/" + name + ".conf" + "}",
+            app.add_flag("-w{" + defaultConfDir + "/" + name + ".conf" + "},--write-config{" + defaultConfDir + "/" + name + ".conf" + "}",
                          outputConfigFile,
                          "Write config file");
         dumpConfigFlg->configurable(false);
 
         CLI::Option* logFileOpt = app.add_option("-l,--log-file", _logFile, "Log to file");
-        logFileOpt->default_val(LOGFILEPATH + "/" + name + ".log");
+        logFileOpt->default_val(defaultLogDir + "/" + name + ".log");
         logFileOpt->type_name("[path]");
         logFileOpt->excludes(showConfigFlag);
 
@@ -114,14 +139,14 @@ namespace utils {
         parse();
 
         if (_kill) {
-            utils::Daemon::kill(PIDFILEPATH + "/" + name + ".pid");
+            utils::Daemon::kill(defaultPidDir + "/" + name + ".pid");
             VLOG(0) << "Daemon killed";
 
             exit(0);
         }
 
         if (app["--help"]->count() == 0 && app["--help-all"]->count() == 0) {
-            app.set_config("--config", CONFFILEPATH + "/" + name + ".conf", "Read an config file", false);
+            app.set_config("--config", defaultConfDir + "/" + name + ".conf", "Read an config file", false);
         }
 
         parse(); // for daemonize, logfile and forceLogFile
@@ -130,7 +155,7 @@ namespace utils {
             if (_daemonize) {
                 VLOG(0) << "Running as daemon";
 
-                utils::Daemon::daemonize(PIDFILEPATH + "/" + name + ".pid");
+                utils::Daemon::daemonize(defaultPidDir + "/" + name + ".pid");
                 logger::Logger::quiet();
             } else {
                 if (!_forceLogFile) {
@@ -166,7 +191,7 @@ namespace utils {
 
     void Config::terminate() {
         if (_daemonize) {
-            Daemon::erasePidFile(PIDFILEPATH + "/" + name + ".pid");
+            Daemon::erasePidFile(defaultPidDir + "/" + name + ".pid");
         }
     }
 
