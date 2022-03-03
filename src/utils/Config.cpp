@@ -32,7 +32,7 @@
 #include <ostream> // for ofstream, basic_ostream
 #include <pwd.h>
 #include <stdexcept> // for invalid_argument, out_of_range
-#include <sys/types.h>
+#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
