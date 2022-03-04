@@ -50,7 +50,7 @@ if(BLUEZ_FOUND)
     )
 
     set_target_properties(
-        net-rc PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-rf
+        net-rc PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-rc
     )
 
     install(
@@ -63,7 +63,7 @@ if(BLUEZ_FOUND)
 
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rf
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc
         FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"
