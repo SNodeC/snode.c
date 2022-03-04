@@ -16,35 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-
-#include "core/EventReceiver.h"
+#include "net/ServerSocket.hpp" // IWYU pragma: keep
+#include "net/rc/stream/ServerSocket.hpp"
+#include "net/rc/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#define MAX_WRITE_INACTIVITY 60
-
-namespace core::eventreceiver {
-
-    class InitConnectEventReceiver : public core::EventReceiver {
-    protected:
-        InitConnectEventReceiver(const std::string& name);
-
-    private:
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        virtual void initConnectEvent() = 0;
-    };
-
-} // namespace core::eventreceiver
-
-#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+template class net::rc::stream::ServerSocket<net::rc::stream::tls::config::ConfigSocketServer>;
+template class net::ServerSocket<net::rc::stream::tls::config::ConfigSocketServer, net::rc::stream::Socket>;

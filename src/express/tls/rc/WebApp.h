@@ -16,35 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#ifndef EXPRESS_TLS_RC_WEBAPP_H
+#define EXPRESS_TLS_RC_WEBAPP_H
 
-#include "core/EventReceiver.h"
+#include "express/WebAppT.h"        // IWYU pragma: export
+#include "web/http/tls/rc/Server.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
-
-#include <string> // for string
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_WRITE_INACTIVITY 60
+namespace express::tls::rc {
 
-namespace core::eventreceiver {
+    using WebApp = WebAppT<web::http::tls::rc::Server<express::Request, express::Response>>;
 
-    class InitConnectEventReceiver : public core::EventReceiver {
-    protected:
-        InitConnectEventReceiver(const std::string& name);
+} // namespace express::tls::rc
 
-    private:
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        virtual void initConnectEvent() = 0;
-    };
-
-} // namespace core::eventreceiver
-
-#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#endif // EXPRESS_TLS_RC_WEBAPP_H

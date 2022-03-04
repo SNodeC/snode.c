@@ -39,9 +39,9 @@ namespace core::eventreceiver {
     protected:
         InitAcceptEventReceiver(const std::string& name);
 
+    private:
         void dispatch(const utils::Timeval& currentTime) override;
 
-    private:
         virtual void initAcceptEvent() = 0;
     };
 

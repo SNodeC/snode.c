@@ -5,7 +5,7 @@ get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_LIST_DIR} NAME)
 set(IN 1)
 set(IN6 2)
 set(L2 3)
-set(RF 4)
+set(RC 4)
 set(UN 5)
 
 set(LEGACY 1)
@@ -15,7 +15,7 @@ add_compile_definitions(
     IN=${IN}
     IN6=${IN6}
     L2=${L2}
-    RF=${RF}
+    RC=${RC}
     UN=${UN}
     LEGACY=${LEGACY}
     TLS=${TLS}
@@ -35,7 +35,7 @@ set(HTTPSERVERCLIENTCERT_H model/servers.h)
 
 set(NETS "in" "in6" "un")
 if(BLUEZ_FOUND)
-    list(APPEND NETS "rf")
+    list(APPEND NETS "rc")
 endif(BLUEZ_FOUND)
 
 foreach(NET IN LISTS NETS)
@@ -45,8 +45,8 @@ foreach(NET IN LISTS NETS)
         set(NET_TYPE ${IN6})
     elseif(${NET} STREQUAL "l2")
         set(NET_TYPE ${L2})
-    elseif(${NET} STREQUAL "rf")
-        set(NET_TYPE ${RF})
+    elseif(${NET} STREQUAL "rc")
+        set(NET_TYPE ${RC})
     elseif(${NET} STREQUAL "un")
         set(NET_TYPE ${UN})
     endif()

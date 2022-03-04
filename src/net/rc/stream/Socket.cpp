@@ -16,35 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#include "net/rc/stream/Socket.h"
 
-#include "core/EventReceiver.h"
+#include "net/Socket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
-
-#include <string> // for string
+#include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_WRITE_INACTIVITY 60
+namespace net::rc::stream {
 
-namespace core::eventreceiver {
+    int Socket::create(int flags) {
+        return core::system::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
+    }
 
-    class InitConnectEventReceiver : public core::EventReceiver {
-    protected:
-        InitConnectEventReceiver(const std::string& name);
+} // namespace net::rc::stream
 
-    private:
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        virtual void initConnectEvent() = 0;
-    };
-
-} // namespace core::eventreceiver
-
-#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+namespace net {
+    template class Socket<net::rc::SocketAddress>;
+}

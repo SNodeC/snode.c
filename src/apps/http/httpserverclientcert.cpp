@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 
         // webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
         webApp.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
-    #elif (NET_TYPE == RF) // rf
+    #elif (NET_TYPE == RC) // rf
         // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
         webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
     #elif (NET_TYPE == UN) // un

@@ -30,10 +30,10 @@ set(HTTPCLIENT_H
     SocketContextUpgradeFactorySelector.h
     ../legacy/in/Client.h
     ../legacy/in6/Client.h
-    ../legacy/rf/Client.h
+    ../legacy/rc/Client.h
     ../tls/in/Client.h
     ../tls/in6/Client.h
-    ../tls/rf/Client.h
+    ../tls/rc/Client.h
 )
 
 add_library(httpclient SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H})

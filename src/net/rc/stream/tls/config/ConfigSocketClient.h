@@ -16,35 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#ifndef NET_RC_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_RC_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "core/EventReceiver.h"
+#include "net/config/ConfigTls.h"                    // IWYU pragma: export
+#include "net/rc/stream/config/ConfigClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
+#include <string>
 
-#include <string> // for string
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace net::rc::stream::tls::config {
 
-#define MAX_WRITE_INACTIVITY 60
-
-namespace core::eventreceiver {
-
-    class InitConnectEventReceiver : public core::EventReceiver {
-    protected:
-        InitConnectEventReceiver(const std::string& name);
-
-    private:
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        virtual void initConnectEvent() = 0;
+    class ConfigSocketClient
+        : public net::rc::stream::config::ConfigClientSocket
+        , public net::config::ConfigTls {
+    public:
+        explicit ConfigSocketClient(const std::string& name)
+            : net::config::ConfigBase(name) {
+        }
     };
 
-} // namespace core::eventreceiver
+} // namespace net::rc::stream::tls::config
 
-#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#endif // NET_RC_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H

@@ -16,35 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#ifndef NET_RC_STREAM_TLS_SOCKETCLIENT_H
+#define NET_RC_STREAM_TLS_SOCKETCLIENT_H
 
-#include "core/EventReceiver.h"
+#include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "net/rc/stream/ClientSocket.h"          // IWYU pragma: export
+#include "net/rc/stream/tls/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+namespace net::rc::stream::tls {
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+    template <typename SocketContextFactoryT>
+    using SocketClient =
+        core::socket::stream::tls::SocketClient<net::rc::stream::ClientSocket<net::rc::stream::tls::config::ConfigSocketClient>,
+                                                SocketContextFactoryT>;
 
-#define MAX_WRITE_INACTIVITY 60
+} // namespace net::rc::stream::tls
 
-namespace core::eventreceiver {
-
-    class InitConnectEventReceiver : public core::EventReceiver {
-    protected:
-        InitConnectEventReceiver(const std::string& name);
-
-    private:
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        virtual void initConnectEvent() = 0;
-    };
-
-} // namespace core::eventreceiver
-
-#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#endif // NET_RC_STREAM_TLS_SOCKETCLIENT_H

@@ -16,35 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-
-#include "core/EventReceiver.h"
+#include "net/rc/stream/config/ConfigClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
-
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_WRITE_INACTIVITY 60
+namespace net::rc::stream::config {
 
-namespace core::eventreceiver {
+    ConfigClientSocket::ConfigClientSocket() {
+        if (!getName().empty()) {
+            net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
+        }
+    }
 
-    class InitConnectEventReceiver : public core::EventReceiver {
-    protected:
-        InitConnectEventReceiver(const std::string& name);
-
-    private:
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        virtual void initConnectEvent() = 0;
-    };
-
-} // namespace core::eventreceiver
-
-#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+} // namespace net::rc::stream::config

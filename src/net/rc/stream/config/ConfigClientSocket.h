@@ -16,35 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#ifndef NET_RC_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#define NET_RC_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
 
-#include "core/EventReceiver.h"
+#include "net/config/ConfigAddressLocal.h"
+#include "net/config/ConfigAddressRemote.h"
+#include "net/config/ConfigConnection.h"
+#include "net/rc/config/ConfigAddress.h"
+
+// IWYU pragma: no_include "net/rf/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
-
-#include <string> // for string
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_WRITE_INACTIVITY 60
+namespace net::rc::stream::config {
 
-namespace core::eventreceiver {
-
-    class InitConnectEventReceiver : public core::EventReceiver {
-    protected:
-        InitConnectEventReceiver(const std::string& name);
-
-    private:
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        virtual void initConnectEvent() = 0;
+    class ConfigClientSocket
+        : public net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>
+        , public net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>
+        , public net::config::ConfigConnection {
+    public:
+        ConfigClientSocket();
     };
 
-} // namespace core::eventreceiver
+} // namespace net::rc::stream::config
 
-#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#endif // NET_RC_STREAM_CONFIG_CONFIGCLIENTSOCKET_H

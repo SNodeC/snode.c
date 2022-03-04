@@ -59,7 +59,6 @@ namespace core {
         };
 
         std::set<TimerEventReceiver*, timernode_lt> timerList;
-        std::list<TimerEventReceiver*> addedList;
         std::list<TimerEventReceiver*> removedList;
     };
 

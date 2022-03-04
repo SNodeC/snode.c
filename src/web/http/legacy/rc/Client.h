@@ -16,35 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
-#define CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#ifndef WEB_HTTP_LEGACY_RC_CLIENT_H
+#define WEB_HTTP_LEGACY_RC_CLIENT_H
 
-#include "core/EventReceiver.h"
+#include "net/rc/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "web/http/client/Client.h"            // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
-
-#include <string> // for string
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_WRITE_INACTIVITY 60
+namespace web::http::legacy::rc {
 
-namespace core::eventreceiver {
+    template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
+    class Client : public web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response> {
+        using web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response>::Client;
 
-    class InitConnectEventReceiver : public core::EventReceiver {
     protected:
-        InitConnectEventReceiver(const std::string& name);
+        using SocketClient = net::rc::stream::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
-    private:
-        void dispatch(const utils::Timeval& currentTime) override;
-
-        virtual void initConnectEvent() = 0;
+    public:
+        using web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response>::connect;
     };
 
-} // namespace core::eventreceiver
+} // namespace web::http::legacy::rc
 
-#endif // CORE_EVENTRECEIVER_INITCONNECTEVENTRECEIVER_H
+#endif // WEB_HTTP_LEGACY_RC_CLIENT_H

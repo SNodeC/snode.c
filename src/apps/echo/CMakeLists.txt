@@ -9,7 +9,7 @@ set(NET ${CURRENT_DIR})
 set(IN 1)
 set(IN6 2)
 set(L2 3)
-set(RF 4)
+set(RC 4)
 set(UN 5)
 
 set(LEGACY 1)
@@ -19,7 +19,7 @@ add_compile_definitions(
     IN=${IN}
     IN6=${IN6}
     L2=${L2}
-    RF=${RF}
+    RC=${RC}
     UN=${UN}
     LEGACY=${LEGACY}
     TLS=${TLS}
@@ -27,7 +27,7 @@ add_compile_definitions(
 
 set(NETS "in" "in6" "un")
 if(BLUEZ_FOUND)
-    list(APPEND NETS "l2" "rf")
+    list(APPEND NETS "l2" "rc")
 endif(BLUEZ_FOUND)
 
 set(ECHOCLIENT_CPP echoclient.cpp)
@@ -43,8 +43,8 @@ foreach(NET IN LISTS NETS)
         set(NET_TYPE ${IN6})
     elseif(${NET} STREQUAL "l2")
         set(NET_TYPE ${L2})
-    elseif(${NET} STREQUAL "rf")
-        set(NET_TYPE ${RF})
+    elseif(${NET} STREQUAL "rc")
+        set(NET_TYPE ${RC})
     elseif(${NET} STREQUAL "un")
         set(NET_TYPE ${UN})
     endif()

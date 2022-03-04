@@ -16,21 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_TLS_UN_SERVER_H
-#define WEB_HTTP_TLS_UN_SERVER_H
+#ifndef WEB_HTTP_TLS_RC_SERVER_H
+#define WEB_HTTP_TLS_RC_SERVER_H
 
-#include "net/un/stream/tls/SocketServer.h" // IWYU pragma: export
+#include "net/rc/stream/tls/SocketServer.h" // IWYU pragma: export
 #include "web/http/server/Server.h"         // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::tls::un {
+namespace web::http::tls::rc {
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
-    class Server : public web::http::server::Server<net::un::stream::tls::SocketServer, Request, Response> {
-        using Super = web::http::server::Server<net::un::stream::tls::SocketServer, Request, Response>;
+    class Server : public web::http::server::Server<net::rc::stream::tls::SocketServer, Request, Response> {
+        using Super = web::http::server::Server<net::rc::stream::tls::SocketServer, Request, Response>;
         using Super::Super;
 
     public:
@@ -39,11 +39,19 @@ namespace web::http::tls::un {
 
         using Super::listen;
 
-        void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(sunPath, LISTEN_BACKLOG, onError);
+        void listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(channel, LISTEN_BACKLOG, onError);
+        }
+
+        void listen(const std::string& address, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(address, LISTEN_BACKLOG, onError);
+        }
+
+        void listen(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
+            listen(address, channel, LISTEN_BACKLOG, onError);
         }
     };
 
-} // namespace web::http::tls::un
+} // namespace web::http::tls::rc
 
-#endif // WEB_HTTP_TLS_UN_SERVER_H
+#endif // WEB_HTTP_TLS_RC_SERVER_H

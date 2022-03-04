@@ -43,10 +43,10 @@ set(EXPRESS_H
     ${JSONMIDDLEWARE_H}
     legacy/in/WebApp.h
     legacy/in6/WebApp.h
-    legacy/rf/WebApp.h
+    legacy/rc/WebApp.h
     tls/in/WebApp.h
     tls/in6/WebApp.h
-    tls/rf/WebApp.h
+    tls/rc/WebApp.h
 )
 
 add_library(express SHARED ${EXPRESS_CPP} ${EXPRESS_H})
