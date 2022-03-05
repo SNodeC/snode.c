@@ -9,8 +9,13 @@ get_target_property(
 
 set(WEBSOCKETBASE_CPP Receiver.cpp Transmitter.cpp)
 set(WEBSOCKETBASE_H
-    Receiver.h SocketContextUpgrade.h SubProtocol.h SubProtocolFactory.h
-    SubProtocolFactorySelector.h Transmitter.h
+    Receiver.h
+    SocketContextUpgrade.h
+    SubProtocol.h
+    SubProtocol.hpp
+    SubProtocolFactory.h
+    SubProtocolFactorySelector.h
+    Transmitter.h
 )
 
 add_library(websocketbase SHARED ${WEBSOCKETBASE_CPP} ${WEBSOCKETBASE_H})

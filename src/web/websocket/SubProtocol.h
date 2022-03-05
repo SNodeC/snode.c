@@ -43,10 +43,7 @@ namespace web::websocket {
 
     protected:
         SubProtocol() = delete;
-        SubProtocol(const std::string& name)
-            : socketContextUpgrade(nullptr) {
-            this->name = name;
-        }
+        SubProtocol(const std::string& name);
 
         SubProtocol(const SubProtocol&) = delete;
         SubProtocol& operator=(const SubProtocol&) = delete;
@@ -55,56 +52,18 @@ namespace web::websocket {
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        void sendMessage(const char* message, std::size_t messageLength) {
-            socketContextUpgrade->sendMessage(2, message, messageLength);
-        }
+        void sendMessage(const char* message, std::size_t messageLength);
+        void sendMessage(const std::string& message);
+        void sendMessageStart(const char* message, std::size_t messageLength);
+        void sendMessageStart(const std::string& message);
+        void sendMessageFrame(const char* message, std::size_t messageLength);
+        void sendMessageFrame(const std::string& message);
+        void sendMessageEnd(const char* message, std::size_t messageLength);
+        void sendMessageEnd(const std::string& message);
+        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
-        void sendMessage(const std::string& message) {
-            socketContextUpgrade->sendMessage(1, message.data(), message.length());
-        }
-
-        void sendMessageStart(const char* message, std::size_t messageLength) {
-            socketContextUpgrade->sendMessageStart(2, message, messageLength);
-        }
-
-        void sendMessageStart(const std::string& message) {
-            socketContextUpgrade->sendMessageStart(1, message.data(), message.length());
-        }
-
-        void sendMessageFrame(const char* message, std::size_t messageLength) {
-            socketContextUpgrade->sendMessageFrame(message, messageLength);
-        }
-
-        void sendMessageFrame(const std::string& message) {
-            sendMessageFrame(message.data(), message.length());
-        }
-
-        void sendMessageEnd(const char* message, std::size_t messageLength) {
-            socketContextUpgrade->sendMessageEnd(message, messageLength);
-        }
-
-        void sendMessageEnd(const std::string& message) {
-            sendMessageEnd(message.data(), message.length());
-        }
-
-        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0) {
-            socketContextUpgrade->sendPing(reason, reasonLength);
-        }
-
-        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) {
-            socketContextUpgrade->sendClose(statusCode, reason, reasonLength);
-        }
-
-        std::string getLocalAddressAsString() const {
-            return socketContextUpgrade->getLocalAddressAsString();
-        }
-        std::string getRemoteAddressAsString() const {
-            return socketContextUpgrade->getRemoteAddressAsString();
-        }
-
-        const std::string& getName() {
-            return name;
-        }
+        const std::string& getName();
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
@@ -118,13 +77,9 @@ namespace web::websocket {
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
-        void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade) {
-            this->socketContextUpgrade = socketContextUpgrade;
-        }
+        void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
 
-        void setName(const std::string& name) {
-            this->name = name;
-        }
+        void setName(const std::string& name);
 
         SocketContextUpgrade* socketContextUpgrade;
 

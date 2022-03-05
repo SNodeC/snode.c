@@ -22,11 +22,12 @@
 #include "web/websocket/SubProtocol.h"                 // IWYU pragma: export
 #include "web/websocket/server/SocketContextUpgrade.h" // IWYU pragma: keep
 
+// IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <functional>
+#include <cstddef>    // for size_t
+#include <functional> // for function
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

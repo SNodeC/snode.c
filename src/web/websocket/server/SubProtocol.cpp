@@ -18,6 +18,7 @@
 
 #include "web/websocket/server/SubProtocol.h"
 
+#include "web/websocket/SubProtocol.hpp" // IWYU pragma: keep
 #include "web/websocket/server/GroupsManager.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -79,3 +80,9 @@ namespace web::websocket::server {
     }
 
 } // namespace web::websocket::server
+
+namespace web::websocket {
+
+    template class SubProtocol<web::websocket::server::SocketContextUpgrade>;
+
+} // namespace web::websocket
