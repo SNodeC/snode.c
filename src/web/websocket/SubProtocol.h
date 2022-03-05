@@ -19,6 +19,11 @@
 #ifndef WEB_WEBSOCKET_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SUBSPROTOCOL_H
 
+namespace web::websocket {
+    template <typename SubProtocolT, typename RequestT, typename ResponseT>
+    class SocketContextUpgrade;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -125,8 +130,8 @@ namespace web::websocket {
 
         std::string name;
 
-        template <typename SubProtocolT>
-        friend class SubProtocolFactory;
+        template <typename SubProtocolT, typename RequestT, typename ResponseT>
+        friend class web::websocket::SocketContextUpgrade;
 
         friend SocketContextUpgrade;
     };

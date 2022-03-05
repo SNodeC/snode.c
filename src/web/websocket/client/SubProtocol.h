@@ -48,24 +48,8 @@ namespace web::websocket::client {
         using Super::sendClose;
         using Super::sendPing;
 
-    private:
-        /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
-        void onMessageStart(int opCode) override = 0;
-        void onMessageData(const char* junk, std::size_t junkLen) override = 0;
-        void onMessageEnd() override = 0;
-        void onPongReceived() override = 0;
-        void onMessageError(uint16_t errnum) override = 0;
-
-        /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
-        void onConnected() override = 0;
-        void onDisconnected() override = 0;
-
-        std::string channel;
-
         template <typename RequestT, typename ResponseT, typename SubProtocolT>
         friend class web::websocket::SocketContextUpgrade;
-
-        friend class GroupsManager;
     };
 
 } // namespace web::websocket::client

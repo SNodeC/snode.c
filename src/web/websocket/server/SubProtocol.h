@@ -38,7 +38,7 @@ namespace web::websocket::server {
         using Super = web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
 
     protected:
-        SubProtocol(const std::string& name);
+        explicit SubProtocol(const std::string& name);
 
     public:
         ~SubProtocol() override;
@@ -70,17 +70,6 @@ namespace web::websocket::server {
         void forEachClient(const std::function<void(SubProtocol*)>& sendToClient, bool excludeSelf = false);
 
     private:
-        /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
-        void onMessageStart(int opCode) override = 0;
-        void onMessageData(const char* junk, std::size_t junkLen) override = 0;
-        void onMessageEnd() override = 0;
-        void onPongReceived() override = 0;
-        void onMessageError(uint16_t errnum) override = 0;
-
-        /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
-        void onConnected() override = 0;
-        void onDisconnected() override = 0;
-
         std::string group;
 
         template <typename RequestT, typename ResponseT, typename SubProtocolT>
