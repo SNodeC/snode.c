@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-find_package(OpenSSL QUIET)
+find_package(OpenSSL)
 
 if(NOT OpenSSL_FOUND)
     message(

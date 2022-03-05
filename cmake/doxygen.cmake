@@ -1,4 +1,4 @@
-find_package(Doxygen QUIET)
+find_package(Doxygen)
 if(DOXYGEN_FOUND)
     option(
         BUILD_DOCUMENTATION

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(nlohmann_json 3.7.0 QUIET)
+find_package(nlohmann_json 3.7.0)
 
 if(NLOHMANN_JSON_FOUND)
     set(JSONMIDDLEWARE_CPP middleware/JsonMiddleware.cpp)
