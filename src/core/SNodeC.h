@@ -43,6 +43,7 @@ namespace core {
     public:
         static void init(int argc, char* argv[]);
         static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
+        static void stop();
         static TickStatus tick(const utils::Timeval& timeOut = 0);
         static void free();
     };

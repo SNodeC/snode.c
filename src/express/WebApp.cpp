@@ -41,6 +41,10 @@ namespace express {
         return core::SNodeC::start(timeOut);
     }
 
+    void WebApp::stop() {
+        core::SNodeC::stop();
+    }
+
     core::TickStatus WebApp::tick(const utils::Timeval& timeOut) {
         return core::SNodeC::tick(timeOut);
     }

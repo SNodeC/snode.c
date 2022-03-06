@@ -54,6 +54,7 @@ namespace core {
         TickStatus _tick(const utils::Timeval& timeOut);
         static TickStatus tick(const utils::Timeval& timeOut = 0);
         static int start(const utils::Timeval& timeOut);
+        static void stop();
         static void free();
 
         static void stoponsig(int sig);

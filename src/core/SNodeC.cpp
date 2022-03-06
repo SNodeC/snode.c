@@ -34,6 +34,10 @@ namespace core {
         return EventLoop::start(timeOut);
     }
 
+    void SNodeC::stop() {
+        EventLoop::stop();
+    }
+
     TickStatus SNodeC::tick(const utils::Timeval& timeOut) {
         return EventLoop::tick(timeOut);
     }

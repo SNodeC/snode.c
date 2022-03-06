@@ -162,6 +162,10 @@ namespace core {
         return returnReason;
     }
 
+    void EventLoop::stop() {
+        stopped = true;
+    }
+
     void EventLoop::free() {
         core::TickStatus tickStatus;
 
