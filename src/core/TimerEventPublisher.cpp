@@ -45,7 +45,7 @@ namespace core {
         return nextTimeout;
     }
 
-    void TimerEventPublisher::dispatchActiveEvents(const utils::Timeval& currentTime) {
+    void TimerEventPublisher::publishActiveEvents(const utils::Timeval& currentTime) {
         for (TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
                 timer->publish();

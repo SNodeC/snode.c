@@ -55,7 +55,7 @@ namespace core {
         void suspend(DescriptorEventReceiver* descriptorEventReceiver);
         void resume(DescriptorEventReceiver* descriptorEventReceiver);
 
-        virtual void dispatchActiveEvents() = 0;
+        virtual void publishActiveEvents() = 0;
         void checkTimedOutEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 

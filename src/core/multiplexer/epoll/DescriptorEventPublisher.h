@@ -76,7 +76,7 @@ namespace core::epoll {
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
         void muxOff(int fd) override;
 
-        void dispatchActiveEvents() override;
+        void publishActiveEvents() override;
 
     private:
         EPollEvents ePollEvents;

@@ -107,7 +107,7 @@ namespace core {
 
             if (ret >= 0) {
                 currentTime = utils::Timeval::currentTime();
-                dispatchActiveEvents(ret, currentTime);
+                publishActiveEvents(ret, currentTime);
             } else if (errno != EINTR) {
                 tickStatus = TickStatus::ERROR;
             } else {
@@ -145,9 +145,9 @@ namespace core {
         }
     }
 
-    void EventMultiplexer::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
-        timerEventPublisher->dispatchActiveEvents(currentTime);
-        dispatchActiveEvents(count);
+    void EventMultiplexer::publishActiveEvents(int count, const utils::Timeval& currentTime) {
+        timerEventPublisher->publishActiveEvents(currentTime);
+        publishActiveEvents(count);
     }
 
     void EventMultiplexer::unobserveDisabledEvents(const utils::Timeval& currentTime) {

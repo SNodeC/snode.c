@@ -92,8 +92,8 @@ namespace core {
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
-        virtual void dispatchActiveEvents(int count) = 0;
+        void publishActiveEvents(int count, const utils::Timeval& currentTime);
+        virtual void publishActiveEvents(int count) = 0;
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     protected:

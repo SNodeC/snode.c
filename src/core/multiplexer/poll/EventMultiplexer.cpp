@@ -41,13 +41,7 @@ core::EventMultiplexer& EventMultiplexer() {
 namespace core::poll {
 
     PollFdsManager::PollFdsManager() {
-        pollfd pollFd;
-
-        pollFd.fd = -1;
-        pollFd.events = 0;
-        pollFd.revents = 0;
-
-        pollfds.resize(1, pollFd);
+        pollfds.resize(1, {-1, 0, 0});
         pollFdIndices.reserve(1);
     }
 
@@ -104,6 +98,8 @@ namespace core::poll {
     }
 
     void PollFdsManager::compress() {
+        // cppcheck-suppress ignoredReturnValue
+        // cppcheck-suppress uselessCallsRemove
         std::remove_if(pollfds.begin(), pollfds.end(), [](const pollfd& pollFd) -> bool {
             return pollFd.fd < 0;
         });
@@ -127,7 +123,7 @@ namespace core::poll {
         return pollFdIndices;
     }
 
-    nfds_t PollFdsManager::getCurrentIndex() const {
+    nfds_t PollFdsManager::getCurrentSize() const {
         return nextIndex;
     }
 
@@ -138,13 +134,13 @@ namespace core::poll {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
-        return core::system::poll(pollFdsManager.getEvents(), pollFdsManager.getCurrentIndex(), tickTimeOut.ms());
+        return core::system::poll(pollFdsManager.getEvents(), pollFdsManager.getCurrentSize(), tickTimeOut.ms());
     }
 
-    void EventMultiplexer::dispatchActiveEvents(int count) {
+    void EventMultiplexer::publishActiveEvents(int count) {
         if (count > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-                descriptorEventPublisher->dispatchActiveEvents();
+                descriptorEventPublisher->publishActiveEvents();
             }
         }
     }

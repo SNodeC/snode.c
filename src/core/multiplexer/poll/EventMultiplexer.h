@@ -61,7 +61,7 @@ namespace core::poll {
 
         const std::unordered_map<int, PollFdIndex>& getPollFdIndices() const;
 
-        nfds_t getCurrentIndex() const;
+        nfds_t getCurrentSize() const;
 
     private:
         nfds_t nextIndex = 0;
@@ -81,7 +81,7 @@ namespace core::poll {
 
     private:
         int multiplex(utils::Timeval& tickTimeOut) override;
-        void dispatchActiveEvents(int count) override;
+        void publishActiveEvents(int count) override;
 
     private:
         PollFdsManager pollFdsManager;

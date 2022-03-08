@@ -52,7 +52,7 @@ namespace core::poll {
         pollFds.muxOff(fd, events);
     }
 
-    void DescriptorEventPublisher::dispatchActiveEvents() {
+    void DescriptorEventPublisher::publishActiveEvents() {
         pollfd* pollfds = pollFds.getEvents();
 
         const std::unordered_map<int, PollFdsManager::PollFdIndex>& pollFdsIndices = pollFds.getPollFdIndices();

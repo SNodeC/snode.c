@@ -61,7 +61,7 @@ namespace core::select {
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
         void muxOff(int fd) override;
 
-        void dispatchActiveEvents() override;
+        void publishActiveEvents() override;
 
         FdSet& fdSet;
     };
