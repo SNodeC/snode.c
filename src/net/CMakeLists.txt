@@ -57,7 +57,7 @@ install(
     PATTERN "in" EXCLUDE
     PATTERN "in6" EXCLUDE
     PATTERN "l2" EXCLUDE
-    PATTERN "rf" EXCLUDE
+    PATTERN "rc" EXCLUDE
     PATTERN "un" EXCLUDE
 )
 
