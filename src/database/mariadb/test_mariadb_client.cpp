@@ -1,28 +1,50 @@
+#include "core/SNodeC.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "log/Logger.h"
-#include "net/SNodeC.h"
 
 #include <chrono>
 #include <mysql.h>
 #include <thread>
 
 using namespace std;
-using namespace net;
+using namespace core;
 using namespace database::mariadb;
 
 void stopSNodeC(unsigned short timeout) {
     VLOG(0) << "Waiting for " << timeout / 1000 << " seconds";
     this_thread::sleep_for(chrono::milliseconds(timeout));
     VLOG(0) << "Stopping SNodeC...";
-    SNodeC::stop();
+    SNodeC::free();
 }
 
 int main(int argc, char* argv[]) {
     SNodeC::init(argc, argv);
-    MariaDBClient db = MariaDBClient();
-    db.query("select * from person");
-    thread stopper_thread{stopSNodeC, 5000};
+    database::mariadb::MariaDBConnectionDetails details = {
+        .hostname = "localhost",
+        .username = "rathalin",
+        .password = "rathalin",
+        .database = "snodec",
+        .port = 3306,
+        .socket = "/run/mysqld/mysqld.sock",
+        .flags = 0,
+    };
+    MariaDBClient db{details};
+    db.connect([]() -> void {
+        VLOG(0) << "CONNECTED CALLBACK IN MAIN";
+    });
+    // db.query("select * from person");
+    // thread stopper_thread{stopSNodeC, 5000};
     int snodec_status{SNodeC::start()};
-    stopper_thread.join();
+    // stopper_thread.join();
     return snodec_status;
 }
+
+/*
+string hostname = "localhost";
+string username = "rathalin";
+string password = "rathalin";
+unsigned int port = 3306;
+string socket_name = "/run/mysqld/mysqld.sock";
+string db_name = "snodec";
+unsigned int flags = 0;
+*/

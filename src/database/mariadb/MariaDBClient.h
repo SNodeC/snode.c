@@ -1,41 +1,26 @@
-#ifndef MARIADBCLIENT_H
-#define MARIADBCLIENT_H
+#ifndef MARIA_DB_CLIENT
+#define MARIA_DB_CLIENT
 
-#include "net/ConnectEventReceiver.h"
-#include "net/Descriptor.h"
-#include "net/ReadEventReceiver.h"
-#include "net/WriteEventReceiver.h"
+#include "MariaDBConnectionDetails.h"
+#include "MariaDBExecutor.h"
 
-#include <mysql.h>
-#include <queue>
+#include <functional>
+#include <memory>
 #include <string>
 
-using namespace net;
-
 namespace database::mariadb {
-    class MariaDBClient
-        : public ConnectEventReceiver
-        , public ReadEventReceiver
-        , public WriteEventReceiver {
+    class MariaDBClient {
     public:
-        MariaDBClient();
-        void query(std::string);
-
-    protected:
-        void connectEvent() override;
-        void writeEvent() override;
-        void readEvent() override;
-        void unobserved() override;
+        MariaDBClient(MariaDBConnectionDetails);
+        ~MariaDBClient();
+        void connect(MariaDBConnectionDetails details, const std::function<void()>& onConnect);
+        void disconnect(const std::function<void()>& onDisconnect);
+        void query(std::string sql, const std::function<void(const std::string resultRows[])>& onResult);
 
     private:
-        MYSQL _mysql;
-        MYSQL* _connection;
-        MYSQL_RES* _result;
-        int _status;
-        bool _connected;
-        std::queue<std::string> _queue;
-        bool printDBError();
+        MariaDBConnectionDetails details;
+        std::unique_ptr<MariaDBExecutor> executor;
     };
 } // namespace database::mariadb
 
-#endif // MARIADBCLIENT_H
+#endif // MARIA_DB_CLIENT
