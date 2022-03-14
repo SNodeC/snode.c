@@ -16,6 +16,7 @@ namespace database::mariadb {
     void MariaDBClient::connect(const function<void()>& onConnect) {
         executor->connect(details, onConnect);
     }
+
     void MariaDBClient::disconnect(const function<void()>& onDisconnect) {
         onDisconnect();
         VLOG(0) << "Disconnect not implemented yet.";

@@ -36,9 +36,9 @@ namespace database::mariadb {
         }
     }
 
-    void MariaDBExecutor::query(string sql) {
+    // void MariaDBExecutor::query(string sql) {
         
-    }
+    // }
 
     void MariaDBExecutor::enableAndSuspendEventReceivers(int& fd) {
         ReadEventReceiver::enable(fd);

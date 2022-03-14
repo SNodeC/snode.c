@@ -11,11 +11,11 @@
 namespace database::mariadb {
     class MariaDBClient {
     public:
-        MariaDBClient(MariaDBConnectionDetails);
+        MariaDBClient(MariaDBConnectionDetails details);
         ~MariaDBClient();
-        void connect(MariaDBConnectionDetails details, const std::function<void()>& onConnect);
+        void connect(const std::function<void()>& onConnect);
         void disconnect(const std::function<void()>& onDisconnect);
-        void query(std::string sql, const std::function<void(const std::string resultRows[])>& onResult);
+        // void query(std::string sql, const std::function<void(const std::string resultRows[])>& onResult);
 
     private:
         MariaDBConnectionDetails details;

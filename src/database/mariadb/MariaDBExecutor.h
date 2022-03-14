@@ -20,7 +20,7 @@ namespace database::mariadb {
         MariaDBExecutor();
         ~MariaDBExecutor();
         void connect(MariaDBConnectionDetails details, const std::function<void()>& onConnect);
-        void query(std::string sql);
+        // void query(std::string sql);
 
     protected:
         void writeEvent() override;
