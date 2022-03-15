@@ -170,8 +170,8 @@ namespace core {
         core::TickStatus tickStatus;
 
         do {
-            instance().eventMultiplexer.stop();
-            tickStatus = instance()._tick(3);
+            EventLoop::instance().eventMultiplexer.stop();
+            tickStatus = EventLoop::instance()._tick(3);
         } while (tickStatus == TickStatus::SUCCESS);
 
         DynamicLoader::execDlCloseDeleyed();

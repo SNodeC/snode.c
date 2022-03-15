@@ -95,19 +95,13 @@ namespace core {
 
         DynamicLoader::execDlCloseDeleyed();
 
-        if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty()) {
-            utils::Timeval nextTimeout = 0;
-
-            if (eventQueue.empty()) {
-                nextTimeout = getNextTimeout(currentTime);
-                nextTimeout = std::min(nextTimeout, tickTimeOut); // In case nextEventTimeout is negativ
-            }
+        if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
+            utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
 
             int ret = multiplex(nextTimeout);
 
             if (ret >= 0) {
-                currentTime = utils::Timeval::currentTime();
-                publishActiveEvents(ret, currentTime);
+                publishActiveEvents(ret, utils::Timeval::currentTime());
             } else if (errno != EINTR) {
                 tickStatus = TickStatus::ERROR;
             } else {
@@ -130,11 +124,15 @@ namespace core {
     utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
-        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
-            nextTimeout = std::min(eventMultiplexer->getNextTimeout(currentTime), nextTimeout);
+        if (eventQueue.empty()) {
+            for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
+                nextTimeout = std::min(eventMultiplexer->getNextTimeout(currentTime), nextTimeout);
+            }
+            nextTimeout = std::min(timerEventPublisher->getNextTimeout(currentTime), nextTimeout);
+            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextTimeout is negative
+        } else {
+            nextTimeout = 0;
         }
-        nextTimeout = std::min(timerEventPublisher->getNextTimeout(currentTime), nextTimeout);
-        nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextTimeout is negative
 
         return nextTimeout;
     }
@@ -151,8 +149,8 @@ namespace core {
     }
 
     void EventMultiplexer::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
-            eventMultiplexer->unobserveDisabledEvents(currentTime);
+        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+            descriptorEventPublisher->unobserveDisabledEvents(currentTime);
         }
         timerEventPublisher->unobsereDisableEvents();
     }

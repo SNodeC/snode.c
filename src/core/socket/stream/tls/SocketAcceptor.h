@@ -61,8 +61,6 @@ namespace core::socket::stream::tls {
                           this->masterSslCtx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
 
                       if (ssl != nullptr) {
-                          SSL_CTX_set_tlsext_servername_arg(this->masterSslCtx, this);
-
                           SSL_set_accept_state(ssl);
 
                           socketConnection->doSSLHandshake(
@@ -90,6 +88,7 @@ namespace core::socket::stream::tls {
 
             if (masterSslCtx != nullptr) {
                 SSL_CTX_set_tlsext_servername_callback(masterSslCtx, serverNameCallback);
+                SSL_CTX_set_tlsext_servername_arg(masterSslCtx, this);
                 addMasterCtx(masterSslCtx);
             }
 
@@ -138,7 +137,7 @@ namespace core::socket::stream::tls {
             }
         }
 
-        static int serverNameCallback(SSL* ssl, [[maybe_unused]] int* al, [[maybe_unused]] void* arg) {
+        static int serverNameCallback(SSL* ssl, [[maybe_unused]] int* al, void* arg) {
             int ret = SSL_TLSEXT_ERR_OK;
 
             SocketAcceptor* socketAcceptor = static_cast<SocketAcceptor*>(arg);
