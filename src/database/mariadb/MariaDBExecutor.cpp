@@ -33,9 +33,13 @@ namespace database::mariadb {
 
     void MariaDBExecutor::query(string sql, const function<void(/*shared_ptr<vector<vector<string>>> result*/)>& onResult) {
         currentCommand.reset(new MariaDBQueryCommand{mysql, sql, [&]() -> void {
-            VLOG(0) << "Query complete";
+                                                         VLOG(0) << "Query complete";
+                                                         VLOG(0) << mysql_errno(mysql.get()) << " " << mysql_error(mysql.get());
                                                          MYSQL_RES* result{mysql_use_result(mysql.get())};
-                                                         VLOG(0) << result;
+                                                         if (!result) {
+                                                             VLOG(0) << mysql_errno(mysql.get()) << " " << mysql_error(mysql.get());
+                                                             VLOG(0) << "mysql_use_result() returns error";
+                                                         }
                                                          this->fetchRow(result, onResult);
                                                      }});
         executeCurrentCommand();
