@@ -1,15 +1,19 @@
 #ifndef MARIA_DB_COMMAND
 #define MARIA_DB_COMMAND
 
-#include <functional>
+#include <memory>
+#include <mysql.h>
 
 namespace database::mariadb {
     class MariaDBCommand {
     public:
-        MariaDBCommand(const std::function<void()>& onComplete);
-        const std::function<void()> onComplete;
+        MariaDBCommand(std::shared_ptr<MYSQL> mysql);
         virtual int start() = 0;
         virtual int cont(int&) = 0;
+        virtual void onComplete() = 0;
+
+    protected:
+        std::shared_ptr<MYSQL> mysql;
     };
 } // namespace database::mariadb
 

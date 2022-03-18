@@ -6,10 +6,12 @@ namespace database::mariadb::command {
     MariaDBConnectCommand::MariaDBConnectCommand(shared_ptr<MYSQL> mysql,
                                                  MariaDBConnectionDetails details,
                                                  const function<void()>& onConnect)
-        : MariaDBCommand::MariaDBCommand{onConnect}
+        : MariaDBCommand{mysql}
         , ret{}
-        , mysql{mysql}
-        , details{details} {
+        , details{details}
+        , onConnect{onConnect} {
+        mysql_init(mysql.get());
+        mysql_options(mysql.get(), MYSQL_OPT_NONBLOCK, 0);
     }
 
     int MariaDBConnectCommand::start() {
@@ -28,5 +30,9 @@ namespace database::mariadb::command {
     int MariaDBConnectCommand::cont(int& status) {
         MYSQL* retPtr = ret.get();
         return mysql_real_connect_cont(&retPtr, mysql.get(), status);
+    }
+
+    void MariaDBConnectCommand::onComplete() {
+        onConnect();
     }
 } // namespace database::mariadb::command

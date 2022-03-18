@@ -21,4 +21,7 @@ namespace database::mariadb {
         onDisconnect();
         VLOG(0) << "Disconnect not implemented yet.";
     }
+    void MariaDBClient::query(std::string sql, const std::function<void()>& onResult) {
+        executor->query(sql, onResult);
+    }
 } // namespace database::mariadb

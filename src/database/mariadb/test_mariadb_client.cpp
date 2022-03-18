@@ -29,8 +29,11 @@ int main(int argc, char* argv[]) {
         .flags = 0,
     };
     MariaDBClient db{details};
-    db.connect([]() -> void {
+    db.connect([&]() -> void {
         VLOG(0) << "CONNECTED CALLBACK IN MAIN";
+        db.query("select * from person", []() -> void {
+            VLOG(0) << "RESULT CALLBACK IN MAIN";
+        });
     });
     // db.query("select * from person");
     // thread stopper_thread{stopSNodeC, 5000};
@@ -38,13 +41,3 @@ int main(int argc, char* argv[]) {
     // stopper_thread.join();
     return snodec_status;
 }
-
-/*
-string hostname = "localhost";
-string username = "rathalin";
-string password = "rathalin";
-unsigned int port = 3306;
-string socket_name = "/run/mysqld/mysqld.sock";
-string db_name = "snodec";
-unsigned int flags = 0;
-*/

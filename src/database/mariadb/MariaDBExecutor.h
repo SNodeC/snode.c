@@ -8,8 +8,8 @@
 #include "database/mariadb/MariaDBConnectionDetails.h"
 
 #include <functional>
-#include <memory>
-#include <mysql.h>
+#include <vector>
+#include <string>
 
 namespace database::mariadb {
     class MariaDBExecutor
@@ -20,7 +20,8 @@ namespace database::mariadb {
         MariaDBExecutor();
         ~MariaDBExecutor();
         void connect(MariaDBConnectionDetails details, const std::function<void()>& onConnect);
-        // void query(std::string sql);
+        void query(std::string sql, const std::function<void(/*std::shared_ptr<std::vector<std::vector<std:string>>> result*/)>& onResult);
+        void fetchRow(MYSQL_RES* result, const std::function<void()>& onResult);
 
     protected:
         void writeEvent() override;
@@ -32,9 +33,11 @@ namespace database::mariadb {
         std::shared_ptr<MYSQL> mysql;
         std::shared_ptr<MariaDBCommand> currentCommand;
         int currentStatus;
+        std::function<void()> onQueryResult;
         void enableAndSuspendEventReceivers(int& fd);
         void manageEventReceivers();
         void checkStatus();
+        void executeCurrentCommand();
     };
 } // namespace database::mariadb
 

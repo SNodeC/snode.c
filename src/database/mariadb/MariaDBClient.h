@@ -15,7 +15,7 @@ namespace database::mariadb {
         ~MariaDBClient();
         void connect(const std::function<void()>& onConnect);
         void disconnect(const std::function<void()>& onDisconnect);
-        // void query(std::string sql, const std::function<void(const std::string resultRows[])>& onResult);
+        void query(std::string sql, const std::function<void()>& onResult);
 
     private:
         MariaDBConnectionDetails details;

@@ -2,6 +2,8 @@
 
 #include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/command/MariaDBConnectCommand.h"
+#include "database/mariadb/command/MariaDBFetchRowCommand.h"
+#include "database/mariadb/command/MariaDBQueryCommand.h"
 #include "log/Logger.h"
 
 using namespace std;
@@ -13,7 +15,7 @@ namespace database::mariadb {
         : ReadEventReceiver{"MariaDBExecutor"}
         , WriteEventReceiver{"MariaDBExecutor"}
         , ExceptionalConditionEventReceiver{"MariaDBExecutor"}
-        , mysql{}
+        , mysql{make_shared<MYSQL>()}
         , currentCommand{}
         , currentStatus{-1} {
     }
@@ -21,24 +23,28 @@ namespace database::mariadb {
     MariaDBExecutor::~MariaDBExecutor() {
     }
 
-    void MariaDBExecutor::connect(MariaDBConnectionDetails details, const std::function<void()>& onConnect) {
-        mysql = make_shared<MYSQL>();
-        mysql_init(mysql.get());
-        mysql_options(mysql.get(), MYSQL_OPT_NONBLOCK, 0);
+    void MariaDBExecutor::connect(MariaDBConnectionDetails details, const function<void()>& onConnect) {
         currentCommand.reset(new MariaDBConnectCommand{mysql, details, onConnect});
         currentStatus = currentCommand->start();
         int fd{mysql_get_socket(mysql.get())};
         enableAndSuspendEventReceivers(fd);
-        if (currentStatus != 0) {
-            manageEventReceivers();
-        } else {
-            onConnect();
-        }
+        executeCurrentCommand();
     }
 
-    // void MariaDBExecutor::query(string sql) {
-        
-    // }
+    void MariaDBExecutor::query(string sql, const function<void(/*shared_ptr<vector<vector<string>>> result*/)>& onResult) {
+        currentCommand.reset(new MariaDBQueryCommand{mysql, sql, [&]() -> void {
+            VLOG(0) << "Query complete";
+                                                         MYSQL_RES* result{mysql_use_result(mysql.get())};
+                                                         VLOG(0) << result;
+                                                         this->fetchRow(result, onResult);
+                                                     }});
+        executeCurrentCommand();
+    }
+
+    void MariaDBExecutor::fetchRow(MYSQL_RES* result, const function<void()>& onResult) {
+        currentCommand.reset(new MariaDBFetchRowCommand{mysql, result, onResult});
+        executeCurrentCommand();
+    }
 
     void MariaDBExecutor::enableAndSuspendEventReceivers(int& fd) {
         ReadEventReceiver::enable(fd);
@@ -50,9 +56,15 @@ namespace database::mariadb {
     }
 
     void MariaDBExecutor::manageEventReceivers() {
-        WriteEventReceiver::suspend();
-        ReadEventReceiver::suspend();
-        ExceptionalConditionEventReceiver::suspend();
+        if (!WriteEventReceiver::isSuspended()) {
+            WriteEventReceiver::suspend();
+        }
+        if (!ReadEventReceiver::isSuspended()) {
+            ReadEventReceiver::suspend();
+        }
+        if (!ExceptionalConditionEventReceiver::isSuspended()) {
+            ExceptionalConditionEventReceiver::suspend();
+        }
         if (currentStatus & MYSQL_WAIT_READ) {
             ReadEventReceiver::resume();
         }
@@ -66,6 +78,14 @@ namespace database::mariadb {
 
     void MariaDBExecutor::checkStatus() {
         currentStatus = currentCommand->cont(currentStatus);
+        if (currentStatus != 0) {
+            manageEventReceivers();
+        } else {
+            currentCommand->onComplete();
+        }
+    }
+
+    void MariaDBExecutor::executeCurrentCommand() {
         if (currentStatus != 0) {
             manageEventReceivers();
         } else {
