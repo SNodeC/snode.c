@@ -77,20 +77,20 @@ namespace database::mariadb {
                 currentCommand = connectCommand;
                 currentStatus = connectCommand->start(mysql);
 
-                if (currentStatus & MYSQL_WAIT_READ || currentStatus & MYSQL_WAIT_WRITE || currentStatus & MYSQL_WAIT_EXCEPT ||
-                    (currentStatus == 0 && !currentCommand->error())) {
+                if ((currentStatus & MYSQL_WAIT_READ) != 0 || (currentStatus & MYSQL_WAIT_WRITE) != 0 ||
+                    (currentStatus & MYSQL_WAIT_EXCEPT) != 0 || (currentStatus == 0 && !currentCommand->error())) {
                     int fd = mysql_get_socket(mysql);
 
                     ReadEventReceiver::enable(fd);
                     WriteEventReceiver::enable(fd);
                     ExceptionalConditionEventReceiver::enable(fd);
 
-                    //                    ReadEventReceiver::suspend();
                     WriteEventReceiver::suspend();
                     ExceptionalConditionEventReceiver::suspend();
 
                     checkStatus(currentStatus);
                 } else {
+                    VLOG(0) << "Mysql Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
                     delete currentCommand;
                     delete mariaDBCommand;
                     delete this;
@@ -108,7 +108,9 @@ namespace database::mariadb {
             int currentStatus = currentCommand->cont(mysql, status);
 
             checkStatus(currentStatus);
-        } else {
+        } else if ((status & MYSQL_WAIT_READ) != 0) {
+            VLOG(0) << "ReadEvent but no command running - must be a disconnect";
+
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
             ExceptionalConditionEventReceiver::disable();
@@ -121,9 +123,6 @@ namespace database::mariadb {
 
     void MariaDBConnection::checkStatus(int status) {
         if (status == 0) {
-            if (ReadEventReceiver::isEnabled() && !ReadEventReceiver::isSuspended()) {
-                //                ReadEventReceiver::suspend();
-            }
             if (WriteEventReceiver::isEnabled() && !WriteEventReceiver::isSuspended()) {
                 WriteEventReceiver::suspend();
             }
@@ -148,15 +147,7 @@ namespace database::mariadb {
                 ExceptionalConditionEventReceiver::disable();
             }
         } else {
-            if (status & MYSQL_WAIT_READ) {
-                if (ReadEventReceiver::isSuspended()) {
-                    ReadEventReceiver::resume();
-                }
-            } else if (!ReadEventReceiver::isSuspended()) {
-                //                ReadEventReceiver::suspend();
-            }
-
-            if (status & MYSQL_WAIT_WRITE) {
+            if ((status & MYSQL_WAIT_WRITE) != 0) {
                 if (WriteEventReceiver::isSuspended()) {
                     WriteEventReceiver::resume();
                 }
@@ -164,7 +155,7 @@ namespace database::mariadb {
                 WriteEventReceiver::suspend();
             }
 
-            if (status & MYSQL_WAIT_EXCEPT) {
+            if ((status & MYSQL_WAIT_EXCEPT) != 0) {
                 if (ExceptionalConditionEventReceiver::isSuspended()) {
                     ExceptionalConditionEventReceiver::resume();
                 }
@@ -172,7 +163,7 @@ namespace database::mariadb {
                 ExceptionalConditionEventReceiver::suspend();
             }
 
-            if (status & MYSQL_WAIT_TIMEOUT) {
+            if ((status & MYSQL_WAIT_TIMEOUT) != 0) {
                 ReadEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
                 WriteEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
                 ExceptionalConditionEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
@@ -186,17 +177,14 @@ namespace database::mariadb {
 
     void MariaDBConnection::readEvent() {
         continueCommand(MYSQL_WAIT_READ);
-        VLOG(0) << "ReadEvent";
     }
 
     void MariaDBConnection::writeEvent() {
         continueCommand(MYSQL_WAIT_WRITE);
-        VLOG(0) << "WriteEvent";
     }
 
     void MariaDBConnection::outOfBandEvent() {
         continueCommand(MYSQL_WAIT_EXCEPT);
-        VLOG(0) << "OutOfBandEvent";
     }
 
     void MariaDBConnection::readTimeout() {
