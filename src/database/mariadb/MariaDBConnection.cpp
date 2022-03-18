@@ -47,6 +47,10 @@ namespace database::mariadb {
         mysql_close(mysql);
         mysql_library_end();
 
+        for (MariaDBCommand* mariaDBCommand : commandQueue) {
+            delete mariaDBCommand;
+        }
+
         mariaDBClient->connectionVanished();
     }
 
@@ -81,16 +85,21 @@ namespace database::mariadb {
                     WriteEventReceiver::enable(fd);
                     ExceptionalConditionEventReceiver::enable(fd);
 
-                    ReadEventReceiver::suspend();
+                    //                    ReadEventReceiver::suspend();
                     WriteEventReceiver::suspend();
                     ExceptionalConditionEventReceiver::suspend();
+
+                    checkStatus(currentStatus);
+                } else {
+                    delete currentCommand;
+                    delete mariaDBCommand;
+                    delete this;
                 }
 
             } else {
                 currentStatus = currentCommand->start(mysql);
+                checkStatus(currentStatus);
             }
-
-            checkStatus(currentStatus);
         }
     }
 
@@ -99,6 +108,10 @@ namespace database::mariadb {
             int currentStatus = currentCommand->cont(mysql, status);
 
             checkStatus(currentStatus);
+        } else {
+            ReadEventReceiver::disable();
+            WriteEventReceiver::disable();
+            ExceptionalConditionEventReceiver::disable();
         }
     }
 
@@ -109,7 +122,7 @@ namespace database::mariadb {
     void MariaDBConnection::checkStatus(int status) {
         if (status == 0) {
             if (ReadEventReceiver::isEnabled() && !ReadEventReceiver::isSuspended()) {
-                ReadEventReceiver::suspend();
+                //                ReadEventReceiver::suspend();
             }
             if (WriteEventReceiver::isEnabled() && !WriteEventReceiver::isSuspended()) {
                 WriteEventReceiver::suspend();
@@ -140,7 +153,7 @@ namespace database::mariadb {
                     ReadEventReceiver::resume();
                 }
             } else if (!ReadEventReceiver::isSuspended()) {
-                ReadEventReceiver::suspend();
+                //                ReadEventReceiver::suspend();
             }
 
             if (status & MYSQL_WAIT_WRITE) {
@@ -173,14 +186,17 @@ namespace database::mariadb {
 
     void MariaDBConnection::readEvent() {
         continueCommand(MYSQL_WAIT_READ);
+        VLOG(0) << "ReadEvent";
     }
 
     void MariaDBConnection::writeEvent() {
         continueCommand(MYSQL_WAIT_WRITE);
+        VLOG(0) << "WriteEvent";
     }
 
     void MariaDBConnection::outOfBandEvent() {
         continueCommand(MYSQL_WAIT_EXCEPT);
+        VLOG(0) << "OutOfBandEvent";
     }
 
     void MariaDBConnection::readTimeout() {
