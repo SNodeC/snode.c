@@ -25,7 +25,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::command {
+namespace database::mariadb::commands {
+
     MariaDBQueryCommand::MariaDBQueryCommand(const std::string& sql,
                                              const std::function<void(void)>& onQuery,
                                              const std::function<void(const std::string&)>& onError)
@@ -53,4 +54,5 @@ namespace database::mariadb::command {
     bool MariaDBQueryCommand::error() {
         return ret != 0;
     }
-} // namespace database::mariadb::command
+
+} // namespace database::mariadb::commands

@@ -46,6 +46,7 @@ namespace database::mariadb {
     MariaDBConnection::~MariaDBConnection() {
         mysql_close(mysql);
         mysql_library_end();
+
         mariaDBClient->connectionVanished();
     }
 
@@ -55,7 +56,7 @@ namespace database::mariadb {
         if (currentCommand != nullptr) {
             int currentStatus = 0;
             if (!connected) {
-                MariaDBCommand* connectCommand = new database::mariadb::command::MariaDBConnectCommand(
+                MariaDBCommand* connectCommand = new database::mariadb::commands::MariaDBConnectCommand(
                     connectionDetails,
                     [mariaDBCommand, this](void) -> void {
                         connected = true;
@@ -141,6 +142,7 @@ namespace database::mariadb {
             } else if (!ReadEventReceiver::isSuspended()) {
                 ReadEventReceiver::suspend();
             }
+
             if (status & MYSQL_WAIT_WRITE) {
                 if (WriteEventReceiver::isSuspended()) {
                     WriteEventReceiver::resume();
@@ -148,6 +150,7 @@ namespace database::mariadb {
             } else if (!WriteEventReceiver::isSuspended()) {
                 WriteEventReceiver::suspend();
             }
+
             if (status & MYSQL_WAIT_EXCEPT) {
                 if (ExceptionalConditionEventReceiver::isSuspended()) {
                     ExceptionalConditionEventReceiver::resume();
@@ -155,6 +158,7 @@ namespace database::mariadb {
             } else if (!ExceptionalConditionEventReceiver::isSuspended()) {
                 ExceptionalConditionEventReceiver::suspend();
             }
+
             if (status & MYSQL_WAIT_TIMEOUT) {
                 ReadEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
                 WriteEventReceiver::setTimeout(mysql_get_timeout_value(mysql));

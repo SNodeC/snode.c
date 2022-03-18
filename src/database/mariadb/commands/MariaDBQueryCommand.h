@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MARIA_DB_QUERY_COMMAND_H
-#define MARIA_DB_QUERY_COMMAND_H
+#ifndef DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
+#define DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
 
 #include "database/mariadb/MariaDBCommand.h"
 
@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::command {
+namespace database::mariadb::commands {
 
     class MariaDBQueryCommand : public MariaDBCommand {
     public:
@@ -55,6 +55,6 @@ namespace database::mariadb::command {
         const std::function<void(const std::string&)> onError;
     };
 
-} // namespace database::mariadb::command
+} // namespace database::mariadb::commands
 
-#endif // MARIA_DB_QUERY_COMMAND_H
+#endif // DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND

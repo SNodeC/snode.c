@@ -23,7 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::command {
+namespace database::mariadb::commands {
+
     MariaDBConnectCommand::MariaDBConnectCommand(const MariaDBConnectionDetails& details,
                                                  const std::function<void()>& onConnect,
                                                  const std::function<void(const std::string&)>& onError)
@@ -61,4 +62,4 @@ namespace database::mariadb::command {
         return ret == nullptr;
     }
 
-} // namespace database::mariadb::command
+} // namespace database::mariadb::commands

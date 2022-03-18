@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MARIA_DB_CONNECTION_DETAILS
-#define MARIA_DB_CONNECTION_DETAILS
+#ifndef DATABASE_MARIADB_MARIADBCONNECTIONDETAILS
+#define DATABASE_MARIADB_MARIADBCONNECTIONDETAILS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,4 +40,4 @@ namespace database::mariadb {
 
 } // namespace database::mariadb
 
-#endif // MARIA_DB_CONNECTION_DETAILS
+#endif // DATABASE_MARIADB_MARIADBCONNECTIONDETAILS

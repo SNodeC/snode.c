@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MARIA_DB_CONNECT_COMMAND_H
-#define MARIA_DB_CONNECT_COMMAND_H
+#ifndef DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
+#define DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
 
 #include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/MariaDBConnectionDetails.h"
@@ -31,7 +31,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::command {
+namespace database::mariadb::commands {
+
     class MariaDBConnectCommand : public MariaDBCommand {
     public:
         MariaDBConnectCommand(const database::mariadb::MariaDBConnectionDetails& details,
@@ -53,6 +54,7 @@ namespace database::mariadb::command {
         const std::function<void(void)> onConnect;
         const std::function<void(const std::string&)> onError;
     };
-} // namespace database::mariadb::command
 
-#endif // MARIA_DB_CONNECT_COMMAND_H
+} // namespace database::mariadb::commands
+
+#endif // DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND

@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MARIADBCONNECTION_H
-#define MARIADBCONNECTION_H
+#ifndef DATABASE_MARIADB_MARIADBCONNECTION
+#define DATABASE_MARIADB_MARIADBCONNECTION
 
 #include "core/eventreceiver/ExceptionalConditionEventReceiver.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
@@ -82,4 +82,4 @@ namespace database::mariadb {
 
 } // namespace database::mariadb
 
-#endif // MARIADBCONNECTION_H
+#endif // DATABASE_MARIADB_MARIADBCONNECTION
