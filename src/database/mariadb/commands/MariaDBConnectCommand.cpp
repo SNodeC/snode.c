@@ -57,14 +57,14 @@ namespace database::mariadb::commands {
         return mysql_real_connect_cont(&ret, mysql, status);
     }
 
-    void MariaDBConnectCommand::commandCompleted([[maybe_unused]] MYSQL* mysql) {
+    void MariaDBConnectCommand::commandCompleted() {
         onConnect();
-        MariaDBCommand::commandTerminate();
+        mariaDBConnection->commandCompleted();
     }
 
     void MariaDBConnectCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {
         onError(errorString);
-        MariaDBCommand::commandTerminate();
+        mariaDBConnection->commandCompleted();
     }
 
     bool MariaDBConnectCommand::error() {

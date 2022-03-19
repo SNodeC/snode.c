@@ -33,9 +33,9 @@ namespace database::mariadb {
         std::string username;
         std::string password;
         std::string database;
-        unsigned int port;
+        unsigned int port = 0;
         std::string socket;
-        unsigned int flags;
+        unsigned int flags = 0;
     };
 
 } // namespace database::mariadb

@@ -30,10 +30,8 @@
 namespace database::mariadb::commands {
 
     MariaDBFetchRowCommand::MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection,
-                                                   MYSQL_RES* result,
-                                                   const std::function<void()>& onRowResult)
+                                                   const std::function<void(MYSQL_ROW row)>& onRowResult)
         : MariaDBCommand(mariaDBConnection)
-        , result(result)
         , onRowResult(onRowResult) {
     }
 
@@ -41,10 +39,15 @@ namespace database::mariadb::commands {
         mysql_free_result(result);
     }
 
-    int MariaDBFetchRowCommand::start([[maybe_unused]] MYSQL* mysql) {
+    int MariaDBFetchRowCommand::start(MYSQL* mysql) {
         row = nullptr;
 
         int ret = 0;
+
+        if (result == nullptr) {
+            result = mysql_use_result(mysql);
+        }
+
         if (result != nullptr) {
             ret = mysql_fetch_row_start(&row, result);
         }
@@ -56,20 +59,18 @@ namespace database::mariadb::commands {
         return mysql_fetch_row_cont(&row, result, status);
     }
 
-    void MariaDBFetchRowCommand::commandCompleted(MYSQL* mysql) {
+    void MariaDBFetchRowCommand::commandCompleted() {
         if (row) {
-            onRowResult();
-            VLOG(0) << "Row: " << row[0] << " - " << row[1];
+            onRowResult(row);
         } else {
             VLOG(0) << "No result: " << result;
-            VLOG(0) << mysql_error(mysql);
-            MariaDBCommand::commandTerminate();
+            mariaDBConnection->commandCompleted();
         }
     }
 
     void MariaDBFetchRowCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         VLOG(0) << "FetchRowError: " << errorString << ", errno = " << errorNumber;
-        MariaDBCommand::commandTerminate();
+        mariaDBConnection->commandCompleted();
     }
 
     bool MariaDBFetchRowCommand::error() {

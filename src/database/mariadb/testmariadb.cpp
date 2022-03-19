@@ -38,9 +38,28 @@ int main(int argc, char* argv[]) {
         .socket = "/run/mysqld/mysqld.sock",
         .flags = 0,
     };
-    database::mariadb::MariaDBClient db(details);
+    database::mariadb::MariaDBClient db1(details);
 
-    db.query(
+    db1.query(
+        "select * from admin",
+        [](void) -> void {
+            VLOG(0) << "OnQuery";
+        },
+        [](const std::string& errorString) -> void {
+            VLOG(0) << "Error: " << errorString;
+        });
+
+    database::mariadb::MariaDBClient db2(details);
+    db2.query(
+        "select * from admin",
+        [](void) -> void {
+            VLOG(0) << "OnQuery";
+        },
+        [](const std::string& errorString) -> void {
+            VLOG(0) << "Error: " << errorString;
+        });
+
+    db2.query(
         "select * from admin",
         [](void) -> void {
             VLOG(0) << "OnQuery";

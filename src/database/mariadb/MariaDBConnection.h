@@ -51,6 +51,7 @@ namespace database::mariadb {
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 
         void execute(MariaDBCommand* mariaDBCommand);
+        void executeReal(MariaDBCommand* mariaDBCommand);
         void executeAsNext(MariaDBCommand* mariaDBCommand);
 
         void commandExecute();

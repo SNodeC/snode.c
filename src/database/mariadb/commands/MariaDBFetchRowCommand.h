@@ -35,21 +35,22 @@ namespace database::mariadb::commands {
 
     class MariaDBFetchRowCommand : public MariaDBCommand {
     public:
-        MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection, MYSQL_RES* result, const std::function<void()>& onRowResult);
+        MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection, const std::function<void(MYSQL_ROW row)>& onRowResult);
         ~MariaDBFetchRowCommand();
 
         int start(MYSQL* mysql) override;
         int cont(MYSQL* mysql, int status) override;
 
-        void commandCompleted(MYSQL* mysql) override;
+        void commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
 
         bool error() override;
 
     private:
-        MYSQL_RES* result;
-        MYSQL_ROW row;
-        std::function<void()> onRowResult;
+        MYSQL_RES* result = nullptr;
+        MYSQL_ROW row = nullptr;
+
+        std::function<void(MYSQL_ROW row)> onRowResult;
     };
 
 } // namespace database::mariadb::commands

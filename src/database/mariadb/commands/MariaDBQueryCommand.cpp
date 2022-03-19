@@ -48,20 +48,18 @@ namespace database::mariadb::commands {
         return mysql_real_query_cont(&ret, mysql, status);
     }
 
-    void MariaDBQueryCommand::commandCompleted([[maybe_unused]] MYSQL* mysql) {
+    void MariaDBQueryCommand::commandCompleted() {
         onQuery();
 
-        MariaDBConnection* tmp = mariaDBConnection;
-        MariaDBCommand::commandTerminate();
-
-        tmp->executeAsNext(new database::mariadb::commands::MariaDBFetchRowCommand(tmp, mysql_use_result(mysql), [](void) -> void {
-            VLOG(0) << "Row Results";
-        }));
+        mariaDBConnection->executeAsNext(
+            new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, [](MYSQL_ROW row) -> void {
+                VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
+            }));
     }
 
     void MariaDBQueryCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {
         onError(errorString);
-        MariaDBCommand::commandTerminate();
+        mariaDBConnection->commandCompleted();
     }
 
     bool MariaDBQueryCommand::error() {

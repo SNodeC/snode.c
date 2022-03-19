@@ -31,7 +31,7 @@ namespace database::mariadb {
         : mariaDBConnection(mariaDBConnection) {
     }
 
-    void MariaDBCommand::commandTerminate() {
+    void MariaDBCommand::commandTerminate1() {
         mariaDBConnection->commandCompleted();
     }
 

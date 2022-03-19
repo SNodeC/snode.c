@@ -45,11 +45,11 @@ namespace database::mariadb {
 
         virtual bool error() = 0;
 
-        virtual void commandCompleted(MYSQL* mysql) = 0;
+        virtual void commandCompleted() = 0;
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
 
     protected:
-        void commandTerminate();
+        void commandTerminate1();
 
         MariaDBConnection* mariaDBConnection;
     };

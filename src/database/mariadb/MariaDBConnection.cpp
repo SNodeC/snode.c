@@ -65,6 +65,19 @@ namespace database::mariadb {
         }
     }
 
+    class MariaDBCommandExecuteReceiver : public core::EventReceiver {
+    protected:
+        MariaDBCommandExecuteReceiver(const std::string& name, MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand);
+
+    private:
+        void dispatch([[maybe_unused]] const utils::Timeval& currentTime) override {
+            mariaDBConnection->executeReal(mariaDBCommand);
+        }
+
+        MariaDBConnection* mariaDBConnection = nullptr;
+        MariaDBCommand* mariaDBCommand = nullptr;
+    };
+
     void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
         commandQueue.push_back(mariaDBCommand);
 
@@ -74,7 +87,13 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {
+        commandCompleted();
+
         commandQueue.push_front(mariaDBCommand);
+
+        if (currentCommand == nullptr) {
+            commandExecute();
+        }
     }
 
     void MariaDBConnection::commandExecute() {
@@ -111,7 +130,10 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandCompleted() {
         commandQueue.pop_front();
-        delete currentCommand;
+
+        if (currentCommand != nullptr) {
+            delete currentCommand;
+        }
     }
 
     void MariaDBConnection::unmanaged() {
@@ -139,15 +161,8 @@ namespace database::mariadb {
     void MariaDBConnection::checkStatus(int status) {
         if (status == 0) {
             if (connected) {
-                if (!WriteEventReceiver::isSuspended()) {
-                    WriteEventReceiver::suspend();
-                }
-                if (!ExceptionalConditionEventReceiver::isSuspended()) {
-                    ExceptionalConditionEventReceiver::suspend();
-                }
-
                 if (!currentCommand->error()) {
-                    currentCommand->commandCompleted(mysql);
+                    currentCommand->commandCompleted();
                 } else {
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                 }
