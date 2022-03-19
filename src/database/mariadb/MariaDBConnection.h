@@ -50,10 +50,16 @@ namespace database::mariadb {
 
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 
-        void executeCommand(MariaDBCommand* mariaDBCommand);
-        void continueCommand(int status);
+        void execute(MariaDBCommand* mariaDBCommand);
+        void executeAsNext(MariaDBCommand* mariaDBCommand);
+
+        void commandExecute();
+        void commandContinue(int status);
+        void commandCompleted();
 
         void unmanaged();
+
+        void setFd(int status);
 
     protected:
         void checkStatus(int status);
@@ -70,9 +76,10 @@ namespace database::mariadb {
 
     private:
         MariaDBClient* mariaDBClient;
-        MYSQL* mysql;
-        bool managed;
         MariaDBConnectionDetails connectionDetails;
+        bool managed1;
+
+        MYSQL* mysql;
 
         std::list<MariaDBCommand*> commandQueue;
 

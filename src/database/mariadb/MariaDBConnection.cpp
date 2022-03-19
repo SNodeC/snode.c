@@ -37,10 +37,19 @@ namespace database::mariadb {
         , WriteEventReceiver("MariaDBConnection", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , ExceptionalConditionEventReceiver("MariaDBConnection", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , mariaDBClient(mariaDBClient)
-        , mysql(mysql_init(nullptr))
-        , managed(true)
-        , connectionDetails(connectionDetails) {
+        , connectionDetails(connectionDetails)
+        , mysql(mysql_init(nullptr)) {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
+
+        commandQueue.push_back(new database::mariadb::commands::MariaDBConnectCommand(
+            this,
+            connectionDetails,
+            [](void) -> void {
+                VLOG(0) << "Connected";
+            },
+            [](const std::string& errorString) -> void {
+                VLOG(0) << "Connect error: " << errorString;
+            }));
     }
 
     MariaDBConnection::~MariaDBConnection() {
@@ -51,59 +60,42 @@ namespace database::mariadb {
             delete mariaDBCommand;
         }
 
-        mariaDBClient->connectionVanished();
+        if (mariaDBClient != nullptr) {
+            mariaDBClient->connectionVanished();
+        }
     }
 
-    void MariaDBConnection::executeCommand(MariaDBCommand* mariaDBCommand) {
-        currentCommand = mariaDBCommand;
+    void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
+        commandQueue.push_back(mariaDBCommand);
 
-        if (currentCommand != nullptr) {
-            int currentStatus = 0;
-            if (!connected) {
-                MariaDBCommand* connectCommand = new database::mariadb::commands::MariaDBConnectCommand(
-                    connectionDetails,
-                    [mariaDBCommand, this](void) -> void {
-                        connected = true;
-                        currentCommand = mariaDBCommand;
+        if (currentCommand == nullptr) {
+            commandExecute();
+        }
+    }
 
-                        int currentStatus = currentCommand->start(mysql);
-                        checkStatus(currentStatus);
-                    },
-                    [mariaDBCommand](const std::string& errorString) -> void {
-                        VLOG(0) << "Connect error: " << errorString;
-                        delete mariaDBCommand;
-                    });
+    void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {
+        commandQueue.push_front(mariaDBCommand);
+    }
 
-                currentCommand = connectCommand;
-                currentStatus = connectCommand->start(mysql);
+    void MariaDBConnection::commandExecute() {
+        if (!commandQueue.empty()) {
+            currentCommand = commandQueue.front();
 
-                if ((currentStatus & MYSQL_WAIT_READ) != 0 || (currentStatus & MYSQL_WAIT_WRITE) != 0 ||
-                    (currentStatus & MYSQL_WAIT_EXCEPT) != 0 || (currentStatus == 0 && !currentCommand->error())) {
-                    int fd = mysql_get_socket(mysql);
+            int status = currentCommand->start(mysql);
 
-                    ReadEventReceiver::enable(fd);
-                    WriteEventReceiver::enable(fd);
-                    ExceptionalConditionEventReceiver::enable(fd);
+            checkStatus(status);
+        } else {
+            currentCommand = nullptr;
 
-                    WriteEventReceiver::suspend();
-                    ExceptionalConditionEventReceiver::suspend();
-
-                    checkStatus(currentStatus);
-                } else {
-                    VLOG(0) << "Mysql Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
-                    delete currentCommand;
-                    delete mariaDBCommand;
-                    delete this;
-                }
-
-            } else {
-                currentStatus = currentCommand->start(mysql);
-                checkStatus(currentStatus);
+            if (mariaDBClient == nullptr) {
+                ReadEventReceiver::disable();
+                WriteEventReceiver::disable();
+                ExceptionalConditionEventReceiver::disable();
             }
         }
     }
 
-    void MariaDBConnection::continueCommand(int status) {
+    void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
             int currentStatus = currentCommand->cont(mysql, status);
 
@@ -117,34 +109,52 @@ namespace database::mariadb {
         }
     }
 
+    void MariaDBConnection::commandCompleted() {
+        commandQueue.pop_front();
+        delete currentCommand;
+    }
+
     void MariaDBConnection::unmanaged() {
-        managed = false;
+        mariaDBClient = nullptr;
+    }
+
+    void MariaDBConnection::setFd(int status) {
+        if ((status & MYSQL_WAIT_READ) != 0 || (status & MYSQL_WAIT_WRITE) != 0 || (status & MYSQL_WAIT_EXCEPT) != 0 ||
+            (status == 0 && !currentCommand->error())) {
+            int fd = mysql_get_socket(mysql);
+
+            ReadEventReceiver::enable(fd);
+            WriteEventReceiver::enable(fd);
+            ExceptionalConditionEventReceiver::enable(fd);
+
+            WriteEventReceiver::suspend();
+            ExceptionalConditionEventReceiver::suspend();
+
+            connected = true;
+        } else {
+            VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
+        }
     }
 
     void MariaDBConnection::checkStatus(int status) {
         if (status == 0) {
-            if (WriteEventReceiver::isEnabled() && !WriteEventReceiver::isSuspended()) {
-                WriteEventReceiver::suspend();
-            }
-            if (ExceptionalConditionEventReceiver::isEnabled() && !ExceptionalConditionEventReceiver::isSuspended()) {
-                ExceptionalConditionEventReceiver::suspend();
-            }
+            if (connected) {
+                if (!WriteEventReceiver::isSuspended()) {
+                    WriteEventReceiver::suspend();
+                }
+                if (!ExceptionalConditionEventReceiver::isSuspended()) {
+                    ExceptionalConditionEventReceiver::suspend();
+                }
 
-            MariaDBCommand* oldCommand = currentCommand;
-            currentCommand = nullptr;
+                if (!currentCommand->error()) {
+                    currentCommand->commandCompleted(mysql);
+                } else {
+                    currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+                }
 
-            if (!oldCommand->error()) {
-                oldCommand->commandCompleted();
-
+                commandExecute();
             } else {
-                oldCommand->commandError(mysql_error(mysql));
-            }
-            delete oldCommand;
-
-            if (!managed) {
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                ExceptionalConditionEventReceiver::disable();
+                delete this;
             }
         } else {
             if ((status & MYSQL_WAIT_WRITE) != 0) {
@@ -176,27 +186,27 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::readEvent() {
-        continueCommand(MYSQL_WAIT_READ);
+        commandContinue(MYSQL_WAIT_READ);
     }
 
     void MariaDBConnection::writeEvent() {
-        continueCommand(MYSQL_WAIT_WRITE);
+        commandContinue(MYSQL_WAIT_WRITE);
     }
 
     void MariaDBConnection::outOfBandEvent() {
-        continueCommand(MYSQL_WAIT_EXCEPT);
+        commandContinue(MYSQL_WAIT_EXCEPT);
     }
 
     void MariaDBConnection::readTimeout() {
-        continueCommand(MYSQL_WAIT_TIMEOUT);
+        commandContinue(MYSQL_WAIT_TIMEOUT);
     }
 
     void MariaDBConnection::writeTimeout() {
-        continueCommand(MYSQL_WAIT_TIMEOUT);
+        commandContinue(MYSQL_WAIT_TIMEOUT);
     }
 
     void MariaDBConnection::outOfBandTimeout() {
-        continueCommand(MYSQL_WAIT_TIMEOUT);
+        commandContinue(MYSQL_WAIT_TIMEOUT);
     }
 
     void MariaDBConnection::unobservedEvent() {

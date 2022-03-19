@@ -19,6 +19,9 @@
 
 #include "database/mariadb/commands/MariaDBQueryCommand.h"
 
+#include "database/mariadb/MariaDBConnection.h"
+#include "database/mariadb/commands/MariaDBFetchRowCommand.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -27,10 +30,12 @@
 
 namespace database::mariadb::commands {
 
-    MariaDBQueryCommand::MariaDBQueryCommand(const std::string& sql,
+    MariaDBQueryCommand::MariaDBQueryCommand(MariaDBConnection* mariaDBConnection,
+                                             const std::string& sql,
                                              const std::function<void(void)>& onQuery,
                                              const std::function<void(const std::string&)>& onError)
-        : sql(sql)
+        : MariaDBCommand(mariaDBConnection)
+        , sql(sql)
         , onQuery(onQuery)
         , onError(onError) {
     }
@@ -43,12 +48,20 @@ namespace database::mariadb::commands {
         return mysql_real_query_cont(&ret, mysql, status);
     }
 
-    void MariaDBQueryCommand::commandCompleted() {
+    void MariaDBQueryCommand::commandCompleted([[maybe_unused]] MYSQL* mysql) {
         onQuery();
+
+        MariaDBConnection* tmp = mariaDBConnection;
+        MariaDBCommand::commandTerminate();
+
+        tmp->executeAsNext(new database::mariadb::commands::MariaDBFetchRowCommand(tmp, mysql_use_result(mysql), [](void) -> void {
+            VLOG(0) << "Row Results";
+        }));
     }
 
-    void MariaDBQueryCommand::commandError(const std::string& errorString) {
+    void MariaDBQueryCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {
         onError(errorString);
+        MariaDBCommand::commandTerminate();
     }
 
     bool MariaDBQueryCommand::error() {

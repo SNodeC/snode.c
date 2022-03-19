@@ -44,14 +44,14 @@ namespace database::mariadb {
 
     void
     MariaDBClient::query(const std::string& sql, const function<void()>& onQuery, const std::function<void(const std::string&)> onError) {
-        execute(new database::mariadb::commands::MariaDBQueryCommand(sql, onQuery, onError));
+        execute(new database::mariadb::commands::MariaDBQueryCommand(mariaDBConnection, sql, onQuery, onError));
     }
 
     void MariaDBClient::execute(MariaDBCommand* mariaDBCommand) {
         if (mariaDBConnection != nullptr) {
-            mariaDBConnection->executeCommand(mariaDBCommand);
+            mariaDBConnection->execute(mariaDBCommand);
         } else {
-            mariaDBCommand->commandError("No connection to database");
+            mariaDBCommand->commandError("No connection to database", 0);
             delete mariaDBCommand;
         }
     }

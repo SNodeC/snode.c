@@ -19,43 +19,52 @@
 
 #include "database/mariadb/commands/MariaDBConnectCommand.h"
 
+#include "database/mariadb/MariaDBConnection.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands {
 
-    MariaDBConnectCommand::MariaDBConnectCommand(const MariaDBConnectionDetails& details,
+    MariaDBConnectCommand::MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
+                                                 const MariaDBConnectionDetails& details,
                                                  const std::function<void()>& onConnect,
                                                  const std::function<void(const std::string&)>& onError)
-        : MariaDBCommand::MariaDBCommand()
+        : MariaDBCommand(mariaDBConnection)
         , details(details)
         , onConnect(onConnect)
         , onError(onError) {
     }
 
     int MariaDBConnectCommand::start(MYSQL* mysql) {
-        return mysql_real_connect_start(&ret,
-                                        mysql,
-                                        details.hostname.c_str(),
-                                        details.username.c_str(),
-                                        details.password.c_str(),
-                                        details.database.c_str(),
-                                        details.port,
-                                        details.socket.c_str(),
-                                        details.flags);
+        int status = mysql_real_connect_start(&ret,
+                                              mysql,
+                                              details.hostname.c_str(),
+                                              details.username.c_str(),
+                                              details.password.c_str(),
+                                              details.database.c_str(),
+                                              details.port,
+                                              details.socket.c_str(),
+                                              details.flags);
+
+        mariaDBConnection->setFd(status);
+
+        return status;
     }
 
     int MariaDBConnectCommand::cont(MYSQL* mysql, int status) {
         return mysql_real_connect_cont(&ret, mysql, status);
     }
 
-    void MariaDBConnectCommand::commandCompleted() {
+    void MariaDBConnectCommand::commandCompleted([[maybe_unused]] MYSQL* mysql) {
         onConnect();
+        MariaDBCommand::commandTerminate();
     }
 
-    void MariaDBConnectCommand::commandError(const std::string& errorString) {
+    void MariaDBConnectCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {
         onError(errorString);
+        MariaDBCommand::commandTerminate();
     }
 
     bool MariaDBConnectCommand::error() {

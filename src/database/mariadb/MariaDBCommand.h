@@ -20,6 +20,10 @@
 #ifndef DATABASE_MARIADB_MARIADBCOMMAND
 #define DATABASE_MARIADB_MARIADBCOMMAND
 
+namespace database::mariadb {
+    class MariaDBConnection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -33,7 +37,7 @@ namespace database::mariadb {
 
     class MariaDBCommand {
     public:
-        MariaDBCommand() = default;
+        MariaDBCommand(MariaDBConnection* mariaDBConnection);
         virtual ~MariaDBCommand() = default;
 
         virtual int start(MYSQL* mysql) = 0;
@@ -41,8 +45,13 @@ namespace database::mariadb {
 
         virtual bool error() = 0;
 
-        virtual void commandCompleted() = 0;
-        virtual void commandError(const std::string& errorString) = 0;
+        virtual void commandCompleted(MYSQL* mysql) = 0;
+        virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
+
+    protected:
+        void commandTerminate();
+
+        MariaDBConnection* mariaDBConnection;
     };
 
 } // namespace database::mariadb

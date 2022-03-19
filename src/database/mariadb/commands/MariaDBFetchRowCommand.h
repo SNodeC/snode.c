@@ -17,28 +17,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_MARIADBFETCHROWCOMMAND
+#define DATABASE_MARIADB_COMMANDS_MARIADBFETCHROWCOMMAND
 
 #include "database/mariadb/MariaDBCommand.h"
-#include "database/mariadb/MariaDBConnectionDetails.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <memory>
 #include <mysql.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands {
 
-    class MariaDBConnectCommand : public MariaDBCommand {
+    class MariaDBFetchRowCommand : public MariaDBCommand {
     public:
-        MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
-                              const database::mariadb::MariaDBConnectionDetails& details,
-                              const std::function<void(void)>& onConnect,
-                              const std::function<void(const std::string&)>& onError);
+        MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection, MYSQL_RES* result, const std::function<void()>& onRowResult);
+        ~MariaDBFetchRowCommand();
 
         int start(MYSQL* mysql) override;
         int cont(MYSQL* mysql, int status) override;
@@ -48,14 +46,12 @@ namespace database::mariadb::commands {
 
         bool error() override;
 
-    protected:
-        MYSQL* ret = nullptr;
-        const database::mariadb::MariaDBConnectionDetails details;
-
-        const std::function<void(void)> onConnect;
-        const std::function<void(const std::string&)> onError;
+    private:
+        MYSQL_RES* result;
+        MYSQL_ROW row;
+        std::function<void()> onRowResult;
     };
 
 } // namespace database::mariadb::commands
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_MARIADBFETCHROWCOMMAND

@@ -35,15 +35,16 @@ namespace database::mariadb::commands {
 
     class MariaDBQueryCommand : public MariaDBCommand {
     public:
-        MariaDBQueryCommand(const std::string& sql,
+        MariaDBQueryCommand(MariaDBConnection* mariaDBConnection,
+                            const std::string& sql,
                             const std::function<void(void)>& onQuery,
                             const std::function<void(const std::string&)>& onError);
 
         int start(MYSQL* mysql) override;
         int cont(MYSQL* mysql, int status) override;
 
-        void commandCompleted() override;
-        void commandError(const std::string& errorString) override;
+        void commandCompleted(MYSQL* mysql) override;
+        void commandError(const std::string& errorString, unsigned int errorNumber) override;
 
         bool error() override;
 
