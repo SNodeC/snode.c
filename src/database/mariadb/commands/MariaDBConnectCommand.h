@@ -23,11 +23,18 @@
 #include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/MariaDBConnectionDetails.h"
 
+namespace database::mariadb {
+    class MariaDBConnection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <memory>
-#include <mysql.h>
+#include <string> // for string
+
+typedef struct st_mysql MYSQL;
+
+// IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

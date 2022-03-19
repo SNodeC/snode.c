@@ -20,20 +20,18 @@
 #ifndef DATABASE_MARIADB_MARIADBCLIENT
 #define DATABASE_MARIADB_MARIADBCLIENT
 
-#include "database/mariadb/MariaDBConnectionDetails.h"
+namespace database::mariadb {
+    struct MariaDBConnectionDetails;
+    class MariaDBConnection;
+    class MariaDBCommand;
+} // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace database::mariadb {
-    class MariaDBConnection;
-    class MariaDBCommand;
-} // namespace database::mariadb
 
 namespace database::mariadb {
 

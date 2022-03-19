@@ -19,6 +19,7 @@
 
 #include "database/mariadb/MariaDBClient.h"
 
+#include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/MariaDBConnection.h"
 #include "database/mariadb/commands/MariaDBQueryCommand.h"
 
@@ -27,8 +28,6 @@
 #include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-using namespace std;
 
 namespace database::mariadb {
 
@@ -42,8 +41,9 @@ namespace database::mariadb {
         }
     }
 
-    void
-    MariaDBClient::query(const std::string& sql, const function<void()>& onQuery, const std::function<void(const std::string&)> onError) {
+    void MariaDBClient::query(const std::string& sql,
+                              const std::function<void()>& onQuery,
+                              const std::function<void(const std::string&)> onError) {
         execute(new database::mariadb::commands::MariaDBQueryCommand(mariaDBConnection, sql, onQuery, onError));
     }
 
@@ -56,7 +56,7 @@ namespace database::mariadb {
         }
     }
 
-    void MariaDBClient::disconnect([[maybe_unused]] const function<void()>& onDisconnect) {
+    void MariaDBClient::disconnect([[maybe_unused]] const std::function<void()>& onDisconnect) {
         VLOG(0) << "Disconnect not implemented yet.";
     }
 

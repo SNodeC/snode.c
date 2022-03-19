@@ -6,13 +6,18 @@ pkg_check_modules(MARIADB mariadb)
 
 set(MARIADB_CPP
     MariaDBClient.cpp MariaDBCommand.cpp MariaDBConnection.cpp
-    commands/MariaDBConnectCommand.cpp commands/MariaDBFetchRowCommand.cpp commands/MariaDBQueryCommand.cpp
+    commands/MariaDBConnectCommand.cpp commands/MariaDBFetchRowCommand.cpp
+    commands/MariaDBQueryCommand.cpp
 )
 
 set(MARIADB_H
-    MariaDBClient.h MariaDBCommand.h MariaDBConnection.h
-    MariaDBConnectionDetails.h commands/MariaDBConnectCommand.h
-    commands/MariaDBFetchRowCommand.h commands/MariaDBQueryCommand.h
+    MariaDBClient.h
+    MariaDBCommand.h
+    MariaDBConnection.h
+    MariaDBConnectionDetails.h
+    commands/MariaDBConnectCommand.h
+    commands/MariaDBFetchRowCommand.h
+    commands/MariaDBQueryCommand.h
 )
 
 add_library(db-mariadb SHARED ${MARIADB_CPP} ${MARIADB_H})

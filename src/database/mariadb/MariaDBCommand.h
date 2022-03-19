@@ -24,14 +24,13 @@ namespace database::mariadb {
     class MariaDBConnection;
 }
 
+typedef struct st_mysql MYSQL;
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <memory>
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-typedef struct st_mysql MYSQL;
 
 namespace database::mariadb {
 
@@ -49,8 +48,6 @@ namespace database::mariadb {
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
 
     protected:
-        void commandTerminate1();
-
         MariaDBConnection* mariaDBConnection;
     };
 

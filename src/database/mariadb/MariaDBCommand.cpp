@@ -19,8 +19,6 @@
 
 #include "database/mariadb/MariaDBCommand.h"
 
-#include "database/mariadb/MariaDBConnection.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -29,10 +27,6 @@ namespace database::mariadb {
 
     MariaDBCommand::MariaDBCommand(MariaDBConnection* mariaDBConnection)
         : mariaDBConnection(mariaDBConnection) {
-    }
-
-    void MariaDBCommand::commandTerminate1() {
-        mariaDBConnection->commandCompleted();
     }
 
 } // namespace database::mariadb

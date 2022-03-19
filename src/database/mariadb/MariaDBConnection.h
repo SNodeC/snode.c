@@ -23,12 +23,19 @@
 #include "core/eventreceiver/ExceptionalConditionEventReceiver.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
-#include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/MariaDBConnectionDetails.h"
+
+namespace database::mariadb {
+    class MariaDBCommand;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
+
+typedef struct st_mysql MYSQL;
+
+// IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -78,7 +85,6 @@ namespace database::mariadb {
     private:
         MariaDBClient* mariaDBClient;
         MariaDBConnectionDetails connectionDetails;
-        bool managed1;
 
         MYSQL* mysql;
 

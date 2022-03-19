@@ -25,6 +25,8 @@
 
 #include "log/Logger.h"
 
+#include <mysql.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands {
@@ -63,7 +65,8 @@ namespace database::mariadb::commands {
         if (row) {
             onRowResult(row);
         } else {
-            VLOG(0) << "No result: " << result;
+            VLOG(0) << "No more result";
+
             mariaDBConnection->commandCompleted();
         }
     }

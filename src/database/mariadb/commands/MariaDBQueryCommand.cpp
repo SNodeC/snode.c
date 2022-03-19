@@ -26,6 +26,8 @@
 
 #include "log/Logger.h"
 
+#include <mysql.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands {

@@ -19,11 +19,12 @@
 
 #include "core/SNodeC.h"
 #include "database/mariadb/MariaDBClient.h"
+#include "database/mariadb/MariaDBConnectionDetails.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <mysql.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

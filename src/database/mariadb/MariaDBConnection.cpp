@@ -19,7 +19,9 @@
 
 #include "database/mariadb/MariaDBConnection.h"
 
+#include "core/DescriptorEventReceiver.h"
 #include "database/mariadb/MariaDBClient.h"
+#include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/commands/MariaDBConnectCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -27,6 +29,7 @@
 #include "log/Logger.h"
 
 #include <mysql.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -66,12 +69,24 @@ namespace database::mariadb {
     }
 
     class MariaDBCommandExecuteReceiver : public core::EventReceiver {
-    protected:
-        MariaDBCommandExecuteReceiver(const std::string& name, MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand);
+    public:
+        MariaDBCommandExecuteReceiver(const std::string& name, MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand)
+            : core::EventReceiver(name)
+            , mariaDBConnection(mariaDBConnection)
+            , mariaDBCommand(mariaDBCommand) {
+        }
+
+        using core::EventReceiver::publish;
+
+        static void publish(MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand) {
+            (new MariaDBCommandExecuteReceiver("MariaDBCommandExecuteReceiver", mariaDBConnection, mariaDBCommand))->publish();
+        }
 
     private:
         void dispatch([[maybe_unused]] const utils::Timeval& currentTime) override {
             mariaDBConnection->executeReal(mariaDBCommand);
+
+            delete this;
         }
 
         MariaDBConnection* mariaDBConnection = nullptr;
@@ -79,6 +94,10 @@ namespace database::mariadb {
     };
 
     void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
+        MariaDBCommandExecuteReceiver::publish(this, mariaDBCommand);
+    }
+
+    void MariaDBConnection::executeReal(MariaDBCommand* mariaDBCommand) {
         commandQueue.push_back(mariaDBCommand);
 
         if (currentCommand == nullptr) {
