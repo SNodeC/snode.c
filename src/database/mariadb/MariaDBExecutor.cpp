@@ -32,7 +32,7 @@ namespace database::mariadb {
     }
 
     void MariaDBExecutor::query(string sql, const function<void(/*shared_ptr<vector<vector<string>>> result*/)>& onResult) {
-        currentCommand.reset(new MariaDBQueryCommand{mysql, sql, [&]() -> void {
+        currentCommand.reset(new MariaDBQueryCommand{mysql, sql, [onResult, this]() -> void {
                                                          VLOG(0) << "Query complete";
                                                          VLOG(0) << mysql_errno(mysql.get()) << " " << mysql_error(mysql.get());
                                                          MYSQL_RES* result{mysql_use_result(mysql.get())};
@@ -42,11 +42,16 @@ namespace database::mariadb {
                                                          }
                                                          this->fetchRow(result, onResult);
                                                      }});
+        currentStatus = currentCommand->start();
+
         executeCurrentCommand();
     }
 
     void MariaDBExecutor::fetchRow(MYSQL_RES* result, const function<void()>& onResult) {
         currentCommand.reset(new MariaDBFetchRowCommand{mysql, result, onResult});
+
+        currentStatus = currentCommand->start();
+
         executeCurrentCommand();
     }
 
@@ -60,6 +65,8 @@ namespace database::mariadb {
     }
 
     void MariaDBExecutor::manageEventReceivers() {
+        VLOG(0) << "ManageEventReceivers 0";
+
         if (!WriteEventReceiver::isSuspended()) {
             WriteEventReceiver::suspend();
         }
@@ -70,21 +77,27 @@ namespace database::mariadb {
             ExceptionalConditionEventReceiver::suspend();
         }
         if (currentStatus & MYSQL_WAIT_READ) {
+            VLOG(0) << "ManageEventReceivers 1";
             ReadEventReceiver::resume();
         }
         if (currentStatus & MYSQL_WAIT_WRITE) {
+            VLOG(0) << "ManageEventReceivers 2";
             WriteEventReceiver::resume();
         }
         if (currentStatus & MYSQL_WAIT_EXCEPT) {
+            VLOG(0) << "ManageEventReceivers 3";
             ExceptionalConditionEventReceiver::resume();
         }
     }
 
     void MariaDBExecutor::checkStatus() {
         currentStatus = currentCommand->cont(currentStatus);
+
+        VLOG(0) << "Current Status: " << currentStatus;
         if (currentStatus != 0) {
             manageEventReceivers();
         } else {
+            VLOG(0) << "Command completed 1";
             currentCommand->onComplete();
         }
     }
@@ -93,6 +106,7 @@ namespace database::mariadb {
         if (currentStatus != 0) {
             manageEventReceivers();
         } else {
+            VLOG(0) << "Command completed 2";
             currentCommand->onComplete();
         }
     }

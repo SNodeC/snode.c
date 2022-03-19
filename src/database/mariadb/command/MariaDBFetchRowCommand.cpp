@@ -13,10 +13,12 @@ namespace database::mariadb::command {
     }
 
     int MariaDBFetchRowCommand::start() {
+        VLOG(0) << "FetchRow Start";
         return mysql_fetch_row_start(&row, result);
     }
 
     int MariaDBFetchRowCommand::cont(int& status) {
+        VLOG(0) << "FetchRow Cont";
         return mysql_fetch_row_cont(&row, result, status);
     }
 

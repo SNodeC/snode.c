@@ -21,9 +21,9 @@ int main(int argc, char* argv[]) {
     SNodeC::init(argc, argv);
     database::mariadb::MariaDBConnectionDetails details = {
         .hostname = "localhost",
-        .username = "rathalin",
-        .password = "rathalin",
-        .database = "snodec",
+        .username = "amarok",
+        .password = "pentium5",
+        .database = "amarok",
         .port = 3306,
         .socket = "/run/mysqld/mysqld.sock",
         .flags = 0,
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     MariaDBClient db{details};
     db.connect([&]() -> void {
         VLOG(0) << "CONNECTED CALLBACK IN MAIN";
-        db.query("select * from person", []() -> void {
+        db.query("select * from admin", []() -> void {
             VLOG(0) << "RESULT CALLBACK IN MAIN";
         });
     });

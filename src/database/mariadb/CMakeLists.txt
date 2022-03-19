@@ -10,3 +10,6 @@ target_link_libraries(test_mariadb_client PUBLIC ${MARIADB_LIBRARIES})
 target_include_directories(test_mariadb_client PUBLIC ${MARIADB_INCLUDE_DIRS})
 add_compile_options(-pthread)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
+
+install(TARGETS test_mariadb_client RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -20,7 +20,7 @@ namespace database::mariadb::command {
     }
 
     int MariaDBQueryCommand::cont(int& status) {
-        mysql_real_query_cont(&error, mysql.get(), status);
+        status = mysql_real_query_cont(&error, mysql.get(), status);
         if (error != 0) {
             VLOG(0) << "mysql_real_query_cont() returns error";
         }
