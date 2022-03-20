@@ -50,8 +50,8 @@ namespace database::mariadb {
             [](void) -> void {
                 VLOG(0) << "Connected";
             },
-            [](const std::string& errorString) -> void {
-                VLOG(0) << "Connect error: " << errorString;
+            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
             }));
     }
 
@@ -188,7 +188,9 @@ namespace database::mariadb {
 
                 commandExecute();
             } else {
-                delete this;
+                ReadEventReceiver::disable();
+                WriteEventReceiver::disable();
+                ExceptionalConditionEventReceiver::disable();
             }
         } else {
             if ((status & MYSQL_WAIT_WRITE) != 0) {

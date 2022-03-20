@@ -32,7 +32,7 @@ namespace database::mariadb::commands {
     MariaDBConnectCommand::MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
                                                  const MariaDBConnectionDetails& details,
                                                  const std::function<void()>& onConnect,
-                                                 const std::function<void(const std::string&)>& onError)
+                                                 const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommand(mariaDBConnection)
         , details(details)
         , onConnect(onConnect)
@@ -64,8 +64,8 @@ namespace database::mariadb::commands {
         mariaDBConnection->commandCompleted();
     }
 
-    void MariaDBConnectCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {
-        onError(errorString);
+    void MariaDBConnectCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
+        onError(errorString, errorNumber);
         mariaDBConnection->commandCompleted();
     }
 

@@ -62,8 +62,16 @@ int main(int argc, char* argv[]) {
 
     db2.query(
         "select * from admin",
-        [](void) -> void {
+        [&db2](void) -> void {
             VLOG(0) << "OnQuery";
+            db2.query(
+                "select * from admin",
+                [](void) -> void {
+                    VLOG(0) << "OnQuery";
+                },
+                [](const std::string& errorString) -> void {
+                    VLOG(0) << "Error: " << errorString;
+                });
         },
         [](const std::string& errorString) -> void {
             VLOG(0) << "Error: " << errorString;
