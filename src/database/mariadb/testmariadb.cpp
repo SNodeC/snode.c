@@ -18,6 +18,7 @@
  */
 
 #include "core/SNodeC.h"
+#include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBConnectionDetails.h"
 #include "log/Logger.h"
@@ -39,6 +40,7 @@ int main(int argc, char* argv[]) {
         .socket = "/run/mysqld/mysqld.sock",
         .flags = 0,
     };
+
     database::mariadb::MariaDBClient db1(details);
 
     db1.query(
@@ -51,31 +53,49 @@ int main(int argc, char* argv[]) {
         });
 
     database::mariadb::MariaDBClient db2(details);
+
     db2.query(
         "select * from admin",
         [](void) -> void {
-            VLOG(0) << "OnQuery";
+            VLOG(0) << "OnQuery 1";
         },
         [](const std::string& errorString) -> void {
-            VLOG(0) << "Error: " << errorString;
+            VLOG(0) << "Error 1: " << errorString;
         });
 
     db2.query(
         "select * from admin",
         [&db2](void) -> void {
-            VLOG(0) << "OnQuery";
+            VLOG(0) << "OnQuery 2";
             db2.query(
                 "select * from admin",
                 [](void) -> void {
-                    VLOG(0) << "OnQuery";
+                    VLOG(0) << "OnQuery 3";
                 },
                 [](const std::string& errorString) -> void {
-                    VLOG(0) << "Error: " << errorString;
+                    VLOG(0) << "Error 3: " << errorString;
                 });
         },
         [](const std::string& errorString) -> void {
-            VLOG(0) << "Error: " << errorString;
+            VLOG(0) << "Error 1: " << errorString;
         });
+
+    core::timer::Timer dbTimer = core::timer::Timer::intervalTimer(
+        [&db2](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+            static int i = 0;
+            std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+
+            db2.query(
+                "select * from admin",
+                [](void) -> void {
+                    VLOG(0) << "OnQuery 3";
+                },
+                [](const std::string& errorString) -> void {
+                    VLOG(0) << "Error 3: " << errorString;
+                });
+        },
+        0.5,
+        "Tick");
 
     return core::SNodeC::start();
 }

@@ -35,6 +35,29 @@
 
 namespace database::mariadb {
 
+    class MariaDBConnectionInitReceiver : public core::EventReceiver {
+    public:
+        MariaDBConnectionInitReceiver(const std::string& name, MariaDBConnection* mariaDBConnection)
+            : core::EventReceiver(name)
+            , mariaDBConnection(mariaDBConnection) {
+        }
+
+        using core::EventReceiver::publish;
+
+        static void publish(MariaDBConnection* mariaDBConnection) {
+            (new MariaDBConnectionInitReceiver("MariaDBCommandExecuteReceiver", mariaDBConnection))->publish();
+        }
+
+    private:
+        void dispatch([[maybe_unused]] const utils::Timeval& currentTime) override {
+            mariaDBConnection->commandExecute();
+
+            delete this;
+        }
+
+        MariaDBConnection* mariaDBConnection = nullptr;
+    };
+
     MariaDBConnection::MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails)
         : ReadEventReceiver("MariaDBConnection", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , WriteEventReceiver("MariaDBConnection", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
@@ -53,6 +76,8 @@ namespace database::mariadb {
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
             }));
+
+        MariaDBConnectionInitReceiver::publish(this);
     }
 
     MariaDBConnection::~MariaDBConnection() {
@@ -68,39 +93,14 @@ namespace database::mariadb {
         }
     }
 
-    class MariaDBCommandExecuteReceiver : public core::EventReceiver {
-    public:
-        MariaDBCommandExecuteReceiver(const std::string& name, MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand)
-            : core::EventReceiver(name)
-            , mariaDBConnection(mariaDBConnection)
-            , mariaDBCommand(mariaDBCommand) {
-        }
-
-        using core::EventReceiver::publish;
-
-        static void publish(MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand) {
-            (new MariaDBCommandExecuteReceiver("MariaDBCommandExecuteReceiver", mariaDBConnection, mariaDBCommand))->publish();
-        }
-
-    private:
-        void dispatch([[maybe_unused]] const utils::Timeval& currentTime) override {
-            mariaDBConnection->executeReal(mariaDBCommand);
-
-            delete this;
-        }
-
-        MariaDBConnection* mariaDBConnection = nullptr;
-        MariaDBCommand* mariaDBCommand = nullptr;
-    };
-
     void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
-        MariaDBCommandExecuteReceiver::publish(this, mariaDBCommand);
+        executeReal(mariaDBCommand);
     }
 
     void MariaDBConnection::executeReal(MariaDBCommand* mariaDBCommand) {
         commandQueue.push_back(mariaDBCommand);
 
-        if (currentCommand == nullptr) {
+        if (connected && currentCommand == nullptr) {
             commandExecute();
         }
     }
@@ -152,6 +152,10 @@ namespace database::mariadb {
 
         if (currentCommand != nullptr) {
             delete currentCommand;
+            //
+            //
+            //
+            //            currentCommand = nullptr;
         }
     }
 
@@ -174,6 +178,7 @@ namespace database::mariadb {
             connected = true;
         } else {
             VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
+            error = true;
         }
     }
 
@@ -185,12 +190,10 @@ namespace database::mariadb {
                 } else {
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                 }
-
                 commandExecute();
-            } else {
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                ExceptionalConditionEventReceiver::disable();
+            } else if (error) {
+                currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+                delete this;
             }
         } else {
             if ((status & MYSQL_WAIT_WRITE) != 0) {
