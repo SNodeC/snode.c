@@ -21,6 +21,7 @@
 
 #include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/MariaDBConnection.h"
+#include "database/mariadb/commands/MariaDBInsertCommand.h"
 #include "database/mariadb/commands/MariaDBQueryCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -45,6 +46,12 @@ namespace database::mariadb {
                               const std::function<void()>& onQuery,
                               const std::function<void(const std::string&)> onError) {
         execute(new database::mariadb::commands::MariaDBQueryCommand(mariaDBConnection, sql, onQuery, onError));
+    }
+
+    void MariaDBClient::insert(const std::string& sql,
+                               const std::function<void()>& onQuery,
+                               const std::function<void(const std::string&)> onError) {
+        execute(new database::mariadb::commands::MariaDBInsertCommand(mariaDBConnection, sql, onQuery, onError));
     }
 
     void MariaDBClient::execute(MariaDBCommand* mariaDBCommand) {

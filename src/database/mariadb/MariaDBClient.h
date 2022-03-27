@@ -41,6 +41,7 @@ namespace database::mariadb {
         ~MariaDBClient();
 
         void query(const std::string& sql, const std::function<void()>& onQuery, const std::function<void(const std::string&)> onError);
+        void insert(const std::string& sql, const std::function<void()>& onQuery, const std::function<void(const std::string&)> onError);
 
         void disconnect(const std::function<void()>& onDisconnect);
 

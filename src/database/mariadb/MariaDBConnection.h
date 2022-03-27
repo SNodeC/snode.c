@@ -58,7 +58,6 @@ namespace database::mariadb {
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 
         void execute(MariaDBCommand* mariaDBCommand);
-        void executeReal(MariaDBCommand* mariaDBCommand);
         void executeAsNext(MariaDBCommand* mariaDBCommand);
 
         void commandExecute();
@@ -93,6 +92,9 @@ namespace database::mariadb {
         MariaDBCommand* currentCommand = nullptr;
         bool connected = false;
         bool error = false;
+        bool commandValid = false;
+
+        int fd;
     };
 
 } // namespace database::mariadb

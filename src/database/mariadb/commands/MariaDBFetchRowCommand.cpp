@@ -66,14 +66,12 @@ namespace database::mariadb::commands {
             onRowResult(row);
         } else {
             VLOG(0) << "No more result";
-
             mariaDBConnection->commandCompleted();
         }
     }
 
     void MariaDBFetchRowCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         VLOG(0) << "FetchRowError: " << errorString << ", errno = " << errorNumber;
-        mariaDBConnection->commandCompleted();
     }
 
     bool MariaDBFetchRowCommand::error() {

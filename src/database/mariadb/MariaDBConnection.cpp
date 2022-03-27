@@ -35,9 +35,9 @@
 
 namespace database::mariadb {
 
-    class MariaDBConnectionInitReceiver : public core::EventReceiver {
+    class MariaDBCommandExecuteEvent : public core::EventReceiver {
     public:
-        MariaDBConnectionInitReceiver(const std::string& name, MariaDBConnection* mariaDBConnection)
+        MariaDBCommandExecuteEvent(const std::string& name, MariaDBConnection* mariaDBConnection)
             : core::EventReceiver(name)
             , mariaDBConnection(mariaDBConnection) {
         }
@@ -45,7 +45,7 @@ namespace database::mariadb {
         using core::EventReceiver::publish;
 
         static void publish(MariaDBConnection* mariaDBConnection) {
-            (new MariaDBConnectionInitReceiver("MariaDBCommandExecuteReceiver", mariaDBConnection))->publish();
+            (new MariaDBCommandExecuteEvent("MariaDBCommandExecuteReceiver", mariaDBConnection))->publish();
         }
 
     private:
@@ -77,7 +77,7 @@ namespace database::mariadb {
                 VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
             }));
 
-        MariaDBConnectionInitReceiver::publish(this);
+        MariaDBCommandExecuteEvent::publish(this);
     }
 
     MariaDBConnection::~MariaDBConnection() {
@@ -94,10 +94,6 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
-        executeReal(mariaDBCommand);
-    }
-
-    void MariaDBConnection::executeReal(MariaDBCommand* mariaDBCommand) {
         commandQueue.push_back(mariaDBCommand);
 
         if (connected && currentCommand == nullptr) {
@@ -110,7 +106,7 @@ namespace database::mariadb {
 
         commandQueue.push_front(mariaDBCommand);
 
-        if (currentCommand == nullptr) {
+        if (connected && currentCommand == nullptr) {
             commandExecute();
         }
     }
@@ -118,6 +114,7 @@ namespace database::mariadb {
     void MariaDBConnection::commandExecute() {
         if (!commandQueue.empty()) {
             currentCommand = commandQueue.front();
+            commandValid = true;
 
             int status = currentCommand->start(mysql);
 
@@ -135,11 +132,16 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
-            int currentStatus = currentCommand->cont(mysql, status);
+            if (commandValid) {
+                int currentStatus = currentCommand->cont(mysql, status);
 
-            checkStatus(currentStatus);
+                checkStatus(currentStatus);
+            } else {
+                VLOG(0) << "################### command not valid - hard exit(0)";
+                exit(0);
+            }
         } else if ((status & MYSQL_WAIT_READ) != 0) {
-            VLOG(0) << "ReadEvent but no command running - must be a disconnect";
+            VLOG(0) << "More results ** " << (mysql_more_results(mysql) ? "Yes" : "No");
 
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
@@ -148,14 +150,12 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
+        VLOG(0) << "Command Completed: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
         commandQueue.pop_front();
 
         if (currentCommand != nullptr) {
             delete currentCommand;
-            //
-            //
-            //
-            //            currentCommand = nullptr;
+            commandValid = false;
         }
     }
 
@@ -166,7 +166,7 @@ namespace database::mariadb {
     void MariaDBConnection::setFd(int status) {
         if ((status & MYSQL_WAIT_READ) != 0 || (status & MYSQL_WAIT_WRITE) != 0 || (status & MYSQL_WAIT_EXCEPT) != 0 ||
             (status == 0 && !currentCommand->error())) {
-            int fd = mysql_get_socket(mysql);
+            fd = mysql_get_socket(mysql);
 
             ReadEventReceiver::enable(fd);
             WriteEventReceiver::enable(fd);
@@ -189,11 +189,12 @@ namespace database::mariadb {
                     currentCommand->commandCompleted();
                 } else {
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+                    commandCompleted();
                 }
-                commandExecute();
+                MariaDBCommandExecuteEvent::publish(this);
             } else if (error) {
                 currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
-                delete this;
+                commandCompleted();
             }
         } else {
             if ((status & MYSQL_WAIT_WRITE) != 0) {

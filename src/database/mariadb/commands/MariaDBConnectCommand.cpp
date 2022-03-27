@@ -66,7 +66,6 @@ namespace database::mariadb::commands {
 
     void MariaDBConnectCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
-        mariaDBConnection->commandCompleted();
     }
 
     bool MariaDBConnectCommand::error() {

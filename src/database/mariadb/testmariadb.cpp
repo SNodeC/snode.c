@@ -33,18 +33,28 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
     database::mariadb::MariaDBConnectionDetails details = {
         .hostname = "localhost",
-        .username = "root",
+        .username = "snodec",
         .password = "pentium5",
-        .database = "amarok",
+        .database = "snodec",
         .port = 3306,
         .socket = "/run/mysqld/mysqld.sock",
         .flags = 0,
     };
 
     database::mariadb::MariaDBClient db1(details);
+    /*
+        db1.insert(
+            "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
+            [](void) -> void {
+                VLOG(0) << "OnQuery";
+            },
+            [](const std::string& errorString) -> void {
+                VLOG(0) << "Error: " << errorString;
+            });
+    */
 
     db1.query(
-        "select * from admin",
+        "DELETE FROM `snodec`",
         [](void) -> void {
             VLOG(0) << "OnQuery";
         },
@@ -53,49 +63,84 @@ int main(int argc, char* argv[]) {
         });
 
     database::mariadb::MariaDBClient db2(details);
+    {
+        db2.query(
+            "select * from snodec",
+            [](void) -> void {
+                VLOG(0) << "OnQuery 1";
+            },
+            [](const std::string& errorString) -> void {
+                VLOG(0) << "Error 1: " << errorString;
+            });
 
-    db2.query(
-        "select * from admin",
-        [](void) -> void {
-            VLOG(0) << "OnQuery 1";
-        },
-        [](const std::string& errorString) -> void {
-            VLOG(0) << "Error 1: " << errorString;
-        });
+        db2.query(
+            "select * from snodec",
+            [&db2](void) -> void {
+                VLOG(0) << "OnQuery 2";
+                db2.query(
+                    "select * from snodec",
+                    [&db2](void) -> void {
+                        VLOG(0) << "OnQuery 3";
 
-    db2.query(
-        "select * from admin",
-        [&db2](void) -> void {
-            VLOG(0) << "OnQuery 2";
-            db2.query(
-                "select * from admin",
-                [](void) -> void {
-                    VLOG(0) << "OnQuery 3";
-                },
-                [](const std::string& errorString) -> void {
-                    VLOG(0) << "Error 3: " << errorString;
-                });
-        },
-        [](const std::string& errorString) -> void {
-            VLOG(0) << "Error 1: " << errorString;
-        });
+                        core::timer::Timer dbTimer1 = core::timer::Timer::intervalTimer(
+                            [&db2](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+                                static int i = 0;
+                                std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
 
-    core::timer::Timer dbTimer = core::timer::Timer::intervalTimer(
-        [&db2](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
-            static int i = 0;
-            std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+                                db2.query(
+                                    "select * from snodec",
+                                    [](void) -> void {
+                                        VLOG(0) << "OnQuery 4";
+                                    },
+                                    [](const std::string& errorString) -> void {
+                                        VLOG(0) << "Error 4: " << errorString;
+                                    });
+                            },
+                            0.5,
+                            "Tick 2");
 
-            db2.query(
-                "select * from admin",
-                [](void) -> void {
-                    VLOG(0) << "OnQuery 3";
-                },
-                [](const std::string& errorString) -> void {
-                    VLOG(0) << "Error 3: " << errorString;
-                });
-        },
-        0.5,
-        "Tick");
+                        core::timer::Timer dbTimer2 = core::timer::Timer::intervalTimer(
+                            [&db2](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+                                static int i = 0;
+                                std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+
+                                db2.query(
+                                    "select * from snodec",
+                                    [](void) -> void {
+                                        VLOG(0) << "OnQuery 5";
+                                    },
+                                    [](const std::string& errorString) -> void {
+                                        VLOG(0) << "Error 5: " << errorString;
+                                    });
+                            },
+                            0.7,
+                            "Tick 0.7");
+                    },
+                    [](const std::string& errorString) -> void {
+                        VLOG(0) << "Error 3: " << errorString;
+                    });
+            },
+            [](const std::string& errorString) -> void {
+                VLOG(0) << "Error 2: " << errorString;
+            });
+
+        core::timer::Timer dbTimer = core::timer::Timer::intervalTimer(
+            [&db2](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+                static int i = 0;
+                std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+
+                db2.insert(
+                    "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
+                    [](void) -> void {
+                        VLOG(0) << "OnQuery 6";
+                    },
+                    [](const std::string& errorString) -> void {
+                        VLOG(0) << "Error 6: " << errorString;
+                    });
+            },
+            1.5,
+            "Tick 1.5");
+    }
 
     return core::SNodeC::start();
 }
