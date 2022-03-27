@@ -40,6 +40,17 @@ namespace core::socket::stream::legacy {
             core::socket::stream::legacy::SocketAcceptor<typename ServerSocketT::Config, typename ServerSocketT::Socket>,
             SocketContextFactoryT>;
         using Super::Super;
+
+    public:
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
+
+        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     const std::map<std::string, std::any>& options = {{}})
+            : Super("", onConnect, onConnected, onDisconnect, options) {
+        }
     };
 
 } // namespace core::socket::stream::legacy
