@@ -34,6 +34,7 @@ namespace net::config {
         if (!getName().empty()) {
             addressSc = add_subcommand(addressOptionName, addressOptionDescription);
             addressSc->group("Option groups");
+            needsRequired = true;
             initialized = true;
         }
     }
@@ -41,10 +42,10 @@ namespace net::config {
     template <typename SocketAddress>
     const SocketAddress& ConfigAddress<SocketAddress>::getAddress() {
         if (addressSc != nullptr) {
-            if (!parsedRequired) {
+            if (needsRequired) {
                 parse(true); // Try command line parsing honoring required options
                 updateFromCommandLine();
-                parsedRequired = true;
+                needsRequired = false;
                 updated = true;
             } else if (!updated) {
                 updateFromCommandLine();
@@ -59,6 +60,7 @@ namespace net::config {
     void ConfigAddress<SocketAddress>::setAddress(const SocketAddress& localAddress) {
         address = localAddress;
         initialized = true;
+        needsRequired = false;
     }
 
     template <typename SocketAddressT>
