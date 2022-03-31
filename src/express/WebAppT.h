@@ -47,11 +47,15 @@ namespace express {
         using SocketConnection = typename Server::SocketConnection;
         using SocketAddress = typename Server::SocketAddress;
 
+        explicit WebAppT(const std::map<std::string, std::any>& options = {{}})
+            : WebAppT("", options) {
+        }
+
         explicit WebAppT(const std::string& name, const std::map<std::string, std::any>& options = {{}})
             : WebAppT(name, Router(), options) {
         }
 
-        explicit WebAppT(const std::string& name, const Router& router, const std::map<std::string, std::any>& options = {{}})
+        WebAppT(const std::string& name, const Router& router, const std::map<std::string, std::any>& options = {{}})
             : WebApp(router)
             , Server(
                   name,
