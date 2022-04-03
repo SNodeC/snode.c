@@ -74,8 +74,6 @@ namespace web::http::client {
 
         bool sendHeaderInProgress = false;
         bool headersSent = false;
-        std::size_t contentSent = 0;
-        std::size_t contentLength = 0;
 
         web::http::SocketContext* socketContext;
 

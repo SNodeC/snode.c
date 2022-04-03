@@ -70,7 +70,7 @@ namespace web::http::client {
         }
 
         if (field == "Content-Length") {
-            contentLength = std::stoul(value);
+            socketContext->contentLength = std::stoul(value);
         } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
             connectionState = ConnectionState::Close;
         } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
@@ -110,8 +110,6 @@ namespace web::http::client {
         cookies.clear();
         headersSent = false;
         sendHeaderInProgress = false;
-        contentLength = 0;
-        contentSent = 0;
 
         connectionState = ConnectionState::Default;
     }
@@ -124,16 +122,7 @@ namespace web::http::client {
             headersSent = true;
         }
 
-        socketContext->sendToPeer(junk, junkLen);
-
-        if (headersSent) {
-            contentSent += junkLen;
-            if (contentSent == contentLength) {
-                socketContext->sendToPeerCompleted();
-            } else if (contentSent > contentLength) {
-                socketContext->close();
-            }
-        }
+        socketContext->sendToPeer(junk, junkLen, headersSent);
     }
 
     void Request::enqueue(const std::string& data) {
@@ -165,8 +154,8 @@ namespace web::http::client {
             enqueue(field + ":" + value + "\r\n");
         }
 
-        if (contentLength != 0) {
-            enqueue("Content-Length: " + std::to_string(contentLength) + "\r\n");
+        if (socketContext->contentLength != 0) {
+            enqueue("Content-Length: " + std::to_string(socketContext->contentLength) + "\r\n");
         }
 
         for (const auto& [name, value] : cookies) { // cppcheck-suppress unassignedVariable
@@ -176,9 +165,9 @@ namespace web::http::client {
         enqueue("\r\n");
 
         if (headers.find("Content-Length") != headers.end()) {
-            contentLength = std::stoul(headers.find("Content-Length")->second);
+            socketContext->contentLength = std::stoul(headers.find("Content-Length")->second);
         } else {
-            contentLength = 0;
+            socketContext->contentLength = 0;
         }
     }
 

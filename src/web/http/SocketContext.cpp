@@ -16,10 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SOCKETCONTEXT_H
-#define WEB_HTTP_SOCKETCONTEXT_H
-
-#include "core/socket/SocketContext.h"
+#include "web/http/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,32 +24,23 @@
 
 namespace web::http {
 
-    class SocketContext : public core::socket::SocketContext {
-    private:
-        using Super = core::socket::SocketContext;
-        using Super::Super;
+    void web::http::SocketContext::sendToPeer(const char* junk, std::size_t junkLen, bool isContent) {
+        Super::sendToPeer(junk, junkLen);
 
-    protected:
-        SocketContext(const SocketContext&) = delete;
-        SocketContext& operator=(const SocketContext&) = delete;
+        if (isContent) {
+            contentSent += junkLen;
+            if (contentSent == contentLength) {
+                sendToPeerCompleted();
+                contentLength = 0;
+                contentSent = 0;
+            } else if (contentSent > contentLength) {
+                close();
+            }
+        }
+    }
 
-        void onReceiveFromPeer() override = 0;
-
-    public:
-        void sendToPeer(const char* junk, std::size_t junkLen, bool isContent);
-
-        virtual void sendToPeerCompleted() = 0;
-
-    private:
-        // Pipe
-        void receive(const char* junk, std::size_t junkLen) override;
-
-        std::size_t contentSent = 0;
-
-    public:
-        std::size_t contentLength = 0;
-    };
+    void SocketContext::receive(const char* junk, std::size_t junkLen) {
+        sendToPeer(junk, junkLen, true);
+    }
 
 } // namespace web::http
-
-#endif // WEB_HTTP_SOCKETCONTEXT_H
