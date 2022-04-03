@@ -1,6 +1,8 @@
 #include "log/Logger.h"
 #include "utils/CLI11.hpp"
 
+#include <string> // for string, allocator
+
 int main(int argc, char* argv[]) {
     CLI::App app("ConfigTest");
 

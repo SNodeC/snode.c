@@ -27,7 +27,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/time.h"
-#include "log/Logger.h"
 
 #include <numeric>
 #include <utility> // for pair
