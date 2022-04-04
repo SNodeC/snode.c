@@ -33,8 +33,6 @@ namespace web::http {
             contentSent += junkLen;
             if (contentSent == contentLength) {
                 sendToPeerCompleted();
-                contentLength = 0;
-                contentSent = 0;
             } else if (contentSent > contentLength) {
                 close();
             }

@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef> // for size_t
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
@@ -47,6 +49,7 @@ namespace web::http {
         // Pipe
         void receive(const char* junk, std::size_t junkLen) override;
 
+    protected:
         std::size_t contentSent = 0;
 
     public:
