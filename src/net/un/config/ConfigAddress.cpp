@@ -24,7 +24,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
-#include "utils/Config.h"
 
 #include <string>
 
@@ -37,9 +36,9 @@ namespace net::un::config {
         if (!net::config::ConfigBase::getName().empty()) {
             sunPathOpt = ConfigAddressType::addressSc->add_option("--path", sunPath, "Unix domain socket");
             sunPathOpt->type_name("[sun-path]");
-            sunPathOpt->default_val(std::string('\0' + utils::Config::getApplicationName()));
+            sunPathOpt->default_val(std::string('\0' + net::config::ConfigBase::getName()));
         }
-        ConfigAddressType::address.setSunPath(std::string('\0' + utils::Config::getApplicationName()));
+        ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigBase::getName()));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
