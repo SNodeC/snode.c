@@ -86,7 +86,7 @@ namespace net::in6 {
         int err = core::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
         if (err != 0) {
-            throw bad_hostname(ipOrHostname);
+            throw bad_hostname(ipOrHostname + ": " + gai_strerror(err));
         }
 
         resalloc = res;
@@ -114,23 +114,25 @@ namespace net::in6 {
 
     std::string SocketAddress::host() const {
         char host[NI_MAXHOST];
-        core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
+        int ret =
+            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, NI_NAMEREQD);
 
-        return host;
+        return ret == EAI_NONAME ? address() : ret >= 0 ? host : gai_strerror(ret);
     }
 
     std::string SocketAddress::address() const {
         char ip[NI_MAXHOST];
-        core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
+        int ret =
+            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
 
-        return ip;
+        return ret >= 0 ? ip : gai_strerror(ret);
     }
 
     std::string SocketAddress::serv() const {
         char serv[NI_MAXSERV];
-        core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
+        int ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
 
-        return serv;
+        return ret >= 0 ? serv : gai_strerror(ret);
     }
 
     std::string SocketAddress::toString() const {
