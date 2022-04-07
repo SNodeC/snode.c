@@ -49,6 +49,16 @@ add_compile_options(
 # set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
 # link_libraries(asan) link_libraries(ubsan)
 
+#if (CMAKE_BUILD_TYPE MATCHES Debug)
+#    find_library(SegFault SegFault)
+#    message("Library: " ${SegFault})
+#    link_libraries(${SegFault})
+#    add_link_options(LINKER:--no-as-needed)
+#    message ("*************** DEBUG")
+#else(CMAKE_BUILD_TYPE MATCHES Debug)
+#    message ("*************** NDEBUG")
+#endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
