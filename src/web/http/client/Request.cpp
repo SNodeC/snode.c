@@ -24,8 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <utility> // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -215,19 +213,6 @@ namespace web::http::client {
 
     const std::string& Request::header(const std::string& field) {
         return headers[field];
-    }
-
-    void Request::receive(const char* junk, std::size_t junkLen) {
-        enqueue(junk, junkLen);
-    }
-
-    void Request::eof() {
-        LOG(INFO) << "Stream EOF";
-    }
-
-    void Request::error([[maybe_unused]] int errnum) {
-        PLOG(ERROR) << "Stream error: ";
-        socketContext->close();
     }
 
 } // namespace web::http::client
