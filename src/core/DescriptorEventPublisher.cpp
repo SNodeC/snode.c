@@ -63,6 +63,7 @@ namespace core {
         if (observedEventReceiversDirty) {
             std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
                 auto& [fd, observedEventReceiverList] = observedEventReceiversEntry; // cppcheck-suppress constVariable
+                DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
                 std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
                     bool isDisabled = !descriptorEventReceiver->isEnabled();
                     if (isDisabled) {
@@ -76,12 +77,14 @@ namespace core {
                 if (observedEventReceiverList.empty()) {
                     muxDel(fd);
                 } else {
-                    DescriptorEventReceiver* descriptorEventReceiver = observedEventReceivers[fd].front();
-                    descriptorEventReceiver->triggered(currentTime);
-                    if (!descriptorEventReceiver->isSuspended()) {
-                        muxOn(descriptorEventReceiver);
-                    } else {
-                        muxOff(fd);
+                    DescriptorEventReceiver* afterFirst = observedEventReceiverList.front();
+                    if (beforeFirst != afterFirst) {
+                        afterFirst->triggered(currentTime);
+                        if (!afterFirst->isSuspended()) {
+                            muxOn(afterFirst);
+                        } else {
+                            muxOff(fd);
+                        }
                     }
                 }
                 return observedEventReceiverList.empty();
