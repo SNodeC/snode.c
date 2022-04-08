@@ -10,7 +10,9 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LIBMAGIC libmagic)
 
-set(HTTP_CPP MimeTypes.cpp Parser.cpp SocketContext.cpp StatusCodes.cpp http_utils.cpp)
+set(HTTP_CPP MimeTypes.cpp Parser.cpp SocketContext.cpp StatusCodes.cpp
+             http_utils.cpp
+)
 
 set(HTTP_H
     ConnectionState.h
