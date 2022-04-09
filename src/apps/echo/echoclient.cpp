@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 
     client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << errnum;
+            PLOG(ERROR) << "OnError: " << socketAddress.toString() << " : " << errnum;
         } else {
             VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }

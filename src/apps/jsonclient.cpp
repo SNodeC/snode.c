@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "-- OnConnected";
         },
         [](Request& request) -> void {
+            VLOG(0) << "-- OnRequest";
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");

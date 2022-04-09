@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 
     server.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum != 0) {
-            PLOG(FATAL) << "listen";
+            PLOG(ERROR) << "OnError: " << socketAddress.toString() << " : " << errnum;
         } else {
             VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }
