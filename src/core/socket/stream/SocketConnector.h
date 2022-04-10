@@ -123,6 +123,8 @@ namespace core::socket::stream {
                 errno = cErrno;
                 if (errno != EINPROGRESS) {
                     if (errno == 0) {
+                        disable();
+
                         typename SocketAddress::SockAddr localAddress{};
                         socklen_t localAddressLength = sizeof(localAddress);
 
@@ -146,10 +148,8 @@ namespace core::socket::stream {
                                                                                       config->getTerminateTimeout());
 
                             onConnected(socketConnection);
-                            onError(config->getRemoteAddress(), 0);
 
                             Socket::dontClose(true);
-                            disable();
                         } else {
                             onError(config->getRemoteAddress(), errno);
                             disable();
