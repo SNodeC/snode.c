@@ -55,7 +55,7 @@ namespace database::mariadb::commands {
 
         mariaDBConnection->executeAsNext(
             new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, [](MYSQL_ROW row) -> void {
-                VLOG(0) << "Row Result: " << row[0] << " : " << row[1] << " : " << row[2];
+                VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
             }));
     }
 
