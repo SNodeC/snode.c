@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     {
-        legacy::in6::WebApp legacyApp("legacy-vhostserver");
+        legacy::in6::WebApp legacyApp("legacy");
 
         Router& router = middleware::VHost("localhost:8080");
         router.use(middleware::StaticMiddleware(SERVERROOT));
@@ -68,8 +68,7 @@ int main(int argc, char* argv[]) {
         });
 
         {
-            express::tls::in6::WebApp tlsApp("legacy-vhostserver",
-                                             {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+            express::tls::in6::WebApp tlsApp("tls", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
             tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
 
