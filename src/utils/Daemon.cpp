@@ -120,6 +120,7 @@ namespace utils {
         } else {
             VLOG(0) << "Already running: Not daemonized ... exiting";
             daemonized = false;
+            exit(EXIT_FAILURE);
         }
     }
 

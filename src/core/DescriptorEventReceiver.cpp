@@ -162,7 +162,7 @@ namespace core {
     void DescriptorEventReceiver::checkTimeout(const utils::Timeval& currentTime) {
         if (maxInactivity >= 0 && currentTime - lastTriggered >= maxInactivity) {
             timeoutEvent();
-        } else if (isToBeContinued()) {
+        } else if (isToBeContinued() && isEnabled() && !isSuspended()) {
             publish();
         }
     }

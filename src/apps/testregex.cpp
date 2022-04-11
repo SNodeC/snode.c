@@ -40,6 +40,7 @@ using namespace express;
 Router router() {
     Router router;
 
+    // http://localhost:8080/test/1/urlstring
     router.get("/test/:variable(\\d)/:uri", [] APPLICATION(req, res) {
         std::cout << "TEST" << std::endl;
     });

@@ -39,6 +39,7 @@ namespace core::socket::stream::legacy {
             ServerSocketT,
             core::socket::stream::legacy::SocketAcceptor<typename ServerSocketT::Config, typename ServerSocketT::Socket>,
             SocketContextFactoryT>;
+
         using Super::Super;
 
     public:

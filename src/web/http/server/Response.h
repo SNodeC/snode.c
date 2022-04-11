@@ -19,7 +19,6 @@
 #ifndef WEB_HTTP_SERVER_RESPONSE_H
 #define WEB_HTTP_SERVER_RESPONSE_H
 
-#include "core/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 #include "web/http/CookieOptions.h"
 
@@ -41,12 +40,12 @@ namespace web::http {
 
 namespace web::http::server {
 
-    class Response : public core::pipe::Sink {
+    class Response {
     protected:
         explicit Response(web::http::SocketContext* serverContext);
         Response(const Response&) = default;
 
-        ~Response() override = default;
+        ~Response() = default;
 
     public:
         void send(const char* junk, std::size_t junkLen);
@@ -65,6 +64,9 @@ namespace web::http::server {
         void upgrade(Request& req);
 
     protected:
+        void enqueue(const char* junk, std::size_t junkLen);
+        void enqueue(const std::string& junk);
+
         virtual void reset();
 
         web::http::SocketContext* socketContext;
@@ -80,16 +82,7 @@ namespace web::http::server {
         bool sendHeaderInProgress = false;
         bool headersSent = false;
 
-        std::size_t contentSent = 0;
-        std::size_t contentLength = 0;
-
-        void enqueue(const char* junk, std::size_t junkLen);
-        void enqueue(const std::string& junk);
         void sendHeader();
-
-        void receive(const char* junk, std::size_t junkLen) override;
-        void eof() override;
-        void error(int errnum) override;
 
         template <typename Request, typename Response>
         friend class SocketContext;

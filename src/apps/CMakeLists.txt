@@ -75,6 +75,10 @@ add_executable(testpipe testpipe.cpp)
 target_link_libraries(testpipe PRIVATE snodec::core)
 install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_executable(configtest configtest.cpp)
+target_link_libraries(configtest PRIVATE snodec::core)
+install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 add_subdirectory(websocket)
 add_subdirectory(echo)
 add_subdirectory(http)

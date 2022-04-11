@@ -62,6 +62,13 @@ namespace core::socket::stream {
             , options(options) {
         }
 
+        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     const std::map<std::string, std::any>& options = {{}})
+            : SocketServer("", onConnect, onConnected, onDisconnect, options) {
+        }
+
         SocketServer(const SocketServer&) = default;
 
         ~SocketServer() override = default;

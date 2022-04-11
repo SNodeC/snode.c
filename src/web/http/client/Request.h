@@ -19,7 +19,6 @@
 #ifndef WEB_HTTP_CLIENT_REQUEST_H
 #define WEB_HTTP_CLIENT_REQUEST_H
 
-#include "core/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 
 namespace web::http {
@@ -36,7 +35,7 @@ namespace web::http {
 
 namespace web::http::client {
 
-    class Request : public core::pipe::Sink {
+    class Request {
     protected:
         explicit Request(web::http::SocketContext* clientContext);
 
@@ -74,8 +73,6 @@ namespace web::http::client {
 
         bool sendHeaderInProgress = false;
         bool headersSent = false;
-        std::size_t contentSent = 0;
-        std::size_t contentLength = 0;
 
         web::http::SocketContext* socketContext;
 
@@ -86,10 +83,6 @@ namespace web::http::client {
         std::map<std::string, std::string> cookies;
 
         std::string nullstr = "";
-
-        void receive(const char* junk, std::size_t junkLen) override;
-        void eof() override;
-        void error(int errnum) override;
 
         template <typename Request, typename Response>
         friend class SocketContext;

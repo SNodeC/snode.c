@@ -184,6 +184,9 @@ namespace web::http::server {
             requestContext.response.reset();
         }
 
+        contentSent = 0;
+        contentLength = 0;
+
         requestInProgress = false;
     }
 

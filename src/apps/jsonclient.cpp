@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "-- OnConnected";
         },
         [](Request& request) -> void {
+            VLOG(0) << "-- OnRequest";
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");
@@ -101,7 +102,7 @@ int main(int argc, char* argv[]) {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         } else {
-            VLOG(0) << "jsonclient.c connected to " << socketAddress.toString();
+            VLOG(0) << "jsonclient.c connecting to" << socketAddress.toString();
         }
     });
 

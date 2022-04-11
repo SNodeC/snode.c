@@ -55,7 +55,7 @@ namespace net::config {
     private:
         virtual void updateFromCommandLine() = 0;
 
-        bool parsedRequired = false;
+        bool needsRequired = false;
         bool updated = false;
         bool initialized = false;
     };

@@ -90,8 +90,8 @@ namespace core {
 
         eventQueue.execute(currentTime);
 
-        unobserveDisabledEvents(currentTime);
         checkTimedOutEvents(currentTime);
+        unobserveDisabledEvents(currentTime);
 
         DynamicLoader::execDlCloseDeleyed();
 
