@@ -92,8 +92,9 @@ int main(int argc, char* argv[]) {
                                     [](void) -> void {
                                         VLOG(0) << "OnQuery 4";
                                     },
-                                    [](const std::string& errorString) -> void {
+                                    [stop](const std::string& errorString) -> void {
                                         VLOG(0) << "Error 4: " << errorString;
+                                        stop();
                                     });
                             },
                             0.5,
@@ -109,8 +110,9 @@ int main(int argc, char* argv[]) {
                                     [](void) -> void {
                                         VLOG(0) << "OnQuery 5";
                                     },
-                                    [](const std::string& errorString) -> void {
+                                    [stop](const std::string& errorString) -> void {
                                         VLOG(0) << "Error 5: " << errorString;
+                                        stop();
                                     });
                             },
                             0.7,
@@ -134,8 +136,9 @@ int main(int argc, char* argv[]) {
                     [](void) -> void {
                         VLOG(0) << "OnQuery 6";
                     },
-                    [](const std::string& errorString) -> void {
+                    [stop](const std::string& errorString) -> void {
                         VLOG(0) << "Error 6: " << errorString;
+                        stop();
                     });
             },
             1.5,
