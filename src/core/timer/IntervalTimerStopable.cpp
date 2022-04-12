@@ -34,8 +34,7 @@ namespace core::timer {
     }
 
     void IntervalTimerStopable::dispatchEvent() {
-        bool stop = false;
-        dispatcher(arg, [&stop]() -> void {
+        dispatcher(arg, [this]() -> void {
             stop = true;
         });
         if (stop) {
