@@ -143,7 +143,6 @@ namespace database::mariadb {
             connected = true;
         } else {
             VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
-            error = true;
         }
     }
 
@@ -157,9 +156,9 @@ namespace database::mariadb {
                     commandCompleted();
                 }
                 commandStartEvent.publish();
-            } else if (error) {
+            } else {
                 currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
-                commandCompleted();
+                delete this;
             }
         } else {
             if ((status & MYSQL_WAIT_WRITE) != 0) {

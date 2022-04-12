@@ -111,7 +111,6 @@ namespace database::mariadb {
         MariaDBCommand* currentCommand = nullptr;
 
         bool connected = false;
-        bool error = false;
 
         int fd;
     };
