@@ -36,6 +36,10 @@ namespace core {
         core::EventLoop::instance().getEventMultiplexer().publish(&event);
     }
 
+    void EventReceiver::unPublish() const {
+        core::EventLoop::instance().getEventMultiplexer().unPublish(&event);
+    }
+
     const std::string& EventReceiver::getName() {
         return name;
     }
