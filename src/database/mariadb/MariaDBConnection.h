@@ -46,18 +46,21 @@ namespace database::mariadb {
 
 namespace database::mariadb {
 
-    class MariaDBCommandExecuteEvent : public core::EventReceiver {
+    class MariaDBCommandStartEvent : public core::EventReceiver {
     public:
-        MariaDBCommandExecuteEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
+        MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
+        ~MariaDBCommandStartEvent();
 
         using core::EventReceiver::publish;
 
-        static void publish(MariaDBConnection* mariaDBConnection);
+        void publish();
 
     private:
-        void dispatch([[maybe_unused]] const utils::Timeval& currentTime) override;
+        void dispatch(const utils::Timeval& currentTime) override;
 
         MariaDBConnection* mariaDBConnection = nullptr;
+
+        bool published = false;
     };
 
     class MariaDBConnection
@@ -75,7 +78,7 @@ namespace database::mariadb {
         void execute(MariaDBCommand* mariaDBCommand);
         void executeAsNext(MariaDBCommand* mariaDBCommand);
 
-        void commandExecute();
+        void commandStart(const utils::Timeval& currentTime);
         void commandContinue(int status);
         void commandCompleted();
 
@@ -98,6 +101,7 @@ namespace database::mariadb {
 
     private:
         MariaDBClient* mariaDBClient;
+        MariaDBCommandStartEvent commandStartEvent;
         MariaDBConnectionDetails connectionDetails;
 
         MYSQL* mysql;
@@ -105,11 +109,9 @@ namespace database::mariadb {
         std::list<MariaDBCommand*> commandQueue;
 
         MariaDBCommand* currentCommand = nullptr;
+
         bool connected = false;
         bool error = false;
-
-        bool published = false;
-        //        bool commandValid = false;
 
         int fd;
     };

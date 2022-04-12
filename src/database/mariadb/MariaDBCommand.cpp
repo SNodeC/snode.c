@@ -30,6 +30,11 @@ namespace database::mariadb {
         , name(name) {
     }
 
+    int MariaDBCommand::start(MYSQL* mysql, const utils::Timeval& currentTime) {
+        startTime = currentTime;
+        return start(mysql);
+    }
+
     const std::string& MariaDBCommand::getName() {
         return name;
     }

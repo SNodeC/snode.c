@@ -36,10 +36,11 @@
 namespace database::mariadb {
 
     MariaDBConnection::MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails)
-        : ReadEventReceiver("MariaDBConnection", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
-        , WriteEventReceiver("MariaDBConnection", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
-        , ExceptionalConditionEventReceiver("MariaDBConnection", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
+        : ReadEventReceiver("MariaDBConnectionRead", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
+        , WriteEventReceiver("MariaDBConnectionWrite", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
+        , ExceptionalConditionEventReceiver("MariaDBConnectionExceptional", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , mariaDBClient(mariaDBClient)
+        , commandStartEvent("MariaDBCommandStartEvent", this)
         , connectionDetails(connectionDetails)
         , mysql(mysql_init(nullptr)) {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
@@ -54,7 +55,7 @@ namespace database::mariadb {
                 VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
             }));
 
-        MariaDBCommandExecuteEvent::publish(this);
+        commandStartEvent.publish();
     }
 
     MariaDBConnection::~MariaDBConnection() {
@@ -74,27 +75,21 @@ namespace database::mariadb {
         commandQueue.push_back(mariaDBCommand);
 
         if (connected && currentCommand == nullptr && commandQueue.size() == 1) {
-            if (!published) {
-                published = true;
-                MariaDBCommandExecuteEvent::publish(this);
-            }
+            commandStartEvent.publish();
         }
     }
 
-    void MariaDBConnection::executeAsNext([[maybe_unused]] MariaDBCommand* mariaDBCommand) {
+    void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {
         commandCompleted();
 
         commandQueue.push_front(mariaDBCommand);
     }
 
-    void MariaDBConnection::commandExecute() {
-        published = false;
+    void MariaDBConnection::commandStart(const utils::Timeval& currentTime) {
         if (!commandQueue.empty()) {
             currentCommand = commandQueue.front();
 
-            //            VLOG(0) << "Command Start: " << currentCommand->getName();
-
-            int status = currentCommand->start(mysql);
+            int status = currentCommand->start(mysql, currentTime);
 
             checkStatus(status);
         } else {
@@ -108,8 +103,6 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
-            //            VLOG(0) << "Command Continue: " << currentCommand->getName();
-
             int currentStatus = currentCommand->cont(mysql, status);
 
             checkStatus(currentStatus);
@@ -123,7 +116,6 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        //        VLOG(0) << "Command Completed: " << currentCommand->getName();
         commandQueue.pop_front();
 
         if (currentCommand != nullptr) {
@@ -164,10 +156,7 @@ namespace database::mariadb {
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                     commandCompleted();
                 }
-                if (!published) {
-                    published = true;
-                    MariaDBCommandExecuteEvent::publish(this);
-                }
+                commandStartEvent.publish();
             } else if (error) {
                 currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                 commandCompleted();
@@ -229,19 +218,26 @@ namespace database::mariadb {
         delete this;
     }
 
-    MariaDBCommandExecuteEvent::MariaDBCommandExecuteEvent(const std::string& name, MariaDBConnection* mariaDBConnection)
+    MariaDBCommandStartEvent::MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection)
         : core::EventReceiver(name)
         , mariaDBConnection(mariaDBConnection) {
     }
 
-    void MariaDBCommandExecuteEvent::publish(MariaDBConnection* mariaDBConnection) {
-        (new MariaDBCommandExecuteEvent("MariaDBCommandExecuteReceiver", mariaDBConnection))->publish();
+    MariaDBCommandStartEvent::~MariaDBCommandStartEvent() {
+        published = false;
+        core::EventReceiver::unPublish();
     }
 
-    void MariaDBCommandExecuteEvent::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
-        mariaDBConnection->commandExecute();
+    void MariaDBCommandStartEvent::publish() {
+        if (!published) {
+            published = true;
+            core::EventReceiver::publish();
+        }
+    }
 
-        delete this;
+    void MariaDBCommandStartEvent::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
+        published = false;
+        mariaDBConnection->commandStart(currentTime);
     }
 
 } // namespace database::mariadb

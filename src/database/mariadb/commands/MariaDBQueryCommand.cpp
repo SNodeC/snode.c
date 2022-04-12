@@ -58,8 +58,8 @@ namespace database::mariadb::commands {
         MYSQL_RES* result = mysql_use_result(mysql);
 
         if (ret == 0 && result != nullptr) {
-            mariaDBConnection->executeAsNext(new database::mariadb::commands::MariaDBFetchRowCommand(
-                mariaDBConnection, result, []([[maybe_unused]] MYSQL_ROW row) -> void {
+            mariaDBConnection->executeAsNext(
+                new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, result, [](MYSQL_ROW row) -> void {
                     VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
                 }));
         } else {
