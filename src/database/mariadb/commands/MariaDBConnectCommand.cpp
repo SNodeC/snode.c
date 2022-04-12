@@ -33,7 +33,7 @@ namespace database::mariadb::commands {
                                                  const MariaDBConnectionDetails& details,
                                                  const std::function<void()>& onConnect,
                                                  const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection)
+        : MariaDBCommand(mariaDBConnection, "Connect")
         , details(details)
         , onConnect(onConnect)
         , onError(onError) {

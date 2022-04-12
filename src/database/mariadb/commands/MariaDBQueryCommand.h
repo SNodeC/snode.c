@@ -57,6 +57,7 @@ namespace database::mariadb::commands {
     protected:
         int ret;
 
+        MYSQL* mysql;
         const std::string sql;
         const std::function<void(void)> onQuery;
         const std::function<void(const std::string&)> onError;

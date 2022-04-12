@@ -36,11 +36,13 @@ namespace database::mariadb {
 
     class MariaDBCommand {
     public:
-        MariaDBCommand(MariaDBConnection* mariaDBConnection);
+        MariaDBCommand(MariaDBConnection* mariaDBConnection, const std::string& name);
         virtual ~MariaDBCommand() = default;
 
         virtual int start(MYSQL* mysql) = 0;
         virtual int cont(MYSQL* mysql, int status) = 0;
+
+        const std::string& getName();
 
         virtual bool error() = 0;
 
@@ -49,6 +51,7 @@ namespace database::mariadb {
 
     protected:
         MariaDBConnection* mariaDBConnection;
+        std::string name;
     };
 
 } // namespace database::mariadb

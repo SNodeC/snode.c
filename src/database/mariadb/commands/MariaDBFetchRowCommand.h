@@ -43,9 +43,12 @@ namespace database::mariadb::commands {
 
     class MariaDBFetchRowCommand : public MariaDBCommand {
     public:
-        MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection, const std::function<void(MYSQL_ROW row)>& onRowResult);
+        MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection,
+                               MYSQL_RES* result,
+                               const std::function<void(MYSQL_ROW row)>& onRowResult);
         ~MariaDBFetchRowCommand();
 
+        int execute();
         int start(MYSQL* mysql) override;
         int cont(MYSQL* mysql, int status) override;
 
@@ -55,6 +58,7 @@ namespace database::mariadb::commands {
         bool error() override;
 
     private:
+        MYSQL* mysql = nullptr;
         MYSQL_RES* result = nullptr;
         MYSQL_ROW row = nullptr;
 

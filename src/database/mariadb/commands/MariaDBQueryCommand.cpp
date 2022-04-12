@@ -36,13 +36,15 @@ namespace database::mariadb::commands {
                                              const std::string& sql,
                                              const std::function<void(void)>& onQuery,
                                              const std::function<void(const std::string&)>& onError)
-        : MariaDBCommand(mariaDBConnection)
+        : MariaDBCommand(mariaDBConnection, "Query")
         , sql(sql)
         , onQuery(onQuery)
         , onError(onError) {
     }
 
     int MariaDBQueryCommand::start(MYSQL* mysql) {
+        this->mysql = mysql;
+
         return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
     }
 
@@ -53,10 +55,16 @@ namespace database::mariadb::commands {
     void MariaDBQueryCommand::commandCompleted() {
         onQuery();
 
-        mariaDBConnection->executeAsNext(
-            new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, [](MYSQL_ROW row) -> void {
-                VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
-            }));
+        MYSQL_RES* result = mysql_use_result(mysql);
+
+        if (ret == 0 && result != nullptr) {
+            mariaDBConnection->executeAsNext(new database::mariadb::commands::MariaDBFetchRowCommand(
+                mariaDBConnection, result, []([[maybe_unused]] MYSQL_ROW row) -> void {
+                    VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
+                }));
+        } else {
+            mariaDBConnection->commandCompleted();
+        }
     }
 
     void MariaDBQueryCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {

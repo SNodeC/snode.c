@@ -41,9 +41,24 @@ typedef struct st_mysql MYSQL;
 
 namespace database::mariadb {
     class MariaDBClient;
-}
+    class MariaDBConnection;
+} // namespace database::mariadb
 
 namespace database::mariadb {
+
+    class MariaDBCommandExecuteEvent : public core::EventReceiver {
+    public:
+        MariaDBCommandExecuteEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
+
+        using core::EventReceiver::publish;
+
+        static void publish(MariaDBConnection* mariaDBConnection);
+
+    private:
+        void dispatch([[maybe_unused]] const utils::Timeval& currentTime) override;
+
+        MariaDBConnection* mariaDBConnection = nullptr;
+    };
 
     class MariaDBConnection
         : core::eventreceiver::ReadEventReceiver
@@ -92,7 +107,9 @@ namespace database::mariadb {
         MariaDBCommand* currentCommand = nullptr;
         bool connected = false;
         bool error = false;
-        bool commandValid = false;
+
+        bool published = false;
+        //        bool commandValid = false;
 
         int fd;
     };

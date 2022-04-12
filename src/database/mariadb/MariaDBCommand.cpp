@@ -25,8 +25,13 @@
 
 namespace database::mariadb {
 
-    MariaDBCommand::MariaDBCommand(MariaDBConnection* mariaDBConnection)
-        : mariaDBConnection(mariaDBConnection) {
+    MariaDBCommand::MariaDBCommand(MariaDBConnection* mariaDBConnection, const std::string& name)
+        : mariaDBConnection(mariaDBConnection)
+        , name(name) {
+    }
+
+    const std::string& MariaDBCommand::getName() {
+        return name;
     }
 
 } // namespace database::mariadb
