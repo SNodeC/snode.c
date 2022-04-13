@@ -103,7 +103,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
-            int currentStatus = currentCommand->cont(mysql, status);
+            int currentStatus = currentCommand->cont(status);
 
             checkStatus(currentStatus);
         } else if ((status & MYSQL_WAIT_READ) != 0 && commandQueue.empty()) {

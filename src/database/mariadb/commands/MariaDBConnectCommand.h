@@ -47,8 +47,8 @@ namespace database::mariadb::commands {
                               const std::function<void(void)>& onConnect,
                               const std::function<void(const std::string&, unsigned int)>& onError);
 
-        int start(MYSQL* mysql) override;
-        int cont(MYSQL* mysql, int status) override;
+        int start() override;
+        int cont(int status) override;
 
         void commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;

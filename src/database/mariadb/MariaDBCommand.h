@@ -43,8 +43,8 @@ namespace database::mariadb {
 
         int start(MYSQL* mysql, const utils::Timeval& currentTime);
 
-        virtual int start(MYSQL* mysql) = 0;
-        virtual int cont(MYSQL* mysql, int status) = 0;
+        virtual int start() = 0;
+        virtual int cont(int status) = 0;
 
         const std::string& getName();
 
@@ -54,6 +54,7 @@ namespace database::mariadb {
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
 
     protected:
+        MYSQL* mysql = nullptr;
         MariaDBConnection* mariaDBConnection;
         std::string name;
 

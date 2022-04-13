@@ -42,10 +42,8 @@ namespace database::mariadb::commands {
     MariaDBFetchRowCommand::~MariaDBFetchRowCommand() {
     }
 
-    int MariaDBFetchRowCommand::start(MYSQL* mysql) {
+    int MariaDBFetchRowCommand::start() {
         row = nullptr;
-
-        this->mysql = mysql;
 
         int ret = 0;
 
@@ -56,7 +54,7 @@ namespace database::mariadb::commands {
         return ret;
     }
 
-    int MariaDBFetchRowCommand::cont([[maybe_unused]] MYSQL* mysql, int status) {
+    int MariaDBFetchRowCommand::cont(int status) {
         int ret = mysql_fetch_row_cont(&row, result, status);
 
         return ret;

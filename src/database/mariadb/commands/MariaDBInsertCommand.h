@@ -31,8 +31,6 @@ namespace database::mariadb {
 #include <functional>
 #include <string>
 
-typedef struct st_mysql MYSQL;
-
 // IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -46,8 +44,8 @@ namespace database::mariadb::commands {
                              const std::function<void(void)>& onQuery,
                              const std::function<void(const std::string&)>& onError);
 
-        int start(MYSQL* mysql) override;
-        int cont(MYSQL* mysql, int status) override;
+        int start() override;
+        int cont(int status) override;
 
         void commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;

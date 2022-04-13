@@ -39,7 +39,7 @@ namespace database::mariadb::commands {
         , onError(onError) {
     }
 
-    int MariaDBConnectCommand::start(MYSQL* mysql) {
+    int MariaDBConnectCommand::start() {
         int status = mysql_real_connect_start(&ret,
                                               mysql,
                                               details.hostname.c_str(),
@@ -55,7 +55,7 @@ namespace database::mariadb::commands {
         return status;
     }
 
-    int MariaDBConnectCommand::cont(MYSQL* mysql, int status) {
+    int MariaDBConnectCommand::cont(int status) {
         return mysql_real_connect_cont(&ret, mysql, status);
     }
 

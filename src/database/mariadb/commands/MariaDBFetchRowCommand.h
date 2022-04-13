@@ -31,7 +31,6 @@ namespace database::mariadb {
 #include <functional>
 #include <string>
 
-typedef struct st_mysql MYSQL;
 typedef struct st_mysql_res MYSQL_RES;
 typedef char** MYSQL_ROW;
 
@@ -49,8 +48,8 @@ namespace database::mariadb::commands {
         ~MariaDBFetchRowCommand();
 
         int execute();
-        int start(MYSQL* mysql) override;
-        int cont(MYSQL* mysql, int status) override;
+        int start() override;
+        int cont(int status) override;
 
         void commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
@@ -58,7 +57,6 @@ namespace database::mariadb::commands {
         bool error() override;
 
     private:
-        MYSQL* mysql = nullptr;
         MYSQL_RES* result = nullptr;
         MYSQL_ROW row = nullptr;
 

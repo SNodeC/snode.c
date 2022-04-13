@@ -31,8 +31,10 @@ namespace database::mariadb {
     }
 
     int MariaDBCommand::start(MYSQL* mysql, const utils::Timeval& currentTime) {
+        this->mysql = mysql;
         startTime = currentTime;
-        return start(mysql);
+
+        return start();
     }
 
     const std::string& MariaDBCommand::getName() {

@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <mysql.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -41,11 +39,11 @@ namespace database::mariadb::commands {
         , onError(onError) {
     }
 
-    int MariaDBInsertCommand::start(MYSQL* mysql) {
+    int MariaDBInsertCommand::start() {
         return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
     }
 
-    int MariaDBInsertCommand::cont(MYSQL* mysql, int status) {
+    int MariaDBInsertCommand::cont(int status) {
         return mysql_real_query_cont(&ret, mysql, status);
     }
 

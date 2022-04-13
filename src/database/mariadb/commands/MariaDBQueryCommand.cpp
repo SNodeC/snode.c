@@ -42,13 +42,11 @@ namespace database::mariadb::commands {
         , onError(onError) {
     }
 
-    int MariaDBQueryCommand::start(MYSQL* mysql) {
-        this->mysql = mysql;
-
+    int MariaDBQueryCommand::start() {
         return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
     }
 
-    int MariaDBQueryCommand::cont(MYSQL* mysql, int status) {
+    int MariaDBQueryCommand::cont(int status) {
         return mysql_real_query_cont(&ret, mysql, status);
     }
 
