@@ -43,6 +43,12 @@ int main(int argc, char* argv[]) {
         .flags = 0,
     };
 
+    // CREATE USER 'snodec'@localhost IDENTIFIED BY 'pentium5'
+    // GRANT ALL PRIVILEGES ON *.* TO 'snodec'@localhost
+    // GRANT ALL PRIVILEGES ON 'snodec'.'snodec' TO 'snodec'@localhost
+    // CREATE DATABASE 'snodec';
+    // CREATE TABLE 'snodec' ('username' text NOT NULL, 'password' text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
     database::mariadb::MariaDBClient db1(details);
 
     db1.query(
@@ -92,58 +98,58 @@ int main(int argc, char* argv[]) {
             [&db2](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
                     VLOG(0) << "Row Result 2: " << row[0] << " : " << row[1];
+                } else {
+                    db2.query(
+                        "select * from snodec",
+                        [&db2](const MYSQL_ROW row) -> void {
+                            if (row != nullptr) {
+                                VLOG(0) << "Row Result 3: " << row[0] << " : " << row[1];
+                            } else { // After all results have been fetched
+                                core::timer::Timer dbTimer1 = core::timer::Timer::intervalTimer(
+                                    [&db2](const void* arg, const std::function<void()>& stop) -> void {
+                                        static int i = 0;
+                                        std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+
+                                        db2.query(
+                                            "select * from snodec",
+                                            [](const MYSQL_ROW row) -> void {
+                                                if (row != nullptr) {
+                                                    VLOG(0) << "Row Result 4: " << row[0] << " : " << row[1];
+                                                }
+                                            },
+                                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                VLOG(0) << "Error 4: " << errorString << " : " << errorNumber;
+                                                stop();
+                                            });
+                                    },
+                                    2,
+                                    "Tick 2");
+
+                                core::timer::Timer dbTimer2 = core::timer::Timer::intervalTimer(
+                                    [&db2](const void* arg, const std::function<void()>& stop) -> void {
+                                        static int i = 0;
+                                        std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+
+                                        db2.query(
+                                            "select * from snodec",
+                                            [](const MYSQL_ROW row) -> void {
+                                                if (row != nullptr) {
+                                                    VLOG(0) << "Row Result 5: " << row[0] << " : " << row[1];
+                                                }
+                                            },
+                                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                VLOG(0) << "Error 5: " << errorString << " : " << errorNumber;
+                                                stop();
+                                            });
+                                    },
+                                    0.7,
+                                    "Tick 0.7");
+                            }
+                        },
+                        [](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 3: " << errorString << " : " << errorNumber;
+                        });
                 }
-
-                db2.query(
-                    "select * from snodec",
-                    [&db2](const MYSQL_ROW row) -> void {
-                        if (row != nullptr) {
-                            VLOG(0) << "Row Result 3: " << row[0] << " : " << row[1];
-                        }
-
-                        core::timer::Timer dbTimer1 = core::timer::Timer::intervalTimer(
-                            [&db2](const void* arg, const std::function<void()>& stop) -> void {
-                                static int i = 0;
-                                std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
-
-                                db2.query(
-                                    "select * from snodec",
-                                    [](const MYSQL_ROW row) -> void {
-                                        if (row != nullptr) {
-                                            VLOG(0) << "Row Result 4: " << row[0] << " : " << row[1];
-                                        }
-                                    },
-                                    [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                        VLOG(0) << "Error 4: " << errorString << " : " << errorNumber;
-                                        stop();
-                                    });
-                            },
-                            2,
-                            "Tick 2");
-
-                        core::timer::Timer dbTimer2 = core::timer::Timer::intervalTimer(
-                            [&db2](const void* arg, const std::function<void()>& stop) -> void {
-                                static int i = 0;
-                                std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
-
-                                db2.query(
-                                    "select * from snodec",
-                                    [](const MYSQL_ROW row) -> void {
-                                        if (row != nullptr) {
-                                            VLOG(0) << "Row Result 5: " << row[0] << " : " << row[1];
-                                        }
-                                    },
-                                    [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                        VLOG(0) << "Error 5: " << errorString << " : " << errorNumber;
-                                        stop();
-                                    });
-                            },
-                            0.7,
-                            "Tick 0.7");
-                    },
-                    [](const std::string& errorString, unsigned int errorNumber) -> void {
-                        VLOG(0) << "Error 3: " << errorString << " : " << errorNumber;
-                    });
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Error 2: " << errorString << " : " << errorNumber;

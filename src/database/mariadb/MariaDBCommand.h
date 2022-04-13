@@ -43,14 +43,14 @@ namespace database::mariadb {
 
         const std::string& getName();
 
-        int start(MYSQL* mysql, const utils::Timeval& currentTime);
+        int commandStart(MYSQL* mysql, const utils::Timeval& currentTime);
 
-        virtual int start() = 0;
-        virtual int cont(int status) = 0;
-        virtual bool error() = 0;
-
+        virtual int commandStart() = 0;
+        virtual int commandContinue(int status) = 0;
         virtual void commandCompleted() = 0;
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
+
+        virtual bool error() = 0;
 
     protected:
         std::string name;

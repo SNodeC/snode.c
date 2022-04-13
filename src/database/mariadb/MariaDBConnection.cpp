@@ -72,11 +72,11 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
-        commandQueue.push_back(mariaDBCommand);
-
-        if (connected && currentCommand == nullptr && commandQueue.size() == 1) {
+        if (connected && currentCommand == nullptr && commandQueue.empty()) {
             commandStartEvent.publish();
         }
+
+        commandQueue.push_back(mariaDBCommand);
     }
 
     void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {
@@ -89,7 +89,7 @@ namespace database::mariadb {
         if (!commandQueue.empty()) {
             currentCommand = commandQueue.front();
 
-            int status = currentCommand->start(mysql, currentTime);
+            int status = currentCommand->commandStart(mysql, currentTime);
 
             checkStatus(status);
         } else {
@@ -103,7 +103,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
-            int currentStatus = currentCommand->cont(status);
+            int currentStatus = currentCommand->commandContinue(status);
 
             checkStatus(currentStatus);
         } else if ((status & MYSQL_WAIT_READ) != 0 && commandQueue.empty()) {
@@ -232,7 +232,7 @@ namespace database::mariadb {
         }
     }
 
-    void MariaDBCommandStartEvent::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
+    void MariaDBCommandStartEvent::dispatch(const utils::Timeval& currentTime) {
         published = false;
         mariaDBConnection->commandStart(currentTime);
     }

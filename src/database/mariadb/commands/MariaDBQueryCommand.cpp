@@ -42,11 +42,11 @@ namespace database::mariadb::commands {
         , onError(onError) {
     }
 
-    int MariaDBQueryCommand::start() {
+    int MariaDBQueryCommand::commandStart() {
         return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
     }
 
-    int MariaDBQueryCommand::cont(int status) {
+    int MariaDBQueryCommand::commandContinue(int status) {
         return mysql_real_query_cont(&ret, mysql, status);
     }
 
@@ -62,7 +62,7 @@ namespace database::mariadb::commands {
         }
     }
 
-    void MariaDBQueryCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {
+    void MariaDBQueryCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
     }
 

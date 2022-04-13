@@ -46,9 +46,8 @@ namespace database::mariadb::commands {
                             const std::function<void(const MYSQL_ROW)>& onQuery,
                             const std::function<void(const std::string&, unsigned int)>& onError);
 
-        int start() override;
-        int cont(int status) override;
-
+        int commandStart() override;
+        int commandContinue(int status) override;
         void commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
 

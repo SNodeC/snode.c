@@ -46,12 +46,9 @@ namespace database::mariadb::commands {
                                MYSQL_RES* result,
                                const std::function<void(const MYSQL_ROW)>& onRowResult,
                                const std::function<void(const std::string&, unsigned int)>& onError);
-        ~MariaDBFetchRowCommand();
 
-        int execute();
-        int start() override;
-        int cont(int status) override;
-
+        int commandStart() override;
+        int commandContinue(int status) override;
         void commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
 

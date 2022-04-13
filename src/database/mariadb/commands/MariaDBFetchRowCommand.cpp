@@ -41,12 +41,7 @@ namespace database::mariadb::commands {
         , onError(onError) {
     }
 
-    MariaDBFetchRowCommand::~MariaDBFetchRowCommand() {
-    }
-
-    int MariaDBFetchRowCommand::start() {
-        row = nullptr;
-
+    int MariaDBFetchRowCommand::commandStart() {
         int ret = 0;
 
         if (result != nullptr) {
@@ -56,7 +51,7 @@ namespace database::mariadb::commands {
         return ret;
     }
 
-    int MariaDBFetchRowCommand::cont(int status) {
+    int MariaDBFetchRowCommand::commandContinue(int status) {
         int ret = mysql_fetch_row_cont(&row, result, status);
 
         return ret;
@@ -65,11 +60,7 @@ namespace database::mariadb::commands {
     void MariaDBFetchRowCommand::commandCompleted() {
         onRowResult(row);
 
-        if (row != nullptr) {
-            mariaDBConnection->executeAsNext(
-                new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, result, onRowResult, onError));
-
-        } else {
+        if (row == nullptr) {
             mysql_free_result(result);
             mariaDBConnection->commandCompleted();
         }
