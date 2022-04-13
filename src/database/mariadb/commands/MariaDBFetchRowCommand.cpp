@@ -33,7 +33,7 @@ namespace database::mariadb::commands {
 
     MariaDBFetchRowCommand::MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection,
                                                    MYSQL_RES* result,
-                                                   const std::function<void(MYSQL_ROW row)>& onRowResult)
+                                                   const std::function<void(const MYSQL_ROW)>& onRowResult)
         : MariaDBCommand(mariaDBConnection, "FetschRow")
         , result(result)
         , onRowResult(onRowResult) {
@@ -61,9 +61,9 @@ namespace database::mariadb::commands {
     }
 
     void MariaDBFetchRowCommand::commandCompleted() {
-        if (row) {
-            onRowResult(row);
+        onRowResult(row);
 
+        if (row != nullptr) {
             mariaDBConnection->executeAsNext(
                 new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, result, onRowResult));
 

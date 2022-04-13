@@ -57,19 +57,22 @@ int main(int argc, char* argv[]) {
 
     db1.query(
         "DELETE FROM `snodec`",
-        [](void) -> void {
+        []([[maybe_unused]] const MYSQL_ROW row) -> void {
             VLOG(0) << "OnQuery";
+            //            VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
         },
         [](const std::string& errorString) -> void {
-            VLOG(0) << "Error: " << errorString;
+            VLOG(0) << "Error 0: " << errorString;
         });
 
     database::mariadb::MariaDBClient db2(details);
     {
         db2.query(
             "select * from snodec",
-            [](void) -> void {
-                VLOG(0) << "OnQuery 1";
+            [](const MYSQL_ROW row) -> void {
+                if (row != nullptr) {
+                    VLOG(0) << "Row Result 1: " << row[0] << " : " << row[1];
+                }
             },
             [](const std::string& errorString) -> void {
                 VLOG(0) << "Error 1: " << errorString;
@@ -77,23 +80,29 @@ int main(int argc, char* argv[]) {
 
         db2.query(
             "select * from snodec",
-            [&db2](void) -> void {
-                VLOG(0) << "OnQuery 2";
+            [&db2](const MYSQL_ROW row) -> void {
+                if (row != nullptr) {
+                    VLOG(0) << "Row Result 2: " << row[0] << " : " << row[1];
+                }
 
                 db2.query(
                     "select * from snodec",
-                    [&db2](void) -> void {
-                        VLOG(0) << "OnQuery 3";
+                    [&db2](const MYSQL_ROW row) -> void {
+                        if (row != nullptr) {
+                            VLOG(0) << "Row Result 3: " << row[0] << " : " << row[1];
+                        }
 
                         core::timer::Timer dbTimer1 = core::timer::Timer::intervalTimer(
-                            [&db2](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+                            [&db2](const void* arg, const std::function<void()>& stop) -> void {
                                 static int i = 0;
                                 std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
 
                                 db2.query(
                                     "select * from snodec",
-                                    [](void) -> void {
-                                        VLOG(0) << "OnQuery 4";
+                                    [](const MYSQL_ROW row) -> void {
+                                        if (row != nullptr) {
+                                            VLOG(0) << "Row Result 4: " << row[0] << " : " << row[1];
+                                        }
                                     },
                                     [stop](const std::string& errorString) -> void {
                                         VLOG(0) << "Error 4: " << errorString;
@@ -104,14 +113,16 @@ int main(int argc, char* argv[]) {
                             "Tick 2");
 
                         core::timer::Timer dbTimer2 = core::timer::Timer::intervalTimer(
-                            [&db2](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+                            [&db2](const void* arg, const std::function<void()>& stop) -> void {
                                 static int i = 0;
                                 std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
 
                                 db2.query(
                                     "select * from snodec",
-                                    [](void) -> void {
-                                        VLOG(0) << "OnQuery 5";
+                                    [](const MYSQL_ROW row) -> void {
+                                        if (row != nullptr) {
+                                            VLOG(0) << "Row Result 5: " << row[0] << " : " << row[1];
+                                        }
                                     },
                                     [stop](const std::string& errorString) -> void {
                                         VLOG(0) << "Error 5: " << errorString;
@@ -130,7 +141,7 @@ int main(int argc, char* argv[]) {
             });
 
         core::timer::Timer dbTimer = core::timer::Timer::intervalTimer(
-            [&db2](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+            [&db2](const void* arg, const std::function<void()>& stop) -> void {
                 static int i = 0;
                 std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
 

@@ -43,7 +43,7 @@ namespace database::mariadb {
     }
 
     void MariaDBClient::query(const std::string& sql,
-                              const std::function<void()>& onQuery,
+                              const std::function<void(const MYSQL_ROW)>& onQuery,
                               const std::function<void(const std::string&)> onError) {
         execute(new database::mariadb::commands::MariaDBQueryCommand(mariaDBConnection, sql, onQuery, onError));
     }

@@ -31,6 +31,8 @@ namespace database::mariadb {
 #include <functional>
 #include <string>
 
+typedef char** MYSQL_ROW;
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb {
@@ -40,7 +42,9 @@ namespace database::mariadb {
         explicit MariaDBClient(const MariaDBConnectionDetails& details);
         ~MariaDBClient();
 
-        void query(const std::string& sql, const std::function<void()>& onQuery, const std::function<void(const std::string&)> onError);
+        void query(const std::string& sql,
+                   const std::function<void(const MYSQL_ROW)>& onQuery,
+                   const std::function<void(const std::string&)> onError);
         void insert(const std::string& sql, const std::function<void()>& onQuery, const std::function<void(const std::string&)> onError);
 
         void disconnect(const std::function<void()>& onDisconnect);

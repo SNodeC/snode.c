@@ -31,6 +31,8 @@ namespace database::mariadb {
 #include <functional>
 #include <string>
 
+typedef char** MYSQL_ROW;
+
 // IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -41,7 +43,7 @@ namespace database::mariadb::commands {
     public:
         MariaDBQueryCommand(MariaDBConnection* mariaDBConnection,
                             const std::string& sql,
-                            const std::function<void(void)>& onQuery,
+                            const std::function<void(const MYSQL_ROW)>& onQuery,
                             const std::function<void(const std::string&)>& onError);
 
         int start() override;
@@ -56,7 +58,7 @@ namespace database::mariadb::commands {
         int ret;
 
         const std::string sql;
-        const std::function<void(void)> onQuery;
+        const std::function<void(const MYSQL_ROW)> onQuery;
         const std::function<void(const std::string&)> onError;
     };
 

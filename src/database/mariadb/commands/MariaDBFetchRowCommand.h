@@ -44,7 +44,7 @@ namespace database::mariadb::commands {
     public:
         MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection,
                                MYSQL_RES* result,
-                               const std::function<void(MYSQL_ROW row)>& onRowResult);
+                               const std::function<void(const MYSQL_ROW)>& onRowResult);
         ~MariaDBFetchRowCommand();
 
         int execute();
@@ -60,7 +60,7 @@ namespace database::mariadb::commands {
         MYSQL_RES* result = nullptr;
         MYSQL_ROW row = nullptr;
 
-        std::function<void(MYSQL_ROW row)> onRowResult;
+        std::function<void(const MYSQL_ROW)> onRowResult;
     };
 
 } // namespace database::mariadb::commands
