@@ -1,6 +1,7 @@
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ *               2021, 2022 Daniel Flockert
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,36 +17,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IntervalTimerStopable.h"
+#ifndef DATABASE_MARIADB_MARIADBCONNECTIONDETAILS
+#define DATABASE_MARIADB_MARIADBCONNECTIONDETAILS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::timer {
+namespace database::mariadb {
 
-    IntervalTimerStopable::IntervalTimerStopable(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
-                                                 const utils::Timeval& timeout,
-                                                 const void* arg,
-                                                 const std::string& name)
-        : core::TimerEventReceiver(name, timeout)
-        , dispatcher(dispatcher)
-        , arg(arg) {
-    }
+    struct MariaDBConnectionDetails {
+        std::string hostname;
+        std::string username;
+        std::string password;
+        std::string database;
+        unsigned int port = 0;
+        std::string socket;
+        unsigned int flags = 0;
+    };
 
-    void IntervalTimerStopable::dispatchEvent() {
-        dispatcher(arg, [this]() -> void {
-            stop = true;
-        });
-        if (stop) {
-            cancel();
-        } else {
-            update();
-        }
-    }
+} // namespace database::mariadb
 
-    void IntervalTimerStopable::unobservedEvent() {
-        delete this;
-    }
-
-} // namespace core::timer
+#endif // DATABASE_MARIADB_MARIADBCONNECTIONDETAILS

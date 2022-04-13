@@ -1,6 +1,7 @@
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ *               2021, 2022 Daniel Flockert
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,36 +17,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IntervalTimerStopable.h"
+#include "database/mariadb/MariaDBCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::timer {
+namespace database::mariadb {
 
-    IntervalTimerStopable::IntervalTimerStopable(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
-                                                 const utils::Timeval& timeout,
-                                                 const void* arg,
-                                                 const std::string& name)
-        : core::TimerEventReceiver(name, timeout)
-        , dispatcher(dispatcher)
-        , arg(arg) {
+    MariaDBCommand::MariaDBCommand(MariaDBConnection* mariaDBConnection, const std::string& name)
+        : name(name)
+        , mariaDBConnection(mariaDBConnection) {
     }
 
-    void IntervalTimerStopable::dispatchEvent() {
-        dispatcher(arg, [this]() -> void {
-            stop = true;
-        });
-        if (stop) {
-            cancel();
-        } else {
-            update();
-        }
+    int MariaDBCommand::start(MYSQL* mysql, const utils::Timeval& currentTime) {
+        this->mysql = mysql;
+        startTime = currentTime;
+
+        return start();
     }
 
-    void IntervalTimerStopable::unobservedEvent() {
-        delete this;
+    const std::string& MariaDBCommand::getName() {
+        return name;
     }
 
-} // namespace core::timer
+} // namespace database::mariadb

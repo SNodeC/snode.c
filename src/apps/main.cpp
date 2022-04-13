@@ -100,6 +100,7 @@ int timerApp() {
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+            stop();
         },
         1.1,
         "Tack");
@@ -203,10 +204,11 @@ int main(int argc, char** argv) {
     std::cout << "FileReader: " << test1.rflags << " : " << O_RDONLY << std::endl;
     std::cout << "FileWriter: " << test2.rflags << " : " << O_WRONLY << std::endl;
     std::cout << "FileIO: " << test3.rflags << " : " << O_RDWR << std::endl;
+    /*
+        express::legacy::in::WebApp::SocketAddress sa("185.156.72.27");
 
-    express::legacy::in::WebApp::SocketAddress sa("185.156.72.27");
-
-    VLOG(0) << "SocketAddress: " << sa.address() << " : " << sa.host() << " : " << sa.toString();
+        VLOG(0) << "SocketAddress: " << sa.address() << " : " << sa.host() << " : " << sa.toString();
+        */
 
     return timerApp();
 }

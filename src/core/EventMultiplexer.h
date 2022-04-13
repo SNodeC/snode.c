@@ -77,7 +77,7 @@ namespace core {
         TimerEventPublisher& getTimerEventPublisher();
 
         void publish(const core::Event* event);
-        void unPublish(const Event* event);
+        void unPublish(const core::Event* event);
 
         TickStatus tick(const utils::Timeval& tickTimeOut);
         void stop();

@@ -39,6 +39,7 @@ namespace core {
         virtual ~EventReceiver() = default;
 
         void publish() const;
+        void unPublish() const;
 
         virtual void dispatch(const utils::Timeval& currentTime) = 0;
 
