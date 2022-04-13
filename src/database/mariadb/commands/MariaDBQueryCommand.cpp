@@ -35,7 +35,7 @@ namespace database::mariadb::commands {
     MariaDBQueryCommand::MariaDBQueryCommand(MariaDBConnection* mariaDBConnection,
                                              const std::string& sql,
                                              const std::function<void(const MYSQL_ROW)>& onQuery,
-                                             const std::function<void(const std::string&)>& onError)
+                                             const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommand(mariaDBConnection, "Query")
         , sql(sql)
         , onQuery(onQuery)
@@ -57,15 +57,15 @@ namespace database::mariadb::commands {
         MYSQL_RES* result = mysql_use_result(mysql);
 
         if (ret == 0 && result != nullptr) {
-            mariaDBConnection->executeAsNext(new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, result, onQuery));
-
+            mariaDBConnection->executeAsNext(
+                new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, result, onQuery, onError));
         } else {
             mariaDBConnection->commandCompleted();
         }
     }
 
     void MariaDBQueryCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {
-        onError(errorString);
+        onError(errorString, errorNumber);
     }
 
     bool MariaDBQueryCommand::error() {

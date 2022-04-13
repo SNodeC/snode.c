@@ -32,7 +32,7 @@ namespace database::mariadb::commands {
     MariaDBInsertCommand::MariaDBInsertCommand(MariaDBConnection* mariaDBConnection,
                                                const std::string& sql,
                                                const std::function<void(void)>& onQuery,
-                                               const std::function<void(const std::string&)>& onError)
+                                               const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommand(mariaDBConnection, "Insert")
         , sql(sql)
         , onQuery(onQuery)
@@ -53,7 +53,7 @@ namespace database::mariadb::commands {
     }
 
     void MariaDBInsertCommand::commandError(const std::string& errorString, [[maybe_unused]] unsigned int errorNumber) {
-        onError(errorString);
+        onError(errorString, errorNumber);
     }
 
     bool MariaDBInsertCommand::error() {

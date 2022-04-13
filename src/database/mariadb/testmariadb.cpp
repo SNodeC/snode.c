@@ -44,25 +44,23 @@ int main(int argc, char* argv[]) {
     };
 
     database::mariadb::MariaDBClient db1(details);
-    /*
-        db1.insert(
-            "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-            [](void) -> void {
-                VLOG(0) << "OnQuery";
-            },
-            [](const std::string& errorString) -> void {
-                VLOG(0) << "Error: " << errorString;
-            });
-    */
+
+    db1.insert(
+        "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
+        [](void) -> void {
+            VLOG(0) << "OnQuery";
+        },
+        [](const std::string& errorString, unsigned int errorNumber) -> void {
+            VLOG(0) << "Error: " << errorString << " : " << errorNumber;
+        });
 
     db1.query(
         "DELETE FROM `snodec`",
         []([[maybe_unused]] const MYSQL_ROW row) -> void {
-            VLOG(0) << "OnQuery";
-            //            VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
+            VLOG(0) << "OnQuery 0";
         },
-        [](const std::string& errorString) -> void {
-            VLOG(0) << "Error 0: " << errorString;
+        [](const std::string& errorString, unsigned int errorNumber) -> void {
+            VLOG(0) << "Error 0: " << errorString << " : " << errorNumber;
         });
 
     database::mariadb::MariaDBClient db2(details);
@@ -74,8 +72,8 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "Row Result 1: " << row[0] << " : " << row[1];
                 }
             },
-            [](const std::string& errorString) -> void {
-                VLOG(0) << "Error 1: " << errorString;
+            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Error 1: " << errorString << " : " << errorNumber;
             });
 
         db2.query(
@@ -104,8 +102,8 @@ int main(int argc, char* argv[]) {
                                             VLOG(0) << "Row Result 4: " << row[0] << " : " << row[1];
                                         }
                                     },
-                                    [stop](const std::string& errorString) -> void {
-                                        VLOG(0) << "Error 4: " << errorString;
+                                    [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                                        VLOG(0) << "Error 4: " << errorString << " : " << errorNumber;
                                         stop();
                                     });
                             },
@@ -124,20 +122,20 @@ int main(int argc, char* argv[]) {
                                             VLOG(0) << "Row Result 5: " << row[0] << " : " << row[1];
                                         }
                                     },
-                                    [stop](const std::string& errorString) -> void {
-                                        VLOG(0) << "Error 5: " << errorString;
+                                    [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                                        VLOG(0) << "Error 5: " << errorString << " : " << errorNumber;
                                         stop();
                                     });
                             },
                             0.7,
                             "Tick 0.7");
                     },
-                    [](const std::string& errorString) -> void {
-                        VLOG(0) << "Error 3: " << errorString;
+                    [](const std::string& errorString, unsigned int errorNumber) -> void {
+                        VLOG(0) << "Error 3: " << errorString << " : " << errorNumber;
                     });
             },
-            [](const std::string& errorString) -> void {
-                VLOG(0) << "Error 2: " << errorString;
+            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Error 2: " << errorString << " : " << errorNumber;
             });
 
         core::timer::Timer dbTimer = core::timer::Timer::intervalTimer(
@@ -155,8 +153,8 @@ int main(int argc, char* argv[]) {
                     [j](void) -> void {
                         VLOG(0) << "OnQuery 6: " << j;
                     },
-                    [stop](const std::string& errorString) -> void {
-                        VLOG(0) << "Error 6: " << errorString;
+                    [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                        VLOG(0) << "Error 6: " << errorString << " : " << errorNumber;
                         stop();
                     });
             },

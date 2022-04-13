@@ -42,7 +42,7 @@ namespace database::mariadb::commands {
         MariaDBInsertCommand(MariaDBConnection* mariaDBConnection,
                              const std::string& sql,
                              const std::function<void(void)>& onQuery,
-                             const std::function<void(const std::string&)>& onError);
+                             const std::function<void(const std::string&, unsigned int)>& onError);
 
         int start() override;
         int cont(int status) override;
@@ -57,7 +57,7 @@ namespace database::mariadb::commands {
 
         const std::string sql;
         const std::function<void(void)> onQuery;
-        const std::function<void(const std::string&)> onError;
+        const std::function<void(const std::string&, unsigned int)> onError;
     };
 
 } // namespace database::mariadb::commands

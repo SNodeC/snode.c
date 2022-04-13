@@ -33,10 +33,12 @@ namespace database::mariadb::commands {
 
     MariaDBFetchRowCommand::MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection,
                                                    MYSQL_RES* result,
-                                                   const std::function<void(const MYSQL_ROW)>& onRowResult)
+                                                   const std::function<void(const MYSQL_ROW)>& onRowResult,
+                                                   const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommand(mariaDBConnection, "FetschRow")
         , result(result)
-        , onRowResult(onRowResult) {
+        , onRowResult(onRowResult)
+        , onError(onError) {
     }
 
     MariaDBFetchRowCommand::~MariaDBFetchRowCommand() {
@@ -65,7 +67,7 @@ namespace database::mariadb::commands {
 
         if (row != nullptr) {
             mariaDBConnection->executeAsNext(
-                new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, result, onRowResult));
+                new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, result, onRowResult, onError));
 
         } else {
             mysql_free_result(result);
@@ -74,7 +76,7 @@ namespace database::mariadb::commands {
     }
 
     void MariaDBFetchRowCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
-        VLOG(0) << "FetchRowError: " << errorString << ", errno = " << errorNumber;
+        onError(errorString, errorNumber);
     }
 
     bool MariaDBFetchRowCommand::error() {
