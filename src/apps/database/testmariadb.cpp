@@ -45,6 +45,15 @@ int main(int argc, char* argv[]) {
 
     database::mariadb::MariaDBClient db1(details);
 
+    db1.query(
+        "DELETE FROM `snodec`",
+        []([[maybe_unused]] const MYSQL_ROW row) -> void {
+            VLOG(0) << "OnQuery";
+        },
+        [](const std::string& errorString, unsigned int errorNumber) -> void {
+            VLOG(0) << "Error: " << errorString << " : " << errorNumber;
+        });
+
     db1.insert(
         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
         [](void) -> void {
@@ -55,12 +64,14 @@ int main(int argc, char* argv[]) {
         });
 
     db1.query(
-        "DELETE FROM `snodec`",
-        []([[maybe_unused]] const MYSQL_ROW row) -> void {
-            VLOG(0) << "OnQuery 0";
+        "select * from snodec",
+        [](const MYSQL_ROW row) -> void {
+            if (row != nullptr) {
+                VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
+            }
         },
         [](const std::string& errorString, unsigned int errorNumber) -> void {
-            VLOG(0) << "Error 0: " << errorString << " : " << errorNumber;
+            VLOG(0) << "Error: " << errorString << " : " << errorNumber;
         });
 
     database::mariadb::MariaDBClient db2(details);

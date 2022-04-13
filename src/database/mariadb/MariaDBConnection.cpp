@@ -118,10 +118,8 @@ namespace database::mariadb {
     void MariaDBConnection::commandCompleted() {
         commandQueue.pop_front();
 
-        if (currentCommand != nullptr) {
-            delete currentCommand;
-            currentCommand = nullptr;
-        }
+        delete currentCommand;
+        currentCommand = nullptr;
     }
 
     void MariaDBConnection::unmanaged() {

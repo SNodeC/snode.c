@@ -51,15 +51,13 @@ namespace database::mariadb::commands {
     }
 
     void MariaDBQueryCommand::commandCompleted() {
-        //        char* row[] = {(char*) "Hihi", (char*) "Haha"};
-        //        onQuery(row);
-
         MYSQL_RES* result = mysql_use_result(mysql);
 
-        if (ret == 0 && result != nullptr) {
+        if (result != nullptr) {
             mariaDBConnection->executeAsNext(
                 new database::mariadb::commands::MariaDBFetchRowCommand(mariaDBConnection, result, onQuery, onError));
         } else {
+            onQuery(nullptr);
             mariaDBConnection->commandCompleted();
         }
     }

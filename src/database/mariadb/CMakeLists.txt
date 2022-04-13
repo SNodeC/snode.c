@@ -53,14 +53,4 @@ if(MARIADB_FOUND)
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     )
 
-    add_executable(testmariadb testmariadb.cpp)
-    target_link_libraries(testmariadb db-mariadb)
-    target_include_directories(
-        testmariadb
-        PUBLIC ${MARIADB_INCLUDE_DIRS}
-               "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-               "$<INSTALL_INTERFACE:include/snode.c>"
-    )
-    install(TARGETS testmariadb RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 endif(MARIADB_FOUND)
