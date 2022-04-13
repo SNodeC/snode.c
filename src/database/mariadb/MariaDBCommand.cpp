@@ -26,8 +26,8 @@
 namespace database::mariadb {
 
     MariaDBCommand::MariaDBCommand(MariaDBConnection* mariaDBConnection, const std::string& name)
-        : mariaDBConnection(mariaDBConnection)
-        , name(name) {
+        : name(name)
+        , mariaDBConnection(mariaDBConnection) {
     }
 
     int MariaDBCommand::start(MYSQL* mysql, const utils::Timeval& currentTime) {

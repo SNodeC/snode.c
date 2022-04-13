@@ -52,5 +52,13 @@ if(MARIADB_FOUND)
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     )
+    install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION include/snode.c/database/mariadb
+        FILES_MATCHING
+        PATTERN "*.h"
+        PATTERN "*.hpp"
+        PATTERN "cmake" EXCLUDE
+    )
 
 endif(MARIADB_FOUND)

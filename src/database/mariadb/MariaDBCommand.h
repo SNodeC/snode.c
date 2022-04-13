@@ -41,22 +41,22 @@ namespace database::mariadb {
         MariaDBCommand(MariaDBConnection* mariaDBConnection, const std::string& name);
         virtual ~MariaDBCommand() = default;
 
+        const std::string& getName();
+
         int start(MYSQL* mysql, const utils::Timeval& currentTime);
 
         virtual int start() = 0;
         virtual int cont(int status) = 0;
-
-        const std::string& getName();
-
         virtual bool error() = 0;
 
         virtual void commandCompleted() = 0;
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
 
     protected:
-        MYSQL* mysql = nullptr;
-        MariaDBConnection* mariaDBConnection;
         std::string name;
+        MariaDBConnection* mariaDBConnection;
+
+        MYSQL* mysql = nullptr;
 
         utils::Timeval startTime = 0;
     };

@@ -55,6 +55,7 @@ namespace database::mariadb {
         void execute(MariaDBCommand* mariaDBCommand);
 
         void connectionVanished();
+
         MariaDBConnection* mariaDBConnection;
 
         friend class MariaDBConnection;
