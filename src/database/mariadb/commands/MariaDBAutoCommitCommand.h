@@ -17,10 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND
+#define DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND
 
 #include "database/mariadb/MariaDBCommand.h"
+#include "database/mariadb/MariaDBConnectionDetails.h"
 
 namespace database::mariadb {
     class MariaDBConnection;
@@ -30,7 +31,7 @@ namespace database::mariadb {
 
 #include <functional>
 #include <mysql.h>
-#include <string>
+#include <string> // for string
 
 // IWYU pragma: no_include "mysql.h"
 
@@ -38,12 +39,12 @@ namespace database::mariadb {
 
 namespace database::mariadb::commands {
 
-    class MariaDBQueryCommand : public MariaDBCommand {
+    class MariaDBAutoCommitCommand : public MariaDBCommand {
     public:
-        MariaDBQueryCommand(MariaDBConnection* mariaDBConnection,
-                            const std::string& sql,
-                            const std::function<void(const MYSQL_ROW)>& onQuery,
-                            const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBAutoCommitCommand(MariaDBConnection* mariaDBConnection,
+                                 my_bool autoCommit,
+                                 const std::function<void(void)>& onSet,
+                                 const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
         int commandContinue(int status) override;
@@ -53,12 +54,12 @@ namespace database::mariadb::commands {
         bool error() override;
 
     protected:
-        int ret;
+        my_bool ret = false;
+        bool autoCommit;
 
-        const std::string sql;
-        const std::function<void(const MYSQL_ROW)> onQuery;
+        const std::function<void(void)> onSet;
     };
 
 } // namespace database::mariadb::commands
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND

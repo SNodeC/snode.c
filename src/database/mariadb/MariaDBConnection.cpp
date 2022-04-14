@@ -45,7 +45,7 @@ namespace database::mariadb {
         , mysql(mysql_init(nullptr)) {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
 
-        commandQueue.push_back(new database::mariadb::commands::MariaDBConnectCommand(
+        execute(new database::mariadb::commands::MariaDBConnectCommand(
             this,
             connectionDetails,
             [](void) -> void {
@@ -54,25 +54,25 @@ namespace database::mariadb {
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
             }));
-
-        commandStartEvent.publish();
     }
 
     MariaDBConnection::~MariaDBConnection() {
-        mysql_close(mysql);
-        mysql_library_end();
-
         for (MariaDBCommand* mariaDBCommand : commandQueue) {
+            mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+
             delete mariaDBCommand;
         }
 
         if (mariaDBClient != nullptr) {
             mariaDBClient->connectionVanished();
         }
+
+        mysql_close(mysql);
+        mysql_library_end();
     }
 
     void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
-        if (connected && currentCommand == nullptr && commandQueue.empty()) {
+        if (currentCommand == nullptr && commandQueue.empty()) {
             commandStartEvent.publish();
         }
 
@@ -129,12 +129,14 @@ namespace database::mariadb {
     void MariaDBConnection::setFd(int status) {
         if ((status & MYSQL_WAIT_READ) != 0 || (status & MYSQL_WAIT_WRITE) != 0 || (status & MYSQL_WAIT_EXCEPT) != 0 ||
             (status == 0 && !currentCommand->error())) {
+            VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
             fd = mysql_get_socket(mysql);
 
             ReadEventReceiver::enable(fd);
             WriteEventReceiver::enable(fd);
             ExceptionalConditionEventReceiver::enable(fd);
 
+            //            ReadEventReceiver::suspend();
             WriteEventReceiver::suspend();
             ExceptionalConditionEventReceiver::suspend();
 
@@ -159,6 +161,15 @@ namespace database::mariadb {
                 delete this;
             }
         } else {
+            /*
+                        if ((status & MYSQL_WAIT_READ) != 0) {
+                            if (ReadEventReceiver::isSuspended()) {
+                                ReadEventReceiver::resume();
+                            }
+                        } else if (!ReadEventReceiver::isSuspended()) {
+                            ReadEventReceiver::suspend();
+                        }
+            */
             if ((status & MYSQL_WAIT_WRITE) != 0) {
                 if (WriteEventReceiver::isSuspended()) {
                     WriteEventReceiver::resume();

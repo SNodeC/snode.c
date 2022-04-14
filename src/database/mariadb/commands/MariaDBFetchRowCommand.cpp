@@ -20,12 +20,11 @@
 #include "database/mariadb/commands/MariaDBFetchRowCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
+#include "database/mariadb/commands/MariaDBFreeResultCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-
-#include <mysql.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,8 +59,15 @@ namespace database::mariadb::commands {
         onRowResult(row);
 
         if (row == nullptr) {
-            mysql_free_result(result);
-            mariaDBConnection->commandCompleted();
+            mariaDBConnection->executeAsNext(new database::mariadb::commands::MariaDBFreeResultCommand(
+                mariaDBConnection,
+                result,
+                [](void) -> void {
+                    VLOG(0) << "Free result success";
+                },
+                [](const std::string& errorString, unsigned int errorNumber) -> void {
+                    VLOG(0) << "Free result error: " << errorString << ", " << errorNumber;
+                }));
         }
     }
 

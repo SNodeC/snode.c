@@ -164,15 +164,47 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "Stop Stop";
                     stop();
                 }
+
                 int j = i;
-                db2.insert(
-                    "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-                    [j](void) -> void {
-                        VLOG(0) << "OnQuery 6: " << j;
+                db2.startTransactions(
+                    [&db2, j, stop](void) -> void {
+                        VLOG(0) << "Transactions activated";
+                        db2.insert(
+                            "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
+                            [j](void) -> void {
+                                VLOG(0) << "Inserted 7: " << j;
+                            },
+                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                                VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                stop();
+                            });
+                        /*
+                                                db2.rollback(
+                                                    [](void) -> void {
+                                                        VLOG(0) << "Rollback success";
+                                                    },
+                                                    [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                        VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
+                                                    });
+                        */
+                        db2.commit(
+                            [](void) -> void {
+                                VLOG(0) << "Commit success";
+                            },
+                            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                VLOG(0) << "Error 9: " << errorString << " : " << errorNumber;
+                            });
+
+                        db2.endTransactions(
+                            [](void) -> void {
+                                VLOG(0) << "Transactions deactivated";
+                            },
+                            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
+                            });
                     },
-                    [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                    [](const std::string& errorString, unsigned int errorNumber) -> void {
                         VLOG(0) << "Error 6: " << errorString << " : " << errorNumber;
-                        stop();
                     });
             },
             1,

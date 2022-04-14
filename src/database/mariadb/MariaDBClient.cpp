@@ -21,8 +21,11 @@
 
 #include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/MariaDBConnection.h"
+#include "database/mariadb/commands/MariaDBAutoCommitCommand.h"
+#include "database/mariadb/commands/MariaDBCommitCommand.h"
 #include "database/mariadb/commands/MariaDBInsertCommand.h"
 #include "database/mariadb/commands/MariaDBQueryCommand.h"
+#include "database/mariadb/commands/MariaDBRollbackCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,7 +36,7 @@
 namespace database::mariadb {
 
     MariaDBClient::MariaDBClient(const MariaDBConnectionDetails& details)
-        : mariaDBConnection(new MariaDBConnection(this, details)) {
+        : details(details) {
     }
 
     MariaDBClient::~MariaDBClient() {
@@ -45,21 +48,53 @@ namespace database::mariadb {
     void MariaDBClient::query(const std::string& sql,
                               const std::function<void(const MYSQL_ROW)>& onQuery,
                               const std::function<void(const std::string&, unsigned int)>& onError) {
-        execute(new database::mariadb::commands::MariaDBQueryCommand(mariaDBConnection, sql, onQuery, onError));
+        execute<database::mariadb::commands::MariaDBQueryCommand>(sql, onQuery, onError);
     }
 
     void MariaDBClient::insert(const std::string& sql,
                                const std::function<void()>& onQuery,
                                const std::function<void(const std::string&, unsigned int)>& onError) {
-        execute(new database::mariadb::commands::MariaDBInsertCommand(mariaDBConnection, sql, onQuery, onError));
+        execute<database::mariadb::commands::MariaDBInsertCommand>(sql, onQuery, onError);
     }
 
-    void MariaDBClient::execute(MariaDBCommand* mariaDBCommand) {
+    void MariaDBClient::startTransactions(const std::function<void()>& onSet,
+                                          const std::function<void(const std::string&, unsigned int)>& onError) {
+        execute<database::mariadb::commands::MariaDBAutoCommitCommand>(false, onSet, onError);
+    }
+
+    void MariaDBClient::endTransactions(const std::function<void()>& onUnset,
+                                        const std::function<void(const std::string&, unsigned int)>& onError) {
+        execute<database::mariadb::commands::MariaDBAutoCommitCommand>(true, onUnset, onError);
+    }
+
+    void MariaDBClient::commit(const std::function<void()>& onCommit,
+                               const std::function<void(const std::string&, unsigned int)>& onError) {
+        execute<database::mariadb::commands::MariaDBCommitCommand>(onCommit, onError);
+    }
+
+    void MariaDBClient::rollback(const std::function<void()>& onRollback,
+                                 const std::function<void(const std::string&, unsigned int)>& onError) {
+        execute<database::mariadb::commands::MariaDBRollbackCommand>(onRollback, onError);
+    }
+
+    template <typename CommandT>
+    void
+    MariaDBClient::execute(const auto& arg, const auto& onSuccess, const std::function<void(const std::string&, unsigned int)>& onError) {
+        if (mariaDBConnection == nullptr) {
+            mariaDBConnection = new MariaDBConnection(this, details);
+        }
         if (mariaDBConnection != nullptr) {
-            mariaDBConnection->execute(mariaDBCommand);
-        } else {
-            mariaDBCommand->commandError("No connection to database", 0);
-            delete mariaDBCommand;
+            mariaDBConnection->execute(new CommandT(mariaDBConnection, arg, onSuccess, onError));
+        }
+    }
+
+    template <typename CommandT>
+    void MariaDBClient::execute(const auto& onSuccess, const std::function<void(const std::string&, unsigned int)>& onError) {
+        if (mariaDBConnection == nullptr) {
+            mariaDBConnection = new MariaDBConnection(this, details);
+        }
+        if (mariaDBConnection != nullptr) {
+            mariaDBConnection->execute(new CommandT(mariaDBConnection, onSuccess, onError));
         }
     }
 

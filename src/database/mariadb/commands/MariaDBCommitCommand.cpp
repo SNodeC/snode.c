@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/MariaDBInsertCommand.h"
+#include "database/mariadb/commands/MariaDBCommitCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
@@ -27,33 +27,31 @@
 
 namespace database::mariadb::commands {
 
-    MariaDBInsertCommand::MariaDBInsertCommand(MariaDBConnection* mariaDBConnection,
-                                               const std::string& sql,
-                                               const std::function<void(void)>& onQuery,
+    MariaDBCommitCommand::MariaDBCommitCommand(MariaDBConnection* mariaDBConnection,
+                                               const std::function<void()>& onCommit,
                                                const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Insert", onError)
-        , sql(sql)
-        , onQuery(onQuery) {
+        : MariaDBCommand(mariaDBConnection, "AutoCommit", onError)
+        , onCommit(onCommit) {
     }
 
-    int MariaDBInsertCommand::commandStart() {
-        return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
+    int MariaDBCommitCommand::commandStart() {
+        return mysql_commit_start(&ret, mysql);
     }
 
-    int MariaDBInsertCommand::commandContinue(int status) {
-        return mysql_real_query_cont(&ret, mysql, status);
+    int MariaDBCommitCommand::commandContinue(int status) {
+        return mysql_commit_cont(&ret, mysql, status);
     }
 
-    void MariaDBInsertCommand::commandCompleted() {
-        onQuery();
+    void MariaDBCommitCommand::commandCompleted() {
+        onCommit();
         mariaDBConnection->commandCompleted();
     }
 
-    void MariaDBInsertCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
+    void MariaDBCommitCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
     }
 
-    bool MariaDBInsertCommand::error() {
+    bool MariaDBCommitCommand::error() {
         return ret != 0;
     }
 

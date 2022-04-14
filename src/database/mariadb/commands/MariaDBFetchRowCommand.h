@@ -29,10 +29,8 @@ namespace database::mariadb {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <mysql.h>
 #include <string>
-
-typedef struct st_mysql_res MYSQL_RES;
-typedef char** MYSQL_ROW;
 
 // IWYU pragma: no_include "mysql.h"
 

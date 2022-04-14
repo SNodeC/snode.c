@@ -17,44 +17,54 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/MariaDBInsertCommand.h"
+#include "database/mariadb/commands/MariaDBFreeResultCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands {
 
-    MariaDBInsertCommand::MariaDBInsertCommand(MariaDBConnection* mariaDBConnection,
-                                               const std::string& sql,
-                                               const std::function<void(void)>& onQuery,
-                                               const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Insert", onError)
-        , sql(sql)
-        , onQuery(onQuery) {
+    MariaDBFreeResultCommand::MariaDBFreeResultCommand(MariaDBConnection* mariaDBConnection,
+                                                       MYSQL_RES* result,
+                                                       const std::function<void(void)>& onFreed,
+                                                       const std::function<void(const std::string&, unsigned int)>& onError)
+        : MariaDBCommand(mariaDBConnection, "FetschRow", onError)
+        , result(result)
+        , onFreed(onFreed) {
     }
 
-    int MariaDBInsertCommand::commandStart() {
-        return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
+    int MariaDBFreeResultCommand::commandStart() {
+        int ret = 0;
+
+        if (result != nullptr) {
+            ret = mysql_free_result_start(result);
+        }
+
+        return ret;
     }
 
-    int MariaDBInsertCommand::commandContinue(int status) {
-        return mysql_real_query_cont(&ret, mysql, status);
+    int MariaDBFreeResultCommand::commandContinue(int status) {
+        int ret = mysql_free_result_cont(result, status);
+
+        return ret;
     }
 
-    void MariaDBInsertCommand::commandCompleted() {
-        onQuery();
+    void MariaDBFreeResultCommand::commandCompleted() {
+        onFreed();
         mariaDBConnection->commandCompleted();
     }
 
-    void MariaDBInsertCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
+    void MariaDBFreeResultCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
     }
 
-    bool MariaDBInsertCommand::error() {
-        return ret != 0;
+    bool MariaDBFreeResultCommand::error() {
+        return false;
     }
 
 } // namespace database::mariadb::commands

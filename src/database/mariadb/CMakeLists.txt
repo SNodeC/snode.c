@@ -10,10 +10,14 @@ if(MARIADB_FOUND)
         MariaDBClient.cpp
         MariaDBCommand.cpp
         MariaDBConnection.cpp
+        commands/MariaDBAutoCommitCommand.cpp
+        commands/MariaDBCommitCommand.cpp
         commands/MariaDBConnectCommand.cpp
         commands/MariaDBFetchRowCommand.cpp
-        commands/MariaDBQueryCommand.cpp
+        commands/MariaDBFreeResultCommand.cpp
         commands/MariaDBInsertCommand.cpp
+        commands/MariaDBQueryCommand.cpp
+        commands/MariaDBRollbackCommand.cpp
     )
 
     set(MARIADB_H
@@ -21,10 +25,14 @@ if(MARIADB_FOUND)
         MariaDBCommand.h
         MariaDBConnection.h
         MariaDBConnectionDetails.h
+        commands/MariaDBAutoCommitCommand.h
+        commands/MariaDBCommitCommand.h
         commands/MariaDBConnectCommand.h
         commands/MariaDBFetchRowCommand.h
-        commands/MariaDBQueryCommand.h
+        commands/MariaDBFreeResultCommand.h
         commands/MariaDBInsertCommand.h
+        commands/MariaDBQueryCommand.h
+        commands/MariaDBRollbackCommand.h
     )
 
     add_library(db-mariadb SHARED ${MARIADB_CPP} ${MARIADB_H})

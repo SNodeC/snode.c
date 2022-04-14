@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/MariaDBInsertCommand.h"
+#include "database/mariadb/commands/MariaDBAutoCommitCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
@@ -27,33 +27,33 @@
 
 namespace database::mariadb::commands {
 
-    MariaDBInsertCommand::MariaDBInsertCommand(MariaDBConnection* mariaDBConnection,
-                                               const std::string& sql,
-                                               const std::function<void(void)>& onQuery,
-                                               const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Insert", onError)
-        , sql(sql)
-        , onQuery(onQuery) {
+    MariaDBAutoCommitCommand::MariaDBAutoCommitCommand(MariaDBConnection* mariaDBConnection,
+                                                       my_bool autoCommit,
+                                                       const std::function<void()>& onSet,
+                                                       const std::function<void(const std::string&, unsigned int)>& onError)
+        : MariaDBCommand(mariaDBConnection, "AutoCommit", onError)
+        , autoCommit(autoCommit)
+        , onSet(onSet) {
     }
 
-    int MariaDBInsertCommand::commandStart() {
-        return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
+    int MariaDBAutoCommitCommand::commandStart() {
+        return mysql_autocommit_start(&ret, mysql, autoCommit);
     }
 
-    int MariaDBInsertCommand::commandContinue(int status) {
-        return mysql_real_query_cont(&ret, mysql, status);
+    int MariaDBAutoCommitCommand::commandContinue(int status) {
+        return mysql_autocommit_cont(&ret, mysql, status);
     }
 
-    void MariaDBInsertCommand::commandCompleted() {
-        onQuery();
+    void MariaDBAutoCommitCommand::commandCompleted() {
+        onSet();
         mariaDBConnection->commandCompleted();
     }
 
-    void MariaDBInsertCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
+    void MariaDBAutoCommitCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
     }
 
-    bool MariaDBInsertCommand::error() {
+    bool MariaDBAutoCommitCommand::error() {
         return ret != 0;
     }
 

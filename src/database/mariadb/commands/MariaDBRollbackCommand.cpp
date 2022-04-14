@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/MariaDBInsertCommand.h"
+#include "database/mariadb/commands/MariaDBRollbackCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
@@ -27,33 +27,31 @@
 
 namespace database::mariadb::commands {
 
-    MariaDBInsertCommand::MariaDBInsertCommand(MariaDBConnection* mariaDBConnection,
-                                               const std::string& sql,
-                                               const std::function<void(void)>& onQuery,
-                                               const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Insert", onError)
-        , sql(sql)
-        , onQuery(onQuery) {
+    MariaDBRollbackCommand::MariaDBRollbackCommand(MariaDBConnection* mariaDBConnection,
+                                                   const std::function<void()>& onRollback,
+                                                   const std::function<void(const std::string&, unsigned int)>& onError)
+        : MariaDBCommand(mariaDBConnection, "AutoCommit", onError)
+        , onRollback(onRollback) {
     }
 
-    int MariaDBInsertCommand::commandStart() {
-        return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
+    int MariaDBRollbackCommand::commandStart() {
+        return mysql_rollback_start(&ret, mysql);
     }
 
-    int MariaDBInsertCommand::commandContinue(int status) {
-        return mysql_real_query_cont(&ret, mysql, status);
+    int MariaDBRollbackCommand::commandContinue(int status) {
+        return mysql_rollback_cont(&ret, mysql, status);
     }
 
-    void MariaDBInsertCommand::commandCompleted() {
-        onQuery();
+    void MariaDBRollbackCommand::commandCompleted() {
+        onRollback();
         mariaDBConnection->commandCompleted();
     }
 
-    void MariaDBInsertCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
+    void MariaDBRollbackCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
     }
 
-    bool MariaDBInsertCommand::error() {
+    bool MariaDBRollbackCommand::error() {
         return ret != 0;
     }
 

@@ -30,9 +30,8 @@ namespace database::mariadb {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <mysql.h>
 #include <string> // for string
-
-typedef struct st_mysql MYSQL;
 
 // IWYU pragma: no_include "mysql.h"
 

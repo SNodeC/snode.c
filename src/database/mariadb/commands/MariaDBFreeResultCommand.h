@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
+#define DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
 
 #include "database/mariadb/MariaDBCommand.h"
 
@@ -38,12 +38,12 @@ namespace database::mariadb {
 
 namespace database::mariadb::commands {
 
-    class MariaDBQueryCommand : public MariaDBCommand {
+    class MariaDBFreeResultCommand : public MariaDBCommand {
     public:
-        MariaDBQueryCommand(MariaDBConnection* mariaDBConnection,
-                            const std::string& sql,
-                            const std::function<void(const MYSQL_ROW)>& onQuery,
-                            const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBFreeResultCommand(MariaDBConnection* mariaDBConnection,
+                                 MYSQL_RES* result,
+                                 const std::function<void(void)>& onFreed,
+                                 const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
         int commandContinue(int status) override;
@@ -52,13 +52,12 @@ namespace database::mariadb::commands {
 
         bool error() override;
 
-    protected:
-        int ret;
+    private:
+        MYSQL_RES* result = nullptr;
 
-        const std::string sql;
-        const std::function<void(const MYSQL_ROW)> onQuery;
+        std::function<void(void)> onFreed;
     };
 
 } // namespace database::mariadb::commands
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND

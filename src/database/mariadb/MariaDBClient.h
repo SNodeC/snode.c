@@ -20,8 +20,8 @@
 #ifndef DATABASE_MARIADB_MARIADBCLIENT
 #define DATABASE_MARIADB_MARIADBCLIENT
 
+#include "MariaDBConnectionDetails.h"
 namespace database::mariadb {
-    struct MariaDBConnectionDetails;
     class MariaDBConnection;
     class MariaDBCommand;
 } // namespace database::mariadb
@@ -49,14 +49,27 @@ namespace database::mariadb {
                     const std::function<void()>& onQuery,
                     const std::function<void(const std::string&, unsigned int)>& onError);
 
+        void startTransactions(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
+        void endTransactions(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
+
+        void commit(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
+
+        void rollback(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
+
         void disconnect(const std::function<void()>& onDisconnect);
 
     private:
-        void execute(MariaDBCommand* mariaDBCommand);
+        template <typename CommandT>
+        void execute(const auto& sql, const auto& onQuery, const std::function<void(const std::string&, unsigned int)>& onError);
+
+        template <typename CommandT>
+        void execute(const auto& onQuery, const std::function<void(const std::string&, unsigned int)>& onError);
 
         void connectionVanished();
 
-        MariaDBConnection* mariaDBConnection;
+        MariaDBConnection* mariaDBConnection = nullptr;
+
+        MariaDBConnectionDetails details;
 
         friend class MariaDBConnection;
     };
