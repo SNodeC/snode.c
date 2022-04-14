@@ -59,7 +59,6 @@ namespace database::mariadb::commands {
         const database::mariadb::MariaDBConnectionDetails details;
 
         const std::function<void(void)> onConnect;
-        const std::function<void(const std::string&, unsigned int)> onError;
     };
 
 } // namespace database::mariadb::commands

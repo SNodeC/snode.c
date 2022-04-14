@@ -35,10 +35,9 @@ namespace database::mariadb::commands {
                                                    MYSQL_RES* result,
                                                    const std::function<void(const MYSQL_ROW)>& onRowResult,
                                                    const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "FetschRow")
+        : MariaDBCommand(mariaDBConnection, "FetschRow", onError)
         , result(result)
-        , onRowResult(onRowResult)
-        , onError(onError) {
+        , onRowResult(onRowResult) {
     }
 
     int MariaDBFetchRowCommand::commandStart() {

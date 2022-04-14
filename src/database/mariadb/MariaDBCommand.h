@@ -30,6 +30,7 @@ typedef struct st_mysql MYSQL;
 
 #include "utils/Timeval.h"
 
+#include <functional>
 #include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -38,14 +39,19 @@ namespace database::mariadb {
 
     class MariaDBCommand {
     public:
-        MariaDBCommand(MariaDBConnection* mariaDBConnection, const std::string& name);
+        MariaDBCommand(MariaDBConnection* mariaDBConnection,
+                       const std::string& name,
+                       const std::function<void(const std::string&, unsigned int)>& onError);
         virtual ~MariaDBCommand() = default;
 
         const std::string& getName();
 
         int commandStart(MYSQL* mysql, const utils::Timeval& currentTime);
 
+    private:
         virtual int commandStart() = 0;
+
+    public:
         virtual int commandContinue(int status) = 0;
         virtual void commandCompleted() = 0;
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
@@ -59,6 +65,8 @@ namespace database::mariadb {
         MYSQL* mysql = nullptr;
 
         utils::Timeval startTime = 0;
+
+        const std::function<void(const std::string&, unsigned int)> onError;
     };
 
 } // namespace database::mariadb

@@ -59,7 +59,6 @@ namespace database::mariadb::commands {
         MYSQL_ROW row = nullptr;
 
         std::function<void(const MYSQL_ROW)> onRowResult;
-        std::function<void(const std::string&, unsigned int)> onError;
     };
 
 } // namespace database::mariadb::commands

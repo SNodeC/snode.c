@@ -36,10 +36,9 @@ namespace database::mariadb::commands {
                                              const std::string& sql,
                                              const std::function<void(const MYSQL_ROW)>& onQuery,
                                              const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Query")
+        : MariaDBCommand(mariaDBConnection, "Query", onError)
         , sql(sql)
-        , onQuery(onQuery)
-        , onError(onError) {
+        , onQuery(onQuery) {
     }
 
     int MariaDBQueryCommand::commandStart() {

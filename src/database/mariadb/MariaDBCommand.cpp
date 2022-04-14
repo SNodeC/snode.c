@@ -25,9 +25,12 @@
 
 namespace database::mariadb {
 
-    MariaDBCommand::MariaDBCommand(MariaDBConnection* mariaDBConnection, const std::string& name)
+    MariaDBCommand::MariaDBCommand(MariaDBConnection* mariaDBConnection,
+                                   const std::string& name,
+                                   const std::function<void(const std::string&, unsigned int)>& onError)
         : name(name)
-        , mariaDBConnection(mariaDBConnection) {
+        , mariaDBConnection(mariaDBConnection)
+        , onError(onError) {
     }
 
     int MariaDBCommand::commandStart(MYSQL* mysql, const utils::Timeval& currentTime) {

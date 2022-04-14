@@ -33,10 +33,9 @@ namespace database::mariadb::commands {
                                                const std::string& sql,
                                                const std::function<void(void)>& onQuery,
                                                const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Insert")
+        : MariaDBCommand(mariaDBConnection, "Insert", onError)
         , sql(sql)
-        , onQuery(onQuery)
-        , onError(onError) {
+        , onQuery(onQuery) {
     }
 
     int MariaDBInsertCommand::commandStart() {
