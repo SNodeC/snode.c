@@ -31,8 +31,6 @@ namespace utils {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_WRITE_INACTIVITY 60
-
 namespace core::eventreceiver {
 
     class InitAcceptEventReceiver : public core::EventReceiver {

@@ -77,24 +77,24 @@ namespace database::mariadb {
         execute<database::mariadb::commands::MariaDBRollbackCommand>(onRollback, onError);
     }
 
-    template <typename CommandT>
+    template <typename Command>
     void
     MariaDBClient::execute(const auto& arg, const auto& onSuccess, const std::function<void(const std::string&, unsigned int)>& onError) {
         if (mariaDBConnection == nullptr) {
             mariaDBConnection = new MariaDBConnection(this, details);
         }
         if (mariaDBConnection != nullptr) {
-            mariaDBConnection->execute(new CommandT(mariaDBConnection, arg, onSuccess, onError));
+            mariaDBConnection->execute(new Command(mariaDBConnection, arg, onSuccess, onError));
         }
     }
 
-    template <typename CommandT>
+    template <typename Command>
     void MariaDBClient::execute(const auto& onSuccess, const std::function<void(const std::string&, unsigned int)>& onError) {
         if (mariaDBConnection == nullptr) {
             mariaDBConnection = new MariaDBConnection(this, details);
         }
         if (mariaDBConnection != nullptr) {
-            mariaDBConnection->execute(new CommandT(mariaDBConnection, onSuccess, onError));
+            mariaDBConnection->execute(new Command(mariaDBConnection, onSuccess, onError));
         }
     }
 

@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     db1.query(
         "DELETE FROM `snodec`",
         []([[maybe_unused]] const MYSQL_ROW row) -> void {
-            VLOG(0) << "OnQuery";
+            VLOG(0) << "OnQuery A";
         },
         [](const std::string& errorString, unsigned int errorNumber) -> void {
             VLOG(0) << "Error: " << errorString << " : " << errorNumber;
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     db1.insert(
         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
         [](void) -> void {
-            VLOG(0) << "OnQuery";
+            VLOG(0) << "OnQuery B";
         },
         [](const std::string& errorString, unsigned int errorNumber) -> void {
             VLOG(0) << "Error: " << errorString << " : " << errorNumber;
@@ -74,6 +74,8 @@ int main(int argc, char* argv[]) {
         [](const MYSQL_ROW row) -> void {
             if (row != nullptr) {
                 VLOG(0) << "Row Result: " << row[0] << " : " << row[1];
+            } else {
+                VLOG(0) << "Row Result:";
             }
         },
         [](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -87,6 +89,8 @@ int main(int argc, char* argv[]) {
             [](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
                     VLOG(0) << "Row Result 1: " << row[0] << " : " << row[1];
+                } else {
+                    VLOG(0) << "Row Result 1:";
                 }
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -99,12 +103,16 @@ int main(int argc, char* argv[]) {
                 if (row != nullptr) {
                     VLOG(0) << "Row Result 2: " << row[0] << " : " << row[1];
                 } else {
+                    VLOG(0) << "Row Result 2:";
+
                     db2.query(
                         "select * from snodec",
                         [&db2](const MYSQL_ROW row) -> void {
                             if (row != nullptr) {
                                 VLOG(0) << "Row Result 3: " << row[0] << " : " << row[1];
                             } else { // After all results have been fetched
+                                VLOG(0) << "Row Result 3:";
+
                                 core::timer::Timer dbTimer1 = core::timer::Timer::intervalTimer(
                                     [&db2](const void* arg, const std::function<void()>& stop) -> void {
                                         static int i = 0;
@@ -115,6 +123,8 @@ int main(int argc, char* argv[]) {
                                             [](const MYSQL_ROW row) -> void {
                                                 if (row != nullptr) {
                                                     VLOG(0) << "Row Result 4: " << row[0] << " : " << row[1];
+                                                } else {
+                                                    VLOG(0) << "Row Result 4:";
                                                 }
                                             },
                                             [stop](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -135,6 +145,8 @@ int main(int argc, char* argv[]) {
                                             [](const MYSQL_ROW row) -> void {
                                                 if (row != nullptr) {
                                                     VLOG(0) << "Row Result 5: " << row[0] << " : " << row[1];
+                                                } else {
+                                                    VLOG(0) << "Row Result 5:";
                                                 }
                                             },
                                             [stop](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -203,8 +215,18 @@ int main(int argc, char* argv[]) {
                                 VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
                             });
                     },
-                    [](const std::string& errorString, unsigned int errorNumber) -> void {
+                    [&db2, stop](const std::string& errorString, unsigned int errorNumber) -> void {
                         VLOG(0) << "Error 6: " << errorString << " : " << errorNumber;
+
+                        db2.endTransactions(
+                            [](void) -> void {
+                                VLOG(0) << "Transactions deactivated";
+                            },
+                            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
+                            });
+
+                        // stop();
                     });
             },
             1,

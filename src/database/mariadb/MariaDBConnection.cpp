@@ -51,8 +51,9 @@ namespace database::mariadb {
             [this](int status) -> void {
                 if ((status & MYSQL_WAIT_READ) != 0 || (status & MYSQL_WAIT_WRITE) != 0 || (status & MYSQL_WAIT_EXCEPT) != 0 ||
                     (status == 0 && !currentCommand->error())) {
-                    VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
                     this->fd = mysql_get_socket(mysql);
+
+                    VLOG(0) << "Got valid descriptor: " << fd;
 
                     ReadEventReceiver::enable(fd);
                     WriteEventReceiver::enable(fd);
@@ -64,7 +65,7 @@ namespace database::mariadb {
 
                     connected = true;
                 } else {
-                    VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
+                    VLOG(0) << "Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
                 }
             },
             [](void) -> void {
@@ -100,7 +101,6 @@ namespace database::mariadb {
 
     void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {
         commandCompleted();
-
         commandQueue.push_front(mariaDBCommand);
     }
 
@@ -109,7 +109,6 @@ namespace database::mariadb {
             currentCommand = commandQueue.front();
 
             int status = currentCommand->commandStart(mysql, currentTime);
-
             checkStatus(status);
         } else {
             if (mariaDBClient == nullptr) {
@@ -123,7 +122,6 @@ namespace database::mariadb {
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
             int currentStatus = currentCommand->commandContinue(status);
-
             checkStatus(currentStatus);
         } else if ((status & MYSQL_WAIT_READ) != 0 && commandQueue.empty()) {
             VLOG(0) << "Read-Event but no command in queue: Disabling EventReceivers";
@@ -187,12 +185,12 @@ namespace database::mariadb {
 
             if ((status & MYSQL_WAIT_TIMEOUT) != 0) {
                 ReadEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
-                WriteEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
-                ExceptionalConditionEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
+                //                WriteEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
+                //                ExceptionalConditionEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
             } else {
                 ReadEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
-                WriteEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
-                ExceptionalConditionEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
+                //                WriteEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
+                //                ExceptionalConditionEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
             }
         }
     }

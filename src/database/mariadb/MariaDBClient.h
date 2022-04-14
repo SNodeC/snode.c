@@ -21,6 +21,7 @@
 #define DATABASE_MARIADB_MARIADBCLIENT
 
 #include "MariaDBConnectionDetails.h"
+
 namespace database::mariadb {
     class MariaDBConnection;
     class MariaDBCommand;
@@ -53,7 +54,6 @@ namespace database::mariadb {
         void endTransactions(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
 
         void commit(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
-
         void rollback(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
 
         void disconnect(const std::function<void()>& onDisconnect);
