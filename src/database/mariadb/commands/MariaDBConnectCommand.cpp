@@ -29,10 +29,12 @@ namespace database::mariadb::commands {
 
     MariaDBConnectCommand::MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
                                                  const MariaDBConnectionDetails& details,
+                                                 const std::function<void(int)>& onConnecting,
                                                  const std::function<void()>& onConnect,
                                                  const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommand(mariaDBConnection, "Connect", onError)
         , details(details)
+        , onConnecting(onConnecting)
         , onConnect(onConnect) {
     }
 
@@ -47,7 +49,7 @@ namespace database::mariadb::commands {
                                               details.socket.c_str(),
                                               details.flags);
 
-        mariaDBConnection->setFd(status);
+        onConnecting(status);
 
         return status;
     }

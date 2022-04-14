@@ -84,8 +84,6 @@ namespace database::mariadb {
 
         void unmanaged();
 
-        void setFd(int status);
-
     protected:
         void checkStatus(int status);
 

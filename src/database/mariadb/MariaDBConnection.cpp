@@ -48,6 +48,25 @@ namespace database::mariadb {
         execute(new database::mariadb::commands::MariaDBConnectCommand(
             this,
             connectionDetails,
+            [this](int status) -> void {
+                if ((status & MYSQL_WAIT_READ) != 0 || (status & MYSQL_WAIT_WRITE) != 0 || (status & MYSQL_WAIT_EXCEPT) != 0 ||
+                    (status == 0 && !currentCommand->error())) {
+                    VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
+                    this->fd = mysql_get_socket(mysql);
+
+                    ReadEventReceiver::enable(fd);
+                    WriteEventReceiver::enable(fd);
+                    ExceptionalConditionEventReceiver::enable(fd);
+
+                    //            ReadEventReceiver::suspend();
+                    WriteEventReceiver::suspend();
+                    ExceptionalConditionEventReceiver::suspend();
+
+                    connected = true;
+                } else {
+                    VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
+                }
+            },
             [](void) -> void {
                 VLOG(0) << "Connected";
             },
@@ -124,26 +143,6 @@ namespace database::mariadb {
 
     void MariaDBConnection::unmanaged() {
         mariaDBClient = nullptr;
-    }
-
-    void MariaDBConnection::setFd(int status) {
-        if ((status & MYSQL_WAIT_READ) != 0 || (status & MYSQL_WAIT_WRITE) != 0 || (status & MYSQL_WAIT_EXCEPT) != 0 ||
-            (status == 0 && !currentCommand->error())) {
-            VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
-            fd = mysql_get_socket(mysql);
-
-            ReadEventReceiver::enable(fd);
-            WriteEventReceiver::enable(fd);
-            ExceptionalConditionEventReceiver::enable(fd);
-
-            //            ReadEventReceiver::suspend();
-            WriteEventReceiver::suspend();
-            ExceptionalConditionEventReceiver::suspend();
-
-            connected = true;
-        } else {
-            VLOG(0) << "Mysql setFd-Error: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
-        }
     }
 
     void MariaDBConnection::checkStatus(int status) {

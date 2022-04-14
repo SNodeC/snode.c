@@ -43,6 +43,7 @@ namespace database::mariadb::commands {
     public:
         MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
                               const database::mariadb::MariaDBConnectionDetails& details,
+                              const std::function<void(int)>& onConnecting,
                               const std::function<void(void)>& onConnect,
                               const std::function<void(const std::string&, unsigned int)>& onError);
 
@@ -57,6 +58,7 @@ namespace database::mariadb::commands {
         MYSQL* ret = nullptr;
         const database::mariadb::MariaDBConnectionDetails details;
 
+        const std::function<void(int)> onConnecting;
         const std::function<void(void)> onConnect;
     };
 
