@@ -67,6 +67,10 @@ namespace database::mariadb::commands {
         onError(errorString, errorNumber);
     }
 
+    std::string MariaDBConnectCommand::commandInfo() {
+        return commandName() + ": " + details.hostname + ":" + std::to_string(details.port) + " | " + details.socket;
+    }
+
     bool MariaDBConnectCommand::error() {
         return ret == nullptr;
     }

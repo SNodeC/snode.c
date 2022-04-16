@@ -53,6 +53,10 @@ namespace database::mariadb::commands {
         onError(errorString, errorNumber);
     }
 
+    std::string MariaDBInsertCommand::commandInfo() {
+        return commandName() + ": " + sql;
+    }
+
     bool MariaDBInsertCommand::error() {
         return ret != 0;
     }

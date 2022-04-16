@@ -51,6 +51,7 @@ namespace database::mariadb::commands {
         int commandContinue(int status) override;
         void commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
+        std::string commandInfo() override;
 
         bool error() override;
 

@@ -75,6 +75,10 @@ namespace database::mariadb::commands {
         onError(errorString, errorNumber);
     }
 
+    std::string MariaDBFetchRowCommand::commandInfo() {
+        return commandName();
+    }
+
     bool MariaDBFetchRowCommand::error() {
         return result == nullptr;
     }

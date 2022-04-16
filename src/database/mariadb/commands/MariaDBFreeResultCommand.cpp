@@ -33,7 +33,7 @@ namespace database::mariadb::commands {
                                                        MYSQL_RES* result,
                                                        const std::function<void(void)>& onFreed,
                                                        const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "FetschRow", onError)
+        : MariaDBCommand(mariaDBConnection, "FreeResult", onError)
         , result(result)
         , onFreed(onFreed) {
     }
@@ -61,6 +61,10 @@ namespace database::mariadb::commands {
 
     void MariaDBFreeResultCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
+    }
+
+    std::string MariaDBFreeResultCommand::commandInfo() {
+        return commandName();
     }
 
     bool MariaDBFreeResultCommand::error() {

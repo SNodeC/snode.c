@@ -30,7 +30,7 @@ namespace database::mariadb::commands {
     MariaDBCommitCommand::MariaDBCommitCommand(MariaDBConnection* mariaDBConnection,
                                                const std::function<void()>& onCommit,
                                                const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "AutoCommit", onError)
+        : MariaDBCommand(mariaDBConnection, "Commit", onError)
         , onCommit(onCommit) {
     }
 
@@ -49,6 +49,10 @@ namespace database::mariadb::commands {
 
     void MariaDBCommitCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
+    }
+
+    std::string MariaDBCommitCommand::commandInfo() {
+        return commandName();
     }
 
     bool MariaDBCommitCommand::error() {

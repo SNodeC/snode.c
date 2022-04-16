@@ -44,7 +44,7 @@ namespace database::mariadb {
                        const std::function<void(const std::string&, unsigned int)>& onError);
         virtual ~MariaDBCommand() = default;
 
-        const std::string& getName();
+        const std::string& commandName();
 
         int commandStart(MYSQL* mysql, const utils::Timeval& currentTime);
 
@@ -55,6 +55,7 @@ namespace database::mariadb {
         virtual int commandContinue(int status) = 0;
         virtual void commandCompleted() = 0;
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
+        virtual std::string commandInfo() = 0;
 
         virtual bool error() = 0;
 

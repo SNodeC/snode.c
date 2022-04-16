@@ -53,6 +53,10 @@ namespace database::mariadb::commands {
         onError(errorString, errorNumber);
     }
 
+    std::string MariaDBAutoCommitCommand::commandInfo() {
+        return commandName() + ": AutoCommit = " + std::to_string(autoCommit);
+    }
+
     bool MariaDBAutoCommitCommand::error() {
         return ret != 0;
     }

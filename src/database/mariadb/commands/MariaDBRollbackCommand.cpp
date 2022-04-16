@@ -30,7 +30,7 @@ namespace database::mariadb::commands {
     MariaDBRollbackCommand::MariaDBRollbackCommand(MariaDBConnection* mariaDBConnection,
                                                    const std::function<void()>& onRollback,
                                                    const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "AutoCommit", onError)
+        : MariaDBCommand(mariaDBConnection, "Rollback", onError)
         , onRollback(onRollback) {
     }
 
@@ -49,6 +49,10 @@ namespace database::mariadb::commands {
 
     void MariaDBRollbackCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
+    }
+
+    std::string MariaDBRollbackCommand::commandInfo() {
+        return commandName();
     }
 
     bool MariaDBRollbackCommand::error() {

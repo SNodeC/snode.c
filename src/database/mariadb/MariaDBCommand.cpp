@@ -40,7 +40,7 @@ namespace database::mariadb {
         return commandStart();
     }
 
-    const std::string& MariaDBCommand::getName() {
+    const std::string& MariaDBCommand::commandName() {
         return name;
     }
 

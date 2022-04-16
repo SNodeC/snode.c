@@ -63,6 +63,10 @@ namespace database::mariadb::commands {
         onError(errorString, errorNumber);
     }
 
+    std::string MariaDBQueryCommand::commandInfo() {
+        return commandName() + ": " + sql;
+    }
+
     bool MariaDBQueryCommand::error() {
         return ret != 0;
     }
