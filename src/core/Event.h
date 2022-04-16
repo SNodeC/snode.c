@@ -25,6 +25,8 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 namespace utils {
     class Timeval;
 }
@@ -35,14 +37,23 @@ namespace core {
 
     class Event {
     public:
-        explicit Event(EventReceiver* eventReceiver);
+        explicit Event(EventReceiver* eventReceiver, const std::string& name);
 
         ~Event() = default;
 
+        void publish();
+        void unPublish();
+
+        const std::string& getName();
+
     private:
-        void dispatch(const utils::Timeval& currentTime) const;
+        void dispatch(const utils::Timeval& currentTime);
 
         EventReceiver* eventReceiver;
+
+        bool onTheWay = false;
+
+        std::string name;
 
         friend class EventMultiplexer;
     };

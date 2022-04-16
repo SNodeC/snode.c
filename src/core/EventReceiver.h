@@ -38,15 +38,12 @@ namespace core {
         EventReceiver(const std::string& name);
         virtual ~EventReceiver() = default;
 
-        void publish() const;
-        void unPublish() const;
+        void publish();
+        void unPublish();
 
         virtual void dispatch(const utils::Timeval& currentTime) = 0;
 
         const std::string& getName();
-
-    private:
-        std::string name;
 
     protected:
         Event event;
