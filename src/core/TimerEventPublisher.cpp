@@ -55,7 +55,7 @@ namespace core {
         }
     }
 
-    void TimerEventPublisher::unobsereDisableEvents() {
+    void TimerEventPublisher::unobserveDisableEvents() {
         for (TimerEventReceiver* timer : removedList) {
             timerList.erase(timer);
             timer->unobservedEvent();
@@ -87,7 +87,7 @@ namespace core {
             remove(timer);
         }
 
-        unobsereDisableEvents();
+        unobserveDisableEvents();
     }
 
     bool TimerEventPublisher::timernode_lt::operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {

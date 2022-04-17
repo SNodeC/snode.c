@@ -154,7 +154,7 @@ namespace core {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
             descriptorEventPublisher->unobserveDisabledEvents(currentTime);
         }
-        timerEventPublisher->unobsereDisableEvents();
+        timerEventPublisher->unobserveDisableEvents();
     }
 
     EventMultiplexer::EventQueue::EventQueue()
