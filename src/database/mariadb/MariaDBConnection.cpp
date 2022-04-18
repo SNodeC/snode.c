@@ -19,7 +19,6 @@
 
 #include "database/mariadb/MariaDBConnection.h"
 
-#include "core/DescriptorEventReceiver.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/commands/MariaDBConnectCommand.h"
@@ -59,7 +58,7 @@ namespace database::mariadb {
                     WriteEventReceiver::enable(fd);
                     ExceptionalConditionEventReceiver::enable(fd);
 
-                    //            ReadEventReceiver::suspend();
+                    //                    ReadEventReceiver::suspend();
                     WriteEventReceiver::suspend();
                     ExceptionalConditionEventReceiver::suspend();
 
@@ -108,21 +107,24 @@ namespace database::mariadb {
         if (!commandQueue.empty()) {
             currentCommand = commandQueue.front();
 
-            //            VLOG(0) << "Start: " << currentCommand->commandInfo();
+            // VLOG(0) << "Start: " << currentCommand->commandInfo();
+
             int status = currentCommand->commandStart(mysql, currentTime);
             checkStatus(status);
-        } else {
-            if (mariaDBClient == nullptr) {
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                ExceptionalConditionEventReceiver::disable();
+        } else if (mariaDBClient != nullptr) {
+            if (ReadEventReceiver::isSuspended()) {
+                ReadEventReceiver::resume();
             }
+        } else {
+            ReadEventReceiver::disable();
+            WriteEventReceiver::disable();
+            ExceptionalConditionEventReceiver::disable();
         }
     }
 
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
-            //            VLOG(0) << "Continue: " << currentCommand->commandInfo();
+            // VLOG(0) << "Continue: " << currentCommand->commandInfo();
             int currentStatus = currentCommand->commandContinue(status);
             checkStatus(currentStatus);
         } else if ((status & MYSQL_WAIT_READ) != 0 && commandQueue.empty()) {
@@ -135,7 +137,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        //        VLOG(0) << "Completed: " << currentCommand->commandInfo();
+        // VLOG(0) << "Completed: " << currentCommand->commandInfo();
         commandQueue.pop_front();
 
         delete currentCommand;
@@ -147,30 +149,15 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::checkStatus(int status) {
-        if (status == 0) {
-            if (connected) {
-                if (!currentCommand->error()) {
-                    currentCommand->commandCompleted();
-                } else {
-                    currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
-                    commandCompleted();
+        if (connected) {
+            if ((status & MYSQL_WAIT_READ) != 0) {
+                if (ReadEventReceiver::isSuspended()) {
+                    ReadEventReceiver::resume();
                 }
-                commandStartEvent.publish();
-            } else {
-                currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
-                commandCompleted();
-                delete this;
+            } else if (!ReadEventReceiver::isSuspended()) {
+                ReadEventReceiver::suspend();
             }
-        } else {
-            /*
-                        if ((status & MYSQL_WAIT_READ) != 0) {
-                            if (ReadEventReceiver::isSuspended()) {
-                                ReadEventReceiver::resume();
-                            }
-                        } else if (!ReadEventReceiver::isSuspended()) {
-                            ReadEventReceiver::suspend();
-                        }
-            */
+
             if ((status & MYSQL_WAIT_WRITE) != 0) {
                 if (WriteEventReceiver::isSuspended()) {
                     WriteEventReceiver::resume();
@@ -196,6 +183,20 @@ namespace database::mariadb {
                 //                WriteEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
                 //                ExceptionalConditionEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
             }
+
+            if (status == 0) {
+                if (!currentCommand->error()) {
+                    currentCommand->commandCompleted();
+                } else {
+                    currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+                    commandCompleted();
+                }
+                commandStartEvent.publish();
+            }
+        } else {
+            currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+            commandCompleted();
+            delete this;
         }
     }
 
