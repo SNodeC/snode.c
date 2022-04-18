@@ -19,6 +19,8 @@
 #include "DescriptorEventPublisher.h"
 
 #include "DescriptorEventReceiver.h"
+#include "EventLoop.h"
+#include "EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -61,6 +63,7 @@ namespace core {
 
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         if (observedEventReceiversDirty) {
+            observedEventReceiversDirty = false;
             std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
                 auto& [fd, observedEventReceiverList] = observedEventReceiversEntry; // cppcheck-suppress constVariable
                 DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
@@ -89,7 +92,8 @@ namespace core {
                 }
                 return observedEventReceiverList.empty();
             });
-            observedEventReceiversDirty = false;
+
+            EventLoop::instance().getEventMultiplexer().unobserveDisabledEvents(currentTime);
         }
     }
 

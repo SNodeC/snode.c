@@ -98,11 +98,12 @@ namespace core {
 
     protected:
         std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;
+        core::TimerEventPublisher* const timerEventPublisher;
 
     private:
         EventQueue eventQueue;
 
-        core::TimerEventPublisher* const timerEventPublisher;
+        friend class DescriptorEventPublisher;
     };
 
 } // namespace core
