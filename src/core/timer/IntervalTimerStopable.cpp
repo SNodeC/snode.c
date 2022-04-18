@@ -35,13 +35,9 @@ namespace core::timer {
 
     void IntervalTimerStopable::dispatchEvent() {
         dispatcher(arg, [this]() -> void {
-            stop = true;
-        });
-        if (stop) {
             cancel();
-        } else {
-            update();
-        }
+        });
+        update();
     }
 
     void IntervalTimerStopable::unobservedEvent() {

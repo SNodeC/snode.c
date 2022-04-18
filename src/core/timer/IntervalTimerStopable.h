@@ -48,7 +48,6 @@ namespace core::timer {
 
         std::function<void(const void*, const std::function<void()>&)> dispatcher = nullptr;
 
-        bool stop = false;
         const void* arg;
 
         friend class Timer;
