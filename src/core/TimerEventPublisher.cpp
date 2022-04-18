@@ -46,9 +46,9 @@ namespace core {
     }
 
     void TimerEventPublisher::publishActiveEvents(const utils::Timeval& currentTime) {
-        for (TimerEventReceiver* timer : timerList) {
-            if (timer->getTimeout() <= currentTime) {
-                timer->publish();
+        for (TimerEventReceiver* timerEventReceiver : timerList) {
+            if (timerEventReceiver->getTimeout() <= currentTime) {
+                timerEventReceiver->publish();
             } else {
                 break;
             }
@@ -56,9 +56,9 @@ namespace core {
     }
 
     void TimerEventPublisher::unobserveDisableEvents() {
-        for (TimerEventReceiver* timer : removedList) {
-            timerList.erase(timer);
-            timer->unobservedEvent();
+        for (TimerEventReceiver* timerEventReceiver : removedList) {
+            timerList.erase(timerEventReceiver);
+            timerEventReceiver->unobservedEvent();
         }
         removedList.clear();
     }
