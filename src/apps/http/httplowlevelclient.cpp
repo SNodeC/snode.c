@@ -18,12 +18,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                           // for CLIENTCERTF
-#include "core/SNodeC.h"                      // for SNodeC
-#include "core/socket/SocketContext.h"        // for SocketProtocol
-#include "core/socket/SocketContextFactory.h" // for SocketProtocolF...
-#include "log/Logger.h"                       // for Writer, Storage
-#include "net/in/stream/legacy/ClientConfig.h"
+#include "config.h"                            // for CLIENTCERTF
+#include "core/SNodeC.h"                       // for SNodeC
+#include "core/socket/SocketContext.h"         // for SocketProtocol
+#include "core/socket/SocketContextFactory.h"  // for SocketProtocolF...
+#include "log/Logger.h"                        // for Writer, Storage
 #include "net/in/stream/legacy/SocketClient.h" // for SocketC...
 #include "net/in/stream/tls/SocketClient.h"    // for SocketC...
 #include "web/http/client/ResponseParser.h"    // for ResponseParser
@@ -36,7 +35,6 @@
 #include <openssl/ssl3.h>     // for SSL_free, SSL_new
 #include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>   // for GENERAL_NAME
-#include <ostream>            // for size_t, endl
 #include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>...
 
@@ -71,7 +69,7 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::Socket
         [](std::vector<uint8_t> content) -> void {
             content.push_back(0);
 
-            VLOG(0) << "++   OnContent: " << content;
+            VLOG(0) << "++   OnContent: "; // << content.data();
         },
         [](web::http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
@@ -108,10 +106,12 @@ public:
 
     void onWriteError(int errnum) override {
         VLOG(0) << "OnWriteError: " << errnum;
+        shutdownRead();
     }
 
     void onReadError(int errnum) override {
         VLOG(0) << "OnReadError: " << errnum;
+        shutdownWrite();
     }
 
 private:
