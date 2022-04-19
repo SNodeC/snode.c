@@ -27,7 +27,6 @@
 
 #include "log/Logger.h"
 
-#include <mysql.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

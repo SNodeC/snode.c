@@ -29,7 +29,7 @@ namespace database::mariadb {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <mysql.h>
+#include <mysql.h> // IWYU pragma: export
 #include <string>
 
 // IWYU pragma: no_include "mysql.h"

@@ -20,13 +20,12 @@
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
-#include "database/mariadb/MariaDBConnectionDetails.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <mysql.h>
-#include <poll.h>
+#include <cstdlib>    // for atoi
+#include <functional> // for function
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

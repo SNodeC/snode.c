@@ -20,19 +20,19 @@
 #ifndef DATABASE_MARIADB_MARIADBCLIENT
 #define DATABASE_MARIADB_MARIADBCLIENT
 
-#include "MariaDBConnectionDetails.h"
+#include "database/mariadb/MariaDBConnectionDetails.h" // IWYU pragma: export
 
 namespace database::mariadb {
     class MariaDBConnection;
-    class MariaDBCommand;
 } // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <mysql.h> // IWYU pragma: export
 #include <string>
 
-typedef char** MYSQL_ROW;
+// IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

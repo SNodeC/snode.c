@@ -19,7 +19,6 @@
 
 #include "database/mariadb/MariaDBClient.h"
 
-#include "database/mariadb/MariaDBCommand.h"
 #include "database/mariadb/MariaDBConnection.h"
 #include "database/mariadb/commands/MariaDBAutoCommitCommand.h"
 #include "database/mariadb/commands/MariaDBCommitCommand.h"

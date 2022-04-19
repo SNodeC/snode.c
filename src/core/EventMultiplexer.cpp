@@ -26,8 +26,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <algorithm> // for min, max
 #include <cerrno>    // for EINTR, errno
 #include <numeric>

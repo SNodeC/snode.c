@@ -20,6 +20,7 @@
 #ifndef DATABASE_MARIADB_MARIADBCONNECTION
 #define DATABASE_MARIADB_MARIADBCONNECTION
 
+#include "core/DescriptorEventReceiver.h" // for EventReceiver, Timeval
 #include "core/eventreceiver/ExceptionalConditionEventReceiver.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
@@ -32,10 +33,8 @@ namespace database::mariadb {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
-
-typedef struct st_mysql MYSQL;
-
-// IWYU pragma: no_include "mysql.h"
+#include <mysql.h> // IWYU pragma export
+#include <string>  // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
