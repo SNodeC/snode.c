@@ -19,8 +19,6 @@
 #include "DescriptorEventPublisher.h"
 
 #include "DescriptorEventReceiver.h"
-#include "EventLoop.h"
-#include "EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -92,8 +90,6 @@ namespace core {
                 }
                 return observedEventReceiverList.empty();
             });
-
-            EventLoop::instance().getEventMultiplexer().unobserveDisabledEvents(currentTime);
         }
     }
 
@@ -114,12 +110,16 @@ namespace core {
     utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
-            const DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+        if (!observedEventReceiversDirty) {
+            for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
+                const DescriptorEventReceiver* eventReceiver = eventReceivers.front();
 
-            if (!eventReceiver->isSuspended()) {
-                nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
+                if (!eventReceiver->isSuspended()) {
+                    nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
+                }
             }
+        } else {
+            nextTimeout = 0;
         }
 
         return nextTimeout;
