@@ -19,6 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h" // just for this example app
+#include "database/mariadb/MariaDBClient.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
@@ -37,7 +38,7 @@
 
 using namespace express;
 
-Router router() {
+Router router(database::mariadb::MariaDBClient& db) {
     Router router;
 
     // http://localhost:8080/test/1/urlstring
@@ -45,8 +46,59 @@ Router router() {
         std::cout << "TEST" << std::endl;
     });
 
+    // http://localhost:8080/query/123
+    router.get("/query/:userId", [&db] APPLICATION(req, res) {
+        VLOG(0) << "UserId: " << req.params["userId"];
+        std::string userId = req.params["userId"];
+
+        std::string* table = new std::string("<html>\n"
+                                             "  <head>\n"
+                                             "    <title>"
+                                             "Response from snode.c for " +
+                                             userId +
+                                             "\n"
+                                             "    </title>\n"
+                                             "  </head>\n"
+                                             "  <body>\n"
+                                             "    <h1>Return for " +
+                                             userId +
+                                             "\n"
+                                             "    </h1>\n"
+                                             "  <body>\n"
+                                             "    <table border = \"1\">\n");
+
+        db.query(
+            "SELECT * FROM snodec where username = '" + userId + "'",
+            [&res, table](const MYSQL_ROW row) -> void {
+                if (row != nullptr) {
+                    table->append("      <tr>\n"
+                                  "        <td>\n" +
+                                  std::string(row[0]) +
+                                  "\n"
+                                  "        </td>\n"
+                                  "        <td>\n" +
+                                  row[1] +
+                                  "\n"
+                                  "        </td>\n"
+                                  "      </tr>\n");
+                } else {
+                    table->append(std::string("    </table>\n"
+                                              "  </body>\n"
+                                              "</html>\n"));
+                    VLOG(0) << "Output" << *table;
+                    res.send(*table);
+                    delete table;
+                }
+            },
+            [&res, userId, table](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Error: " << errorString << " : " << errorNumber;
+                res.status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
+                delete table;
+            });
+    });
+
     // http://localhost:8080/account/123/perfectNDSgroup
-    router.get("/account/:userId(\\d*)/:userName", [] APPLICATION(req, res) {
+    router.get("/account/:userId(\\d*)/:userName", [&db] APPLICATION(req, res) {
         VLOG(0) << "Show account of";
         VLOG(0) << "UserId: " << req.params["userId"];
         VLOG(0) << "UserName: " << req.params["userName"];
@@ -67,6 +119,18 @@ Router router() {
                                "    </ul>"
                                "  </body>"
                                "</html>";
+
+        std::string userId = req.params["userId"];
+        std::string userName = req.params["userName"];
+
+        db.insert(
+            "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
+            [userId, userName](void) -> void {
+                VLOG(0) << "Inserted: " << userId << " - " << userName;
+            },
+            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Error: " << errorString << " : " << errorNumber;
+            });
 
         res.send(response);
     });
@@ -116,9 +180,27 @@ Router router() {
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
+    database::mariadb::MariaDBConnectionDetails details = {
+        .hostname = "localhost",
+        .username = "snodec",
+        .password = "pentium5",
+        .database = "snodec",
+        .port = 3306,
+        .socket = "/run/mysqld/mysqld.sock",
+        .flags = 0,
+    };
+
+    // CREATE USER 'snodec'@localhost IDENTIFIED BY 'pentium5'
+    // GRANT ALL PRIVILEGES ON *.* TO 'snodec'@localhost
+    // GRANT ALL PRIVILEGES ON 'snodec'.'snodec' TO 'snodec'@localhost
+    // CREATE DATABASE 'snodec';
+    // CREATE TABLE 'snodec' ('username' text NOT NULL, 'password' text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+    database::mariadb::MariaDBClient db(details);
+
     legacy::in::WebApp legacyApp("legacy-testregex");
 
-    legacyApp.use(router());
+    legacyApp.use(router(db));
 
     legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, int err) -> void {
         if (err != 0) {
@@ -144,7 +226,7 @@ int main(int argc, char* argv[]) {
 
     tls::in::WebApp tlsApp("tls-testregex", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
-    tlsApp.use(router());
+    tlsApp.use(router(db));
 
     tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
         if (err != 0) {
