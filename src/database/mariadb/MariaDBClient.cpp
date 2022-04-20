@@ -51,8 +51,8 @@ namespace database::mariadb {
     }
 
     void MariaDBClient::exec(const std::string& sql,
-                               const std::function<void()>& onQuery,
-                               const std::function<void(const std::string&, unsigned int)>& onError) {
+                             const std::function<void(int)>& onQuery,
+                             const std::function<void(const std::string&, unsigned int)>& onError) {
         execute<database::mariadb::commands::MariaDBInsertCommand>(sql, onQuery, onError);
     }
 

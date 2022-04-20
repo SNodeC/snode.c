@@ -23,15 +23,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <mysql.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands {
 
     MariaDBInsertCommand::MariaDBInsertCommand(MariaDBConnection* mariaDBConnection,
                                                const std::string& sql,
-                                               const std::function<void(void)>& onQuery,
+                                               const std::function<void(my_ulonglong)>& onQuery,
                                                const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommand(mariaDBConnection, "Insert", onError)
         , sql(sql)
@@ -47,7 +45,7 @@ namespace database::mariadb::commands {
     }
 
     void MariaDBInsertCommand::commandCompleted() {
-        onQuery();
+        onQuery(mysql_affected_rows(mysql));
         mariaDBConnection->commandCompleted();
     }
 

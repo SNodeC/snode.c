@@ -61,8 +61,8 @@ int main(int argc, char* argv[]) {
 
     db1.exec(
         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-        [](void) -> void {
-            VLOG(0) << "OnQuery 1";
+        [](my_ulonglong affectedRows) -> void {
+            VLOG(0) << "OnQuery 1 Affected rows: " << affectedRows;
         },
         [](const std::string& errorString, unsigned int errorNumber) -> void {
             VLOG(0) << "Error 1: " << errorString << " : " << errorNumber;
@@ -194,8 +194,8 @@ int main(int argc, char* argv[]) {
 
                         db2.exec(
                             "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-                            [j](void) -> void {
-                                VLOG(0) << "Inserted 8: " << j;
+                            [j](my_ulonglong affectedRows) -> void {
+                                VLOG(0) << "Inserted 8: Affected rows = " << affectedRows << " - " << j;
                             },
                             [stop](const std::string& errorString, unsigned int errorNumber) -> void {
                                 VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
@@ -213,8 +213,8 @@ int main(int argc, char* argv[]) {
 
                         db2.exec(
                             "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-                            [j](void) -> void {
-                                VLOG(0) << "Inserted 10: " << j;
+                            [j](my_ulonglong affectedRows) -> void {
+                                VLOG(0) << "Inserted 10: Affected rows = " << affectedRows << " - " << j;
                             },
                             [stop](const std::string& errorString, unsigned int errorNumber) -> void {
                                 VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;

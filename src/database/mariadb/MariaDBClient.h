@@ -47,8 +47,8 @@ namespace database::mariadb {
                    const std::function<void(const MYSQL_ROW)>& onQuery,
                    const std::function<void(const std::string&, unsigned int)>& onError);
         void exec(const std::string& sql,
-                    const std::function<void()>& onQuery,
-                    const std::function<void(const std::string&, unsigned int)>& onError);
+                  const std::function<void(int)>& onQuery,
+                  const std::function<void(const std::string&, unsigned int)>& onError);
 
         void startTransactions(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
         void endTransactions(const std::function<void(void)>&, const std::function<void(const std::string&, unsigned int)>& onError);
