@@ -85,7 +85,7 @@ Router router(database::mariadb::MariaDBClient& db) {
                     table->append(std::string("    </table>\n"
                                               "  </body>\n"
                                               "</html>\n"));
-                    VLOG(0) << "Output" << *table;
+                    //                    VLOG(0) << "Output" << *table;
                     res.send(*table);
                     delete table;
                 }

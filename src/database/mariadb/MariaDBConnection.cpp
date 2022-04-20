@@ -57,7 +57,7 @@ namespace database::mariadb {
                     WriteEventReceiver::enable(fd);
                     ExceptionalConditionEventReceiver::enable(fd);
 
-                    //                    ReadEventReceiver::suspend();
+                    ReadEventReceiver::suspend();
                     WriteEventReceiver::suspend();
                     ExceptionalConditionEventReceiver::suspend();
 

@@ -131,19 +131,9 @@ foreach(NET IN LISTS NETS)
     endforeach()
 endforeach()
 
-
-add_executable(
-    httplowlevelclient httplowlevelclient.cpp
-)
+add_executable(httplowlevelclient httplowlevelclient.cpp)
 target_link_libraries(
-    httplowlevelclient
-    PUBLIC snodec::core-legacy snodec::core-tls snodec::net-in snodec::httpclient
+    httplowlevelclient PUBLIC snodec::core-legacy snodec::core-tls
+                              snodec::net-in snodec::httpclient
 )
-#target_compile_definitions(
-#    httpserver-${STREAM}-${NET}
-#    PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
-#            STREAM_TYPE=${STREAM_TYPE}
-#)
-install(TARGETS httplowlevelclient
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+install(TARGETS httplowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

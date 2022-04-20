@@ -41,6 +41,7 @@ namespace database::mariadb::commands {
 
     int MariaDBFetchRowCommand::commandStart() {
         int ret = 0;
+        row = nullptr;
 
         if (result != nullptr) {
             ret = mysql_fetch_row_start(&row, result);
