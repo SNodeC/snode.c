@@ -123,7 +123,7 @@ Router router(database::mariadb::MariaDBClient& db) {
         std::string userId = req.params["userId"];
         std::string userName = req.params["userName"];
 
-        db.insert(
+        db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
             [userId, userName](void) -> void {
                 VLOG(0) << "Inserted: " << userId << " - " << userName;

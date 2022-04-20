@@ -42,11 +42,11 @@ int main(int argc, char* argv[]) {
         .flags = 0,
     };
 
+    // CREATE DATABASE 'snodec';
+    // CREATE TABLE 'snodec' ('username' text NOT NULL, 'password' text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     // CREATE USER 'snodec'@localhost IDENTIFIED BY 'pentium5'
     // GRANT ALL PRIVILEGES ON *.* TO 'snodec'@localhost
     // GRANT ALL PRIVILEGES ON 'snodec'.'snodec' TO 'snodec'@localhost
-    // CREATE DATABASE 'snodec';
-    // CREATE TABLE 'snodec' ('username' text NOT NULL, 'password' text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 
     database::mariadb::MariaDBClient db1(details);
 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "Error 0: " << errorString << " : " << errorNumber;
         });
 
-    db1.insert(
+    db1.exec(
         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
         [](void) -> void {
             VLOG(0) << "OnQuery 1";
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
                     [&db2, j, stop](void) -> void {
                         VLOG(0) << "Transactions activated";
 
-                        db2.insert(
+                        db2.exec(
                             "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
                             [j](void) -> void {
                                 VLOG(0) << "Inserted 8: " << j;
@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
                                 stop();
                             });
 
-                        db2.insert(
+                        db2.exec(
                             "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
                             [j](void) -> void {
                                 VLOG(0) << "Inserted 10: " << j;
