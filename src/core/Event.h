@@ -51,7 +51,7 @@ namespace core {
 
         EventReceiver* eventReceiver;
 
-        bool onTheWay = false;
+        bool published = false;
 
         std::string name;
 

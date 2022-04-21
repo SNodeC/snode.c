@@ -36,13 +36,17 @@ namespace core {
     }
 
     void Event::publish() {
-        onTheWay = true;
-        core::EventLoop::instance().getEventMultiplexer().publish(this);
+        if (!published) {
+            published = true;
+            core::EventLoop::instance().getEventMultiplexer().publish(this);
+        }
     }
 
     void Event::unPublish() {
-        onTheWay = false;
-        core::EventLoop::instance().getEventMultiplexer().unPublish(this);
+        if (published) {
+            published = false;
+            core::EventLoop::instance().getEventMultiplexer().unPublish(this);
+        }
     }
 
     const std::string& Event::getName() {
@@ -50,7 +54,7 @@ namespace core {
     }
 
     void Event::dispatch(const utils::Timeval& currentTime) {
-        onTheWay = false;
+        published = false;
         eventReceiver->dispatch(currentTime);
     }
 

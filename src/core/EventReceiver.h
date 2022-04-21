@@ -36,7 +36,7 @@ namespace core {
     class EventReceiver {
     public:
         EventReceiver(const std::string& name);
-        virtual ~EventReceiver() = default;
+        virtual ~EventReceiver();
 
         void publish();
         void unPublish();
