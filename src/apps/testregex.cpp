@@ -38,6 +38,8 @@
 
 using namespace express;
 
+int i = 0;
+
 Router router(database::mariadb::MariaDBClient& db) {
     Router router;
 
@@ -66,12 +68,17 @@ Router router(database::mariadb::MariaDBClient& db) {
                                              "    </h1>\n"
                                              "  <body>\n"
                                              "    <table border = \"1\">\n");
-
+        i = 0;
         db.query(
             "SELECT * FROM snodec where username = '" + userId + "'",
             [&res, table](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
+                    i++;
                     table->append("      <tr>\n"
+                                  "        <td>\n" +
+                                  std::to_string(i) +
+                                  "\n"
+                                  "        </td>\n"
                                   "        <td>\n" +
                                   std::string(row[0]) +
                                   "\n"
