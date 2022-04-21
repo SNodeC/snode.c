@@ -51,6 +51,14 @@ namespace core::file {
         static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
 
         void dispatch(const utils::Timeval& currentTime) override;
+
+        void suspend();
+        void resume();
+
+        bool isSuspended();
+
+    private:
+        bool suspended = false;
     };
 
 } // namespace core::file

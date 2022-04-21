@@ -54,25 +54,40 @@ namespace core::file {
     }
 
     void FileReader::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static char junk[MFREADSIZE];
+        if (!suspended) {
+            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+            static char junk[MFREADSIZE];
 
-        ssize_t ret = core::system::read(getFd(), junk, MFREADSIZE);
+            ssize_t ret = core::system::read(getFd(), junk, MFREADSIZE);
 
-        if (ret > 0) {
-            if (this->send(junk, static_cast<std::size_t>(ret)) >= 0) {
-                publish();
+            if (ret > 0) {
+                if (send(junk, static_cast<std::size_t>(ret)) >= 0) {
+                    publish();
+                } else {
+                    delete this;
+                }
             } else {
+                if (ret == 0) {
+                    this->eof();
+                } else {
+                    this->error(errno);
+                }
                 delete this;
             }
-        } else {
-            if (ret == 0) {
-                this->eof();
-            } else {
-                this->error(errno);
-            }
-            delete this;
         }
+    }
+
+    void FileReader::suspend() {
+        suspended = true;
+    }
+
+    void FileReader::resume() {
+        suspended = false;
+        publish();
+    }
+
+    bool FileReader::isSuspended() {
+        return suspended;
     }
 
 } // namespace core::file
