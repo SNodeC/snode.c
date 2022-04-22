@@ -25,23 +25,23 @@
 namespace core {
 
     EventReceiver::EventReceiver(const std::string& name)
-        : event(this, name) {
+        : _event(this, name) {
     }
 
     EventReceiver::~EventReceiver() {
-        event.unPublish();
+        _event.unPublish();
     }
 
     void EventReceiver::publish() {
-        event.publish();
+        _event.publish();
     }
 
     void EventReceiver::unPublish() {
-        event.unPublish();
+        _event.unPublish();
     }
 
     const std::string& EventReceiver::getName() {
-        return event.getName();
+        return _event.getName();
     }
 
 } // namespace core

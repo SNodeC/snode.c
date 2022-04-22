@@ -30,7 +30,7 @@ namespace core::eventreceiver {
         : core::EventReceiver("InitConnectEventReceiver: " + name) {
     }
 
-    void InitConnectEventReceiver::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
+    void InitConnectEventReceiver::event([[maybe_unused]] const utils::Timeval& currentTime) {
         initConnectEvent();
     }
 

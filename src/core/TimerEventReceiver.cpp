@@ -66,7 +66,7 @@ namespace core {
         timerEventPublisher.remove(this);
     }
 
-    void TimerEventReceiver::dispatch(const utils::Timeval& currentTime) {
+    void TimerEventReceiver::event(const utils::Timeval& currentTime) {
         LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
 
         dispatchEvent();

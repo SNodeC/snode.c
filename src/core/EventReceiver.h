@@ -41,12 +41,12 @@ namespace core {
         void publish();
         void unPublish();
 
-        virtual void dispatch(const utils::Timeval& currentTime) = 0;
+        virtual void event(const utils::Timeval& currentTime) = 0;
 
         const std::string& getName();
 
     protected:
-        Event event;
+        Event _event;
     };
 
 } // namespace core

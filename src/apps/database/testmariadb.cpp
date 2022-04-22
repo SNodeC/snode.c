@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
 
                 int j = i;
                 db2.startTransactions(
-                    //                db2.insert(
+                    //                db2.exec(
                     //                    "START TRANSACTION",
                     [&db2, j, stop](void) -> void {
                         VLOG(0) << "Transactions activated";

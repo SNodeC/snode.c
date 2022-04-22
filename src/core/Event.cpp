@@ -55,7 +55,7 @@ namespace core {
 
     void Event::dispatch(const utils::Timeval& currentTime) {
         published = false;
-        eventReceiver->dispatch(currentTime);
+        eventReceiver->event(currentTime);
     }
 
 } // namespace core

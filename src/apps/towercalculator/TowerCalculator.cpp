@@ -32,7 +32,7 @@ void TowerCalculator::calculate() {
     }
 }
 
-void TowerCalculator::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
+void TowerCalculator::event([[maybe_unused]] const utils::Timeval& currentTime) {
     switch (state) {
         case State::MULTIPLY:
             if (multiplicator < 10) {

@@ -146,7 +146,7 @@ namespace core {
         return (maxInactivity >= 0) ? maxInactivity - (currentTime - lastTriggered) : TIMEOUT::MAX;
     }
 
-    void DescriptorEventReceiver::dispatch(const utils::Timeval& currentTime) {
+    void DescriptorEventReceiver::event(const utils::Timeval& currentTime) {
         if (!isSuspended()) {
             eventCounter++;
             triggered(currentTime);

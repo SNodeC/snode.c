@@ -38,7 +38,7 @@ namespace core::eventreceiver {
         InitConnectEventReceiver(const std::string& name);
 
     private:
-        void dispatch(const utils::Timeval& currentTime) override;
+        void event(const utils::Timeval& currentTime) override;
 
         virtual void initConnectEvent() = 0;
     };

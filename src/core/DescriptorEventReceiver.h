@@ -100,7 +100,7 @@ namespace core {
         virtual void terminate();
 
     private:
-        void dispatch(const utils::Timeval& currentTime) final;
+        void event(const utils::Timeval& currentTime) final;
         void triggered(const utils::Timeval& currentTime);
         void setEnabled(const utils::Timeval& currentTime = utils::Timeval::currentTime());
         void setDisabled();

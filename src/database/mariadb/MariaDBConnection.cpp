@@ -106,7 +106,7 @@ namespace database::mariadb {
         if (!commandQueue.empty()) {
             currentCommand = commandQueue.front();
 
-            // VLOG(0) << "Start: " << currentCommand->commandInfo();
+            VLOG(0) << "Start: " << currentCommand->commandInfo();
 
             int status = currentCommand->commandStart(mysql, currentTime);
             checkStatus(status);
@@ -123,7 +123,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
-            // VLOG(0) << "Continue: " << currentCommand->commandInfo();
+            VLOG(0) << "Continue: " << currentCommand->commandInfo();
             int currentStatus = currentCommand->commandContinue(status);
             checkStatus(currentStatus);
         } else if ((status & MYSQL_WAIT_READ) != 0 && commandQueue.empty()) {
@@ -136,7 +136,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        // VLOG(0) << "Completed: " << currentCommand->commandInfo();
+        VLOG(0) << "Completed: " << currentCommand->commandInfo();
         commandQueue.pop_front();
 
         delete currentCommand;
@@ -184,7 +184,9 @@ namespace database::mariadb {
             }
 
             if (status == 0) {
-                if (!currentCommand->error()) {
+                VLOG(0) << "********** Error: " << mysql_errno(mysql);
+                //                if (!currentCommand->error()) {
+                if (mysql_errno(mysql) == 0) {
                     currentCommand->commandCompleted();
                 } else {
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
@@ -193,6 +195,7 @@ namespace database::mariadb {
                 commandStartEvent.publish();
             }
         } else {
+            VLOG(0) << "********** Error1: " << mysql_errno(mysql);
             currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
             commandCompleted();
             delete this;
@@ -244,7 +247,7 @@ namespace database::mariadb {
         }
     }
 
-    void MariaDBCommandStartEvent::dispatch(const utils::Timeval& currentTime) {
+    void MariaDBCommandStartEvent::event(const utils::Timeval& currentTime) {
         published = false;
         mariaDBConnection->commandStart(currentTime);
     }

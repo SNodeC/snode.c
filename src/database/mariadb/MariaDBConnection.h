@@ -55,7 +55,7 @@ namespace database::mariadb {
         void publish();
 
     private:
-        void dispatch(const utils::Timeval& currentTime) override;
+        void event(const utils::Timeval& currentTime) override;
 
         MariaDBConnection* mariaDBConnection = nullptr;
 

@@ -54,7 +54,7 @@ namespace core {
         void cancel();
 
     private:
-        void dispatch(const utils::Timeval& currentTime) final;
+        void event(const utils::Timeval& currentTime) final;
 
         virtual void dispatchEvent() = 0;
         virtual void unobservedEvent() = 0;

@@ -30,7 +30,7 @@ namespace core::eventreceiver {
         : core::EventReceiver("InitAcceptEventReceiver: " + name) {
     }
 
-    void InitAcceptEventReceiver::dispatch([[maybe_unused]] const utils::Timeval& currentTime) {
+    void InitAcceptEventReceiver::event([[maybe_unused]] const utils::Timeval& currentTime) {
         initAcceptEvent();
     }
 
