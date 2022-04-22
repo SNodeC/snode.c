@@ -22,9 +22,4 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::config {
-
-    ConfigLegacy::ConfigLegacy() {
-    }
-
-} // namespace net::config
+namespace net::config {} // namespace net::config

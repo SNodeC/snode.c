@@ -32,8 +32,8 @@ namespace web::websocket::subprotocol::echo::client {
         return new Echo(getName());
     }
 
-    extern "C" void* echoClientSubProtocolFactory() {
-        return new EchoFactory(NAME);
-    }
-
 } // namespace web::websocket::subprotocol::echo::client
+
+extern "C" void* echoClientSubProtocolFactory() {
+    return new web::websocket::subprotocol::echo::client::EchoFactory(NAME);
+}

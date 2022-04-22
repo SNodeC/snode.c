@@ -41,8 +41,8 @@ namespace web::websocket::subprotocol::echo::server {
         web::websocket::SubProtocolFactory<Echo>::SubProtocol* create() override;
     };
 
-    extern "C" void* echoServerSubProtocolFactory();
-
 } // namespace web::websocket::subprotocol::echo::server
+
+extern "C" void* echoServerSubProtocolFactory();
 
 #endif // ECHOINTERFACE_H
