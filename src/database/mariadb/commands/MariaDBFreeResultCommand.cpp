@@ -65,8 +65,4 @@ namespace database::mariadb::commands {
         return commandName();
     }
 
-    bool MariaDBFreeResultCommand::error() {
-        return false;
-    }
-
 } // namespace database::mariadb::commands

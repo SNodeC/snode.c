@@ -46,10 +46,9 @@ namespace database::mariadb {
         execute(new database::mariadb::commands::MariaDBConnectCommand(
             this,
             connectionDetails,
-            [this](int status) -> void {
-                if ((status & MYSQL_WAIT_READ) != 0 || (status & MYSQL_WAIT_WRITE) != 0 || (status & MYSQL_WAIT_EXCEPT) != 0 ||
-                    (status == 0 && !currentCommand->error())) {
-                    this->fd = mysql_get_socket(mysql);
+            [this](void) -> void {
+                if (mysql_errno(mysql) == 0) {
+                    int fd = mysql_get_socket(mysql);
 
                     VLOG(0) << "Got valid descriptor: " << fd;
 
@@ -184,8 +183,6 @@ namespace database::mariadb {
             }
 
             if (status == 0) {
-                VLOG(0) << "********** Error: " << mysql_errno(mysql);
-                //                if (!currentCommand->error()) {
                 if (mysql_errno(mysql) == 0) {
                     currentCommand->commandCompleted();
                 } else {
@@ -195,7 +192,6 @@ namespace database::mariadb {
                 commandStartEvent.publish();
             }
         } else {
-            VLOG(0) << "********** Error1: " << mysql_errno(mysql);
             currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
             commandCompleted();
             delete this;

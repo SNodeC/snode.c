@@ -49,8 +49,6 @@ namespace database::mariadb::commands {
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
-        bool error() override;
-
     protected:
         my_bool ret = false;
 

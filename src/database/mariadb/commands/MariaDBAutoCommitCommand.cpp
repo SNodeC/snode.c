@@ -57,8 +57,4 @@ namespace database::mariadb::commands {
         return commandName() + ": AutoCommit = " + std::to_string(autoCommit);
     }
 
-    bool MariaDBAutoCommitCommand::error() {
-        return ret != 0;
-    }
-
 } // namespace database::mariadb::commands

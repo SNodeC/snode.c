@@ -55,8 +55,4 @@ namespace database::mariadb::commands {
         return commandName();
     }
 
-    bool MariaDBCommitCommand::error() {
-        return ret != 0;
-    }
-
 } // namespace database::mariadb::commands

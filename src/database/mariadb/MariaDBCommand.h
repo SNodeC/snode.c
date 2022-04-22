@@ -57,8 +57,6 @@ namespace database::mariadb {
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
         virtual std::string commandInfo() = 0;
 
-        virtual bool error() = 0;
-
     protected:
         std::string name;
         MariaDBConnection* mariaDBConnection;

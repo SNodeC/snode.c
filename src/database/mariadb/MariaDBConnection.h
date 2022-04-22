@@ -109,7 +109,7 @@ namespace database::mariadb {
 
         bool connected = false;
 
-        int fd;
+        //        int fd;
     };
 
 } // namespace database::mariadb

@@ -55,8 +55,4 @@ namespace database::mariadb::commands {
         return commandName();
     }
 
-    bool MariaDBRollbackCommand::error() {
-        return ret != 0;
-    }
-
 } // namespace database::mariadb::commands

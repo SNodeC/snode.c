@@ -31,8 +31,8 @@ namespace database::mariadb::commands {
 
     MariaDBConnectCommand::MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
                                                  const MariaDBConnectionDetails& details,
-                                                 const std::function<void(int)>& onConnecting,
-                                                 const std::function<void()>& onConnect,
+                                                 const std::function<void(void)>& onConnecting,
+                                                 const std::function<void(void)>& onConnect,
                                                  const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommand(mariaDBConnection, "Connect", onError)
         , details(details)
@@ -51,7 +51,7 @@ namespace database::mariadb::commands {
                                               details.socket.c_str(),
                                               details.flags);
 
-        onConnecting(status);
+        onConnecting();
 
         return status;
     }
@@ -71,10 +71,6 @@ namespace database::mariadb::commands {
 
     std::string MariaDBConnectCommand::commandInfo() {
         return commandName() + ": " + details.hostname + ":" + std::to_string(details.port) + " | " + details.socket;
-    }
-
-    bool MariaDBConnectCommand::error() {
-        return ret == nullptr;
     }
 
 } // namespace database::mariadb::commands

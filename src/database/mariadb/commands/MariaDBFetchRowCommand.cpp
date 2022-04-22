@@ -80,8 +80,4 @@ namespace database::mariadb::commands {
         return commandName();
     }
 
-    bool MariaDBFetchRowCommand::error() {
-        return result == nullptr;
-    }
-
 } // namespace database::mariadb::commands
