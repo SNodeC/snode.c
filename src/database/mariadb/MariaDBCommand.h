@@ -39,14 +39,14 @@ namespace database::mariadb {
 
     class MariaDBCommand {
     public:
-        MariaDBCommand(MariaDBConnection* mariaDBConnection,
-                       const std::string& name,
-                       const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBCommand(const std::string& name, const std::function<void(const std::string&, unsigned int)>& onError);
         virtual ~MariaDBCommand() = default;
 
         const std::string& commandName();
 
         int commandStart(MYSQL* mysql, const utils::Timeval& currentTime);
+
+        void setMariaDBConnection(MariaDBConnection* mariaDBConnection);
 
     private:
         virtual int commandStart() = 0;
@@ -59,7 +59,7 @@ namespace database::mariadb {
 
     protected:
         std::string name;
-        MariaDBConnection* mariaDBConnection;
+        MariaDBConnection* mariaDBConnection = nullptr;
 
         MYSQL* mysql = nullptr;
 

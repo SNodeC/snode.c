@@ -20,11 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_MARIADBFETCHROWCOMMAND
 #define DATABASE_MARIADB_COMMANDS_MARIADBFETCHROWCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h"
-
-namespace database::mariadb {
-    class MariaDBConnection;
-}
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,8 +36,7 @@ namespace database::mariadb::commands {
 
     class MariaDBFetchRowCommand : public MariaDBCommand {
     public:
-        MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection,
-                               MYSQL_RES* result,
+        MariaDBFetchRowCommand(MYSQL_RES* result,
                                const std::function<void(const MYSQL_ROW)>& onRowResult,
                                const std::function<void(const std::string&, unsigned int)>& onError);
 

@@ -25,11 +25,8 @@
 
 namespace database::mariadb {
 
-    MariaDBCommand::MariaDBCommand(MariaDBConnection* mariaDBConnection,
-                                   const std::string& name,
-                                   const std::function<void(const std::string&, unsigned int)>& onError)
+    MariaDBCommand::MariaDBCommand(const std::string& name, const std::function<void(const std::string&, unsigned int)>& onError)
         : name(name)
-        , mariaDBConnection(mariaDBConnection)
         , onError(onError) {
     }
 
@@ -38,6 +35,10 @@ namespace database::mariadb {
         startTime = currentTime;
 
         return commandStart();
+    }
+
+    void MariaDBCommand::setMariaDBConnection(MariaDBConnection* mariaDBConnection) {
+        this->mariaDBConnection = mariaDBConnection;
     }
 
     const std::string& MariaDBCommand::commandName() {

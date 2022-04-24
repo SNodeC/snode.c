@@ -17,11 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/MariaDBClient.h"
+#include "database/mariadb/MariaDBCommandSequence.h"
 
 #include "database/mariadb/MariaDBCommand.h"
-#include "database/mariadb/MariaDBCommandSequence.h"
-#include "database/mariadb/MariaDBConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,27 +27,34 @@
 
 namespace database::mariadb {
 
-    MariaDBClient::MariaDBClient(const MariaDBConnectionDetails& details)
-        : details(details) {
-    }
-
-    MariaDBClient::~MariaDBClient() {
-        if (mariaDBConnection != nullptr) {
-            mariaDBConnection->unmanaged();
-        }
-    }
-
-    MariaDBCommandSequence& MariaDBClient::execute(MariaDBCommand* mariaDBCommand) {
-        if (mariaDBConnection == nullptr) {
-            mariaDBConnection = new MariaDBConnection(this, details);
-        }
-
+    database::mariadb::MariaDBCommandSequence::MariaDBCommandSequence(database::mariadb::MariaDBConnection* mariaDBConnection,
+                                                                      MariaDBCommand* mariaDBCommand)
+        : mariaDBConnection(mariaDBConnection) {
         mariaDBCommand->setMariaDBConnection(mariaDBConnection);
-        return mariaDBConnection->execute(MariaDBCommandSequence(mariaDBConnection, mariaDBCommand));
+        commandSequence.push_back(mariaDBCommand);
     }
 
-    void MariaDBClient::connectionVanished() {
-        mariaDBConnection = nullptr;
+    std::deque<MariaDBCommand*>& database::mariadb::MariaDBCommandSequence::sequence() {
+        return commandSequence;
+    }
+
+    MariaDBCommand* MariaDBCommandSequence::nextCommand() {
+        return commandSequence.front();
+    }
+
+    void MariaDBCommandSequence::commandCompleted() {
+        commandSequence.pop_front();
+    }
+
+    bool MariaDBCommandSequence::empty() {
+        return commandSequence.empty();
+    }
+
+    MariaDBCommandSequence& database::mariadb::MariaDBCommandSequence::execute(MariaDBCommand* mariaDBCommand) {
+        mariaDBCommand->setMariaDBConnection(mariaDBConnection);
+        commandSequence.push_back(mariaDBCommand);
+
+        return *this;
     }
 
 } // namespace database::mariadb

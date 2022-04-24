@@ -20,11 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
 #define DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h"
-
-namespace database::mariadb {
-    class MariaDBConnection;
-}
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,8 +36,7 @@ namespace database::mariadb::commands {
 
     class MariaDBFreeResultCommand : public MariaDBCommand {
     public:
-        MariaDBFreeResultCommand(MariaDBConnection* mariaDBConnection,
-                                 MYSQL_RES* result,
+        MariaDBFreeResultCommand(MYSQL_RES* result,
                                  const std::function<void(void)>& onFreed,
                                  const std::function<void(const std::string&, unsigned int)>& onError);
 

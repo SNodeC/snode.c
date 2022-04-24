@@ -20,12 +20,8 @@
 #ifndef DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
 #define DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h"
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 #include "database/mariadb/MariaDBConnectionDetails.h"
-
-namespace database::mariadb {
-    class MariaDBConnection;
-}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -41,8 +37,7 @@ namespace database::mariadb::commands {
 
     class MariaDBConnectCommand : public MariaDBCommand {
     public:
-        MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
-                              const database::mariadb::MariaDBConnectionDetails& details,
+        MariaDBConnectCommand(const database::mariadb::MariaDBConnectionDetails& details,
                               const std::function<void(void)>& onConnecting,
                               const std::function<void(void)>& onConnect,
                               const std::function<void(const std::string&, unsigned int)>& onError);

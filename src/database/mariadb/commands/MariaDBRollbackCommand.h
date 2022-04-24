@@ -20,11 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_MARIADBROLLBACKCOMMAND
 #define DATABASE_MARIADB_COMMANDS_MARIADBROLLBACKCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h"
-
-namespace database::mariadb {
-    class MariaDBConnection;
-}
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,8 +36,7 @@ namespace database::mariadb::commands {
 
     class MariaDBRollbackCommand : public MariaDBCommand {
     public:
-        MariaDBRollbackCommand(MariaDBConnection* mariaDBConnection,
-                               const std::function<void(void)>& onRollback,
+        MariaDBRollbackCommand(const std::function<void(void)>& onRollback,
                                const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;

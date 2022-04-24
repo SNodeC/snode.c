@@ -17,21 +17,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_MARIADBCLIENT
-#define DATABASE_MARIADB_MARIADBCLIENT
+#ifndef DATABASE_MARIADB_MARIADBCOMMANDSEQUENCE
+#define DATABASE_MARIADB_MARIADBCOMMANDSEQUENCE
 
 #include "database/mariadb/MariaDBClientAPI.h"
 #include "database/mariadb/MariaDBConnectionDetails.h" // IWYU pragma: export
 
 namespace database::mariadb {
     class MariaDBCommand;
-    class MariaDBCommandSequence;
     class MariaDBConnection;
 } // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <mysql.h> // IWYU pragma: export
+#include <deque>
 
 // IWYU pragma: no_include "mysql.h"
 
@@ -39,23 +38,27 @@ namespace database::mariadb {
 
 namespace database::mariadb {
 
-    class MariaDBClient : public MariaDBClientAPI {
+    class MariaDBCommandSequence : public MariaDBClientAPI {
     public:
-        explicit MariaDBClient(const MariaDBConnectionDetails& details);
-        ~MariaDBClient() override;
+        explicit MariaDBCommandSequence(MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand);
+        ~MariaDBCommandSequence() override = default;
+
+        std::deque<MariaDBCommand*>& sequence();
+
+        MariaDBCommand* nextCommand();
+        void commandCompleted();
+        bool empty();
 
     private:
         MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) override;
 
-        void connectionVanished();
+        std::deque<MariaDBCommand*> commandSequence;
 
         MariaDBConnection* mariaDBConnection = nullptr;
-
-        MariaDBConnectionDetails details;
 
         friend class MariaDBConnection;
     };
 
 } // namespace database::mariadb
 
-#endif // DATABASE_MARIADB_MARIADBCLIENT
+#endif // DATABASE_MARIADB_MARIADBCOMMANDSEQUENCE

@@ -20,11 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND
 #define DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h"
-
-namespace database::mariadb {
-    class MariaDBConnection;
-}
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,8 +36,7 @@ namespace database::mariadb::commands {
 
     class MariaDBAutoCommitCommand : public MariaDBCommand {
     public:
-        MariaDBAutoCommitCommand(MariaDBConnection* mariaDBConnection,
-                                 my_bool autoCommit,
+        MariaDBAutoCommitCommand(my_bool autoCommit,
                                  const std::function<void(void)>& onSet,
                                  const std::function<void(const std::string&, unsigned int)>& onError);
 

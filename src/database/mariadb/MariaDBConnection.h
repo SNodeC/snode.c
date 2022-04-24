@@ -24,7 +24,7 @@
 #include "core/eventreceiver/ExceptionalConditionEventReceiver.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
-#include "database/mariadb/MariaDBConnectionDetails.h"
+#include "database/mariadb/MariaDBCommandSequence.h"
 
 namespace database::mariadb {
     class MariaDBCommand;
@@ -32,9 +32,9 @@ namespace database::mariadb {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
-#include <mysql.h> // IWYU pragma export
-#include <string>  // for string
+#include <deque>
+#include <mysql.h>
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -74,7 +74,7 @@ namespace database::mariadb {
 
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 
-        void execute(MariaDBCommand* mariaDBCommand);
+        MariaDBCommandSequence& execute(MariaDBCommandSequence&& commandSequence);
         void executeAsNext(MariaDBCommand* mariaDBCommand);
 
         void commandStart(const utils::Timeval& currentTime);
@@ -103,13 +103,11 @@ namespace database::mariadb {
 
         MYSQL* mysql;
 
-        std::list<MariaDBCommand*> commandQueue;
+        std::deque<MariaDBCommandSequence> commandSequenceQueue;
 
         MariaDBCommand* currentCommand = nullptr;
 
         bool connected = false;
-
-        //        int fd;
     };
 
 } // namespace database::mariadb

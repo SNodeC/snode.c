@@ -20,10 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_MARIADBCOMMITCOMMAND
 #define DATABASE_MARIADB_COMMANDS_MARIADBCOMMITCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h"
-namespace database::mariadb {
-    class MariaDBConnection;
-}
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,8 +36,7 @@ namespace database::mariadb::commands {
 
     class MariaDBCommitCommand : public MariaDBCommand {
     public:
-        MariaDBCommitCommand(MariaDBConnection* mariaDBConnection,
-                             const std::function<void(void)>& onCommit,
+        MariaDBCommitCommand(const std::function<void(void)>& onCommit,
                              const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
