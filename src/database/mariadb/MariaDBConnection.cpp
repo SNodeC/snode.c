@@ -102,11 +102,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {
-        mariaDBCommand->setMariaDBConnection(this);
-
-        commandSequenceQueue.front().sequence().pop_front();
-        commandSequenceQueue.front().sequence().push_front(mariaDBCommand);
-        commandSequenceQueue.front().sequence().push_front(currentCommand);
+        commandSequenceQueue.front().executeAsNext(mariaDBCommand);
 
         commandCompleted();
     }
