@@ -44,7 +44,6 @@ namespace database::mariadb {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
 
         execute(new database::mariadb::commands::MariaDBConnectCommand(
-            this,
             connectionDetails,
             [this](void) -> void {
                 if (mysql_errno(mysql) == 0) {
@@ -74,10 +73,12 @@ namespace database::mariadb {
     }
 
     MariaDBConnection::~MariaDBConnection() {
-        for (MariaDBCommand* mariaDBCommand : commandQueue) {
-            mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+        for (const std::deque<MariaDBCommand*>& mariaDBCommandSequence : commandSequenceQueue) {
+            for (MariaDBCommand* mariaDBCommand : mariaDBCommandSequence) {
+                mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
 
-            delete mariaDBCommand;
+                delete mariaDBCommand;
+            }
         }
 
         if (mariaDBClient != nullptr) {
@@ -89,21 +90,29 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
-        if (currentCommand == nullptr && commandQueue.empty()) {
+        mariaDBCommand->setMariaDBConnection(this);
+
+        if (currentCommand == nullptr && commandSequenceQueue.empty()) {
             commandStartEvent.publish();
         }
 
-        commandQueue.push_back(mariaDBCommand);
+        std::deque<MariaDBCommand*> mariaDBCommandSequence;
+        mariaDBCommandSequence.push_back(mariaDBCommand);
+
+        commandSequenceQueue.push_back(mariaDBCommandSequence);
     }
 
     void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {
+        mariaDBCommand->setMariaDBConnection(this);
+
+        commandSequenceQueue.front().push_back(mariaDBCommand);
+
         commandCompleted();
-        commandQueue.push_front(mariaDBCommand);
     }
 
     void MariaDBConnection::commandStart(const utils::Timeval& currentTime) {
-        if (!commandQueue.empty()) {
-            currentCommand = commandQueue.front();
+        if (!commandSequenceQueue.empty()) {
+            currentCommand = commandSequenceQueue.front().front();
 
             VLOG(0) << "Start: " << currentCommand->commandInfo();
 
@@ -125,7 +134,7 @@ namespace database::mariadb {
             VLOG(0) << "Continue: " << currentCommand->commandInfo();
             int currentStatus = currentCommand->commandContinue(status);
             checkStatus(currentStatus);
-        } else if ((status & MYSQL_WAIT_READ) != 0 && commandQueue.empty()) {
+        } else if ((status & MYSQL_WAIT_READ) != 0 && commandSequenceQueue.empty()) {
             VLOG(0) << "Read-Event but no command in queue: Disabling EventReceivers";
 
             ReadEventReceiver::disable();
@@ -136,7 +145,11 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandCompleted() {
         VLOG(0) << "Completed: " << currentCommand->commandInfo();
-        commandQueue.pop_front();
+        commandSequenceQueue.front().pop_front();
+
+        if (commandSequenceQueue.front().empty()) {
+            commandSequenceQueue.pop_front();
+        }
 
         delete currentCommand;
         currentCommand = nullptr;

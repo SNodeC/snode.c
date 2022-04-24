@@ -40,8 +40,7 @@ namespace database::mariadb::commands {
 
     class MariaDBInsertCommand : public MariaDBCommand {
     public:
-        MariaDBInsertCommand(MariaDBConnection* mariaDBConnection,
-                             const std::string& sql,
+        MariaDBInsertCommand(const std::string& sql,
                              const std::function<void(my_ulonglong)>& onQuery,
                              const std::function<void(const std::string&, unsigned int)>& onError);
 

@@ -40,8 +40,7 @@ namespace database::mariadb::commands {
 
     class MariaDBQueryCommand : public MariaDBCommand {
     public:
-        MariaDBQueryCommand(MariaDBConnection* mariaDBConnection,
-                            const std::string& sql,
+        MariaDBQueryCommand(const std::string& sql,
                             const std::function<void(const MYSQL_ROW)>& onQuery,
                             const std::function<void(const std::string&, unsigned int)>& onError);
 

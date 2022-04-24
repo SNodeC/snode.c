@@ -40,8 +40,7 @@ namespace database::mariadb::commands {
 
     class MariaDBFetchRowCommand : public MariaDBCommand {
     public:
-        MariaDBFetchRowCommand(MariaDBConnection* mariaDBConnection,
-                               MYSQL_RES* result,
+        MariaDBFetchRowCommand(MYSQL_RES* result,
                                const std::function<void(const MYSQL_ROW)>& onRowResult,
                                const std::function<void(const std::string&, unsigned int)>& onError);
 

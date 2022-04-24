@@ -83,7 +83,7 @@ namespace database::mariadb {
             mariaDBConnection = new MariaDBConnection(this, details);
         }
         if (mariaDBConnection != nullptr) {
-            mariaDBConnection->execute(new Command(mariaDBConnection, arg, onSuccess, onError));
+            mariaDBConnection->execute(new Command(arg, onSuccess, onError));
         }
     }
 
@@ -93,7 +93,7 @@ namespace database::mariadb {
             mariaDBConnection = new MariaDBConnection(this, details);
         }
         if (mariaDBConnection != nullptr) {
-            mariaDBConnection->execute(new Command(mariaDBConnection, onSuccess, onError));
+            mariaDBConnection->execute(new Command(onSuccess, onError));
         }
     }
 

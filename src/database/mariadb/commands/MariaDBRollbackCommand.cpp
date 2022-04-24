@@ -27,10 +27,9 @@
 
 namespace database::mariadb::commands {
 
-    MariaDBRollbackCommand::MariaDBRollbackCommand(MariaDBConnection* mariaDBConnection,
-                                                   const std::function<void()>& onRollback,
+    MariaDBRollbackCommand::MariaDBRollbackCommand(const std::function<void()>& onRollback,
                                                    const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Rollback", onError)
+        : MariaDBCommand("Rollback", onError)
         , onRollback(onRollback) {
     }
 

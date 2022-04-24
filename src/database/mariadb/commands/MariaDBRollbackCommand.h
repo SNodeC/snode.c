@@ -40,8 +40,7 @@ namespace database::mariadb::commands {
 
     class MariaDBRollbackCommand : public MariaDBCommand {
     public:
-        MariaDBRollbackCommand(MariaDBConnection* mariaDBConnection,
-                               const std::function<void(void)>& onRollback,
+        MariaDBRollbackCommand(const std::function<void(void)>& onRollback,
                                const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;

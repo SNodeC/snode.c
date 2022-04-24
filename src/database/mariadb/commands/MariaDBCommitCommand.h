@@ -39,8 +39,7 @@ namespace database::mariadb::commands {
 
     class MariaDBCommitCommand : public MariaDBCommand {
     public:
-        MariaDBCommitCommand(MariaDBConnection* mariaDBConnection,
-                             const std::function<void(void)>& onCommit,
+        MariaDBCommitCommand(const std::function<void(void)>& onCommit,
                              const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;

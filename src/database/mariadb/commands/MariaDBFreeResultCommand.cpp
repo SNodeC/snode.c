@@ -27,11 +27,10 @@
 
 namespace database::mariadb::commands {
 
-    MariaDBFreeResultCommand::MariaDBFreeResultCommand(MariaDBConnection* mariaDBConnection,
-                                                       MYSQL_RES* result,
+    MariaDBFreeResultCommand::MariaDBFreeResultCommand(MYSQL_RES* result,
                                                        const std::function<void(void)>& onFreed,
                                                        const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "FreeResult", onError)
+        : MariaDBCommand("FreeResult", onError)
         , result(result)
         , onFreed(onFreed) {
     }

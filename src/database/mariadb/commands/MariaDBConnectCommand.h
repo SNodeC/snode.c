@@ -41,8 +41,7 @@ namespace database::mariadb::commands {
 
     class MariaDBConnectCommand : public MariaDBCommand {
     public:
-        MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
-                              const database::mariadb::MariaDBConnectionDetails& details,
+        MariaDBConnectCommand(const database::mariadb::MariaDBConnectionDetails& details,
                               const std::function<void(void)>& onConnecting,
                               const std::function<void(void)>& onConnect,
                               const std::function<void(const std::string&, unsigned int)>& onError);

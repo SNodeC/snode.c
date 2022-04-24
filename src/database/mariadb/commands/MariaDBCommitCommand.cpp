@@ -27,10 +27,9 @@
 
 namespace database::mariadb::commands {
 
-    MariaDBCommitCommand::MariaDBCommitCommand(MariaDBConnection* mariaDBConnection,
-                                               const std::function<void()>& onCommit,
+    MariaDBCommitCommand::MariaDBCommitCommand(const std::function<void()>& onCommit,
                                                const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Commit", onError)
+        : MariaDBCommand("Commit", onError)
         , onCommit(onCommit) {
     }
 

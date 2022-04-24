@@ -32,7 +32,7 @@ namespace database::mariadb {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
+#include <deque>
 #include <mysql.h> // IWYU pragma export
 #include <string>  // for string
 
@@ -103,7 +103,7 @@ namespace database::mariadb {
 
         MYSQL* mysql;
 
-        std::list<MariaDBCommand*> commandQueue;
+        std::deque<std::deque<MariaDBCommand*>> commandSequenceQueue;
 
         MariaDBCommand* currentCommand = nullptr;
 

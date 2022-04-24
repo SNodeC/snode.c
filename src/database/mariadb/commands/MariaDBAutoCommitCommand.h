@@ -40,8 +40,7 @@ namespace database::mariadb::commands {
 
     class MariaDBAutoCommitCommand : public MariaDBCommand {
     public:
-        MariaDBAutoCommitCommand(MariaDBConnection* mariaDBConnection,
-                                 my_bool autoCommit,
+        MariaDBAutoCommitCommand(my_bool autoCommit,
                                  const std::function<void(void)>& onSet,
                                  const std::function<void(const std::string&, unsigned int)>& onError);
 

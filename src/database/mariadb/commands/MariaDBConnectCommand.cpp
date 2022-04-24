@@ -29,12 +29,11 @@
 
 namespace database::mariadb::commands {
 
-    MariaDBConnectCommand::MariaDBConnectCommand(MariaDBConnection* mariaDBConnection,
-                                                 const MariaDBConnectionDetails& details,
+    MariaDBConnectCommand::MariaDBConnectCommand(const MariaDBConnectionDetails& details,
                                                  const std::function<void(void)>& onConnecting,
                                                  const std::function<void(void)>& onConnect,
                                                  const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand(mariaDBConnection, "Connect", onError)
+        : MariaDBCommand("Connect", onError)
         , details(details)
         , onConnecting(onConnecting)
         , onConnect(onConnect) {
