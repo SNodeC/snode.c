@@ -8,7 +8,9 @@ if(MARIADB_FOUND)
 
     set(MARIADB_CPP
         MariaDBClient.cpp
+        MariaDBClientAPI.cpp
         MariaDBCommand.cpp
+        MariaDBCommandSequence.cpp
         MariaDBConnection.cpp
         commands/MariaDBAutoCommitCommand.cpp
         commands/MariaDBCommitCommand.cpp
@@ -22,7 +24,9 @@ if(MARIADB_FOUND)
 
     set(MARIADB_H
         MariaDBClient.h
+        MariaDBClientAPI.h
         MariaDBCommand.h
+        MariaDBCommandSequence.h
         MariaDBConnection.h
         MariaDBConnectionDetails.h
         commands/MariaDBAutoCommitCommand.h

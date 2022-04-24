@@ -20,11 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
 #define DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h"
-
-namespace database::mariadb {
-    class MariaDBConnection;
-}
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

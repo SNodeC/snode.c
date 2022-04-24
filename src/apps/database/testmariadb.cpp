@@ -20,6 +20,7 @@
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
+#include "database/mariadb/MariaDBCommandSequence.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -187,91 +188,83 @@ int main(int argc, char* argv[]) {
 
                 int j = i;
                 db2.startTransactions(
-                    //                db2.exec(
-                    //                    "START TRANSACTION",
-                    [&db2, j, stop](void) -> void {
-                        VLOG(0) << "Transactions activated";
+                       [](void) -> void {
+                           VLOG(0) << "Transactions activated";
+                       },
+                       [&db2, stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                           VLOG(0) << "Error 14: " << errorString << " : " << errorNumber;
 
-                        db2.exec(
-                            "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-                            [j](my_ulonglong affectedRows) -> void {
-                                VLOG(0) << "Inserted 8: Affected rows = " << affectedRows << " - " << j;
-                            },
-                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
-                                stop();
-                            });
-
-                        db2.rollback(
-                            [](void) -> void {
-                                VLOG(0) << "Rollback success 9";
-                            },
-                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                VLOG(0) << "Error 9: " << errorString << " : " << errorNumber;
-                                stop();
-                            });
-
-                        db2.exec(
-                            "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-                            [j](my_ulonglong affectedRows) -> void {
-                                VLOG(0) << "Inserted 10: Affected rows = " << affectedRows << " - " << j;
-                            },
-                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
-                                stop();
-                            });
-
-                        db2.commit(
-                            [](void) -> void {
-                                VLOG(0) << "Commit success 11";
-                            },
-                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                VLOG(0) << "Error 11: " << errorString << " : " << errorNumber;
-                                stop();
-                            });
-
-                        db2.endTransactions(
-                            [](void) -> void {
-                                VLOG(0) << "Transactions deactivated 12";
-                            },
-                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                VLOG(0) << "Error 12: " << errorString << " : " << errorNumber;
-                                stop();
-                            });
-
-                        db2.query(
-                            "SELECT COUNT(*) FROM snodec",
-                            [j, stop](const MYSQL_ROW row) -> void {
-                                if (row != nullptr) {
-                                    VLOG(0) << "Row Result count(*) 13: " << row[0];
-                                    if (std::atoi(row[0]) != j + 1) {
-                                        VLOG(0) << "Wrong number of rows 13: " << std::atoi(row[0]) << " != " << j + 1;
-                                        //                                        stop();
-                                    }
-                                } else {
-                                    VLOG(0) << "Row Result count(*): no result:";
+                           db2.endTransactions(
+                               [](void) -> void {
+                                   VLOG(0) << "Transactions deactivated 15:";
+                               },
+                               [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                                   VLOG(0) << "Error 15: " << errorString << " : " << errorNumber;
+                                   stop();
+                               });
+                       })
+                    .exec(
+                        "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
+                        [j](my_ulonglong affectedRows) -> void {
+                            VLOG(0) << "Inserted 8: Affected rows = " << affectedRows << " - " << j;
+                        },
+                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
+                            stop();
+                        })
+                    .rollback(
+                        [](void) -> void {
+                            VLOG(0) << "Rollback success 9";
+                        },
+                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 9: " << errorString << " : " << errorNumber;
+                            stop();
+                        })
+                    .exec(
+                        "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
+                        [j](my_ulonglong affectedRows) -> void {
+                            VLOG(0) << "Inserted 10: Affected rows = " << affectedRows << " - " << j;
+                        },
+                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
+                            stop();
+                        })
+                    .commit(
+                        [](void) -> void {
+                            VLOG(0) << "Commit success 11";
+                        },
+                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 11: " << errorString << " : " << errorNumber;
+                            stop();
+                        })
+                    .query(
+                        "SELECT COUNT(*) FROM snodec",
+                        [j, stop](const MYSQL_ROW row) -> void {
+                            if (row != nullptr) {
+                                VLOG(0) << "Row Result count(*) 13: " << row[0];
+                                if (std::atoi(row[0]) != j + 1) {
+                                    VLOG(0) << "Wrong number of rows 13: " << std::atoi(row[0]) << " != " << j + 1;
+                                    stop();
                                 }
-                            },
-                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                VLOG(0) << "Error 13: " << errorString << " : " << errorNumber;
-                                stop();
-                            });
-                    },
-                    [&db2, stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                        VLOG(0) << "Error 14: " << errorString << " : " << errorNumber;
-
-                        db2.endTransactions(
-                            [](void) -> void {
-                                VLOG(0) << "Transactions deactivated 15:";
-                            },
-                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                VLOG(0) << "Error 15: " << errorString << " : " << errorNumber;
-                                stop();
-                            });
-                    });
+                            } else {
+                                VLOG(0) << "Row Result count(*): no result:";
+                            }
+                        },
+                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 13: " << errorString << " : " << errorNumber;
+                            stop();
+                        })
+                    .endTransactions(
+                        [](void) -> void {
+                            VLOG(0) << "Transactions deactivated 12";
+                        },
+                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 12: " << errorString << " : " << errorNumber;
+                            stop();
+                        });
             },
-            0.05,
-            "Tick 0.05");
+            0.01,
+            "Tick 0.01");
     }
 
     return core::SNodeC::start();

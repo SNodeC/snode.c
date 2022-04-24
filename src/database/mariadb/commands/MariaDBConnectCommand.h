@@ -20,12 +20,8 @@
 #ifndef DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
 #define DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h"
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 #include "database/mariadb/MariaDBConnectionDetails.h"
-
-namespace database::mariadb {
-    class MariaDBConnection;
-}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
