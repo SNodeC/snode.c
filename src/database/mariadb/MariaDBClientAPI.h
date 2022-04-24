@@ -60,14 +60,7 @@ namespace database::mariadb {
         MariaDBCommandSequence& rollback(const std::function<void(void)>&,
                                          const std::function<void(const std::string&, unsigned int)>& onError);
 
-    protected:
-        template <typename CommandT>
-        MariaDBCommandSequence&
-        execute(const auto& sql, const auto& onQuery, const std::function<void(const std::string&, unsigned int)>& onError);
-
-        template <typename CommandT>
-        MariaDBCommandSequence& execute(const auto& onQuery, const std::function<void(const std::string&, unsigned int)>& onError);
-
+    private:
         virtual MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) = 0;
     };
 
