@@ -263,8 +263,8 @@ int main(int argc, char* argv[]) {
                             stop();
                         });
             },
-            0.01,
-            "Tick 0.01");
+            0.05,
+            "Tick 0.05");
     }
 
     return core::SNodeC::start();
