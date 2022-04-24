@@ -43,7 +43,7 @@ namespace database::mariadb {
         , mysql(mysql_init(nullptr)) {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
 
-        execute(new database::mariadb::commands::MariaDBConnectCommand(
+        execute(std::deque<MariaDBCommand*>({new database::mariadb::commands::MariaDBConnectCommand(
             connectionDetails,
             [this](void) -> void {
                 if (mysql_errno(mysql) == 0) {
@@ -69,7 +69,7 @@ namespace database::mariadb {
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
-            }));
+            })}));
     }
 
     MariaDBConnection::~MariaDBConnection() {
@@ -89,17 +89,15 @@ namespace database::mariadb {
         mysql_library_end();
     }
 
-    void MariaDBConnection::execute(MariaDBCommand* mariaDBCommand) {
-        mariaDBCommand->setMariaDBConnection(this);
-
+    void MariaDBConnection::execute(std::deque<MariaDBCommand*>&& commandSequence) {
+        for (MariaDBCommand* mariaDBCommand : commandSequence) {
+            mariaDBCommand->setMariaDBConnection(this);
+        }
         if (currentCommand == nullptr && commandSequenceQueue.empty()) {
             commandStartEvent.publish();
         }
 
-        std::deque<MariaDBCommand*> mariaDBCommandSequence;
-        mariaDBCommandSequence.push_back(mariaDBCommand);
-
-        commandSequenceQueue.push_back(mariaDBCommandSequence);
+        commandSequenceQueue.push_back(commandSequence);
     }
 
     void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {

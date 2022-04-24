@@ -30,6 +30,8 @@
 
 #include "log/Logger.h"
 
+#include <deque>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb {
@@ -83,7 +85,7 @@ namespace database::mariadb {
             mariaDBConnection = new MariaDBConnection(this, details);
         }
         if (mariaDBConnection != nullptr) {
-            mariaDBConnection->execute(new Command(arg, onSuccess, onError));
+            mariaDBConnection->execute(std::deque<MariaDBCommand*>({new Command(arg, onSuccess, onError)}));
         }
     }
 
@@ -93,7 +95,7 @@ namespace database::mariadb {
             mariaDBConnection = new MariaDBConnection(this, details);
         }
         if (mariaDBConnection != nullptr) {
-            mariaDBConnection->execute(new Command(onSuccess, onError));
+            mariaDBConnection->execute(std::deque<MariaDBCommand*>({new Command(onSuccess, onError)}));
         }
     }
 

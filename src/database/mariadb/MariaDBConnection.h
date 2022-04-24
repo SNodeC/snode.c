@@ -74,7 +74,7 @@ namespace database::mariadb {
 
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 
-        void execute(MariaDBCommand* mariaDBCommand);
+        void execute(std::deque<MariaDBCommand*>&& commandSequence);
         void executeAsNext(MariaDBCommand* mariaDBCommand);
 
         void commandStart(const utils::Timeval& currentTime);
