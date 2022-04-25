@@ -23,7 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

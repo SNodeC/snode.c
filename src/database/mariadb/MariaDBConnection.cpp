@@ -39,7 +39,6 @@ namespace database::mariadb {
         , ExceptionalConditionEventReceiver("MariaDBConnectionExceptional", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , mariaDBClient(mariaDBClient)
         , commandStartEvent("MariaDBCommandStartEvent", this)
-        , connectionDetails(connectionDetails)
         , mysql(mysql_init(nullptr)) {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
 

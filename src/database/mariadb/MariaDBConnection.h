@@ -20,15 +20,17 @@
 #ifndef DATABASE_MARIADB_MARIADBCONNECTION
 #define DATABASE_MARIADB_MARIADBCONNECTION
 
-#include "core/DescriptorEventReceiver.h" // for EventReceiver, Timeval
 #include "core/eventreceiver/ExceptionalConditionEventReceiver.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
-#include "database/mariadb/MariaDBCommandSequence.h"
+#include "database/mariadb/MariaDBCommandSequence.h" // IWYU pragma: export
 
 namespace database::mariadb {
     class MariaDBCommand;
-}
+    class MariaDBClient;
+    class MariaDBConnection;
+    struct MariaDBConnectionDetails;
+} // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,13 +41,8 @@ namespace database::mariadb {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb {
-    class MariaDBClient;
-    class MariaDBConnection;
-} // namespace database::mariadb
 
-namespace database::mariadb {
-
-    class MariaDBCommandStartEvent : public core::EventReceiver {
+    class MariaDBCommandStartEvent : private core::EventReceiver {
     public:
         MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
         ~MariaDBCommandStartEvent();
@@ -63,9 +60,9 @@ namespace database::mariadb {
     };
 
     class MariaDBConnection
-        : core::eventreceiver::ReadEventReceiver
-        , core::eventreceiver::WriteEventReceiver
-        , core::eventreceiver::ExceptionalConditionEventReceiver {
+        : private core::eventreceiver::ReadEventReceiver
+        , private core::eventreceiver::WriteEventReceiver
+        , private core::eventreceiver::ExceptionalConditionEventReceiver {
     public:
         explicit MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails);
         MariaDBConnection(const MariaDBConnection&) = delete;
@@ -99,7 +96,6 @@ namespace database::mariadb {
     private:
         MariaDBClient* mariaDBClient;
         MariaDBCommandStartEvent commandStartEvent;
-        MariaDBConnectionDetails connectionDetails;
 
         MYSQL* mysql;
 

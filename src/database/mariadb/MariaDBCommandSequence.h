@@ -21,7 +21,6 @@
 #define DATABASE_MARIADB_MARIADBCOMMANDSEQUENCE
 
 #include "database/mariadb/MariaDBClientAPI.h"
-#include "database/mariadb/MariaDBConnectionDetails.h" // IWYU pragma: export
 
 namespace database::mariadb {
     class MariaDBCommand;

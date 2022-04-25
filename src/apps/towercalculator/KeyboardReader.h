@@ -3,7 +3,6 @@
 
 #include "core/eventreceiver/ReadEventReceiver.h"
 
-#include <cstddef>
 #include <functional>
 
 class KeyboardReader : core::eventreceiver::ReadEventReceiver {

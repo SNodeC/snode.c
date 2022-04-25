@@ -51,38 +51,37 @@ int main(int argc, char* argv[]) {
 
     database::mariadb::MariaDBClient db1(details);
 
-    db1.query(
-        "DELETE FROM `snodec`",
-        []([[maybe_unused]] const MYSQL_ROW row) -> void {
-            VLOG(0) << "OnQuery 0";
-        },
-        [](const std::string& errorString, unsigned int errorNumber) -> void {
-            VLOG(0) << "Error 0: " << errorString << " : " << errorNumber;
-        });
-
-    db1.exec(
-        "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-        [](my_ulonglong affectedRows) -> void {
-            VLOG(0) << "OnQuery 1 Affected rows: " << affectedRows;
-        },
-        [](const std::string& errorString, unsigned int errorNumber) -> void {
-            VLOG(0) << "Error 1: " << errorString << " : " << errorNumber;
-        });
-
     int r = 0;
+
     db1.query(
-        "SELECT * FROM snodec",
-        [&](const MYSQL_ROW row) -> void {
-            if (row != nullptr) {
-                VLOG(0) << "Row Result 2: " << row[0] << " : " << row[1];
-                r++;
-            } else {
-                VLOG(0) << "Row Result 2: " << r;
-            }
-        },
-        [&](const std::string& errorString, unsigned int errorNumber) -> void {
-            VLOG(0) << "Error 2: " << errorString << " : " << errorNumber;
-        });
+           "DELETE FROM `snodec`",
+           []([[maybe_unused]] const MYSQL_ROW row) -> void {
+               VLOG(0) << "OnQuery 0";
+           },
+           [](const std::string& errorString, unsigned int errorNumber) -> void {
+               VLOG(0) << "Error 0: " << errorString << " : " << errorNumber;
+           })
+        .exec(
+            "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
+            [](my_ulonglong affectedRows) -> void {
+                VLOG(0) << "OnQuery 1 Affected rows: " << affectedRows;
+            },
+            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Error 1: " << errorString << " : " << errorNumber;
+            })
+        .query(
+            "SELECT * FROM snodec",
+            [&](const MYSQL_ROW row) -> void {
+                if (row != nullptr) {
+                    VLOG(0) << "Row Result 2: " << row[0] << " : " << row[1];
+                    r++;
+                } else {
+                    VLOG(0) << "Row Result 2: " << r;
+                }
+            },
+            [&](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Error 2: " << errorString << " : " << errorNumber;
+            });
 
     database::mariadb::MariaDBClient db2(details);
     {
