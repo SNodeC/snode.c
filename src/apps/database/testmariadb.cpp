@@ -192,34 +192,17 @@ int main(int argc, char* argv[]) {
                            VLOG(0) << "Transactions activated";
                        },
                        [&db2, stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                           VLOG(0) << "Error 14: " << errorString << " : " << errorNumber;
+                           VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
 
                            db2.endTransactions(
                                [](void) -> void {
                                    VLOG(0) << "Transactions deactivated 15:";
                                },
                                [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                   VLOG(0) << "Error 15: " << errorString << " : " << errorNumber;
+                                   VLOG(0) << "Error 9: " << errorString << " : " << errorNumber;
                                    stop();
                                });
                        })
-                    .exec(
-                        "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-                        [j](my_ulonglong affectedRows) -> void {
-                            VLOG(0) << "Inserted 8: Affected rows = " << affectedRows << " - " << j;
-                        },
-                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
-                            stop();
-                        })
-                    .rollback(
-                        [](void) -> void {
-                            VLOG(0) << "Rollback success 9";
-                        },
-                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            VLOG(0) << "Error 9: " << errorString << " : " << errorNumber;
-                            stop();
-                        })
                     .exec(
                         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
                         [j](my_ulonglong affectedRows) -> void {
@@ -229,29 +212,46 @@ int main(int argc, char* argv[]) {
                             VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
                             stop();
                         })
-                    .commit(
+                    .rollback(
                         [](void) -> void {
-                            VLOG(0) << "Commit success 11";
+                            VLOG(0) << "Rollback success 11";
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
                             VLOG(0) << "Error 11: " << errorString << " : " << errorNumber;
+                            stop();
+                        })
+                    .exec(
+                        "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
+                        [j](my_ulonglong affectedRows) -> void {
+                            VLOG(0) << "Inserted 12: Affected rows = " << affectedRows << " - " << j;
+                        },
+                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 12: " << errorString << " : " << errorNumber;
+                            stop();
+                        })
+                    .commit(
+                        [](void) -> void {
+                            VLOG(0) << "Commit success 13";
+                        },
+                        [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                            VLOG(0) << "Error 13: " << errorString << " : " << errorNumber;
                             stop();
                         })
                     .query(
                         "SELECT COUNT(*) FROM snodec",
                         [j, stop](const MYSQL_ROW row) -> void {
                             if (row != nullptr) {
-                                VLOG(0) << "Row Result count(*) 13: " << row[0];
+                                VLOG(0) << "Row Result count(*) 14: " << row[0];
                                 if (std::atoi(row[0]) != j + 1) {
-                                    VLOG(0) << "Wrong number of rows 13: " << std::atoi(row[0]) << " != " << j + 1;
+                                    VLOG(0) << "Wrong number of rows 14: " << std::atoi(row[0]) << " != " << j + 1;
                                     stop();
                                 }
                             } else {
-                                VLOG(0) << "Row Result count(*): no result:";
+                                VLOG(0) << "Row Result count(*) 14: no result:";
                             }
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            VLOG(0) << "Error 13: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 15: " << errorString << " : " << errorNumber;
                             stop();
                         })
                     .endTransactions(
@@ -259,7 +259,7 @@ int main(int argc, char* argv[]) {
                             VLOG(0) << "Transactions deactivated 12";
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            VLOG(0) << "Error 12: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 16: " << errorString << " : " << errorNumber;
                             stop();
                         });
             },
