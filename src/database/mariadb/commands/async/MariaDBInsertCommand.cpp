@@ -17,50 +17,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/MariaDBQueryCommand.h"
+#include "database/mariadb/commands/async/MariaDBInsertCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
-#include "database/mariadb/commands/MariaDBFetchRowCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+// IWYU pragma: no_include "mysql.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
-    MariaDBQueryCommand::MariaDBQueryCommand(const std::string& sql,
-                                             const std::function<void(const MYSQL_ROW)>& onQuery,
-                                             const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand("Query", onError)
+    MariaDBInsertCommand::MariaDBInsertCommand(const std::string& sql,
+                                               const std::function<void(void)>& onQuery,
+                                               const std::function<void(const std::string&, unsigned int)>& onError)
+        : MariaDBCommandBlocking("Insert", onError)
         , sql(sql)
         , onQuery(onQuery) {
     }
 
-    int MariaDBQueryCommand::commandStart() {
+    int MariaDBInsertCommand::commandStart() {
         return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
     }
 
-    int MariaDBQueryCommand::commandContinue(int status) {
+    int MariaDBInsertCommand::commandContinue(int status) {
         return mysql_real_query_cont(&ret, mysql, status);
     }
 
-    void MariaDBQueryCommand::commandCompleted() {
-        MYSQL_RES* result = mysql_use_result(mysql);
-
-        if (result != nullptr) {
-            mariaDBConnection->executeAsNext(new database::mariadb::commands::MariaDBFetchRowCommand(result, onQuery, onError));
-        } else {
-            onQuery(nullptr);
-            mariaDBConnection->commandCompleted();
-        }
+    void MariaDBInsertCommand::commandCompleted() {
+        onQuery();
+        mariaDBConnection->commandCompleted();
     }
 
-    void MariaDBQueryCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
+    void MariaDBInsertCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBQueryCommand::commandInfo() {
+    std::string MariaDBInsertCommand::commandInfo() {
         return commandName() + ": " + sql;
     }
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async

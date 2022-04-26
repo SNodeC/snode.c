@@ -17,42 +17,39 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_SYNC_MARIADBAFFECTEDROWSCOMMAND
+#define DATABASE_MARIADB_COMMANDS_SYNC_MARIADBAFFECTEDROWSCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandNonBlocking.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <mysql.h> // IWYU pragma: export
+#include <mysql.h>
 #include <string>
 
 // IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::sync {
 
-    class MariaDBQueryCommand : public MariaDBCommand {
+    class MariaDBAffectedRowsCommand : public MariaDBCommandNonBlocking {
     public:
-        MariaDBQueryCommand(const std::string& sql,
-                            const std::function<void(const MYSQL_ROW)>& onQuery,
-                            const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBAffectedRowsCommand(const std::function<void(my_ulonglong)>& onAffectedRows,
+                                   const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
-        int commandContinue(int status) override;
         void commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
     protected:
-        int ret;
+        my_ulonglong affectedRows = 0;
 
-        const std::string sql;
-        const std::function<void(const MYSQL_ROW)> onQuery;
+        const std::function<void(my_ulonglong)> onAffectedRows;
     };
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::sync
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBQUERYCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_SYNC_MARIADBAFFECTEDROWSCOMMAND

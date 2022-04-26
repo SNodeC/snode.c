@@ -17,26 +17,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBROLLBACKCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBROLLBACKCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBFETCHROWCOMMAND
+#define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBFETCHROWCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <mysql.h> // IWYU pragma: export
-#include <string>  // for string
+#include <string>
 
 // IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
-    class MariaDBRollbackCommand : public MariaDBCommand {
+    class MariaDBFetchRowCommand : public MariaDBCommandBlocking {
     public:
-        MariaDBRollbackCommand(const std::function<void(void)>& onRollback,
+        MariaDBFetchRowCommand(MYSQL_RES* result,
+                               const std::function<void(const MYSQL_ROW)>& onRowResult,
                                const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
@@ -45,12 +46,13 @@ namespace database::mariadb::commands {
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
-    protected:
-        my_bool ret = false;
+    private:
+        MYSQL_RES* result = nullptr;
+        MYSQL_ROW row = nullptr;
 
-        const std::function<void(void)> onRollback;
+        std::function<void(const MYSQL_ROW)> onRowResult;
     };
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBFETCHROWCOMMAND

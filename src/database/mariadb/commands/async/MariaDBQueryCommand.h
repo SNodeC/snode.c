@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBFETCHROWCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBFETCHROWCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBQUERYCOMMAND
+#define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBQUERYCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,13 +32,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
-    class MariaDBFetchRowCommand : public MariaDBCommand {
+    class MariaDBQueryCommand : public MariaDBCommandBlocking {
     public:
-        MariaDBFetchRowCommand(MYSQL_RES* result,
-                               const std::function<void(const MYSQL_ROW)>& onRowResult,
-                               const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBQueryCommand(const std::string& sql,
+                            const std::function<void(MYSQL_RES*)>& onResult,
+                            const std::function<void(const MYSQL_ROW)>& onQuery,
+                            const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
         int commandContinue(int status) override;
@@ -46,13 +47,14 @@ namespace database::mariadb::commands {
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
-    private:
-        MYSQL_RES* result = nullptr;
-        MYSQL_ROW row = nullptr;
+    protected:
+        int ret;
 
-        std::function<void(const MYSQL_ROW)> onRowResult;
+        const std::string sql;
+        const std::function<void(const MYSQL_ROW)> onQuery;
+        const std::function<void(MYSQL_RES*)> onResult;
     };
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBFETCHROWCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBQUERYCOMMAND

@@ -72,6 +72,7 @@ namespace database::mariadb {
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 
         MariaDBCommandSequence& execute(MariaDBCommandSequence&& commandSequence);
+
         void executeAsNext(MariaDBCommand* mariaDBCommand);
 
         void commandStart(const utils::Timeval& currentTime);

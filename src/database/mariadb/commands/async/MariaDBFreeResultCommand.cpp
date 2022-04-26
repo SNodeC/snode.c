@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/MariaDBFreeResultCommand.h"
+#include "database/mariadb/commands/async/MariaDBFreeResultCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
@@ -25,12 +25,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
     MariaDBFreeResultCommand::MariaDBFreeResultCommand(MYSQL_RES* result,
                                                        const std::function<void(void)>& onFreed,
                                                        const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand("FreeResult", onError)
+        : MariaDBCommandBlocking("FreeResult", onError)
         , result(result)
         , onFreed(onFreed) {
     }
@@ -64,4 +64,4 @@ namespace database::mariadb::commands {
         return commandName();
     }
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async

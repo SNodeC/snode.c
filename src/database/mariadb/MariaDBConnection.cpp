@@ -20,7 +20,7 @@
 #include "database/mariadb/MariaDBConnection.h"
 
 #include "database/mariadb/MariaDBClient.h"
-#include "database/mariadb/commands/MariaDBConnectCommand.h"
+#include "database/mariadb/commands/async/MariaDBConnectCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,7 +43,7 @@ namespace database::mariadb {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
 
         execute(MariaDBCommandSequence(this,
-                                       new database::mariadb::commands::MariaDBConnectCommand(
+                                       new database::mariadb::commands::async::MariaDBConnectCommand(
                                            connectionDetails,
                                            [this](void) -> void {
                                                if (mysql_errno(mysql) == 0) {

@@ -17,27 +17,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBINSERTCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBINSERTCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBINSERTCOMMAND
+#define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBINSERTCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <mysql.h>
+#include <mysql.h> // IWYU pragma: export
 #include <string>
 
 // IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
-    class MariaDBInsertCommand : public MariaDBCommand {
+    class MariaDBInsertCommand : public MariaDBCommandBlocking {
     public:
         MariaDBInsertCommand(const std::string& sql,
-                             const std::function<void(my_ulonglong)>& onQuery,
+                             const std::function<void(void)>& onQuery,
                              const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
@@ -50,9 +50,9 @@ namespace database::mariadb::commands {
         int ret;
 
         const std::string sql;
-        const std::function<void(my_ulonglong)> onQuery;
+        const std::function<void(void)> onQuery;
     };
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBINSERTCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBINSERTCOMMAND

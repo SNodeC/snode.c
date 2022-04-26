@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/MariaDBClient.h"
+#ifndef DATABASE_MARIADB_MARIADBCOMMANDBLOCKING
+#define DATABASE_MARIADB_MARIADBCOMMANDBLOCKING
 
-#include "database/mariadb/MariaDBCommand.h"
-#include "database/mariadb/MariaDBConnection.h"
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,28 +28,11 @@
 
 namespace database::mariadb {
 
-    MariaDBClient::MariaDBClient(const MariaDBConnectionDetails& details)
-        : details(details) {
-    }
-
-    MariaDBClient::~MariaDBClient() {
-        if (mariaDBConnection != nullptr) {
-            mariaDBConnection->unmanaged();
-        }
-    }
-
-    MariaDBCommandSequence& MariaDBClient::execute(MariaDBCommand* mariaDBCommand) {
-        if (mariaDBConnection == nullptr) {
-            mariaDBConnection = new MariaDBConnection(this, details);
-        }
-
-        mariaDBCommand->setMariaDBConnection(mariaDBConnection);
-
-        return mariaDBConnection->execute(MariaDBCommandSequence(mariaDBConnection, mariaDBCommand));
-    }
-
-    void MariaDBClient::connectionVanished() {
-        mariaDBConnection = nullptr;
-    }
+    class MariaDBCommandBlocking : public MariaDBCommand {
+    public:
+        using MariaDBCommand::MariaDBCommand;
+    };
 
 } // namespace database::mariadb
+
+#endif // DATABASE_MARIADB_MARIADBCOMMANDBLOCKING

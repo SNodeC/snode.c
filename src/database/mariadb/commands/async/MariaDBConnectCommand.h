@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBCONNECTCOMMAND
+#define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBCONNECTCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
 #include "database/mariadb/MariaDBConnectionDetails.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,9 +33,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
-    class MariaDBConnectCommand : public MariaDBCommand {
+    class MariaDBConnectCommand : public MariaDBCommandBlocking {
     public:
         MariaDBConnectCommand(const database::mariadb::MariaDBConnectionDetails& details,
                               const std::function<void(void)>& onConnecting,
@@ -56,6 +56,6 @@ namespace database::mariadb::commands {
         const std::function<void(void)> onConnect;
     };
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBCONNECTCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBCONNECTCOMMAND

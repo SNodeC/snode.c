@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/MariaDBConnectCommand.h"
+#include "database/mariadb/commands/async/MariaDBConnectCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
@@ -27,13 +27,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
     MariaDBConnectCommand::MariaDBConnectCommand(const MariaDBConnectionDetails& details,
                                                  const std::function<void(void)>& onConnecting,
                                                  const std::function<void(void)>& onConnect,
                                                  const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand("Connect", onError)
+        : MariaDBCommandBlocking("Connect", onError)
         , details(details)
         , onConnecting(onConnecting)
         , onConnect(onConnect) {
@@ -72,4 +72,4 @@ namespace database::mariadb::commands {
         return commandName() + ": " + details.hostname + ":" + std::to_string(details.port) + " | " + details.socket;
     }
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async

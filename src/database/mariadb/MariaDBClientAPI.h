@@ -45,7 +45,7 @@ namespace database::mariadb {
                                       const std::function<void(const MYSQL_ROW)>& onQuery,
                                       const std::function<void(const std::string&, unsigned int)>& onError);
         MariaDBCommandSequence& exec(const std::string& sql,
-                                     const std::function<void(int)>& onQuery,
+                                     const std::function<void(void)>& onQuery,
                                      const std::function<void(const std::string&, unsigned int)>& onError);
 
         MariaDBCommandSequence& startTransactions(const std::function<void(void)>&,
@@ -58,8 +58,13 @@ namespace database::mariadb {
         MariaDBCommandSequence& rollback(const std::function<void(void)>&,
                                          const std::function<void(const std::string&, unsigned int)>& onError);
 
-    private:
+        MariaDBCommandSequence& affectedRows(const std::function<void(int)>&,
+                                             const std::function<void(const std::string&, unsigned int)>& onErro);
+
+    protected:
         virtual MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) = 0;
+
+        MYSQL_RES* lastResult = nullptr;
     };
 
 } // namespace database::mariadb

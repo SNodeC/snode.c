@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBCOMMITCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBCOMMITCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBCOMMITCOMMAND
+#define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBCOMMITCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,9 +32,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
-    class MariaDBCommitCommand : public MariaDBCommand {
+    class MariaDBCommitCommand : public MariaDBCommandBlocking {
     public:
         MariaDBCommitCommand(const std::function<void(void)>& onCommit,
                              const std::function<void(const std::string&, unsigned int)>& onError);
@@ -51,6 +51,6 @@ namespace database::mariadb::commands {
         const std::function<void(void)> onCommit;
     };
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBCOMMITCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBCOMMITCOMMAND

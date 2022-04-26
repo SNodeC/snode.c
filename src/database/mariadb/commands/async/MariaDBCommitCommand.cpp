@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/MariaDBCommitCommand.h"
+#include "database/mariadb/commands/async/MariaDBCommitCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
@@ -25,11 +25,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
     MariaDBCommitCommand::MariaDBCommitCommand(const std::function<void()>& onCommit,
                                                const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommand("Commit", onError)
+        : MariaDBCommandBlocking("Commit", onError)
         , onCommit(onCommit) {
     }
 
@@ -54,4 +54,4 @@ namespace database::mariadb::commands {
         return commandName();
     }
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async

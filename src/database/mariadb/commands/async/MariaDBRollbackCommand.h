@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBROLLBACKCOMMAND
+#define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBROLLBACKCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,13 +32,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
-    class MariaDBAutoCommitCommand : public MariaDBCommand {
+    class MariaDBRollbackCommand : public MariaDBCommandBlocking {
     public:
-        MariaDBAutoCommitCommand(my_bool autoCommit,
-                                 const std::function<void(void)>& onSet,
-                                 const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBRollbackCommand(const std::function<void(void)>& onRollback,
+                               const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
         int commandContinue(int status) override;
@@ -48,11 +47,10 @@ namespace database::mariadb::commands {
 
     protected:
         my_bool ret = false;
-        bool autoCommit;
 
-        const std::function<void(void)> onSet;
+        const std::function<void(void)> onRollback;
     };
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBAUTOCOMMITCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBAUTOCOMMITCOMMAND

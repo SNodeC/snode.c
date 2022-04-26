@@ -132,8 +132,8 @@ Router router(database::mariadb::MariaDBClient& db) {
 
         db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
-            [userId, userName](my_ulonglong affectedRows) -> void {
-                VLOG(0) << "Inserted: AffectedRows = " << affectedRows << " -> " << userId << " - " << userName;
+            [userId, userName](void) -> void {
+                VLOG(0) << "Inserted: -> " << userId << " - " << userName;
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Error: " << errorString << " : " << errorNumber;

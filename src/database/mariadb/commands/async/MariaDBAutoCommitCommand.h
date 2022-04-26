@@ -17,27 +17,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
-#define DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBAUTOCOMMITCOMMAND
+#define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBAUTOCOMMITCOMMAND
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <mysql.h> // IWYU pragma: export
-#include <string>
+#include <string>  // for string
 
 // IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands {
+namespace database::mariadb::commands::async {
 
-    class MariaDBFreeResultCommand : public MariaDBCommand {
+    class MariaDBAutoCommitCommand : public MariaDBCommandBlocking {
     public:
-        MariaDBFreeResultCommand(MYSQL_RES* result,
-                                 const std::function<void(void)>& onFreed,
+        MariaDBAutoCommitCommand(my_bool autoCommit,
+                                 const std::function<void(void)>& onSet,
                                  const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
@@ -46,12 +46,13 @@ namespace database::mariadb::commands {
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
-    private:
-        MYSQL_RES* result = nullptr;
+    protected:
+        my_bool ret = false;
+        bool autoCommit;
 
-        std::function<void(void)> onFreed;
+        const std::function<void(void)> onSet;
     };
 
-} // namespace database::mariadb::commands
+} // namespace database::mariadb::commands::async
 
-#endif // DATABASE_MARIADB_COMMANDS_MARIADBFREERESULTCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBAUTOCOMMITCOMMAND

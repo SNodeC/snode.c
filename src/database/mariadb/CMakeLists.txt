@@ -10,33 +10,41 @@ if(MARIADB_FOUND)
         MariaDBClient.cpp
         MariaDBClientAPI.cpp
         MariaDBCommand.cpp
+        MariaDBCommandBlocking.cpp
+        MariaDBCommandNonBlocking.cpp
         MariaDBCommandSequence.cpp
         MariaDBConnection.cpp
-        commands/MariaDBAutoCommitCommand.cpp
-        commands/MariaDBCommitCommand.cpp
-        commands/MariaDBConnectCommand.cpp
-        commands/MariaDBFetchRowCommand.cpp
-        commands/MariaDBFreeResultCommand.cpp
-        commands/MariaDBInsertCommand.cpp
-        commands/MariaDBQueryCommand.cpp
-        commands/MariaDBRollbackCommand.cpp
+        commands/sync/MariaDBAffectedRowsCommand.cpp
+        commands/sync/MariaDBUseResultCommand.cpp
+        commands/async/MariaDBAutoCommitCommand.cpp
+        commands/async/MariaDBCommitCommand.cpp
+        commands/async/MariaDBConnectCommand.cpp
+        commands/async/MariaDBFetchRowCommand.cpp
+        commands/async/MariaDBFreeResultCommand.cpp
+        commands/async/MariaDBInsertCommand.cpp
+        commands/async/MariaDBQueryCommand.cpp
+        commands/async/MariaDBRollbackCommand.cpp
     )
 
     set(MARIADB_H
         MariaDBClient.h
         MariaDBClientAPI.h
         MariaDBCommand.h
+        MariaDBCommandBlocking.h
+        MariaDBCommandNonBlocking.h
         MariaDBCommandSequence.h
         MariaDBConnection.h
         MariaDBConnectionDetails.h
-        commands/MariaDBAutoCommitCommand.h
-        commands/MariaDBCommitCommand.h
-        commands/MariaDBConnectCommand.h
-        commands/MariaDBFetchRowCommand.h
-        commands/MariaDBFreeResultCommand.h
-        commands/MariaDBInsertCommand.h
-        commands/MariaDBQueryCommand.h
-        commands/MariaDBRollbackCommand.h
+        commands/sync/MariaDBAffectedRowsCommand.h
+        commands/sync/MariaDBUseResultCommand.h
+        commands/async/MariaDBAutoCommitCommand.h
+        commands/async/MariaDBCommitCommand.h
+        commands/async/MariaDBConnectCommand.h
+        commands/async/MariaDBFetchRowCommand.h
+        commands/async/MariaDBFreeResultCommand.h
+        commands/async/MariaDBInsertCommand.h
+        commands/async/MariaDBQueryCommand.h
+        commands/async/MariaDBRollbackCommand.h
     )
 
     add_library(db-mariadb SHARED ${MARIADB_CPP} ${MARIADB_H})
