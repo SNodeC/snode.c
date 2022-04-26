@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/async/MariaDBInsertCommand.h"
+#include "database/mariadb/commands/async/MariaDBExecCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
@@ -29,32 +29,32 @@
 
 namespace database::mariadb::commands::async {
 
-    MariaDBInsertCommand::MariaDBInsertCommand(const std::string& sql,
-                                               const std::function<void(void)>& onQuery,
-                                               const std::function<void(const std::string&, unsigned int)>& onError)
+    MariaDBExecCommand::MariaDBExecCommand(const std::string& sql,
+                                           const std::function<void(void)>& onExec,
+                                           const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommandBlocking("Insert", onError)
         , sql(sql)
-        , onQuery(onQuery) {
+        , onExec(onExec) {
     }
 
-    int MariaDBInsertCommand::commandStart() {
+    int MariaDBExecCommand::commandStart() {
         return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
     }
 
-    int MariaDBInsertCommand::commandContinue(int status) {
+    int MariaDBExecCommand::commandContinue(int status) {
         return mysql_real_query_cont(&ret, mysql, status);
     }
 
-    void MariaDBInsertCommand::commandCompleted() {
-        onQuery();
+    void MariaDBExecCommand::commandCompleted() {
+        onExec();
         mariaDBConnection->commandCompleted();
     }
 
-    void MariaDBInsertCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
+    void MariaDBExecCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBInsertCommand::commandInfo() {
+    std::string MariaDBExecCommand::commandInfo() {
         return commandName() + ": " + sql;
     }
 

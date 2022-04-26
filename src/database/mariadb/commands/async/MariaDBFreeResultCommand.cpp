@@ -27,12 +27,12 @@
 
 namespace database::mariadb::commands::async {
 
-    MariaDBFreeResultCommand::MariaDBFreeResultCommand(MYSQL_RES* result,
-                                                       const std::function<void(void)>& onFreed,
+    MariaDBFreeResultCommand::MariaDBFreeResultCommand(MYSQL_RES*& result,
+                                                       const std::function<void(void)>& onFreeResult,
                                                        const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommandBlocking("FreeResult", onError)
         , result(result)
-        , onFreed(onFreed) {
+        , onFreeResult(onFreeResult) {
     }
 
     int MariaDBFreeResultCommand::commandStart() {
@@ -52,7 +52,7 @@ namespace database::mariadb::commands::async {
     }
 
     void MariaDBFreeResultCommand::commandCompleted() {
-        onFreed();
+        onFreeResult();
         mariaDBConnection->commandCompleted();
     }
 

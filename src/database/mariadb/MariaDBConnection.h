@@ -73,8 +73,6 @@ namespace database::mariadb {
 
         MariaDBCommandSequence& execute(MariaDBCommandSequence&& commandSequence);
 
-        void executeAsNext(MariaDBCommand* mariaDBCommand);
-
         void commandStart(const utils::Timeval& currentTime);
         void commandContinue(int status);
         void commandCompleted();

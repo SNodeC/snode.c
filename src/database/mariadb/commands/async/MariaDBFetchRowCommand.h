@@ -36,8 +36,8 @@ namespace database::mariadb::commands::async {
 
     class MariaDBFetchRowCommand : public MariaDBCommandBlocking {
     public:
-        MariaDBFetchRowCommand(MYSQL_RES* result,
-                               const std::function<void(const MYSQL_ROW)>& onRowResult,
+        MariaDBFetchRowCommand(MYSQL_RES*& result,
+                               const std::function<void(const MYSQL_ROW)>& onRow,
                                const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
@@ -47,10 +47,10 @@ namespace database::mariadb::commands::async {
         std::string commandInfo() override;
 
     private:
-        MYSQL_RES* result = nullptr;
+        MYSQL_RES*& result;
         MYSQL_ROW row = nullptr;
 
-        std::function<void(const MYSQL_ROW)> onRowResult;
+        std::function<void(const MYSQL_ROW)> onRow;
     };
 
 } // namespace database::mariadb::commands::async

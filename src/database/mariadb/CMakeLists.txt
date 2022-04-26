@@ -19,9 +19,9 @@ if(MARIADB_FOUND)
         commands/async/MariaDBAutoCommitCommand.cpp
         commands/async/MariaDBCommitCommand.cpp
         commands/async/MariaDBConnectCommand.cpp
+        commands/async/MariaDBExecCommand.cpp
         commands/async/MariaDBFetchRowCommand.cpp
         commands/async/MariaDBFreeResultCommand.cpp
-        commands/async/MariaDBInsertCommand.cpp
         commands/async/MariaDBQueryCommand.cpp
         commands/async/MariaDBRollbackCommand.cpp
     )
@@ -40,9 +40,9 @@ if(MARIADB_FOUND)
         commands/async/MariaDBAutoCommitCommand.h
         commands/async/MariaDBCommitCommand.h
         commands/async/MariaDBConnectCommand.h
+        commands/async/MariaDBExecCommand.h
         commands/async/MariaDBFetchRowCommand.h
         commands/async/MariaDBFreeResultCommand.h
-        commands/async/MariaDBInsertCommand.h
         commands/async/MariaDBQueryCommand.h
         commands/async/MariaDBRollbackCommand.h
     )

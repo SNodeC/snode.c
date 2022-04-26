@@ -37,7 +37,7 @@ namespace database::mariadb::commands::async {
     class MariaDBAutoCommitCommand : public MariaDBCommandBlocking {
     public:
         MariaDBAutoCommitCommand(my_bool autoCommit,
-                                 const std::function<void(void)>& onSet,
+                                 const std::function<void(void)>& onAutoCommit,
                                  const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
@@ -50,7 +50,7 @@ namespace database::mariadb::commands::async {
         my_bool ret = false;
         bool autoCommit;
 
-        const std::function<void(void)> onSet;
+        const std::function<void(void)> onAutoCommit;
     };
 
 } // namespace database::mariadb::commands::async

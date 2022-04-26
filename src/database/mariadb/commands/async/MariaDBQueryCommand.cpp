@@ -20,7 +20,6 @@
 #include "database/mariadb/commands/async/MariaDBQueryCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
-#include "database/mariadb/commands/sync/MariaDBUseResultCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,13 +28,11 @@
 namespace database::mariadb::commands::async {
 
     MariaDBQueryCommand::MariaDBQueryCommand(const std::string& sql,
-                                             const std::function<void(MYSQL_RES*)>& onResult,
-                                             const std::function<void(const MYSQL_ROW)>& onQuery,
+                                             const std::function<void(void)>& onQuery,
                                              const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommandBlocking("Query", onError)
         , sql(sql)
-        , onQuery(onQuery)
-        , onResult(onResult) {
+        , onQuery(onQuery) {
     }
 
     int MariaDBQueryCommand::commandStart() {
@@ -47,7 +44,8 @@ namespace database::mariadb::commands::async {
     }
 
     void MariaDBQueryCommand::commandCompleted() {
-        mariaDBConnection->executeAsNext(new database::mariadb::commands::sync::MariaDBUseResultCommand(onResult, onQuery, onError));
+        onQuery();
+        mariaDBConnection->commandCompleted();
     }
 
     void MariaDBQueryCommand::commandError(const std::string& errorString, unsigned int errorNumber) {

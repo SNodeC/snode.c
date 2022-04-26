@@ -36,8 +36,8 @@ namespace database::mariadb::commands::async {
 
     class MariaDBFreeResultCommand : public MariaDBCommandBlocking {
     public:
-        MariaDBFreeResultCommand(MYSQL_RES* result,
-                                 const std::function<void(void)>& onFreed,
+        MariaDBFreeResultCommand(MYSQL_RES*& result,
+                                 const std::function<void(void)>& onFreeResult,
                                  const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
@@ -47,11 +47,11 @@ namespace database::mariadb::commands::async {
         std::string commandInfo() override;
 
     private:
-        MYSQL_RES* result = nullptr;
+        MYSQL_RES*& result;
 
-        std::function<void(void)> onFreed;
+        std::function<void(void)> onFreeResult;
     };
 
 } // namespace database::mariadb::commands::async
 
-#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBFREERESULTCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_ASYNC_[]MARIADBFREERESULTCOMMAND

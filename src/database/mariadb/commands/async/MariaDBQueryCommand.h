@@ -37,8 +37,7 @@ namespace database::mariadb::commands::async {
     class MariaDBQueryCommand : public MariaDBCommandBlocking {
     public:
         MariaDBQueryCommand(const std::string& sql,
-                            const std::function<void(MYSQL_RES*)>& onResult,
-                            const std::function<void(const MYSQL_ROW)>& onQuery,
+                            const std::function<void(void)>& onQuery,
                             const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
@@ -51,8 +50,7 @@ namespace database::mariadb::commands::async {
         int ret;
 
         const std::string sql;
-        const std::function<void(const MYSQL_ROW)> onQuery;
-        const std::function<void(MYSQL_RES*)> onResult;
+        const std::function<void(void)> onQuery;
     };
 
 } // namespace database::mariadb::commands::async

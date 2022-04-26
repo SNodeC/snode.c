@@ -42,15 +42,15 @@ namespace database::mariadb {
         MariaDBCommandSequence(MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand);
         ~MariaDBCommandSequence() override = default;
 
+    public:
+        MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) override;
+
     private:
         std::deque<MariaDBCommand*>& sequence();
 
         MariaDBCommand* nextCommand();
         void commandCompleted();
         bool empty();
-
-        MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) override;
-        void executeAsNext(MariaDBCommand* mariaDBCommand);
 
         std::deque<MariaDBCommand*> commandSequence;
 

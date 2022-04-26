@@ -42,16 +42,6 @@ namespace database::mariadb {
         return commandSequence.front();
     }
 
-    void MariaDBCommandSequence::executeAsNext(MariaDBCommand* mariaDBCommand) {
-        mariaDBCommand->setMariaDBConnection(mariaDBConnection);
-
-        MariaDBCommand* currentCommand = commandSequence.front();
-
-        commandSequence.pop_front();
-        commandSequence.push_front(mariaDBCommand);
-        commandSequence.push_front(currentCommand);
-    }
-
     void MariaDBCommandSequence::commandCompleted() {
         commandSequence.pop_front();
     }

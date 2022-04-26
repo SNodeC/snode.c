@@ -20,22 +20,19 @@
 #include "database/mariadb/commands/async/MariaDBFetchRowCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
-#include "database/mariadb/commands/async/MariaDBFreeResultCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands::async {
 
-    MariaDBFetchRowCommand::MariaDBFetchRowCommand(MYSQL_RES* result,
-                                                   const std::function<void(const MYSQL_ROW)>& onRowResult,
+    MariaDBFetchRowCommand::MariaDBFetchRowCommand(MYSQL_RES*& result,
+                                                   const std::function<void(const MYSQL_ROW)>& onRow,
                                                    const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommandBlocking("FetschRow", onError)
         , result(result)
-        , onRowResult(onRowResult) {
+        , onRow(onRow) {
     }
 
     int MariaDBFetchRowCommand::commandStart() {
@@ -56,17 +53,10 @@ namespace database::mariadb::commands::async {
     }
 
     void MariaDBFetchRowCommand::commandCompleted() {
-        onRowResult(row);
+        onRow(row);
 
         if (row == nullptr) {
-            mariaDBConnection->executeAsNext(new database::mariadb::commands::async::MariaDBFreeResultCommand(
-                result,
-                [](void) -> void {
-                    VLOG(0) << "Free result success";
-                },
-                [](const std::string& errorString, unsigned int errorNumber) -> void {
-                    VLOG(0) << "Free result error: " << errorString << ", " << errorNumber;
-                }));
+            mariaDBConnection->commandCompleted();
         }
     }
 

@@ -100,12 +100,6 @@ namespace database::mariadb {
         return commandSequenceQueue.back();
     }
 
-    void MariaDBConnection::executeAsNext(MariaDBCommand* mariaDBCommand) {
-        commandSequenceQueue.front().executeAsNext(mariaDBCommand);
-
-        commandCompleted();
-    }
-
     void MariaDBConnection::commandStart(const utils::Timeval& currentTime) {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();

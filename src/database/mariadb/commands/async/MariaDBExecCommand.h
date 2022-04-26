@@ -34,11 +34,11 @@
 
 namespace database::mariadb::commands::async {
 
-    class MariaDBInsertCommand : public MariaDBCommandBlocking {
+    class MariaDBExecCommand : public MariaDBCommandBlocking {
     public:
-        MariaDBInsertCommand(const std::string& sql,
-                             const std::function<void(void)>& onQuery,
-                             const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBExecCommand(const std::string& sql,
+                           const std::function<void(void)>& onExec,
+                           const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
         int commandContinue(int status) override;
@@ -50,7 +50,7 @@ namespace database::mariadb::commands::async {
         int ret;
 
         const std::string sql;
-        const std::function<void(void)> onQuery;
+        const std::function<void(void)> onExec;
     };
 
 } // namespace database::mariadb::commands::async

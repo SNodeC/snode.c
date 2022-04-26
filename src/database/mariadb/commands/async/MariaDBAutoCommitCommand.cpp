@@ -28,11 +28,11 @@
 namespace database::mariadb::commands::async {
 
     MariaDBAutoCommitCommand::MariaDBAutoCommitCommand(my_bool autoCommit,
-                                                       const std::function<void()>& onSet,
+                                                       const std::function<void()>& onAutoCommit,
                                                        const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommandBlocking("AutoCommit", onError)
         , autoCommit(autoCommit)
-        , onSet(onSet) {
+        , onAutoCommit(onAutoCommit) {
     }
 
     int MariaDBAutoCommitCommand::commandStart() {
@@ -44,7 +44,7 @@ namespace database::mariadb::commands::async {
     }
 
     void MariaDBAutoCommitCommand::commandCompleted() {
-        onSet();
+        onAutoCommit();
         mariaDBConnection->commandCompleted();
     }
 

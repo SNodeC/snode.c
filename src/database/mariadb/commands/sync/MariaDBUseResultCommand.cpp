@@ -20,7 +20,6 @@
 #include "database/mariadb/commands/sync/MariaDBUseResultCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
-#include "database/mariadb/commands/async/MariaDBFetchRowCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,12 +29,10 @@
 
 namespace database::mariadb::commands::sync {
 
-    MariaDBUseResultCommand::MariaDBUseResultCommand(const std::function<void(MYSQL_RES*)>& onResult,
-                                                     const std::function<void(const MYSQL_ROW)>& onQuery,
+    MariaDBUseResultCommand::MariaDBUseResultCommand(const std::function<void(MYSQL_RES*)>& onUseResult,
                                                      const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommandNonBlocking("UseResult", onError)
-        , onQuery(onQuery)
-        , onResult(onResult) {
+        , onUseResult(onUseResult) {
     }
 
     int MariaDBUseResultCommand::commandStart() {
@@ -45,9 +42,8 @@ namespace database::mariadb::commands::sync {
     }
 
     void MariaDBUseResultCommand::commandCompleted() {
-        onResult(result);
-
-        mariaDBConnection->executeAsNext(new database::mariadb::commands::async::MariaDBFetchRowCommand(result, onQuery, onError));
+        onUseResult(result);
+        mariaDBConnection->commandCompleted();
     }
 
     void MariaDBUseResultCommand::commandError(const std::string& errorString, unsigned int errorNumber) {

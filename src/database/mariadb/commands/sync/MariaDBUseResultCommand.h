@@ -36,8 +36,7 @@ namespace database::mariadb::commands::sync {
 
     class MariaDBUseResultCommand : public MariaDBCommandNonBlocking {
     public:
-        MariaDBUseResultCommand(const std::function<void(MYSQL_RES*)>& onResult,
-                                const std::function<void(const MYSQL_ROW)>& onQuery,
+        MariaDBUseResultCommand(const std::function<void(MYSQL_RES*)>& onUseResult,
                                 const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
@@ -49,8 +48,7 @@ namespace database::mariadb::commands::sync {
         int ret;
         MYSQL_RES* result = nullptr;
 
-        const std::function<void(const MYSQL_ROW)> onQuery;
-        const std::function<void(MYSQL_RES*)> onResult;
+        const std::function<void(MYSQL_RES*)> onUseResult;
     };
 
 } // namespace database::mariadb::commands::sync

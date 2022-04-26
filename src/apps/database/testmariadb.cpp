@@ -95,6 +95,19 @@ int main(int argc, char* argv[]) {
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
+            })
+        .query(
+            "SELECT * FROM snodec",
+            [&r](const MYSQL_ROW row) -> void {
+                if (row != nullptr) {
+                    VLOG(0) << "********** Row Result 2: " << row[0] << " : " << row[1];
+                    r++;
+                } else {
+                    VLOG(0) << "********** Row Result 2: " << r;
+                }
+            },
+            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
             });
 
     database::mariadb::MariaDBClient db2(details);
@@ -202,19 +215,10 @@ int main(int argc, char* argv[]) {
                 int j = i;
                 db2.startTransactions(
                        [](void) -> void {
-                           VLOG(0) << "Transactions activated";
+                           VLOG(0) << "Transactions activated 10:";
                        },
-                       [&db2, stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                       [](const std::string& errorString, unsigned int errorNumber) -> void {
                            VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
-
-                           db2.endTransactions(
-                               [](void) -> void {
-                                   VLOG(0) << "Transactions deactivated 15:";
-                               },
-                               [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                   VLOG(0) << "Error 9: " << errorString << " : " << errorNumber;
-                                   stop();
-                               });
                        })
                     .exec(
                         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
