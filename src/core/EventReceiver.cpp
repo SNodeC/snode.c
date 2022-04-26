@@ -28,10 +28,6 @@ namespace core {
         : _event(this, name) {
     }
 
-    EventReceiver::~EventReceiver() {
-        _event.unPublish();
-    }
-
     void EventReceiver::publish() {
         _event.publish();
     }

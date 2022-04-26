@@ -35,6 +35,10 @@ namespace core {
         , name(name) {
     }
 
+    Event::~Event() {
+        unPublish();
+    }
+
     void Event::publish() {
         if (!published) {
             published = true;

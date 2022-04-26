@@ -241,19 +241,14 @@ namespace database::mariadb {
     }
 
     MariaDBCommandStartEvent::~MariaDBCommandStartEvent() {
-        published = false;
         core::EventReceiver::unPublish();
     }
 
     void MariaDBCommandStartEvent::publish() {
-        if (!published) {
-            published = true;
-            core::EventReceiver::publish();
-        }
+        core::EventReceiver::publish();
     }
 
     void MariaDBCommandStartEvent::event(const utils::Timeval& currentTime) {
-        published = false;
         mariaDBConnection->commandStart(currentTime);
     }
 

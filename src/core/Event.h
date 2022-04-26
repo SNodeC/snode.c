@@ -39,7 +39,7 @@ namespace core {
     public:
         explicit Event(EventReceiver* eventReceiver, const std::string& name);
 
-        ~Event() = default;
+        ~Event();
 
         void publish();
         void unPublish();

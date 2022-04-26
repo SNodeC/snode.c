@@ -53,10 +53,10 @@ int main(int argc, char* argv[]) {
 
     int r = 0;
 
-    db1.query(
+    db1.exec(
            "DELETE FROM `snodec`",
-           []([[maybe_unused]] const MYSQL_ROW row) -> void {
-               VLOG(0) << "OnQuery 0";
+           [](my_ulonglong affectedRows) -> void {
+               VLOG(0) << "OnQuery 0: Affected Rows = " << affectedRows;
            },
            [](const std::string& errorString, unsigned int errorNumber) -> void {
                VLOG(0) << "Error 0: " << errorString << " : " << errorNumber;
@@ -262,8 +262,8 @@ int main(int argc, char* argv[]) {
                             stop();
                         });
             },
-            0.05,
-            "Tick 0.05");
+            0.01,
+            "Tick 0.01");
     }
 
     return core::SNodeC::start();

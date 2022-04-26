@@ -56,7 +56,7 @@ namespace database::mariadb {
 
         MariaDBConnection* mariaDBConnection = nullptr;
 
-        bool published = false;
+        //        bool published = false;
     };
 
     class MariaDBConnection
