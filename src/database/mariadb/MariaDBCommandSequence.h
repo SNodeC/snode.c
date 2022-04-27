@@ -43,7 +43,7 @@ namespace database::mariadb {
         ~MariaDBCommandSequence() override = default;
 
     public:
-        MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) override;
+        MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) final;
 
     private:
         std::deque<MariaDBCommand*>& sequence();

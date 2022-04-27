@@ -45,7 +45,7 @@ namespace database::mariadb {
         ~MariaDBClient() override;
 
     private:
-        MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) override;
+        MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) final;
 
         void connectionVanished();
 

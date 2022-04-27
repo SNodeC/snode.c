@@ -33,7 +33,7 @@ namespace database::mariadb {
         using MariaDBCommand::MariaDBCommand;
 
     private:
-        int commandContinue(int status) override;
+        int commandContinue(int status) final;
     };
 
 } // namespace database::mariadb
