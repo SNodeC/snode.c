@@ -20,7 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBFETCHROWCOMMAND
 #define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBFETCHROWCOMMAND
 
-#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandASync.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,7 +34,7 @@
 
 namespace database::mariadb::commands::async {
 
-    class MariaDBFetchRowCommand : public MariaDBCommandBlocking {
+    class MariaDBFetchRowCommand : public MariaDBCommandASync {
     public:
         MariaDBFetchRowCommand(MYSQL_RES*& result,
                                const std::function<void(const MYSQL_ROW)>& onRow,

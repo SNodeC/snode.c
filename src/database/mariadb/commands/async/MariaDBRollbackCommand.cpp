@@ -29,7 +29,7 @@ namespace database::mariadb::commands::async {
 
     MariaDBRollbackCommand::MariaDBRollbackCommand(const std::function<void()>& onRollback,
                                                    const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandBlocking("Rollback", onError)
+        : MariaDBCommandASync("Rollback", onError)
         , onRollback(onRollback) {
     }
 

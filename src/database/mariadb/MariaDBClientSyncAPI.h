@@ -17,22 +17,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_MARIADBCOMMANDBLOCKING
-#define DATABASE_MARIADB_MARIADBCOMMANDBLOCKING
+#ifndef DATABASE_MARIADB_MARIADBCLIENTSYNCAPI
+#define DATABASE_MARIADB_MARIADBCLIENTSYNCAPI
 
-#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
+namespace database::mariadb {
+    class MariaDBCommand;
+    class MariaDBCommandSync;
+    class MariaDBCommandSequence;
+} // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional>
+#include <mysql.h> // IWYU pragma: export
+#include <string>
+
+// IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb {
 
-    class MariaDBCommandBlocking : public MariaDBCommand {
+    class MariaDBClientSyncAPI {
     public:
-        using MariaDBCommand::MariaDBCommand;
+        virtual ~MariaDBClientSyncAPI() = default;
+
+        void affectedRows(const std::function<void(int)>& onAffectedRows,
+                          const std::function<void(const std::string&, unsigned int)>& onErro);
+
+        void fieldCount(const std::function<void(unsigned int)>& onFieldCount,
+                        const std::function<void(const std::string&, unsigned int)>& onError);
+
+    protected:
+        virtual void execute_sync(MariaDBCommandSync* mariaDBCommand) = 0;
+
+        MYSQL_RES* lastResult = nullptr;
     };
 
 } // namespace database::mariadb
 
-#endif // DATABASE_MARIADB_MARIADBCOMMANDBLOCKING
+#endif // DATABASE_MARIADB_MARIADBCLIENTSYNCAPI

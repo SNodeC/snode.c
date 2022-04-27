@@ -20,7 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBCONNECTCOMMAND
 #define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBCONNECTCOMMAND
 
-#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandASync.h" // IWYU pragma: export
 #include "database/mariadb/MariaDBConnectionDetails.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,7 +35,7 @@
 
 namespace database::mariadb::commands::async {
 
-    class MariaDBConnectCommand : public MariaDBCommandBlocking {
+    class MariaDBConnectCommand : public MariaDBCommandASync {
     public:
         MariaDBConnectCommand(const database::mariadb::MariaDBConnectionDetails& details,
                               const std::function<void(void)>& onConnecting,

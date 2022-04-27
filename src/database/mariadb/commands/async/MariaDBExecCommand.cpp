@@ -32,7 +32,7 @@ namespace database::mariadb::commands::async {
     MariaDBExecCommand::MariaDBExecCommand(const std::string& sql,
                                            const std::function<void(void)>& onExec,
                                            const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandBlocking("Insert", onError)
+        : MariaDBCommandASync("Insert", onError)
         , sql(sql)
         , onExec(onExec) {
     }

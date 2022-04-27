@@ -17,12 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_MARIADBCLIENTAPI
-#define DATABASE_MARIADB_MARIADBCLIENTAPI
+#ifndef DATABASE_MARIADB_MARIADBCLIENTASYNCAPI
+#define DATABASE_MARIADB_MARIADBCLIENTASYNCAPI
 
 namespace database::mariadb {
     class MariaDBCommand;
-    class MariaDBCommandNoneBlocking;
+    class MariaDBCommandSync;
     class MariaDBCommandSequence;
 } // namespace database::mariadb
 
@@ -38,9 +38,9 @@ namespace database::mariadb {
 
 namespace database::mariadb {
 
-    class MariaDBClientAPI {
+    class MariaDBClientASyncAPI {
     public:
-        virtual ~MariaDBClientAPI() = default;
+        virtual ~MariaDBClientASyncAPI() = default;
 
         MariaDBCommandSequence& query(const std::string& sql,
                                       const std::function<void(const MYSQL_ROW)>& onQuery,
@@ -59,16 +59,12 @@ namespace database::mariadb {
         MariaDBCommandSequence& rollback(const std::function<void(void)>& onRollback,
                                          const std::function<void(const std::string&, unsigned int)>& onError);
 
-        void affectedRows(const std::function<void(int)>& onAffectedRows,
-                          const std::function<void(const std::string&, unsigned int)>& onErro);
-
     protected:
         virtual MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) = 0;
-        virtual void execute_sync(MariaDBCommandNoneBlocking* mariaDBCommand) = 0;
 
         MYSQL_RES* lastResult = nullptr;
     };
 
 } // namespace database::mariadb
 
-#endif // DATABASE_MARIADB_MARIADBCLIENTAPI
+#endif // DATABASE_MARIADB_MARIADBCLIENTASYNCAPI

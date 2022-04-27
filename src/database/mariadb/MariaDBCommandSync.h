@@ -17,7 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/MariaDBCommandNoneBlocking.h"
+#ifndef DATABASE_MARIADB_MARIADBCOMMANDSYNC
+#define DATABASE_MARIADB_MARIADBCOMMANDSYNC
+
+#include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,8 +28,14 @@
 
 namespace database::mariadb {
 
-    int MariaDBCommandNoneBlocking::commandContinue([[maybe_unused]] int status) {
-        return 0;
-    }
+    class MariaDBCommandSync : public MariaDBCommand {
+    public:
+        using MariaDBCommand::MariaDBCommand;
+
+    private:
+        int commandContinue(int status) final;
+    };
 
 } // namespace database::mariadb
+
+#endif // DATABASE_MARIADB_MARIADBCOMMANDSYNC

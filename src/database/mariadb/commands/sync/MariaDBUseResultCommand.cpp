@@ -31,7 +31,7 @@ namespace database::mariadb::commands::sync {
 
     MariaDBUseResultCommand::MariaDBUseResultCommand(const std::function<void(MYSQL_RES*)>& onUseResult,
                                                      const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandNoneBlocking("UseResult", onError)
+        : MariaDBCommandSync("UseResult", onError)
         , onUseResult(onUseResult) {
     }
 

@@ -30,7 +30,7 @@ namespace database::mariadb::commands::async {
     MariaDBAutoCommitCommand::MariaDBAutoCommitCommand(my_bool autoCommit,
                                                        const std::function<void()>& onAutoCommit,
                                                        const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandBlocking("AutoCommit", onError)
+        : MariaDBCommandASync("AutoCommit", onError)
         , autoCommit(autoCommit)
         , onAutoCommit(onAutoCommit) {
     }

@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/MariaDBCommandBlocking.h"
+#include "database/mariadb/MariaDBCommandASync.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

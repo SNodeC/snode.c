@@ -19,8 +19,8 @@
 
 #include "database/mariadb/MariaDBClient.h"
 
-#include "database/mariadb/MariaDBCommandBlocking.h"
-#include "database/mariadb/MariaDBCommandNoneBlocking.h"
+#include "database/mariadb/MariaDBCommandASync.h"
+#include "database/mariadb/MariaDBCommandSync.h"
 #include "database/mariadb/MariaDBConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -47,7 +47,7 @@ namespace database::mariadb {
         return mariaDBConnection->execute_async(std::move(MariaDBCommandSequence().execute_async(mariaDBCommand)));
     }
 
-    void MariaDBClient::execute_sync(MariaDBCommandNoneBlocking* mariaDBCommand) {
+    void MariaDBClient::execute_sync(MariaDBCommandSync* mariaDBCommand) {
         if (mariaDBConnection == nullptr) {
             mariaDBConnection = new MariaDBConnection(this, details);
         }

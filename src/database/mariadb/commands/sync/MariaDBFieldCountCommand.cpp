@@ -17,52 +17,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/commands/async/MariaDBFreeResultCommand.h"
+#include "database/mariadb/commands/sync/MariaDBFieldCountCommand.h"
 
 #include "database/mariadb/MariaDBConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+// IWYU pragma: no_include "mysql.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands::async {
+namespace database::mariadb::commands::sync {
 
-    MariaDBFreeResultCommand::MariaDBFreeResultCommand(MYSQL_RES*& result,
-                                                       const std::function<void(void)>& onFreeResult,
+    MariaDBFieldCountCommand::MariaDBFieldCountCommand(const std::function<void(unsigned int)>& onFieldCount,
                                                        const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandASync("FreeResult", onError)
-        , result(result)
-        , onFreeResult(onFreeResult) {
+        : MariaDBCommandSync("FieldCount", onError)
+        , onFieldCount(onFieldCount) {
     }
 
-    int MariaDBFreeResultCommand::commandStart() {
-        int ret = 0;
+    int MariaDBFieldCountCommand::commandStart() {
+        fieldCount = mysql_field_count(mysql);
 
-        if (result != nullptr) {
-            ret = mysql_free_result_start(result);
-        }
-
-        return ret;
+        return 0;
     }
 
-    int MariaDBFreeResultCommand::commandContinue(int status) {
-        int ret = mysql_free_result_cont(result, status);
-
-        return ret;
-    }
-
-    bool MariaDBFreeResultCommand::commandCompleted() {
-        onFreeResult();
+    bool MariaDBFieldCountCommand::commandCompleted() {
+        onFieldCount(fieldCount);
 
         return true;
     }
 
-    void MariaDBFreeResultCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
+    void MariaDBFieldCountCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBFreeResultCommand::commandInfo() {
-        return commandName();
+    std::string MariaDBFieldCountCommand::commandInfo() {
+        return commandName() + ":";
     }
 
-} // namespace database::mariadb::commands::async
+} // namespace database::mariadb::commands::sync

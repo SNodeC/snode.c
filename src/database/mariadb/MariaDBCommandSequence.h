@@ -20,7 +20,8 @@
 #ifndef DATABASE_MARIADB_MARIADBCOMMANDSEQUENCE
 #define DATABASE_MARIADB_MARIADBCOMMANDSEQUENCE
 
-#include "database/mariadb/MariaDBClientAPI.h"
+#include "database/mariadb/MariaDBClientASyncAPI.h"
+#include "database/mariadb/MariaDBClientSyncAPI.h"
 
 namespace database::mariadb {
     class MariaDBCommand;
@@ -37,7 +38,9 @@ namespace database::mariadb {
 
 namespace database::mariadb {
 
-    class MariaDBCommandSequence : public MariaDBClientAPI {
+    class MariaDBCommandSequence
+        : public MariaDBClientASyncAPI
+        , public MariaDBClientSyncAPI {
     public:
         MariaDBCommandSequence() = default;
         MariaDBCommandSequence(MariaDBCommandSequence&& mariaDBCommandSequence) = default;
@@ -47,7 +50,7 @@ namespace database::mariadb {
 
     public:
         MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) final;
-        void execute_sync(MariaDBCommandNoneBlocking* mariaDBCommand) final;
+        void execute_sync(MariaDBCommandSync* mariaDBCommand) final;
 
     private:
         std::deque<MariaDBCommand*>& sequence();

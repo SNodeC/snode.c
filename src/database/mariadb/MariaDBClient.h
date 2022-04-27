@@ -20,7 +20,8 @@
 #ifndef DATABASE_MARIADB_MARIADBCLIENT
 #define DATABASE_MARIADB_MARIADBCLIENT
 
-#include "database/mariadb/MariaDBClientAPI.h"
+#include "database/mariadb/MariaDBClientASyncAPI.h"
+#include "database/mariadb/MariaDBClientSyncAPI.h"
 #include "database/mariadb/MariaDBConnectionDetails.h" // IWYU pragma: export
 
 namespace database::mariadb {
@@ -39,14 +40,16 @@ namespace database::mariadb {
 
 namespace database::mariadb {
 
-    class MariaDBClient : public MariaDBClientAPI {
+    class MariaDBClient
+        : public MariaDBClientASyncAPI
+        , public MariaDBClientSyncAPI {
     public:
         explicit MariaDBClient(const MariaDBConnectionDetails& details);
         ~MariaDBClient() override;
 
     private:
         MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) final;
-        void execute_sync(MariaDBCommandNoneBlocking* mariaDBCommand) final;
+        void execute_sync(MariaDBCommandSync* mariaDBCommand) final;
 
         void connectionVanished();
 

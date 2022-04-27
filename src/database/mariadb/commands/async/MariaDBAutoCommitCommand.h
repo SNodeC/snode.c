@@ -20,7 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBAUTOCOMMITCOMMAND
 #define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBAUTOCOMMITCOMMAND
 
-#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandASync.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,7 +34,7 @@
 
 namespace database::mariadb::commands::async {
 
-    class MariaDBAutoCommitCommand : public MariaDBCommandBlocking {
+    class MariaDBAutoCommitCommand : public MariaDBCommandASync {
     public:
         MariaDBAutoCommitCommand(my_bool autoCommit,
                                  const std::function<void(void)>& onAutoCommit,

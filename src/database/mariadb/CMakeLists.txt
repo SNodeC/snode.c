@@ -8,13 +8,15 @@ if(MARIADB_FOUND)
 
     set(MARIADB_CPP
         MariaDBClient.cpp
-        MariaDBClientAPI.cpp
+        MariaDBClientASyncAPI.cpp
+        MariaDBClientSyncAPI.cpp
         MariaDBCommand.cpp
-        MariaDBCommandBlocking.cpp
-        MariaDBCommandNoneBlocking.cpp
+        MariaDBCommandASync.cpp
+        MariaDBCommandSync.cpp
         MariaDBCommandSequence.cpp
         MariaDBConnection.cpp
         commands/sync/MariaDBAffectedRowsCommand.cpp
+        commands/sync/MariaDBFieldCountCommand.cpp
         commands/sync/MariaDBUseResultCommand.cpp
         commands/async/MariaDBAutoCommitCommand.cpp
         commands/async/MariaDBCommitCommand.cpp
@@ -28,14 +30,16 @@ if(MARIADB_FOUND)
 
     set(MARIADB_H
         MariaDBClient.h
-        MariaDBClientAPI.h
+        MariaDBClientASyncAPI.h
+        MariaDBClientSyncAPI.h
         MariaDBCommand.h
-        MariaDBCommandBlocking.h
-        MariaDBCommandNoneBlocking.h
+        MariaDBCommandASync.h
+        MariaDBCommandSync.h
         MariaDBCommandSequence.h
         MariaDBConnection.h
         MariaDBConnectionDetails.h
         commands/sync/MariaDBAffectedRowsCommand.h
+        commands/sync/MariaDBFieldCountCommand.h
         commands/sync/MariaDBUseResultCommand.h
         commands/async/MariaDBAutoCommitCommand.h
         commands/async/MariaDBCommitCommand.h

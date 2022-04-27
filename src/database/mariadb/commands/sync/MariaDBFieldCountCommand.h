@@ -17,42 +17,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBQUERYCOMMAND
-#define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBQUERYCOMMAND
+#ifndef DATABASE_MARIADB_COMMANDS_SYNC_MARIADBFIELDCOUNTCOMMAND
+#define DATABASE_MARIADB_COMMANDS_SYNC_MARIADBFIELDCOUNTCOMMAND
 
-#include "database/mariadb/MariaDBCommandASync.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandSync.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <mysql.h> // IWYU pragma: export
+#include <mysql.h>
 #include <string>
 
 // IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb::commands::async {
+namespace database::mariadb::commands::sync {
 
-    class MariaDBQueryCommand : public MariaDBCommandASync {
+    class MariaDBFieldCountCommand : public MariaDBCommandSync {
     public:
-        MariaDBQueryCommand(const std::string& sql,
-                            const std::function<void(void)>& onQuery,
-                            const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBFieldCountCommand(const std::function<void(unsigned int)>& onFieldCount,
+                                 const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
-        int commandContinue(int status) override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
     protected:
         int ret;
+        unsigned int fieldCount = 0;
 
-        const std::string sql;
-        const std::function<void(void)> onQuery;
+        const std::function<void(unsigned int)> onFieldCount;
     };
 
-} // namespace database::mariadb::commands::async
+} // namespace database::mariadb::commands::sync
 
-#endif // DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBQUERYCOMMAND
+#endif // DATABASE_MARIADB_COMMANDS_SYNC_MARIADBFIELDCOUNTCOMMAND

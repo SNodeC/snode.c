@@ -17,43 +17,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/MariaDBCommandSequence.h"
-
-#include "database/mariadb/MariaDBCommandASync.h"
 #include "database/mariadb/MariaDBCommandSync.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb {
 
-    std::deque<MariaDBCommand*>& database::mariadb::MariaDBCommandSequence::sequence() {
-        return commandSequence;
-    }
-
-    MariaDBCommand* MariaDBCommandSequence::nextCommand() {
-        return commandSequence.front();
-    }
-
-    void MariaDBCommandSequence::commandCompleted() {
-        commandSequence.pop_front();
-    }
-
-    bool MariaDBCommandSequence::empty() {
-        return commandSequence.empty();
-    }
-
-    MariaDBCommandSequence& database::mariadb::MariaDBCommandSequence::execute_async(MariaDBCommand* mariaDBCommand) {
-        commandSequence.push_back(mariaDBCommand);
-
-        return *this;
-    }
-
-    void MariaDBCommandSequence::execute_sync(MariaDBCommandSync* mariaDBCommand) {
-        commandSequence.push_back(mariaDBCommand);
+    int MariaDBCommandSync::commandContinue([[maybe_unused]] int status) {
+        return 0;
     }
 
 } // namespace database::mariadb

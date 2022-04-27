@@ -20,7 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBROLLBACKCOMMAND
 #define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBROLLBACKCOMMAND
 
-#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandASync.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,7 +34,7 @@
 
 namespace database::mariadb::commands::async {
 
-    class MariaDBRollbackCommand : public MariaDBCommandBlocking {
+    class MariaDBRollbackCommand : public MariaDBCommandASync {
     public:
         MariaDBRollbackCommand(const std::function<void(void)>& onRollback,
                                const std::function<void(const std::string&, unsigned int)>& onError);

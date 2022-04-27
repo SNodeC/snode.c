@@ -176,19 +176,34 @@ int main(int argc, char* argv[]) {
 
                                         r2 = 0;
                                         db2.query(
-                                            "SELECT * FROM snodec",
-                                            [&r2](const MYSQL_ROW row) -> void {
-                                                if (row != nullptr) {
-                                                    VLOG(0) << "Row Result 7: " << row[0] << " : " << row[1];
-                                                    r2++;
-                                                } else {
-                                                    VLOG(0) << "Row Result 7: " << r2;
-                                                }
-                                            },
-                                            [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                                VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
-                                                stop();
-                                            });
+                                               "SELECT * FROM snodec",
+                                               [&db2, &r2](const MYSQL_ROW row) -> void {
+                                                   if (row != nullptr) {
+                                                       VLOG(0) << "Row Result 7: " << row[0] << " : " << row[1];
+                                                       r2++;
+                                                   } else {
+                                                       VLOG(0) << "Row Result 7: " << r2;
+                                                       db2.fieldCount(
+                                                           [](unsigned int fieldCount) -> void {
+                                                               VLOG(0) << "************ FieldCount ************ = " << fieldCount;
+                                                           },
+                                                           [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                               VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                                           });
+                                                   }
+                                               },
+                                               [stop](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                   VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                                   stop();
+                                               })
+                                            .fieldCount(
+                                                [](unsigned int fieldCount) -> void {
+                                                    VLOG(0) << "************ FieldCount ************ = " << fieldCount;
+                                                },
+                                                [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                    VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                                });
+                                        ;
                                     },
                                     0.7,
                                     "Tick 0.7");
@@ -271,7 +286,7 @@ int main(int argc, char* argv[]) {
                         })
                     .query(
                         "SELECT COUNT(*) FROM snodec",
-                        [j, stop](const MYSQL_ROW row) -> void {
+                        [&db2, j, stop](const MYSQL_ROW row) -> void {
                             if (row != nullptr) {
                                 VLOG(0) << "Row Result count(*) 16: " << row[0];
                                 if (std::atoi(row[0]) != j + 1) {
@@ -280,6 +295,13 @@ int main(int argc, char* argv[]) {
                                 }
                             } else {
                                 VLOG(0) << "Row Result count(*) 16: no result:";
+                                db2.fieldCount(
+                                    [](unsigned int fieldCount) -> void {
+                                        VLOG(0) << "************ FieldCount ************ = " << fieldCount;
+                                    },
+                                    [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                        VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                    });
                             }
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -295,8 +317,8 @@ int main(int argc, char* argv[]) {
                             stop();
                         });
             },
-            0.01,
-            "Tick 0.01");
+            0.1,
+            "Tick 0.1");
     }
 
     return core::SNodeC::start();

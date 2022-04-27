@@ -30,7 +30,7 @@ namespace database::mariadb::commands::async {
     MariaDBQueryCommand::MariaDBQueryCommand(const std::string& sql,
                                              const std::function<void(void)>& onQuery,
                                              const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandBlocking("Query", onError)
+        : MariaDBCommandASync("Query", onError)
         , sql(sql)
         , onQuery(onQuery) {
     }

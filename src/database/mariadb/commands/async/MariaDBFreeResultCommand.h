@@ -20,7 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBFREERESULTCOMMAND
 #define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBFREERESULTCOMMAND
 
-#include "database/mariadb/MariaDBCommandBlocking.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandASync.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,7 +34,7 @@
 
 namespace database::mariadb::commands::async {
 
-    class MariaDBFreeResultCommand : public MariaDBCommandBlocking {
+    class MariaDBFreeResultCommand : public MariaDBCommandASync {
     public:
         MariaDBFreeResultCommand(MYSQL_RES*& result,
                                  const std::function<void(void)>& onFreeResult,

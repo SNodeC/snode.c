@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/MariaDBClientAPI.h"
+#include "database/mariadb/MariaDBClientASyncAPI.h"
 
 #include "database/mariadb/MariaDBCommandSequence.h"
 #include "database/mariadb/commands/async/MariaDBAutoCommitCommand.h"
@@ -36,9 +36,9 @@
 
 namespace database::mariadb {
 
-    MariaDBCommandSequence& MariaDBClientAPI::query(const std::string& sql,
-                                                    const std::function<void(const MYSQL_ROW)>& onQuery,
-                                                    const std::function<void(const std::string&, unsigned int)>& onError) {
+    MariaDBCommandSequence& MariaDBClientASyncAPI::query(const std::string& sql,
+                                                         const std::function<void(const MYSQL_ROW)>& onQuery,
+                                                         const std::function<void(const std::string&, unsigned int)>& onError) {
         return execute_async(new database::mariadb::commands::async::MariaDBQueryCommand(
                                  sql,
                                  [](void) -> void {
@@ -58,35 +58,30 @@ namespace database::mariadb {
                 onError));
     }
 
-    MariaDBCommandSequence& MariaDBClientAPI::exec(const std::string& sql,
-                                                   const std::function<void(void)>& onExec,
-                                                   const std::function<void(const std::string&, unsigned int)>& onError) {
+    MariaDBCommandSequence& MariaDBClientASyncAPI::exec(const std::string& sql,
+                                                        const std::function<void(void)>& onExec,
+                                                        const std::function<void(const std::string&, unsigned int)>& onError) {
         return execute_async(new database::mariadb::commands::async::MariaDBExecCommand(sql, onExec, onError));
     }
 
-    MariaDBCommandSequence& MariaDBClientAPI::startTransactions(const std::function<void()>& onAutoCommit,
-                                                                const std::function<void(const std::string&, unsigned int)>& onError) {
+    MariaDBCommandSequence& MariaDBClientASyncAPI::startTransactions(const std::function<void()>& onAutoCommit,
+                                                                     const std::function<void(const std::string&, unsigned int)>& onError) {
         return execute_async(new database::mariadb::commands::async::MariaDBAutoCommitCommand(false, onAutoCommit, onError));
     }
 
-    MariaDBCommandSequence& MariaDBClientAPI::endTransactions(const std::function<void()>& onAutoCommit,
-                                                              const std::function<void(const std::string&, unsigned int)>& onError) {
+    MariaDBCommandSequence& MariaDBClientASyncAPI::endTransactions(const std::function<void()>& onAutoCommit,
+                                                                   const std::function<void(const std::string&, unsigned int)>& onError) {
         return execute_async(new database::mariadb::commands::async::MariaDBAutoCommitCommand(true, onAutoCommit, onError));
     }
 
-    MariaDBCommandSequence& MariaDBClientAPI::commit(const std::function<void()>& onCommit,
-                                                     const std::function<void(const std::string&, unsigned int)>& onError) {
+    MariaDBCommandSequence& MariaDBClientASyncAPI::commit(const std::function<void()>& onCommit,
+                                                          const std::function<void(const std::string&, unsigned int)>& onError) {
         return execute_async(new database::mariadb::commands::async::MariaDBCommitCommand(onCommit, onError));
     }
 
-    MariaDBCommandSequence& MariaDBClientAPI::rollback(const std::function<void()>& onRollback,
-                                                       const std::function<void(const std::string&, unsigned int)>& onError) {
+    MariaDBCommandSequence& MariaDBClientASyncAPI::rollback(const std::function<void()>& onRollback,
+                                                            const std::function<void(const std::string&, unsigned int)>& onError) {
         return execute_async(new database::mariadb::commands::async::MariaDBRollbackCommand(onRollback, onError));
-    }
-
-    void MariaDBClientAPI::affectedRows(const std::function<void(int)>& onAffectedRows,
-                                        const std::function<void(const std::string&, unsigned int)>& onError) {
-        execute_sync(new database::mariadb::commands::sync::MariaDBAffectedRowsCommand(onAffectedRows, onError));
     }
 
 } // namespace database::mariadb

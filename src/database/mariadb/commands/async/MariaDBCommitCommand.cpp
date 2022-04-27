@@ -29,7 +29,7 @@ namespace database::mariadb::commands::async {
 
     MariaDBCommitCommand::MariaDBCommitCommand(const std::function<void()>& onCommit,
                                                const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandBlocking("Commit", onError)
+        : MariaDBCommandASync("Commit", onError)
         , onCommit(onCommit) {
     }
 

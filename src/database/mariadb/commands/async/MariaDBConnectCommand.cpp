@@ -33,7 +33,7 @@ namespace database::mariadb::commands::async {
                                                  const std::function<void(void)>& onConnecting,
                                                  const std::function<void(void)>& onConnect,
                                                  const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandBlocking("Connect", onError)
+        : MariaDBCommandASync("Connect", onError)
         , details(details)
         , onConnecting(onConnecting)
         , onConnect(onConnect) {

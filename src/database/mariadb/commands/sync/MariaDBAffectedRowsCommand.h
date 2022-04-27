@@ -20,7 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_SYNC_MARIADBAFFECTEDROWSCOMMAND
 #define DATABASE_MARIADB_COMMANDS_SYNC_MARIADBAFFECTEDROWSCOMMAND
 
-#include "database/mariadb/MariaDBCommandNoneBlocking.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandSync.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,7 +34,7 @@
 
 namespace database::mariadb::commands::sync {
 
-    class MariaDBAffectedRowsCommand : public MariaDBCommandNoneBlocking {
+    class MariaDBAffectedRowsCommand : public MariaDBCommandSync {
     public:
         MariaDBAffectedRowsCommand(const std::function<void(my_ulonglong)>& onAffectedRows,
                                    const std::function<void(const std::string&, unsigned int)>& onError);
