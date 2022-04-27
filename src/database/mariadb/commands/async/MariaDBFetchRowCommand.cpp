@@ -52,12 +52,10 @@ namespace database::mariadb::commands::async {
         return ret;
     }
 
-    void MariaDBFetchRowCommand::commandCompleted() {
+    bool MariaDBFetchRowCommand::commandCompleted() {
         onRow(row);
 
-        if (row == nullptr) {
-            mariaDBConnection->commandCompleted();
-        }
+        return row == nullptr;
     }
 
     void MariaDBFetchRowCommand::commandError(const std::string& errorString, unsigned int errorNumber) {

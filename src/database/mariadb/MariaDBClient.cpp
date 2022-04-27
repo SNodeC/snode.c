@@ -19,7 +19,8 @@
 
 #include "database/mariadb/MariaDBClient.h"
 
-#include "database/mariadb/MariaDBCommand.h"
+#include "database/mariadb/MariaDBCommandBlocking.h"
+#include "database/mariadb/MariaDBCommandNoneBlocking.h"
 #include "database/mariadb/MariaDBConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,14 +39,20 @@ namespace database::mariadb {
         }
     }
 
-    MariaDBCommandSequence& MariaDBClient::execute(MariaDBCommand* mariaDBCommand) {
+    MariaDBCommandSequence& MariaDBClient::execute_async(MariaDBCommand* mariaDBCommand) {
         if (mariaDBConnection == nullptr) {
             mariaDBConnection = new MariaDBConnection(this, details);
         }
 
-        mariaDBCommand->setMariaDBConnection(mariaDBConnection);
+        return mariaDBConnection->execute_async(std::move(MariaDBCommandSequence().execute_async(mariaDBCommand)));
+    }
 
-        return mariaDBConnection->execute(MariaDBCommandSequence(mariaDBConnection, mariaDBCommand));
+    void MariaDBClient::execute_sync(MariaDBCommandNoneBlocking* mariaDBCommand) {
+        if (mariaDBConnection == nullptr) {
+            mariaDBConnection = new MariaDBConnection(this, details);
+        }
+
+        mariaDBConnection->execute_sync(mariaDBCommand);
     }
 
     void MariaDBClient::connectionVanished() {

@@ -43,9 +43,10 @@ namespace database::mariadb::commands::async {
         return mysql_autocommit_cont(&ret, mysql, status);
     }
 
-    void MariaDBAutoCommitCommand::commandCompleted() {
+    bool MariaDBAutoCommitCommand::commandCompleted() {
         onAutoCommit();
-        mariaDBConnection->commandCompleted();
+
+        return true;
     }
 
     void MariaDBAutoCommitCommand::commandError(const std::string& errorString, unsigned int errorNumber) {

@@ -19,20 +19,16 @@
 
 #include "database/mariadb/MariaDBCommandSequence.h"
 
-#include "database/mariadb/MariaDBCommand.h"
+#include "database/mariadb/MariaDBCommandBlocking.h"
+#include "database/mariadb/MariaDBCommandNoneBlocking.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb {
-
-    database::mariadb::MariaDBCommandSequence::MariaDBCommandSequence(database::mariadb::MariaDBConnection* mariaDBConnection,
-                                                                      MariaDBCommand* mariaDBCommand)
-        : mariaDBConnection(mariaDBConnection) {
-        mariaDBCommand->setMariaDBConnection(mariaDBConnection);
-        commandSequence.push_back(mariaDBCommand);
-    }
 
     std::deque<MariaDBCommand*>& database::mariadb::MariaDBCommandSequence::sequence() {
         return commandSequence;
@@ -50,11 +46,14 @@ namespace database::mariadb {
         return commandSequence.empty();
     }
 
-    MariaDBCommandSequence& database::mariadb::MariaDBCommandSequence::execute(MariaDBCommand* mariaDBCommand) {
-        mariaDBCommand->setMariaDBConnection(mariaDBConnection);
+    MariaDBCommandSequence& database::mariadb::MariaDBCommandSequence::execute_async(MariaDBCommand* mariaDBCommand) {
         commandSequence.push_back(mariaDBCommand);
 
         return *this;
+    }
+
+    void MariaDBCommandSequence::execute_sync(MariaDBCommandNoneBlocking* mariaDBCommand) {
+        commandSequence.push_back(mariaDBCommand);
     }
 
 } // namespace database::mariadb

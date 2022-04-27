@@ -20,7 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_SYNC_MARIADBUSERESULTCOMMAND
 #define DATABASE_MARIADB_COMMANDS_SYNC_MARIADBUSERESULTCOMMAND
 
-#include "database/mariadb/MariaDBCommandNonBlocking.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandNoneBlocking.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,13 +34,13 @@
 
 namespace database::mariadb::commands::sync {
 
-    class MariaDBUseResultCommand : public MariaDBCommandNonBlocking {
+    class MariaDBUseResultCommand : public MariaDBCommandNoneBlocking {
     public:
         MariaDBUseResultCommand(const std::function<void(MYSQL_RES*)>& onUseResult,
                                 const std::function<void(const std::string&, unsigned int)>& onError);
 
         int commandStart() override;
-        void commandCompleted() override;
+        bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 

@@ -53,7 +53,7 @@ namespace database::mariadb {
 
     public:
         virtual int commandContinue(int status) = 0;
-        virtual void commandCompleted() = 0;
+        virtual bool commandCompleted() = 0;
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
         virtual std::string commandInfo() = 0;
 
@@ -65,6 +65,7 @@ namespace database::mariadb {
 
         utils::Timeval startTime = 0;
 
+    public:
         const std::function<void(const std::string&, unsigned int)> onError;
     };
 

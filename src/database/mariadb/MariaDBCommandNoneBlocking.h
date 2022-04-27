@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASE_MARIADB_MARIADBCOMMANDNONBLOCKING
-#define DATABASE_MARIADB_MARIADBCOMMANDNONBLOCKING
+#ifndef DATABASE_MARIADB_MARIADBCOMMANDNONEBLOCKING
+#define DATABASE_MARIADB_MARIADBCOMMANDNONEBLOCKING
 
 #include "database/mariadb/MariaDBCommand.h" // IWYU pragma: export
 
@@ -28,7 +28,7 @@
 
 namespace database::mariadb {
 
-    class MariaDBCommandNonBlocking : public MariaDBCommand {
+    class MariaDBCommandNoneBlocking : public MariaDBCommand {
     public:
         using MariaDBCommand::MariaDBCommand;
 
@@ -38,4 +38,4 @@ namespace database::mariadb {
 
 } // namespace database::mariadb
 
-#endif // DATABASE_MARIADB_MARIADBCOMMANDNONBLOCKING
+#endif // DATABASE_MARIADB_MARIADBCOMMANDNONEBLOCKING

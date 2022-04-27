@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "database/mariadb/MariaDBCommandNonBlocking.h"
+#include "database/mariadb/MariaDBCommandNoneBlocking.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,7 +25,7 @@
 
 namespace database::mariadb {
 
-    int MariaDBCommandNonBlocking::commandContinue([[maybe_unused]] int status) {
+    int MariaDBCommandNoneBlocking::commandContinue([[maybe_unused]] int status) {
         return 0;
     }
 

@@ -51,9 +51,10 @@ namespace database::mariadb::commands::async {
         return ret;
     }
 
-    void MariaDBFreeResultCommand::commandCompleted() {
+    bool MariaDBFreeResultCommand::commandCompleted() {
         onFreeResult();
-        mariaDBConnection->commandCompleted();
+
+        return true;
     }
 
     void MariaDBFreeResultCommand::commandError(const std::string& errorString, unsigned int errorNumber) {

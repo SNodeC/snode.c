@@ -71,7 +71,8 @@ namespace database::mariadb {
 
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 
-        MariaDBCommandSequence& execute(MariaDBCommandSequence&& commandSequence);
+        MariaDBCommandSequence& execute_async(MariaDBCommandSequence&& commandSequence);
+        void execute_sync(MariaDBCommand* mariaDBCommand);
 
         void commandStart(const utils::Timeval& currentTime);
         void commandContinue(int status);

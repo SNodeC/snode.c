@@ -55,33 +55,34 @@ int main(int argc, char* argv[]) {
 
     db1.exec(
            "DELETE FROM `snodec`",
-           [](void) -> void {
+           [&db1](void) -> void {
                VLOG(0) << "********** OnQuery 0;";
+               db1.affectedRows(
+                   [](my_ulonglong affectedRows) -> void {
+                       VLOG(0) << "********** AffectedRows 1: " << affectedRows;
+                   },
+                   [](const std::string& errorString, unsigned int errorNumber) -> void {
+                       VLOG(0) << "Error 1: " << errorString << " : " << errorNumber;
+                   });
            },
            [](const std::string& errorString, unsigned int errorNumber) -> void {
                VLOG(0) << "********** Error 0: " << errorString << " : " << errorNumber;
            })
-        .affectedRows(
-            [](my_ulonglong affectedRows) -> void {
-                VLOG(0) << "********** AffectedRows 1: " << affectedRows;
-            },
-            [](const std::string& errorString, unsigned int errorNumber) -> void {
-                VLOG(0) << "Error 1: " << errorString << " : " << errorNumber;
-            })
+
         .exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-            [](void) -> void {
+            [&db1](void) -> void {
                 VLOG(0) << "********** OnQuery 1: ";
+                db1.affectedRows(
+                    [](my_ulonglong affectedRows) -> void {
+                        VLOG(0) << "********** AffectedRows 2: " << affectedRows;
+                    },
+                    [](const std::string& errorString, unsigned int errorNumber) -> void {
+                        VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
+                    });
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "********** Error 1: " << errorString << " : " << errorNumber;
-            })
-        .affectedRows(
-            [](my_ulonglong affectedRows) -> void {
-                VLOG(0) << "********** AffectedRows 2: " << affectedRows;
-            },
-            [](const std::string& errorString, unsigned int errorNumber) -> void {
-                VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
             })
         .query(
             "SELECT * FROM snodec",
@@ -222,19 +223,19 @@ int main(int argc, char* argv[]) {
                        })
                     .exec(
                         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-                        [j](void) -> void {
+                        [&db2, j](void) -> void {
                             VLOG(0) << "Inserted 10: " << j;
+                            db2.affectedRows(
+                                [](my_ulonglong affectedRows) -> void {
+                                    VLOG(0) << "AffectedRows 11: " << affectedRows;
+                                },
+                                [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                    VLOG(0) << "Error 11: " << errorString << " : " << errorNumber;
+                                });
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
                             VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
                             stop();
-                        })
-                    .affectedRows(
-                        [](my_ulonglong affectedRows) -> void {
-                            VLOG(0) << "AffectedRows 11: " << affectedRows;
-                        },
-                        [](const std::string& errorString, unsigned int errorNumber) -> void {
-                            VLOG(0) << "Error 11: " << errorString << " : " << errorNumber;
                         })
                     .rollback(
                         [](void) -> void {
@@ -246,19 +247,19 @@ int main(int argc, char* argv[]) {
                         })
                     .exec(
                         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
-                        [j](void) -> void {
+                        [&db2, j](void) -> void {
                             VLOG(0) << "Inserted 13: " << j;
+                            db2.affectedRows(
+                                [](my_ulonglong affectedRows) -> void {
+                                    VLOG(0) << "AffectedRows 14: " << affectedRows;
+                                },
+                                [](const std::string& errorString, unsigned int errorNumber) -> void {
+                                    VLOG(0) << "Error 14: " << errorString << " : " << errorNumber;
+                                });
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
                             VLOG(0) << "Error 13: " << errorString << " : " << errorNumber;
                             stop();
-                        })
-                    .affectedRows(
-                        [](my_ulonglong affectedRows) -> void {
-                            VLOG(0) << "AffectedRows 14: " << affectedRows;
-                        },
-                        [](const std::string& errorString, unsigned int errorNumber) -> void {
-                            VLOG(0) << "Error 14: " << errorString << " : " << errorNumber;
                         })
                     .commit(
                         [](void) -> void {

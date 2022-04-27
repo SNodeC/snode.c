@@ -22,6 +22,7 @@
 
 namespace database::mariadb {
     class MariaDBCommand;
+    class MariaDBCommandNoneBlocking;
     class MariaDBCommandSequence;
 } // namespace database::mariadb
 
@@ -58,11 +59,12 @@ namespace database::mariadb {
         MariaDBCommandSequence& rollback(const std::function<void(void)>& onRollback,
                                          const std::function<void(const std::string&, unsigned int)>& onError);
 
-        MariaDBCommandSequence& affectedRows(const std::function<void(int)>& onAffectedRows,
-                                             const std::function<void(const std::string&, unsigned int)>& onErro);
+        void affectedRows(const std::function<void(int)>& onAffectedRows,
+                          const std::function<void(const std::string&, unsigned int)>& onErro);
 
     protected:
-        virtual MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) = 0;
+        virtual MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) = 0;
+        virtual void execute_sync(MariaDBCommandNoneBlocking* mariaDBCommand) = 0;
 
         MYSQL_RES* lastResult = nullptr;
     };

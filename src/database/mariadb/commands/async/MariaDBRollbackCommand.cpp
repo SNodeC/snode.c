@@ -41,9 +41,10 @@ namespace database::mariadb::commands::async {
         return mysql_rollback_cont(&ret, mysql, status);
     }
 
-    void MariaDBRollbackCommand::commandCompleted() {
+    bool MariaDBRollbackCommand::commandCompleted() {
         onRollback();
-        mariaDBConnection->commandCompleted();
+
+        return true;
     }
 
     void MariaDBRollbackCommand::commandError(const std::string& errorString, unsigned int errorNumber) {

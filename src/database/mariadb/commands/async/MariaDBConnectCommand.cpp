@@ -59,9 +59,10 @@ namespace database::mariadb::commands::async {
         return mysql_real_connect_cont(&ret, mysql, status);
     }
 
-    void MariaDBConnectCommand::commandCompleted() {
+    bool MariaDBConnectCommand::commandCompleted() {
         onConnect();
-        mariaDBConnection->commandCompleted();
+
+        return true;
     }
 
     void MariaDBConnectCommand::commandError(const std::string& errorString, unsigned int errorNumber) {

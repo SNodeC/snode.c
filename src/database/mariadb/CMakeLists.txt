@@ -11,7 +11,7 @@ if(MARIADB_FOUND)
         MariaDBClientAPI.cpp
         MariaDBCommand.cpp
         MariaDBCommandBlocking.cpp
-        MariaDBCommandNonBlocking.cpp
+        MariaDBCommandNoneBlocking.cpp
         MariaDBCommandSequence.cpp
         MariaDBConnection.cpp
         commands/sync/MariaDBAffectedRowsCommand.cpp
@@ -31,7 +31,7 @@ if(MARIADB_FOUND)
         MariaDBClientAPI.h
         MariaDBCommand.h
         MariaDBCommandBlocking.h
-        MariaDBCommandNonBlocking.h
+        MariaDBCommandNoneBlocking.h
         MariaDBCommandSequence.h
         MariaDBConnection.h
         MariaDBConnectionDetails.h

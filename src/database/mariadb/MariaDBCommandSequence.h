@@ -39,11 +39,15 @@ namespace database::mariadb {
 
     class MariaDBCommandSequence : public MariaDBClientAPI {
     public:
-        MariaDBCommandSequence(MariaDBConnection* mariaDBConnection, MariaDBCommand* mariaDBCommand);
+        MariaDBCommandSequence() = default;
+        MariaDBCommandSequence(MariaDBCommandSequence&& mariaDBCommandSequence) = default;
         ~MariaDBCommandSequence() override = default;
 
+        MariaDBCommandSequence& operator=(MariaDBCommandSequence&& mariaDBCommandSequence) = default;
+
     public:
-        MariaDBCommandSequence& execute(MariaDBCommand* mariaDBCommand) final;
+        MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) final;
+        void execute_sync(MariaDBCommandNoneBlocking* mariaDBCommand) final;
 
     private:
         std::deque<MariaDBCommand*>& sequence();
@@ -53,8 +57,6 @@ namespace database::mariadb {
         bool empty();
 
         std::deque<MariaDBCommand*> commandSequence;
-
-        MariaDBConnection* mariaDBConnection = nullptr;
 
         friend class MariaDBConnection;
     };

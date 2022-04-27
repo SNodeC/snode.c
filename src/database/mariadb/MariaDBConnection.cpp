@@ -42,35 +42,33 @@ namespace database::mariadb {
         , mysql(mysql_init(nullptr)) {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
 
-        execute(MariaDBCommandSequence(this,
-                                       new database::mariadb::commands::async::MariaDBConnectCommand(
-                                           connectionDetails,
-                                           [this](void) -> void {
-                                               if (mysql_errno(mysql) == 0) {
-                                                   int fd = mysql_get_socket(mysql);
+        execute_async(std::move(MariaDBCommandSequence().execute_async(new database::mariadb::commands::async::MariaDBConnectCommand(
+            connectionDetails,
+            [this](void) -> void {
+                if (mysql_errno(mysql) == 0) {
+                    int fd = mysql_get_socket(mysql);
 
-                                                   VLOG(0) << "Got valid descriptor: " << fd;
+                    VLOG(0) << "Got valid descriptor: " << fd;
 
-                                                   ReadEventReceiver::enable(fd);
-                                                   WriteEventReceiver::enable(fd);
-                                                   ExceptionalConditionEventReceiver::enable(fd);
+                    ReadEventReceiver::enable(fd);
+                    WriteEventReceiver::enable(fd);
+                    ExceptionalConditionEventReceiver::enable(fd);
 
-                                                   ReadEventReceiver::suspend();
-                                                   WriteEventReceiver::suspend();
-                                                   ExceptionalConditionEventReceiver::suspend();
+                    ReadEventReceiver::suspend();
+                    WriteEventReceiver::suspend();
+                    ExceptionalConditionEventReceiver::suspend();
 
-                                                   connected = true;
-                                               } else {
-                                                   VLOG(0)
-                                                       << "Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
-                                               }
-                                           },
-                                           [](void) -> void {
-                                               VLOG(0) << "Connected";
-                                           },
-                                           [](const std::string& errorString, unsigned int errorNumber) -> void {
-                                               VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
-                                           })));
+                    connected = true;
+                } else {
+                    VLOG(0) << "Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
+                }
+            },
+            [](void) -> void {
+                VLOG(0) << "Connected";
+            },
+            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
+            }))));
     }
 
     MariaDBConnection::~MariaDBConnection() {
@@ -90,19 +88,33 @@ namespace database::mariadb {
         mysql_library_end();
     }
 
-    MariaDBCommandSequence& MariaDBConnection::execute(MariaDBCommandSequence&& commandSequence) {
+    MariaDBCommandSequence& MariaDBConnection::execute_async(MariaDBCommandSequence&& commandSequence) {
         if (currentCommand == nullptr && commandSequenceQueue.empty()) {
             commandStartEvent.publish();
         }
 
-        commandSequenceQueue.emplace_back(commandSequence);
+        commandSequenceQueue.emplace_back(std::move(commandSequence));
 
         return commandSequenceQueue.back();
+    }
+
+    void MariaDBConnection::execute_sync(MariaDBCommand* mariaDBCommand) {
+        mariaDBCommand->commandStart(mysql, utils::Timeval::currentTime());
+
+        if (mysql_errno(mysql) == 0) {
+            if (mariaDBCommand->commandCompleted()) {
+            }
+        } else {
+            mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+        }
+
+        delete mariaDBCommand;
     }
 
     void MariaDBConnection::commandStart(const utils::Timeval& currentTime) {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
+            currentCommand->setMariaDBConnection(this);
 
             VLOG(0) << "Start: " << currentCommand->commandInfo();
 
@@ -187,7 +199,9 @@ namespace database::mariadb {
 
             if (status == 0) {
                 if (mysql_errno(mysql) == 0) {
-                    currentCommand->commandCompleted();
+                    if (currentCommand->commandCompleted()) {
+                        commandCompleted();
+                    }
                 } else {
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                     commandCompleted();

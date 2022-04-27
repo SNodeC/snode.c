@@ -31,7 +31,7 @@ namespace database::mariadb::commands::sync {
 
     MariaDBAffectedRowsCommand::MariaDBAffectedRowsCommand(const std::function<void(my_ulonglong)>& onAffectedRows,
                                                            const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandNonBlocking("AffectedRows", onError)
+        : MariaDBCommandNoneBlocking("AffectedRows", onError)
         , onAffectedRows(onAffectedRows) {
     }
 
@@ -41,9 +41,10 @@ namespace database::mariadb::commands::sync {
         return 0;
     }
 
-    void MariaDBAffectedRowsCommand::commandCompleted() {
+    bool MariaDBAffectedRowsCommand::commandCompleted() {
         onAffectedRows(affectedRows);
-        mariaDBConnection->commandCompleted();
+
+        return true;
     }
 
     void MariaDBAffectedRowsCommand::commandError(const std::string& errorString, unsigned int errorNumber) {
