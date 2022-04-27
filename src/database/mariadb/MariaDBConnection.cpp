@@ -28,6 +28,7 @@
 
 #include <memory>
 #include <string>
+#include <utility> // for move
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

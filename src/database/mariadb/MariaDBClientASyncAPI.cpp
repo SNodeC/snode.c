@@ -27,7 +27,6 @@
 #include "database/mariadb/commands/async/MariaDBFreeResultCommand.h"
 #include "database/mariadb/commands/async/MariaDBQueryCommand.h"
 #include "database/mariadb/commands/async/MariaDBRollbackCommand.h"
-#include "database/mariadb/commands/sync/MariaDBAffectedRowsCommand.h"
 #include "database/mariadb/commands/sync/MariaDBUseResultCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -19,8 +19,6 @@
 
 #include "database/mariadb/commands/async/MariaDBQueryCommand.h"
 
-#include "database/mariadb/MariaDBConnection.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

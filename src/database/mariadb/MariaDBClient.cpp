@@ -19,11 +19,12 @@
 
 #include "database/mariadb/MariaDBClient.h"
 
-#include "database/mariadb/MariaDBCommandASync.h"
 #include "database/mariadb/MariaDBCommandSync.h"
 #include "database/mariadb/MariaDBConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <utility> // for move
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

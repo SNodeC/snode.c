@@ -19,9 +19,9 @@
 
 #include "database/mariadb/commands/sync/MariaDBFieldCountCommand.h"
 
-#include "database/mariadb/MariaDBConnection.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <mysql.h>
 
 // IWYU pragma: no_include "mysql.h"
 

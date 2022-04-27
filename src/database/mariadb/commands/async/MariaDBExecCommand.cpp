@@ -19,8 +19,6 @@
 
 #include "database/mariadb/commands/async/MariaDBExecCommand.h"
 
-#include "database/mariadb/MariaDBConnection.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 // IWYU pragma: no_include "mysql.h"

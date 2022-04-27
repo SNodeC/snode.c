@@ -21,9 +21,7 @@
 #define DATABASE_MARIADB_MARIADBCLIENTSYNCAPI
 
 namespace database::mariadb {
-    class MariaDBCommand;
     class MariaDBCommandSync;
-    class MariaDBCommandSequence;
 } // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

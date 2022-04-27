@@ -19,8 +19,6 @@
 
 #include "database/mariadb/commands/sync/MariaDBAffectedRowsCommand.h"
 
-#include "database/mariadb/MariaDBConnection.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 // IWYU pragma: no_include "mysql.h"

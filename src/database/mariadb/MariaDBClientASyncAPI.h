@@ -22,7 +22,6 @@
 
 namespace database::mariadb {
     class MariaDBCommand;
-    class MariaDBCommandSync;
     class MariaDBCommandSequence;
 } // namespace database::mariadb
 
