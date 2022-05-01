@@ -59,8 +59,8 @@ namespace database::mariadb {
 
     protected:
         std::string name;
-        MariaDBConnection* mariaDBConnection = nullptr;
 
+        MariaDBConnection* mariaDBConnection = nullptr;
         MYSQL* mysql = nullptr;
 
         utils::Timeval startTime = 0;

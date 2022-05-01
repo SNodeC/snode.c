@@ -44,9 +44,7 @@ namespace database::mariadb::commands::async {
     }
 
     int MariaDBFreeResultCommand::commandContinue(int status) {
-        int ret = mysql_free_result_cont(result, status);
-
-        return ret;
+        return mysql_free_result_cont(result, status);
     }
 
     bool MariaDBFreeResultCommand::commandCompleted() {

@@ -48,7 +48,6 @@ namespace database::mariadb {
 
         MariaDBCommandSequence& operator=(MariaDBCommandSequence&& mariaDBCommandSequence) = default;
 
-    public:
         MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) final;
         void execute_sync(MariaDBCommandSync* mariaDBCommand) final;
 

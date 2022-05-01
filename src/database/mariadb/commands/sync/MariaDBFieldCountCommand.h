@@ -44,7 +44,6 @@ namespace database::mariadb::commands::sync {
         std::string commandInfo() override;
 
     protected:
-        int ret;
         unsigned int fieldCount = 0;
 
         const std::function<void(unsigned int)> onFieldCount;

@@ -95,15 +95,14 @@ namespace database::mariadb {
 
     private:
         MariaDBClient* mariaDBClient;
-        MariaDBCommandStartEvent commandStartEvent;
-
         MYSQL* mysql;
 
         std::deque<MariaDBCommandSequence> commandSequenceQueue;
 
         MariaDBCommand* currentCommand = nullptr;
-
         bool connected = false;
+
+        MariaDBCommandStartEvent commandStartEvent;
     };
 
 } // namespace database::mariadb
