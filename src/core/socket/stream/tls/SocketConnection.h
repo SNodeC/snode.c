@@ -24,14 +24,6 @@
 #include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 
-namespace core::socket::stream {
-    template <typename ServerConfig, typename SocketConnection>
-    class SocketAcceptor;
-
-    template <typename ClientConfig, typename SocketConnection>
-    class SocketConnector;
-} // namespace core::socket::stream
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -45,20 +37,16 @@ namespace core::socket::stream::tls {
 
     template <typename SocketT>
     class SocketConnection
-        : public core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<SocketT>,
-                                                        core::socket::stream::tls::SocketWriter<SocketT>,
-                                                        typename SocketT::SocketAddress> {
+        : public core::socket::stream::
+              SocketConnection<SocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter> {
     private:
-        using Super = core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<SocketT>,
-                                                             core::socket::stream::tls::SocketWriter<SocketT>,
-                                                             typename SocketT::SocketAddress>;
+        using Super = core::socket::stream::
+            SocketConnection<SocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
 
-    public:
+    private:
         using Socket = SocketT;
-
-    private:
-        using SocketReader = core::socket::stream::tls::SocketReader<Socket>;
-        using SocketWriter = core::socket::stream::tls::SocketWriter<Socket>;
+        using SocketReader = typename Super::SocketReader;
+        using SocketWriter = typename Super::SocketWriter;
 
     public:
         using SocketAddress = typename Super::SocketAddress;
@@ -271,17 +259,11 @@ namespace core::socket::stream::tls {
         utils::Timeval initTimeout;
         utils::Timeval shutdownTimeout;
 
-        template <typename ServerConfig, typename Socket>
+        template <typename ServerSocket>
         friend class SocketAcceptor;
 
-        template <typename ServerConfig, typename SocketConnection>
-        friend class core::socket::stream::SocketAcceptor;
-
-        template <typename ClientConfig, typename Socket>
+        template <typename ClientSocket>
         friend class SocketConnector;
-
-        template <typename ClientConfig, typename SocketConnection>
-        friend class core::socket::stream::SocketConnector;
     };
 
 } // namespace core::socket::stream::tls

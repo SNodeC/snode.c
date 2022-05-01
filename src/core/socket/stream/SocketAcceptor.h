@@ -42,23 +42,24 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ConfigT, typename SocketConnectionT>
+    template <typename ServerSocketT, template <typename SocketT> class SocketConnectionT>
     class SocketAcceptor
-        : protected SocketConnectionT::Socket
+        : protected ServerSocketT::Socket
         , protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
         SocketAcceptor() = delete;
         SocketAcceptor(const SocketAcceptor&) = delete;
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
-    protected:
-        using Config = ConfigT;
-        using SocketConnection = SocketConnectionT;
-
     private:
-        using Socket = typename SocketConnection::Socket;
+        using ServerSocket = ServerSocketT;
+        using Socket = typename ServerSocket::Socket;
+
+    protected:
+        using SocketConnection = SocketConnectionT<Socket>;
 
     public:
+        using Config = typename ServerSocket::Config;
         using SocketAddress = typename Socket::SocketAddress;
 
         /** Sequence diagramm of res.upgrade(req).

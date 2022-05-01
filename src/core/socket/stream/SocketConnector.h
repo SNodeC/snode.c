@@ -40,24 +40,25 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ConfigT, typename SocketConnectionT>
+    template <typename ClientSocketT, template <typename SocketT> class SocketConnectionT>
     class SocketConnector
-        : protected SocketConnectionT::Socket
+        : protected ClientSocketT::Socket
         , protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
 
-    protected:
-        using Config = ConfigT;
-        using SocketConnection = SocketConnectionT;
-
     private:
-        using Socket = typename SocketConnection::Socket;
+        using ClientSocket = ClientSocketT;
+        using Socket = typename ClientSocket::Socket;
+
+    protected:
+        using SocketConnection = SocketConnectionT<Socket>;
 
     public:
-        using SocketAddress = typename Socket::SocketAddress;
+        using Config = typename ClientSocket::Config;
+        using SocketAddress = typename ClientSocket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,

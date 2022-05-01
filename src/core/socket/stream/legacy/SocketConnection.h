@@ -23,14 +23,6 @@
 #include "core/socket/stream/legacy/SocketReader.h"
 #include "core/socket/stream/legacy/SocketWriter.h"
 
-namespace core::socket::stream {
-    template <typename ServerConfig, typename SocketConnection>
-    class SocketAcceptor;
-
-    template <typename ClientConfig, typename SocketConnection>
-    class SocketConnector;
-} // namespace core::socket::stream
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -41,20 +33,16 @@ namespace core::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketConnection
-        : public core::socket::stream::SocketConnection<core::socket::stream::legacy::SocketReader<SocketT>,
-                                                        core::socket::stream::legacy::SocketWriter<SocketT>,
-                                                        typename SocketT::SocketAddress> {
+        : public core::socket::stream::
+              SocketConnection<SocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter> {
     private:
-        using Super = core::socket::stream::SocketConnection<core::socket::stream::legacy::SocketReader<SocketT>,
-                                                             core::socket::stream::legacy::SocketWriter<SocketT>,
-                                                             typename SocketT::SocketAddress>;
+        using Super = core::socket::stream::
+            SocketConnection<SocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter>;
 
-    public:
+    private:
         using Socket = SocketT;
-
-    private:
-        using SocketReader = core::socket::stream::legacy::SocketReader<Socket>;
-        using SocketWriter = core::socket::stream::legacy::SocketWriter<Socket>;
+        using SocketReader = typename Super::SocketReader;
+        using SocketWriter = typename Super::SocketWriter;
 
     public:
         using SocketAddress = typename Super::SocketAddress;
@@ -91,17 +79,11 @@ namespace core::socket::stream::legacy {
     private:
         ~SocketConnection() override = default;
 
-        template <typename ServerConfig, typename Socket>
+        template <typename ServerSocket>
         friend class SocketAcceptor;
 
-        template <typename ServerConfig, typename SocketConnection>
-        friend class core::socket::stream::SocketAcceptor;
-
-        template <typename ClientConfig, typename Socket>
+        template <typename ClientSocket>
         friend class SocketConnector;
-
-        template <typename ClientConfig, typename SocketConnection>
-        friend class core::socket::stream::SocketConnector;
     };
 
 } // namespace core::socket::stream::legacy

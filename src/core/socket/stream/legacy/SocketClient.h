@@ -30,15 +30,10 @@ namespace core::socket::stream::legacy {
 
     template <typename ClientSocketT, typename SocketContextFactoryT>
     class SocketClient
-        : public core::socket::stream::SocketClient<
-              ClientSocketT,
-              core::socket::stream::legacy::SocketConnector<typename ClientSocketT::Config, typename ClientSocketT::Socket>,
-              SocketContextFactoryT> {
+        : public core::socket::stream::SocketClient<core::socket::stream::legacy::SocketConnector<ClientSocketT>, SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketClient<
-            ClientSocketT,
-            core::socket::stream::legacy::SocketConnector<typename ClientSocketT::Config, typename ClientSocketT::Socket>,
-            SocketContextFactoryT>;
+        using Super =
+            core::socket::stream::SocketClient<core::socket::stream::legacy::SocketConnector<ClientSocketT>, SocketContextFactoryT>;
 
         using Super::Super;
     };

@@ -33,20 +33,21 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
+    template <typename SocketT, template <typename Socket> class SocketReaderT, template <typename Socket> class SocketWriterT>
     class SocketConnection
         : protected core::socket::SocketConnection
-        , protected SocketReaderT
-        , protected SocketWriterT {
+        , protected SocketReaderT<SocketT>
+        , protected SocketWriterT<SocketT> {
         SocketConnection() = delete;
 
     protected:
         using Super = core::socket::SocketConnection;
 
-        using SocketReader = SocketReaderT;
-        using SocketWriter = SocketWriterT;
+        using Socket = SocketT;
+        using SocketReader = SocketReaderT<Socket>;
+        using SocketWriter = SocketWriterT<Socket>;
 
-        using SocketAddress = SocketAddressT;
+        using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
@@ -164,10 +165,10 @@ namespace core::socket::stream {
 
         std::function<void()> onDisconnect;
 
-        template <typename ServerConfig, typename SocketConnection>
+        template <typename ServerSocket, template <typename Socket> class SocketConnection>
         friend class SocketAcceptor;
 
-        template <typename ClientConfig, typename SocketConnection>
+        template <typename ClientSocket, template <typename Socket> class SocketConnection>
         friend class SocketConnector;
     };
 
