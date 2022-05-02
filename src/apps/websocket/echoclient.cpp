@@ -26,7 +26,6 @@
 #include "web/http/legacy/in/Client.h" // for Client, Client<>...
 #include "web/http/tls/in/Client.h"    // for Client, Client<>...
 
-#include <cstddef>            // for size_t
 #include <openssl/asn1.h>     // for ASN1_STRING_get0_data, ASN1_STRING_length
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subject_alt_name

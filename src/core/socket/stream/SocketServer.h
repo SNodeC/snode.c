@@ -47,7 +47,6 @@ namespace core::socket::stream {
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
 
-    public:
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
