@@ -49,11 +49,9 @@ namespace web::http::server {
     }
 
     const std::string& Request::cookie(const std::string& key) const {
-        std::map<std::string, std::string>::const_iterator it;
-        std::string tmpKey = key;
-        httputils::to_lower(tmpKey);
+        std::map<std::string, std::string>::const_iterator it = cookies->find(key);
 
-        if ((it = cookies->find(tmpKey)) != cookies->end()) {
+        if (it != cookies->end()) {
             return it->second;
         } else {
             return nullstr;
