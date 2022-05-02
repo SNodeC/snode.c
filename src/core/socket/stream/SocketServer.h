@@ -34,13 +34,13 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public SocketAcceptorT::ServerSocket {
+    template <typename ServerSocketT, template <typename ServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
+    class SocketServer : public ServerSocketT {
         SocketServer() = delete;
 
     private:
-        using Super = typename SocketAcceptorT::ServerSocket;
-        using SocketAcceptor = SocketAcceptorT;
+        using Super = ServerSocketT;
+        using SocketAcceptor = SocketAcceptorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
     public:

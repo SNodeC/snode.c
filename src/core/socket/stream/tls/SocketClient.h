@@ -30,9 +30,9 @@ namespace core::socket::stream::tls {
 
     template <typename ClientSocketT, typename SocketContextFactoryT>
     class SocketClient
-        : public core::socket::stream::SocketClient<core::socket::stream::tls::SocketConnector<ClientSocketT>, SocketContextFactoryT> {
+        : public core::socket::stream::SocketClient<ClientSocketT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketClient<core::socket::stream::tls::SocketConnector<ClientSocketT>, SocketContextFactoryT>;
+        using Super = core::socket::stream::SocketClient<ClientSocketT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT>;
 
         using Super::Super;
     };
