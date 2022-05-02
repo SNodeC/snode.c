@@ -59,9 +59,9 @@ namespace web::http::server {
     }
 
     const std::string& Request::query(const std::string& key) const {
-        std::map<std::string, std::string>::const_iterator it;
+        std::map<std::string, std::string>::const_iterator it = queries->find(key);
 
-        if ((it = queries->find(key)) != queries->end()) {
+        if (it != queries->end()) {
             return it->second;
         } else {
             return nullstr;
