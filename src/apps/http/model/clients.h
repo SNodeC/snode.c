@@ -56,12 +56,12 @@ namespace apps::http::legacy {
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (const auto& [field, value] : *response.headers) {
+                for (const auto& [field, value] : response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (const auto& [name, cookie] : *response.cookies) {
+                for (const auto& [name, cookie] : response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
@@ -168,12 +168,12 @@ namespace apps::http::tls {
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (const auto& [field, value] : *response.headers) {
+                for (const auto& [field, value] : response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (const auto& [name, cookie] : *response.cookies) {
+                for (const auto& [name, cookie] : response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;

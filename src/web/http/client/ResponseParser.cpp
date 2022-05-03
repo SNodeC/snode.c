@@ -39,8 +39,8 @@ namespace web::http::client {
     ResponseParser::ResponseParser(
         core::socket::SocketContext* socketContext,
         const std::function<void(void)>& onStart,
-        const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
-        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
+        const std::function<void(std::string&, std::string&, std::string&)>& onResponse,
+        const std::function<void(std::map<std::string, std::string>&, std::map<std::string, CookieOptions>&)>& onHeader,
         const std::function<void(std::vector<uint8_t>&)>& onContent,
         const std::function<void(ResponseParser&)>& onParsed,
         const std::function<void(int, const std::string&)>& onError)

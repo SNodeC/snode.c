@@ -39,16 +39,15 @@ namespace web::http::client {
               this,
               [](void) -> void {
               },
-              [&response =
-                   this->response](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
+              [&response = this->response](std::string& httpVersion, std::string& statusCode, std::string& reason) -> void {
                   response.httpVersion = httpVersion;
                   response.statusCode = statusCode;
                   response.reason = reason;
               },
-              [&response = this->response](const std::map<std::string, std::string>& headers,
-                                           const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
-                  response.headers = &headers;
-                  response.cookies = &cookies;
+              [&response = this->response](std::map<std::string, std::string>& headers,
+                                           std::map<std::string, web::http::CookieOptions>& cookies) -> void {
+                  response.headers = std::move(headers);
+                  response.cookies = std::move(cookies);
               },
               [&response = this->response](std::vector<uint8_t>& content) -> void {
                   response.body = std::move(content);

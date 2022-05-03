@@ -58,9 +58,9 @@ namespace web::http::server {
 
         virtual void reset();
 
-        const std::map<std::string, std::string>* queries = nullptr;
-        const std::map<std::string, std::string>* headers = nullptr;
-        const std::map<std::string, std::string>* cookies = nullptr;
+        std::map<std::string, std::string> queries;
+        std::map<std::string, std::string> headers;
+        std::map<std::string, std::string> cookies;
 
         std::string nullstr = "";
 

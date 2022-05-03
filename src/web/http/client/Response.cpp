@@ -42,9 +42,9 @@ namespace web::http::client {
         std::string tmpKey = key;
         httputils::to_lower(tmpKey);
 
-        if (headers->find(tmpKey) != headers->end()) {
+        if (headers.find(tmpKey) != headers.end()) {
             std::pair<std::multimap<std::string, std::string>::const_iterator, std::multimap<std::string, std::string>::const_iterator>
-                range = headers->equal_range(tmpKey);
+                range = headers.equal_range(tmpKey);
 
             if (std::distance(range.first, range.second) >= i) {
                 std::advance(range.first, i);
@@ -58,12 +58,9 @@ namespace web::http::client {
     }
 
     const std::string& Response::cookie(const std::string& key) const {
-        std::map<std::string, CookieOptions>::const_iterator it;
+        std::map<std::string, CookieOptions>::const_iterator it = cookies.find(key);
 
-        std::string tmpKey = key;
-        httputils::to_lower(tmpKey);
-
-        if ((it = cookies->find(tmpKey)) != cookies->end()) {
+        if (it != cookies.end()) {
             return it->second.getValue();
         } else {
             return nullstr;

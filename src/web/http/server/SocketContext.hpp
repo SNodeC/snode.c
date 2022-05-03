@@ -46,26 +46,31 @@ namespace web::http::server {
                                                          const std::string& httpVersion,
                                                          int httpMajor,
                                                          int httpMinor,
-                                                         const std::map<std::string, std::string>& queries) -> void {
+                                                         std::map<std::string, std::string>& queries) -> void {
                   VLOG(3) << "++ Request: " << method << " " << url << " " << httpVersion;
 
                   Request& request = requestContexts.back().request;
 
                   request.method = method;
                   request.url = url;
-                  request.queries = &queries;
+                  request.queries = std::move(queries);
                   request.httpVersion = httpVersion;
                   request.httpMajor = httpMajor;
                   request.httpMinor = httpMinor;
+
+                  VLOG(3) << "++ Queries:";
+                  for (auto [query, value] : request.queries) {
+                      VLOG(3) << "     " << query << ": " << value;
+                  }
               },
-              [&requestContexts = this->requestContexts](const std::map<std::string, std::string>& header,
-                                                         const std::map<std::string, std::string>& cookies) -> void {
+              [&requestContexts = this->requestContexts](std::map<std::string, std::string>& header,
+                                                         std::map<std::string, std::string>& cookies) -> void {
                   Request& request = requestContexts.back().request;
 
-                  VLOG(3) << "++ Header:";
-                  request.headers = &header;
+                  request.headers = std::move(header);
 
-                  for (auto [field, value] : header) {
+                  VLOG(3) << "++ Headers:";
+                  for (auto [field, value] : request.headers) {
                       if (field == "connection" && httputils::ci_contains(value, "close")) {
                           request.connectionState = ConnectionState::Close;
                       } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
@@ -74,10 +79,10 @@ namespace web::http::server {
                       VLOG(3) << "     " << field << ": " << value;
                   }
 
-                  VLOG(3) << "++ Cookies";
-                  request.cookies = &cookies;
+                  request.cookies = std::move(cookies);
 
-                  for (auto [cookie, value] : cookies) {
+                  VLOG(3) << "++ Cookie";
+                  for (auto [cookie, value] : request.cookies) {
                       VLOG(3) << "     " << cookie << ": " << value;
                   }
               },
@@ -103,10 +108,10 @@ namespace web::http::server {
                   RequestContext& requestContext = requestContexts.back();
 
                   requestContext.status = status;
-                  requestContext.reason = reason;
+                  requestContext.reason = std::move(reason);
                   requestContext.ready = true;
 
-                  close();
+                  requestParsed();
               }) {
     }
 

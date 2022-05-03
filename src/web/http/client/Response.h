@@ -60,8 +60,8 @@ namespace web::http::client {
         void upgrade(Request& request);
 
         // need code to make it at least protected
-        const std::map<std::string, std::string>* headers = nullptr;
-        const std::map<std::string, CookieOptions>* cookies = nullptr;
+        std::map<std::string, std::string> headers;
+        std::map<std::string, CookieOptions> cookies;
 
         // CookieOptions are not queryable currently. Need code to access it.
 
