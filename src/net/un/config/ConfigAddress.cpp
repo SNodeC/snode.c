@@ -59,14 +59,10 @@ namespace net::un::config {
         }
     }
 
-    template class ConfigAddress<net::config::ConfigAddressLocal>;
-    template class ConfigAddress<net::config::ConfigAddressRemote>;
-
 } // namespace net::un::config
 
-namespace net::config {
+template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
+template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
-    template class ConfigAddressLocal<net::un::SocketAddress>;
-    template class ConfigAddressRemote<net::un::SocketAddress>;
-
-} // namespace net::config
+template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
+template class net::config::ConfigAddressRemote<net::un::SocketAddress>;

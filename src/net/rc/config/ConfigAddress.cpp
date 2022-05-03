@@ -69,14 +69,10 @@ namespace net::rc::config {
         }
     }
 
-    template class ConfigAddress<net::config::ConfigAddressLocal>;
-    template class ConfigAddress<net::config::ConfigAddressRemote>;
-
 } // namespace net::rc::config
 
-namespace net::config {
+template class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
+template class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
-    template class ConfigAddressLocal<net::rc::SocketAddress>;
-    template class ConfigAddressRemote<net::rc::SocketAddress>;
-
-} // namespace net::config
+template class net::config::ConfigAddressLocal<net::rc::SocketAddress>;
+template class net::config::ConfigAddressRemote<net::rc::SocketAddress>;

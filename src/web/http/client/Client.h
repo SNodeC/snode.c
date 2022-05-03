@@ -65,7 +65,6 @@ namespace web::http::client {
                       request.setHost(socketConnection->getRemoteAddress().toString());
 
                       onConnected(socketConnection);
-
                       onRequestBegin(request);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
