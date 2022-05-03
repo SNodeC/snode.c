@@ -21,8 +21,6 @@
 
 // IWYU pragma: no_include "core/socket/SocketConnection.h"
 
-#include "core/pipe/Sink.h"
-
 namespace utils {
     class Timeval;
 }
@@ -42,7 +40,7 @@ namespace core::socket {
 
 namespace core::socket {
 
-    class SocketContext : public core::pipe::Sink {
+    class SocketContext {
     protected:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
@@ -71,11 +69,6 @@ namespace core::socket {
 
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
-
-        // Pipe
-        void receive(const char* junk, std::size_t junkLen) override;
-        void eof() override;
-        void error(int errnum) override;
 
         core::socket::SocketConnection* socketConnection;
 

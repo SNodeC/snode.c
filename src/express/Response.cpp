@@ -51,11 +51,10 @@ namespace express {
                                 {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
                 headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
-                core::file::FileReader::connect(absolutFileName, *socketContext, [this, onError](int err) -> void {
+                core::file::FileReader::connect(absolutFileName, *this, [this, onError](int err) -> void {
                     socketContext->close();
                     onError(err);
                 });
-                enqueue("");
             } else {
                 responseStatus = 403;
                 errno = EACCES;

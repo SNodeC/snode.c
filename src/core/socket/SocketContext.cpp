@@ -92,17 +92,4 @@ namespace core::socket {
         shutdownWrite();
     }
 
-    void SocketContext::receive(const char* junk, std::size_t junkLen) {
-        sendToPeer(junk, junkLen);
-    }
-
-    void SocketContext::eof() {
-        PLOG(INFO) << "Stream EOF";
-    }
-
-    void SocketContext::error([[maybe_unused]] int errnum) {
-        PLOG(ERROR) << "Stream error:";
-        close();
-    }
-
 } // namespace core::socket

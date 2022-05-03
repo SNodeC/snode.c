@@ -27,6 +27,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/time.h"
+#include "log/Logger.h"
 
 #include <numeric>
 #include <utility> // for pair
@@ -47,7 +48,16 @@ namespace web::http::server {
             headersSent = true;
         }
 
-        socketContext->sendToPeer(junk, junkLen, headersSent);
+        socketContext->sendToPeer(junk, junkLen);
+
+        if (headersSent) {
+            contentSent += junkLen;
+            if (contentSent == contentLength) {
+                socketContext->sendToPeerCompleted();
+            } else if (contentSent > contentLength) {
+                socketContext->close();
+            }
+        }
     }
 
     void Response::enqueue(const std::string& junk) {
@@ -105,7 +115,7 @@ namespace web::http::server {
             headers.insert_or_assign(field, value);
 
             if (field == "Content-Length") {
-                socketContext->contentLength = std::stoul(value);
+                contentLength = std::stoul(value);
             } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
                 connectionState = ConnectionState::Close;
             } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
@@ -183,16 +193,31 @@ namespace web::http::server {
         enqueue("\r\n");
 
         if (headers.find("Content-Length") != headers.end()) {
-            socketContext->contentLength = std::stoul(headers.find("Content-Length")->second);
+            contentLength = std::stoul(headers.find("Content-Length")->second);
         } else {
-            socketContext->contentLength = 0;
+            contentLength = 0;
         }
+    }
+
+    void Response::receive(const char* junk, std::size_t junkLen) {
+        enqueue(junk, junkLen);
+    }
+
+    void Response::eof() {
+        LOG(INFO) << "Stream EOF";
+    }
+
+    void Response::error([[maybe_unused]] int errnum) {
+        PLOG(ERROR) << "Stream error: ";
+        socketContext->close();
     }
 
     void Response::reset() {
         headersSent = false;
         sendHeaderInProgress = false;
+        contentSent = 0;
         responseStatus = 200;
+        contentLength = 0;
         connectionState = ConnectionState::Default;
         headers.clear();
         cookies.clear();
