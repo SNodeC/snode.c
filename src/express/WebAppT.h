@@ -19,10 +19,7 @@
 #ifndef EXPRESS_WEBAPPT_H
 #define EXPRESS_WEBAPPT_H
 
-#include "express/Request.h"  // IWYU pragma: export
-#include "express/Response.h" // IWYU pragma: export
-#include "express/WebApp.h"   // IWYU pragma: export
-#include "express/dispatcher/RouterDispatcher.h"
+#include "express/WebApp.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -76,10 +73,10 @@ namespace express {
                       VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
                   },
-                  [routerDispatcher = this->routerDispatcher](express::Request& req,
-                                                              express::Response& res) -> void { // onRequestReady
+                  [this](express::Request& req,
+                         express::Response& res) -> void { // onRequestReady
                       req.extend();
-                      routerDispatcher->dispatch(req, res);
+                      dispatch(req, res);
                   },
                   [](SocketConnection* socketConnection) -> void { // onDisconnect
                       VLOG(0) << "OnDisconnect:";

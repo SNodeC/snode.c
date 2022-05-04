@@ -18,9 +18,6 @@
 
 #include "express/middleware/StaticMiddleware.h"
 
-#include "express/Request.h"
-#include "express/Response.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
