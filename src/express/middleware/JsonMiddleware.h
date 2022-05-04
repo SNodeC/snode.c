@@ -40,6 +40,8 @@ namespace express::middleware {
         JsonMiddleware();
 
         static const class JsonMiddleware& instance();
+
+    private:
         friend const class JsonMiddleware& JsonMiddleware();
     };
 

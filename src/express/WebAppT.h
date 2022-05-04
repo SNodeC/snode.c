@@ -22,6 +22,7 @@
 #include "express/Request.h"  // IWYU pragma: export
 #include "express/Response.h" // IWYU pragma: export
 #include "express/WebApp.h"   // IWYU pragma: export
+#include "express/dispatcher/RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

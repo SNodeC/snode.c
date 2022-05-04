@@ -16,32 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VHOST_H
-#define VHOST_H
+#include "Route.h"
 
-#include "express/Router.h"
+#include "express/dispatcher/Dispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::middleware {
+namespace express::dispatcher {
 
-    class VHost : public Router {
-    protected:
-        explicit VHost(const std::string& host);
-        static class VHost& instance(const std::string& host);
+    Route::Route(RouterDispatcher* parentRouter,
+                 const std::string& method,
+                 const std::string& relativeMountPath,
+                 const std::shared_ptr<Dispatcher>& dispatcher)
+        : parentRouter(parentRouter)
+        , mountPoint(method, relativeMountPath)
+        , dispatcher(dispatcher) {
+    }
 
-    private:
-        std::string host;
+    void Route::dispatch(const RouterDispatcher* parentRouter, const std::string& parentMountPath, Request& req, Response& res) const {
+        return dispatcher->dispatch(parentRouter, parentMountPath, mountPoint, req, res);
+    }
 
-        friend class VHost& VHost(const std::string& host);
-    };
-
-    class VHost& VHost(const std::string& host);
-
-} // namespace express::middleware
-
-#endif // VHOST_H
+} // namespace express::dispatcher

@@ -19,96 +19,35 @@
 #ifndef EXPRESS_ROUTER_H
 #define EXPRESS_ROUTER_H
 
+#include "express/dispatcher/State.h" // IWYU pragma: export
+
+namespace express {
+
+    class Request;
+    class Response;
+
+    namespace dispatcher {
+        class RouterDispatcher;
+    } // namespace dispatcher
+
+} // namespace express
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <list>
 #include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MIDDLEWARE(req, res, state)                                                                                                        \
-    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] express::State & (state))
+    ([[maybe_unused]] express::Request & (req),                                                                                            \
+     [[maybe_unused]] express::Response & (res),                                                                                           \
+     [[maybe_unused]] express::dispatcher::State & (state))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
 namespace express {
-
-    struct MountPoint;
-    class Request;
-    class Response;
-    class RouterDispatcher;
-
-    class State {
-    public:
-        void operator()(const std::string& how = "") {
-            if (how == "route") {
-                parentProceed = true;
-            } else {
-                proceed = true;
-            }
-        }
-
-    private:
-        bool proceed = true;
-        bool parentProceed = false;
-
-        friend class RouterDispatcher;
-    };
-
-    class Dispatcher {
-        Dispatcher(const Dispatcher&) = delete;
-        Dispatcher& operator=(const Dispatcher&) = delete;
-
-    public:
-        Dispatcher() = default;
-        virtual ~Dispatcher() = default;
-
-    private:
-        virtual void dispatch(const RouterDispatcher* parentRouter,
-                              const std::string& parentMountPath,
-                              const MountPoint& mountPoint,
-                              Request& req,
-                              Response& res) const = 0;
-
-        friend class Route;
-    };
-
-    class Route;
-
-    class RouterDispatcher : public Dispatcher {
-    public:
-        void dispatch(Request& req, Response& res) const;
-
-    private:
-        void dispatch(const RouterDispatcher* parentRouter,
-                      const std::string& parentMountPath,
-                      const MountPoint& mountPoint,
-                      Request& req,
-                      Response& res) const override;
-
-        void terminate() const {
-            state.proceed = false;
-        }
-
-        State& getState() const {
-            return state;
-        }
-
-        bool proceed() const {
-            return state.proceed;
-        }
-
-        void returnTo(const RouterDispatcher* parentRouter) const;
-
-        std::list<Route> routes;
-        mutable State state;
-
-        friend class Router;
-        friend class ApplicationDispatcher;
-        friend class MiddlewareDispatcher;
-    };
 
     class Router {
     public:
@@ -121,8 +60,9 @@ namespace express {
     Router& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                      \
     Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
     Router& METHOD(const Router& router);                                                                                                  \
-    Router& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, State & state)>& lambda); \
-    Router& METHOD(const std::function<void(Request & req, Response & res, State & state)>& lambda);
+    Router& METHOD(const std::string& relativeMountPath,                                                                                   \
+                   const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);                  \
+    Router& METHOD(const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);
 
         DECLARE_REQUESTMETHOD(use)
         DECLARE_REQUESTMETHOD(all)
@@ -137,7 +77,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
+        std::shared_ptr<express::dispatcher::RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };
 
 } // namespace express

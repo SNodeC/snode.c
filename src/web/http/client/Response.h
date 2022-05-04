@@ -19,6 +19,8 @@
 #ifndef WEB_HTTP_CLIENT_RESPONSE_H
 #define WEB_HTTP_CLIENT_RESPONSE_H
 
+#include "web/http/CookieOptions.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint> // IWYU pragma: export
@@ -29,7 +31,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
-    class CookieOptions;
     class SocketContext;
 
     namespace client {

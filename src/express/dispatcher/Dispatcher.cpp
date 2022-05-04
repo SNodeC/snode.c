@@ -16,32 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VHOST_H
-#define VHOST_H
-
-#include "express/Router.h"
+#include "Dispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::middleware {
-
-    class VHost : public Router {
-    protected:
-        explicit VHost(const std::string& host);
-        static class VHost& instance(const std::string& host);
-
-    private:
-        std::string host;
-
-        friend class VHost& VHost(const std::string& host);
-    };
-
-    class VHost& VHost(const std::string& host);
-
-} // namespace express::middleware
-
-#endif // VHOST_H
+namespace express::dispatcher {}
