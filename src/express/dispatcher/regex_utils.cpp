@@ -56,6 +56,7 @@ namespace express::dispatcher {
         return result;
     }
 
+#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
     const std::regex& pathRegex() {
         static std::regex pathregex = std::regex(PATH_REGEX);
 

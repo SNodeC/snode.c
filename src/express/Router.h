@@ -26,7 +26,9 @@
 namespace express {
 
     namespace dispatcher {
+
         class RouterDispatcher;
+
     } // namespace dispatcher
 
 } // namespace express

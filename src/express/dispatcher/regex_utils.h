@@ -37,7 +37,6 @@ namespace express::dispatcher {
 
     const std::vector<std::string> explode(const std::string& s, char delim);
 
-#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
     const std::regex& pathRegex();
 
     const std::smatch matchResult(const std::string& cpath);

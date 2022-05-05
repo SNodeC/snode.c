@@ -27,17 +27,16 @@ set(EXPRESS_CPP
     Response.cpp
     Router.cpp
     WebApp.cpp
+    dispatcher/ApplicationDispatcher.cpp
+    dispatcher/MiddlewareDispatcher.cpp
+    dispatcher/MountPoint.cpp
+    dispatcher/Route.cpp
+    dispatcher/RouterDispatcher.cpp
+    dispatcher/State.cpp
+    dispatcher/regex_utils.cpp
     middleware/StaticMiddleware.cpp
     middleware/VHost.cpp
     ${JSONMIDDLEWARE_CPP}
-    dispatcher/Route.cpp
-    dispatcher/Dispatcher.cpp
-    dispatcher/ApplicationDispatcher.cpp
-    dispatcher/MiddlewareDispatcher.cpp
-    dispatcher/RouterDispatcher.cpp
-    dispatcher/MountPoint.cpp
-    dispatcher/State.cpp
-    dispatcher/regex_utils.cpp
 )
 
 set(EXPRESS_H
@@ -46,23 +45,23 @@ set(EXPRESS_H
     Router.h
     WebApp.h
     WebAppT.h
+    dispatcher/ApplicationDispatcher.h
+    dispatcher/Dispatcher.h
+    dispatcher/MiddlewareDispatcher.h
+    dispatcher/MountPoint.h
+    dispatcher/Route.h
+    dispatcher/RouterDispatcher.h
+    dispatcher/State.h
+    dispatcher/regex_utils.h
     middleware/StaticMiddleware.h
     middleware/VHost.h
-    ${JSONMIDDLEWARE_H}
-    dispatcher/Route.h
-    dispatcher/Dispatcher.h
-    dispatcher/ApplicationDispatcher.h
-    dispatcher/MiddlewareDispatcher.h
-    dispatcher/RouterDispatcher.h
-    dispatcher/MountPoint.h
-    dispatcher/State.h
     legacy/in/WebApp.h
     legacy/in6/WebApp.h
     legacy/rc/WebApp.h
     tls/in/WebApp.h
     tls/in6/WebApp.h
     tls/rc/WebApp.h
-    dispatcher/regex_utils.h
+    ${JSONMIDDLEWARE_H}
 )
 
 add_library(express SHARED ${EXPRESS_CPP} ${EXPRESS_H})

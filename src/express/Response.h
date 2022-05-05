@@ -22,7 +22,9 @@
 #include "web/http/server/Response.h" // IWYU pragma: export
 
 namespace web::http {
+
     class SocketContext;
+
 } // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
