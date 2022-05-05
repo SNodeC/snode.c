@@ -34,6 +34,7 @@ set(EXPRESS_CPP
     dispatcher/RouterDispatcher.cpp
     dispatcher/State.cpp
     dispatcher/regex_utils.cpp
+    middleware/BasicAuthentication.cpp
     middleware/StaticMiddleware.cpp
     middleware/VHost.cpp
     ${JSONMIDDLEWARE_CPP}
@@ -53,6 +54,7 @@ set(EXPRESS_H
     dispatcher/RouterDispatcher.h
     dispatcher/State.h
     dispatcher/regex_utils.h
+    middleware/BasicAuthentication.h
     middleware/StaticMiddleware.h
     middleware/VHost.h
     legacy/in/WebApp.h
