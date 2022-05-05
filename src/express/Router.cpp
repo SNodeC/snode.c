@@ -45,10 +45,6 @@ namespace express {
         return *this;
     }
 
-    void Router::dispatch(Request& req, Response& res) {
-        routerDispatcher->dispatch(req, res);
-    }
-
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
     Router& Router::METHOD(const std::string& relativeMountPath, const Router& router) {                                                   \
         routerDispatcher->routes.emplace_back(                                                                                             \

@@ -44,7 +44,7 @@ namespace express::dispatcher {
         if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
             for (const Route& route : routes) {
-                route.dispatch(this, absoluteMountPath, req, res);
+                route.dispatch(absoluteMountPath, req, res);
 
                 if (!state.proceed) {
                     break;

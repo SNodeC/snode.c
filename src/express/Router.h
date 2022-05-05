@@ -76,8 +76,6 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        void dispatch(express::Request& req, express::Response& res);
-
         std::shared_ptr<express::dispatcher::RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };
 
