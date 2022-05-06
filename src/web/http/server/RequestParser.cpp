@@ -30,13 +30,14 @@
 
 namespace web::http::server {
 
-    RequestParser::RequestParser(core::socket::SocketContext* socketContext,
+    RequestParser::RequestParser(
+        core::socket::SocketContext* socketContext,
         const std::function<void(void)>& onStart,
         const std::function<void(std::string&, std::string&, std::string&, int, int, std::map<std::string, std::string>&)>& onRequest,
         const std::function<void(std::map<std::string, std::string>&, std::map<std::string, std::string>&)>& onHeader,
         const std::function<void(std::vector<uint8_t>&)>& onContent,
         const std::function<void()>& onParsed,
-        const std::function<void (int, const std::string &)> &onError)
+        const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
         , onStart(onStart)
         , onRequest(onRequest)

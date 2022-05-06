@@ -22,6 +22,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/base64.h"
+#include "web/http/http_utils.h"
+
 #include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,15 +35,17 @@ namespace express::middleware {
         : userName(userName)
         , password(password)
         , realm(realm) {
-        use([realm] MIDDLEWARE(req, res, next) {
-            std::string authorization = req.header("Authorization");
+        std::string userNamePassword = userName + ":" + password;
+        credentials = base64::base64_encode(reinterpret_cast<unsigned char*>(userNamePassword.data()), userNamePassword.length());
 
-            if (authorization.empty()) {
-                res.set("WWW-Authenticate", "Basic realm=" + realm);
-                res.sendStatus(401);
-            } else {
-                // TODO: check credential
+        use([realm, this] MIDDLEWARE(req, res, next) {
+            std::string authCredentials = httputils::str_split(req.header("Authorization"), ' ').second;
+
+            if (authCredentials == credentials) {
                 next();
+            } else {
+                res.set("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
+                res.sendStatus(401);
             }
         });
     }

@@ -81,10 +81,12 @@ install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testbasicauthentication testbasicauthentication.cpp)
 target_link_libraries(
-    testbasicauthentication PRIVATE snodec::express snodec::core-legacy snodec::core-tls
-                        snodec::net-in6
+    testbasicauthentication PRIVATE snodec::express snodec::core-legacy
+                                    snodec::core-tls snodec::net-in6
 )
-install(TARGETS testbasicauthentication RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS testbasicauthentication
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 add_subdirectory(websocket)
 add_subdirectory(echo)

@@ -41,6 +41,7 @@ namespace express::middleware {
         std::string userName;
         std::string password;
         std::string realm;
+        std::string credentials;
 
         friend class BasicAuthentication&
         BasicAuthentication(const std::string& userName, const std::string& password, const std::string& realm);
