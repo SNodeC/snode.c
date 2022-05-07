@@ -54,7 +54,9 @@ namespace express {
     public:
         Router();
         Router(const Router& router);
+        Router(Router&& router);
         Router& operator=(const Router& router);
+        Router& operator=(Router&& router);
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                \

@@ -44,7 +44,9 @@ namespace express::middleware {
             if (authCredentials == credentials) {
                 next();
             } else {
-                res.set("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
+                if (authCredentials.empty()) {
+                    res.set("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
+                }
                 res.sendStatus(401);
             }
         });
