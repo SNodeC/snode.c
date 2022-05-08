@@ -45,7 +45,6 @@ namespace database::mariadb::commands::sync {
         std::string commandInfo() override;
 
     protected:
-        int ret;
         MYSQL_RES* result = nullptr;
 
         const std::function<void(MYSQL_RES*)> onUseResult;

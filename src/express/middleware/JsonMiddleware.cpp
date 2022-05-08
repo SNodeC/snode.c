@@ -20,12 +20,6 @@
 
 #include "express/middleware/JsonMiddleware.h"
 
-#include "express/Request.h"
-
-namespace express {
-    class Response;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <initializer_list>               // for initializer_list

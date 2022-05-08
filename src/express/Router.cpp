@@ -18,286 +18,22 @@
 
 #include "express/Router.h"
 
-#include "express/Request.h"
+#include "express/dispatcher/ApplicationDispatcher.h"
+#include "express/dispatcher/MiddlewareDispatcher.h"
+#include "express/dispatcher/Route.h"
+#include "express/dispatcher/RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>            // for size_t
-#include <ext/alloc_traits.h> // for __alloc_traits<>::value_type
 #include <list>
-#include <map> // for map, map<>::mapped_type
-#include <regex>
-#include <sstream> // for basic_stringbuf<>::int_type, basic_ist...
-#include <utility> // for move
-#include <vector>  // IWYU pragma: keep
+#include <vector> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {
 
-    static const std::string path_concat(const std::vector<std::string>& stringvec) {
-        std::string s;
-
-        for (std::vector<std::string>::size_type i = 0; i < stringvec.size(); i++) {
-            if (!stringvec[i].empty() && stringvec[i].front() != ' ') {
-                s += "\\/" + stringvec[i];
-            }
-        }
-
-        return s;
-    }
-
-    static const std::vector<std::string> explode(const std::string& s, char delim) {
-        std::vector<std::string> result;
-        std::istringstream iss(s);
-
-        for (std::string token; std::getline(iss, token, delim);) {
-            result.push_back(std::move(token));
-        }
-
-        return result;
-    }
-
-#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
-    static const std::regex& pathRegex() {
-        static std::regex pathregex = std::regex(PATH_REGEX);
-
-        return pathregex;
-    }
-
-    static const std::smatch matchResult(const std::string& cpath) {
-        std::smatch smatch;
-
-        std::regex_search(cpath, smatch, pathRegex());
-
-        return smatch;
-    }
-
-    static bool hasResult(const std::string& cpath) {
-        std::smatch smatch;
-
-        return std::regex_search(cpath, smatch, pathRegex());
-    }
-
-    static bool matchFunction(const std::string& cpath, const std::string& reqpath) {
-        std::vector<std::string> explodedString = explode(cpath, '/');
-
-        for (std::vector<std::string>::size_type i = 0; i < explodedString.size(); i++) {
-            if (explodedString[i].front() == ':') {
-                std::smatch smatch = matchResult(explodedString[i]);
-                std::string regex = "(.*)";
-
-                if (smatch.size() > 1) {
-                    if (smatch[1] != "") {
-                        regex = smatch[1];
-                    }
-                }
-
-                explodedString[i] = regex;
-            }
-        }
-
-        std::string regexPath = path_concat(explodedString);
-
-        return std::regex_match(reqpath, std::regex(regexPath));
-    }
-
-    static void setParams(const std::string& cpath, Request& req) {
-        std::vector<std::string> explodedString = explode(cpath, '/');
-        std::vector<std::string> explodedReqString = explode(req.url, '/');
-
-        for (std::vector<std::string>::size_type i = 0; i < explodedString.size() && i < explodedReqString.size(); i++) {
-            if (explodedString[i].front() == ':') {
-                std::smatch smatch = matchResult(explodedString[i]);
-                std::string regex = "(.*)";
-
-                if (smatch.size() > 1) {
-                    if (smatch[1] != "") {
-                        regex = smatch[1];
-                    }
-                }
-
-                if (std::regex_match(explodedReqString[i], std::regex(regex))) {
-                    std::string attributeName = smatch[0];
-                    attributeName.erase(0, 1);
-                    attributeName.erase((attributeName.length() - static_cast<std::size_t>(smatch[1].length())),
-                                        static_cast<std::size_t>(smatch[1].length()));
-
-                    req.params[attributeName] = explodedReqString[i];
-                }
-            }
-        }
-    }
-
-    static bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
-        bool hasRegex = hasResult(cpath);
-        return (!hasRegex && cpath == reqpath) || (hasRegex && matchFunction(cpath, reqpath));
-    }
-
-    static std::string path_concat(const std::string& first, const std::string& second) {
-        std::string result;
-
-        if (first.back() == '/' && second.front() == '/') {
-            result = first + second.substr(1);
-        } else if (first.back() != '/' && second.front() != '/') {
-            result = first + '/' + second;
-        } else {
-            result = first + second;
-        }
-
-        if (result.length() > 1 && result.back() == '/') {
-            result.pop_back();
-        }
-
-        return result;
-    }
-
-    struct MountPoint {
-        MountPoint(const std::string& method, const std::string& relativeMountPath)
-            : method(method)
-            , relativeMountPath(relativeMountPath) {
-        }
-
-        std::string method;
-        std::string relativeMountPath;
-    };
-
-    class Route {
-    public:
-        Route(RouterDispatcher* parentRouter,
-              const std::string& method,
-              const std::string& relativeMountPath,
-              const std::shared_ptr<Dispatcher>& dispatcher)
-            : parentRouter(parentRouter)
-            , mountPoint(method, relativeMountPath)
-            , dispatcher(dispatcher) {
-        }
-
-        void dispatch(const RouterDispatcher* parentRouter, const std::string& parentMountPath, Request& req, Response& res) const;
-
-    protected:
-        RouterDispatcher* parentRouter;
-        MountPoint mountPoint;
-        std::shared_ptr<Dispatcher> dispatcher;
-
-        friend RouterDispatcher;
-    };
-
-    class MiddlewareDispatcher : public Dispatcher {
-    public:
-        explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, State& state)>& lambda)
-            : lambda(lambda) {
-        }
-
-    private:
-        void dispatch(const RouterDispatcher* parentRouter,
-                      const std::string& parentMountPath,
-                      const MountPoint& mountPoint,
-                      Request& req,
-                      Response& res) const override;
-
-        const std::function<void(Request& req, Response& res, State& state)> lambda;
-    };
-
-    class ApplicationDispatcher : public Dispatcher {
-    public:
-        explicit ApplicationDispatcher(const std::function<void(Request& req, Response& res)>& lambda)
-            : lambda(lambda) {
-        }
-
-    private:
-        void dispatch(const RouterDispatcher* parentRouter,
-                      const std::string& parentMountPath,
-                      const MountPoint& mountPoint,
-                      Request& req,
-                      Response& res) const override;
-
-        const std::function<void(Request& req, Response& res)> lambda;
-    };
-
-    void Route::dispatch(const RouterDispatcher* parentRouter, const std::string& parentMountPath, Request& req, Response& res) const {
-        return dispatcher->dispatch(parentRouter, parentMountPath, mountPoint, req, res);
-    }
-
-    void RouterDispatcher::dispatch(const RouterDispatcher* parentRouter,
-                                    const std::string& parentMountPath,
-                                    const MountPoint& mountPoint,
-                                    Request& req,
-                                    Response& res) const {
-        std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
-
-        // TODO: Fix regex-match
-        if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
-             (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
-            for (const Route& route : routes) {
-                route.dispatch(this, absoluteMountPath, req, res);
-
-                if (!proceed()) {
-                    break;
-                }
-            }
-        }
-
-        returnTo(parentRouter);
-    }
-
-    void RouterDispatcher::dispatch(Request& req, Response& res) const {
-        dispatch(nullptr, "/", MountPoint("use", "/"), req, res);
-    }
-
-    void RouterDispatcher::returnTo(const RouterDispatcher* parentRouter) const {
-        if (parentRouter) {
-            parentRouter->state.proceed = state.proceed | state.parentProceed;
-        }
-
-        state.proceed = true;
-        state.parentProceed = false;
-    }
-
-    void MiddlewareDispatcher::dispatch(const RouterDispatcher* parentRouter,
-                                        const std::string& parentMountPath,
-                                        const MountPoint& mountPoint,
-                                        Request& req,
-                                        Response& res) const {
-        std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
-
-        // TODO: Fix regex-match
-        if ((req.path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
-            ((absoluteMountPath == req.path || checkForUrlMatch(absoluteMountPath, req.url)) &&
-             (req.method == mountPoint.method || mountPoint.method == "all"))) {
-            parentRouter->terminate();
-
-            if (hasResult(absoluteMountPath)) {
-                setParams(absoluteMountPath, req);
-            }
-
-            lambda(req, res, parentRouter->getState());
-        }
-    }
-
-    void ApplicationDispatcher::dispatch(const RouterDispatcher* parentRouter,
-                                         const std::string& parentMountPath,
-                                         const MountPoint& mountPoint,
-                                         Request& req,
-                                         Response& res) const {
-        std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
-
-        // TODO: Fix regex-match
-        if ((req.path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
-            ((absoluteMountPath == req.path || checkForUrlMatch(absoluteMountPath, req.url)) &&
-             (req.method == mountPoint.method || mountPoint.method == "all"))) {
-            parentRouter->terminate();
-
-            if (hasResult(absoluteMountPath)) {
-                setParams(absoluteMountPath, req);
-            }
-
-            lambda(req, res);
-        }
-    }
-
     Router::Router()
-        : routerDispatcher(new RouterDispatcher()) {
+        : routerDispatcher(new express::dispatcher::RouterDispatcher()) {
     }
 
     Router::Router(const Router& router)
@@ -311,32 +47,37 @@ namespace express {
 
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
     Router& Router::METHOD(const std::string& relativeMountPath, const Router& router) {                                                   \
-        routerDispatcher->routes.emplace_back(Route(routerDispatcher.get(), HTTP_METHOD, relativeMountPath, router.routerDispatcher));     \
+        routerDispatcher->routes.emplace_back(                                                                                             \
+            express::dispatcher::Route(routerDispatcher.get(), HTTP_METHOD, relativeMountPath, router.routerDispatcher));                  \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const Router& router) {                                                                                         \
-        routerDispatcher->routes.emplace_back(Route(routerDispatcher.get(), HTTP_METHOD, "/", router.routerDispatcher));                   \
+        routerDispatcher->routes.emplace_back(                                                                                             \
+            express::dispatcher::Route(routerDispatcher.get(), HTTP_METHOD, "/", router.routerDispatcher));                                \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::string& relativeMountPath,                                                                           \
-                           const std::function<void(Request & req, Response & res, State & state)>& lambda) {                              \
-        routerDispatcher->routes.emplace_back(                                                                                             \
-            Route(routerDispatcher.get(), HTTP_METHOD, relativeMountPath, std::make_shared<MiddlewareDispatcher>(lambda)));                \
+                           const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda) {         \
+        routerDispatcher->routes.emplace_back(express::dispatcher::Route(                                                                  \
+            routerDispatcher.get(), HTTP_METHOD, relativeMountPath, std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda))); \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res, State & state)>& lambda) {                              \
-        routerDispatcher->routes.emplace_back(                                                                                             \
-            Route(routerDispatcher.get(), HTTP_METHOD, "/", std::make_shared<MiddlewareDispatcher>(lambda)));                              \
+    Router& Router::METHOD(const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda) {         \
+        routerDispatcher->routes.emplace_back(express::dispatcher::Route(                                                                  \
+            routerDispatcher.get(), HTTP_METHOD, "/", std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));               \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {       \
         routerDispatcher->routes.emplace_back(                                                                                             \
-            Route(routerDispatcher.get(), HTTP_METHOD, relativeMountPath, std::make_shared<ApplicationDispatcher>(lambda)));               \
+            express::dispatcher::Route(routerDispatcher.get(),                                                                             \
+                                       HTTP_METHOD,                                                                                        \
+                                       relativeMountPath,                                                                                  \
+                                       std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)));                             \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                             \
-        routerDispatcher->routes.emplace_back(                                                                                             \
-            Route(routerDispatcher.get(), HTTP_METHOD, "/", std::make_shared<ApplicationDispatcher>(lambda)));                             \
+        routerDispatcher->routes.emplace_back(express::dispatcher::Route(                                                                  \
+            routerDispatcher.get(), HTTP_METHOD, "/", std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)));              \
         return *this;                                                                                                                      \
     }
 

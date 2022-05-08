@@ -19,6 +19,8 @@
 #ifndef WEB_HTTP_CLIENT_RESPONSE_H
 #define WEB_HTTP_CLIENT_RESPONSE_H
 
+#include "web/http/CookieOptions.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint> // IWYU pragma: export
@@ -29,7 +31,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
-    class CookieOptions;
     class SocketContext;
 
     namespace client {
@@ -60,8 +61,8 @@ namespace web::http::client {
         void upgrade(Request& request);
 
         // need code to make it at least protected
-        const std::map<std::string, std::string>* headers = nullptr;
-        const std::map<std::string, CookieOptions>* cookies = nullptr;
+        std::map<std::string, std::string> headers;
+        std::map<std::string, CookieOptions> cookies;
 
         // CookieOptions are not queryable currently. Need code to access it.
 

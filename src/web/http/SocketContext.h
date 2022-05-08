@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
@@ -41,19 +39,7 @@ namespace web::http {
         void onReceiveFromPeer() override = 0;
 
     public:
-        void sendToPeer(const char* junk, std::size_t junkLen, bool isContent);
-
         virtual void sendToPeerCompleted() = 0;
-
-    private:
-        // Pipe
-        void receive(const char* junk, std::size_t junkLen) override;
-
-    protected:
-        std::size_t contentSent = 0;
-
-    public:
-        std::size_t contentLength = 0;
     };
 
 } // namespace web::http

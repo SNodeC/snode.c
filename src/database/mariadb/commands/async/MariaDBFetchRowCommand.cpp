@@ -45,9 +45,7 @@ namespace database::mariadb::commands::async {
     }
 
     int MariaDBFetchRowCommand::commandContinue(int status) {
-        int ret = mysql_fetch_row_cont(&row, result, status);
-
-        return ret;
+        return mysql_fetch_row_cont(&row, result, status);
     }
 
     bool MariaDBFetchRowCommand::commandCompleted() {

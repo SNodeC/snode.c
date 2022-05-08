@@ -39,8 +39,8 @@ namespace database::mariadb {
         , WriteEventReceiver("MariaDBConnectionWrite", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , ExceptionalConditionEventReceiver("MariaDBConnectionExceptional", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , mariaDBClient(mariaDBClient)
-        , commandStartEvent("MariaDBCommandStartEvent", this)
-        , mysql(mysql_init(nullptr)) {
+        , mysql(mysql_init(nullptr))
+        , commandStartEvent("MariaDBCommandStartEvent", this) {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
 
         execute_async(std::move(MariaDBCommandSequence().execute_async(new database::mariadb::commands::async::MariaDBConnectCommand(

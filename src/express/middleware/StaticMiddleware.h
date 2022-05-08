@@ -50,7 +50,7 @@ namespace express::middleware {
 
         StaticMiddleware& alwaysClose();
 
-    protected:
+    private:
         std::string root;
         std::map<std::string, std::string> stdHeaders = {
             {"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}};

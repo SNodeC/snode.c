@@ -34,7 +34,7 @@ namespace express::middleware {
         explicit VHost(const std::string& host);
         static class VHost& instance(const std::string& host);
 
-    protected:
+    private:
         std::string host;
 
         friend class VHost& VHost(const std::string& host);

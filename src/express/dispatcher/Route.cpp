@@ -16,23 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_SOCKET_H
-#define NET_L2_STREAM_SOCKET_H
+#include "Route.h"
 
-#include "net/Socket.h"           // IWYU pragma: export
-#include "net/l2/SocketAddress.h" // IWYU pragma: export
+#include "express/dispatcher/Dispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace express::dispatcher {
 
-    class Socket : public net::Socket<net::l2::SocketAddress> {
-    protected:
-        int create(int flags = 0) override;
-    };
+    Route::Route(RouterDispatcher* parentRouter,
+                 const std::string& method,
+                 const std::string& relativeMountPath,
+                 const std::shared_ptr<Dispatcher>& dispatcher)
+        : parentRouter(parentRouter)
+        , mountPoint(method, relativeMountPath)
+        , dispatcher(dispatcher) {
+    }
 
-} // namespace net::l2::stream
+    void Route::dispatch(const std::string& parentMountPath, Request& req, Response& res) const {
+        return dispatcher->dispatch(parentRouter, parentMountPath, mountPoint, req, res);
+    }
 
-#endif // NET_L2_STREAM_SOCKET_H
+} // namespace express::dispatcher

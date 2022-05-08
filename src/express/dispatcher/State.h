@@ -16,23 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_SOCKET_H
-#define NET_L2_STREAM_SOCKET_H
-
-#include "net/Socket.h"           // IWYU pragma: export
-#include "net/l2/SocketAddress.h" // IWYU pragma: export
+#ifndef EXPRESS_DISPATCHER_STATE_H
+#define EXPRESS_DISPATCHER_STATE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace express::dispatcher {
 
-    class Socket : public net::Socket<net::l2::SocketAddress> {
-    protected:
-        int create(int flags = 0) override;
+    class State {
+    public:
+        void operator()(const std::string& how = "");
+
+    private:
+        bool proceed = true;
+        bool parentProceed = false;
+
+        friend class RouterDispatcher;
     };
 
-} // namespace net::l2::stream
+} // namespace express::dispatcher
 
-#endif // NET_L2_STREAM_SOCKET_H
+#endif // EXPRESS_DISPATCHER_STATE_H

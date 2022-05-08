@@ -48,8 +48,6 @@ namespace database::mariadb {
 
     protected:
         virtual void execute_sync(MariaDBCommandSync* mariaDBCommand) = 0;
-
-        MYSQL_RES* lastResult = nullptr;
     };
 
 } // namespace database::mariadb

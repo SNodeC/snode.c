@@ -16,31 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/SocketContext.h"
+#include "MountPoint.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http {
-
-    void web::http::SocketContext::sendToPeer(const char* junk, std::size_t junkLen, bool isContent) {
-        Super::sendToPeer(junk, junkLen);
-
-        if (isContent) {
-            contentSent += junkLen;
-            if (contentSent == contentLength) {
-                sendToPeerCompleted();
-            } else if (contentSent > contentLength) {
-                close();
-            }
-        }
-    }
-
-    void SocketContext::receive(const char* junk, std::size_t junkLen) {
-        sendToPeer(junk, junkLen, true);
-    }
-
-} // namespace web::http
+namespace express::dispatcher {}
