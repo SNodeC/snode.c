@@ -59,13 +59,13 @@ namespace express {
         Router& operator=(Router&& router);
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
-    Router& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                \
-    Router& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                      \
-    Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
     Router& METHOD(const Router& router);                                                                                                  \
+    Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
+    Router& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                      \
+    Router& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                \
+    Router& METHOD(const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);                  \
     Router& METHOD(const std::string& relativeMountPath,                                                                                   \
-                   const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);                  \
-    Router& METHOD(const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);
+                   const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);
 
         DECLARE_REQUESTMETHOD(use)
         DECLARE_REQUESTMETHOD(all)
