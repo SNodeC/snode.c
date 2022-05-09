@@ -68,14 +68,14 @@ namespace web::http::server {
         if (junkLen > 0) {
             set("Content-Type", "application/octet-stream", false);
         }
-        set("Content-Length", std::to_string(junkLen));
+        set("Content-Length", std::to_string(junkLen), false);
 
         enqueue(junk, junkLen);
     }
 
     void Response::send(const std::string& junk) {
         if (junk.size() > 0) {
-            set("Content-Type", "text/html; charset=utf-8");
+            set("Content-Type", "text/html; charset=utf-8", false);
         }
         send(junk.data(), junk.size());
     }
