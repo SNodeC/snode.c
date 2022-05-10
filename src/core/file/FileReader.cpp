@@ -40,15 +40,17 @@ namespace core::file {
     }
 
     FileReader* FileReader::connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
+        errno = 0;
+
         FileReader* fileReader = nullptr;
 
         int fd = core::system::open(path.c_str(), O_RDONLY);
 
         if (fd >= 0) {
             fileReader = new FileReader(fd, writeStream, "FileReader: " + path);
-        } else {
-            onError(errno);
         }
+
+        onError(errno);
 
         return fileReader;
     }
