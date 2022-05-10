@@ -23,14 +23,10 @@
 #include "web/http/ConnectionState.h"
 #include "web/http/CookieOptions.h"
 
-namespace web::http {
-    class SocketContext;
-
-    namespace server {
-        class Request;
-        class RequestContextBase;
-    } // namespace server
-} // namespace web::http
+namespace web::http::server {
+    class Request;
+    class RequestContextBase;
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

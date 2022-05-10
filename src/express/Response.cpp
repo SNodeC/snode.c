@@ -20,7 +20,6 @@
 
 #include "core/file/FileReader.h"
 #include "web/http/MimeTypes.h"
-#include "web/http/SocketContext.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/RequestContextBase.h"

@@ -18,8 +18,7 @@
 
 #include "web/http/server/RequestContextBase.h"
 
-#include "core/socket/SocketContextFactory.h"
-#include "web/http/server/SocketContext.h"
+#include "web/http/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

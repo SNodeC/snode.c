@@ -26,6 +26,8 @@
 #include "web/http/http_utils.h"
 
 #include <list>
+#include <memory>  // for shared_ptr
+#include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

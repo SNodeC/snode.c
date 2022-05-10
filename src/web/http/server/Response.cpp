@@ -18,7 +18,6 @@
 
 #include "web/http/server/Response.h"
 
-#include "web/http/SocketContext.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"

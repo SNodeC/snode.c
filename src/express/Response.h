@@ -21,17 +21,11 @@
 
 #include "web/http/server/Response.h" // IWYU pragma: export
 
-namespace web::http {
+namespace web::http::server {
 
-    class SocketContext;
+    class RequestContextBase;
 
-    namespace server {
-
-        class RequestContextBase;
-
-    }
-
-} // namespace web::http
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
