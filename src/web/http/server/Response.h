@@ -28,7 +28,8 @@ namespace web::http {
 
     namespace server {
         class Request;
-    }
+        class RequestContextBase;
+    } // namespace server
 } // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,7 +44,7 @@ namespace web::http::server {
 
     class Response : public core::pipe::Sink {
     protected:
-        explicit Response(web::http::SocketContext* serverContext);
+        explicit Response(RequestContextBase* requestContext);
         Response(const Response&) = default;
 
         ~Response() override = default;
@@ -65,9 +66,7 @@ namespace web::http::server {
         void upgrade(Request& req);
 
     protected:
-        virtual void reset();
-
-        web::http::SocketContext* socketContext;
+        RequestContextBase* requestContext;
 
         int responseStatus = 200;
 

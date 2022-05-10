@@ -22,6 +22,7 @@
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
+#include "web/http/server/RequestContextBase.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,8 +37,8 @@
 
 namespace web::http::server {
 
-    Response::Response(web::http::SocketContext* serverContext)
-        : socketContext(serverContext) {
+    Response::Response(RequestContextBase* requestContext)
+        : requestContext(requestContext) {
     }
 
     void Response::enqueue(const char* junk, std::size_t junkLen) {
@@ -48,14 +49,15 @@ namespace web::http::server {
             headersSent = true;
         }
 
-        socketContext->sendToPeer(junk, junkLen);
+        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
+        requestContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {
             contentSent += junkLen;
             if (contentSent == contentLength) {
-                socketContext->sendToPeerCompleted();
+                requestContext->sendToPeerCompleted();
             } else if (contentSent > contentLength) {
-                socketContext->close();
+                requestContext->close();
             }
         }
     }
@@ -160,7 +162,7 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContext->switchSocketContext(socketContextUpgradeFactory);
+                requestContext->switchSocketContext(socketContextUpgradeFactory);
             } else {
                 set("Connection", "close").status(404).end();
             }
@@ -209,18 +211,7 @@ namespace web::http::server {
 
     void Response::error([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Stream error: ";
-        socketContext->close();
-    }
-
-    void Response::reset() {
-        headersSent = false;
-        sendHeaderInProgress = false;
-        contentSent = 0;
-        responseStatus = 200;
-        contentLength = 0;
-        connectionState = ConnectionState::Default;
-        headers.clear();
-        cookies.clear();
+        requestContext->close();
     }
 
 } // namespace web::http::server
