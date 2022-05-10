@@ -31,8 +31,13 @@ namespace core::pipe {
     }
 
     Sink::~Sink() {
+        disconnect();
+    }
+
+    void Sink::disconnect() {
         if (source != nullptr) {
             source->disconnect(*this);
+            source = nullptr;
         }
     }
 

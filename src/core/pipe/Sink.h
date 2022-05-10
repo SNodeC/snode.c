@@ -40,6 +40,7 @@ namespace core::pipe {
         virtual void eof() = 0;
         virtual void error(int errnum) = 0;
 
+        void disconnect();
         void connect(Source& source);
         void disconnect(Source& source);
 
