@@ -90,8 +90,12 @@ namespace core::socket::stream {
         using Super::getSocketContext;
 
         void close() final {
-            SocketWriter::disable();
-            SocketReader::disable();
+            if (SocketWriter::isEnabled()) {
+                SocketWriter::disable();
+            }
+            if (SocketReader::isEnabled()) {
+                SocketReader::disable();
+            }
         }
 
         void shutdownRead() final {

@@ -152,7 +152,7 @@ namespace web::http::server {
 
                 onRequestReady(currentRequestContext->request, currentRequestContext->response);
             } else {
-                currentRequestContext->response.status(currentRequestContext->status).send(currentRequestContext->reason);
+                reset();
                 shutdownWrite();
                 close();
             }
