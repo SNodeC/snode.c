@@ -20,9 +20,9 @@
 
 #include "core/file/FileReader.h"
 #include "web/http/MimeTypes.h"
-#include "web/http/SocketContext.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
+#include "web/http/server/RequestContextBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,8 +35,8 @@
 
 namespace express {
 
-    Response::Response(web::http::SocketContext* serverContext)
-        : web::http::server::Response(serverContext) {
+    Response::Response(web::http::server::RequestContextBase* requestContext)
+        : web::http::server::Response(requestContext) {
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
@@ -52,8 +52,8 @@ namespace express {
                 headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
                 core::file::FileReader::connect(absolutFileName, *this, [this, onError](int err) -> void {
-                    socketContext->close();
                     onError(err);
+                    requestContext->close();
                 });
             } else {
                 responseStatus = 403;
@@ -95,10 +95,6 @@ namespace express {
 
     void Response::sendStatus(int status) {
         this->status(status).send(web::http::StatusCode::reason(status));
-    }
-
-    void Response::reset() {
-        web::http::server::Response::reset();
     }
 
 } // namespace express

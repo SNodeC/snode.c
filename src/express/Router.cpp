@@ -40,8 +40,17 @@ namespace express {
         : routerDispatcher(router.routerDispatcher) {
     }
 
+    Router::Router(Router&& router) {
+        std::swap(routerDispatcher, router.routerDispatcher);
+    }
+
     Router& Router::operator=(const Router& router) {
         routerDispatcher = router.routerDispatcher;
+        return *this;
+    }
+
+    Router& Router::operator=(Router&& router) {
+        std::swap(routerDispatcher, router.routerDispatcher);
         return *this;
     }
 

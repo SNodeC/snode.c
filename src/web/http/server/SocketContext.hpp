@@ -39,7 +39,7 @@ namespace web::http::server {
               [this](void) -> void {
                   VLOG(3) << "++ BEGIN:";
 
-                  requestContexts.emplace_back(RequestContext(this));
+                  requestContexts.emplace_back(new RequestContext(this));
               },
               [&requestContexts = this->requestContexts](const std::string& method,
                                                          const std::string& url,
@@ -49,7 +49,7 @@ namespace web::http::server {
                                                          std::map<std::string, std::string>& queries) -> void {
                   VLOG(3) << "++ Request: " << method << " " << url << " " << httpVersion;
 
-                  Request& request = requestContexts.back().request;
+                  Request& request = requestContexts.back()->request;
 
                   request.method = method;
                   request.url = url;
@@ -65,7 +65,7 @@ namespace web::http::server {
               },
               [&requestContexts = this->requestContexts](std::map<std::string, std::string>& header,
                                                          std::map<std::string, std::string>& cookies) -> void {
-                  Request& request = requestContexts.back().request;
+                  Request& request = requestContexts.back()->request;
 
                   request.headers = std::move(header);
 
@@ -89,30 +89,41 @@ namespace web::http::server {
               [&requestContexts = this->requestContexts](std::vector<uint8_t>& content) -> void {
                   VLOG(3) << "++ Content: ";
 
-                  Request& request = requestContexts.back().request;
+                  Request& request = requestContexts.back()->request;
 
                   request.body = std::move(content);
               },
               [this]() -> void {
                   VLOG(3) << "++ Parsed ++";
 
-                  RequestContext& requestContext = requestContexts.back();
+                  RequestContext* requestContext = requestContexts.back();
 
-                  requestContext.ready = true;
+                  requestContext->ready = true;
 
                   requestParsed();
               },
               [this](int status, const std::string& reason) -> void {
                   VLOG(3) << "++ Error: " << status << " : " << reason;
 
-                  RequestContext& requestContext = requestContexts.back();
+                  RequestContext* requestContext = requestContexts.back();
 
-                  requestContext.status = status;
-                  requestContext.reason = std::move(reason);
-                  requestContext.ready = true;
+                  requestContext->status = status;
+                  requestContext->reason = std::move(reason);
+                  requestContext->ready = true;
 
                   requestParsed();
               }) {
+    }
+
+    template <typename Request, typename Response>
+    SocketContext<Request, Response>::~SocketContext() {
+        for (RequestContext* requestContext : requestContexts) {
+            delete requestContext;
+        }
+
+        if (currentRequestContext) {
+            currentRequestContext->socketContextGone();
+        }
     }
 
     template <typename Request, typename Response>
@@ -123,24 +134,25 @@ namespace web::http::server {
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::requestParsed() {
         if (!requestInProgress) {
-            RequestContext& requestContext = requestContexts.front();
+            currentRequestContext = requestContexts.front();
+            requestContexts.pop_front();
 
             requestInProgress = true;
-            if (requestContext.status == 0) {
-                if (((requestContext.request.connectionState == ConnectionState::Close) ||
-                     (requestContext.request.httpMajor == 0 && requestContext.request.httpMinor == 9) ||
-                     (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 0 &&
-                      requestContext.request.connectionState != ConnectionState::Keep) ||
-                     (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 1 &&
-                      requestContext.request.connectionState == ConnectionState::Close))) {
-                    requestContext.response.set("Connection", "close");
+            if (currentRequestContext->status == 0) {
+                if (((currentRequestContext->request.connectionState == ConnectionState::Close) ||
+                     (currentRequestContext->request.httpMajor == 0 && currentRequestContext->request.httpMinor == 9) ||
+                     (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 0 &&
+                      currentRequestContext->request.connectionState != ConnectionState::Keep) ||
+                     (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 1 &&
+                      currentRequestContext->request.connectionState == ConnectionState::Close))) {
+                    currentRequestContext->response.set("Connection", "close");
                 } else {
-                    requestContext.response.set("Connection", "keep-alive");
+                    currentRequestContext->response.set("Connection", "keep-alive");
                 }
 
-                onRequestReady(requestContext.request, requestContext.response);
+                onRequestReady(currentRequestContext->request, currentRequestContext->response);
             } else {
-                requestContext.response.status(requestContext.status).send(requestContext.reason);
+                currentRequestContext->response.status(currentRequestContext->status).send(currentRequestContext->reason);
                 shutdownWrite();
             }
         }
@@ -148,48 +160,33 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::sendToPeerCompleted() {
-        RequestContext& requestContext = requestContexts.front();
-
         // if 0.9 => terminate
         // if 1.0 && (request != Keep || contentLength = -1) => terminate
         // if 1.1 && (request == Close || contentLength = -1) => terminate
         // if (request == Close) => terminate
 
-        if ((requestContext.request.httpMajor == 0 && requestContext.request.httpMinor == 9) ||
-            (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 0 &&
-             requestContext.request.connectionState != ConnectionState::Keep) ||
-            (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 1 &&
-             requestContext.request.connectionState == ConnectionState::Close) ||
-            (requestContext.response.connectionState == ConnectionState::Close)) {
+        if ((currentRequestContext->request.httpMajor == 0 && currentRequestContext->request.httpMinor == 9) ||
+            (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 0 &&
+             currentRequestContext->request.connectionState != ConnectionState::Keep) ||
+            (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 1 &&
+             currentRequestContext->request.connectionState == ConnectionState::Close) ||
+            (currentRequestContext->response.connectionState == ConnectionState::Close)) {
             shutdownWrite();
+            reset();
         } else {
             reset();
 
-            requestContexts.pop_front();
-
-            if (!requestContexts.empty() && requestContexts.front().ready) {
-                RequestContext& requestContext = requestContexts.front();
-
-                requestInProgress = true;
-                if (requestContext.status == 0) {
-                    onRequestReady(requestContext.request, requestContext.response);
-                } else {
-                    requestContext.response.status(requestContext.status).send(requestContext.reason);
-                    shutdownWrite();
-                }
+            if (!requestContexts.empty() && requestContexts.front()->ready) {
+                requestParsed();
             }
         }
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::reset() {
-        if (!requestContexts.empty()) {
-            RequestContext& requestContext = requestContexts.front();
-            requestContext.request.reset();
-            requestContext.response.reset();
-        }
-
         requestInProgress = false;
+        delete currentRequestContext;
+        currentRequestContext = nullptr;
     }
 
     template <typename Request, typename Response>

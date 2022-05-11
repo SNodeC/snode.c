@@ -15,12 +15,13 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBMAGIC libmagic)
 
 set(HTTPSERVER_CPP
-    Request.cpp RequestParser.cpp Response.cpp SocketContextUpgradeFactory.cpp
-    SocketContextUpgradeFactorySelector.cpp
+    Request.cpp RequestContextBase.cpp RequestParser.cpp Response.cpp
+    SocketContextUpgradeFactory.cpp SocketContextUpgradeFactorySelector.cpp
 )
 
 set(HTTPSERVER_H
     Request.h
+    RequestContextBase.h
     RequestParser.h
     Response.h
     Server.h

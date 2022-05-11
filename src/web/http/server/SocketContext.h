@@ -20,6 +20,7 @@
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
 #include "web/http/SocketContext.h"
+#include "web/http/server/RequestContextBase.h"
 #include "web/http/server/RequestParser.h"
 
 namespace core::socket {
@@ -51,9 +52,11 @@ namespace web::http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
-        struct RequestContext {
+        class RequestContext : public RequestContextBase {
+        public:
             RequestContext(SocketContext* serverContext)
-                : response(serverContext)
+                : RequestContextBase(serverContext)
+                , response(this)
                 , ready(false)
                 , status(0) {
             }
@@ -71,7 +74,7 @@ namespace web::http::server {
         SocketContext(core::socket::SocketConnection* socketConnection, const std::function<void(Request&, Response&)>& onRequestReady);
 
     protected:
-        ~SocketContext() override = default;
+        ~SocketContext() override;
 
     private:
         void onReceiveFromPeer() override;
@@ -89,7 +92,8 @@ namespace web::http::server {
 
         RequestParser parser;
 
-        std::list<RequestContext> requestContexts;
+        std::list<RequestContext*> requestContexts;
+        RequestContext* currentRequestContext = nullptr;
 
         bool requestInProgress = false;
         bool connectionTerminated = false;

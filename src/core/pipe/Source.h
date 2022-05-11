@@ -35,8 +35,7 @@ namespace core::pipe {
         Source();
         virtual ~Source();
 
-        //        virtual void sinkDisconnected() = 0;
-
+        void disconnect();
         void connect(Sink& sink);
         void disconnect(Sink& sink);
 

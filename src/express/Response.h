@@ -21,9 +21,11 @@
 
 #include "web/http/server/Response.h" // IWYU pragma: export
 
-namespace web::http {
-    class SocketContext;
-} // namespace web::http
+namespace web::http::server {
+
+    class RequestContextBase;
+
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +38,7 @@ namespace express {
 
     class Response : public web::http::server::Response {
     public:
-        explicit Response(web::http::SocketContext* serverContext);
+        explicit Response(web::http::server::RequestContextBase* requestContext);
 
         void sendFile(const std::string& file, const std::function<void(int err)>& onError);
         void download(const std::string& file, const std::function<void(int err)>& onError);
@@ -46,8 +48,6 @@ namespace express {
         void redirect(int status, const std::string& name);
 
         void sendStatus(int status);
-
-        void reset() override;
     };
 
 } // namespace express
