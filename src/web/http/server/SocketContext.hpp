@@ -154,6 +154,7 @@ namespace web::http::server {
             } else {
                 currentRequestContext->response.status(currentRequestContext->status).send(currentRequestContext->reason);
                 shutdownWrite();
+                close();
             }
         }
     }
