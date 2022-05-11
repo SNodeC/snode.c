@@ -145,6 +145,7 @@ namespace core::socket::stream {
 
     private:
         void readEvent() final {
+            VLOG(0) << "       *** Event received: " << SocketReader::getName() << " --- calling doRead()";
             SocketReader::doRead();
 
             onReceiveFromPeer();

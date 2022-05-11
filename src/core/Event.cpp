@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -58,6 +59,8 @@ namespace core {
     }
 
     void Event::dispatch(const utils::Timeval& currentTime) {
+        VLOG(0) << "Event dispatching to: " << eventReceiver->getName();
+
         published = false;
         eventReceiver->event(currentTime);
     }

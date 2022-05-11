@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -118,6 +120,8 @@ namespace core::epoll {
         for (int i = 0; i < count; i++) {
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (eventReceiver != nullptr) {
+                VLOG(0) << "EventReceiver: " << eventReceiver->getName() << ", fd = " << eventReceiver->getRegisteredFd()
+                        << ", obscount = " << eventReceiver->getObservationCounter();
                 eventCounter++;
                 eventReceiver->publish();
             }
