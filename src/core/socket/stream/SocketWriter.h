@@ -86,10 +86,8 @@ namespace core::socket::stream {
         void doWrite() {
             errno = 0;
 
-            ssize_t retWrite = -1;
-
             std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
-            retWrite = write(writeBuffer.data(), writeLen);
+            ssize_t retWrite = write(writeBuffer.data(), writeLen);
 
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);

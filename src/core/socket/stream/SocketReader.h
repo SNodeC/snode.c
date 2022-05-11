@@ -95,10 +95,8 @@ namespace core::socket::stream {
             if (size == 0) {
                 cursor = 0;
 
-                ssize_t retRead = 0;
-
                 std::size_t readLen = blockSize - size;
-                retRead = read(readBuffer.data() + size, readLen);
+                ssize_t retRead = read(readBuffer.data() + size, readLen);
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
