@@ -59,7 +59,7 @@ namespace core::socket {
         virtual void close() = 0;
 
         virtual void shutdownRead() = 0;
-        virtual void shutdownWrite() = 0;
+        virtual void shutdownWrite(bool forceClose) = 0;
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 

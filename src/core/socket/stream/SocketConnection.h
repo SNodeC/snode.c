@@ -102,8 +102,17 @@ namespace core::socket::stream {
             SocketReader::shutdown();
         }
 
-        void shutdownWrite() final {
-            SocketWriter::shutdown();
+        void shutdownWrite(bool forceClose) final {
+            SocketWriter::shutdown([forceClose, this](int errnum) -> void {
+                if (errnum != 0) {
+                    PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                }
+                if (forceClose) {
+                    close();
+                } else {
+                    SocketWriter::disable();
+                }
+            });
         }
 
         void setTimeout(const utils::Timeval& timeout) final {
@@ -149,9 +158,7 @@ namespace core::socket::stream {
 
     private:
         void readEvent() final {
-            VLOG(0) << "       *** Event received: " << SocketReader::getName() << " --- calling doRead()";
             SocketReader::doRead();
-
             onReceiveFromPeer();
         }
 
