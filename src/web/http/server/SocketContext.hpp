@@ -152,9 +152,9 @@ namespace web::http::server {
 
                 onRequestReady(currentRequestContext->request, currentRequestContext->response);
             } else {
+                currentRequestContext->response.status(currentRequestContext->status).send(currentRequestContext->reason);
                 reset();
-                shutdownWrite();
-                close();
+                shutdownWrite(true);
             }
         }
     }
@@ -172,8 +172,8 @@ namespace web::http::server {
             (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 1 &&
              currentRequestContext->request.connectionState == ConnectionState::Close) ||
             (currentRequestContext->response.connectionState == ConnectionState::Close)) {
-            shutdownWrite();
             reset();
+            shutdownWrite();
         } else {
             reset();
 
