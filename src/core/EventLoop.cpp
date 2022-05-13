@@ -174,7 +174,6 @@ namespace core {
             tickStatus = EventLoop::instance()._tick(3);
         } while (tickStatus == TickStatus::SUCCESS);
 
-        DynamicLoader::execDlCloseDeleyed();
         DynamicLoader::execDlCloseAll();
 
         utils::Config::terminate();

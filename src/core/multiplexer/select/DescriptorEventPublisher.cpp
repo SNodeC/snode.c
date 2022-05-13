@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <type_traits> // for add_const<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -80,12 +78,9 @@ namespace core::select {
     void DescriptorEventPublisher::publishActiveEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-            if (fdSet.isSet(fd) && !eventReceiver->isSuspended()) {
+            if (fdSet.isSet(fd)) {
                 eventCounter++;
                 eventReceiver->publish();
-            } else if (fdSet.isSet(fd)) {
-                VLOG(0) << "############### DescriptorEventPublisher: Event not published because EventReceiver is suspended: "
-                        << eventReceiver->getName() << ", fd = " << eventReceiver->getRegisteredFd();
             }
         }
     }

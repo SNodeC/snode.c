@@ -147,17 +147,10 @@ namespace core {
     }
 
     void DescriptorEventReceiver::event(const utils::Timeval& currentTime) {
-        VLOG(0) << "DescriptorEventReceiver: " << getName() << " received event. fd = " << getRegisteredFd()
-                << ", obscount = " << getObservationCounter();
-        if (!isSuspended()) {
-            VLOG(0) << "       *** Event delivered";
-            eventCounter++;
-            triggered(currentTime);
+        eventCounter++;
+        triggered(currentTime);
 
-            dispatchEvent();
-        } else {
-            VLOG(0) << "       *** Event not delivered because receiver is suspended";
-        }
+        dispatchEvent();
     }
 
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {

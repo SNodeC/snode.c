@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
@@ -92,18 +90,15 @@ namespace core::socket::stream {
         void doRead() {
             errno = 0;
 
-            VLOG(0) << "       ******* doRead() size = " << size << ", fd = " << getRegisteredFd();
             if (size == 0) {
                 cursor = 0;
 
                 std::size_t readLen = blockSize - size;
                 ssize_t retRead = read(readBuffer.data() + size, readLen);
-                VLOG(0) << "       *** doRead() retRead = " << retRead << ", errno = " << errno;
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
                 } else if (errno != EINTR /* && errno != EAGAIN && errno != EWOULDBLOCK*/) {
-                    VLOG(0) << "       *** doRead() disabling DescriptorEventReceiver";
                     disable();
                     onError(errno);
                 }
