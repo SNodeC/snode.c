@@ -68,9 +68,9 @@ namespace core::socket {
         socketConnection->shutdownWrite(forceClose);
     }
 
-    void SocketContext::shutdown() {
+    void SocketContext::shutdown(bool forceClose) {
         shutdownRead();
-        shutdownWrite();
+        shutdownWrite(forceClose);
     }
 
     void SocketContext::close() {

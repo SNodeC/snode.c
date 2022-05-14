@@ -111,6 +111,7 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
+                setTimeout(terminateTimeout);
                 doReadShutdown();
                 shutdownTriggered = true;
             }

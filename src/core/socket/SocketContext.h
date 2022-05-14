@@ -55,7 +55,7 @@ namespace core::socket {
 
         void shutdownRead();
         void shutdownWrite(bool forceClose = false);
-        void shutdown();
+        void shutdown(bool forceClose = false);
 
         void close();
 
