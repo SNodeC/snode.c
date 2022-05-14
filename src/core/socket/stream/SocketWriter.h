@@ -110,7 +110,6 @@ namespace core::socket::stream {
 
         void shutdown(const std::function<void(int)>& onShutdown) {
             if (!shutdownInProgress) {
-                setTimeout(terminateTimeout);
                 this->onShutdown = onShutdown;
                 if (isSuspended()) {
                     shutdownInProgress = true;
@@ -123,6 +122,7 @@ namespace core::socket::stream {
 
         void terminate() override {
             if (!terminateInProgress) {
+                setTimeout(terminateTimeout);
                 shutdown([this]([[maybe_unused]] int errnum) -> void {
                     if (errnum != 0) {
                         PLOG(INFO) << "SocketWriter::doWriteShutdown";
