@@ -74,14 +74,14 @@ namespace core::socket::stream::tls {
                     errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_WRITE (EAGAIN)
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    this->doReadShutdown();
+                    doReadShutdown();
                     break;
                 case SSL_ERROR_SYSCALL:
                     VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
                     {
                         int tmpErrno = errno;
-                        this->doReadShutdown();
+                        doReadShutdown();
                         errno = tmpErrno;
                     }
                     break;
@@ -94,6 +94,8 @@ namespace core::socket::stream::tls {
         }
 
     protected:
+        virtual void doReadShutdown() = 0;
+
         bool hasBufferedData() const override {
             return SSL_pending(ssl) || Super::hasBufferedData();
         }

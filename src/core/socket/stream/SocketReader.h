@@ -71,10 +71,6 @@ namespace core::socket::stream {
             this->blockSize = readBlockSize;
         }
 
-        virtual void doReadShutdown() {
-            Socket::shutdown(Socket::shutdown::RD);
-        }
-
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             std::size_t maxReturn = std::min(junkLen, size);
 
@@ -111,8 +107,7 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
-                setTimeout(terminateTimeout);
-                doReadShutdown();
+                Socket::shutdown(Socket::shutdown::RD);
                 shutdownTriggered = true;
             }
         }
