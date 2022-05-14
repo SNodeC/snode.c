@@ -145,22 +145,11 @@ namespace core::socket::stream::tls {
                     onSuccess();
                 },
                 [onTimeout, this](void) -> void { // onTimeout
-                    if (SocketReader::isEnabled()) {
-                        SocketReader::disable();
-                    }
-                    if (SocketWriter::isEnabled()) {
-                        SocketWriter::disable();
-                    }
+                    SocketConnection::close();
                     onTimeout();
                 },
                 [onError, this](int sslErr) -> void { // onError
-                    setSSLError(sslErr);
-                    if (SocketReader::isEnabled()) {
-                        SocketReader::disable();
-                    }
-                    if (SocketWriter::isEnabled()) {
-                        SocketWriter::disable();
-                    }
+                    SocketConnection::close();
                     onError(sslErr);
                 },
                 initTimeout);
@@ -204,7 +193,6 @@ namespace core::socket::stream::tls {
                     onTimeout();
                 },
                 [onError, this, resumeSocketReader, resumeSocketWriter](int sslErr) -> void { // onError
-                    setSSLError(sslErr);
                     if (resumeSocketReader) {
                         SocketReader::resume();
                     }
@@ -256,13 +244,7 @@ namespace core::socket::stream::tls {
             }
         }
 
-        void setSSLError(int sslErr) {
-            this->sslErr = sslErr;
-        }
-
         SSL* ssl = nullptr;
-
-        int sslErr = SSL_ERROR_NONE;
 
         utils::Timeval initTimeout;
         utils::Timeval shutdownTimeout;
