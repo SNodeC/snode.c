@@ -95,11 +95,13 @@ namespace core::socket::stream {
                     }
                     publish();
                 } else {
-                    if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+                    if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+                        if (isSuspended()) {
+                            resume();
+                        }
+                    } else {
                         disable();
                         onError(errno);
-                    } else if (isSuspended()) {
-                        resume();
                     }
                 }
             } else {

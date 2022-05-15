@@ -41,61 +41,56 @@ namespace core::socket::stream::tls {
         using Super::Super;
 
         ssize_t read(char* junk, std::size_t junkLen) override {
-            int ret = 0;
-            int ssl_err = sslErr;
+            int ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
 
-            if (ssl_err == SSL_ERROR_NONE) {
-                ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
+            if (ret <= 0) {
+                int ssl_err = SSL_get_error(ssl, ret);
 
-                if (ret <= 0) {
-                    ssl_err = SSL_get_error(ssl, ret);
-                }
-            }
-
-            switch (ssl_err) {
-                case SSL_ERROR_NONE:
-                    errno = 0;
-                    break;
-                case SSL_ERROR_WANT_READ:
-                    errno = EAGAIN;
-                    ret = -1;
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    LOG(INFO) << "SSL/TLS start renegotiation on read";
-                    doSSLHandshake(
-                        [](void) -> void {
-                            LOG(INFO) << "SSL/TLS renegotiation on read success";
-                        },
-                        [](void) -> void {
-                            LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
-                        },
-                        [this](int ssl_err) -> void {
-                            ssl_log("SSL/TLS renegotiation", ssl_err);
-                            sslErr = ssl_err;
-                        });
-                    errno = EAGAIN;
-                    ret = -1;
-                    break;
-                case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    doReadShutdown();
-                    errno = 0;
-                    ret = 0;
-                    break;
-                case SSL_ERROR_SYSCALL:
-                    VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
-                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                    {
-                        int tmpErrno = errno;
+                switch (ssl_err) {
+                    case SSL_ERROR_NONE:
+                        break;
+                    case SSL_ERROR_WANT_READ:
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_WANT_WRITE:
+                        LOG(INFO) << "SSL/TLS start renegotiation on read";
+                        {
+                            int tempErrno = errno;
+                            doSSLHandshake(
+                                [](void) -> void {
+                                    LOG(INFO) << "SSL/TLS renegotiation on read success";
+                                },
+                                [](void) -> void {
+                                    LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
+                                },
+                                [](int ssl_err) -> void {
+                                    ssl_log("SSL/TLS renegotiation", ssl_err);
+                                });
+                            errno = tempErrno;
+                        }
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_ZERO_RETURN: // received close_notify
                         doReadShutdown();
-                        errno = tmpErrno;
-                    }
-                    ret = -1;
-                    break;
-                default:
-                    ssl_log("SSL/TLS error read failed", ssl_err);
-                    errno = EIO;
-                    ret = -1;
-                    break;
+                        errno = 0;
+                        ret = 0;
+                        break;
+                    case SSL_ERROR_SYSCALL:
+                        VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
+                        SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
+                        {
+                            int tmpErrno = errno;
+                            doReadShutdown();
+                            errno = tmpErrno;
+                        }
+                        ret = -1;
+                        break;
+                    default:
+                        ssl_log("SSL/TLS error read failed", ssl_err);
+                        errno = EIO;
+                        ret = -1;
+                        break;
+                }
             }
 
             return ret;
@@ -113,8 +108,6 @@ namespace core::socket::stream::tls {
                                     const std::function<void(int)>& onError) = 0;
 
         SSL* ssl = nullptr;
-
-        int sslErr = SSL_ERROR_NONE;
     };
 
 } // namespace core::socket::stream::tls
