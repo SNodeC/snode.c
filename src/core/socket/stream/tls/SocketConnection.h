@@ -122,6 +122,9 @@ namespace core::socket::stream::tls {
                             const std::function<void(int)>& onError) override {
             int resumeSocketWriter = false;
 
+            if (!SocketReader::isSuspended()) {
+                SocketReader::suspend();
+            }
             if (!SocketWriter::isSuspended()) {
                 SocketWriter::suspend();
                 resumeSocketWriter = true;

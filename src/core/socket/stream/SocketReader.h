@@ -90,6 +90,10 @@ namespace core::socket::stream {
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
+                    if (!isSuspended()) {
+                        suspend();
+                    }
+                    publish();
                 } else {
                     if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                         disable();
@@ -98,9 +102,7 @@ namespace core::socket::stream {
                         resume();
                     }
                 }
-            }
-
-            if (size > 0) {
+            } else {
                 if (!isSuspended()) {
                     suspend();
                 }
