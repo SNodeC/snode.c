@@ -113,6 +113,7 @@ namespace core::socket::stream::tls {
 #ifdef SSL_OP_IGNORE_UNEXPECTED_EOF // for openssl 3.x: We need SSL_ERROR_SYSCALL in case of a peer TCP-FIN without close_notify
             SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
 #endif
+            SSL_CTX_set_read_ahead(ctx, 1);
 
             bool sslErr = false;
 

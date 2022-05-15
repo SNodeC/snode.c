@@ -120,13 +120,7 @@ namespace core::socket::stream::tls {
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onError) override {
-            int resumeSocketReader = false;
             int resumeSocketWriter = false;
-
-            if (!SocketReader::isSuspended()) {
-                SocketReader::suspend();
-                resumeSocketReader = true;
-            }
 
             if (!SocketWriter::isSuspended()) {
                 SocketWriter::suspend();
@@ -135,13 +129,11 @@ namespace core::socket::stream::tls {
 
             TLSHandshake::doHandshake(
                 ssl,
-                [onSuccess, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onSuccess
-                    if (resumeSocketReader) {
-                        SocketReader::resume();
-                    }
+                [onSuccess, this /*, resumeSocketReader */, resumeSocketWriter](void) -> void { // onSuccess
                     if (resumeSocketWriter) {
                         SocketWriter::resume();
                     }
+                    SocketReader::publish();
                     onSuccess();
                 },
                 [onTimeout, this](void) -> void { // onTimeout

@@ -54,9 +54,11 @@ namespace core::socket::stream::tls {
 
             switch (ssl_err) {
                 case SSL_ERROR_NONE:
+                    errno = 0;
                     break;
                 case SSL_ERROR_WANT_READ:
-                    errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_READ (EAGAIN)
+                    errno = EAGAIN;
+                    ret = -1;
                     break;
                 case SSL_ERROR_WANT_WRITE:
                     LOG(INFO) << "SSL/TLS start renegotiation on read";
@@ -71,10 +73,13 @@ namespace core::socket::stream::tls {
                             ssl_log("SSL/TLS renegotiation", ssl_err);
                             sslErr = ssl_err;
                         });
-                    errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_WRITE (EAGAIN)
+                    errno = EAGAIN;
+                    ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
                     doReadShutdown();
+                    errno = 0;
+                    ret = 0;
                     break;
                 case SSL_ERROR_SYSCALL:
                     VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
@@ -84,9 +89,12 @@ namespace core::socket::stream::tls {
                         doReadShutdown();
                         errno = tmpErrno;
                     }
+                    ret = -1;
                     break;
                 default:
                     ssl_log("SSL/TLS error read failed", ssl_err);
+                    errno = EIO;
+                    ret = -1;
                     break;
             }
 
@@ -95,10 +103,6 @@ namespace core::socket::stream::tls {
 
     protected:
         virtual void doReadShutdown() = 0;
-
-        bool hasBufferedData() const override {
-            return SSL_pending(ssl) || Super::hasBufferedData();
-        }
 
         void terminate() override {
             Super::terminate();

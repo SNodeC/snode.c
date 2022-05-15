@@ -61,10 +61,6 @@ namespace core::socket::stream {
 
         void readEvent() override = 0;
 
-        bool isToBeContinued() override {
-            return hasBufferedData();
-        }
-
     protected:
         void setBlockSize(std::size_t readBlockSize) {
             readBuffer.resize(readBlockSize);
@@ -94,15 +90,22 @@ namespace core::socket::stream {
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
-                } else if (errno != EINTR /* && errno != EAGAIN && errno != EWOULDBLOCK*/) {
-                    disable();
-                    onError(errno);
+                } else {
+                    if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+                        disable();
+                        onError(errno);
+                    } else if (isSuspended()) {
+                        resume();
+                    }
                 }
             }
-        }
 
-        virtual bool hasBufferedData() const {
-            return size > 0;
+            if (size > 0) {
+                if (!isSuspended()) {
+                    suspend();
+                }
+                publish();
+            }
         }
 
         void shutdown() {
