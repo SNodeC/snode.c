@@ -42,9 +42,6 @@ namespace express {
         static void stop();
         static core::TickStatus tick(const utils::Timeval& timeOut = 0);
         static void free();
-
-    private:
-        static bool initialized;
     };
 
 } // namespace express
