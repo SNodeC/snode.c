@@ -79,29 +79,41 @@ namespace core::socket::stream {
 
         void sendToPeer(const char* junk, std::size_t junkLen) {
             if (!shutdownInProgress && !markShutdown) {
-                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-
-                if (isSuspended()) {
-                    resume();
+                if (writeBuffer.empty()) {
+                    publish();
                 }
+
+                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
             }
         }
 
         void doWrite() {
             errno = 0;
 
-            std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
-            ssize_t retWrite = write(writeBuffer.data(), writeLen);
+            if (!writeBuffer.empty()) {
+                std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
+                ssize_t retWrite = write(writeBuffer.data(), writeLen);
 
-            if (retWrite >= 0) {
-                writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-            } else if (errno != EINTR /*&& errno != EAGAIN && errno != EWOULDBLOCK*/) {
-                disable();
-                onError(errno);
-            }
-
-            if (writeBuffer.empty()) {
-                suspend();
+                if (retWrite > 0) {
+                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
+                    if (!isSuspended()) {
+                        suspend();
+                    }
+                    publish();
+                } else {
+                    if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+                        if (isSuspended()) {
+                            resume();
+                        }
+                    } else {
+                        disable();
+                        onError(errno);
+                    }
+                }
+            } else {
+                if (!isSuspended()) {
+                    suspend();
+                }
                 if (markShutdown) {
                     shutdown(onShutdown);
                 }
@@ -111,7 +123,7 @@ namespace core::socket::stream {
         void shutdown(const std::function<void(int)>& onShutdown) {
             if (!shutdownInProgress) {
                 this->onShutdown = onShutdown;
-                if (isSuspended()) {
+                if (writeBuffer.empty()) {
                     shutdownInProgress = true;
                     doWriteShutdown(onShutdown);
                 } else {
@@ -141,9 +153,7 @@ namespace core::socket::stream {
         std::size_t blockSize;
 
         bool markShutdown = false;
-
         bool shutdownInProgress = false;
-
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;
