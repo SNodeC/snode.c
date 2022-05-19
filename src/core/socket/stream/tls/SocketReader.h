@@ -55,7 +55,7 @@ namespace core::socket::stream::tls {
                     case SSL_ERROR_WANT_WRITE:
                         LOG(INFO) << "SSL/TLS start renegotiation on read";
                         {
-                            int tempErrno = errno;
+                            int tmpErrno = errno;
                             doSSLHandshake(
                                 [](void) -> void {
                                     LOG(INFO) << "SSL/TLS renegotiation on read success";
@@ -66,7 +66,7 @@ namespace core::socket::stream::tls {
                                 [](int ssl_err) -> void {
                                     ssl_log("SSL/TLS renegotiation", ssl_err);
                                 });
-                            errno = tempErrno;
+                            errno = tmpErrno;
                         }
                         ret = -1;
                         break;
