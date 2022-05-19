@@ -115,6 +115,9 @@ namespace core::socket::stream::tls {
 #endif
             SSL_CTX_set_read_ahead(ctx, 1);
 
+            SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+            SSL_CTX_set_mode(ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
             bool sslErr = false;
 
             if (server) {
