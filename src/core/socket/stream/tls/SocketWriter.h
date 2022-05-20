@@ -89,10 +89,6 @@ namespace core::socket::stream::tls {
         }
 
     protected:
-        void terminate() override {
-            Super::terminate();
-        }
-
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onError) = 0;

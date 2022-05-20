@@ -38,11 +38,6 @@ namespace core::socket::stream::legacy {
         ssize_t write(const char* junk, std::size_t junkLen) override {
             return core::system::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }
-
-    protected:
-        void terminate() override {
-            Super::terminate();
-        }
     };
 
 } // namespace core::socket::stream::legacy
