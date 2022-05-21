@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <unordered_map> // for unordered_map, _Map_base<>::mapped_type
 #include <utility>       // for tuple_element<>::type
 
@@ -30,8 +32,9 @@
 
 namespace core::poll {
 
-    DescriptorEventPublisher::DescriptorEventPublisher(PollFdsManager& pollFds, short events, short revents)
-        : pollFds(pollFds)
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, PollFdsManager& pollFds, short events, short revents)
+        : core::DescriptorEventPublisher(name)
+        , pollFds(pollFds)
         , events(events)
         , revents(revents) {
     }
@@ -52,7 +55,9 @@ namespace core::poll {
         pollFds.muxOff(fd, events);
     }
 
-    void DescriptorEventPublisher::publishActiveEvents() {
+    int DescriptorEventPublisher::publishActiveEvents() {
+        int count = 0;
+
         pollfd* pollfds = pollFds.getEvents();
 
         const std::unordered_map<int, PollFdsManager::PollFdIndex>& pollFdsIndices = pollFds.getPollFdIndices();
@@ -62,10 +67,16 @@ namespace core::poll {
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & revents) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+                VLOG(0) << "** DEP: Publish to " << eventReceiver->getName() << " -- fd = " << eventReceiver->getRegisteredFd();
                 eventCounter++;
                 eventReceiver->publish();
+                count++;
+            } else {
+                VLOG(0) << "** DEP: Not published: condition not fullfilled -- fd = " << eventReceivers.front()->getRegisteredFd();
             }
         }
+
+        return count;
     }
 
 } // namespace core::poll

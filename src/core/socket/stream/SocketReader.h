@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
@@ -82,32 +84,41 @@ namespace core::socket::stream {
         void doRead() {
             errno = 0;
 
+            VLOG(0) << "** doRead: size = " << size;
+
             if (size == 0) {
                 cursor = 0;
 
                 std::size_t readLen = blockSize - size;
                 ssize_t retRead = read(readBuffer.data() + size, readLen);
+                VLOG(0) << "** doRead: read: retRead = " << retRead;
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
                     if (!isSuspended()) {
+                        VLOG(0) << "** doRead: suspend() - 0";
                         suspend();
                     }
+                    VLOG(0) << "** doRead: publish() - 0";
                     publish();
-                } else {
-                    if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                        if (isSuspended()) {
-                            resume();
-                        }
-                    } else {
-                        disable();
-                        onError(errno);
+                } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+                    VLOG(0) << "** doRead: read: errno = EAGAIN";
+                    if (isSuspended()) {
+                        VLOG(0) << "** doRead: resume()";
+                        resume();
                     }
+                } else {
+                    VLOG(0) << "** doRead: disable(): read: errno = !EAGAIN";
+                    disable();
+                    onError(errno);
                 }
+
             } else {
                 if (!isSuspended()) {
+                    VLOG(0) << "** doRead: suspend() - 1";
                     suspend();
                 }
+                VLOG(0) << "** doRead: publish() - 1";
                 publish();
             }
         }

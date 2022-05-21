@@ -33,6 +33,7 @@ namespace utils {
 
 #include <list> // IWYU pragma: export
 #include <map>  // IWYU pragma: export
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,7 +44,8 @@ namespace core {
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     protected:
-        DescriptorEventPublisher() = default;
+        DescriptorEventPublisher() = delete;
+        DescriptorEventPublisher(const std::string& name);
 
     public:
         virtual ~DescriptorEventPublisher() = default;
@@ -55,7 +57,7 @@ namespace core {
         void suspend(DescriptorEventReceiver* descriptorEventReceiver);
         void resume(DescriptorEventReceiver* descriptorEventReceiver);
 
-        virtual void publishActiveEvents() = 0;
+        virtual int publishActiveEvents() = 0;
         void checkTimedOutEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
@@ -65,6 +67,8 @@ namespace core {
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
         void stop();
+
+        const std::string& getName() const;
 
     protected:
         virtual void muxAdd(DescriptorEventReceiver* descriptorEventReceiver) = 0;
@@ -76,6 +80,8 @@ namespace core {
 
         unsigned long eventCounter = 0;
         bool observedEventReceiversDirty = false;
+
+        std::string name;
     };
 
 } // namespace core

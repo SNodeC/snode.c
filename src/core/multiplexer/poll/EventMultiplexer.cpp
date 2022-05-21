@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Timeval.h" // IWYU pragma: keep
 
 #include <algorithm> // for remove_if
@@ -128,9 +129,10 @@ namespace core::poll {
     }
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::poll::DescriptorEventPublisher(pollFdsManager, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
-                                 new core::poll::DescriptorEventPublisher(pollFdsManager, POLLOUT, POLLOUT),
-                                 new core::poll::DescriptorEventPublisher(pollFdsManager, POLLPRI, POLLPRI)) {
+        : core::EventMultiplexer(
+              new core::poll::DescriptorEventPublisher("READ", pollFdsManager, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
+              new core::poll::DescriptorEventPublisher("WRITE", pollFdsManager, POLLOUT, POLLOUT),
+              new core::poll::DescriptorEventPublisher("EXCEPT", pollFdsManager, POLLPRI, POLLPRI)) {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
@@ -140,6 +142,7 @@ namespace core::poll {
     void EventMultiplexer::publishActiveEvents(int count) {
         if (count > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+                VLOG(0) << "** Publishing to " << descriptorEventPublisher->getName();
                 descriptorEventPublisher->publishActiveEvents();
             }
         }

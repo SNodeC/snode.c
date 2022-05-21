@@ -22,6 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Timeval.h" // for Timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -35,9 +36,9 @@ core::EventMultiplexer& EventMultiplexer() {
 namespace core::epoll {
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::epoll::DescriptorEventPublisher(epfds[DISP_TYPE::RD], EPOLLIN),
-                                 new core::epoll::DescriptorEventPublisher(epfds[DISP_TYPE::WR], EPOLLOUT),
-                                 new core::epoll::DescriptorEventPublisher(epfds[DISP_TYPE::EX], EPOLLPRI)) {
+        : core::EventMultiplexer(new core::epoll::DescriptorEventPublisher("READ", epfds[DISP_TYPE::RD], EPOLLIN),
+                                 new core::epoll::DescriptorEventPublisher("WRITE", epfds[DISP_TYPE::WR], EPOLLOUT),
+                                 new core::epoll::DescriptorEventPublisher("EXCEPT", epfds[DISP_TYPE::EX], EPOLLPRI)) {
         epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
 
         epoll_event event;
@@ -60,6 +61,7 @@ namespace core::epoll {
     void EventMultiplexer::publishActiveEvents(int count) {
         for (int i = 0; i < count; i++) {
             if ((ePollEvents[i].events & EPOLLIN) != 0) {
+                VLOG(0) << "** Publishing to " << static_cast<core::DescriptorEventPublisher*>(ePollEvents[i].data.ptr)->getName();
                 static_cast<core::DescriptorEventPublisher*>(ePollEvents[i].data.ptr)->publishActiveEvents();
             }
         }

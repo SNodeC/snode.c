@@ -31,6 +31,10 @@
 
 namespace core {
 
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name)
+        : name(name) {
+    }
+
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         int fd = descriptorEventReceiver->getRegisteredFd();
         descriptorEventReceiver->setEnabled();
@@ -133,6 +137,10 @@ namespace core {
                 }
             }
         }
+    }
+
+    const std::string& DescriptorEventPublisher::getName() const {
+        return name;
     }
 
 } // namespace core

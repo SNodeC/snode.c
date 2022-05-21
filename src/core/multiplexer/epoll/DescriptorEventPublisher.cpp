@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -92,8 +94,9 @@ namespace core::epoll {
         return static_cast<int>(interestCount);
     }
 
-    DescriptorEventPublisher::DescriptorEventPublisher(int& epfd, uint32_t events)
-        : ePollEvents(epfd, events) {
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events)
+        : core::DescriptorEventPublisher(name)
+        , ePollEvents(epfd, events) {
     }
 
     void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
@@ -112,16 +115,21 @@ namespace core::epoll {
         ePollEvents.muxOff(fd);
     }
 
-    void DescriptorEventPublisher::publishActiveEvents() {
+    int DescriptorEventPublisher::publishActiveEvents() {
         int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (eventReceiver != nullptr) {
+                VLOG(0) << "** DEP: Publish to " << eventReceiver->getName() << " -- fd = " << eventReceiver->getRegisteredFd();
                 eventCounter++;
                 eventReceiver->publish();
+            } else {
+                VLOG(0) << "** DEP: Not published: EventReceiver == nullptr -- fd = " << ePollEvents.getEvents()[i].data.fd;
             }
         }
+
+        return count;
     }
 
 } // namespace core::epoll

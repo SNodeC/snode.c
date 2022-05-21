@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <type_traits> // for add_const<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -55,8 +57,9 @@ namespace core::select {
         return active;
     }
 
-    DescriptorEventPublisher::DescriptorEventPublisher(FdSet& fdSet)
-        : fdSet(fdSet) {
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, FdSet& fdSet)
+        : core::DescriptorEventPublisher(name)
+        , fdSet(fdSet) {
     }
 
     void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
@@ -75,14 +78,22 @@ namespace core::select {
         fdSet.clr(fd);
     }
 
-    void DescriptorEventPublisher::publishActiveEvents() {
+    int DescriptorEventPublisher::publishActiveEvents() {
+        int count = 0;
+
         for (const auto& [fd, eventReceivers] : observedEventReceivers) {
-            core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             if (fdSet.isSet(fd)) {
+                core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+                VLOG(0) << "** DEP: Publish to " << eventReceiver->getName() << " -- fd = " << eventReceiver->getRegisteredFd();
                 eventCounter++;
                 eventReceiver->publish();
+                count++;
+            } else {
+                VLOG(0) << "** DEP: Not published: condition not fullfilled -- fd = " << eventReceivers.front()->getRegisteredFd();
             }
         }
+
+        return count;
     }
 
 } // namespace core::select
