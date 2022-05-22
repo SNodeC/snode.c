@@ -52,22 +52,21 @@ namespace core::socket::stream::tls {
                     case SSL_ERROR_WANT_READ:
                         ret = -1;
                         break;
-                    case SSL_ERROR_WANT_WRITE:
+                    case SSL_ERROR_WANT_WRITE: {
+                        int tmpErrno = errno;
                         LOG(INFO) << "SSL/TLS start renegotiation on read";
-                        {
-                            int tmpErrno = errno;
-                            doSSLHandshake(
-                                [](void) -> void {
-                                    LOG(INFO) << "SSL/TLS renegotiation on read success";
-                                },
-                                [](void) -> void {
-                                    LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
-                                },
-                                [](int ssl_err) -> void {
-                                    ssl_log("SSL/TLS renegotiation", ssl_err);
-                                });
-                            errno = tmpErrno;
-                        }
+                        doSSLHandshake(
+                            [](void) -> void {
+                                LOG(INFO) << "SSL/TLS renegotiation on read success";
+                            },
+                            [](void) -> void {
+                                LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
+                            },
+                            [](int ssl_err) -> void {
+                                ssl_log("SSL/TLS renegotiation", ssl_err);
+                            });
+                        errno = tmpErrno;
+                    }
                         ret = -1;
                         break;
                     case SSL_ERROR_ZERO_RETURN: // received close_notify
@@ -75,14 +74,13 @@ namespace core::socket::stream::tls {
                         errno = 0;
                         ret = 0;
                         break;
-                    case SSL_ERROR_SYSCALL:
-                        VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
+                    case SSL_ERROR_SYSCALL: {
+                        int tmpErrno = errno;
                         SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                        {
-                            int tmpErrno = errno;
-                            doReadShutdown();
-                            errno = tmpErrno;
-                        }
+                        VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
+                        doReadShutdown();
+                        errno = tmpErrno;
+                    }
                         ret = -1;
                         break;
                     default:

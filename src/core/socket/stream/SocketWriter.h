@@ -94,7 +94,9 @@ namespace core::socket::stream {
             if (!writeBuffer.empty()) {
                 std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
                 ssize_t retWrite = write(writeBuffer.data(), writeLen);
+                int tempErrno = errno;
                 VLOG(0) << "** doWrite: write: retWrite = " << retWrite;
+                errno = tempErrno;
 
                 if (retWrite > 0) {
                     writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
@@ -111,8 +113,10 @@ namespace core::socket::stream {
                         resume();
                     }
                 } else {
+                    tempErrno = errno;
                     VLOG(0) << "** doWrite: disable(): write: errno = !EAGAIN";
                     disable();
+                    errno = tempErrno;
                     onError(errno);
                 }
 

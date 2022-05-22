@@ -49,22 +49,21 @@ namespace core::socket::stream::tls {
                 switch (ssl_err) {
                     case SSL_ERROR_NONE:
                         break;
-                    case SSL_ERROR_WANT_READ:
+                    case SSL_ERROR_WANT_READ: {
+                        int tmpErrno = errno;
                         LOG(INFO) << "SSL/TLS start renegotiation on write";
-                        {
-                            int tmpErrno = errno;
-                            doSSLHandshake(
-                                [](void) -> void {
-                                    LOG(INFO) << "SSL/TLS renegotiation on write success";
-                                },
-                                [](void) -> void {
-                                    LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
-                                },
-                                [](int ssl_err) -> void {
-                                    ssl_log("SSL/TLS renegotiation", ssl_err);
-                                });
-                            errno = tmpErrno;
-                        }
+                        doSSLHandshake(
+                            [](void) -> void {
+                                LOG(INFO) << "SSL/TLS renegotiation on write success";
+                            },
+                            [](void) -> void {
+                                LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
+                            },
+                            [](int ssl_err) -> void {
+                                ssl_log("SSL/TLS renegotiation", ssl_err);
+                            });
+                        errno = tmpErrno;
+                    }
                         ret = -1;
                         break;
                     case SSL_ERROR_WANT_WRITE:

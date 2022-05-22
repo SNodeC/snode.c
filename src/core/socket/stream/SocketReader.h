@@ -78,6 +78,11 @@ namespace core::socket::stream {
             size -= maxReturn;
             ssize_t ret = static_cast<ssize_t>(maxReturn);
 
+            if (ret > 0) {
+                haveBeenRead = 0;
+                VLOG(0) << "*** Consumed: " << std::string(junk, maxReturn);
+            }
+
             return ret;
         }
 
@@ -91,9 +96,12 @@ namespace core::socket::stream {
 
                 std::size_t readLen = blockSize - size;
                 ssize_t retRead = read(readBuffer.data() + size, readLen);
+                int tempErrno = errno;
                 VLOG(0) << "** doRead: read: retRead = " << retRead;
+                errno = tempErrno;
 
                 if (retRead > 0) {
+                    VLOG(0) << "**** Data: " << std::string(readBuffer.data(), (unsigned int) retRead);
                     size += static_cast<std::size_t>(retRead);
                     if (!isSuspended()) {
                         VLOG(0) << "** doRead: suspend() - 0";
@@ -108,8 +116,10 @@ namespace core::socket::stream {
                         resume();
                     }
                 } else {
+                    tempErrno = errno;
                     VLOG(0) << "** doRead: disable(): read: errno = !EAGAIN";
                     disable();
+                    errno = tempErrno;
                     onError(errno);
                 }
 
@@ -120,6 +130,15 @@ namespace core::socket::stream {
                 }
                 VLOG(0) << "** doRead: publish() - 1";
                 publish();
+
+                if (haveBeenRead > 0) {
+                    VLOG(0) << "** doRead: Not read during tick: haveBeenRead = " << haveBeenRead;
+                    if (haveBeenRead > 1) {
+                        VLOG(0) << "Exiting";
+                        exit(0);
+                    }
+                }
+                haveBeenRead++;
             }
         }
 
@@ -155,6 +174,8 @@ namespace core::socket::stream {
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;
+
+        int haveBeenRead = 0;
     };
 
 } // namespace core::socket::stream

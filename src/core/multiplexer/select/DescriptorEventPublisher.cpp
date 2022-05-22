@@ -84,12 +84,14 @@ namespace core::select {
         for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             if (fdSet.isSet(fd)) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-                VLOG(0) << "** DEP: Publish to " << eventReceiver->getName() << " -- fd = " << eventReceiver->getRegisteredFd();
+                VLOG(0) << "** DEP " << getName() << ": Publish to " << eventReceiver->getName()
+                        << " -- fd = " << eventReceiver->getRegisteredFd();
                 eventCounter++;
                 eventReceiver->publish();
                 count++;
             } else {
-                VLOG(0) << "** DEP: Not published: condition not fullfilled -- fd = " << eventReceivers.front()->getRegisteredFd();
+                VLOG(0) << "** DEP " << getName()
+                        << ": Not published: condition not fullfilled -- fd = " << eventReceivers.front()->getRegisteredFd();
             }
         }
 

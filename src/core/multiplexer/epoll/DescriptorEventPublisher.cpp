@@ -121,11 +121,13 @@ namespace core::epoll {
         for (int i = 0; i < count; i++) {
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (eventReceiver != nullptr) {
-                VLOG(0) << "** DEP: Publish to " << eventReceiver->getName() << " -- fd = " << eventReceiver->getRegisteredFd();
+                VLOG(0) << "** DEP " << getName() << ": Publish to " << eventReceiver->getName()
+                        << " -- fd = " << eventReceiver->getRegisteredFd();
                 eventCounter++;
                 eventReceiver->publish();
             } else {
-                VLOG(0) << "** DEP: Not published: EventReceiver == nullptr -- fd = " << ePollEvents.getEvents()[i].data.fd;
+                VLOG(0) << "** DEP " << getName()
+                        << ": Not published: EventReceiver == nullptr -- fd = " << ePollEvents.getEvents()[i].data.fd;
             }
         }
 
