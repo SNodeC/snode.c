@@ -78,8 +78,8 @@ namespace core::epoll {
         muxMod(eventReceiver->getRegisteredFd(), events, eventReceiver);
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxOff(int fd) {
-        muxMod(fd, 0, nullptr);
+    void DescriptorEventPublisher::EPollEvents::muxOff(DescriptorEventReceiver* eventReceiver) {
+        muxMod(eventReceiver->getRegisteredFd(), 0, eventReceiver);
     }
 
     int DescriptorEventPublisher::EPollEvents::getEPFd() const {
@@ -111,8 +111,8 @@ namespace core::epoll {
         ePollEvents.muxOn(eventReceiver);
     }
 
-    void DescriptorEventPublisher::muxOff(int fd) {
-        ePollEvents.muxOff(fd);
+    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
+        ePollEvents.muxOff(eventReceiver);
     }
 
     int DescriptorEventPublisher::publishActiveEvents() {

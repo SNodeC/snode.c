@@ -51,8 +51,8 @@ namespace core::poll {
         pollFds.muxOn(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::muxOff(int fd) {
-        pollFds.muxOff(fd, events);
+    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver *eventReceiver) {
+        pollFds.muxOff(eventReceiver, events);
     }
 
     int DescriptorEventPublisher::publishActiveEvents() {

@@ -53,7 +53,7 @@ namespace core::epoll {
             void muxDel(int fd);
 
             void muxOn(core::DescriptorEventReceiver* eventReceiver);
-            void muxOff(int fd);
+            void muxOff(core::DescriptorEventReceiver* eventReceiver);
 
             int getEPFd() const;
             epoll_event* getEvents();
@@ -74,7 +74,7 @@ namespace core::epoll {
         void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
         void muxDel(int fd) override;
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxOff(int fd) override;
+        void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
 
         int publishActiveEvents() override;
 

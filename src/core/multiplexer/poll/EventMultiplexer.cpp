@@ -94,8 +94,9 @@ namespace core::poll {
         pollfds[pollFdIndices.find(fd)->second.index].events |= event;
     }
 
-    void PollFdsManager::muxOff(int fd, short event) {
-        pollfds[pollFdIndices.find(fd)->second.index].events &= static_cast<short>(~event); // Tilde promotes to int
+    void PollFdsManager::muxOff(DescriptorEventReceiver* eventReceiver, short event) {
+        pollfds[pollFdIndices.find(eventReceiver->getRegisteredFd())->second.index].events &=
+            static_cast<short>(~event); // Tilde promotes to int
     }
 
     void PollFdsManager::compress() {

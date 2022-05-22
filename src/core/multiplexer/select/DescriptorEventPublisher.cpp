@@ -74,8 +74,8 @@ namespace core::select {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::muxOff(int fd) {
-        fdSet.clr(fd);
+    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
+        fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
     int DescriptorEventPublisher::publishActiveEvents() {

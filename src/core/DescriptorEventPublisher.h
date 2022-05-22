@@ -74,7 +74,7 @@ namespace core {
         virtual void muxAdd(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxDel(int fd) = 0;
         virtual void muxOn(DescriptorEventReceiver* descriptorEventReceiver) = 0;
-        virtual void muxOff(int fd) = 0;
+        virtual void muxOff(DescriptorEventReceiver* descriptorEventReceiver) = 0;
 
         std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceivers;
 
