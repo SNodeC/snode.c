@@ -21,7 +21,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/select.h"
-#include "log/Logger.h"
 #include "utils/Timeval.h" // for Timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -48,7 +47,6 @@ namespace core::select {
     void EventMultiplexer::publishActiveEvents(int count) {
         if (count > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-                VLOG(0) << "** Publishing to " << descriptorEventPublisher->getName();
                 descriptorEventPublisher->publishActiveEvents();
             }
         }

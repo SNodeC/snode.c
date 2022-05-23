@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cctype> // for isblank
 #include <tuple>  // for tie, tuple
 
@@ -52,7 +50,6 @@ namespace web::http {
         ssize_t consumed = 0;
 
         do {
-            VLOG(0) << "+++++++++++++++ Parsing: state = " << static_cast<int>(parserState);
             switch (parserState) {
                 case ParserState::BEGIN:
                     reset();

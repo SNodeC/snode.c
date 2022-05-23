@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <unordered_map> // for unordered_map, _Map_base<>::mapped_type
 #include <utility>       // for tuple_element<>::type
 
@@ -51,7 +49,7 @@ namespace core::poll {
         pollFds.muxOn(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver *eventReceiver) {
+    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
         pollFds.muxOff(eventReceiver, events);
     }
 
@@ -67,14 +65,9 @@ namespace core::poll {
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & revents) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-                VLOG(0) << "** DEP " << getName() << ": Publish to " << eventReceiver->getName()
-                        << " -- fd = " << eventReceiver->getRegisteredFd();
                 eventCounter++;
                 eventReceiver->publish();
                 count++;
-            } else {
-                VLOG(0) << "** DEP " << getName()
-                        << ": Not published: condition not fullfilled -- fd = " << eventReceivers.front()->getRegisteredFd();
             }
         }
 

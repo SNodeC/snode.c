@@ -67,7 +67,6 @@ namespace web::http::client {
                   onError(status, reason);
 
                   shutdownWrite(true);
-                  //                  close();
               }) {
     }
 

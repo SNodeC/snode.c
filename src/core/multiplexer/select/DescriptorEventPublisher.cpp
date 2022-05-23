@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <type_traits> // for add_const<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -84,14 +82,9 @@ namespace core::select {
         for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             if (fdSet.isSet(fd)) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-                VLOG(0) << "** DEP " << getName() << ": Publish to " << eventReceiver->getName()
-                        << " -- fd = " << eventReceiver->getRegisteredFd();
                 eventCounter++;
                 eventReceiver->publish();
                 count++;
-            } else {
-                VLOG(0) << "** DEP " << getName()
-                        << ": Not published: condition not fullfilled -- fd = " << eventReceivers.front()->getRegisteredFd();
             }
         }
 

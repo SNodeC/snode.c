@@ -80,6 +80,9 @@ namespace core::socket::stream {
         void sendToPeer(const char* junk, std::size_t junkLen) {
             if (!shutdownInProgress && !markShutdown) {
                 if (writeBuffer.empty()) {
+                    if (!isSuspended()) {
+                        suspend();
+                    }
                     publish();
                 }
 
@@ -90,44 +93,27 @@ namespace core::socket::stream {
         void doWrite() {
             errno = 0;
 
-            VLOG(0) << "** doWrite: buffer-size = " << writeBuffer.size();
             if (!writeBuffer.empty()) {
                 std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
                 ssize_t retWrite = write(writeBuffer.data(), writeLen);
                 int tempErrno = errno;
-                VLOG(0) << "** doWrite: write: retWrite = " << retWrite;
                 errno = tempErrno;
 
                 if (retWrite > 0) {
                     writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-                    if (!isSuspended()) {
-                        VLOG(0) << "** doWrite: suspend() - 0";
-                        suspend();
+
+                    if (!writeBuffer.empty()) {
+                        publish();
+                    } else if (markShutdown) {
+                        shutdown(onShutdown);
                     }
-                    VLOG(0) << "** doWrite: publish() - 0";
-                    publish();
                 } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                    VLOG(0) << "** doWrite: write: errno = EAGAIN";
                     if (isSuspended()) {
-                        VLOG(0) << "** doWrite: resume()";
                         resume();
                     }
                 } else {
-                    tempErrno = errno;
-                    VLOG(0) << "** doWrite: disable(): write: errno = !EAGAIN";
                     disable();
-                    errno = tempErrno;
                     onError(errno);
-                }
-
-            } else {
-                if (!isSuspended()) {
-                    VLOG(0) << "** doWrite: suspend() - 1";
-                    suspend();
-                }
-                if (markShutdown) {
-                    VLOG(0) << "** doWrite: shutdown() - 1";
-                    shutdown(onShutdown);
                 }
             }
         }

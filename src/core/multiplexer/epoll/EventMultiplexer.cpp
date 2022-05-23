@@ -22,7 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/Timeval.h" // for Timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -61,7 +60,6 @@ namespace core::epoll {
     void EventMultiplexer::publishActiveEvents(int count) {
         for (int i = 0; i < count; i++) {
             if ((ePollEvents[i].events & EPOLLIN) != 0) {
-                VLOG(0) << "** Publishing to " << static_cast<core::DescriptorEventPublisher*>(ePollEvents[i].data.ptr)->getName();
                 static_cast<core::DescriptorEventPublisher*>(ePollEvents[i].data.ptr)->publishActiveEvents();
             }
         }

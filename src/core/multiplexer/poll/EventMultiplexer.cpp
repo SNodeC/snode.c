@@ -23,7 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/Timeval.h" // IWYU pragma: keep
 
 #include <algorithm> // for remove_if
@@ -143,7 +142,6 @@ namespace core::poll {
     void EventMultiplexer::publishActiveEvents(int count) {
         if (count > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-                VLOG(0) << "** Publishing to " << descriptorEventPublisher->getName();
                 descriptorEventPublisher->publishActiveEvents();
             }
         }

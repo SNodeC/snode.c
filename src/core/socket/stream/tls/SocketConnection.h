@@ -222,11 +222,21 @@ namespace core::socket::stream::tls {
                     },
                     [this]() -> void {
                         LOG(WARNING) << "SSL_shutdown: Handshake timed out";
-                        SocketWriter::disable();
+                        SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
+                            if (errno != 0) {
+                                PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                            }
+                            SocketConnection::close();
+                        });
                     },
                     [this](int sslErr) -> void {
                         ssl_log("SSL_shutdown: Handshake failed", sslErr);
-                        SocketWriter::disable();
+                        SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
+                            if (errno != 0) {
+                                PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                            }
+                            SocketConnection::close();
+                        });
                     },
                     shutdownTimeout);
             }
