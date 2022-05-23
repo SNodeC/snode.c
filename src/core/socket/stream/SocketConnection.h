@@ -90,16 +90,29 @@ namespace core::socket::stream {
         using Super::getSocketContext;
 
         void close() final {
-            SocketWriter::disable();
-            SocketReader::disable();
+            if (SocketWriter::isEnabled()) {
+                SocketWriter::disable();
+            }
+            if (SocketReader::isEnabled()) {
+                SocketReader::disable();
+            }
         }
 
         void shutdownRead() final {
             SocketReader::shutdown();
         }
 
-        void shutdownWrite() final {
-            SocketWriter::shutdown();
+        void shutdownWrite(bool forceClose) final {
+            SocketWriter::shutdown([forceClose, this](int errnum) -> void {
+                if (errnum != 0) {
+                    PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                }
+                if (forceClose) {
+                    close();
+                } else {
+                    SocketWriter::disable();
+                }
+            });
         }
 
         void setTimeout(const utils::Timeval& timeout) final {
@@ -146,7 +159,6 @@ namespace core::socket::stream {
     private:
         void readEvent() final {
             SocketReader::doRead();
-
             onReceiveFromPeer();
         }
 

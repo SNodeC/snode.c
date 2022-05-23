@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
@@ -67,10 +69,12 @@ namespace core::socket::stream {
             this->blockSize = writeBlockSize;
         }
 
-        virtual void doWriteShutdown() {
+        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
+            errno = 0;
+
             Socket::shutdown(Socket::shutdown::WR);
 
-            disable();
+            onShutdown(errno);
         }
 
         void sendToPeer(const char* junk, std::size_t junkLen) {
@@ -86,10 +90,8 @@ namespace core::socket::stream {
         void doWrite() {
             errno = 0;
 
-            ssize_t retWrite = -1;
-
             std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
-            retWrite = write(writeBuffer.data(), writeLen);
+            ssize_t retWrite = write(writeBuffer.data(), writeLen);
 
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
@@ -101,16 +103,18 @@ namespace core::socket::stream {
             if (writeBuffer.empty()) {
                 suspend();
                 if (markShutdown) {
-                    shutdown();
+                    shutdown(onShutdown);
                 }
             }
         }
 
-        void shutdown() {
+        void shutdown(const std::function<void(int)>& onShutdown) {
             if (!shutdownInProgress) {
+                setTimeout(terminateTimeout);
+                this->onShutdown = onShutdown;
                 if (isSuspended()) {
                     shutdownInProgress = true;
-                    doWriteShutdown();
+                    doWriteShutdown(onShutdown);
                 } else {
                     markShutdown = true;
                 }
@@ -119,14 +123,19 @@ namespace core::socket::stream {
 
         void terminate() override {
             if (!terminateInProgress) {
-                setTimeout(terminateTimeout);
-                shutdown();
+                shutdown([this]([[maybe_unused]] int errnum) -> void {
+                    if (errnum != 0) {
+                        PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                    }
+                    disable();
+                });
                 terminateInProgress = true;
             }
         }
 
     private:
         std::function<void(int)> onError;
+        std::function<void(int)> onShutdown;
 
         std::vector<char> writeBuffer;
         std::size_t blockSize;

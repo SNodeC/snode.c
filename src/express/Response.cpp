@@ -22,7 +22,6 @@
 #include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
-#include "web/http/server/RequestContextBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -47,25 +46,25 @@ namespace express {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
-                                {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
-                headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-
-                core::file::FileReader::connect(absolutFileName, *this, [this, onError](int err) -> void {
-                    onError(err);
-                    requestContext->close();
+                core::file::FileReader::connect(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
+                    if (err == 0) {
+                        headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
+                                        {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
+                        headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                    } else {
+                        onError(err);
+                        sendStatus(500);
+                    }
                 });
             } else {
-                responseStatus = 403;
                 errno = EACCES;
                 onError(errno);
-                end();
+                sendStatus(500);
             }
         } else {
-            responseStatus = 404;
             errno = ENOENT;
             onError(errno);
-            end();
+            sendStatus(404);
         }
     }
 

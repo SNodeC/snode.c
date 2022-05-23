@@ -54,8 +54,8 @@ namespace core::socket {
         ssize_t readFromPeer(char* junk, std::size_t junklen);
 
         void shutdownRead();
-        void shutdownWrite();
-        void shutdown();
+        void shutdownWrite(bool forceClose = false);
+        void shutdown(bool forceClose = false);
 
         void close();
 

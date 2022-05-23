@@ -64,13 +64,13 @@ namespace core::socket {
         socketConnection->shutdownRead();
     }
 
-    void SocketContext::shutdownWrite() {
-        socketConnection->shutdownWrite();
+    void SocketContext::shutdownWrite(bool forceClose) {
+        socketConnection->shutdownWrite(forceClose);
     }
 
-    void SocketContext::shutdown() {
+    void SocketContext::shutdown(bool forceClose) {
         shutdownRead();
-        shutdownWrite();
+        shutdownWrite(forceClose);
     }
 
     void SocketContext::close() {

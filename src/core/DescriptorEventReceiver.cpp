@@ -147,12 +147,10 @@ namespace core {
     }
 
     void DescriptorEventReceiver::event(const utils::Timeval& currentTime) {
-        if (!isSuspended()) {
-            eventCounter++;
-            triggered(currentTime);
+        eventCounter++;
+        triggered(currentTime);
 
-            dispatchEvent();
-        }
+        dispatchEvent();
     }
 
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {

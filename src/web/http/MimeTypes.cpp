@@ -248,11 +248,12 @@ namespace web::http {
         }
 #ifdef HAS_LIBMAGIC
         else if (magic != nullptr) {
-            type = magic_file(MimeTypes::magic, file.c_str());
+            const char* magicType = magic_file(MimeTypes::magic, file.c_str());
+            type = magicType != nullptr ? magicType : std::string();
         }
 #endif
 
-        return type;
+        return !type.empty() ? type : "application/octet-stream";
     }
 
 } // namespace web::http

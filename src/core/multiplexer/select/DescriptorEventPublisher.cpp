@@ -78,7 +78,7 @@ namespace core::select {
     void DescriptorEventPublisher::publishActiveEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-            if (fdSet.isSet(fd) && !eventReceiver->isSuspended()) {
+            if (fdSet.isSet(fd)) {
                 eventCounter++;
                 eventReceiver->publish();
             }
