@@ -108,7 +108,7 @@ namespace core::socket::stream {
                 }
                 if (forceClose) {
                     close();
-                } else {
+                } else if (SocketWriter::isEnabled()) {
                     SocketWriter::disable();
                 }
             });
