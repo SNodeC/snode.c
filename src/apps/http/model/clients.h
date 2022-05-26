@@ -1,5 +1,5 @@
-#ifndef APPS_HTTP__MODEL_CLIENTS_H
-#define APPS_HTTP__MODEL_CLIENTS_H
+#ifndef APPS_HTTP_MODEL_CLIENTS_H
+#define APPS_HTTP_MODEL_CLIENTS_H
 
 #include "log/Logger.h" // for Writer, Storage
 
@@ -203,4 +203,4 @@ namespace apps::http::tls {
 
 #endif // (STREAM_TYPE == TLS) // tls
 
-#endif // APPS_HTTP__MODEL_CLIENTS_H
+#endif // APPS_HTTP_MODEL_CLIENTS_H

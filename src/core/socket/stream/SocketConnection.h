@@ -52,7 +52,7 @@ namespace core::socket::stream {
         SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         [[maybe_unused]] const std::function<void()>& onConnect,
+                         const std::function<void()>& onConnect,
                          const std::function<void()>& onDisconnect,
                          const utils::Timeval& readTimeout,
                          const utils::Timeval& writeTimeout,

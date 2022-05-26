@@ -33,9 +33,11 @@ set(HTTPSERVER_H
     ../legacy/in/Server.h
     ../legacy/in6/Server.h
     ../legacy/rf/Server.h
+    ../legacy/un/Server.h
     ../tls/in/Server.h
     ../tls/in6/Server.h
     ../tls/rf/Server.h
+    ../tls/un/Server.h
 )
 
 add_library(httpserver SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_h})
