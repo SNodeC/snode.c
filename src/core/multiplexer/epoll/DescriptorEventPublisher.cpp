@@ -76,8 +76,8 @@ namespace core::epoll {
         muxMod(eventReceiver->getRegisteredFd(), events, eventReceiver);
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxOff(int fd) {
-        muxMod(fd, 0, nullptr);
+    void DescriptorEventPublisher::EPollEvents::muxOff(DescriptorEventReceiver* eventReceiver) {
+        muxMod(eventReceiver->getRegisteredFd(), 0, eventReceiver);
     }
 
     int DescriptorEventPublisher::EPollEvents::getEPFd() const {
@@ -92,8 +92,9 @@ namespace core::epoll {
         return static_cast<int>(interestCount);
     }
 
-    DescriptorEventPublisher::DescriptorEventPublisher(int& epfd, uint32_t events)
-        : ePollEvents(epfd, events) {
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events)
+        : core::DescriptorEventPublisher(name)
+        , ePollEvents(epfd, events) {
     }
 
     void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
@@ -108,11 +109,11 @@ namespace core::epoll {
         ePollEvents.muxOn(eventReceiver);
     }
 
-    void DescriptorEventPublisher::muxOff(int fd) {
-        ePollEvents.muxOff(fd);
+    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
+        ePollEvents.muxOff(eventReceiver);
     }
 
-    void DescriptorEventPublisher::publishActiveEvents() {
+    int DescriptorEventPublisher::publishActiveEvents() {
         int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
@@ -122,6 +123,8 @@ namespace core::epoll {
                 eventReceiver->publish();
             }
         }
+
+        return count;
     }
 
 } // namespace core::epoll

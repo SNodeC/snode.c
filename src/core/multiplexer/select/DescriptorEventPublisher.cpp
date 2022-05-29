@@ -55,8 +55,9 @@ namespace core::select {
         return active;
     }
 
-    DescriptorEventPublisher::DescriptorEventPublisher(FdSet& fdSet)
-        : fdSet(fdSet) {
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, FdSet& fdSet)
+        : core::DescriptorEventPublisher(name)
+        , fdSet(fdSet) {
     }
 
     void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
@@ -71,18 +72,23 @@ namespace core::select {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::muxOff(int fd) {
-        fdSet.clr(fd);
+    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
+        fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::publishActiveEvents() {
+    int DescriptorEventPublisher::publishActiveEvents() {
+        int count = 0;
+
         for (const auto& [fd, eventReceivers] : observedEventReceivers) {
-            core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             if (fdSet.isSet(fd)) {
+                core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
                 eventReceiver->publish();
+                count++;
             }
         }
+
+        return count;
     }
 
 } // namespace core::select

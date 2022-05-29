@@ -34,9 +34,9 @@ core::EventMultiplexer& EventMultiplexer() {
 namespace core::select {
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::select::DescriptorEventPublisher(fdSets[DISP_TYPE::RD]),
-                                 new core::select::DescriptorEventPublisher(fdSets[DISP_TYPE::WR]),
-                                 new core::select::DescriptorEventPublisher(fdSets[DISP_TYPE::EX])) {
+        : core::EventMultiplexer(new core::select::DescriptorEventPublisher("READ", fdSets[DISP_TYPE::RD]),
+                                 new core::select::DescriptorEventPublisher("WRITE", fdSets[DISP_TYPE::WR]),
+                                 new core::select::DescriptorEventPublisher("EXCEPT", fdSets[DISP_TYPE::EX])) {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {

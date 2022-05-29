@@ -31,13 +31,17 @@
 
 namespace core {
 
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name)
+        : name(name) {
+    }
+
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         int fd = descriptorEventReceiver->getRegisteredFd();
         descriptorEventReceiver->setEnabled();
         observedEventReceivers[fd].push_front(descriptorEventReceiver);
         muxAdd(descriptorEventReceiver);
         if (descriptorEventReceiver->isSuspended()) {
-            muxOff(fd);
+            muxOff(descriptorEventReceiver);
         }
     }
 
@@ -46,7 +50,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::suspend(DescriptorEventReceiver* descriptorEventReceiver) {
-        muxOff(descriptorEventReceiver->getRegisteredFd());
+        muxOff(descriptorEventReceiver);
     }
 
     void DescriptorEventPublisher::resume(DescriptorEventReceiver* descriptorEventReceiver) {
@@ -63,7 +67,9 @@ namespace core {
         if (observedEventReceiversDirty) {
             observedEventReceiversDirty = false;
             std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
-                auto& [fd, observedEventReceiverList] = observedEventReceiversEntry; // cppcheck-suppress constVariable
+                // cppcheck-suppress constVariable
+                // cppcheck-suppress variableScope
+                auto& [fd, observedEventReceiverList] = observedEventReceiversEntry;
                 DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
                 std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
                     bool isDisabled = !descriptorEventReceiver->isEnabled();
@@ -84,7 +90,7 @@ namespace core {
                         if (!afterFirst->isSuspended()) {
                             muxOn(afterFirst);
                         } else {
-                            muxOff(fd);
+                            muxOff(afterFirst);
                         }
                     }
                 }
@@ -133,6 +139,10 @@ namespace core {
                 }
             }
         }
+    }
+
+    const std::string& DescriptorEventPublisher::getName() const {
+        return name;
     }
 
 } // namespace core

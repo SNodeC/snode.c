@@ -107,7 +107,6 @@ namespace core::socket::stream {
 #endif
                                 Socket::bind(config->getLocalAddress(), [this](int errnum) -> void {
                                     if (errnum > 0) {
-                                        config->getLocalAddress();
                                         onError(config->getLocalAddress(), errnum);
                                         destruct();
                                     } else {

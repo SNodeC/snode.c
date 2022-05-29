@@ -45,7 +45,15 @@ namespace core::socket::stream::legacy {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : Super(socketContextFactory, onConnect, onConnected, onDisconnect, options) {
+            : Super(
+                  socketContextFactory,
+                  onConnect,
+                  [onConnected](SocketConnection* socketConnection) -> void {
+                      onConnected(socketConnection);
+                      socketConnection->onConnected();
+                  },
+                  onDisconnect,
+                  options) {
         }
 
         using Super::listen;

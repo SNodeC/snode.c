@@ -79,40 +79,49 @@ namespace core::socket::stream {
 
         void sendToPeer(const char* junk, std::size_t junkLen) {
             if (!shutdownInProgress && !markShutdown) {
-                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-
-                if (isSuspended()) {
-                    resume();
+                if (writeBuffer.empty()) {
+                    if (!isSuspended()) {
+                        suspend();
+                    }
+                    publish();
                 }
+
+                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
             }
         }
 
         void doWrite() {
             errno = 0;
 
-            std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
-            ssize_t retWrite = write(writeBuffer.data(), writeLen);
+            if (!writeBuffer.empty()) {
+                std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
+                ssize_t retWrite = write(writeBuffer.data(), writeLen);
+                int tempErrno = errno;
+                errno = tempErrno;
 
-            if (retWrite >= 0) {
-                writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-            } else if (errno != EINTR /*&& errno != EAGAIN && errno != EWOULDBLOCK*/) {
-                disable();
-                onError(errno);
-            }
+                if (retWrite > 0) {
+                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
 
-            if (writeBuffer.empty()) {
-                suspend();
-                if (markShutdown) {
-                    shutdown(onShutdown);
+                    if (!writeBuffer.empty()) {
+                        publish();
+                    } else if (markShutdown) {
+                        shutdown(onShutdown);
+                    }
+                } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+                    if (isSuspended()) {
+                        resume();
+                    }
+                } else {
+                    disable();
+                    onError(errno);
                 }
             }
         }
 
         void shutdown(const std::function<void(int)>& onShutdown) {
             if (!shutdownInProgress) {
-                setTimeout(terminateTimeout);
                 this->onShutdown = onShutdown;
-                if (isSuspended()) {
+                if (writeBuffer.empty()) {
                     shutdownInProgress = true;
                     doWriteShutdown(onShutdown);
                 } else {
@@ -123,6 +132,7 @@ namespace core::socket::stream {
 
         void terminate() override {
             if (!terminateInProgress) {
+                setTimeout(terminateTimeout);
                 shutdown([this]([[maybe_unused]] int errnum) -> void {
                     if (errnum != 0) {
                         PLOG(INFO) << "SocketWriter::doWriteShutdown";
@@ -141,9 +151,7 @@ namespace core::socket::stream {
         std::size_t blockSize;
 
         bool markShutdown = false;
-
         bool shutdownInProgress = false;
-
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;
