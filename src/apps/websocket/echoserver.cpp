@@ -33,21 +33,17 @@ int main(int argc, char* argv[]) {
 
     legacy::in::WebApp legacyApp("legacy");
 
-    legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
+    legacyApp.get("/", [] APPLICATION(req, res) {
         if (req.url == "/" || req.url == "/index.html") {
             req.url = "/wstest.html";
         }
 
-        if (req.url == "/ws") {
-            next();
-        } else {
-            VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
-            res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
-                if (ret != 0) {
-                    PLOG(ERROR) << req.url;
-                }
-            });
-        }
+        VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
+        res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
+            if (ret != 0) {
+                PLOG(ERROR) << req.url;
+            }
+        });
     });
 
     legacyApp.get("/ws", [](Request& req, Response& res) -> void {
@@ -74,7 +70,6 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.listen([](const tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
-        //    legacyApp.listen(8080, [](const legacy::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         } else {
@@ -85,21 +80,17 @@ int main(int argc, char* argv[]) {
     {
         tls::in::WebApp tlsApp("tls", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
-        tlsApp.get("/", [] MIDDLEWARE(req, res, next) {
+        tlsApp.get("/", [] APPLICATION(req, res) {
             if (req.url == "/" || req.url == "/index.html") {
                 req.url = "/wstest.html";
             }
 
-            if (req.url == "/ws") {
-                next();
-            } else {
-                VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
-                res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
-                    if (ret != 0) {
-                        PLOG(ERROR) << req.url;
-                    }
-                });
-            }
+            VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
+            res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
+                if (ret != 0) {
+                    PLOG(ERROR) << req.url;
+                }
+            });
         });
 
         tlsApp.get("/ws", [](Request& req, Response& res) -> void {
@@ -126,7 +117,6 @@ int main(int argc, char* argv[]) {
         });
 
         tlsApp.listen([](const tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
-            //        tlsApp.listen(8088, [](const tls::in::WebApp::Socket& socket, int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             } else {
