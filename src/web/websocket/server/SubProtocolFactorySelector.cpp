@@ -20,6 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdlib>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
@@ -31,6 +33,10 @@ namespace web::websocket::server {
         Super::addSubProtocolSearchPath(WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR);
 
 #endif // !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR)
+
+        if (getenv("DL_WSSERVER_SUBPROTOCOL_PATH") != nullptr) {
+            Super::addSubProtocolSearchPath(getenv("DL_WSSERVER_SUBPROTOCOL_PATH"));
+        }
     }
 
     SubProtocolFactorySelector* SubProtocolFactorySelector::instance() {
