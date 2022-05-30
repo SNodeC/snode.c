@@ -56,14 +56,14 @@ namespace core::socket::stream::tls {
                       SSL* ssl = socketConnection->startSSL(this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
 
                       if (ssl != nullptr) {
-                          ssl_set_sni(ssl, this->options);
-
                           SSL_set_connect_state(ssl);
+                          ssl_set_sni(ssl, this->options);
 
                           socketConnection->doSSLHandshake(
                               [onConnected, socketConnection](void) -> void { // onSuccess
                                   LOG(INFO) << "SSL/TLS initial handshake success";
                                   onConnected(socketConnection);
+                                  socketConnection->onConnected();
                               },
                               [this](void) -> void { // onTimeout
                                   LOG(WARNING) << "SSL/TLS initial handshake timed out";

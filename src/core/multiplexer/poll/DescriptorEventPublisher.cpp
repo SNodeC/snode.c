@@ -30,8 +30,9 @@
 
 namespace core::poll {
 
-    DescriptorEventPublisher::DescriptorEventPublisher(PollFdsManager& pollFds, short events, short revents)
-        : pollFds(pollFds)
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, PollFdsManager& pollFds, short events, short revents)
+        : core::DescriptorEventPublisher(name)
+        , pollFds(pollFds)
         , events(events)
         , revents(revents) {
     }
@@ -48,11 +49,13 @@ namespace core::poll {
         pollFds.muxOn(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::muxOff(int fd) {
-        pollFds.muxOff(fd, events);
+    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
+        pollFds.muxOff(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::publishActiveEvents() {
+    int DescriptorEventPublisher::publishActiveEvents() {
+        int count = 0;
+
         pollfd* pollfds = pollFds.getEvents();
 
         const std::unordered_map<int, PollFdsManager::PollFdIndex>& pollFdsIndices = pollFds.getPollFdIndices();
@@ -64,8 +67,11 @@ namespace core::poll {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
                 eventReceiver->publish();
+                count++;
             }
         }
+
+        return count;
     }
 
 } // namespace core::poll

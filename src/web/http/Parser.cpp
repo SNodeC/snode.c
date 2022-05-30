@@ -48,7 +48,6 @@ namespace web::http {
 
     void Parser::parse() {
         ssize_t consumed = 0;
-        bool parsingError = false;
 
         do {
             switch (parserState) {
@@ -67,10 +66,10 @@ namespace web::http {
                     consumed = readContent();
                     break;
                 case ParserState::ERROR:
-                    parsingError = true;
                     break;
             }
-        } while (consumed > 0 && parserState != ParserState::BEGIN && !parsingError); // && parserState != ParserState::BEGIN);
+        } while (consumed > 0 && parserState != ParserState::BEGIN &&
+                 parserState != ParserState::ERROR); // && parserState != ParserState::BEGIN);
     }
 
     ssize_t Parser::readStartLine() {

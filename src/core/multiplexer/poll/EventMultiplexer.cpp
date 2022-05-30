@@ -93,8 +93,9 @@ namespace core::poll {
         pollfds[pollFdIndices.find(fd)->second.index].events |= event;
     }
 
-    void PollFdsManager::muxOff(int fd, short event) {
-        pollfds[pollFdIndices.find(fd)->second.index].events &= static_cast<short>(~event); // Tilde promotes to int
+    void PollFdsManager::muxOff(DescriptorEventReceiver* eventReceiver, short event) {
+        pollfds[pollFdIndices.find(eventReceiver->getRegisteredFd())->second.index].events &=
+            static_cast<short>(~event); // Tilde promotes to int
     }
 
     void PollFdsManager::compress() {
@@ -128,9 +129,10 @@ namespace core::poll {
     }
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::poll::DescriptorEventPublisher(pollFdsManager, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
-                                 new core::poll::DescriptorEventPublisher(pollFdsManager, POLLOUT, POLLOUT),
-                                 new core::poll::DescriptorEventPublisher(pollFdsManager, POLLPRI, POLLPRI)) {
+        : core::EventMultiplexer(
+              new core::poll::DescriptorEventPublisher("READ", pollFdsManager, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
+              new core::poll::DescriptorEventPublisher("WRITE", pollFdsManager, POLLOUT, POLLOUT),
+              new core::poll::DescriptorEventPublisher("EXCEPT", pollFdsManager, POLLPRI, POLLPRI)) {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {

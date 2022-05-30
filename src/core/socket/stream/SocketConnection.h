@@ -78,7 +78,6 @@ namespace core::socket::stream {
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
             onConnect();
-            onConnected();
         }
 
         ~SocketConnection() override {
@@ -109,7 +108,7 @@ namespace core::socket::stream {
                 }
                 if (forceClose) {
                     close();
-                } else {
+                } else if (SocketWriter::isEnabled()) {
                     SocketWriter::disable();
                 }
             });

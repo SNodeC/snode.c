@@ -66,8 +66,7 @@ namespace web::http::client {
               [onError, this](int status, const std::string& reason) -> void {
                   onError(status, reason);
 
-                  shutdownWrite();
-                  close();
+                  shutdownWrite(true);
               }) {
     }
 

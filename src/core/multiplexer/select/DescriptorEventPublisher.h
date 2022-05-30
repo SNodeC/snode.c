@@ -53,15 +53,15 @@ namespace core::select {
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     public:
-        explicit DescriptorEventPublisher(FdSet& fdSet);
+        explicit DescriptorEventPublisher(const std::string& name, FdSet& fdSet);
 
     private:
         void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
         void muxDel(int fd) override;
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxOff(int fd) override;
+        void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
 
-        void publishActiveEvents() override;
+        int publishActiveEvents() override;
 
         FdSet& fdSet;
     };

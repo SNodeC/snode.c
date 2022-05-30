@@ -41,68 +41,58 @@ namespace core::socket::stream::tls {
         using Super::Super;
 
         ssize_t write(const char* junk, std::size_t junkLen) override {
-            int ret = 0;
-            int ssl_err = sslErr;
+            int ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
 
-            if (ssl_err == SSL_ERROR_NONE) {
-                ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
+            if (ret <= 0) {
+                int ssl_err = SSL_get_error(ssl, ret);
 
-                if (ret <= 0) {
-                    ssl_err = SSL_get_error(ssl, ret);
+                switch (ssl_err) {
+                    case SSL_ERROR_NONE:
+                        break;
+                    case SSL_ERROR_WANT_READ: {
+                        int tmpErrno = errno;
+                        LOG(INFO) << "SSL/TLS start renegotiation on write";
+                        doSSLHandshake(
+                            [](void) -> void {
+                                LOG(INFO) << "SSL/TLS renegotiation on write success";
+                            },
+                            [](void) -> void {
+                                LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
+                            },
+                            [](int ssl_err) -> void {
+                                ssl_log("SSL/TLS renegotiation", ssl_err);
+                            });
+                        errno = tmpErrno;
+                    }
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_WANT_WRITE:
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
+                        errno = EPIPE;
+                        ret = -1; // on the write side this means a TCP broken pipe
+                        break;
+                    case SSL_ERROR_SYSCALL:
+                        ret = -1;
+                        break;
+                    default:
+                        ssl_log("SSL/TLS write failed", ssl_err);
+                        errno = EIO;
+                        ret = -1;
+                        break;
                 }
-            }
-
-            switch (ssl_err) {
-                case SSL_ERROR_NONE:
-                    break;
-                case SSL_ERROR_WANT_READ:
-                    LOG(INFO) << "SSL/TLS start renegotiation on write";
-                    doSSLHandshake(
-                        [](void) -> void {
-                            LOG(INFO) << "SSL/TLS renegotiation on write success";
-                        },
-                        [](void) -> void {
-                            LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
-                        },
-                        [this](int ssl_err) -> void {
-                            ssl_log("SSL/TLS renegotiation", ssl_err);
-                            sslErr = ssl_err;
-                        });
-                    errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_READ (EAGAIN)
-                    ret = -1;
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    errno = EINTR; // We simulate EINTR in case of a SSL_ERROR_WANT_READ (EAGAIN)
-                    ret = -1;
-                    break;
-                case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                    ret = -1;               // on the write side this means a TCP broken pipe
-                    break;
-                case SSL_ERROR_SYSCALL:
-                    ret = -1;
-                    break;
-                default:
-                    ssl_log("SSL/TLS write failed", ssl_err);
-                    errno = EPIPE;
-                    ret = -1;
-                    break;
             }
 
             return ret;
         }
 
     protected:
-        void terminate() override {
-            Super::terminate();
-        }
-
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onError) = 0;
 
         SSL* ssl = nullptr;
-
-        int sslErr = SSL_ERROR_NONE;
     };
 
 } // namespace core::socket::stream::tls

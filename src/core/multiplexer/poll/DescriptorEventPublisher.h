@@ -40,15 +40,15 @@ namespace core::poll {
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     public:
-        DescriptorEventPublisher(core::poll::PollFdsManager& pollFds, short events, short revents);
+        DescriptorEventPublisher(const std::string& name, core::poll::PollFdsManager& pollFds, short events, short revents);
 
     private:
         void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
         void muxDel(int fd) override;
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxOff(int fd) override;
+        void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
 
-        void publishActiveEvents() override;
+        int publishActiveEvents() override;
 
         core::poll::PollFdsManager& pollFds;
         short events;

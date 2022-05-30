@@ -26,15 +26,12 @@
 
 namespace express {
 
-    bool WebApp::initialized = false;
-
     WebApp::WebApp(const Router& router)
         : Router(router) {
     }
 
     void WebApp::init(int argc, char* argv[]) {
         core::SNodeC::init(argc, argv);
-        WebApp::initialized = true;
     }
 
     int WebApp::start(const utils::Timeval& timeOut) {

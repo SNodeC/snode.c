@@ -120,28 +120,17 @@ namespace core::socket::stream::tls {
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onError) override {
-            int resumeSocketReader = false;
-            int resumeSocketWriter = false;
-
             if (!SocketReader::isSuspended()) {
                 SocketReader::suspend();
-                resumeSocketReader = true;
             }
-
             if (!SocketWriter::isSuspended()) {
                 SocketWriter::suspend();
-                resumeSocketWriter = true;
             }
 
             TLSHandshake::doHandshake(
                 ssl,
-                [onSuccess, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onSuccess
-                    if (resumeSocketReader) {
-                        SocketReader::resume();
-                    }
-                    if (resumeSocketWriter) {
-                        SocketWriter::resume();
-                    }
+                [onSuccess, this](void) -> void { // onSuccess
+                    SocketReader::publish();
                     onSuccess();
                 },
                 [onTimeout, this](void) -> void { // onTimeout
@@ -218,7 +207,6 @@ namespace core::socket::stream::tls {
             } else {
                 VLOG(0) << "SSL_Shutdown WAITING: Close_notify received but not send";
             }
-            SocketReader::doReadShutdown();
         }
 
         void doWriteShutdown(const std::function<void(int)>& onShutdown) override {
@@ -227,18 +215,28 @@ namespace core::socket::stream::tls {
                     [this, &onShutdown]() -> void { // thus send one
                         if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                             VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
+                            SocketWriter::doWriteShutdown(onShutdown);
                         } else {
                             VLOG(0) << "SSL_Shutdown WAITING: Close_notify sent but not received";
                         }
-                        SocketWriter::doWriteShutdown(onShutdown);
                     },
                     [this]() -> void {
                         LOG(WARNING) << "SSL_shutdown: Handshake timed out";
-                        SocketWriter::disable();
+                        SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
+                            if (errno != 0) {
+                                PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                            }
+                            SocketConnection::close();
+                        });
                     },
                     [this](int sslErr) -> void {
                         ssl_log("SSL_shutdown: Handshake failed", sslErr);
-                        SocketWriter::disable();
+                        SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
+                            if (errno != 0) {
+                                PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                            }
+                            SocketConnection::close();
+                        });
                     },
                     shutdownTimeout);
             }
