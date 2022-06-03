@@ -31,8 +31,10 @@
 
 namespace web::websocket {
 
-    void Receiver::receive() {
-        ssize_t ret = 0;
+    std::size_t Receiver::receive() {
+        std::size_t ret = 0;
+        std::size_t consumed = 0;
+
         bool parsingError = false;
 
         // dumpFrame(junk, junkLen);
@@ -63,12 +65,15 @@ namespace web::websocket {
                     reset();
                     break;
             }
+            consumed += ret;
         } while (ret > 0 && parserState != ParserState::BEGIN && !parsingError); // && parserState != ParserState::BEGIN);
+
+        return consumed;
     }
 
-    ssize_t Receiver::readOpcode() {
+    std::size_t Receiver::readOpcode() {
         char byte = 0;
-        ssize_t ret = readFrameData(&byte, 1);
+        std::size_t ret = readFrameData(&byte, 1);
 
         if (ret > 0) {
             uint8_t opCodeByte = static_cast<uint8_t>(byte);
@@ -92,9 +97,9 @@ namespace web::websocket {
         return ret;
     }
 
-    ssize_t Receiver::readLength() {
+    std::size_t Receiver::readLength() {
         char byte = 0;
-        ssize_t ret = readFrameData(&byte, 1);
+        std::size_t ret = readFrameData(&byte, 1);
 
         if (ret > 0) {
             uint8_t lengthByte = static_cast<uint8_t>(byte);
@@ -130,10 +135,10 @@ namespace web::websocket {
         return ret;
     }
 
-    ssize_t Receiver::readELength() {
-        ssize_t ret = readFrameData(elengthJunk, elengthNumBytesLeft);
+    std::size_t Receiver::readELength() {
+        std::size_t ret = readFrameData(elengthJunk, elengthNumBytesLeft);
 
-        for (ssize_t i = 0; i < ret; i++) {
+        for (std::size_t i = 0; i < ret; i++) {
             payLoadNumBytes |= static_cast<uint64_t>(*reinterpret_cast<unsigned char*>(elengthJunk + i))
                                << (elengthNumBytes - elengthNumBytesLeft) * 8;
 
@@ -163,10 +168,10 @@ namespace web::websocket {
         return ret;
     }
 
-    ssize_t Receiver::readMaskingKey() {
-        ssize_t ret = readFrameData(maskingKeyJunk, maskingKeyNumBytesLeft);
+    std::size_t Receiver::readMaskingKey() {
+        std::size_t ret = readFrameData(maskingKeyJunk, maskingKeyNumBytesLeft);
 
-        for (ssize_t i = 0; i < ret; i++) {
+        for (std::size_t i = 0; i < ret; i++) {
             maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyJunk + i))
                           << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
             maskingKeyNumBytesLeft--;
@@ -188,11 +193,11 @@ namespace web::websocket {
         return ret;
     }
 
-    ssize_t Receiver::readPayload() {
+    std::size_t Receiver::readPayload() {
         std::size_t payloadJunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
                                                                                     : static_cast<std::size_t>(payLoadNumBytesLeft);
 
-        ssize_t ret = readFrameData(payloadJunk, payloadJunkLeft);
+        std::size_t ret = readFrameData(payloadJunk, payloadJunkLeft);
 
         if (ret > 0) {
             std::size_t payloadJunkLen = static_cast<std::size_t>(ret);

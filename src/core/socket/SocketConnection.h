@@ -67,7 +67,7 @@ namespace core::socket {
         void onConnected();
         void onDisconnected();
 
-        void onReceiveFromPeer();
+        std::size_t onReceiveFromPeer();
 
         void onWriteError(int errnum);
         void onReadError(int errnum);
@@ -76,7 +76,7 @@ namespace core::socket {
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
         virtual void sendToPeer(const std::string& data) = 0;
 
-        virtual ssize_t readFromPeer(char* junk, std::size_t junkLen) = 0;
+        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
         core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 

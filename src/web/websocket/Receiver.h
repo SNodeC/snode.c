@@ -42,7 +42,7 @@ namespace web::websocket {
 
         virtual ~Receiver() = default;
 
-        void receive();
+        std::size_t receive();
 
     private:
         union MaskingKey {
@@ -50,18 +50,18 @@ namespace web::websocket {
             char keyAsArray[4]; // cppcheck-suppress unusedStructMember
         };
 
-        ssize_t readOpcode();
-        ssize_t readLength();
-        ssize_t readELength();
-        ssize_t readMaskingKey();
-        ssize_t readPayload();
+        std::size_t readOpcode();
+        std::size_t readLength();
+        std::size_t readELength();
+        std::size_t readMaskingKey();
+        std::size_t readPayload();
 
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
-        virtual ssize_t readFrameData(char* junk, std::size_t junkLen) = 0;
+        virtual std::size_t readFrameData(char* junk, std::size_t junkLen) = 0;
 
         void reset();
 

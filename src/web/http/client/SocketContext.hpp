@@ -75,8 +75,8 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReceiveFromPeer() {
-        parser.parse();
+    std::size_t SocketContext<Request, Response>::onReceiveFromPeer() {
+        return parser.parse();
     }
 
     template <typename Request, typename Response>

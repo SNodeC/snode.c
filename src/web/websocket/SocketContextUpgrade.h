@@ -208,7 +208,7 @@ namespace web::websocket {
             sendClose(errnum);
         }
 
-        ssize_t readFrameData(char* junk, std::size_t junkLen) override {
+        std::size_t readFrameData(char* junk, std::size_t junkLen) override {
             return readFromPeer(junk, junkLen);
         }
 
@@ -265,8 +265,8 @@ namespace web::websocket {
         }
 
         /* SocketProtocol */
-        void onReceiveFromPeer() override {
-            Receiver::receive();
+        std::size_t onReceiveFromPeer() override {
+            return Receiver::receive();
         }
 
     protected:

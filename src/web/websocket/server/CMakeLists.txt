@@ -63,9 +63,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(
-    websocketserver PUBLIC snodec::httpserver snodec::websocketbase
-)
+target_link_libraries(websocketserver PUBLIC snodec::websocketbase)
 
 install(
     TARGETS websocketserver
