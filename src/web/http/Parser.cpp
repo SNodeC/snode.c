@@ -93,8 +93,6 @@ namespace web::http {
                 } else {
                     line += ch;
                 }
-            } else if (ret < 0) {
-                consumed = ret;
             }
         } while (ret > 0 && parserState == ParserState::FIRSTLINE);
 
@@ -147,8 +145,6 @@ namespace web::http {
                     line += ch;
                     consumed++;
                 }
-            } else if (ret < 0) {
-                consumed = ret;
             }
         } while (ret > 0 && parserState == ParserState::HEADER);
 
