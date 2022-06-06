@@ -35,8 +35,6 @@ namespace web::websocket {
         std::size_t ret = 0;
         std::size_t consumed = 0;
 
-        bool parsingError = false;
-
         // dumpFrame(junk, junkLen);
 
         do {
@@ -61,12 +59,11 @@ namespace web::websocket {
                     break;
                 case ParserState::ERROR:
                     onMessageError(errorState);
-                    parsingError = true;
                     reset();
                     break;
             }
             consumed += ret;
-        } while (ret > 0 && parserState != ParserState::BEGIN && !parsingError); // && parserState != ParserState::BEGIN);
+        } while (ret > 0 && parserState != ParserState::BEGIN && parserState != ParserState::ERROR);
 
         return consumed;
     }
@@ -214,7 +211,7 @@ namespace web::websocket {
             payLoadNumBytesLeft -= payloadJunkLen;
         }
 
-        if (payLoadNumBytesLeft == 0) { // payloadNumBytesRead == payLoadNumBytes) {
+        if (payLoadNumBytesLeft == 0) {
             if (fin) {
                 onMessageEnd();
             }

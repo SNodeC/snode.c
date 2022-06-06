@@ -70,8 +70,7 @@ namespace web::http {
                     break;
             }
             consumed += ret;
-        } while (ret > 0 && parserState != ParserState::BEGIN &&
-                 parserState != ParserState::ERROR); // && parserState != ParserState::BEGIN);
+        } while (ret > 0 && parserState != ParserState::BEGIN && parserState != ParserState::ERROR);
         return consumed;
     }
 
