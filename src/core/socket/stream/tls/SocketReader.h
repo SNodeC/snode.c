@@ -41,6 +41,8 @@ namespace core::socket::stream::tls {
         using Super::Super;
 
         ssize_t read(char* junk, std::size_t junkLen) override {
+            int sslShutdownState = SSL_get_shutdown(ssl);
+
             int ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
 
             if (ret <= 0) {
@@ -70,6 +72,7 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_ZERO_RETURN: // received close_notify
+                        SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
                         doReadShutdown();
                         errno = 0;
                         ret = 0;

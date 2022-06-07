@@ -80,10 +80,7 @@ namespace core::socket::stream {
         void sendToPeer(const char* junk, std::size_t junkLen) {
             if (!shutdownInProgress && !markShutdown) {
                 if (writeBuffer.empty()) {
-                    if (!isSuspended()) {
-                        suspend();
-                    }
-                    publish();
+                    resume();
                 }
 
                 writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
@@ -102,19 +99,22 @@ namespace core::socket::stream {
                 if (retWrite > 0) {
                     writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
 
+                    if (!isSuspended()) {
+                        suspend();
+                    }
                     if (!writeBuffer.empty()) {
                         publish();
                     } else if (markShutdown) {
                         shutdown(onShutdown);
                     }
                 } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                    if (isSuspended()) {
-                        resume();
-                    }
+                    resume();
                 } else {
                     disable();
                     onError(errno);
                 }
+            } else {
+                suspend();
             }
         }
 

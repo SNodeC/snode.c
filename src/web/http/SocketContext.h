@@ -36,7 +36,7 @@ namespace web::http {
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;
 
-        void onReceiveFromPeer() override = 0;
+        std::size_t onReceiveFromPeer() override = 0;
 
     public:
         virtual void sendToPeerCompleted() = 0;

@@ -127,8 +127,8 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReceiveFromPeer() {
-        parser.parse();
+    std::size_t SocketContext<Request, Response>::onReceiveFromPeer() {
+        return parser.parse();
     }
 
     template <typename Request, typename Response>
@@ -154,8 +154,8 @@ namespace web::http::server {
             } else {
                 currentRequestContext->response.status(currentRequestContext->status).send(currentRequestContext->reason);
                 reset();
-                //                shutdownWrite(true);
-                close();
+                shutdownWrite(true);
+                // close();
             }
         }
     }

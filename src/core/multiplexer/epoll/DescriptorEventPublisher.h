@@ -30,6 +30,7 @@ namespace core {
 #include "core/system/epoll.h" // IWYU pragma: export
 
 #include <cstdint>
+#include <string> // for string
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -46,8 +46,9 @@ namespace web::http {
         contentRead = 0;
     }
 
-    void Parser::parse() {
-        ssize_t consumed = 0;
+    std::size_t Parser::parse() {
+        std::size_t ret = 0;
+        std::size_t consumed = 0;
 
         do {
             switch (parserState) {
@@ -57,24 +58,25 @@ namespace web::http {
                     parserState = ParserState::FIRSTLINE;
                     [[fallthrough]];
                 case ParserState::FIRSTLINE:
-                    consumed = readStartLine();
+                    ret = readStartLine();
                     break;
                 case ParserState::HEADER:
-                    consumed = readHeaderLine();
+                    ret = readHeaderLine();
                     break;
                 case ParserState::BODY:
-                    consumed = readContent();
+                    ret = readContent();
                     break;
                 case ParserState::ERROR:
                     break;
             }
-        } while (consumed > 0 && parserState != ParserState::BEGIN &&
-                 parserState != ParserState::ERROR); // && parserState != ParserState::BEGIN);
+            consumed += ret;
+        } while (ret > 0 && parserState != ParserState::BEGIN && parserState != ParserState::ERROR);
+        return consumed;
     }
 
-    ssize_t Parser::readStartLine() {
-        ssize_t consumed = 0;
-        ssize_t ret = 0;
+    std::size_t Parser::readStartLine() {
+        std::size_t consumed = 0;
+        std::size_t ret = 0;
 
         do {
             char ch = 0;
@@ -90,17 +92,15 @@ namespace web::http {
                 } else {
                     line += ch;
                 }
-            } else if (ret < 0) {
-                consumed = ret;
             }
         } while (ret > 0 && parserState == ParserState::FIRSTLINE);
 
         return consumed;
     }
 
-    ssize_t Parser::readHeaderLine() {
-        ssize_t consumed = 0;
-        ssize_t ret = 0;
+    std::size_t Parser::readHeaderLine() {
+        std::size_t consumed = 0;
+        std::size_t ret = 0;
 
         do {
             char ch = 0;
@@ -144,8 +144,6 @@ namespace web::http {
                     line += ch;
                     consumed++;
                 }
-            } else if (ret < 0) {
-                consumed = ret;
             }
         } while (ret > 0 && parserState == ParserState::HEADER);
 
@@ -179,10 +177,10 @@ namespace web::http {
         }
     }
 
-    ssize_t Parser::readContent() {
+    std::size_t Parser::readContent() {
         static char contentJunk[MAX_CONTENT_JUNK_LEN];
 
-        ssize_t consumed = 0;
+        std::size_t consumed = 0;
 
         if (httpMinor == 0 && contentLength == 0) {
             consumed = socketContext->readFromPeer(contentJunk, MAX_CONTENT_JUNK_LEN);

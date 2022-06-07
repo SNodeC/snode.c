@@ -86,7 +86,7 @@ namespace web::http {
                             VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
                         } else {
                             VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
-                            socketContextUpgradeFactory->destroy();
+                            delete socketContextUpgradeFactory;
                             socketContextUpgradeFactory = nullptr;
                             core::DynamicLoader::dlCloseDelayed(handle);
                         }
@@ -142,7 +142,7 @@ namespace web::http {
         if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
             SocketContextPlugin<SocketContextUpgradeFactory>& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
 
-            socketContextUpgradeFactory->destroy();
+            delete socketContextUpgradeFactory;
 
             if (socketContextPlugin.handle != nullptr) {
                 core::DynamicLoader::dlCloseDelayed(socketContextPlugin.handle);

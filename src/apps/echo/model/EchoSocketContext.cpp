@@ -47,16 +47,18 @@ namespace apps::echo::model {
         VLOG(0) << "Echo disconnected";
     }
 
-    void EchoSocketContext::onReceiveFromPeer() {
+    std::size_t EchoSocketContext::onReceiveFromPeer() {
         char junk[4096];
 
-        ssize_t ret = readFromPeer(junk, 4096);
+        std::size_t ret = readFromPeer(junk, 4096);
 
         if (ret > 0) {
             std::size_t junklen = static_cast<std::size_t>(ret);
             VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
             sendToPeer(junk, junklen);
         }
+
+        return ret;
     }
 
     core::socket::SocketContext* EchoServerSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {

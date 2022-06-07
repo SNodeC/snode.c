@@ -45,8 +45,8 @@ namespace core::socket {
         socketContext->onDisconnected();
     }
 
-    void SocketConnection::onReceiveFromPeer() {
-        socketContext->onReceiveFromPeer();
+    std::size_t SocketConnection::onReceiveFromPeer() {
+        std::size_t ret = socketContext->onReceiveFromPeer();
 
         if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
             onDisconnected();
@@ -55,6 +55,8 @@ namespace core::socket {
             newSocketContext = nullptr;
             onConnected();
         }
+
+        return ret;
     }
 
     void SocketConnection::onWriteError(int errnum) {

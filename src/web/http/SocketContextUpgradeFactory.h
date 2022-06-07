@@ -54,8 +54,6 @@ namespace web::http {
 
         void prepare(Request& request, Response& response);
 
-        void destroy();
-
         void incRefCount();
 
         void decRefCount();

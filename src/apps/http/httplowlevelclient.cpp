@@ -99,8 +99,8 @@ public:
         VLOG(0) << "SimpleSocketProtocol disconnected";
     }
 
-    void onReceiveFromPeer() override {
-        responseParser->parse();
+    std::size_t onReceiveFromPeer() override {
+        return responseParser->parse();
     }
 
     void onWriteError(int errnum) override {
