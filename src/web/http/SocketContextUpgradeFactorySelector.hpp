@@ -142,7 +142,6 @@ namespace web::http {
         if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
             SocketContextPlugin<SocketContextUpgradeFactory>& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
 
-            //            socketContextUpgradeFactory->destroy();
             delete socketContextUpgradeFactory;
 
             if (socketContextPlugin.handle != nullptr) {
