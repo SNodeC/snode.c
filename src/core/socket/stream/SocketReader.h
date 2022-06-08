@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
@@ -95,7 +97,9 @@ namespace core::socket::stream {
                     }
                     publish();
                 } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                    resume();
+                    if (isSuspended()) {
+                        resume();
+                    }
                 } else {
                     disable();
                     onError(errno);
