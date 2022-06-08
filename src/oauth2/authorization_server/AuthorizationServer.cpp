@@ -7,6 +7,7 @@
 #include "express/middleware/JsonMiddleware.h"
 #include <vector>
 #include <nlohmann/json.hpp>
+// #include <format>
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBCommandSequence.h"
 
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) {
     std::string accessToken{"ghj"};
     std::string refreshToken{"tzu"};
 
-    database::mariadb::MariaDBConnectionDetails details = {
+    database::mariadb::MariaDBConnectionDetails details{
         .hostname = "localhost",
         .username = "rathalin",
         .password = "rathalin",
@@ -60,6 +61,7 @@ int main(int argc, char *argv[]) {
         .flags = 0,
     };
     database::mariadb::MariaDBClient db{details};
+    /*
     db.query(
         "SELECT * FROM token",
         [](const MYSQL_ROW row) -> void {
@@ -72,6 +74,34 @@ int main(int argc, char *argv[]) {
         [](const std::string& errorString, unsigned int errorNumber) -> void {
             VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
     });
+    */
+
+    // Middleware to catch requests without a valid client_id
+    app.use(([&db]MIDDLEWARE(req, res, next) {
+        std::string queryClientId{req.query("client_id")};
+        if (queryClientId.length() > 0) {
+            db.query(
+                "select count(*) from client where uuid = '" + queryClientId + "'",
+                //std::format("select count(*) from client where uuid = '{}';", queryClientId),
+                [&res, &next, queryClientId](const MYSQL_ROW row) -> void {
+                    VLOG(0) << "Query result for count(*): " << row[0];
+                    if (row != nullptr && std::stoi(row[0]) > 0) {
+                        VLOG(0) << "Valid client id '" << queryClientId << "'";
+                        next();
+                    } else {
+                        VLOG(0) << "Invalid client id '" << queryClientId << "'";
+                        res.sendStatus(403);
+                    }
+                },
+                [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                    VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                    res.sendStatus(500);;
+                }
+            );
+        }
+        res.sendStatus(403);
+    }));
+
 
     app.get("/auth", [&clientRedirectUri, &clientId, &clientState] APPLICATION(req, res) {
         VLOG(0) << "Query params:";
@@ -95,7 +125,7 @@ int main(int argc, char *argv[]) {
         VLOG(0) << "Auth request valid, redirecting to login";
         res.redirect("/login/index.html");
     });
-    
+
     // app.use("/login", express::middleware::JsonMiddleware());
     app.post("/login", [&emailDemoUser, &pwDemoUser, &clientRedirectUri, &authCode, &clientState, &clientId] APPLICATION(req, res) {
         std::string body = std::string((char *) req.body.data(), req.body.size());
