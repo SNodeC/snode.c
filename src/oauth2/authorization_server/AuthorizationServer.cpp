@@ -7,6 +7,8 @@
 #include "express/middleware/JsonMiddleware.h"
 #include <vector>
 #include <nlohmann/json.hpp>
+#include "database/mariadb/MariaDBClient.h"
+#include "database/mariadb/MariaDBCommandSequence.h"
 
 /*
 #include <openssl/sha.h>
@@ -47,6 +49,29 @@ int main(int argc, char *argv[]) {
     std::string authCode{"abc"};
     std::string accessToken{"ghj"};
     std::string refreshToken{"tzu"};
+
+    database::mariadb::MariaDBConnectionDetails details = {
+        .hostname = "localhost",
+        .username = "rathalin",
+        .password = "rathalin",
+        .database = "oauth2",
+        .port = 3306,
+        .socket = "/run/mysqld/mysqld.sock",
+        .flags = 0,
+    };
+    database::mariadb::MariaDBClient db{details};
+    db.query(
+        "SELECT * FROM token",
+        [](const MYSQL_ROW row) -> void {
+            if (row != nullptr) {
+                VLOG(0) << row[0] << row[1] << row[2];
+            } else {
+                VLOG(0) << "Empty result";
+            }
+        },
+        [](const std::string& errorString, unsigned int errorNumber) -> void {
+            VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
+    });
 
     app.get("/auth", [&clientRedirectUri, &clientId, &clientState] APPLICATION(req, res) {
         VLOG(0) << "Query params:";
