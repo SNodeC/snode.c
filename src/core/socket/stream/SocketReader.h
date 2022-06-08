@@ -67,19 +67,18 @@ namespace core::socket::stream {
             this->blockSize = readBlockSize;
         }
 
-        ssize_t readFromPeer(char* junk, std::size_t junkLen) {
+        std::size_t readFromPeer(char* junk, std::size_t junkLen) {
             std::size_t maxReturn = std::min(junkLen, size);
 
             std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, junk);
 
             cursor += maxReturn;
             size -= maxReturn;
-            ssize_t ret = static_cast<ssize_t>(maxReturn);
 
-            return ret;
+            return maxReturn;
         }
 
-        void doRead() {
+        std::size_t doRead() {
             errno = 0;
 
             if (size == 0) {
@@ -96,9 +95,7 @@ namespace core::socket::stream {
                     }
                     publish();
                 } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                    if (isSuspended()) {
-                        resume();
-                    }
+                    resume();
                 } else {
                     disable();
                     onError(errno);
@@ -106,6 +103,8 @@ namespace core::socket::stream {
             } else {
                 publish();
             }
+
+            return size;
         }
 
         void shutdown() {
@@ -136,7 +135,6 @@ namespace core::socket::stream {
         std::size_t cursor = 0;
 
         bool shutdownTriggered = false;
-
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;

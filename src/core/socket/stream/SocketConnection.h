@@ -131,8 +131,8 @@ namespace core::socket::stream {
             return SocketConnection::getFd();
         }
 
-        ssize_t readFromPeer(char* junk, std::size_t junkLen) final {
-            ssize_t ret = 0;
+        std::size_t readFromPeer(char* junk, std::size_t junkLen) final {
+            std::size_t ret = 0;
 
             if (newSocketContext == nullptr) {
                 ret = SocketReader::readFromPeer(junk, junkLen);
@@ -157,8 +157,12 @@ namespace core::socket::stream {
 
     private:
         void readEvent() final {
-            SocketReader::doRead();
-            onReceiveFromPeer();
+            std::size_t availble = SocketReader::doRead();
+            std::size_t consumed = onReceiveFromPeer();
+
+            if (availble != 0 && consumed == 0) {
+                close();
+            }
         }
 
         void writeEvent() final {

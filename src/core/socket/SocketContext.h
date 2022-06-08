@@ -51,7 +51,7 @@ namespace core::socket {
 
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
-        ssize_t readFromPeer(char* junk, std::size_t junklen);
+        std::size_t readFromPeer(char* junk, std::size_t junklen);
 
         void shutdownRead();
         void shutdownWrite(bool forceClose = false);
@@ -65,7 +65,7 @@ namespace core::socket {
         virtual void onConnected();
         virtual void onDisconnected();
 
-        virtual void onReceiveFromPeer() = 0;
+        virtual std::size_t onReceiveFromPeer() = 0;
 
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);

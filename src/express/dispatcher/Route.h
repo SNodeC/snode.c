@@ -57,8 +57,6 @@ namespace express::dispatcher {
         RouterDispatcher* parentRouter;
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
-
-        friend class RouterDispatcher;
     };
 
 } // namespace express::dispatcher

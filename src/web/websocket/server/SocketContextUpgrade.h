@@ -36,7 +36,8 @@ namespace web::websocket::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <cstddef> // IWYU pragma: export
+#include <string>  // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
