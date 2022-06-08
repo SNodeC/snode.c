@@ -28,7 +28,7 @@ namespace database::mariadb::commands::async {
     MariaDBFetchRowCommand::MariaDBFetchRowCommand(MYSQL_RES*& result,
                                                    const std::function<void(const MYSQL_ROW)>& onRow,
                                                    const std::function<void(const std::string&, unsigned int)>& onError)
-        : MariaDBCommandASync("FetschRow", onError)
+        : MariaDBCommandASync("FetchRow", onError)
         , result(result)
         , onRow(onRow) {
     }
