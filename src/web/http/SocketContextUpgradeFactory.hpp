@@ -43,7 +43,7 @@ namespace web::http {
 
         return socketContext;
     }
-    
+
     template <typename Request, typename Response>
     void SocketContextUpgradeFactory<Request, Response>::incRefCount() {
         ++refCount;

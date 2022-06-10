@@ -14,7 +14,6 @@ CREATE OR REPLACE TABLE client (
     password_hash VARCHAR(500) NOT NULL,
     password_salt VARCHAR(36) UNIQUE DEFAULT UUID(),
     redirect_uri VARCHAR(100) NOT NULL DEFAULT '',
-    code VARCHAR(100) NOT NULL DEFAULT '',
     scope VARCHAR(100) NOT NULL DEFAULT '',
     state VARCHAR(100) NOT NULL DEFAULT '',
     access_token_id BIGINT REFERENCES token(id),
