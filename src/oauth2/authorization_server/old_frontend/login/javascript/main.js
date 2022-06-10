@@ -6,7 +6,6 @@ async function login() {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
             'Content-Type': 'application/json',
-            // 'Access-Control-Allow-Origin': '*',
         },
         mode: 'cors',
         body: JSON.stringify({
