@@ -9,6 +9,8 @@ int main(int argc, char* argv[]) {
     express::legacy::in::WebApp app{"OAuth2Client"};
 
     app.get("/authCode", [] APPLICATION(req, res) {
+        res.send("cllient /authCode");
+        return;
         /*
         code=Yzk5ZDczMzRlNDEwY
         &grant_type=code

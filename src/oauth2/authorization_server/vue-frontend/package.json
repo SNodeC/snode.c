@@ -1,5 +1,10 @@
 {
   "name": "vue-frontend",
+  "author": {
+    "name": "Daniel Flockert",
+    "email": "daniel@flockert.at",
+    "url": "https://flockert.at"
+  },
   "private": true,
   "version": "0.0.0",
   "scripts": {

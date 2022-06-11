@@ -16,6 +16,7 @@ CREATE OR REPLACE TABLE client (
     redirect_uri VARCHAR(100) NOT NULL DEFAULT '',
     scope VARCHAR(100) NOT NULL DEFAULT '',
     state VARCHAR(100) NOT NULL DEFAULT '',
+    auth_code_id BIGINT REFERENCES token(id),
     access_token_id BIGINT REFERENCES token(id),
     refresh_token_id BIGINT REFERENCES token(id)
 );

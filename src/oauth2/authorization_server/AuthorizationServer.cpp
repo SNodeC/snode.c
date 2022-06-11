@@ -7,6 +7,7 @@
 #include "express/middleware/VHost.h"
 #include "utils/sha1.h"
 
+#include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <vector>
@@ -36,6 +37,15 @@ void addQueryParamToUri(std::string& uri, std::string queryParamName, std::strin
         uri += "&";
     }
     uri += queryParamName + "=" + queryParamValue;
+}
+
+std::string getNewUUID() {
+    const size_t uuidLength{36};
+    char uuidCharArray[uuidLength];
+    std::ifstream file("/proc/sys/kernel/random/uuid");
+    file.getline(uuidCharArray, uuidLength);
+    file.close();
+    return std::string{uuidCharArray};
 }
 
 int main(int argc, char* argv[]) {
@@ -159,49 +169,75 @@ int main(int argc, char* argv[]) {
         req.getAttribute<nlohmann::json>(
             [&req, &res, &db](nlohmann::json& json) -> void {
                 db.query(
-                    "select email, password_hash, password_salt "
+                    "select email, password_hash, password_salt, redirect_uri, state "
                     "from client "
                     "where uuid = '" +
-                        req.param("client_id") + "'",
-                    [&req, &res, &json](const MYSQL_ROW row) -> void {
+                        std::string{req.query("client_id")} + "'",
+                    [&req, &res, &db, &json](const MYSQL_ROW row) -> void {
                         if (row != nullptr) {
-                            std::string email{row[0]};
-                            std::string password_hash{row[1]};
-                            std::string password_salt{row[2]};
-                            std::string paramEmail{json["email"]};
-                            std::string paramPassword{json["password"]};
+                            std::string dbEmail{row[0]};
+                            std::string dbPasswordHash{row[1]};
+                            std::string dbPasswordSalt{row[2]};
+                            std::string dbRedirectUri{row[3]};
+                            std::string dbState{row[4]};
+                            std::string queryEmail{json["email"]};
+                            std::string queryPassword{json["password"]};
 
-                            VLOG(0) << "param email " << paramEmail;
-                            VLOG(0) << "param pw " << paramPassword;
-
-                            // base64.cpp
-                            VLOG(0) << sha1("123456789");
-                            VLOG(0) << sha1("123456789");
-                            VLOG(0) << sha1("123456789");
-                            VLOG(0) << sha1("123456789");
-                            VLOG(0) << sha1("123456789");
-                            VLOG(0) << sha1("123456789");
-                            VLOG(0) << sha1("123456789");
-                            VLOG(0) << sha1("123456789");
-                            /*
-                           try {
-                               std::string clientRedirectUri = req.query("redirect_uri");
-                               addQueryParamToUri(clientRedirectUri, "code", authCode);
-                               if (clientState.length() > 0) {
-                                   addQueryParamToUri(clientRedirectUri, "state", clientState);
-                               }
-                               addQueryParamToUri(clientRedirectUri, "client_id", clientId);
-                               // Set CORS header
-                               res.set("Access-Control-Allow-Origin", "*");
-                               VLOG(0) << "Redirecting to " << clientRedirectUri;
-                               res.redirect(301, clientRedirectUri);
-                           } catch (std::out_of_range& e) {
-                               VLOG(0) << "out of range: " << e.what();
-                               res.sendStatus(400);
-                           }
-                            */
-                        } else {
-                            VLOG(0) << "end of post login db";
+                            // TODO create hash and compare
+                            // if (dbPassword_hash != sha1(dbPassword_salt + queryPassword)) {
+                            if (false) {
+                                res.sendStatus(401);
+                            } else {
+                                // Generate auth code which expires after 10 minutes
+                                std::string authCode{getNewUUID()};
+                                db.exec(
+                                      "insert into token(uuid) "
+                                      "values('" +
+                                          authCode + "')",
+                                      []() -> void {
+                                      },
+                                      [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                          VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                          res.sendStatus(500);
+                                      })
+                                    .query(
+                                        "select last_insert_id()",
+                                        [&req, &res, &db, dbState, dbRedirectUri, authCode](const MYSQL_ROW row) -> void {
+                                            if (row != nullptr) {
+                                                db.exec(
+                                                    "update client "
+                                                    "set auth_code_id = '" +
+                                                        std::string{row[0]} +
+                                                        "' "
+                                                        "where uuid = '" +
+                                                        req.query("client_id") + "'",
+                                                    [&res, dbState, dbRedirectUri, authCode]() -> void {
+                                                        VLOG(0) << "-----------------------------------------------------------------------"
+                                                                   "-------------------------------------------";
+                                                        // Redirect back to the client app
+                                                        std::string clientRedirectUri{dbRedirectUri};
+                                                        addQueryParamToUri(clientRedirectUri, "code", authCode);
+                                                        if (!dbState.empty()) {
+                                                            addQueryParamToUri(clientRedirectUri, "state", dbState);
+                                                        }
+                                                        // Set CORS header
+                                                        res.set("Access-Control-Allow-Origin", "*");
+                                                        VLOG(0) << "Sending redirect_uri: " << clientRedirectUri;
+                                                        nlohmann::json responseJson = {{"redirect_uri", clientRedirectUri}};
+                                                        VLOG(0) << responseJson.dump(4);
+                                                        res.send(responseJson.dump(4));
+                                                    },
+                                                    [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                        VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                                        res.sendStatus(500);
+                                                    });
+                                            }
+                                        },
+                                        [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                            VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                            res.sendStatus(500);
+                                        });
+                            }
                         }
                     },
                     [&res](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -210,7 +246,7 @@ int main(int argc, char* argv[]) {
                     });
             },
             [&res]([[maybe_unused]] const std::string& key) -> void {
-                res.sendStatus(400);
+                res.sendStatus(500);
             });
     });
 
@@ -231,9 +267,6 @@ int main(int argc, char* argv[]) {
             res.sendStatus(400);
             return;
         }
-        // UUID example: 4a3797ae-0734-4f7f-ad2c-1c1bfafba7da
-        // cat /proc/sys/kernel/random/uuid
-        // Open file -> readline -> close
         res.send("");
     });
 

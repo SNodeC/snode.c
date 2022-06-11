@@ -9,7 +9,7 @@ select
     rt.uuid 'refresh_token',
     rt.expire_date 'refresh_token_expire_date'
 from client c
-join token at
+left join token at
     on c.access_token_id = at.id
-join token rt
+left join token rt
     on c.refresh_token_id = rt.id;

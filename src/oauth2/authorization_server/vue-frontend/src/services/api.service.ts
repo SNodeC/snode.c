@@ -1,9 +1,13 @@
-class ApiService {
-    private readonly API_URL: string = '/login'
+export interface LoginResponse {
+    redirect_uri: string
+}
 
-    async login(email: string, password: string): Promise<unknown> {
+class ApiService {
+    private readonly API_URL: string = 'http://localhost:8082/login'
+
+    async login(email: string, password: string, clientId: string): Promise<LoginResponse> {
         try {
-            const response = await fetch(this.API_URL, {
+            const response = await fetch(`${this.API_URL}?client_id=${clientId}`, {
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json',
@@ -12,7 +16,7 @@ class ApiService {
             })
             return response.json()
         } catch (e: any) {
-            throw new Error(e?.toString());
+            throw new Error(e?.toString())
         }
     }
 }
