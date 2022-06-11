@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
             return;
         }
 
-        if (paramRedirectUri.length() > 0) {
+        if (!paramRedirectUri.empty()) {
             db.exec(
                 "update client set redirect_uri = '" + paramRedirectUri + "' where uuid = '" + paramClientId + "'",
                 [paramRedirectUri]() -> void {
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
                 });
         }
 
-        if (paramScope.length() > 0) {
+        if (!paramScope.empty()) {
             db.exec(
                 "update client set scope = '" + paramScope + "' where uuid = '" + paramClientId + "'",
                 [paramScope]() -> void {
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
                 });
         }
 
-        if (paramState.length() > 0) {
+        if (!paramState.empty()) {
             db.exec(
                 "update client set state = '" + paramState + "' where uuid = '" + paramClientId + "'",
                 [paramState]() -> void {
@@ -139,7 +139,18 @@ int main(int argc, char* argv[]) {
         }
 
         VLOG(0) << "Auth request valid, redirecting to login";
-        res.redirect("/login/index.html");
+        std::string loginUri{"/login"};
+        addQueryParamToUri(loginUri, "client_id", paramClientId);
+        res.redirect(loginUri);
+    });
+
+    app.get("/login", [] APPLICATION(req, res) {
+        res.sendFile("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend/dist/index.html",
+                     [&req](int ret) -> void {
+                         if (ret != 0) {
+                             PLOG(ERROR) << req.url;
+                         }
+                     });
     });
 
     // req.getAttribute<json>([&jsonString](json& json) -> {json.dump(4)},[](const
@@ -159,6 +170,9 @@ int main(int argc, char* argv[]) {
                             std::string password_salt{row[2]};
                             std::string paramEmail{json["email"]};
                             std::string paramPassword{json["password"]};
+
+                            VLOG(0) << "param email " << paramEmail;
+                            VLOG(0) << "param pw " << paramPassword;
 
                             // base64.cpp
                             VLOG(0) << sha1("123456789");
@@ -186,6 +200,8 @@ int main(int argc, char* argv[]) {
                                res.sendStatus(400);
                            }
                             */
+                        } else {
+                            VLOG(0) << "end of post login db";
                         }
                     },
                     [&res](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -222,7 +238,7 @@ int main(int argc, char* argv[]) {
     });
 
     app.use(express::middleware::StaticMiddleware("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/"
-                                                  "www"));
+                                                  "vue-frontend/dist"));
 
     app.listen(8082, [](const express::legacy::in::WebApp::SocketAddress socketAddress, int err) {
         if (err != 0) {

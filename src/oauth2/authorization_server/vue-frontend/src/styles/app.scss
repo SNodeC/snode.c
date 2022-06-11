@@ -1,0 +1,139 @@
+@use './variables.scss';
+@use './flex.scss';
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  color: hwb(210 17% 69%);
+  background-color: hwb(0 81% 19%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-prime);
+}
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+  font-family: inherit;
+  color: inherit;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+
+  &:not(:last-child) {
+    margin-bottom: 1em;
+  }
+}
+
+.wrap {
+  overflow-wrap: anywhere;
+}
+
+a {
+  text-decoration: none;
+  color: var(--c-prime);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4em;
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--c-prime);
+  }
+}
+
+button {
+  outline: none;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4em;
+  padding: 1em;
+  border: transparent solid 1px;
+  transition-property: border-color, background-color, color;
+  transition-duration: var(--duration-normal);
+  border-radius: var(--border-radius-s);
+  color: var(--c-text-dark);
+  background-color: var(--c-prime);
+  font-weight: var(--font-weight-normal);
+
+  &:hover:not([disabled]) {
+    cursor: pointer;
+    background-color: var(--c-prime-acc-1);
+  }
+}
+
+button.second {
+  color: var(--c-text-dark);
+  background-color: var(--c-second);
+
+  &:hover {
+    &:not([disabled]) {
+      background-color: var(--c-second-acc-1);
+    }
+  }
+}
+
+
+
+button.no-outline {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  padding: 0em;
+  margin: 0em;
+  text-transform: none;
+  font-size: inherit;
+  color: var(--c-text-prime);
+
+  &:hover,
+  &:focus-visible {
+    &:not([disabled]) {
+      color: var(--c-prime);
+      cursor: pointer;
+      background-color: transparent;
+    }
+  }
+}
+
+input,
+textarea {
+  padding: 0.8em 0.8em;
+  transition-property: border-color, background-color, color;
+  transition-duration: var(--duration-normal);
+  border: transparent solid 1px;
+  border-radius: var(--border-radius-s);
+  background-color: var(--c-second);
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border-color: var(--c-second-acc-2);
+  }
+
+  &::placeholder {
+    color: var(--c-text-second-dim-1);
+  }
+}
+
+input,
+button,
+label {
+  font-size: initial;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
