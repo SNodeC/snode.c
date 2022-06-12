@@ -79,6 +79,7 @@ function onCountdownReached(): void {
 }
 
 onMounted(() => {
+  document.title = 'Login to Authorization Server'
   clientId = getClientIdFromQuery(window.location.href)
   console.log(`Found 'client_id' in url: '${clientId}'`)
 })

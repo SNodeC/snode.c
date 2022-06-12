@@ -9,8 +9,6 @@ int main(int argc, char* argv[]) {
     express::legacy::in::WebApp app{"OAuth2Client"};
 
     app.get("/authCode", [] APPLICATION(req, res) {
-        res.send("cllient /authCode");
-        return;
         /*
         code=Yzk5ZDczMzRlNDEwY
         &grant_type=code
@@ -27,14 +25,12 @@ int main(int argc, char* argv[]) {
 
         std::string tokenRequestUri{"http://localhost:8082/token"};
         tokenRequestUri += "?grant_type=authorization_code";
+        tokenRequestUri += "&client_id=" + req.query("client_id");
         tokenRequestUri += "&code=" + req.query("code");
         if (req.query("redirect_uri").length() > 0) {
             tokenRequestUri += "&redirect_uri=" + req.query("redirect_uri");
-        } else {
-            tokenRequestUri += "&redirect_uri=http://localhost:8081/done";
         }
-        tokenRequestUri += "&client_id=" + req.query("client_id");
-        VLOG(0) << "Recieving auth code from auth server: " << req.query("code") << ", requestin token from " << tokenRequestUri;
+        VLOG(0) << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from " << tokenRequestUri;
         res.redirect(tokenRequestUri);
     });
 

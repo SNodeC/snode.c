@@ -7,11 +7,12 @@
 #include "express/middleware/VHost.h"
 #include "utils/sha1.h"
 
+#include <chrono>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <vector>
-
 /*
 #include <openssl/sha.h>
 string sha256(const string str)
@@ -37,6 +38,15 @@ void addQueryParamToUri(std::string& uri, std::string queryParamName, std::strin
         uri += "&";
     }
     uri += queryParamName + "=" + queryParamValue;
+}
+
+std::string createExpireDate(unsigned int expireMinutes) {
+    auto expireTime = std::chrono::system_clock::now() + std::chrono::minutes(expireMinutes);
+    auto in_time_t = std::chrono::system_clock::to_time_t(expireTime);
+
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+    return ss.str();
 }
 
 std::string getNewUUID() {
@@ -172,7 +182,7 @@ int main(int argc, char* argv[]) {
                     "select email, password_hash, password_salt, redirect_uri, state "
                     "from client "
                     "where uuid = '" +
-                        std::string{req.query("client_id")} + "'",
+                        req.query("client_id") + "'",
                     [&req, &res, &db, &json](const MYSQL_ROW row) -> void {
                         if (row != nullptr) {
                             std::string dbEmail{row[0]};
@@ -189,11 +199,12 @@ int main(int argc, char* argv[]) {
                                 res.sendStatus(401);
                             } else {
                                 // Generate auth code which expires after 10 minutes
+                                // unsigned int expireMinutes{10};
                                 std::string authCode{getNewUUID()};
                                 db.exec(
-                                      "insert into token(uuid) "
+                                      "insert into token(uuid, expire_datetime) "
                                       "values('" +
-                                          authCode + "')",
+                                          authCode + "', '" + createExpireDate(0) + "')",
                                       []() -> void {
                                       },
                                       [&res](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -211,21 +222,21 @@ int main(int argc, char* argv[]) {
                                                         "' "
                                                         "where uuid = '" +
                                                         req.query("client_id") + "'",
-                                                    [&res, dbState, dbRedirectUri, authCode]() -> void {
-                                                        VLOG(0) << "-----------------------------------------------------------------------"
-                                                                   "-------------------------------------------";
+                                                    [&req, &res, dbState, dbRedirectUri, authCode]() -> void {
                                                         // Redirect back to the client app
                                                         std::string clientRedirectUri{dbRedirectUri};
                                                         addQueryParamToUri(clientRedirectUri, "code", authCode);
+                                                        addQueryParamToUri(clientRedirectUri, "client_id", req.query("client_id")),
+                                                            addQueryParamToUri(clientRedirectUri, "redirect_uri", dbRedirectUri);
                                                         if (!dbState.empty()) {
                                                             addQueryParamToUri(clientRedirectUri, "state", dbState);
                                                         }
                                                         // Set CORS header
                                                         res.set("Access-Control-Allow-Origin", "*");
-                                                        VLOG(0) << "Sending redirect_uri: " << clientRedirectUri;
                                                         nlohmann::json responseJson = {{"redirect_uri", clientRedirectUri}};
-                                                        VLOG(0) << responseJson.dump(4);
-                                                        res.send(responseJson.dump(4));
+                                                        std::string responseJsonString{responseJson.dump(4)};
+                                                        VLOG(0) << "Sending json reponse: " << responseJsonString;
+                                                        res.send(responseJsonString);
                                                     },
                                                     [&res](const std::string& errorString, unsigned int errorNumber) -> void {
                                                         VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
@@ -251,23 +262,45 @@ int main(int argc, char* argv[]) {
     });
 
     app.get("/token", [&db] APPLICATION(req, res) {
-        // Store code as primary key in db
-        auto paramGrantType = req.query("grant_type");
-        VLOG(0) << "GrandType: " << paramGrantType;
-        auto paramCode = req.query("code");
-        VLOG(0) << "Code: " << paramCode;
-        auto paramRedirectUri = req.query("redirect_uri");
-        VLOG(0) << "RedirectUri: " << paramRedirectUri;
-        auto paramClientId = req.query("client_id");
-        VLOG(0) << "ClientId" << paramClientId;
-        if (paramGrantType != "authorization_code" || paramCode.length() == 0 || paramRedirectUri.length() == 0 ||
-            paramClientId.length() == 0) {
-            VLOG(0) << paramGrantType << ", " << paramCode << ", " << paramRedirectUri << ", " << paramClientId;
-            VLOG(0) << "Token request invalid, sending Bad Request";
-            res.sendStatus(400);
+        auto queryGrantType = req.query("grant_type");
+        VLOG(0) << "GrandType: " << queryGrantType;
+        auto queryCode = req.query("code");
+        VLOG(0) << "Code: " << queryCode;
+        auto queryRedirectUri = req.query("redirect_uri");
+        VLOG(0) << "RedirectUri: " << queryRedirectUri;
+        if (queryGrantType != "authorization_code" || queryCode.length() == 0 || queryRedirectUri.length() == 0) {
+            res.sendStatus(401);
             return;
         }
-        res.send("");
+
+        db.query(
+            "select count(*) "
+            "from client c "
+            "join token a "
+            "on c.auth_code_id = a.id "
+            "where c.uuid = '" +
+                req.query("client_id") +
+                "' "
+                "and a.uuid = '" +
+                req.query("code") +
+                "' "
+                "and timestampdiff(second, current_timestamp(), a.expire_datetime) > 0",
+            [&res](const MYSQL_ROW row) -> void {
+                if (row != nullptr) {
+                    int count{std::stoi(row[0])};
+                    if (count == 0) {
+                        res.sendStatus(401);
+                        return;
+                    }
+                    // Generate access and refresh token
+
+                    res.sendStatus(200);
+                }
+            },
+            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                res.sendStatus(500);
+            });
     });
 
     app.use(express::middleware::StaticMiddleware("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/"
