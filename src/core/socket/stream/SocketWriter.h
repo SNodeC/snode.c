@@ -108,7 +108,9 @@ namespace core::socket::stream {
                         shutdown(onShutdown);
                     }
                 } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                    resume();
+                    if (isSuspended()) {
+                        resume();
+                    }
                 } else {
                     disable();
                     onError(errno);
