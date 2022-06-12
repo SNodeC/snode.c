@@ -28,6 +28,8 @@
 
 // IWYU pragma: end_exports
 
+// IWYU pragma: no_include <openssl/types.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::ssl {

@@ -30,8 +30,7 @@ namespace core::socket {
 #include <map>
 #include <regex>
 #include <string>
-#include <sys/types.h> // for ssize_t
-#include <vector>      // IWYU pragma: export
+#include <vector> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

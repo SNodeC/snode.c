@@ -30,12 +30,14 @@
 #include <openssl/asn1.h>     // for ASN1_STRING_get...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subject_alt...
-#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ossl_typ.h> // IWYU pragma: keep
 #include <openssl/ssl3.h>     // for SSL_free, SSL_new
 #include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>   // for GENERAL_NAME
 #include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>...
+
+// IWYU pragma: no_include <openssl/types.h>
 
 namespace web::http {
     class CookieOptions;

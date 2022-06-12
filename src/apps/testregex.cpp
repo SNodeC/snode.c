@@ -28,10 +28,12 @@
 #include <openssl/asn1.h>     // for ASN1_STRING_get0...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subject_alt_...
-#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ossl_typ.h> // IWYU pragma: keep
 #include <openssl/ssl3.h>     // for SSL_get_peer_cer...
 #include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>
+
+// IWYU pragma: no_include <openssl/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

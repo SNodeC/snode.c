@@ -23,7 +23,6 @@
 
 #include <cstddef> // for size_t
 #include <cstdint>
-#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

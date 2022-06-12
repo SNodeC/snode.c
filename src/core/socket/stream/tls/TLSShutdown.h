@@ -25,7 +25,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <openssl/ossl_typ.h> // for SSL
+#include <openssl/ossl_typ.h> // IWYU pragma: keep
+
+// IWYU pragma: no_include <openssl/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

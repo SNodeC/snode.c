@@ -23,8 +23,10 @@
 
 #include <any>
 #include <map>
-#include <openssl/ossl_typ.h> // for SSL_CTX
+#include <openssl/ossl_typ.h> // IWYU pragma: keep
 #include <string>
+
+// IWYU pragma: no_include <openssl/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
