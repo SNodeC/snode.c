@@ -71,12 +71,11 @@ namespace web::http {
                 core::DynamicLoader::dlOpen((searchPath + "/libsnodec-" + upgradeContextName + ".so").c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
             if (handle != nullptr) {
-                SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
-                    reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(core::DynamicLoader::dlSym(
-                        handle,
-                        upgradeContextName +
-                            (role == web::http::SocketContextUpgrade<Request, Response>::Role::SERVER ? "Server" : "Client") +
-                            "ContextUpgradeFactory"));
+                std::string socketContextUpgradeFactoryName =
+                    upgradeContextName + (role == web::http::SocketContextUpgrade<Request, Response>::Role::SERVER ? "Server" : "Client") +
+                    "ContextUpgradeFactory";
+                SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(
+                    core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryName));
 
                 if (getSocketContextUpgradeFactory != nullptr) {
                     socketContextUpgradeFactory = getSocketContextUpgradeFactory();
@@ -92,12 +91,13 @@ namespace web::http {
                         }
                         break;
                     } else {
-                        core::DynamicLoader::dlCloseDelayed(handle);
                         VLOG(0) << "SocketContextUpgradeFactory not created: " << upgradeContextName;
+                        core::DynamicLoader::dlCloseDelayed(handle);
                     }
                 } else {
+                    VLOG(0) << "Optaining function \"" << socketContextUpgradeFactoryName
+                            << "\" in plugin failed: " << core::DynamicLoader::dlError();
                     core::DynamicLoader::dlCloseDelayed(handle);
-                    VLOG(0) << "Not a Plugin \"" << upgradeContextName;
                 }
             } else {
                 VLOG(0) << "Error dlopen: " << core::DynamicLoader::dlError();
