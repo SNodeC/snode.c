@@ -40,10 +40,8 @@ void addQueryParamToUri(std::string& uri, std::string queryParamName, std::strin
     uri += queryParamName + "=" + queryParamValue;
 }
 
-std::string createExpireDate(unsigned int expireMinutes) {
-    auto expireTime = std::chrono::system_clock::now() + std::chrono::minutes(expireMinutes);
-    auto in_time_t = std::chrono::system_clock::to_time_t(expireTime);
-
+std::string timeToString(std::chrono::time_point<std::chrono::system_clock> time) {
+    auto in_time_t = std::chrono::system_clock::to_time_t(time);
     std::stringstream ss;
     ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
     return ss.str();
@@ -199,12 +197,13 @@ int main(int argc, char* argv[]) {
                                 res.sendStatus(401);
                             } else {
                                 // Generate auth code which expires after 10 minutes
-                                // unsigned int expireMinutes{10};
+                                unsigned int expireMinutes{10};
                                 std::string authCode{getNewUUID()};
                                 db.exec(
                                       "insert into token(uuid, expire_datetime) "
                                       "values('" +
-                                          authCode + "', '" + createExpireDate(0) + "')",
+                                          authCode + "', '" +
+                                          timeToString(std::chrono::system_clock::now() + std::chrono::minutes(expireMinutes)) + "')",
                                       []() -> void {
                                       },
                                       [&res](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -285,7 +284,7 @@ int main(int argc, char* argv[]) {
                 req.query("code") +
                 "' "
                 "and timestampdiff(second, current_timestamp(), a.expire_datetime) > 0",
-            [&res](const MYSQL_ROW row) -> void {
+            [&req, &res, &db](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
                     int count{std::stoi(row[0])};
                     if (count == 0) {
@@ -293,8 +292,84 @@ int main(int argc, char* argv[]) {
                         return;
                     }
                     // Generate access and refresh token
-
-                    res.sendStatus(200);
+                    std::string accessToken{getNewUUID()};
+                    unsigned int accessTokenExpireSeconds{60 * 60}; // 1 hour
+                    std::string refreshToken{getNewUUID()};
+                    unsigned int refreshTokenExpireSeconds{60 * 60 * 24}; // 24 hours
+                    db.exec(
+                          "insert into token(uuid, expire_datetime) "
+                          "values('" +
+                              accessToken + "', '" +
+                              timeToString(std::chrono::system_clock::now() + std::chrono::seconds(accessTokenExpireSeconds)) + "')",
+                          []() -> void {
+                          },
+                          [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                              VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                              res.sendStatus(500);
+                          })
+                        .query(
+                            "select last_insert_id()",
+                            [&req, &res, &db](const MYSQL_ROW row) -> void {
+                                if (row != nullptr) {
+                                    db.exec(
+                                        "update client "
+                                        "set access_token_id = '" +
+                                            std::string{row[0]} +
+                                            "' "
+                                            "where uuid = '" +
+                                            req.query("client_id") + "'",
+                                        [&req, &res]() -> void {
+                                        },
+                                        [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                            VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                            res.sendStatus(500);
+                                        });
+                                }
+                            },
+                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                res.sendStatus(500);
+                            })
+                        .exec(
+                            "insert into token(uuid, expire_datetime) "
+                            "values('" +
+                                refreshToken + "', '" +
+                                timeToString(std::chrono::system_clock::now() + std::chrono::seconds(refreshTokenExpireSeconds)) + "')",
+                            []() -> void {
+                            },
+                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                res.sendStatus(500);
+                            })
+                        .query(
+                            "select last_insert_id()",
+                            [&req, &res, &db, accessToken, accessTokenExpireSeconds, refreshToken](const MYSQL_ROW row) -> void {
+                                if (row != nullptr) {
+                                    db.exec(
+                                        "update client "
+                                        "set refresh_token_id = '" +
+                                            std::string{row[0]} +
+                                            "' "
+                                            "where uuid = '" +
+                                            req.query("client_id") + "'",
+                                        [&res, accessToken, accessTokenExpireSeconds, refreshToken]() -> void {
+                                            // Send auth token and refresh token
+                                            nlohmann::json jsonResponse = {{"access_token", accessToken},
+                                                                           {"expires_in", std::to_string(accessTokenExpireSeconds)},
+                                                                           {"refresh_token", refreshToken}};
+                                            std::string jsonResponseString{jsonResponse.dump(4)};
+                                            res.send(jsonResponseString);
+                                        },
+                                        [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                            VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                            res.sendStatus(500);
+                                        });
+                                }
+                            },
+                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                res.sendStatus(500);
+                            });
                 }
             },
             [&res](const std::string& errorString, unsigned int errorNumber) -> void {
