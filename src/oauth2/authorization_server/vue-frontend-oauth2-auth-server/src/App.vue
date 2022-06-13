@@ -16,7 +16,7 @@ const errors: Ref<string[]> = ref([])
 const loading: Ref<boolean> = ref(false)
 const countdownAlert = ref()
 const showCountdownAlert: Ref<boolean> = ref(false)
-const countdownLive: Ref<boolean> = ref(false)
+const disableInputs: Ref<boolean> = ref(false)
 
 async function login(): Promise<void> {
   const email: string = emailInput.value.trim()
@@ -68,13 +68,13 @@ function getClientIdFromQuery(url: string): string {
 function showLoginSuccessAndRedirect(): void {
   showCountdownAlert.value = true
   countdownAlert.value.startCountdown(5)
-  countdownLive.value = true
+  disableInputs.value = true
 }
 
 function onCountdownReached(): void {
   if (clientRedirectUri != null) {
     window.location.href = clientRedirectUri
-    // countdownLive.value = false
+    // disableInputs.value = false
   }
 }
 
@@ -99,17 +99,17 @@ onMounted(() => {
         <div class="row input-group">
           <label for="input-email">Email</label>
           <input type="email" name="email" id="input-email" v-model="emailInput" autocomplete="off"
-            placeholder="Enter your email address" required :disabled="countdownLive">
+            placeholder="Enter your email address" required :disabled="disableInputs">
           <div v-if="emailError != null" class="input-error">{{ emailError }}</div>
         </div>
         <div class="row input-group">
           <label for="input-password">Password</label>
           <input type="password" name="password" id="input-password" v-model="passwordInput"
-            placeholder="Enter your password" required :disabled="countdownLive">
+            placeholder="Enter your password" required :disabled="disableInputs">
           <div v-if="passwordError != null" class="input-error">{{ passwordError }}</div>
         </div>
         <div class="row">
-          <button id="login-button" type="submit" :disabled="loading || countdownLive">
+          <button id="login-button" type="submit" :disabled="loading || disableInputs">
             <div>Login</div>
             <LoadingSpinner v-show="loading" />
           </button>

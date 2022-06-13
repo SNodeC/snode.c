@@ -33,6 +33,7 @@ function startCountdown(): void {
     <p>Login successful. You will be redirected in</p>
     <p class="timer">{{ remainingSeconds }}</p>
     <p>seconds.</p>
+    <p v-if="remainingSeconds <= 0">You can close this tab now.</p>
   </div>
 </template>
 

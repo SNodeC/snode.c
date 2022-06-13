@@ -175,21 +175,21 @@ int main(int argc, char* argv[]) {
     // std::string& key) -> {}
     app.post("/login", [&db] APPLICATION(req, res) {
         req.getAttribute<nlohmann::json>(
-            [&req, &res, &db](nlohmann::json& json) -> void {
+            [&req, &res, &db](nlohmann::json& body) -> void {
                 db.query(
                     "select email, password_hash, password_salt, redirect_uri, state "
                     "from client "
                     "where uuid = '" +
                         req.query("client_id") + "'",
-                    [&req, &res, &db, &json](const MYSQL_ROW row) -> void {
+                    [&req, &res, &db, &body](const MYSQL_ROW row) -> void {
                         if (row != nullptr) {
                             std::string dbEmail{row[0]};
                             std::string dbPasswordHash{row[1]};
                             std::string dbPasswordSalt{row[2]};
                             std::string dbRedirectUri{row[3]};
                             std::string dbState{row[4]};
-                            std::string queryEmail{json["email"]};
-                            std::string queryPassword{json["password"]};
+                            std::string queryEmail{body["email"]};
+                            std::string queryPassword{body["password"]};
 
                             // TODO create hash and compare
                             // if (dbPassword_hash != sha1(dbPassword_salt + queryPassword)) {
@@ -225,8 +225,6 @@ int main(int argc, char* argv[]) {
                                                         // Redirect back to the client app
                                                         std::string clientRedirectUri{dbRedirectUri};
                                                         addQueryParamToUri(clientRedirectUri, "code", authCode);
-                                                        addQueryParamToUri(clientRedirectUri, "client_id", req.query("client_id")),
-                                                            addQueryParamToUri(clientRedirectUri, "redirect_uri", dbRedirectUri);
                                                         if (!dbState.empty()) {
                                                             addQueryParamToUri(clientRedirectUri, "state", dbState);
                                                         }
@@ -378,8 +376,12 @@ int main(int argc, char* argv[]) {
             });
     });
 
+    app.post("/validateToken", [&db] APPLICATION(req, res) {
+
+    });
+
     app.use(express::middleware::StaticMiddleware("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/"
-                                                  "vue-frontend/dist"));
+                                                  "vue-frontend-oauth2-auth-server/dist"));
 
     app.listen(8082, [](const express::legacy::in::WebApp::SocketAddress socketAddress, int err) {
         if (err != 0) {

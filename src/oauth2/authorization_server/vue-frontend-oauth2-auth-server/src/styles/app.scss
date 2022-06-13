@@ -10,8 +10,8 @@ body {
 }
 
 body {
-  color: hwb(210 17% 69%);
-  background-color: hwb(0 81% 19%);
+  color: var(--c-text-prime);
+  background-color: var(--c-back);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: var(--font-prime);
