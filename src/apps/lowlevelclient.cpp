@@ -27,17 +27,23 @@
 #include "net/in/stream/tls/SocketClient.h"    // for SocketC...
 #include "web/http/client/ResponseParser.h"    // for ResponseParser
 
-#include <openssl/asn1.h>     // for ASN1_STRING_get...
-#include <openssl/crypto.h>   // for OPENSSL_free
-#include <openssl/obj_mac.h>  // for NID_subject_alt...
-#include <openssl/ossl_typ.h> // IWYU pragma: keep
-#include <openssl/ssl3.h>     // for SSL_free, SSL_new
-#include <openssl/x509.h>     // for X509_NAME_oneline
-#include <openssl/x509v3.h>   // for GENERAL_NAME
-#include <type_traits>        // for add_const<>::type
-#include <utility>            // for tuple_element<>...
+#include <openssl/asn1.h>    // for ASN1_STRING_get...
+#include <openssl/crypto.h>  // for OPENSSL_free
+#include <openssl/obj_mac.h> // for NID_subject_alt...
+#include <openssl/opensslv.h>
+#include <openssl/ssl.h>    // IWYU pragma: keep
+#include <openssl/x509.h>   // for X509_NAME_oneline
+#include <openssl/x509v3.h> // for GENERAL_NAME
+#include <type_traits>      // for add_const<>::type
+#include <utility>          // for tuple_element<>...
 
-// IWYU pragma: no_include <openssl/types.h>
+// IWYU pragma: no_include <openssl/ssl3.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/types.h>
+#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
+#include <openssl/ossl_typ.h>
+#endif
 
 namespace web::http {
     class CookieOptions;

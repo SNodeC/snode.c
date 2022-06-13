@@ -24,7 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/x509v3.h>
+#include <openssl/x509.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

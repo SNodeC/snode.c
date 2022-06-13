@@ -24,16 +24,22 @@
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
-#include <iostream>           // for operator<<, endl
-#include <openssl/asn1.h>     // for ASN1_STRING_get0...
-#include <openssl/crypto.h>   // for OPENSSL_free
-#include <openssl/obj_mac.h>  // for NID_subject_alt_...
-#include <openssl/ossl_typ.h> // IWYU pragma: keep
-#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
-#include <openssl/x509.h>     // for X509_NAME_oneline
+#include <iostream>          // for operator<<, endl
+#include <openssl/asn1.h>    // for ASN1_STRING_get0...
+#include <openssl/crypto.h>  // for OPENSSL_free
+#include <openssl/obj_mac.h> // for NID_subject_alt_...
+#include <openssl/opensslv.h>
+#include <openssl/ssl.h>  // IWYU pragma: keep
+#include <openssl/x509.h> // for X509_NAME_oneline
 #include <openssl/x509v3.h>
 
-// IWYU pragma: no_include <openssl/types.h>
+// IWYU pragma: no_include <openssl/ssl3.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/types.h>
+#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
+#include <openssl/ossl_typ.h>
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
