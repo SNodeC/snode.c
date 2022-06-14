@@ -38,7 +38,7 @@ namespace web::websocket::subprotocol::echo::server {
         using web::websocket::SubProtocolFactory<Echo>::SubProtocolFactory;
 
     private:
-        web::websocket::SubProtocolFactory<Echo>::SubProtocol* create() override;
+        Echo* create() override;
     };
 
 } // namespace web::websocket::subprotocol::echo::server
