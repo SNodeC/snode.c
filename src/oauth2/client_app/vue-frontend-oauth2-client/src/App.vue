@@ -50,14 +50,14 @@ async function checkUrlForAuthCode(): Promise<void> {
   }
   showInitiazeLink.value = false
   try {
-    const response = await authServerService.requestToken(queryParams.get('code')!)
+    const response = await authServerService.requestToken(queryParams.get('code')!, clientId)
     if (response == null) {
       console.log('No token response from server')
     } else {
-      console.log('token response from server:')
+      console.log('Token response from server:')
       console.log(response)
     }
-  } catch (error: unknown) {
+  } catch (error) {
     console.error(error)
   }
 }

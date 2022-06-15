@@ -23,6 +23,67 @@ int main(int argc, char* argv[]) {
                 res.sendStatus(401);
                 return;
             }
+            /*
+            web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
+                "legacy",
+                [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+                       socketConnection) -> void {
+                    VLOG(0) << "OnConnect";
+
+                    VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                    VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                },
+                []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request,
+                                                                  web::http::client::Response>::SocketConnection* socketConnection)
+                    -> void {
+                    VLOG(0) << "OnConnected";
+                },
+                [](web::http::client::Request& request) -> void {
+                    VLOG(0) << "OnRequestBegin";
+
+                    request.set("Sec-WebSocket-Protocol", "test, echo");
+
+                    request.upgrade("/ws/", "websocket");
+                },
+                [](web::http::client::Request& request, web::http::client::Response& response) -> void {
+                    VLOG(0) << "OnResponse";
+                    VLOG(0) << "     Status:";
+                    VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+
+                    VLOG(0) << "     Headers:";
+                    for (const auto& [field, value] : response.headers) {
+                        VLOG(0) << "       " << field + " = " + value;
+                    }
+
+                    VLOG(0) << "     Cookies:";
+                    for (const auto& [name, cookie] : response.cookies) {
+                        VLOG(0) << "       " + name + " = " + cookie.getValue();
+                        for (const auto& [option, value] : cookie.getOptions()) {
+                            VLOG(0) << "         " + option + " = " + value;
+                        }
+                    }
+
+                    response.body.push_back(0); // make it a c-string
+                    VLOG(0) << "Body:\n----------- start body -----------\n"
+                            << response.body.data() << "\n------------ end body ------------";
+
+                    response.upgrade(request);
+                },
+                [](int status, const std::string& reason) -> void {
+                    VLOG(0) << "OnResponseError";
+                    VLOG(0) << "     Status: " << status;
+                    VLOG(0) << "     Reason: " << reason;
+                },
+                [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+                       socketConnection) -> void {
+                    VLOG(0) << "OnDisconnect";
+
+                    VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                    VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                });
+                */
+            // apps/http/models/client.h
+            // apps/http/websocketclient
             clientIds->push_back(bodyClientId);
             res.redirect(authorizationServerUri + "?client_id" + bodyClientId + "&access_token=" + bodyAccessToken);
         });
