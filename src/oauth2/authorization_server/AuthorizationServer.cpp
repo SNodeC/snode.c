@@ -12,20 +12,20 @@
 #include <iomanip>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <sstream>
+#include <string>
 #include <vector>
+
 /*
-#include <openssl/sha.h>
-string sha256(const string str)
-{
+std::string sha256(const std::string str) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
     SHA256_Update(&sha256, str.c_str(), str.size());
     SHA256_Final(hash, &sha256);
-    stringstream ss;
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
-    {
-        ss << hex << setw(2) << setfill('0') << (int)hash[i];
+    std::stringstream ss;
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int) hash[i];
     }
     return ss.str();
 }
@@ -73,9 +73,11 @@ int main(int argc, char* argv[]) {
 
     app.use(express::middleware::JsonMiddleware());
 
-    // Middleware to catch requests without a valid client_id
+    express::Router router{};
+
     /*
-    app.use([&db] MIDDLEWARE(req, res, next) {
+    // Middleware to catch requests without a valid client_id
+    router.use([&db] MIDDLEWARE(req, res, next) {
         std::string queryClientId{req.query("client_id")};
         if (queryClientId.length() > 0) {
             db.query(
@@ -84,6 +86,7 @@ int main(int argc, char* argv[]) {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) > 0) {
                             VLOG(0) << "Valid client id '" << queryClientId << "'";
+                            VLOG(0) << "Next with " << req.httpVersion << " " << req.method << " " << req.url;
                             next();
                         } else {
                             VLOG(0) << "Invalid client id '" << queryClientId << "'";
@@ -101,7 +104,7 @@ int main(int argc, char* argv[]) {
     });
     */
 
-    app.get("/authorize", [&db] APPLICATION(req, res) {
+    router.get("/authorize", [&db] APPLICATION(req, res) {
         // REQUIRED: response_type, client_id
         // OPTIONAL: redirect_uri, scope
         // RECOMMENDED: state
@@ -157,13 +160,13 @@ int main(int argc, char* argv[]) {
         }
 
         VLOG(0) << "Auth request valid, redirecting to login";
-        std::string loginUri{"/login"};
+        std::string loginUri{"/oauth2/login"};
         addQueryParamToUri(loginUri, "client_id", paramClientId);
         res.redirect(loginUri);
     });
 
-    app.get("/login", [] APPLICATION(req, res) {
-        res.sendFile("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend/dist/index.html",
+    router.get("/login", [] APPLICATION(req, res) {
+        res.sendFile("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend-oauth2-auth-server/dist/index.html",
                      [&req](int ret) -> void {
                          if (ret != 0) {
                              PLOG(ERROR) << req.url;
@@ -173,7 +176,7 @@ int main(int argc, char* argv[]) {
 
     // req.getAttribute<json>([&jsonString](json& json) -> {json.dump(4)},[](const
     // std::string& key) -> {}
-    app.post("/login", [&db] APPLICATION(req, res) {
+    router.post("/login", [&db] APPLICATION(req, res) {
         req.getAttribute<nlohmann::json>(
             [&req, &res, &db](nlohmann::json& body) -> void {
                 db.query(
@@ -258,7 +261,7 @@ int main(int argc, char* argv[]) {
             });
     });
 
-    app.get("/token", [&db] APPLICATION(req, res) {
+    router.get("/token", [&db] APPLICATION(req, res) {
         auto queryGrantType = req.query("grant_type");
         VLOG(0) << "GrandType: " << queryGrantType;
         auto queryCode = req.query("code");
@@ -351,6 +354,9 @@ int main(int argc, char* argv[]) {
                                             "where uuid = '" +
                                             req.query("client_id") + "'",
                                         [&res, accessToken, accessTokenExpireSeconds, refreshToken]() -> void {
+                                            // Set CORS header
+                                            res.set("Access-Control-Allow-Origin", "*");
+                                            res.set("X-TEST", "123");
                                             // Send auth token and refresh token
                                             nlohmann::json jsonResponse = {{"access_token", accessToken},
                                                                            {"expires_in", std::to_string(accessTokenExpireSeconds)},
@@ -376,12 +382,13 @@ int main(int argc, char* argv[]) {
             });
     });
 
-    app.post("/validateToken", [&db] APPLICATION(req, res) {
+    router.post("/token/validate", [&db] APPLICATION(req, res) {
 
     });
 
-    app.use(express::middleware::StaticMiddleware("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/"
-                                                  "vue-frontend-oauth2-auth-server/dist"));
+    app.use("/oauth2", router);
+    app.use(express::middleware::StaticMiddleware(
+        "/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend-oauth2-auth-server/dist/"));
 
     app.listen(8082, [](const express::legacy::in::WebApp::SocketAddress socketAddress, int err) {
         if (err != 0) {

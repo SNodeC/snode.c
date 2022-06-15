@@ -49,20 +49,27 @@ function showError(error: string): void {
   errors.value = [error]
 }
 
-function clearErrors(): void {
-  errors.value = []
-}
-
-function addError(error: string): void {
-  errors.value = [...errors.value, error];
-}
-
-function getClientIdFromQuery(url: string): string {
-  const splitByClientId: string[] = url.split("client_id=")
-  if (splitByClientId.length < 2) {
-    throw new Error(`No 'client_id' in query found!`)
+function getQueryParamsFromUrl(url: string): Map<string, string> {
+  const queryParams: Map<string, string> = new Map()
+  const splitUrl: string[] = url.split('?')
+  if (splitUrl.length > 0) {
+    const paramString: string = splitUrl[1]
+    const paramKeyValuePairs: string[] = paramString.split('&')
+    paramKeyValuePairs.forEach((pair) => {
+      const splitPair: string[] = pair.split('=')
+      queryParams.set(splitPair[0], splitPair[1])
+    })
   }
-  return splitByClientId[1].split("&")[0]
+  return queryParams
+}
+
+function getClientIdFromQuery(url: string): string | null {
+  const key: string = 'client_id'
+  const queryParams: Map<string, string> = getQueryParamsFromUrl(url)
+  if (!queryParams.has(key)) {
+    return ''
+  }
+  return queryParams.get(key) ?? ''
 }
 
 function showLoginSuccessAndRedirect(): void {

@@ -3,7 +3,7 @@ export interface LoginResponse {
 }
 
 class ApiService {
-    private readonly API_URL: string = 'http://localhost:8082/login'
+    private readonly API_URL: string = 'http://localhost:8082/oauth2/login'
 
     async login(email: string, password: string, clientId: string): Promise<LoginResponse> {
         try {
