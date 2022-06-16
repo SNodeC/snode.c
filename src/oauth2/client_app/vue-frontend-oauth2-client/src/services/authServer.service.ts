@@ -8,9 +8,9 @@ interface AccessTokenResponse {
 class AuthServerService {
     private readonly apiUrl: string = 'http://localhost:8082/oauth2'
 
-    async requestToken(authCode: string, clientId: string): Promise<AccessTokenResponse | null> {
+    async requestToken(authCode: string, clientId: string, redirectUri: string): Promise<AccessTokenResponse | null> {
         const response = await fetch(
-            `${this.apiUrl}/token?grant_type=authorization_code&code=${authCode}&client_id=${clientId}`,
+            `${this.apiUrl}/token?grant_type=authorization_code&code=${authCode}&client_id=${clientId}&redirect_uri=${redirectUri}`,
             {
                 method: 'get',
                 mode: 'cors',
@@ -21,7 +21,7 @@ class AuthServerService {
         if (response.status === 200) {
             return response.json()
         }
-        throw new Error(`Server responded with status code '${response.status}'`)
+        throw new Error(`Server responded with status code ${response.status}: ${await response.text()}`)
     }
 }
 

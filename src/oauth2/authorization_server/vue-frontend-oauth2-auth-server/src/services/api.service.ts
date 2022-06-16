@@ -5,16 +5,15 @@ export interface LoginResponse {
 class ApiService {
     private readonly API_URL: string = 'http://localhost:8082/oauth2/login'
 
-    async login(email: string, password: string, clientId: string): Promise<LoginResponse> {
+    async login(email: string, password: string, clientId: string): Promise<Response> {
         try {
-            const response = await fetch(`${this.API_URL}?client_id=${clientId}`, {
+            return fetch(`${this.API_URL}?client_id=${clientId}`, {
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email, password }),
             })
-            return response.json()
         } catch (e: any) {
             throw new Error(e?.toString())
         }

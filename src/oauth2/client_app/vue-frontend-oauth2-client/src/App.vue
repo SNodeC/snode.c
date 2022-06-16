@@ -4,7 +4,7 @@ import './styles/app.scss'
 import { authServerService } from './services/authServer.service'
 
 const authServerUrl: string = 'http://localhost:8082/oauth2'
-const clientId: string = '911a821a-ea2d-11ec-8e2e-08002771075f'
+const clientId: string = 'bf0aed2a-ecfc-11ec-97b9-08002771075f'
 const redirectUri: string = 'http://localhost:8081/oauth2'
 const state: string = 'defaultstate'
 const scope: string = 'defaultscope'
@@ -50,7 +50,7 @@ async function checkUrlForAuthCode(): Promise<void> {
   }
   showInitiazeLink.value = false
   try {
-    const response = await authServerService.requestToken(queryParams.get('code')!, clientId)
+    const response = await authServerService.requestToken(queryParams.get('code')!, clientId, redirectUri)
     if (response == null) {
       console.log('No token response from server')
     } else {

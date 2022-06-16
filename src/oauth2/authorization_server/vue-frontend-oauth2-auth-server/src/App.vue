@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import './styles/app.scss'
 import { onMounted, ref, Ref } from 'vue'
-import { apiService } from './services/api.service'
+import { apiService, LoginResponse } from './services/api.service'
 import ErrorAlert from './components/ErrorAlert.vue'
 import LoadingSpinner from './components/LoadingSpinner.vue'
 import CountdownAlert from './components/CountdownAlert.vue'
@@ -21,6 +21,7 @@ const disableInputs: Ref<boolean> = ref(false)
 async function login(): Promise<void> {
   const email: string = emailInput.value.trim()
   const password: string = passwordInput.value
+  errors.value = []
   emailError.value = null
   passwordError.value = null
   if (!email || !password || clientId == null) {
@@ -36,8 +37,15 @@ async function login(): Promise<void> {
   try {
     const response = await apiService.login(email, password, clientId)
     loading.value = false
-    clientRedirectUri = response.redirect_uri
-    showLoginSuccessAndRedirect()
+    if (response.status === 200) {
+      const json: LoginResponse = await response.json()
+      clientRedirectUri = json.redirect_uri
+      showLoginSuccessAndRedirect()
+    } else if (response.status === 401) {
+      showError('Invalid credentials')
+    } else {
+      showError('Failed to reach the server')
+    }
   } catch (e: unknown) {
     console.error(e)
     showError('Failed to reach the server')
