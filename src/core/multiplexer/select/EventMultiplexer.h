@@ -44,7 +44,7 @@ namespace core::select {
 
     private:
         int multiplex(utils::Timeval& tickTimeOut) override;
-        void publishActiveEvents(int count) override;
+        void publishActiveEvents() override;
 
         FdSet fdSets[3];
     };

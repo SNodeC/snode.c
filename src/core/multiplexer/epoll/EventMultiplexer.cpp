@@ -57,8 +57,8 @@ namespace core::epoll {
         return core::system::epoll_wait(epfd, ePollEvents, 3, tickTimeout.ms());
     }
 
-    void EventMultiplexer::publishActiveEvents(int count) {
-        for (int i = 0; i < count; i++) {
+    void EventMultiplexer::publishActiveEvents() {
+        for (int i = 0; i < activeEventCount; i++) {
             if ((ePollEvents[i].events & EPOLLIN) != 0) {
                 static_cast<core::DescriptorEventPublisher*>(ePollEvents[i].data.ptr)->publishActiveEvents();
             }

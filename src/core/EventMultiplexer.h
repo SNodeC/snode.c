@@ -90,13 +90,16 @@ namespace core {
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
-        void publishActiveEvents(int count, const utils::Timeval& currentTime);
-        virtual void publishActiveEvents(int count) = 0;
+        void publishActiveEvents(const utils::Timeval& currentTime);
+        virtual void publishActiveEvents() = 0;
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        void executeEventQueue(const utils::Timeval& currentTime);
 
     protected:
         std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;
         core::TimerEventPublisher* const timerEventPublisher;
+
+        int activeEventCount = 0;
 
     private:
         EventQueue eventQueue;
