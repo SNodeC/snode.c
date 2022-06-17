@@ -24,7 +24,6 @@ namespace express {
     class Response;
 
     namespace dispatcher {
-        struct MountPoint;
         class Route;
         class RouterDispatcher;
     } // namespace dispatcher
@@ -48,11 +47,15 @@ namespace express::dispatcher {
 
         State& operator=(const State& state);
 
-        void operator()(const std::string& how = "");
-
-        void set(RouterDispatcher* parentRouterDispatcher, const std::string& absoluteMountPath, Request& req, Response& res);
+        void set(RouterDispatcher* parentRouterDispatcher,
+                 const State* parentState,
+                 const std::string& absoluteMountPath,
+                 Request& req,
+                 Response& res);
 
         void set(Route& route);
+
+        void operator()(const std::string& how = "");
 
     private:
         RouterDispatcher* currentRouterDispatcher = nullptr;

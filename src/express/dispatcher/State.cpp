@@ -18,10 +18,11 @@
 
 #include "State.h"
 
-#include "MountPoint.h"
 #include "RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,7 +41,7 @@ namespace express::dispatcher {
         , response(state.response)
         , absoluteMountPath(state.absoluteMountPath)
         , parentState(new State()) {
-        if (parentState != nullptr && state.parentState != nullptr) {
+        if (state.parentState != nullptr) {
             *parentState = *state.parentState;
         }
     }
@@ -54,29 +55,27 @@ namespace express::dispatcher {
     State& State::operator=(const State& state) {
         if (this != &state) {
             currentRouterDispatcher = state.currentRouterDispatcher;
+            parentRouterDispatcher = state.parentRouterDispatcher;
             currentRoute = state.currentRoute;
             request = state.request;
             response = state.response;
             absoluteMountPath = state.absoluteMountPath;
-            parentState = nullptr;
-            parentRouterDispatcher = nullptr;
+            if (parentState != nullptr) {
+                *parentState = *state.parentState;
+            }
         }
 
         return *this;
     }
 
-    void State::operator()(const std::string& how) {
-        if (how == "route") {
-            parentRouterDispatcher->dispatchContinue(*parentState);
-        } else {
-            currentRouterDispatcher->dispatchContinue(*this);
-        }
-    }
-
-    void State::set(RouterDispatcher* parentRouterDispatcher, const std::string& absoluteMountPath, Request& req, Response& res) {
+    void State::set(RouterDispatcher* parentRouterDispatcher,
+                    const State* parentState,
+                    const std::string& absoluteMountPath,
+                    Request& req,
+                    Response& res) {
         this->parentRouterDispatcher = parentRouterDispatcher;
-        if (parentState != nullptr && parentRouterDispatcher != nullptr) {
-            *parentState = parentRouterDispatcher->getState();
+        if (parentState != nullptr) {
+            *this->parentState = *parentState;
         }
         request = &req;
         response = &res;
@@ -85,6 +84,14 @@ namespace express::dispatcher {
 
     void State::set(Route& route) {
         currentRoute = &route;
+    }
+
+    void State::operator()(const std::string& how) {
+        if (how == "route") {
+            parentRouterDispatcher->dispatchContinue(*parentState);
+        } else {
+            currentRouterDispatcher->dispatchContinue(*this);
+        }
     }
 
 } // namespace express::dispatcher

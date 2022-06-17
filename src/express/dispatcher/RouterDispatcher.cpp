@@ -25,6 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm> // for find_if
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
@@ -46,7 +48,8 @@ namespace express::dispatcher {
         // TODO: Fix regex-match
         if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
-            state.set(parentRouter, absoluteMountPath, req, res);
+            State* parentState = (parentRouter != nullptr) ? &parentRouter->getState() : nullptr;
+            state.set(parentRouter, parentState, absoluteMountPath, req, res);
 
             for (Route& route : routes) {
                 state.set(route);
@@ -62,19 +65,17 @@ namespace express::dispatcher {
     }
 
     void RouterDispatcher::dispatchContinue(State& state) {
-        std::vector<Route>::iterator itBegin = std::find_if(routes.begin(),
-                                                            routes.end(),
-                                                            [&state](const Route& route) -> bool {
-                                                                return &route == state.currentRoute;
-                                                            }) +
-                                               1;
+        std::list<Route>::iterator routeBegin = std::find_if(routes.begin(), routes.end(), [&state](const Route& route) -> bool {
+            return &route == state.currentRoute;
+        });
+        ++routeBegin;
 
-        this->state.set(state.parentRouterDispatcher, state.absoluteMountPath, *state.request, *state.response);
+        this->state.set(state.parentRouterDispatcher, state.parentState, state.absoluteMountPath, *state.request, *state.response);
 
-        for (std::vector<Route>::iterator it = itBegin; it != routes.end(); ++it) {
-            this->state.set(*it);
+        for (std::list<Route>::iterator route = routeBegin; route != routes.end(); ++route) {
+            this->state.set(*route);
 
-            if (it->dispatch(state.absoluteMountPath, *state.request, *state.response)) {
+            if (route->dispatch(state.absoluteMountPath, *state.request, *state.response)) {
                 break;
             }
         }

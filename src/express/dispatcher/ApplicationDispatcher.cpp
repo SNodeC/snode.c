@@ -20,7 +20,6 @@
 
 #include "express/Request.h" // for Request
 #include "express/dispatcher/MountPoint.h"
-#include "express/dispatcher/RouterDispatcher.h"
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
