@@ -28,7 +28,21 @@
 namespace express::dispatcher {
 
     State::State(RouterDispatcher* routerDispatcher)
-        : currentRouterDispatcher(routerDispatcher) {
+        : currentRouterDispatcher(routerDispatcher)
+        , parentState(new State()) {
+    }
+
+    State::State(const State& state)
+        : currentRouterDispatcher(state.currentRouterDispatcher)
+        , parentRouterDispatcher(state.parentRouterDispatcher)
+        , currentRoute(state.currentRoute)
+        , request(state.request)
+        , response(state.response)
+        , absoluteMountPath(state.absoluteMountPath)
+        , parentState(new State()) {
+        if (parentState != nullptr && state.parentState != nullptr) {
+            *parentState = *state.parentState;
+        }
     }
 
     State::~State() {
@@ -37,44 +51,21 @@ namespace express::dispatcher {
         }
     }
 
-    State::State(const State& state) {
-        proceed = state.proceed;
-        parentProceed = state.parentProceed;
-        currentRouterDispatcher = state.currentRouterDispatcher;
-        parentRouterDispatcher = state.parentRouterDispatcher;
-        currentRoute = state.currentRoute;
-        request = state.request;
-        response = state.response;
-        absoluteMountPath = state.absoluteMountPath;
-        mountPoint = state.mountPoint;
-        if (state.parentState != nullptr) {
-            parentState = new State(*state.parentState);
+    State& State::operator=(const State& state) {
+        if (this != &state) {
+            currentRouterDispatcher = state.currentRouterDispatcher;
+            currentRoute = state.currentRoute;
+            request = state.request;
+            response = state.response;
+            absoluteMountPath = state.absoluteMountPath;
+            parentState = nullptr;
+            parentRouterDispatcher = nullptr;
         }
 
-        /*
-                bool proceed = true;
-                bool parentProceed = false;
-
-                RouterDispatcher* currentRouterDispatcher = nullptr;
-                RouterDispatcher* parentRouterDispatcher = nullptr;
-
-                const Route* currentRoute = nullptr;
-                Request* request = nullptr;
-                Response* response = nullptr;
-                std::string absoluteMountPath;
-                const MountPoint* mountPoint = nullptr;
-
-                State* parentState = nullptr;
-        */
+        return *this;
     }
 
     void State::operator()(const std::string& how) {
-        if (how == "route") {
-            //            parentProceed = true;
-        } else {
-            //            proceed = true;
-        }
-
         if (how == "route") {
             parentRouterDispatcher->dispatchContinue(*parentState);
         } else {
@@ -82,22 +73,14 @@ namespace express::dispatcher {
         }
     }
 
-    void State::set(RouterDispatcher* parentRouterDispatcher,
-                    const std::string& absoluteMountPath,
-                    const MountPoint& mountPoint,
-                    Request& req,
-                    Response& res) {
+    void State::set(RouterDispatcher* parentRouterDispatcher, const std::string& absoluteMountPath, Request& req, Response& res) {
         this->parentRouterDispatcher = parentRouterDispatcher;
-        if (parentRouterDispatcher != nullptr) {
-            if (this->parentState != nullptr) {
-                delete this->parentState;
-            }
-            this->parentState = new State(parentRouterDispatcher->getState());
+        if (parentState != nullptr && parentRouterDispatcher != nullptr) {
+            *parentState = parentRouterDispatcher->getState();
         }
         request = &req;
         response = &res;
         this->absoluteMountPath = absoluteMountPath;
-        this->mountPoint = &mountPoint;
     }
 
     void State::set(Route& route) {

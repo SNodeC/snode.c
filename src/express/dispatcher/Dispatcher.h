@@ -48,7 +48,7 @@ namespace express::dispatcher {
         virtual ~Dispatcher() = default;
 
     protected:
-        virtual void dispatch(RouterDispatcher* parentRouter,
+        virtual bool dispatch(RouterDispatcher* parentRouter,
                               const std::string& parentMountPath,
                               const MountPoint& mountPoint,
                               Request& req,

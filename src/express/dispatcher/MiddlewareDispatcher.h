@@ -50,7 +50,7 @@ namespace express::dispatcher {
         explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, State& state)>& lambda);
 
     private:
-        void dispatch(RouterDispatcher* parentRouter,
+        bool dispatch(RouterDispatcher* parentRouter,
                       const std::string& parentMountPath,
                       const MountPoint& mountPoint,
                       Request& req,

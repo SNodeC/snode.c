@@ -40,26 +40,21 @@ namespace express::dispatcher {
 
     class State {
     public:
+        State() = default;
         explicit State(RouterDispatcher* routerDispatcher);
+        State(const State& state);
 
         ~State();
 
-        State(const State& state);
+        State& operator=(const State& state);
 
         void operator()(const std::string& how = "");
 
-        void set(RouterDispatcher* parentRouterDispatcher,
-                 const std::string& absoluteMountPath,
-                 const MountPoint& mountPoint,
-                 Request& req,
-                 Response& res);
+        void set(RouterDispatcher* parentRouterDispatcher, const std::string& absoluteMountPath, Request& req, Response& res);
 
         void set(Route& route);
 
     private:
-        bool proceed = true;
-        bool parentProceed = false;
-
         RouterDispatcher* currentRouterDispatcher = nullptr;
         RouterDispatcher* parentRouterDispatcher = nullptr;
 
@@ -67,7 +62,6 @@ namespace express::dispatcher {
         Request* request = nullptr;
         Response* response = nullptr;
         std::string absoluteMountPath;
-        const MountPoint* mountPoint = nullptr;
 
         State* parentState = nullptr;
 

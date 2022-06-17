@@ -53,17 +53,13 @@ namespace express::dispatcher {
         void dispatchContinue(State& state);
 
     private:
-        void dispatch(RouterDispatcher* parentRouter,
+        bool dispatch(RouterDispatcher* parentRouter,
                       const std::string& parentMountPath,
                       const MountPoint& mountPoint,
                       Request& req,
                       Response& res) override;
 
-        void terminate();
-
         State& getState();
-
-        void returnTo(RouterDispatcher* parentRouter);
 
         std::vector<Route> routes;
         State state;
