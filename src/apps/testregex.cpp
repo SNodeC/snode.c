@@ -50,159 +50,143 @@ int i = 0;
 Router router(database::mariadb::MariaDBClient& db) {
     Router router;
 
-    router
-        .get("/test/:variable(\\d)/:uri",
-             [] APPLICATION(req, res) { // http://localhost:8080/test/1/urlstring
-                 std::cout << "TEST" << std::endl;
-             })
-        .get("/query/:userId",
-             [&db] MIDDLEWARE(req, res, next) { // http://localhost:8080/query/123
-                 VLOG(0) << "UserId: " << req.params["userId"];
-                 std::string userId = req.params["userId"];
+    // http://localhost:8080/test/1/urlstring
+    router.get("/test/:variable(\\d)/:uri", [] APPLICATION(req, res) {
+        std::cout << "TEST" << std::endl;
+    });
 
-                 req.setAttribute<std::string, "html-table">(std::string());
+    // http://localhost:8080/query/123
+    router.get("/query/:userId", [&db] APPLICATION(req, res) {
+        VLOG(0) << "UserId: " << req.params["userId"];
+        std::string userId = req.params["userId"];
 
-                 req.getAttribute<std::string, "html-table">([&userId](std::string& table) -> void {
-                     table = "<html>\n"
-                             "  <head>\n"
-                             "    <title>"
-                             "Response from snode.c for " +
-                             userId +
-                             "\n"
-                             "    </title>\n"
-                             "  </head>\n"
-                             "  <body>\n"
-                             "    <h1>Return for " +
-                             userId +
-                             "\n"
-                             "    </h1>\n"
-                             "  <body>\n"
-                             "    <table border = \"1\">\n";
-                 });
+        std::string* table = new std::string("<html>\n"
+                                             "  <head>\n"
+                                             "    <title>"
+                                             "Response from snode.c for " +
+                                             userId +
+                                             "\n"
+                                             "    </title>\n"
+                                             "  </head>\n"
+                                             "  <body>\n"
+                                             "    <h1>Return for " +
+                                             userId +
+                                             "\n"
+                                             "    </h1>\n"
+                                             "  <body>\n"
+                                             "    <table border = \"1\">\n");
+        i = 0;
+        db.query(
+            "SELECT * FROM snodec where username = '" + userId + "'",
+            [&res, table](const MYSQL_ROW row) -> void {
+                if (row != nullptr) {
+                    i++;
+                    table->append("      <tr>\n"
+                                  "        <td>\n" +
+                                  std::to_string(i) +
+                                  "\n"
+                                  "        </td>\n"
+                                  "        <td>\n" +
+                                  std::string(row[0]) +
+                                  "\n"
+                                  "        </td>\n"
+                                  "        <td>\n" +
+                                  row[1] +
+                                  "\n"
+                                  "        </td>\n"
+                                  "      </tr>\n");
+                } else {
+                    table->append(std::string("    </table>\n"
+                                              "  </body>\n"
+                                              "</html>\n"));
+                    //                    VLOG(0) << "Output" << *table;
+                    res.send(*table);
+                    delete table;
+                }
+            },
+            [&res, userId, table](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Error: " << errorString << " : " << errorNumber;
+                res.status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
+                delete table;
+            });
+    });
 
-                 i = 0;
-                 db.query(
-                     "SELECT * FROM snodec where username = '" + userId + "'",
-                     [next, &req](const MYSQL_ROW row) -> void {
-                         if (row != nullptr) {
-                             i++;
-                             req.getAttribute<std::string, "html-table">([row](std::string& table) -> void {
-                                 table.append("      <tr>\n"
-                                              "        <td>\n" +
-                                              std::to_string(i) +
-                                              "\n"
-                                              "        </td>\n"
-                                              "        <td>\n" +
-                                              std::string(row[0]) +
-                                              "\n"
-                                              "        </td>\n"
-                                              "        <td>\n" +
-                                              row[1] +
-                                              "\n"
-                                              "        </td>\n"
-                                              "      </tr>\n");
-                             });
-                         } else {
-                             req.getAttribute<std::string, "html-table">([](std::string& table) -> void {
-                                 table.append(std::string("    </table>\n"
-                                                          "  </body>\n"
-                                                          "</html>\n"));
-                             });
-                             VLOG(0) << "Move on to the next route to send result";
-                             next();
-                         }
-                     },
-                     [&res, userId](const std::string& errorString, unsigned int errorNumber) -> void {
-                         VLOG(0) << "Error: " << errorString << " : " << errorNumber;
-                         res.status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
-                     });
-             })
-        .get("/query/:userId",
-             [] MIDDLEWARE(req, res, next) {
-                 VLOG(0) << "And again: Move on to the next route to send result";
-                 next();
-             })
-        .get("/query/:userId",
-             [] APPLICATION(req, res) {
-                 VLOG(0) << "SendResult";
+    // http://localhost:8080/account/123/perfectNDSgroup
+    router.get("/account/:userId(\\d*)/:userName", [&db] APPLICATION(req, res) {
+        VLOG(0) << "Show account of";
+        VLOG(0) << "UserId: " << req.params["userId"];
+        VLOG(0) << "UserName: " << req.params["userName"];
 
-                 req.getAttribute<std::string, "html-table">([&res](std::string& table) -> void {
-                     res.send(table);
-                 });
-             })
-        .get("/account/:userId(\\d*)/:userName",
-             [&db] APPLICATION(req, res) { // http://localhost:8080/account/123/perfectNDSgroup
-                 VLOG(0) << "Show account of";
-                 VLOG(0) << "UserId: " << req.params["userId"];
-                 VLOG(0) << "UserName: " << req.params["userName"];
+        std::string response = "<html>"
+                               "  <head>"
+                               "    <title>Response from snode.c</title>"
+                               "  </head>"
+                               "  <body>"
+                               "    <h1>Regex return</h1>"
+                               "    <ul>"
+                               "      <li>UserId: " +
+                               req.params["userId"] +
+                               "      </li>"
+                               "      <li>UserName: " +
+                               req.params["userName"] +
+                               "      </li>"
+                               "    </ul>"
+                               "  </body>"
+                               "</html>";
 
-                 std::string response = "<html>"
-                                        "  <head>"
-                                        "    <title>Response from snode.c</title>"
-                                        "  </head>"
-                                        "  <body>"
-                                        "    <h1>Regex return</h1>"
-                                        "    <ul>"
-                                        "      <li>UserId: " +
-                                        req.params["userId"] +
-                                        "      </li>"
-                                        "      <li>UserName: " +
-                                        req.params["userName"] +
-                                        "      </li>"
-                                        "    </ul>"
-                                        "  </body>"
-                                        "</html>";
+        std::string userId = req.params["userId"];
+        std::string userName = req.params["userName"];
 
-                 std::string userId = req.params["userId"];
-                 std::string userName = req.params["userName"];
+        db.exec(
+            "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
+            [userId, userName](void) -> void {
+                VLOG(0) << "Inserted: -> " << userId << " - " << userName;
+            },
+            [](const std::string& errorString, unsigned int errorNumber) -> void {
+                VLOG(0) << "Error: " << errorString << " : " << errorNumber;
+            });
 
-                 db.exec(
-                     "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
-                     [userId, userName](void) -> void {
-                         VLOG(0) << "Inserted: -> " << userId << " - " << userName;
-                     },
-                     [](const std::string& errorString, unsigned int errorNumber) -> void {
-                         VLOG(0) << "Error: " << errorString << " : " << errorNumber;
-                     });
+        res.send(response);
+    });
 
-                 res.send(response);
-             })
-        .get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2",
-             [] APPLICATION(req, res) { // http://localhost:8080/asdf/d123e/jklö/hallo
-                 VLOG(0) << "Testing Regex";
-                 VLOG(0) << "Regex1: " << req.params["testRegex1"];
-                 VLOG(0) << "Regex2: " << req.params["testRegex2"];
+    // http://localhost:8080/asdf/d123e/jklö/hallo
+    router.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2", [] APPLICATION(req, res) {
+        VLOG(0) << "Testing Regex";
+        VLOG(0) << "Regex1: " << req.params["testRegex1"];
+        VLOG(0) << "Regex2: " << req.params["testRegex2"];
 
-                 std::string response = "<html>"
-                                        "  <head>"
-                                        "    <title>Response from snode.c</title>"
-                                        "  </head>"
-                                        "  <body>"
-                                        "    <h1>Regex return</h1>"
-                                        "    <ul>"
-                                        "      <li>Regex 1: " +
-                                        req.params["testRegex1"] +
-                                        "      </li>"
-                                        "      <li>Regex 2: " +
-                                        req.params["testRegex2"] +
-                                        "      </li>"
-                                        "    </ul>"
-                                        "  </body>"
-                                        "</html>";
+        std::string response = "<html>"
+                               "  <head>"
+                               "    <title>Response from snode.c</title>"
+                               "  </head>"
+                               "  <body>"
+                               "    <h1>Regex return</h1>"
+                               "    <ul>"
+                               "      <li>Regex 1: " +
+                               req.params["testRegex1"] +
+                               "      </li>"
+                               "      <li>Regex 2: " +
+                               req.params["testRegex2"] +
+                               "      </li>"
+                               "    </ul>"
+                               "  </body>"
+                               "</html>";
 
-                 res.send(response);
-             })
-        .get("/search/:search",
-             [] APPLICATION(req, res) { // http://localhost:8080/search/buxtehude123
-                 VLOG(0) << "Show Search of";
-                 VLOG(0) << "Search: " << req.params["search"];
-                 VLOG(0) << "Queries: " << req.query("test");
+        res.send(response);
+    });
 
-                 res.send(req.params["search"]);
-             })
-        .use([] APPLICATION(req, res) {
-            res.status(404).send("Not found: " + req.url);
-        });
+    // http://localhost:8080/search/buxtehude123
+    router.get("/search/:search", [] APPLICATION(req, res) {
+        VLOG(0) << "Show Search of";
+        VLOG(0) << "Search: " << req.params["search"];
+        VLOG(0) << "Queries: " << req.query("test");
+
+        res.send(req.params["search"]);
+    });
+
+    router.use([] APPLICATION(req, res) {
+        res.status(404).send("Not found: " + req.url);
+    });
 
     return router;
 }

@@ -117,7 +117,7 @@ namespace database::mariadb {
             currentCommand = commandSequenceQueue.front().nextCommand();
             currentCommand->setMariaDBConnection(this);
 
-            // VLOG(0) << "Start: " << currentCommand->commandInfo();
+            VLOG(0) << "Start: " << currentCommand->commandInfo();
 
             int status = currentCommand->commandStart(mysql, currentTime);
             checkStatus(status);
@@ -134,7 +134,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
-            // VLOG(0) << "Continue: " << currentCommand->commandInfo();
+            VLOG(0) << "Continue: " << currentCommand->commandInfo();
             int currentStatus = currentCommand->commandContinue(status);
             checkStatus(currentStatus);
         } else if ((status & MYSQL_WAIT_READ) != 0 && commandSequenceQueue.empty()) {

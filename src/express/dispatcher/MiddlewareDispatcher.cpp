@@ -39,17 +39,18 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool MiddlewareDispatcher::dispatch(
-        RouterDispatcher* parentRouter, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
-        bool catched = false;
-
+    void MiddlewareDispatcher::dispatch(const RouterDispatcher* parentRouter,
+                                        const std::string& parentMountPath,
+                                        const MountPoint& mountPoint,
+                                        Request& req,
+                                        Response& res) const {
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         // TODO: Fix regex-match
         if ((req.path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
             ((absoluteMountPath == req.path || checkForUrlMatch(absoluteMountPath, req.url)) &&
              (req.method == mountPoint.method || mountPoint.method == "all"))) {
-            catched = true;
+            parentRouter->terminate();
 
             if (hasResult(absoluteMountPath)) {
                 setParams(absoluteMountPath, req);
@@ -57,8 +58,6 @@ namespace express::dispatcher {
 
             lambda(req, res, parentRouter->getState());
         }
-
-        return catched;
     }
 
 } // namespace express::dispatcher

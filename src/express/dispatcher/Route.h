@@ -51,7 +51,7 @@ namespace express::dispatcher {
               const std::string& relativeMountPath,
               const std::shared_ptr<Dispatcher>& dispatcher);
 
-        bool dispatch(const std::string& parentMountPath, Request& req, Response& res);
+        void dispatch(const std::string& parentMountPath, Request& req, Response& res) const;
 
     protected:
         RouterDispatcher* parentRouter;
