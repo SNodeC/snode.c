@@ -35,7 +35,7 @@ namespace express::dispatcher {
         , dispatcher(dispatcher) {
     }
 
-    void Route::dispatch(const std::string& parentMountPath, Request& req, Response& res) const {
+    bool Route::dispatch(const std::string& parentMountPath, Request& req, Response& res) {
         return dispatcher->dispatch(parentRouter, parentMountPath, mountPoint, req, res);
     }
 
