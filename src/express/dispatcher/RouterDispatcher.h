@@ -37,8 +37,8 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -46,24 +46,29 @@ namespace express::dispatcher {
 
     class RouterDispatcher : public Dispatcher {
     public:
-        void dispatch(Request& req, Response& res) const;
+        RouterDispatcher();
+
+        void dispatch(Request& req, Response& res);
+
+        void dispatchContinue(State& state);
 
     private:
-        void dispatch(const RouterDispatcher* parentRouter,
+        void dispatch(RouterDispatcher* parentRouter,
                       const std::string& parentMountPath,
                       const MountPoint& mountPoint,
                       Request& req,
-                      Response& res) const override;
+                      Response& res) override;
 
-        void terminate() const;
+        void terminate();
 
-        State& getState() const;
+        State& getState();
 
-        void returnTo(const RouterDispatcher* parentRouter) const;
+        void returnTo(RouterDispatcher* parentRouter);
 
-        std::list<Route> routes;
-        mutable State state;
+        std::vector<Route> routes;
+        State state;
 
+        friend class State;
         friend class express::Router;
         friend class ApplicationDispatcher;
         friend class MiddlewareDispatcher;

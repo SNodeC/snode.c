@@ -25,25 +25,34 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    void RouterDispatcher::dispatch(Request& req, Response& res) const {
+    RouterDispatcher::RouterDispatcher()
+        : state(this) {
+    }
+
+    void RouterDispatcher::dispatch(Request& req, Response& res) {
         dispatch(nullptr, "/", MountPoint("use", "/"), req, res);
     }
 
-    void RouterDispatcher::dispatch(const RouterDispatcher* parentRouter,
-                                    const std::string& parentMountPath,
-                                    const MountPoint& mountPoint,
-                                    Request& req,
-                                    Response& res) const {
+    void RouterDispatcher::dispatch(
+        RouterDispatcher* parentRouter, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
+        state.proceed = true;
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         // TODO: Fix regex-match
         if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
-            for (const Route& route : routes) {
+            state.set(parentRouter, absoluteMountPath, mountPoint, req, res);
+            if (parentRouter != nullptr) {
+                parentRouter->terminate();
+            }
+            for (Route& route : routes) {
+                state.set(route);
                 route.dispatch(absoluteMountPath, req, res);
 
                 if (!state.proceed) {
@@ -51,19 +60,36 @@ namespace express::dispatcher {
                 }
             }
         }
-
-        returnTo(parentRouter);
     }
 
-    void RouterDispatcher::terminate() const {
+    void RouterDispatcher::dispatchContinue(State& state) {
+        this->state.proceed = true;
+        std::vector<Route>::iterator itBegin = std::find_if(routes.begin(),
+                                                            routes.end(),
+                                                            [&state](const Route& route) -> bool {
+                                                                return &route == state.currentRoute;
+                                                            }) +
+                                               1;
+
+        for (std::vector<Route>::iterator it = itBegin; it != routes.end(); ++it) {
+            this->state.set(*it);
+            it->dispatch(state.absoluteMountPath, *state.request, *state.response);
+
+            if (!this->state.proceed) {
+                break;
+            }
+        }
+    }
+
+    void RouterDispatcher::terminate() {
         state.proceed = false;
     }
 
-    State& RouterDispatcher::getState() const {
+    State& RouterDispatcher::getState() {
         return state;
     }
 
-    void RouterDispatcher::returnTo(const RouterDispatcher* parentRouter) const {
+    void RouterDispatcher::returnTo(RouterDispatcher* parentRouter) {
         if (parentRouter) {
             parentRouter->state.proceed = state.proceed | state.parentProceed;
         }

@@ -39,11 +39,8 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    void MiddlewareDispatcher::dispatch(const RouterDispatcher* parentRouter,
-                                        const std::string& parentMountPath,
-                                        const MountPoint& mountPoint,
-                                        Request& req,
-                                        Response& res) const {
+    void MiddlewareDispatcher::dispatch(
+        RouterDispatcher* parentRouter, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         // TODO: Fix regex-match
