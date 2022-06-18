@@ -86,7 +86,7 @@ namespace express::dispatcher {
         currentRoute = &route;
     }
 
-    void State::operator()(const std::string& how) {
+    void State::operator()(const std::string& how) const {
         if (how == "route") {
             parentRouterDispatcher->dispatchContinue(*parentState);
         } else {

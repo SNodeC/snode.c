@@ -55,7 +55,7 @@ namespace express::dispatcher {
 
         void set(Route& route);
 
-        void operator()(const std::string& how = "");
+        void operator()(const std::string& how = "") const;
 
     private:
         RouterDispatcher* currentRouterDispatcher = nullptr;

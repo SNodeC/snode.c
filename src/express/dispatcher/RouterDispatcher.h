@@ -50,7 +50,7 @@ namespace express::dispatcher {
 
         void dispatch(Request& req, Response& res);
 
-        void dispatchContinue(State& state);
+        void dispatchContinue(const State& state);
 
     private:
         bool dispatch(RouterDispatcher* parentRouter,

@@ -64,7 +64,7 @@ namespace express::dispatcher {
         return catched;
     }
 
-    void RouterDispatcher::dispatchContinue(State& state) {
+    void RouterDispatcher::dispatchContinue(const State &state) {
         std::list<Route>::iterator routeBegin = std::find_if(routes.begin(), routes.end(), [&state](const Route& route) -> bool {
             return &route == state.currentRoute;
         });
