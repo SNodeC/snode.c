@@ -37,7 +37,7 @@ namespace core {
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         int fd = descriptorEventReceiver->getRegisteredFd();
-        descriptorEventReceiver->setEnabled();
+        descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());
         observedEventReceivers[fd].push_front(descriptorEventReceiver);
         muxAdd(descriptorEventReceiver);
         if (descriptorEventReceiver->isSuspended()) {
@@ -134,9 +134,7 @@ namespace core {
     void DescriptorEventPublisher::stop() {
         for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                if (eventReceiver->isEnabled()) {
-                    eventReceiver->terminate();
-                }
+                eventReceiver->terminate();
             }
         }
     }

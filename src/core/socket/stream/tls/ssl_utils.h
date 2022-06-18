@@ -23,8 +23,14 @@
 
 #include <any>
 #include <map>
-#include <openssl/ossl_typ.h> // for SSL_CTX
+#include <openssl/opensslv.h>
 #include <string>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/types.h>
+#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
+#include <openssl/ossl_typ.h>
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

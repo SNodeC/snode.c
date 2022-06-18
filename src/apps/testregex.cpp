@@ -24,14 +24,22 @@
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
-#include <iostream>           // for operator<<, endl
-#include <openssl/asn1.h>     // for ASN1_STRING_get0...
-#include <openssl/crypto.h>   // for OPENSSL_free
-#include <openssl/obj_mac.h>  // for NID_subject_alt_...
-#include <openssl/ossl_typ.h> // for X509
-#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
-#include <openssl/x509.h>     // for X509_NAME_oneline
+#include <iostream>          // for operator<<, endl
+#include <openssl/asn1.h>    // for ASN1_STRING_get0...
+#include <openssl/crypto.h>  // for OPENSSL_free
+#include <openssl/obj_mac.h> // for NID_subject_alt_...
+#include <openssl/opensslv.h>
+#include <openssl/ssl.h>  // IWYU pragma: keep
+#include <openssl/x509.h> // for X509_NAME_oneline
 #include <openssl/x509v3.h>
+
+// IWYU pragma: no_include <openssl/ssl3.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/types.h>
+#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
+#include <openssl/ossl_typ.h>
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -48,59 +56,74 @@ Router router(database::mariadb::MariaDBClient& db) {
     });
 
     // http://localhost:8080/query/123
-    router.get("/query/:userId", [&db] APPLICATION(req, res) {
+    router.get("/query/:userId", [&db] MIDDLEWARE(req, res, next) {
         VLOG(0) << "UserId: " << req.params["userId"];
         std::string userId = req.params["userId"];
 
-        std::string* table = new std::string("<html>\n"
-                                             "  <head>\n"
-                                             "    <title>"
-                                             "Response from snode.c for " +
-                                             userId +
-                                             "\n"
-                                             "    </title>\n"
-                                             "  </head>\n"
-                                             "  <body>\n"
-                                             "    <h1>Return for " +
-                                             userId +
-                                             "\n"
-                                             "    </h1>\n"
-                                             "  <body>\n"
-                                             "    <table border = \"1\">\n");
+        req.setAttribute<std::string, "html-table">(std::string());
+
+        req.getAttribute<std::string, "html-table">([&userId](std::string& table) -> void {
+            table = "<html>\n"
+                    "  <head>\n"
+                    "    <title>"
+                    "Response from snode.c for " +
+                    userId +
+                    "\n"
+                    "    </title>\n"
+                    "  </head>\n"
+                    "  <body>\n"
+                    "    <h1>Return for " +
+                    userId +
+                    "\n"
+                    "    </h1>\n"
+                    "  <body>\n"
+                    "    <table border = \"1\">\n";
+        });
+
         i = 0;
         db.query(
             "SELECT * FROM snodec where username = '" + userId + "'",
-            [&res, table](const MYSQL_ROW row) -> void {
+            [next, &req](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
                     i++;
-                    table->append("      <tr>\n"
-                                  "        <td>\n" +
-                                  std::to_string(i) +
-                                  "\n"
-                                  "        </td>\n"
-                                  "        <td>\n" +
-                                  std::string(row[0]) +
-                                  "\n"
-                                  "        </td>\n"
-                                  "        <td>\n" +
-                                  row[1] +
-                                  "\n"
-                                  "        </td>\n"
-                                  "      </tr>\n");
+                    req.getAttribute<std::string, "html-table">([row](std::string& table) -> void {
+                        table.append("      <tr>\n"
+                                     "        <td>\n" +
+                                     std::to_string(i) +
+                                     "\n"
+                                     "        </td>\n"
+                                     "        <td>\n" +
+                                     std::string(row[0]) +
+                                     "\n"
+                                     "        </td>\n"
+                                     "        <td>\n" +
+                                     row[1] +
+                                     "\n"
+                                     "        </td>\n"
+                                     "      </tr>\n");
+                    });
                 } else {
-                    table->append(std::string("    </table>\n"
-                                              "  </body>\n"
-                                              "</html>\n"));
-                    //                    VLOG(0) << "Output" << *table;
-                    res.send(*table);
-                    delete table;
+                    req.getAttribute<std::string, "html-table">([](std::string& table) -> void {
+                        table.append(std::string("    </table>\n"
+                                                 "  </body>\n"
+                                                 "</html>\n"));
+                    });
+                    VLOG(0) << "Move on to the next route to send result";
+                    next();
                 }
             },
-            [&res, userId, table](const std::string& errorString, unsigned int errorNumber) -> void {
+            [&res, userId](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Error: " << errorString << " : " << errorNumber;
                 res.status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
-                delete table;
             });
+    });
+
+    router.get("/query/:userId", [] APPLICATION(req, res) {
+        VLOG(0) << "SendResult";
+
+        req.getAttribute<std::string, "html-table">([&res](std::string& table) -> void {
+            res.send(table);
+        });
     });
 
     // http://localhost:8080/account/123/perfectNDSgroup

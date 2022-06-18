@@ -79,8 +79,6 @@ namespace web::websocket {
 
         void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
 
-        void setName(const std::string& name);
-
         SocketContextUpgrade* socketContextUpgrade;
 
         std::string name;

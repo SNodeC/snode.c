@@ -26,7 +26,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>    // for size_t
+#include <cstddef>    // IWYU pragma: keep
 #include <functional> // for function
 #include <string>
 

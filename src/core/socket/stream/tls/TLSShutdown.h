@@ -25,7 +25,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <openssl/ossl_typ.h> // for SSL
+#include <openssl/opensslv.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/types.h>
+#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
+#include <openssl/ossl_typ.h>
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

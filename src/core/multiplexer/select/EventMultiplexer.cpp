@@ -44,8 +44,8 @@ namespace core::select {
             getMaxFd() + 1, &fdSets[DISP_TYPE::RD].get(), &fdSets[DISP_TYPE::WR].get(), &fdSets[DISP_TYPE::EX].get(), &tickTimeOut);
     }
 
-    void EventMultiplexer::publishActiveEvents(int count) {
-        if (count > 0) {
+    void EventMultiplexer::publishActiveEvents() {
+        if (activeEventCount > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
                 descriptorEventPublisher->publishActiveEvents();
             }

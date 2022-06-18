@@ -96,9 +96,4 @@ namespace web::websocket {
         this->socketContextUpgrade = socketContextUpgrade;
     }
 
-    template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::setName(const std::string& name) {
-        this->name = name;
-    }
-
 } // namespace web::websocket

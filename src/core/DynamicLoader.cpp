@@ -53,7 +53,7 @@ namespace core {
 
                 registeredForDlClose[handle]++;
             } else {
-                VLOG(0) << "dlCloseDelayed: Handle" << handle << " opened using dlOpen.";
+                VLOG(0) << "dlCloseDelayed: Handle" << handle << " not opened using dlOpen.";
             }
         } else {
             VLOG(0) << "dlCloseDelayed: Handle is nullptr";

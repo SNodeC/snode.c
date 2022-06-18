@@ -35,7 +35,6 @@ namespace core::socket {
 #include <cstddef> // for size_t
 #include <memory>
 #include <string>
-#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
