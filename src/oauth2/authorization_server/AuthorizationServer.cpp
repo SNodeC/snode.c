@@ -16,21 +16,6 @@
 #include <string>
 #include <vector>
 
-/*
-std::string sha256(const std::string str) {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(hash, &sha256);
-    std::stringstream ss;
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << (int) hash[i];
-    }
-    return ss.str();
-}
-*/
-
 void addQueryParamToUri(std::string& uri, std::string queryParamName, std::string queryParamValue) {
     if (uri.find("?") == std::string::npos) {
         uri += "?";
@@ -106,6 +91,10 @@ int main(int argc, char* argv[]) {
 
     express::Router router{};
 
+    router.use([] MIDDLEWARE(req, res, next) {
+        VLOG(0) << "Test middleware";
+        next();
+    });
     /*
     // Middleware to catch requests without a valid client_id
     router.use([&db] MIDDLEWARE(req, res, next) {
@@ -199,7 +188,7 @@ int main(int argc, char* argv[]) {
     });
 
     router.get("/login", [&db] APPLICATION(req, res) {
-        validClientId(req, res, db, [&req, &res, &db]() -> void {
+        validClientId(req, res, db, [&req, &res]() -> void {
             res.sendFile("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend-oauth2-auth-server/dist/index.html",
                          [&req](int ret) -> void {
                              if (ret != 0) {
@@ -227,8 +216,11 @@ int main(int argc, char* argv[]) {
                                 std::string dbState{row[4]};
                                 std::string queryEmail{body["email"]};
                                 std::string queryPassword{body["password"]};
-                                if (dbEmail != queryEmail || dbPasswordHash != hashSha1(dbPasswordSalt + queryPassword)) {
-                                    res.status(401).send("Invalid credentials");
+                                // Check email and password
+                                if (dbEmail != queryEmail) {
+                                    res.status(401).send("Invalid email address");
+                                } else if (dbPasswordHash != hashSha1(dbPasswordSalt + queryPassword)) {
+                                    res.status(401).send("Invalid password");
                                 } else {
                                     // Generate auth code which expires after 10 minutes
                                     unsigned int expireMinutes{10};
@@ -255,7 +247,7 @@ int main(int argc, char* argv[]) {
                                                             "' "
                                                             "where uuid = '" +
                                                             req.query("client_id") + "'",
-                                                        [&req, &res, dbState, dbRedirectUri, authCode]() -> void {
+                                                        [&res, dbState, dbRedirectUri, authCode]() -> void {
                                                             // Redirect back to the client app
                                                             std::string clientRedirectUri{dbRedirectUri};
                                                             addQueryParamToUri(clientRedirectUri, "code", authCode);
@@ -374,7 +366,7 @@ int main(int argc, char* argv[]) {
                                                                 "' "
                                                                 "where uuid = '" +
                                                                 req.query("client_id") + "'",
-                                                            [&req, &res]() -> void {
+                                                            []() -> void {
                                                             },
                                                             [&res](const std::string& errorString, unsigned int errorNumber) -> void {
                                                                 VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
@@ -447,7 +439,36 @@ int main(int argc, char* argv[]) {
 
     router.post("/token/validate", [&db] APPLICATION(req, res) {
         validClientId(req, res, db, [&req, &res, &db]() -> void {
-
+            req.getAttribute<nlohmann::json>([&req, &res, &db](nlohmann::json& jsonBody) -> void {
+                if (!jsonBody.contains("access_token")) {
+                    res.status(500).send("Missing 'access_token' in json");
+                    return;
+                }
+                std::string jsonAccessToken{jsonBody["access_token"]};
+                if (!jsonBody.contains("client_id")) {
+                    res.status(500).send("Missing 'client_id' in json");
+                    return;
+                }
+                std::string jsonClientId{jsonBody["client_id"]};
+                db.query(
+                    "select count(*) "
+                    "from client c "
+                    "join token a "
+                    "on c.access_token_id = a.id "
+                    "where c.uuid = '" +
+                        jsonClientId +
+                        "' "
+                        "and a.uuid = '" +
+                        jsonAccessToken + "'",
+                    [](const MYSQL_ROW row) -> void {
+                        if (row != nullptr) {
+                        }
+                    },
+                    [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                        VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                        res.sendStatus(500);
+                    });
+            });
         });
     });
 
