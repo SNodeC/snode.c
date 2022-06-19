@@ -57,19 +57,24 @@ namespace web::websocket {
                     core::DynamicLoader::dlOpen(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so", RTLD_LAZY | RTLD_LOCAL);
 
                 if (handle != nullptr) {
+                    std::string subProtocolFactoryFunctionName =
+                        subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory";
                     SubProtocolFactory* (*getSubProtocolFactory)() =
-                        reinterpret_cast<SubProtocolFactory* (*) ()>(core::DynamicLoader::dlSym(
-                            handle, subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory"));
+                        reinterpret_cast<SubProtocolFactory* (*) ()>(core::DynamicLoader::dlSym(handle, subProtocolFactoryFunctionName));
                     if (getSubProtocolFactory != nullptr) {
                         subProtocolFactory = getSubProtocolFactory();
                         if (subProtocolFactory != nullptr) {
                             subProtocolFactory->setHandle(handle);
+                            VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
                             break;
                         } else {
+                            VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
                             core::DynamicLoader::dlClose(handle);
                         }
                     } else {
-                        VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << core::DynamicLoader::dlError();
+                        VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
+                                << "\" in plugin failed: " << core::DynamicLoader::dlError();
+                        core::DynamicLoader::dlClose(handle);
                     }
                 } else {
                     VLOG(0) << "Error dlopen: " << core::DynamicLoader::dlError();

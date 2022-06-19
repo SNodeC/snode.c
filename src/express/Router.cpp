@@ -25,8 +25,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
-#include <vector> // IWYU pragma: keep
+#include <list> // for list
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

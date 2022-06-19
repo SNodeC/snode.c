@@ -115,7 +115,7 @@ namespace core::socket::stream {
                     disable();
                     onError(errno);
                 }
-            } else {
+            } else if (!isSuspended()) {
                 suspend();
             }
         }

@@ -139,8 +139,8 @@ namespace core::poll {
         return core::system::poll(pollFdsManager.getEvents(), pollFdsManager.getCurrentSize(), tickTimeOut.ms());
     }
 
-    void EventMultiplexer::publishActiveEvents(int count) {
-        if (count > 0) {
+    void EventMultiplexer::publishActiveEvents() {
+        if (activeEventCount > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
                 descriptorEventPublisher->publishActiveEvents();
             }

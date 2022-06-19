@@ -88,8 +88,8 @@ namespace core {
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
-        eventQueue.execute(currentTime);
-
+        publishActiveEvents(currentTime);
+        executeEventQueue(currentTime);
         checkTimedOutEvents(currentTime);
         unobserveDisabledEvents(currentTime);
 
@@ -98,14 +98,10 @@ namespace core {
         if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
             utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
 
-            int ret = multiplex(nextTimeout);
+            activeEventCount = multiplex(nextTimeout);
 
-            if (ret >= 0) {
-                publishActiveEvents(ret, utils::Timeval::currentTime());
-            } else if (errno != EINTR) {
+            if (activeEventCount < 0 && errno != EINTR) {
                 tickStatus = TickStatus::ERROR;
-            } else {
-                // ignore EINTR - it is not an error
             }
         } else {
             tickStatus = TickStatus::NO_OBSERVER;
@@ -143,9 +139,9 @@ namespace core {
         }
     }
 
-    void EventMultiplexer::publishActiveEvents(int count, const utils::Timeval& currentTime) {
+    void EventMultiplexer::publishActiveEvents(const utils::Timeval& currentTime) {
         timerEventPublisher->publishActiveEvents(currentTime);
-        publishActiveEvents(count);
+        publishActiveEvents();
     }
 
     void EventMultiplexer::unobserveDisabledEvents(const utils::Timeval& currentTime) {
@@ -153,6 +149,10 @@ namespace core {
             descriptorEventPublisher->unobserveDisabledEvents(currentTime);
         }
         timerEventPublisher->unobserveDisableEvents();
+    }
+
+    void EventMultiplexer::executeEventQueue(const utils::Timeval& currentTime) {
+        eventQueue.execute(currentTime);
     }
 
     EventMultiplexer::EventQueue::EventQueue()

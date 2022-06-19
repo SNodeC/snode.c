@@ -25,7 +25,8 @@
 #include <cerrno>  // for errno
 #include <cstdlib> // for free
 #include <cstring>
-#include <openssl/err.h>  // for ERR_peek_error
+#include <openssl/err.h> // for ERR_peek_error
+#include <openssl/opensslv.h>
 #include <openssl/ssl.h>  // IWYU pragma: keep
 #include <openssl/x509.h> // for X509_NAME_oneline, X509_STORE_CTX_get_current_cert, X509_STORE_CTX_get_error, X509_STORE_CTX_get_error_depth, X509_get_subject_name, X509_verify_cert_error_string, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN
 #include <string>
@@ -110,7 +111,7 @@ namespace core::socket::stream::tls {
         SSL_CTX* ctx = SSL_CTX_new(server ? TLS_server_method() : TLS_client_method());
 
         if (ctx != nullptr) {
-#ifdef SSL_OP_IGNORE_UNEXPECTED_EOF // for openssl 3.x: We need SSL_ERROR_SYSCALL in case of a peer TCP-FIN without close_notify
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
             SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
 #endif
             SSL_CTX_set_read_ahead(ctx, 1);

@@ -138,7 +138,8 @@ namespace utils {
         }
 
         template <InjectableAttribute Attribute, std::fixed_string key = "">
-        constexpr bool setAttribute(const Attribute&& attribute, const std::string& subKey = "", bool overwrite = false) const {
+        constexpr bool
+        setAttribute(const Attribute&& attribute = Attribute(), const std::string& subKey = "", bool overwrite = false) const {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {

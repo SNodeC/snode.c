@@ -21,12 +21,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-// IWYU pragma: begin_exports
+#include <openssl/opensslv.h> // IWYU pragma: export
+#include <openssl/ssl.h>      // IWYU pragma: export
 
-#include <openssl/ossl_typ.h> // for SSL
-#include <openssl/ssl.h>
-
-// IWYU pragma: end_exports
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/types.h>
+#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
+#include <openssl/ossl_typ.h>
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

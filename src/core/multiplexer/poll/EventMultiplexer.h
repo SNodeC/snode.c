@@ -81,7 +81,7 @@ namespace core::poll {
 
     private:
         int multiplex(utils::Timeval& tickTimeOut) override;
-        void publishActiveEvents(int count) override;
+        void publishActiveEvents() override;
 
     private:
         PollFdsManager pollFdsManager;
