@@ -33,18 +33,23 @@ namespace express::dispatcher {
         dispatch(nullptr, "/", MountPoint("use", "/"), req, res);
     }
 
-    void RouterDispatcher::dispatch(const RouterDispatcher* parentRouter,
+    bool RouterDispatcher::dispatch([[maybe_unused]] const RouterDispatcher* parentRouter,
                                     const std::string& parentMountPath,
                                     const MountPoint& mountPoint,
                                     Request& req,
                                     Response& res) const {
+        bool dispatched = false;
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         // TODO: Fix regex-match
         if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
             for (const Route& route : routes) {
-                route.dispatch(absoluteMountPath, req, res);
+                dispatched = route.dispatch(absoluteMountPath, req, res);
+
+                if (dispatched) {
+                    break;
+                }
 
                 if (!state.proceed) {
                     break;
@@ -52,24 +57,11 @@ namespace express::dispatcher {
             }
         }
 
-        returnTo(parentRouter);
-    }
-
-    void RouterDispatcher::terminate() const {
-        state.proceed = false;
+        return dispatched;
     }
 
     State& RouterDispatcher::getState() const {
         return state;
-    }
-
-    void RouterDispatcher::returnTo(const RouterDispatcher* parentRouter) const {
-        if (parentRouter) {
-            parentRouter->state.proceed = state.proceed | state.parentProceed;
-        }
-
-        state.proceed = true;
-        state.parentProceed = false;
     }
 
 } // namespace express::dispatcher

@@ -33,18 +33,20 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    void ApplicationDispatcher::dispatch(const RouterDispatcher* parentRouter,
+    bool ApplicationDispatcher::dispatch([[maybe_unused]] const RouterDispatcher* parentRouter,
                                          const std::string& parentMountPath,
                                          const MountPoint& mountPoint,
                                          Request& req,
                                          Response& res) const {
+        bool dispatched = false;
+
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         // TODO: Fix regex-match
         if ((req.path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
             ((absoluteMountPath == req.path || checkForUrlMatch(absoluteMountPath, req.url)) &&
              (req.method == mountPoint.method || mountPoint.method == "all"))) {
-            parentRouter->terminate();
+            dispatched = true;
 
             if (hasResult(absoluteMountPath)) {
                 setParams(absoluteMountPath, req);
@@ -52,6 +54,8 @@ namespace express::dispatcher {
 
             lambda(req, res);
         }
+
+        return dispatched;
     }
 
 } // namespace express::dispatcher
