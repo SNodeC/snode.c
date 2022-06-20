@@ -45,24 +45,10 @@ namespace express {
 namespace express::dispatcher {
 
     class RouterDispatcher : public Dispatcher {
-    public:
-        void dispatch(Request& req, Response& res) const;
-
     private:
-        void dispatch(const RouterDispatcher* parentRouter,
-                      const std::string& parentMountPath,
-                      const MountPoint& mountPoint,
-                      Request& req,
-                      Response& res) const override;
-
-        void terminate() const;
-
-        State& getState() const;
-
-        void returnTo(const RouterDispatcher* parentRouter) const;
+        bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) override;
 
         std::list<Route> routes;
-        mutable State state;
 
         friend class express::Router;
         friend class ApplicationDispatcher;

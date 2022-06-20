@@ -28,6 +28,7 @@ namespace express {
     namespace dispatcher {
 
         class RouterDispatcher;
+        class Route;
 
     } // namespace dispatcher
 
@@ -44,19 +45,21 @@ namespace express {
 #define MIDDLEWARE(req, res, state)                                                                                                        \
     ([[maybe_unused]] express::Request & (req),                                                                                            \
      [[maybe_unused]] express::Response & (res),                                                                                           \
-     [[maybe_unused]] express::dispatcher::State & (state))
+     [[maybe_unused]] express::dispatcher::State(state))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
 namespace express {
 
-    class Router {
+    class Router /*: protected express::dispatcher::Route*/ {
     public:
         Router();
-        Router(const Router& router);
-        Router(Router&& router);
-        Router& operator=(const Router& router);
-        Router& operator=(Router&& router);
+        /*
+                Router(const Router& router);
+                Router(Router&& router);
+                Router& operator=(const Router& router);
+                Router& operator=(Router&& router);
+        */
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const Router& router);                                                                                                  \
@@ -80,7 +83,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<express::dispatcher::RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
+        std::shared_ptr<express::dispatcher::Route> route;
     };
 
 } // namespace express

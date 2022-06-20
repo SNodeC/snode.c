@@ -49,11 +49,7 @@ namespace express::dispatcher {
         explicit ApplicationDispatcher(const std::function<void(Request& req, Response& res)>& lambda);
 
     private:
-        void dispatch(const RouterDispatcher* parentRouter,
-                      const std::string& parentMountPath,
-                      const MountPoint& mountPoint,
-                      Request& req,
-                      Response& res) const override;
+        bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) override;
 
         const std::function<void(Request& req, Response& res)> lambda;
     };

@@ -25,51 +25,38 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    void RouterDispatcher::dispatch(Request& req, Response& res) const {
-        dispatch(nullptr, "/", MountPoint("use", "/"), req, res);
-    }
+    bool RouterDispatcher::dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
+        bool dispatched = false;
 
-    void RouterDispatcher::dispatch(const RouterDispatcher* parentRouter,
-                                    const std::string& parentMountPath,
-                                    const MountPoint& mountPoint,
-                                    Request& req,
-                                    Response& res) const {
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         // TODO: Fix regex-match
-        if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
-             (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
-            for (const Route& route : routes) {
-                route.dispatch(absoluteMountPath, req, res);
+        if ((state.request->path.rfind(absoluteMountPath, 0) == 0 &&
+             (mountPoint.method == "use" || state.request->method == mountPoint.method || mountPoint.method == "all"))) {
+            for (Route& route : routes) {
+                state.currentRoute = &route;
 
-                if (!state.proceed) {
+                dispatched = route.dispatch(state, absoluteMountPath);
+
+                if (dispatched) {
                     break;
+                } else if (state.currentRoute == state.lastRoute && (state.flags & State::INH) != 0) {
+                    state.flags &= ~State::INH;
+                    if ((state.flags & State::NXT) != 0) {
+                        state.flags &= ~State::NXT;
+                        break;
+                    }
                 }
             }
         }
 
-        returnTo(parentRouter);
-    }
-
-    void RouterDispatcher::terminate() const {
-        state.proceed = false;
-    }
-
-    State& RouterDispatcher::getState() const {
-        return state;
-    }
-
-    void RouterDispatcher::returnTo(const RouterDispatcher* parentRouter) const {
-        if (parentRouter) {
-            parentRouter->state.proceed = state.proceed | state.parentProceed;
-        }
-
-        state.proceed = true;
-        state.parentProceed = false;
+        return dispatched;
     }
 
 } // namespace express::dispatcher
