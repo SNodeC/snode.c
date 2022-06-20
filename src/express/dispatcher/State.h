@@ -35,8 +35,7 @@ namespace express {
 
 namespace express::dispatcher {
 
-    class State {
-    public:
+    struct State {
         explicit State(Route* rootRoute);
         void operator()(const std::string& how = "") const;
 
@@ -46,7 +45,6 @@ namespace express::dispatcher {
         Route* rootRoute = nullptr;
         Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
-        bool found = false;
 
         enum flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
         mutable int flags;

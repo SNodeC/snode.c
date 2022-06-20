@@ -31,30 +31,27 @@
 
 namespace express::dispatcher {
 
-    bool RouterDispatcher::dispatch(
-        State& state, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
+    bool RouterDispatcher::dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         // TODO: Fix regex-match
-        if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
-             (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
+        if ((state.request->path.rfind(absoluteMountPath, 0) == 0 &&
+             (mountPoint.method == "use" || state.request->method == mountPoint.method || mountPoint.method == "all"))) {
             for (Route& route : routes) {
                 state.currentRoute = &route;
 
-                dispatched = route.dispatch(state, absoluteMountPath, req, res);
+                dispatched = route.dispatch(state, absoluteMountPath);
 
-                if (state.currentRoute == state.lastRoute && (state.flags & State::INH) != 0) {
+                if (dispatched) {
+                    break;
+                } else if (state.currentRoute == state.lastRoute && (state.flags & State::INH) != 0) {
                     state.flags &= ~State::INH;
                     if ((state.flags & State::NXT) != 0) {
                         state.flags &= ~State::NXT;
                         break;
                     }
-                }
-
-                if (dispatched) {
-                    break;
                 }
             }
         }

@@ -53,7 +53,7 @@ namespace express::dispatcher {
         Route(const Route& route);
         Route(Route&& route);
 
-        bool dispatch(State& state, const std::string& parentMountPath, Request& req, Response& res) const;
+        bool dispatch(State& state, const std::string& parentMountPath) const;
 
         bool dispatch(Request& req, Response& res);
 
@@ -69,7 +69,6 @@ namespace express::dispatcher {
 
         MountPoint mountPoint;
 
-    public:
         std::shared_ptr<Dispatcher> dispatcher;
     };
 

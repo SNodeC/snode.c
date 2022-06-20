@@ -84,7 +84,6 @@ namespace express {
 
     protected:
         std::shared_ptr<express::dispatcher::Route> route;
-        //        std::shared_ptr<express::dispatcher::RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };
 
 } // namespace express

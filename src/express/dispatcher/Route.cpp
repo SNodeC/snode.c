@@ -73,27 +73,23 @@ namespace express::dispatcher {
         return dispatcher;
     }
 
-    bool Route::dispatch(State& state, const std::string& parentMountPath, Request& req, Response& res) const {
-        return dispatcher->dispatch(state, parentMountPath, mountPoint, req, res);
+    bool Route::dispatch(State& state, const std::string& parentMountPath) const {
+        return dispatcher->dispatch(state, parentMountPath, mountPoint);
     }
 
     bool Route::dispatch(Request& req, Response& res) {
-        VLOG(0) << "Recurse: " << state.rootRoute;
-        state.found = false;
         state.request = &req;
         state.response = &res;
         state.flags = State::NON;
 
-        return dispatch(state, "/", req, res);
+        return dispatch(state, "");
     }
 
     bool Route::dispatch(State& state) {
-        VLOG(0) << "ReRecurs: RootRoute = " << state.rootRoute << ", LastRoute = " << state.lastRoute;
-
         std::swap(state.lastRoute, state.currentRoute);
-
         state.currentRoute = nullptr;
-        return dispatch(state, "/", *state.request, *state.response);
+
+        return dispatch(state, "");
     }
 
 } // namespace express::dispatcher

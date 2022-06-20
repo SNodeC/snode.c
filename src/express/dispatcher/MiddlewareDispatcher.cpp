@@ -24,9 +24,7 @@
 #include "express/dispatcher/regex_utils.h"
 
 namespace express::dispatcher {
-
-    class State;
-
+    struct State;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -41,25 +39,23 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool MiddlewareDispatcher::dispatch(
-        State& state, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
+    bool MiddlewareDispatcher::dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
         bool dispatched = false;
 
         if ((state.flags & State::INH) == 0) {
             std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
             // TODO: Fix regex-match
-            if ((req.path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
-                ((absoluteMountPath == req.path || checkForUrlMatch(absoluteMountPath, req.url)) &&
-                 (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            if ((state.request->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
+                ((absoluteMountPath == state.request->path || checkForUrlMatch(absoluteMountPath, state.request->url)) &&
+                 (state.request->method == mountPoint.method || mountPoint.method == "all"))) {
                 dispatched = true;
 
                 if (hasResult(absoluteMountPath)) {
-                    setParams(absoluteMountPath, req);
+                    setParams(absoluteMountPath, *state.request);
                 }
 
-                VLOG(0) << "Middleware Dispatch: RootRoute = " << state.rootRoute << ", LastRoute = " << state.lastRoute;
-                lambda(req, res, state);
+                lambda(*state.request, *state.response, state);
             }
         }
 

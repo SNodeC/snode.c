@@ -187,7 +187,6 @@ namespace web::http::server {
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::reset() {
         requestInProgress = false;
-        VLOG(0) << "*********** deleteing ************";
         delete currentRequestContext;
         currentRequestContext = nullptr;
     }
