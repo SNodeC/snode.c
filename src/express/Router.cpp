@@ -32,75 +32,71 @@
 
 namespace express {
 
-    Router::Router() {
+    Router::Router()
+        : route(std::make_shared<express::dispatcher::Route>()) {
     }
 /*
     Router::Router(const Router& router)
-        : express::dispatcher::Route(router) {
+        : route(router.route) {
     }
 
     Router::Router(Router&& router)
-        : express::dispatcher::Route(router) {
+        : route(std::move(router.route)) {
     }
 
     Router& Router::operator=(const Router& router) {
-        express::dispatcher::Route::operator=(router);
+        route = router.route;
 
         return *this;
     }
 
     Router& Router::operator=(Router&& router) {
-        express::dispatcher::Route::operator=(router);
+        std::swap(route, router.route);
 
         return *this;
     }
 */
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
     Router& Router::METHOD(const std::string& relativeMountPath, const Router& router) {                                                   \
-        static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get())                                                              \
-            ->routes.emplace_back(express::dispatcher::Route(static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get()),        \
-                                                             HTTP_METHOD,                                                                  \
-                                                             relativeMountPath,                                                            \
-                                                             router.dispatcher));                                                          \
+        express::dispatcher::RouterDispatcher* routerDispatcher =                                                                          \
+            dynamic_cast<express::dispatcher::RouterDispatcher*>(route->getDispatcher());                                                  \
+        routerDispatcher->routes.emplace_back(                                                                                             \
+            express::dispatcher::Route(routerDispatcher, HTTP_METHOD, relativeMountPath, router.route->dispatcher));                       \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const Router& router) {                                                                                         \
-        static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get())                                                              \
-            ->routes.emplace_back(express::dispatcher::Route(                                                                              \
-                static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get()), HTTP_METHOD, "/", router.dispatcher));              \
+        express::dispatcher::RouterDispatcher* routerDispatcher =                                                                          \
+            dynamic_cast<express::dispatcher::RouterDispatcher*>(route->getDispatcher());                                                  \
+        routerDispatcher->routes.emplace_back(express::dispatcher::Route(routerDispatcher, HTTP_METHOD, "/", router.route->dispatcher));   \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::string& relativeMountPath,                                                                           \
                            const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda) {         \
-        static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get())                                                              \
-            ->routes.emplace_back(express::dispatcher::Route(static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get()),        \
-                                                             HTTP_METHOD,                                                                  \
-                                                             relativeMountPath,                                                            \
-                                                             std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));        \
+        express::dispatcher::RouterDispatcher* routerDispatcher =                                                                          \
+            dynamic_cast<express::dispatcher::RouterDispatcher*>(route->getDispatcher());                                                  \
+        routerDispatcher->routes.emplace_back(express::dispatcher::Route(                                                                  \
+            routerDispatcher, HTTP_METHOD, relativeMountPath, std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));       \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda) {         \
-        static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get())                                                              \
-            ->routes.emplace_back(express::dispatcher::Route(static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get()),        \
-                                                             HTTP_METHOD,                                                                  \
-                                                             "/",                                                                          \
-                                                             std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));        \
+        express::dispatcher::RouterDispatcher* routerDispatcher =                                                                          \
+            dynamic_cast<express::dispatcher::RouterDispatcher*>(route->getDispatcher());                                                  \
+        routerDispatcher->routes.emplace_back(express::dispatcher::Route(                                                                  \
+            routerDispatcher, HTTP_METHOD, "/", std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));                     \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {       \
-        static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get())                                                              \
-            ->routes.emplace_back(express::dispatcher::Route(static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get()),        \
-                                                             HTTP_METHOD,                                                                  \
-                                                             relativeMountPath,                                                            \
-                                                             std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)));       \
+        express::dispatcher::RouterDispatcher* routerDispatcher =                                                                          \
+            dynamic_cast<express::dispatcher::RouterDispatcher*>(route->getDispatcher());                                                  \
+        routerDispatcher->routes.emplace_back(express::dispatcher::Route(                                                                  \
+            routerDispatcher, HTTP_METHOD, relativeMountPath, std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)));      \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                             \
-        static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get())                                                              \
-            ->routes.emplace_back(express::dispatcher::Route(static_cast<express::dispatcher::RouterDispatcher*>(dispatcher.get()),        \
-                                                             HTTP_METHOD,                                                                  \
-                                                             "/",                                                                          \
-                                                             std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)));       \
+        express::dispatcher::RouterDispatcher* routerDispatcher =                                                                          \
+            dynamic_cast<express::dispatcher::RouterDispatcher*>(route->getDispatcher());                                                  \
+        routerDispatcher->routes.emplace_back(express::dispatcher::Route(                                                                  \
+            routerDispatcher, HTTP_METHOD, "/", std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)));                    \
         return *this;                                                                                                                      \
     }
 

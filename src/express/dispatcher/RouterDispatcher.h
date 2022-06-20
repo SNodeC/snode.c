@@ -45,9 +45,6 @@ namespace express {
 namespace express::dispatcher {
 
     class RouterDispatcher : public Dispatcher {
-    public:
-        void dispatch(Request& req, Response& res) const;
-
     private:
         bool dispatch(const RouterDispatcher* parentRouter,
                       const std::string& parentMountPath,

@@ -51,15 +51,16 @@ namespace express {
 
 namespace express {
 
-    class Router : protected express::dispatcher::Route {
+    class Router /*: protected express::dispatcher::Route*/ {
     public:
         Router();
-/*
-        Router(const Router& router);
-        Router(Router&& router);
-        Router& operator=(const Router& router);
-        Router& operator=(Router&& router);
-*/
+        /*
+                Router(const Router& router);
+                Router(Router&& router);
+                Router& operator=(const Router& router);
+                Router& operator=(Router&& router);
+        */
+
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const Router& router);                                                                                                  \
     Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
@@ -82,6 +83,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
+        std::shared_ptr<express::dispatcher::Route> route;
         //        std::shared_ptr<express::dispatcher::RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };
 

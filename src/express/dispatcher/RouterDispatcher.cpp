@@ -29,10 +29,6 @@
 
 namespace express::dispatcher {
 
-    void RouterDispatcher::dispatch(Request& req, Response& res) const {
-        dispatch(nullptr, "/", MountPoint("use", "/"), req, res);
-    }
-
     bool RouterDispatcher::dispatch([[maybe_unused]] const RouterDispatcher* parentRouter,
                                     const std::string& parentMountPath,
                                     const MountPoint& mountPoint,
@@ -48,10 +44,6 @@ namespace express::dispatcher {
                 dispatched = route.dispatch(absoluteMountPath, req, res);
 
                 if (dispatched) {
-                    break;
-                }
-
-                if (!state.proceed) {
                     break;
                 }
             }

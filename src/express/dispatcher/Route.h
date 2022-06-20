@@ -46,26 +46,29 @@ namespace express::dispatcher {
 
     class Route {
     public:
+        Route();
         Route(RouterDispatcher* parentRouter,
               const std::string& method,
               const std::string& relativeMountPath,
               const std::shared_ptr<Dispatcher>& dispatcher);
 
-        //        Route(const Route& route);
-        //        Route(Route&& route);
+        Route(const Route& route);
+        Route(Route&& route);
 
         bool dispatch(const std::string& parentMountPath, Request& req, Response& res) const;
 
-    protected:
-        Route();
-
-        //        Route& operator=(const Route& route);
-        //        Route& operator=(Route&& route);
-
         bool dispatch(Request& req, Response& res);
+
+        Dispatcher* getDispatcher();
+
+    protected:
+        Route& operator=(const Route& route);
+        Route& operator=(Route&& route);
 
         RouterDispatcher* parentRouter;
         MountPoint mountPoint;
+
+    public:
         std::shared_ptr<Dispatcher> dispatcher;
     };
 
