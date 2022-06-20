@@ -44,7 +44,7 @@ namespace express {
 #define MIDDLEWARE(req, res, state)                                                                                                        \
     ([[maybe_unused]] express::Request & (req),                                                                                            \
      [[maybe_unused]] express::Response & (res),                                                                                           \
-     [[maybe_unused]] express::dispatcher::State(state))
+     [[maybe_unused]] express::dispatcher::State & (state))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 

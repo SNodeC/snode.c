@@ -19,16 +19,6 @@
 #ifndef EXPRESS_DISPATCHER_STATE_H
 #define EXPRESS_DISPATCHER_STATE_H
 
-namespace express {
-    class Request;
-    class Response;
-
-    namespace dispatcher {
-        class Route;
-        class RouterDispatcher;
-    } // namespace dispatcher
-} // namespace express
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -39,34 +29,11 @@ namespace express::dispatcher {
 
     class State {
     public:
-        State() = default;
-        explicit State(RouterDispatcher* routerDispatcher);
-        State(const State& state);
-
-        ~State();
-
-        State& operator=(const State& state);
-
-        void set(RouterDispatcher* parentRouterDispatcher,
-                 const State* parentState,
-                 const std::string& absoluteMountPath,
-                 Request& req,
-                 Response& res);
-
-        void set(Route& route);
-
         void operator()(const std::string& how = "") const;
 
     private:
-        RouterDispatcher* currentRouterDispatcher = nullptr;
-        RouterDispatcher* parentRouterDispatcher = nullptr;
-
-        const Route* currentRoute = nullptr;
-        Request* request = nullptr;
-        Response* response = nullptr;
-        std::string absoluteMountPath;
-
-        State* parentState = nullptr;
+        mutable bool proceed = true;
+        mutable bool parentProceed = false;
 
         friend class RouterDispatcher;
     };
