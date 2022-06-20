@@ -23,16 +23,11 @@
 #include "express/Response.h"         // IWYU pragma: export
 #include "express/dispatcher/State.h" // IWYU pragma: export
 
-namespace express {
+namespace express::dispatcher {
 
-    namespace dispatcher {
+    class Route;
 
-        class RouterDispatcher;
-        class Route;
-
-    } // namespace dispatcher
-
-} // namespace express
+} // namespace express::dispatcher
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

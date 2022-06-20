@@ -30,7 +30,6 @@ namespace express {
     namespace dispatcher {
 
         class Dispatcher;
-        class RouterDispatcher;
 
     } // namespace dispatcher
 

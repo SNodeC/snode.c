@@ -20,16 +20,10 @@
 
 #include "express/Request.h"
 #include "express/dispatcher/MountPoint.h" // for MountPoint
-#include "express/dispatcher/RouterDispatcher.h"
+#include "express/dispatcher/State.h"      // for State, State::INH
 #include "express/dispatcher/regex_utils.h"
 
-namespace express::dispatcher {
-    struct State;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

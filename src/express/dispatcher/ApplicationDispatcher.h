@@ -28,8 +28,8 @@ namespace express {
 
     namespace dispatcher {
 
-        class RouterDispatcher;
         struct MountPoint;
+        struct State;
 
     } // namespace dispatcher
 
