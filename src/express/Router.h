@@ -19,8 +19,9 @@
 #ifndef EXPRESS_ROUTER_H
 #define EXPRESS_ROUTER_H
 
-#include "express/Request.h"          // IWYU pragma: export
-#include "express/Response.h"         // IWYU pragma: export
+#include "express/Request.h"  // IWYU pragma: export
+#include "express/Response.h" // IWYU pragma: export
+#include "express/dispatcher/Route.h"
 #include "express/dispatcher/State.h" // IWYU pragma: export
 
 namespace express {
@@ -50,14 +51,15 @@ namespace express {
 
 namespace express {
 
-    class Router {
+    class Router : protected express::dispatcher::Route {
     public:
         Router();
+/*
         Router(const Router& router);
         Router(Router&& router);
         Router& operator=(const Router& router);
         Router& operator=(Router&& router);
-
+*/
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const Router& router);                                                                                                  \
     Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
@@ -80,7 +82,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<express::dispatcher::RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
+        //        std::shared_ptr<express::dispatcher::RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };
 
 } // namespace express

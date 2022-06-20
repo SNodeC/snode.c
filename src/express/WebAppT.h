@@ -74,10 +74,10 @@ namespace express {
                       VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
                   },
-                  [routerDispatcher = this->routerDispatcher](express::Request& req,
-                                                              express::Response& res) -> void { // onRequestReady
+                  [this](express::Request& req,
+                         express::Response& res) -> void { // onRequestReady
                       req.extend();
-                      routerDispatcher->dispatch(req, res);
+                      dispatch(req, res);
                   },
                   [](SocketConnection* socketConnection) -> void { // onDisconnect
                       VLOG(0) << "OnDisconnect:";

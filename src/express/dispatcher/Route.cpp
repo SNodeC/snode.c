@@ -19,8 +19,11 @@
 #include "Route.h"
 
 #include "express/dispatcher/Dispatcher.h"
+#include "express/dispatcher/RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -37,6 +40,44 @@ namespace express::dispatcher {
 
     bool Route::dispatch(const std::string& parentMountPath, Request& req, Response& res) const {
         return dispatcher->dispatch(parentRouter, parentMountPath, mountPoint, req, res);
+    }
+
+    Route::Route()
+        : parentRouter(nullptr)
+        , mountPoint("use", "/")
+        , dispatcher(std::make_shared<express::dispatcher::RouterDispatcher>()) {
+    }
+    /*
+        Route::Route(const Route& route)
+            : parentRouter(route.parentRouter)
+            , mountPoint(route.mountPoint)
+            , dispatcher(route.dispatcher) {
+        }
+
+        Route::Route(Route&& route)
+            : parentRouter(std::move(route.parentRouter))
+            , mountPoint(std::move(route.mountPoint))
+            , dispatcher(std::move(route.dispatcher)) {
+        }
+
+        Route& Route::operator=(const Route& route) {
+            parentRouter = route.parentRouter;
+            dispatcher = route.dispatcher;
+            mountPoint = route.mountPoint;
+
+            return *this;
+        }
+
+        Route& Route::operator=(Route&& route) {
+            std::swap(parentRouter, route.parentRouter);
+            std::swap(dispatcher, route.dispatcher);
+            std::swap(mountPoint, route.mountPoint);
+
+            return *this;
+        }
+    */
+    bool Route::dispatch(Request& req, Response& res) {
+        return dispatch("/", req, res);
     }
 
 } // namespace express::dispatcher

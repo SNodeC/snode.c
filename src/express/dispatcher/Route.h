@@ -51,9 +51,19 @@ namespace express::dispatcher {
               const std::string& relativeMountPath,
               const std::shared_ptr<Dispatcher>& dispatcher);
 
+        //        Route(const Route& route);
+        //        Route(Route&& route);
+
         bool dispatch(const std::string& parentMountPath, Request& req, Response& res) const;
 
     protected:
+        Route();
+
+        //        Route& operator=(const Route& route);
+        //        Route& operator=(Route&& route);
+
+        bool dispatch(Request& req, Response& res);
+
         RouterDispatcher* parentRouter;
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
