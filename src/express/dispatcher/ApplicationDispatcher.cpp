@@ -33,11 +33,11 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool ApplicationDispatcher::dispatch([[maybe_unused]] const RouterDispatcher* parentRouter,
+    bool ApplicationDispatcher::dispatch([[maybe_unused]] State& state,
                                          const std::string& parentMountPath,
                                          const MountPoint& mountPoint,
                                          Request& req,
-                                         Response& res) const {
+                                         Response& res) {
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);

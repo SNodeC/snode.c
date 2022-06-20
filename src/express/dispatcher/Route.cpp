@@ -23,45 +23,39 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    Route::Route(RouterDispatcher* parentRouter,
-                 const std::string& method,
-                 const std::string& relativeMountPath,
-                 const std::shared_ptr<Dispatcher>& dispatcher)
-        : parentRouter(parentRouter)
+    Route::Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)
+        : state(this)
         , mountPoint(method, relativeMountPath)
         , dispatcher(dispatcher) {
     }
 
-    bool Route::dispatch(const std::string& parentMountPath, Request& req, Response& res) const {
-        return dispatcher->dispatch(parentRouter, parentMountPath, mountPoint, req, res);
-    }
-
     Route::Route()
-        : parentRouter(nullptr)
+        : state(this)
         , mountPoint("use", "/")
         , dispatcher(std::make_shared<express::dispatcher::RouterDispatcher>()) {
     }
 
     Route::Route(const Route& route)
-        : parentRouter(route.parentRouter)
+        : state(this)
         , mountPoint(route.mountPoint)
         , dispatcher(route.dispatcher) {
     }
 
     Route::Route(Route&& route)
-        : parentRouter(std::move(route.parentRouter))
+        : state(this)
         , mountPoint(std::move(route.mountPoint))
         , dispatcher(std::move(route.dispatcher)) {
     }
 
     Route& Route::operator=(const Route& route) {
-        parentRouter = route.parentRouter;
         dispatcher = route.dispatcher;
         mountPoint = route.mountPoint;
 
@@ -69,19 +63,34 @@ namespace express::dispatcher {
     }
 
     Route& Route::operator=(Route&& route) {
-        std::swap(parentRouter, route.parentRouter);
         std::swap(dispatcher, route.dispatcher);
         std::swap(mountPoint, route.mountPoint);
 
         return *this;
     }
 
-    bool Route::dispatch(Request& req, Response& res) {
-        return dispatch("/", req, res);
+    std::shared_ptr<Dispatcher>& Route::getDispatcher() {
+        return dispatcher;
     }
 
-    Dispatcher* Route::getDispatcher() {
-        return dispatcher.get();
+    bool Route::dispatch(State& state, const std::string& parentMountPath, Request& req, Response& res) const {
+        return dispatcher->dispatch(state, parentMountPath, mountPoint, req, res);
+    }
+
+    bool Route::dispatch(Request& req, Response& res) {
+        VLOG(0) << "Recurse: " << state.rootRoute;
+        state.found = false;
+        state.resumeOnNext = false;
+        state.resumeOnParent = false;
+        state.request = nullptr;
+        state.response = nullptr;
+
+        return dispatch(state, "/", req, res);
+    }
+
+    bool Route::dispatch(State& state) {
+        VLOG(0) << "ReRecurs: RootRoute = " << state.rootRoute << ", LastRoute = " << state.lastRoute;
+        return dispatch(state, "/", *state.request, *state.response);
     }
 
 } // namespace express::dispatcher

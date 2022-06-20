@@ -20,6 +20,7 @@
 #define EXPRESS_DISPATCHER_ROUTE_H
 
 #include "express/dispatcher/MountPoint.h"
+#include "express/dispatcher/State.h"
 
 namespace express {
 
@@ -47,25 +48,25 @@ namespace express::dispatcher {
     class Route {
     public:
         Route();
-        Route(RouterDispatcher* parentRouter,
-              const std::string& method,
-              const std::string& relativeMountPath,
-              const std::shared_ptr<Dispatcher>& dispatcher);
+        Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
         Route(const Route& route);
         Route(Route&& route);
 
-        bool dispatch(const std::string& parentMountPath, Request& req, Response& res) const;
+        bool dispatch(State& state, const std::string& parentMountPath, Request& req, Response& res) const;
 
         bool dispatch(Request& req, Response& res);
 
-        Dispatcher* getDispatcher();
+        bool dispatch(State& state);
+
+        std::shared_ptr<Dispatcher>& getDispatcher();
 
     protected:
+        State state;
+
         Route& operator=(const Route& route);
         Route& operator=(Route&& route);
 
-        RouterDispatcher* parentRouter;
         MountPoint mountPoint;
 
     public:

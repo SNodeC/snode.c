@@ -18,18 +18,26 @@
 
 #include "State.h"
 
+#include "Route.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
+    State::State(Route* rootRoute)
+        : rootRoute(rootRoute) {
+    }
+
     void State::operator()(const std::string& how) const {
         if (how == "route") {
-            //            parentProceed = true;
+            resumeOnParent = true;
         } else {
-            //            proceed = true;
+            resumeOnNext = true;
         }
+
+        rootRoute->dispatch(*const_cast<express::dispatcher::State*>(this));
     }
 
 } // namespace express::dispatcher

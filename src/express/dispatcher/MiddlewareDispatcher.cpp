@@ -31,6 +31,8 @@ namespace express::dispatcher {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
@@ -39,11 +41,8 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool MiddlewareDispatcher::dispatch(const RouterDispatcher* parentRouter,
-                                        const std::string& parentMountPath,
-                                        const MountPoint& mountPoint,
-                                        Request& req,
-                                        Response& res) const {
+    bool MiddlewareDispatcher::dispatch(
+        State& state, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
@@ -58,7 +57,8 @@ namespace express::dispatcher {
                 setParams(absoluteMountPath, req);
             }
 
-            lambda(req, res, parentRouter->getState());
+            VLOG(0) << "Middleware Dispatch: RootRoute = " << state.rootRoute << ", LastRoute = " << state.lastRoute;
+            lambda(req, res, state);
         }
 
         return dispatched;

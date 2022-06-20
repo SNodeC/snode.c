@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
 
     tls::in::WebApp tlsApp("tls-testregex", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
-    tlsApp.use(router(db));
+    tlsApp.use(legacyApp);
 
     tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
         if (err != 0) {

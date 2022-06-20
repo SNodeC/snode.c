@@ -19,9 +19,8 @@
 #ifndef EXPRESS_ROUTER_H
 #define EXPRESS_ROUTER_H
 
-#include "express/Request.h"  // IWYU pragma: export
-#include "express/Response.h" // IWYU pragma: export
-#include "express/dispatcher/Route.h"
+#include "express/Request.h"          // IWYU pragma: export
+#include "express/Response.h"         // IWYU pragma: export
 #include "express/dispatcher/State.h" // IWYU pragma: export
 
 namespace express {
@@ -29,6 +28,7 @@ namespace express {
     namespace dispatcher {
 
         class RouterDispatcher;
+        class Route;
 
     } // namespace dispatcher
 
@@ -45,7 +45,7 @@ namespace express {
 #define MIDDLEWARE(req, res, state)                                                                                                        \
     ([[maybe_unused]] express::Request & (req),                                                                                            \
      [[maybe_unused]] express::Response & (res),                                                                                           \
-     [[maybe_unused]] express::dispatcher::State & (state))
+     [[maybe_unused]] express::dispatcher::State(state))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
