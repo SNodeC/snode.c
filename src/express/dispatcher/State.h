@@ -29,11 +29,11 @@ namespace express::dispatcher {
 
     class State {
     public:
-        void operator()(const std::string& how = "");
+        void operator()(const std::string& how = "") const;
 
     private:
-        bool proceed = true;
-        bool parentProceed = false;
+        mutable bool proceed = true;
+        mutable bool parentProceed = false;
 
         friend class RouterDispatcher;
     };

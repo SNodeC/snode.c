@@ -24,7 +24,7 @@
 
 namespace express::dispatcher {
 
-    void State::operator()(const std::string& how) {
+    void State::operator()(const std::string& how) const {
         if (how == "route") {
             parentProceed = true;
         } else {
