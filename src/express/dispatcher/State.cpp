@@ -27,14 +27,15 @@
 namespace express::dispatcher {
 
     State::State(Route* rootRoute)
-        : rootRoute(rootRoute) {
+        : rootRoute(rootRoute)
+        , flags(NON) {
     }
 
     void State::operator()(const std::string& how) const {
+        flags |= INH;
+
         if (how == "route") {
-            resumeOnParent = true;
-        } else {
-            resumeOnNext = true;
+            flags |= NXT;
         }
 
         rootRoute->dispatch(*const_cast<express::dispatcher::State*>(this));

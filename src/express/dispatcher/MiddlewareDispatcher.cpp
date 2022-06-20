@@ -45,20 +45,22 @@ namespace express::dispatcher {
         State& state, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
         bool dispatched = false;
 
-        std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
+        if ((state.flags & State::INH) == 0) {
+            std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-        // TODO: Fix regex-match
-        if ((req.path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
-            ((absoluteMountPath == req.path || checkForUrlMatch(absoluteMountPath, req.url)) &&
-             (req.method == mountPoint.method || mountPoint.method == "all"))) {
-            dispatched = true;
+            // TODO: Fix regex-match
+            if ((req.path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
+                ((absoluteMountPath == req.path || checkForUrlMatch(absoluteMountPath, req.url)) &&
+                 (req.method == mountPoint.method || mountPoint.method == "all"))) {
+                dispatched = true;
 
-            if (hasResult(absoluteMountPath)) {
-                setParams(absoluteMountPath, req);
+                if (hasResult(absoluteMountPath)) {
+                    setParams(absoluteMountPath, req);
+                }
+
+                VLOG(0) << "Middleware Dispatch: RootRoute = " << state.rootRoute << ", LastRoute = " << state.lastRoute;
+                lambda(req, res, state);
             }
-
-            VLOG(0) << "Middleware Dispatch: RootRoute = " << state.rootRoute << ", LastRoute = " << state.lastRoute;
-            lambda(req, res, state);
         }
 
         return dispatched;

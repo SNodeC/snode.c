@@ -43,13 +43,13 @@ namespace express::dispatcher {
         express::Request* request = nullptr;
         express::Response* response = nullptr;
 
-    public:
         Route* rootRoute = nullptr;
         Route* lastRoute = nullptr;
+        Route* currentRoute = nullptr;
         bool found = false;
 
-        mutable bool resumeOnParent = false;
-        mutable bool resumeOnNext = false;
+        enum flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
+        mutable int flags;
 
         friend class RouterDispatcher;
     };

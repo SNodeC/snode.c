@@ -80,16 +80,19 @@ namespace express::dispatcher {
     bool Route::dispatch(Request& req, Response& res) {
         VLOG(0) << "Recurse: " << state.rootRoute;
         state.found = false;
-        state.resumeOnNext = false;
-        state.resumeOnParent = false;
-        state.request = nullptr;
-        state.response = nullptr;
+        state.request = &req;
+        state.response = &res;
+        state.flags = State::NON;
 
         return dispatch(state, "/", req, res);
     }
 
     bool Route::dispatch(State& state) {
         VLOG(0) << "ReRecurs: RootRoute = " << state.rootRoute << ", LastRoute = " << state.lastRoute;
+
+        std::swap(state.lastRoute, state.currentRoute);
+
+        state.currentRoute = nullptr;
         return dispatch(state, "/", *state.request, *state.response);
     }
 

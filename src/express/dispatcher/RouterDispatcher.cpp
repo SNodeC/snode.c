@@ -33,74 +33,31 @@ namespace express::dispatcher {
 
     bool RouterDispatcher::dispatch(
         State& state, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
-        VLOG(0) << "###### Start Dispatch: " << this;
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-        state.found = true;
-        std::list<Route>::iterator it = routes.begin();
+        // TODO: Fix regex-match
+        if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
+             (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
+            for (Route& route : routes) {
+                state.currentRoute = &route;
 
-        if (state.resumeOnNext || state.resumeOnParent) {
-            state.found = false;
-            it = std::find_if(routes.begin(), routes.end(), [&state](Route& route) -> bool {
-                return &route == state.lastRoute;
-            });
+                dispatched = route.dispatch(state, absoluteMountPath, req, res);
 
-            if (it == routes.end()) {
-                it = routes.begin();
-                state.found = false;
-            } else {
-                state.found = true;
-                ++it;
-            }
-
-            if (!state.found) {
-                for (; it != routes.end(); ++it) {
-                    if (std::dynamic_pointer_cast<RouterDispatcher>(it->dispatcher) != nullptr) {
-                        dispatched = it->dispatch(state, absoluteMountPath, req, res);
-                        if (state.found) {
-                            ++it;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!state.found) {
-                it = routes.begin();
-            }
-        }
-
-        if (!dispatched && !state.resumeOnParent && state.found) {
-            state.resumeOnNext = false;
-            state.resumeOnParent = false;
-
-            // TODO: Fix regex-match
-            VLOG(0) << "###### AbsoluteMountPath: this = " << this << ", " << absoluteMountPath;
-            req.path.rfind(absoluteMountPath, 0);
-
-            [[maybe_unused]] bool b = mountPoint.method == "use";
-            b = req.method == mountPoint.method;
-            b = mountPoint.method == "all";
-
-            if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
-                 (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
-                for (; it != routes.end(); ++it) {
-                    state.lastRoute = &*it;
-                    state.request = &req;
-                    state.response = &res;
-
-                    dispatched = it->dispatch(state, absoluteMountPath, req, res);
-
-                    if (dispatched) {
+                if (state.currentRoute == state.lastRoute && (state.flags & State::INH) != 0) {
+                    state.flags &= ~State::INH;
+                    if ((state.flags & State::NXT) != 0) {
+                        state.flags &= ~State::NXT;
                         break;
                     }
                 }
+
+                if (dispatched) {
+                    break;
+                }
             }
         }
-
-        VLOG(0) << "###### End Dispatch: " << this;
 
         return dispatched;
     }
