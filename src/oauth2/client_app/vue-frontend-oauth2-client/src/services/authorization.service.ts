@@ -5,7 +5,7 @@ interface AccessTokenResponse {
     refresh_token: string
 }
 
-class AuthServerService {
+class AuthorizationService {
     private readonly apiUrl: string = 'http://localhost:8082/oauth2'
 
     async requestToken(authCode: string, clientId: string, redirectUri: string): Promise<AccessTokenResponse | null> {
@@ -25,4 +25,4 @@ class AuthServerService {
     }
 }
 
-export const authServerService = new AuthServerService()
+export const authorizationService = new AuthorizationService()
