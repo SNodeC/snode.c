@@ -19,7 +19,7 @@
 #ifndef EXPRESS_DISPATCHER_ROUTE_H
 #define EXPRESS_DISPATCHER_ROUTE_H
 
-#include "express/dispatcher/MountPoint.h"
+#include "express/dispatcher/MountPoint.h" // IWYU pragma: export
 
 namespace express {
 

@@ -53,6 +53,10 @@ namespace express::dispatcher {
         return std::dynamic_pointer_cast<RouterDispatcher>(dispatcher);
     }
 
+    std::list<Route>& RootRoute::routes() {
+        return std::dynamic_pointer_cast<RouterDispatcher>(dispatcher)->routes;
+    }
+
     bool RootRoute::dispatch(Request& req, Response& res) {
         state.request = &req;
         state.response = &res;

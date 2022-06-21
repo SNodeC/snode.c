@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "State.h"
+#include "express/dispatcher/State.h"
 
-#include "RootRoute.h"
+#include "express/dispatcher/RootRoute.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

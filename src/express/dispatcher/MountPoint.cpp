@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MountPoint.h"
+#include "express/dispatcher/MountPoint.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

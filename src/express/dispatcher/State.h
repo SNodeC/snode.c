@@ -20,12 +20,17 @@
 #define EXPRESS_DISPATCHER_STATE_H
 
 namespace express {
+
     class Request;
     class Response;
+
     namespace dispatcher {
+
         class Route;
         class RootRoute;
+
     } // namespace dispatcher
+
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,6 +43,7 @@ namespace express::dispatcher {
 
     struct State {
         explicit State(RootRoute* rootRoute);
+
         void operator()(const std::string& how = "") const;
 
         express::Request* request = nullptr;
@@ -49,8 +55,6 @@ namespace express::dispatcher {
 
         enum flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
         mutable int flags;
-
-        friend class RouterDispatcher;
     };
 
 } // namespace express::dispatcher

@@ -49,8 +49,4 @@ namespace database::mariadb::commands::sync {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBAffectedRowsCommand::commandInfo() {
-        return commandName() + ":";
-    }
-
 } // namespace database::mariadb::commands::sync
