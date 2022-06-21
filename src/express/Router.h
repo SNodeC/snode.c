@@ -19,15 +19,10 @@
 #ifndef EXPRESS_ROUTER_H
 #define EXPRESS_ROUTER_H
 
-#include "express/Request.h"          // IWYU pragma: export
-#include "express/Response.h"         // IWYU pragma: export
-#include "express/dispatcher/State.h" // IWYU pragma: export
-
-namespace express::dispatcher {
-
-    class Route;
-
-} // namespace express::dispatcher
+#include "express/Request.h"              // IWYU pragma: export
+#include "express/Response.h"             // IWYU pragma: export
+#include "express/dispatcher/RootRoute.h" // IWYU pragma: export
+#include "express/dispatcher/State.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -78,7 +73,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<express::dispatcher::Route> route;
+        std::shared_ptr<express::dispatcher::RootRoute> route;
     };
 
 } // namespace express

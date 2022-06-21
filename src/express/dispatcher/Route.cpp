@@ -24,71 +24,47 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
-#include <utility> // for move, swap
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    Route::Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)
-        : state(this)
-        , mountPoint(method, relativeMountPath)
-        , dispatcher(dispatcher) {
-    }
-
     Route::Route()
-        : state(this)
-        , mountPoint("use", "/")
+        : mountPoint("use", "/")
         , dispatcher(std::make_shared<express::dispatcher::RouterDispatcher>()) {
     }
 
-    Route::Route(const Route& route)
-        : state(this)
-        , mountPoint(route.mountPoint)
-        , dispatcher(route.dispatcher) {
+    Route::Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)
+        : mountPoint(method, relativeMountPath)
+        , dispatcher(dispatcher) {
     }
+    /*
+        Route::Route(const Route& route)
+            : mountPoint(route.mountPoint)
+            , dispatcher(route.dispatcher) {
+        }
 
-    Route::Route(Route&& route)
-        : state(this)
-        , mountPoint(std::move(route.mountPoint))
-        , dispatcher(std::move(route.dispatcher)) {
-    }
+        Route::Route(Route&& route)
+            : mountPoint(std::move(route.mountPoint))
+            , dispatcher(std::move(route.dispatcher)) {
+        }
+        Route& Route::operator=(const Route& route) {
+            dispatcher = route.dispatcher;
+            mountPoint = route.mountPoint;
 
-    Route& Route::operator=(const Route& route) {
-        dispatcher = route.dispatcher;
-        mountPoint = route.mountPoint;
+            return *this;
+        }
 
-        return *this;
-    }
+        Route& Route::operator=(Route&& route) {
+            std::swap(dispatcher, route.dispatcher);
+            std::swap(mountPoint, route.mountPoint);
 
-    Route& Route::operator=(Route&& route) {
-        std::swap(dispatcher, route.dispatcher);
-        std::swap(mountPoint, route.mountPoint);
-
-        return *this;
-    }
-
-    std::shared_ptr<Dispatcher>& Route::getDispatcher() {
-        return dispatcher;
-    }
+            return *this;
+        }
+    */
 
     bool Route::dispatch(State& state, const std::string& parentMountPath) const {
         return dispatcher->dispatch(state, parentMountPath, mountPoint);
-    }
-
-    bool Route::dispatch(Request& req, Response& res) {
-        state.request = &req;
-        state.response = &res;
-        state.flags = State::NON;
-
-        return dispatch(state, "");
-    }
-
-    bool Route::dispatch(State& state) {
-        std::swap(state.lastRoute, state.currentRoute);
-        state.currentRoute = nullptr;
-
-        return dispatch(state, "");
     }
 
 } // namespace express::dispatcher

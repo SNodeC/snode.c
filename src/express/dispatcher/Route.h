@@ -20,16 +20,13 @@
 #define EXPRESS_DISPATCHER_ROUTE_H
 
 #include "express/dispatcher/MountPoint.h"
-#include "express/dispatcher/State.h"
 
 namespace express {
-
-    class Request;
-    class Response;
 
     namespace dispatcher {
 
         class Dispatcher;
+        struct State;
 
     } // namespace dispatcher
 
@@ -48,24 +45,17 @@ namespace express::dispatcher {
     public:
         Route();
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
-
-        Route(const Route& route);
-        Route(Route&& route);
-
+        /*
+                Route(const Route& route);
+                Route(Route&& route);
+        */
         bool dispatch(State& state, const std::string& parentMountPath) const;
 
-        bool dispatch(Request& req, Response& res);
-
-        bool dispatch(State& state);
-
-        std::shared_ptr<Dispatcher>& getDispatcher();
-
     protected:
-        State state;
-
-        Route& operator=(const Route& route);
-        Route& operator=(Route&& route);
-
+        /*
+                Route& operator=(const Route& route);
+                Route& operator=(Route&& route);
+        */
         MountPoint mountPoint;
 
         std::shared_ptr<Dispatcher> dispatcher;
