@@ -20,7 +20,6 @@
 #define EXPRESS_WEBAPPT_H
 
 #include "express/WebApp.h" // IWYU pragma: export
-#include "express/dispatcher/RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

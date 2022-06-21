@@ -25,6 +25,8 @@ namespace web::websocket::subprotocol::echo::server {
     class Echo;
 }
 
+// IWYU pragma: no_include "apps/websocket/subprotocol/server/echo/Echo.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string> // for string

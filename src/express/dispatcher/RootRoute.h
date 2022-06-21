@@ -16,43 +16,55 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_STATE_H
-#define EXPRESS_DISPATCHER_STATE_H
+#ifndef EXPRESS_DISPATCHER_ROOTROUTE_H
+#define EXPRESS_DISPATCHER_ROOTROUTE_H
+
+#include "express/dispatcher/Route.h" // IWYU pragma: export
+#include "express/dispatcher/State.h"
 
 namespace express {
+
     class Request;
     class Response;
+
     namespace dispatcher {
-        class Route;
-        class RootRoute;
+
+        class Dispatcher;
+        class RouterDispatcher;
+
     } // namespace dispatcher
+
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    struct State {
-        explicit State(RootRoute* rootRoute);
-        void operator()(const std::string& how = "") const;
+    class RootRoute : public express::dispatcher::Route {
+    public:
+        RootRoute();
+        RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-        express::Request* request = nullptr;
-        express::Response* response = nullptr;
+        RootRoute(const RootRoute& route);
+        RootRoute(RootRoute&& route);
 
-        RootRoute* rootRoute = nullptr;
-        Route* lastRoute = nullptr;
-        Route* currentRoute = nullptr;
+        bool dispatch(Request& req, Response& res);
+        bool dispatch(State& state);
 
-        enum flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
-        mutable int flags;
+        std::shared_ptr<RouterDispatcher> getDispatcher();
 
-        friend class RouterDispatcher;
+    protected:
+        State state;
+
+        RootRoute& operator=(const RootRoute& route);
+        RootRoute& operator=(RootRoute&& route);
     };
 
 } // namespace express::dispatcher
 
-#endif // EXPRESS_DISPATCHER_STATE_H
+#endif // EXPRESS_DISPATCHER_ROOTROUTE_H
