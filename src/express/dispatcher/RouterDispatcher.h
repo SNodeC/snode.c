@@ -21,16 +21,14 @@
 
 #include "express/dispatcher/Dispatcher.h"
 #include "express/dispatcher/Route.h" // for Route
-#include "express/dispatcher/State.h"
 
 namespace express {
 
     class Router;
-    class Request;
-    class Response;
 
     namespace dispatcher {
         struct MountPoint;
+        struct State;
     } // namespace dispatcher
 
 } // namespace express

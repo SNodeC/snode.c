@@ -18,7 +18,7 @@
 
 #include "State.h"
 
-#include "Route.h"
+#include "RootRoute.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 
 namespace express::dispatcher {
 
-    State::State(Route* rootRoute)
+    State::State(RootRoute* rootRoute)
         : rootRoute(rootRoute)
         , flags(NON) {
     }

@@ -31,6 +31,7 @@ set(EXPRESS_CPP
     dispatcher/MiddlewareDispatcher.cpp
     dispatcher/MountPoint.cpp
     dispatcher/Route.cpp
+    dispatcher/RootRoute.cpp
     dispatcher/RouterDispatcher.cpp
     dispatcher/State.cpp
     dispatcher/regex_utils.cpp
@@ -51,6 +52,7 @@ set(EXPRESS_H
     dispatcher/MiddlewareDispatcher.h
     dispatcher/MountPoint.h
     dispatcher/Route.h
+    dispatcher/RootRoute.h
     dispatcher/RouterDispatcher.h
     dispatcher/State.h
     dispatcher/regex_utils.h

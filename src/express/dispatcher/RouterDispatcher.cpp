@@ -25,7 +25,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "express/dispatcher/State.h" // for State, State::INH, State::NXT
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
