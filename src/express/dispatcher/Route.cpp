@@ -38,30 +38,6 @@ namespace express::dispatcher {
         : mountPoint(method, relativeMountPath)
         , dispatcher(dispatcher) {
     }
-    /*
-        Route::Route(const Route& route)
-            : mountPoint(route.mountPoint)
-            , dispatcher(route.dispatcher) {
-        }
-
-        Route::Route(Route&& route)
-            : mountPoint(std::move(route.mountPoint))
-            , dispatcher(std::move(route.dispatcher)) {
-        }
-        Route& Route::operator=(const Route& route) {
-            dispatcher = route.dispatcher;
-            mountPoint = route.mountPoint;
-
-            return *this;
-        }
-
-        Route& Route::operator=(Route&& route) {
-            std::swap(dispatcher, route.dispatcher);
-            std::swap(mountPoint, route.mountPoint);
-
-            return *this;
-        }
-    */
 
     bool Route::dispatch(State& state, const std::string& parentMountPath) const {
         return dispatcher->dispatch(state, parentMountPath, mountPoint);
