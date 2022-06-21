@@ -49,8 +49,4 @@ namespace database::mariadb::commands::async {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBCommitCommand::commandInfo() {
-        return commandName();
-    }
-
 } // namespace database::mariadb::commands::async

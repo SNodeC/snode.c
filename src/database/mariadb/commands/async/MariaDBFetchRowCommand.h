@@ -44,7 +44,6 @@ namespace database::mariadb::commands::async {
         int commandContinue(int status) override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
-        std::string commandInfo() override;
 
     private:
         MYSQL_RES*& result;
