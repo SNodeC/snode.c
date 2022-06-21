@@ -20,12 +20,17 @@
 #define EXPRESS_DISPATCHER_STATE_H
 
 namespace express {
+
     class Request;
     class Response;
+
     namespace dispatcher {
+
         class Route;
         class RootRoute;
+
     } // namespace dispatcher
+
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

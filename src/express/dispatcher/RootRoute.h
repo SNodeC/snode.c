@@ -54,15 +54,15 @@ namespace express::dispatcher {
         RootRoute(RootRoute&& route);
 
         bool dispatch(Request& req, Response& res);
-        bool dispatch(State& state);
 
         std::shared_ptr<RouterDispatcher> getDispatcher();
 
     protected:
+        bool dispatch(State& state);
+
         State state;
 
-        RootRoute& operator=(const RootRoute& route);
-        RootRoute& operator=(RootRoute&& route);
+        friend State;
     };
 
 } // namespace express::dispatcher

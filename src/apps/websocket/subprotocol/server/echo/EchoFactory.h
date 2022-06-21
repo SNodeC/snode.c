@@ -22,7 +22,7 @@
 #include "web/websocket/SubProtocolFactory.h"
 
 namespace web::websocket::subprotocol::echo::server {
-    class Echo;
+    class Echo; // IWYU pragma: keep
 }
 
 // IWYU pragma: no_include "apps/websocket/subprotocol/server/echo/Echo.h"

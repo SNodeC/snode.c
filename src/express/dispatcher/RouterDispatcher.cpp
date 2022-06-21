@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RouterDispatcher.h"
+#include "express/dispatcher/RouterDispatcher.h"
 
 #include "express/Request.h" // for Request
 #include "express/dispatcher/MountPoint.h"

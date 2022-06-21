@@ -38,11 +38,17 @@ namespace database::mariadb {
     MariaDBCommandSequence& MariaDBClientASyncAPI::query(const std::string& sql,
                                                          const std::function<void(const MYSQL_ROW)>& onQuery,
                                                          const std::function<void(const std::string&, unsigned int)>& onError) {
-        return execute_async(new database::mariadb::commands::async::MariaDBQueryCommand(
-                                 sql,
-                                 [](void) -> void {
+        return execute_async(new database::mariadb::commands::async::MariaDBFreeResultCommand(
+                                 lastResult,
+                                 [this](void) -> void {
+                                     lastResult = nullptr;
                                  },
                                  onError))
+            .execute_async(new database::mariadb::commands::async::MariaDBQueryCommand(
+                sql,
+                [](void) -> void {
+                },
+                onError))
             .execute_async(new database::mariadb::commands::sync::MariaDBUseResultCommand(
                 [&lastResult = this->lastResult](MYSQL_RES* result) -> void {
                     lastResult = result;

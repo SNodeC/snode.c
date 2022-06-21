@@ -46,7 +46,7 @@ namespace apps::http::legacy {
                 VLOG(0) << "-- OnConnected";
             },
             [](Request& request) -> void {
-                request.url = "/";
+                request.url = "/index.html";
                 request.set("Connection", "close");
                 request.start();
             },
@@ -158,7 +158,7 @@ namespace apps::http::tls {
                 }
             },
             [](Request& request) -> void {
-                request.url = "/";
+                request.url = "/index.html";
                 request.set("Connection", "close");
                 request.start();
             },
