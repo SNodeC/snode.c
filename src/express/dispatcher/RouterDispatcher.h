@@ -19,8 +19,8 @@
 #ifndef EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
 #define EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
 
-#include "express/dispatcher/Dispatcher.h"
-#include "express/dispatcher/Route.h" // for Route
+#include "express/dispatcher/Dispatcher.h" // IWYU pragma: export
+#include "express/dispatcher/Route.h"      // for Route
 
 namespace express {
 
@@ -28,7 +28,6 @@ namespace express {
 
     namespace dispatcher {
 
-        struct MountPoint;
         struct State;
 
     } // namespace dispatcher
@@ -53,6 +52,7 @@ namespace express::dispatcher {
         friend class express::Router;
         friend class ApplicationDispatcher;
         friend class MiddlewareDispatcher;
+        friend class RootRoute;
     };
 
 } // namespace express::dispatcher

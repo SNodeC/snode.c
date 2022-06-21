@@ -20,7 +20,7 @@
 #define EXPRESS_DISPATCHER_ROOTROUTE_H
 
 #include "express/dispatcher/Route.h" // IWYU pragma: export
-#include "express/dispatcher/State.h"
+#include "express/dispatcher/State.h" // IWYU pragma: export
 
 namespace express {
 
@@ -38,6 +38,7 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <memory>
 #include <string>
 
@@ -56,6 +57,7 @@ namespace express::dispatcher {
         bool dispatch(Request& req, Response& res);
 
         std::shared_ptr<RouterDispatcher> getDispatcher();
+        std::list<Route>& routes();
 
     protected:
         bool dispatch(State& state);

@@ -22,7 +22,12 @@
 #include "express/Request.h"              // IWYU pragma: export
 #include "express/Response.h"             // IWYU pragma: export
 #include "express/dispatcher/RootRoute.h" // IWYU pragma: export
-#include "express/dispatcher/State.h"     // IWYU pragma: export
+
+namespace express {
+
+    class Router;
+
+} // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,18 +44,6 @@
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
-namespace express {
-
-    class Router /*: protected express::dispatcher::Route*/ {
-    public:
-        Router();
-        /*
-                Router(const Router& router);
-                Router(Router&& router);
-                Router& operator=(const Router& router);
-                Router& operator=(Router&& router);
-        */
-
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const Router& router);                                                                                                  \
     Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
@@ -60,6 +53,10 @@ namespace express {
     Router& METHOD(const std::string& relativeMountPath,                                                                                   \
                    const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);
 
+namespace express {
+
+    class Router /*: protected express::dispatcher::Route*/ {
+    public:
         DECLARE_REQUESTMETHOD(use)
         DECLARE_REQUESTMETHOD(all)
         DECLARE_REQUESTMETHOD(get)
@@ -73,7 +70,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<express::dispatcher::RootRoute> route;
+        std::shared_ptr<express::dispatcher::RootRoute> route = std::make_shared<express::dispatcher::RootRoute>();
     };
 
 } // namespace express

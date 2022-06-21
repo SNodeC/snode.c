@@ -19,7 +19,6 @@
 #include "express/dispatcher/RouterDispatcher.h"
 
 #include "express/Request.h" // for Request
-#include "express/dispatcher/MountPoint.h"
 #include "express/dispatcher/Route.h"
 #include "express/dispatcher/regex_utils.h"
 

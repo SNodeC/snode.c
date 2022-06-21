@@ -18,10 +18,9 @@
 
 #include "express/Router.h"
 
-#include "express/dispatcher/ApplicationDispatcher.h"
-#include "express/dispatcher/MiddlewareDispatcher.h"
-#include "express/dispatcher/RootRoute.h"
-#include "express/dispatcher/RouterDispatcher.h"
+#include "express/dispatcher/ApplicationDispatcher.h" // IWYU pragma: keep
+#include "express/dispatcher/MiddlewareDispatcher.h"  // IWYU pragma: keep
+#include "express/dispatcher/RouterDispatcher.h"      // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,63 +29,38 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express {
-
-    Router::Router()
-        : route(std::make_shared<express::dispatcher::RootRoute>()) {
-    }
-/*
-    Router::Router(const Router& router)
-        : route(router.route) {
-    }
-
-    Router::Router(Router&& router)
-        : route(std::move(router.route)) {
-    }
-
-    Router& Router::operator=(const Router& router) {
-        route = router.route;
-
-        return *this;
-    }
-
-    Router& Router::operator=(Router&& router) {
-        std::swap(route, router.route);
-
-        return *this;
-    }
-*/
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
     Router& Router::METHOD(const std::string& relativeMountPath, const Router& router) {                                                   \
-        route->getDispatcher()->routes.emplace_back(                                                                                       \
-            express::dispatcher::Route(HTTP_METHOD, relativeMountPath, router.route->getDispatcher()));                                    \
+        route->routes().emplace_back(express::dispatcher::Route(HTTP_METHOD, relativeMountPath, router.route->getDispatcher()));           \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const Router& router) {                                                                                         \
-        route->getDispatcher()->routes.emplace_back(express::dispatcher::Route(HTTP_METHOD, "/", router.route->getDispatcher()));          \
+        route->routes().emplace_back(express::dispatcher::Route(HTTP_METHOD, "/", router.route->getDispatcher()));                         \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::string& relativeMountPath,                                                                           \
                            const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda) {         \
-        route->getDispatcher()->routes.emplace_back(express::dispatcher::Route(                                                            \
+        route->routes().emplace_back(express::dispatcher::Route(                                                                           \
             HTTP_METHOD, relativeMountPath, std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));                         \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda) {         \
-        route->getDispatcher()->routes.emplace_back(                                                                                       \
+        route->routes().emplace_back(                                                                                                      \
             express::dispatcher::Route(HTTP_METHOD, "/", std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));            \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {       \
-        route->getDispatcher()->routes.emplace_back(express::dispatcher::Route(                                                            \
+        route->routes().emplace_back(express::dispatcher::Route(                                                                           \
             HTTP_METHOD, relativeMountPath, std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)));                        \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                             \
-        route->getDispatcher()->routes.emplace_back(                                                                                       \
+        route->routes().emplace_back(                                                                                                      \
             express::dispatcher::Route(HTTP_METHOD, "/", std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)));           \
         return *this;                                                                                                                      \
     }
+
+namespace express {
 
     DEFINE_REQUESTMETHOD(use, "use")
     DEFINE_REQUESTMETHOD(all, "all")
