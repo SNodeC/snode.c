@@ -53,7 +53,7 @@ namespace express::dispatcher {
         Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
 
-        enum flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
+        enum { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
         mutable int flags;
     };
 
