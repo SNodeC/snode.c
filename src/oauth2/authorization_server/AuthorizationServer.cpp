@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
         VLOG(0) << "Test middleware";
         next();
     });
-    /*
+
     // Middleware to catch requests without a valid client_id
     router.use([&db] MIDDLEWARE(req, res, next) {
         std::string queryClientId{req.query("client_id")};
@@ -122,7 +122,6 @@ int main(int argc, char* argv[]) {
             res.status(401).send("Invalid client_id");
         }
     });
-    */
 
     router.get("/authorize", [&db] APPLICATION(req, res) {
         validClientId(req, res, db, [&req, &res, &db]() -> void {
