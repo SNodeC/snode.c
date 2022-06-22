@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref } from 'vue';
 import './styles/app.scss'
-import { authServerService } from './services/authServer.service'
+import { authorizationService } from './services/authorization.service'
+import { resourceService} from './services/resource.service'
 
 const authServerUrl: string = 'http://localhost:8082/oauth2'
 const clientId: string = 'bf0aed2a-ecfc-11ec-97b9-08002771075f'
@@ -16,6 +17,7 @@ authRequestUri += `&state=${state}`
 authRequestUri += `&scope=${scope}`
 
 const showInitiazeLink: Ref<boolean> = ref(true)
+const content: Ref<string | null> = ref(null)
 
 async function initiateOAuth2(): Promise<void> {
   window.location.href = authRequestUri
@@ -50,13 +52,16 @@ async function checkUrlForAuthCode(): Promise<void> {
   }
   showInitiazeLink.value = false
   try {
-    const response = await authServerService.requestToken(queryParams.get('code')!, clientId, redirectUri)
-    if (response == null) {
-      console.log('No token response from server')
-    } else {
-      console.log('Token response from server:')
-      console.log(response)
+    const tokenResponse = await authorizationService.requestToken(queryParams.get('code')!, clientId, redirectUri)
+    if (tokenResponse == null) {
+      console.log('No token response from authorization server')
+      return
     }
+    console.log('Token response from authorization server:')
+    console.log(tokenResponse)
+    const resourceResponse = await resourceService.accessResource(tokenResponse.access_token, clientId)
+    console.log('Resource response from resource server:', resourceResponse.content)
+    content.value = resourceResponse.content
   } catch (error) {
     console.error(error)
   }
@@ -74,6 +79,10 @@ onMounted(async () => {
     <a v-if="showInitiazeLink" :href="authRequestUri" @click.prevent="initiateOAuth2()">
       Connect Your Account
     </a>
+    <article v-if="content">
+      <h2>Content from the resource server</h2>
+      <p>{{content}}</p>
+    </article>
   </div>
 </template>
 
