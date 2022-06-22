@@ -46,7 +46,7 @@ namespace express {
 
 namespace express::dispatcher {
 
-    class RootRoute : public express::dispatcher::Route {
+    class RootRoute : protected express::dispatcher::Route {
     public:
         RootRoute();
         RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);

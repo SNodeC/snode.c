@@ -58,17 +58,19 @@ namespace express::dispatcher {
     }
 
     bool RootRoute::dispatch(Request& req, Response& res) {
+        state.lastRoute = nullptr;
+        state.currentRoute = nullptr;
+
         state.request = &req;
         state.response = &res;
+
         state.flags = State::NON;
-        state.currentRoute = nullptr;
-        state.lastRoute = nullptr;
 
         return Route::dispatch(state, "");
     }
 
     bool RootRoute::dispatch(State& state) {
-        std::swap(state.lastRoute, state.currentRoute);
+        state.lastRoute = state.currentRoute;
         state.currentRoute = nullptr;
 
         return Route::dispatch(state, "");
