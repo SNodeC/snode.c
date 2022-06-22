@@ -33,7 +33,7 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool ApplicationDispatcher::dispatch([[maybe_unused]] State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
+    bool ApplicationDispatcher::dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
         bool dispatched = false;
 
         if ((state.flags & State::INH) == 0) {
