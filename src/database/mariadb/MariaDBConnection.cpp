@@ -65,7 +65,7 @@ namespace database::mariadb {
                 }
             },
             [](void) -> void {
-                VLOG(0) << "Connected";
+                VLOG(0) << "Connect success";
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
