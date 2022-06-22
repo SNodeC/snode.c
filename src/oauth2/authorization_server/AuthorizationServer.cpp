@@ -437,6 +437,103 @@ int main(int argc, char* argv[]) {
         });
     });
 
+    router.post("/token/refresh", [&db] APPLICATION(req, res) {
+        validClientId(req, res, db, [&req, &res, &db]() -> void {
+            res.set("Access-Control-Allow-Origin", "*");
+            auto queryClientId = req.query("client_id");
+            VLOG(0) << "ClientId: " << queryClientId;
+            auto queryGrantType = req.query("grant_type");
+            VLOG(0) << "GrandType: " << queryGrantType;
+            auto queryRefreshToken = req.query("refresh_token");
+            VLOG(0) << "RefreshToken: " << queryRefreshToken;
+            auto queryState = req.query("state");
+            VLOG(0) << "State: " << queryState;
+            if (queryGrantType.length() == 0) {
+                res.status(400).send("Missing query parameter 'grant_type'");
+                return;
+            }
+            if (queryGrantType != "refresh_token") {
+                res.status(400).send("Invalid query parameter 'grant_type', value must be 'refresh_token'");
+                return;
+            }
+            if (queryRefreshToken.empty()) {
+                res.status(400).send("Missing query parameter 'refresh_token'");
+            }
+            db.query(
+                "select count(*) "
+                "from client c "
+                "join token r "
+                "on c.refresh_token_id = r.id "
+                "where c.uuid = '" +
+                    req.query("client_id") +
+                    "' "
+                    "and r.uuid = '" +
+                    req.query("refresh_token") +
+                    "' "
+                    "and timestampdiff(second, current_timestamp(), r.expire_datetime) > 0",
+                [&req, &res, &db](const MYSQL_ROW row) -> void {
+                    if (row != nullptr) {
+                        if (std::stoi(row[0]) == 0) {
+                            res.status(401).send("Invalid refresh token");
+                            return;
+                        }
+                        // Generate access token
+                        std::string accessToken{getNewUUID()};
+                        unsigned int accessTokenExpireSeconds{60 * 60}; // 1 hour
+                        db.exec(
+                              "insert into token(uuid, expire_datetime) "
+                              "values('" +
+                                  accessToken + "', '" +
+                                  timeToString(std::chrono::system_clock::now() + std::chrono::seconds(accessTokenExpireSeconds)) + "')",
+                              []() -> void {
+                              },
+                              [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                  VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                  res.sendStatus(500);
+                              })
+                            .query(
+                                "select last_insert_id()",
+                                [&req, &res, &db, accessToken](const MYSQL_ROW row) -> void {
+                                    if (row != nullptr) {
+                                        db.exec(
+                                            "update client "
+                                            "set access_token_id = '" +
+                                                std::string{row[0]} +
+                                                "' "
+                                                "where uuid = '" +
+                                                req.query("client_id") + "'",
+                                            [&res, accessToken]() -> void {
+                                                nlohmann::json responseJson = {{"access_token", accessToken}};
+                                                res.send(responseJson.dump(4));
+                                            },
+                                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                                res.sendStatus(500);
+                                            });
+                                    }
+                                },
+                                [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                    VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                    res.sendStatus(500);
+                                })
+                            .query(
+                                "select last_insert_id()",
+                                [&req, &res, &db, accessToken, accessTokenExpireSeconds](const MYSQL_ROW row) -> void {
+
+                                },
+                                [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                    VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                                    res.sendStatus(500);
+                                });
+                    }
+                },
+                [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                    VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
+                    res.sendStatus(500);
+                });
+        });
+    });
+
     router.post("/token/validate", [&db] APPLICATION(req, res) {
         validClientId(req, res, db, [&req, &res, &db]() -> void {
             req.getAttribute<nlohmann::json>([&req, &res, &db](nlohmann::json& jsonBody) -> void {
