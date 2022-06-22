@@ -515,15 +515,6 @@ int main(int argc, char* argv[]) {
                                 [&res](const std::string& errorString, unsigned int errorNumber) -> void {
                                     VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                     res.sendStatus(500);
-                                })
-                            .query(
-                                "select last_insert_id()",
-                                [&req, &res, &db, accessToken, accessTokenExpireSeconds](const MYSQL_ROW row) -> void {
-
-                                },
-                                [&res](const std::string& errorString, unsigned int errorNumber) -> void {
-                                    VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
-                                    res.sendStatus(500);
                                 });
                     }
                 },
