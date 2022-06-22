@@ -10,7 +10,7 @@
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
-    express::legacy::in::WebApp app{"OAuth2ResourceServer"};
+    express::legacy::in::WebApp app;
 
     const std::string authorizationServerUri{"http://localhost:8082"};
 
@@ -26,61 +26,66 @@ int main(int argc, char* argv[]) {
             return;
         }
 
+        web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
+            [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
+                VLOG(0) << "OnConnect";
+
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            },
+            []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+                   socketConnection) -> void {
+                VLOG(0) << "OnConnected";
+            },
+            [queryAccessToken, queryClientId](web::http::client::Request& request) -> void {
+                VLOG(0) << "OnRequestBegin";
+                request.url = "/oauth2/token/validate";
+                request.method = "POST";
+                nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
+                std::string requestJsonString{requestJson.dump(4)};
+                request.send(requestJsonString);
+            },
+            [&res]([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
+                VLOG(0) << "OnResponse";
+                if (std::stoi(response.statusCode) != 200) {
+                    nlohmann::json errorJson = {{"error", "Invalid access token"}};
+                    res.status(401).send(errorJson.dump(4));
+                } else {
+                    nlohmann::json successJson = {{"content", "🦆"}};
+                    res.status(200).send(successJson.dump(4));
+                }
+            },
+            [](int status, const std::string& reason) -> void {
+                VLOG(0) << "OnResponseError";
+                VLOG(0) << "     Status: " << status;
+                VLOG(0) << "     Reason: " << reason;
+            },
+            [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
+                VLOG(0) << "OnDisconnect";
+
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            });
+
+        legacyClient.connect(
+            "localhost",
+            8082,
+            [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& socketAddress,
+               int err) -> void {
+                if (err != 0) {
+                    PLOG(ERROR) << "OnError: " << err;
+                } else {
+                    VLOG(0) << "Resource server client connecting to " << socketAddress.toString();
+                }
+            });
+
         /*
-web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
-    [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-           socketConnection) -> void {
-        VLOG(0) << "OnConnect";
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-    },
-    []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request,
-                                                      web::http::client::Response>::SocketConnection* socketConnection)
-        -> void {
-        VLOG(0) << "OnConnected";
-    },
-    [bodyAccessToken](web::http::client::Request& request) -> void {
-        VLOG(0) << "OnRequestBegin";
-        nlohmann::json requestJson = {{"access_token", bodyAccessToken}};
-        request.start();
-    },
-    [&res]([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
-        VLOG(0) << "OnResponse";
-        if (std::stoi(response.statusCode) == 200) {
-            nlohmann::json errorJson = {{"error", "Invalid access token"}};
-            res.status(401).send(errorJson);
-        } else {
-            nlohmann::json successJson = {{"content", "🦆"}};
-             es.status(200).send(successJson);
-
-
-      (int status, const std::string& reason) -> void {
-         LOG(0) << "OnResponseError";
-          OG(0) << "     Status: " << status;
-          OG(0) << "     Reason: " << reason;
-     ,
-     ](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-             cketConnection) -> void {
-         LOG(0) << "OnDisconnect";
-          OG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-          OG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-    });
-
-  gacyClient.connect("localhost",
-                       82,
-                      ](const web::http::legacy::in::Client<web::http::client::Request,
-                                                              b::http::client::Response>::SocketAddress& socketAddress,
-                          t err) -> void {
-                          f (err != 0) {
-                               OG(ERROR) << "OnError: " << err;
-                           else {
-                             VLOG(0) << "Client connecting to " << socketAddress.toString();
-
-                       ;
-                                     */
         nlohmann::json successJson = {{"content", "🦆"}};
         VLOG(0) << "Sending response:  " << successJson.dump(2);
         res.status(200).send(successJson.dump(4));
+        */
     });
 
     app.listen(8083, [](const express::legacy::in::WebApp::SocketAddress socketAddress, int err) {
