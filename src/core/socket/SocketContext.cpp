@@ -65,7 +65,6 @@ namespace core::socket {
     }
 
     void SocketContext::shutdownWrite(bool forceClose) {
-        VLOG(0) << "ShutdownWrite: forceClose = " << forceClose;
         socketConnection->shutdownWrite(forceClose);
     }
 

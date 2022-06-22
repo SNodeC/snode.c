@@ -70,7 +70,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<express::dispatcher::RootRoute> route = std::make_shared<express::dispatcher::RootRoute>();
+        std::shared_ptr<express::dispatcher::RootRoute> rootRoute = std::make_shared<express::dispatcher::RootRoute>();
     };
 
 } // namespace express
