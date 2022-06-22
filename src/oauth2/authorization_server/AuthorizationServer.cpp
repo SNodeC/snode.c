@@ -460,8 +460,15 @@ int main(int argc, char* argv[]) {
                         "' "
                         "and a.uuid = '" +
                         jsonAccessToken + "'",
-                    [](const MYSQL_ROW row) -> void {
+                    [&res](const MYSQL_ROW row) -> void {
                         if (row != nullptr) {
+                            if (std::stoi(row[0]) == 0) {
+                                nlohmann::json errorJson = {{"error", "Invalid access token"}};
+                                res.status(401).send(errorJson);
+                            } else {
+                                nlohmann::json successJson = {{"success", "Valid access token"}};
+                                res.status(200).send(successJson);
+                            }
                         }
                     },
                     [&res](const std::string& errorString, unsigned int errorNumber) -> void {
