@@ -46,9 +46,6 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     webApp.addSniCerts(sniCerts);
 #endif
 
-#define USECONFIGUREDLISTEN
-#ifdef USECONFIGUREDLISTEN
-
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum != 0) {
             PLOG(FATAL) << "listen";
@@ -57,8 +54,10 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
         }
     }); // cppcheck-suppress syntaxError
 
-#else
+    return WebApp::start();
+}
 
+/*
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)
     webApp.listen(8080, 5, [](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
@@ -93,7 +92,4 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 #ifdef NET_TYPE
     }); // cppcheck-suppress syntaxError
 #endif
-
-#endif
-    return WebApp::start();
-}
+*/
