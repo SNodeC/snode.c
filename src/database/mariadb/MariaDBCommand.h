@@ -55,7 +55,7 @@ namespace database::mariadb {
         virtual int commandContinue(int status) = 0;
         virtual bool commandCompleted() = 0;
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
-        virtual std::string commandInfo() = 0;
+        virtual std::string commandInfo();
 
     protected:
         std::string name;

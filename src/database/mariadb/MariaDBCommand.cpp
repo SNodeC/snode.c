@@ -41,6 +41,10 @@ namespace database::mariadb {
         this->mariaDBConnection = mariaDBConnection;
     }
 
+    std::string MariaDBCommand::commandInfo() {
+        return commandName();
+    }
+
     const std::string& MariaDBCommand::commandName() {
         return name;
     }

@@ -19,18 +19,17 @@
 #ifndef EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
 #define EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
 
-#include "express/dispatcher/Dispatcher.h"
-#include "express/dispatcher/Route.h" // for Route
-#include "express/dispatcher/State.h"
+#include "express/dispatcher/Dispatcher.h" // IWYU pragma: export
+#include "express/dispatcher/Route.h"      // for Route
 
 namespace express {
 
     class Router;
-    class Request;
-    class Response;
 
     namespace dispatcher {
-        struct MountPoint;
+
+        struct State;
+
     } // namespace dispatcher
 
 } // namespace express
@@ -45,29 +44,15 @@ namespace express {
 namespace express::dispatcher {
 
     class RouterDispatcher : public Dispatcher {
-    public:
-        RouterDispatcher();
-
-        void dispatch(Request& req, Response& res);
-
-        void dispatchContinue(const State& state);
-
     private:
-        bool dispatch(RouterDispatcher* parentRouter,
-                      const std::string& parentMountPath,
-                      const MountPoint& mountPoint,
-                      Request& req,
-                      Response& res) override;
-
-        State& getState();
+        bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) override;
 
         std::list<Route> routes;
-        State state;
 
-        friend class State;
         friend class express::Router;
         friend class ApplicationDispatcher;
         friend class MiddlewareDispatcher;
+        friend class RootRoute;
     };
 
 } // namespace express::dispatcher

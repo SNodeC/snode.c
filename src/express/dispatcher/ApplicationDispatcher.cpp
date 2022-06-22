@@ -20,6 +20,7 @@
 
 #include "express/Request.h" // for Request
 #include "express/dispatcher/MountPoint.h"
+#include "express/dispatcher/State.h" // for State, State::INH
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,29 +33,27 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool ApplicationDispatcher::dispatch([[maybe_unused]] RouterDispatcher* parentRouter,
-                                         const std::string& parentMountPath,
-                                         const MountPoint& mountPoint,
-                                         Request& req,
-                                         Response& res) {
-        bool catched = false;
+    bool ApplicationDispatcher::dispatch([[maybe_unused]] State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
+        bool dispatched = false;
 
-        std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
+        if ((state.flags & State::INH) == 0) {
+            std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-        // TODO: Fix regex-match
-        if ((req.path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
-            ((absoluteMountPath == req.path || checkForUrlMatch(absoluteMountPath, req.url)) &&
-             (req.method == mountPoint.method || mountPoint.method == "all"))) {
-            catched = true;
+            // TODO: Fix regex-match
+            if ((state.request->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
+                ((absoluteMountPath == state.request->path || checkForUrlMatch(absoluteMountPath, state.request->url)) &&
+                 (state.request->method == mountPoint.method || mountPoint.method == "all"))) {
+                dispatched = true;
 
-            if (hasResult(absoluteMountPath)) {
-                setParams(absoluteMountPath, req);
+                if (hasResult(absoluteMountPath)) {
+                    setParams(absoluteMountPath, *state.request);
+                }
+
+                lambda(*state.request, *state.response);
             }
-
-            lambda(req, res);
         }
 
-        return catched;
+        return dispatched;
     }
 
 } // namespace express::dispatcher

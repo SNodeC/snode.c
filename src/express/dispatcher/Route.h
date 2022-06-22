@@ -19,17 +19,14 @@
 #ifndef EXPRESS_DISPATCHER_ROUTE_H
 #define EXPRESS_DISPATCHER_ROUTE_H
 
-#include "express/dispatcher/MountPoint.h"
+#include "express/dispatcher/MountPoint.h" // IWYU pragma: export
 
 namespace express {
-
-    class Request;
-    class Response;
 
     namespace dispatcher {
 
         class Dispatcher;
-        class RouterDispatcher;
+        struct State;
 
     } // namespace dispatcher
 
@@ -46,16 +43,14 @@ namespace express::dispatcher {
 
     class Route {
     public:
-        Route(RouterDispatcher* parentRouter,
-              const std::string& method,
-              const std::string& relativeMountPath,
-              const std::shared_ptr<Dispatcher>& dispatcher);
+        Route();
+        Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-        bool dispatch(const std::string& parentMountPath, Request& req, Response& res);
+        bool dispatch(State& state, const std::string& parentMountPath) const;
 
     protected:
-        RouterDispatcher* parentRouter;
         MountPoint mountPoint;
+
         std::shared_ptr<Dispatcher> dispatcher;
     };
 

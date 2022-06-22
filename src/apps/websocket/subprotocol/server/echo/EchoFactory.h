@@ -19,8 +19,13 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 #define WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
-#include "apps/websocket/subprotocol/server/echo/Echo.h" // for Echo
 #include "web/websocket/SubProtocolFactory.h"
+
+namespace web::websocket::subprotocol::echo::server {
+    class Echo; // IWYU pragma: keep
+}
+
+// IWYU pragma: no_include "apps/websocket/subprotocol/server/echo/Echo.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

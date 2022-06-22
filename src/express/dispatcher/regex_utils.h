@@ -20,7 +20,9 @@
 #define EXPRESS_DISPATCHER_REGEX_UTILS_H
 
 namespace express {
+
     class Request;
+
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

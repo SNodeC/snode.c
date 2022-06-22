@@ -20,13 +20,17 @@
 #define EXPRESS_DISPATCHER_STATE_H
 
 namespace express {
+
     class Request;
     class Response;
 
     namespace dispatcher {
+
         class Route;
-        class RouterDispatcher;
+        class RootRoute;
+
     } // namespace dispatcher
+
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -37,38 +41,20 @@ namespace express {
 
 namespace express::dispatcher {
 
-    class State {
-    public:
-        State() = default;
-        explicit State(RouterDispatcher* routerDispatcher);
-        State(const State& state);
-
-        ~State();
-
-        State& operator=(const State& state);
-
-        void set(RouterDispatcher* parentRouterDispatcher,
-                 const State* parentState,
-                 const std::string& absoluteMountPath,
-                 Request& req,
-                 Response& res);
-
-        void set(Route& route);
+    struct State {
+        explicit State(RootRoute* rootRoute);
 
         void operator()(const std::string& how = "") const;
 
-    private:
-        RouterDispatcher* currentRouterDispatcher = nullptr;
-        RouterDispatcher* parentRouterDispatcher = nullptr;
+        express::Request* request = nullptr;
+        express::Response* response = nullptr;
 
-        const Route* currentRoute = nullptr;
-        Request* request = nullptr;
-        Response* response = nullptr;
-        std::string absoluteMountPath;
+        RootRoute* rootRoute = nullptr;
+        Route* lastRoute = nullptr;
+        Route* currentRoute = nullptr;
 
-        State* parentState = nullptr;
-
-        friend class RouterDispatcher;
+        enum { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
+        mutable int flags;
     };
 
 } // namespace express::dispatcher

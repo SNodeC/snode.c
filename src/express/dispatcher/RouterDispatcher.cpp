@@ -16,73 +16,46 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RouterDispatcher.h"
+#include "express/dispatcher/RouterDispatcher.h"
 
 #include "express/Request.h" // for Request
-#include "express/dispatcher/MountPoint.h"
 #include "express/dispatcher/Route.h"
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm> // for find_if
+#include "express/dispatcher/State.h" // for State, State::INH, State::NXT
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    RouterDispatcher::RouterDispatcher()
-        : state(this) {
-    }
-
-    void RouterDispatcher::dispatch(Request& req, Response& res) {
-        dispatch(nullptr, "/", MountPoint("use", "/"), req, res);
-    }
-
-    bool RouterDispatcher::dispatch(
-        RouterDispatcher* parentRouter, const std::string& parentMountPath, const MountPoint& mountPoint, Request& req, Response& res) {
-        bool catched = false;
+    bool RouterDispatcher::dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
+        bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         // TODO: Fix regex-match
-        if ((req.path.rfind(absoluteMountPath, 0) == 0 &&
-             (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
-            State* parentState = (parentRouter != nullptr) ? &parentRouter->getState() : nullptr;
-            state.set(parentRouter, parentState, absoluteMountPath, req, res);
-
+        if ((state.request->path.rfind(absoluteMountPath, 0) == 0 &&
+             (mountPoint.method == "use" || state.request->method == mountPoint.method || mountPoint.method == "all"))) {
             for (Route& route : routes) {
-                state.set(route);
-                catched = route.dispatch(absoluteMountPath, req, res);
+                state.currentRoute = &route;
 
-                if (catched) {
+                dispatched = route.dispatch(state, absoluteMountPath);
+
+                if (dispatched) {
                     break;
+                } else if (state.currentRoute == state.lastRoute && (state.flags & State::INH) != 0) {
+                    state.flags &= ~State::INH;
+                    if ((state.flags & State::NXT) != 0) {
+                        state.flags &= ~State::NXT;
+                        break;
+                    }
                 }
             }
         }
 
-        return catched;
-    }
-
-    void RouterDispatcher::dispatchContinue(const State &state) {
-        std::list<Route>::iterator routeBegin = std::find_if(routes.begin(), routes.end(), [&state](const Route& route) -> bool {
-            return &route == state.currentRoute;
-        });
-        ++routeBegin;
-
-        this->state.set(state.parentRouterDispatcher, state.parentState, state.absoluteMountPath, *state.request, *state.response);
-
-        for (std::list<Route>::iterator route = routeBegin; route != routes.end(); ++route) {
-            this->state.set(*route);
-
-            if (route->dispatch(state.absoluteMountPath, *state.request, *state.response)) {
-                break;
-            }
-        }
-    }
-
-    State& RouterDispatcher::getState() {
-        return state;
+        return dispatched;
     }
 
 } // namespace express::dispatcher

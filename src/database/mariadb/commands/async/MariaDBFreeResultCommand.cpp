@@ -57,8 +57,4 @@ namespace database::mariadb::commands::async {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBFreeResultCommand::commandInfo() {
-        return commandName();
-    }
-
 } // namespace database::mariadb::commands::async

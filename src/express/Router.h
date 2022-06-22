@@ -19,17 +19,13 @@
 #ifndef EXPRESS_ROUTER_H
 #define EXPRESS_ROUTER_H
 
-#include "express/Request.h"          // IWYU pragma: export
-#include "express/Response.h"         // IWYU pragma: export
-#include "express/dispatcher/State.h" // IWYU pragma: export
+#include "express/Request.h"              // IWYU pragma: export
+#include "express/Response.h"             // IWYU pragma: export
+#include "express/dispatcher/RootRoute.h" // IWYU pragma: export
 
 namespace express {
 
-    namespace dispatcher {
-
-        class RouterDispatcher;
-
-    } // namespace dispatcher
+    class Router;
 
 } // namespace express
 
@@ -44,19 +40,9 @@ namespace express {
 #define MIDDLEWARE(req, res, state)                                                                                                        \
     ([[maybe_unused]] express::Request & (req),                                                                                            \
      [[maybe_unused]] express::Response & (res),                                                                                           \
-     [[maybe_unused]] express::dispatcher::State(state))
+     [[maybe_unused]] express::dispatcher::State & (state))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
-
-namespace express {
-
-    class Router {
-    public:
-        Router();
-        Router(const Router& router);
-        Router(Router&& router);
-        Router& operator=(const Router& router);
-        Router& operator=(Router&& router);
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const Router& router);                                                                                                  \
@@ -67,6 +53,10 @@ namespace express {
     Router& METHOD(const std::string& relativeMountPath,                                                                                   \
                    const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);
 
+namespace express {
+
+    class Router /*: protected express::dispatcher::Route*/ {
+    public:
         DECLARE_REQUESTMETHOD(use)
         DECLARE_REQUESTMETHOD(all)
         DECLARE_REQUESTMETHOD(get)
@@ -80,7 +70,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<express::dispatcher::RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
+        std::shared_ptr<express::dispatcher::RootRoute> route = std::make_shared<express::dispatcher::RootRoute>();
     };
 
 } // namespace express

@@ -16,8 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_DISPATCHER_H
-#define EXPRESS_DISPATCHER_DISPATCHER_H
+#ifndef EXPRESS_DISPATCHER_ROOTROUTE_H
+#define EXPRESS_DISPATCHER_ROOTROUTE_H
+
+#include "express/dispatcher/Route.h" // IWYU pragma: export
+#include "express/dispatcher/State.h" // IWYU pragma: export
 
 namespace express {
 
@@ -26,9 +29,8 @@ namespace express {
 
     namespace dispatcher {
 
+        class Dispatcher;
         class RouterDispatcher;
-        struct MountPoint;
-        struct State;
 
     } // namespace dispatcher
 
@@ -36,26 +38,35 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    class Dispatcher {
-        Dispatcher(const Dispatcher&) = delete;
-        Dispatcher& operator=(const Dispatcher&) = delete;
-
+    class RootRoute : protected express::dispatcher::Route {
     public:
-        Dispatcher() = default;
-        virtual ~Dispatcher() = default;
+        RootRoute();
+        RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
+
+        RootRoute(const RootRoute& route);
+        RootRoute(RootRoute&& route);
+
+        bool dispatch(Request& req, Response& res);
+
+        std::shared_ptr<RouterDispatcher> getDispatcher();
+        std::list<Route>& routes();
 
     protected:
-        virtual bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
+        bool dispatch(State& state);
 
-        friend class Route;
+        State state;
+
+        friend State;
     };
 
 } // namespace express::dispatcher
 
-#endif // EXPRESS_DISPATCHER_DISPATCHER_H
+#endif // EXPRESS_DISPATCHER_ROOTROUTE_H

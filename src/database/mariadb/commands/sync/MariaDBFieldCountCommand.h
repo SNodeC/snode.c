@@ -41,7 +41,6 @@ namespace database::mariadb::commands::sync {
         int commandStart() override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
-        std::string commandInfo() override;
 
     protected:
         unsigned int fieldCount = 0;

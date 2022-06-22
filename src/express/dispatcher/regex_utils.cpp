@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "regex_utils.h"
+#include "express/dispatcher/regex_utils.h"
 
 #include "express/Request.h" // for Request
 

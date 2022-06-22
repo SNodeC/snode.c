@@ -16,27 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Route.h"
+#include "express/dispatcher/Route.h"
 
-#include "express/dispatcher/Dispatcher.h"
+#include "express/dispatcher/RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    Route::Route(RouterDispatcher* parentRouter,
-                 const std::string& method,
-                 const std::string& relativeMountPath,
-                 const std::shared_ptr<Dispatcher>& dispatcher)
-        : parentRouter(parentRouter)
-        , mountPoint(method, relativeMountPath)
+    Route::Route()
+        : mountPoint("use", "/")
+        , dispatcher(std::make_shared<express::dispatcher::RouterDispatcher>()) {
+    }
+    // path_concat(parentMountPath, mountPoint.relativeMountPath)
+    Route::Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)
+        : mountPoint(method, relativeMountPath)
         , dispatcher(dispatcher) {
     }
 
-    bool Route::dispatch(const std::string& parentMountPath, Request& req, Response& res) {
-        return dispatcher->dispatch(parentRouter, parentMountPath, mountPoint, req, res);
+    bool Route::dispatch(State& state, const std::string& parentMountPath) const {
+        return dispatcher->dispatch(state, parentMountPath, mountPoint);
     }
 
 } // namespace express::dispatcher

@@ -28,9 +28,8 @@ namespace express {
 
     namespace dispatcher {
 
-        class RouterDispatcher;
         struct MountPoint;
-        class State;
+        struct State;
 
     } // namespace dispatcher
 
@@ -50,11 +49,7 @@ namespace express::dispatcher {
         explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, State& state)>& lambda);
 
     private:
-        bool dispatch(RouterDispatcher* parentRouter,
-                      const std::string& parentMountPath,
-                      const MountPoint& mountPoint,
-                      Request& req,
-                      Response& res) override;
+        bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) override;
 
         const std::function<void(Request& req, Response& res, State& state)> lambda;
     };
