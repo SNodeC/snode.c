@@ -37,9 +37,6 @@ namespace web::http::client {
 
     class SocketContextUpgradeFactory
         : public web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response> {
-    private:
-        using Super = web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>;
-
     public:
         using Resquest = web::http::client::Request;
         using Reponse = web::http::client::Response;
@@ -48,7 +45,6 @@ namespace web::http::client {
         SocketContextUpgradeFactory();
 
     public:
-        using Super::prepare;
         virtual void prepare(Request& request) = 0;
 
         void checkRefCount() final;

@@ -37,9 +37,6 @@ namespace web::http::server {
 
     class SocketContextUpgradeFactory
         : public web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response> {
-    private:
-        using Super = web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>;
-
     public:
         using Resquest = web::http::server::Request;
         using Reponse = web::http::server::Response;
@@ -48,8 +45,6 @@ namespace web::http::server {
         SocketContextUpgradeFactory();
 
     public:
-        using Super::prepare;
-
         void checkRefCount() final;
 
     protected:

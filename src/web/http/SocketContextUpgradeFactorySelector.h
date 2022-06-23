@@ -31,12 +31,6 @@
 
 namespace web::http {
 
-    template <typename SocketContextUpgradeFactory>
-    struct SocketContextPlugin {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory; // cppcheck-suppress unusedStructMember
-        void* handle = nullptr;                                   // cppcheck-suppress unusedStructMember
-    };
-
     template <typename SocketContextUpgradeFactoryT>
     class SocketContextUpgradeFactorySelector {
     public:
@@ -46,10 +40,15 @@ namespace web::http {
 
     protected:
         using SocketContextUpgrade = web::http::SocketContextUpgrade<Request, Response>;
-        using SocketContextPlugin = SocketContextPlugin<SocketContextUpgradeFactory>;
 
         SocketContextUpgradeFactorySelector() = default;
         virtual ~SocketContextUpgradeFactorySelector() = default;
+
+    private:
+        using SocketContextPlugin = struct SocketContextPlugin {
+            SocketContextUpgradeFactory* socketContextUpgradeFactory; // cppcheck-suppress unusedStructMember
+            void* handle = nullptr;                                   // cppcheck-suppress unusedStructMember
+        };
 
     public:
         virtual SocketContextUpgradeFactory* select(Request& req, Response& res) = 0;

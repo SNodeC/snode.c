@@ -23,7 +23,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
-#include <utility> // for move, swap
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
