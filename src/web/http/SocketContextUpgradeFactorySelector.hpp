@@ -43,8 +43,7 @@ namespace web::http {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {
-            SocketContextPlugin<SocketContextUpgradeFactory> socketContextPlugin = {
-                .socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
+            SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
             std::tie(std::ignore, success) = socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
         }
 
@@ -142,7 +141,7 @@ namespace web::http {
         std::string upgradeContextNames = socketContextUpgradeFactory->name();
 
         if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
-            SocketContextPlugin<SocketContextUpgradeFactory>& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
+            SocketContextPlugin& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
 
             delete socketContextUpgradeFactory;
 

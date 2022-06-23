@@ -46,6 +46,8 @@ namespace web::http {
 
     protected:
         using SocketContextUpgrade = web::http::SocketContextUpgrade<Request, Response>;
+        using SocketContextPlugin = SocketContextPlugin<SocketContextUpgradeFactory>;
+
         SocketContextUpgradeFactorySelector() = default;
         virtual ~SocketContextUpgradeFactorySelector() = default;
 
@@ -70,7 +72,7 @@ namespace web::http {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
-        std::map<std::string, SocketContextPlugin<SocketContextUpgradeFactory>> socketContextUpgradePlugins;
+        std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
 
