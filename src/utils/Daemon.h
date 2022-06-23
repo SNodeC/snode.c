@@ -33,15 +33,10 @@ namespace utils {
         Daemon() = delete;
         ~Daemon() = delete;
 
-        static void daemonize(const std::string& pidFileName);
-        static void kill(const std::string& pidFileName);
+        static void startDaemon(const std::string& pidFileName);
+        static void stopDaemon(const std::string& pidFileName);
+
         static void erasePidFile(const std::string& pidFileName);
-
-    private:
-        static long pidfd_open(pid_t pid, unsigned int flags);
-        static int waitForDaemonToExit(pid_t pid);
-
-        static bool daemonized;
     };
 
 } // namespace utils

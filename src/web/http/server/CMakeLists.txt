@@ -1,13 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR
-    ${HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR}/server
-)
-
-set(HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR
-    ${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}/server
-)
-
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(PkgConfig REQUIRED)
@@ -40,11 +32,11 @@ set(HTTPSERVER_H
     ../tls/un/Server.h
 )
 
-add_library(httpserver SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_h})
-add_library(snodec::httpserver ALIAS httpserver)
+add_library(http-server SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_h})
+add_library(snodec::http-server ALIAS http-server)
 
 if(LIBMAGIC_FOUND)
-    target_compile_definitions(httpserver PUBLIC HAS_LIBMAGIC)
+    target_compile_definitions(http-server PUBLIC HAS_LIBMAGIC)
 else(LIBMAGIC_FOUND)
     message(
         WARNING
@@ -56,32 +48,31 @@ else(LIBMAGIC_FOUND)
 endif(LIBMAGIC_FOUND)
 
 target_compile_definitions(
-    httpserver
+    http-server
     PRIVATE
-        HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR="${HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR}"
-        HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR="${CMAKE_INSTALL_PREFIX}/${HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR}"
+        HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR="${HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR}"
+        HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR="${CMAKE_INSTALL_PREFIX}/${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}"
 )
 
 target_include_directories(
-    httpserver
+    http-server
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(httpserver PUBLIC snodec::http ${LIBMAGIC_LIBRARIES} dl)
+target_link_libraries(http-server PUBLIC snodec::http ${LIBMAGIC_LIBRARIES} dl)
 
 set_target_properties(
-    httpserver
+    http-server
     PROPERTIES SOVERSION 1
                OUTPUT_NAME snodec-http-server
-               HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR
-               "${HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR}"
-               HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR
-               "${HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR}"
-               EXPORT_PROPERTIES
-               "HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR"
+               HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR
+               "${HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR}"
+               HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR
+               "${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}"
+               EXPORT_PROPERTIES "HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR"
 )
 
 install(
@@ -94,16 +85,16 @@ install(
 )
 
 install(
-    TARGETS httpserver
-    EXPORT snodec_httpserver_Targets
+    TARGETS http-server
+    EXPORT snodec_http-server_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(
-    EXPORT snodec_httpserver_Targets
-    FILE snodec_httpserver_Targets.cmake
+    EXPORT snodec_http-server_Targets
+    FILE snodec_http-server_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

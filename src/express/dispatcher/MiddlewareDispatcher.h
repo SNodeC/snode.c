@@ -29,7 +29,7 @@ namespace express {
     namespace dispatcher {
 
         struct MountPoint;
-        struct State;
+        class State;
 
     } // namespace dispatcher
 

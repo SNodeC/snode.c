@@ -31,13 +31,13 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
         : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>() {
-        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_INSTALL_LIBDIR);
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR);
 
-#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR)
+#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR)
 
-        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR);
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR);
 
-#endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR)
+#endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR)
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
@@ -74,8 +74,7 @@ namespace web::http::client {
             socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->web::http::SocketContextUpgradeFactory<Request, Response>::prepare(
-                    req, res); // Fill in the missing header fields into the request object
+                socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
             }
         }
 

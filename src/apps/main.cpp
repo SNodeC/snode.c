@@ -192,6 +192,20 @@ int timerApp() {
     return express::WebApp::start();
 }
 
+class Test {
+public:
+    void filter(const std::function<void(int)>& function) {
+        this->function = function;
+    }
+
+    void callIt() {
+        function(3);
+    }
+
+private:
+    std::function<void(int)> function;
+};
+
 int main(int argc, char** argv) {
     express::WebApp::init(argc, argv);
 
@@ -204,11 +218,6 @@ int main(int argc, char** argv) {
     std::cout << "FileReader: " << test1.rflags << " : " << O_RDONLY << std::endl;
     std::cout << "FileWriter: " << test2.rflags << " : " << O_WRONLY << std::endl;
     std::cout << "FileIO: " << test3.rflags << " : " << O_RDWR << std::endl;
-    /*
-        express::legacy::in::WebApp::SocketAddress sa("185.156.72.27");
-
-        VLOG(0) << "SocketAddress: " << sa.address() << " : " << sa.host() << " : " << sa.toString();
-        */
 
     return timerApp();
 }

@@ -41,92 +41,78 @@
 
 namespace utils {
 
-    bool Daemon::daemonized = false;
-
-    long Daemon::pidfd_open(pid_t pid, unsigned int flags) {
-        return syscall(__NR_pidfd_open, pid, flags);
-    }
-
-    void Daemon::daemonize(const std::string& pidFileName) {
+    void Daemon::startDaemon(const std::string& pidFileName) {
         if (!std::filesystem::exists(pidFileName)) {
             pid_t pid = 0;
 
             /* Fork off the parent process */
             pid = fork();
 
-            /* An error occurred */
             if (pid < 0) {
+                /* An error occurred */
                 exit(EXIT_FAILURE);
-            }
-
-            /* Success: Let the parent terminate */
-            if (pid > 0) {
+            } else if (pid > 0) {
+                /* Success: Let the parent terminate */
                 exit(EXIT_SUCCESS);
-            }
-
-            /* On success: The child process becomes session leader */
-            if (setsid() < 0) {
+            } else if (setsid() < 0) {
+                /* On success: The child process becomes session leader */
                 exit(EXIT_FAILURE);
-            }
+            } else {
+                /* Ignore signal sent from child to parent process */
+                signal(SIGCHLD, SIG_IGN);
 
-            /* Ignore signal sent from child to parent process */
-            signal(SIGCHLD, SIG_IGN);
+                /* Fork off for the second time*/
+                pid = fork();
 
-            /* Fork off for the second time*/
-            pid = fork();
-
-            /* An error occurred */
-            if (pid < 0) {
-                exit(EXIT_FAILURE);
-            }
-
-            /* Success: Let the parent terminate */
-            if (pid > 0) {
-                exit(EXIT_SUCCESS);
-            }
-
-            /* Set new file permissions */
-            umask(0);
-
-            /* Change the working directory to the root directory */
-            /* or another appropriated directory */
-            chdir("/");
-
-            /* Close all open file descriptors */
-            for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
-                close(static_cast<int>(fd));
-            }
-
-            /* Reopen stdin (fd = 0), stdout (fd = 1), stderr (fd = 2) */
-            if (std::freopen("/dev/null", "r", stdin) == nullptr) {
-            }
-            if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
-            }
-            if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
-            }
-
-            /* Try to write PID of daemon to lockfile */
-            if (!pidFileName.empty()) {
-                std::ofstream pidFile(pidFileName, std::ofstream::out);
-
-                if (pidFile.good()) {
-                    pidFile << getpid() << std::endl;
-                    pidFile.close();
-                } else {
+                if (pid < 0) {
+                    /* An error occurred */
                     exit(EXIT_FAILURE);
+                } else if (pid > 0) {
+                    /* Success: Let the parent terminate */
+                    exit(EXIT_SUCCESS);
+                } else {
+                    /* Set new file permissions */
+                    umask(0);
+
+                    /* Change the working directory to the root directory */
+                    /* or another appropriated directory */
+                    chdir("/");
+
+                    /* Close all open file descriptors */
+                    for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
+                        close(static_cast<int>(fd));
+                    }
+
+                    /* Reopen stdin (fd = 0), stdout (fd = 1), stderr (fd = 2) */
+                    if (std::freopen("/dev/null", "r", stdin) == nullptr) {
+                    }
+                    if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
+                    }
+                    if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
+                    }
+
+                    if (!pidFileName.empty()) {
+                        /* Try to write PID of daemon to lockfile */
+                        std::ofstream pidFile(pidFileName, std::ofstream::out);
+
+                        if (pidFile.good()) {
+                            pidFile << getpid() << std::endl;
+                            pidFile.close();
+                        } else {
+                            exit(EXIT_FAILURE);
+                        }
+                    }
                 }
             }
-            daemonized = true;
         } else {
             VLOG(0) << "Already running: Not daemonized ... exiting";
-            daemonized = false;
             exit(EXIT_FAILURE);
         }
     }
 
-    void Daemon::kill(const std::string& pidFileName) {
-        /* Try to read PID of daemon to from lockfile and kill the daemon */
+    void Daemon::stopDaemon(const std::string& pidFileName) {
         if (!pidFileName.empty()) {
+            /* Try to read PID of daemon to from lockfile and kill the daemon */
             std::ifstream pidFile(pidFileName, std::ifstream::in);
 
             if (pidFile.good()) {
@@ -135,14 +121,13 @@ namespace utils {
 
                 struct pollfd pollfd;
 
-                int pidfd = static_cast<int>(pidfd_open(pid, 0));
+                int pidfd = static_cast<int>(syscall(__NR_pidfd_open, pid, 0));
 
                 if (pidfd == -1) {
                     VLOG(0) << "Daemon not running";
+                    erasePidFile(pidFileName);
                     exit(EXIT_FAILURE);
-                }
-
-                if (::kill(pid, SIGTERM) == 0) {
+                } else if (::kill(pid, SIGTERM) == 0) {
                     pidFile.close();
 
                     pollfd.fd = pidfd;
@@ -167,16 +152,13 @@ namespace utils {
                 }
             } else {
                 VLOG(0) << "Daemon not running";
-
                 exit(EXIT_FAILURE);
             }
         }
     }
 
     void Daemon::erasePidFile(const std::string& pidFileName) {
-        if (daemonized) {
-            std::remove(pidFileName.data());
-        }
+        std::remove(pidFileName.data());
     }
 
 } // namespace utils

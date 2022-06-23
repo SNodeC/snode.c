@@ -41,11 +41,14 @@ namespace express {
 
 namespace express::dispatcher {
 
-    struct State {
+    class State {
+    private:
         explicit State(RootRoute* rootRoute);
 
+    public:
         void operator()(const std::string& how = "") const;
 
+    private:
         express::Request* request = nullptr;
         express::Response* response = nullptr;
 
@@ -55,6 +58,11 @@ namespace express::dispatcher {
 
         enum { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
         mutable int flags;
+
+        friend class RootRoute;
+        friend class RouterDispatcher;
+        friend class ApplicationDispatcher;
+        friend class MiddlewareDispatcher;
     };
 
 } // namespace express::dispatcher

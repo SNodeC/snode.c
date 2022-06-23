@@ -20,7 +20,7 @@ set(WSECHOCLIENT_H)
 
 add_executable(wsechoclient ${WSECHOCLIENT_CPP} ${WSECHOCLIENT_H})
 target_link_libraries(
-    wsechoclient PRIVATE snodec::httpclient snodec::core-legacy
+    wsechoclient PRIVATE snodec::http-client snodec::core-legacy
                          snodec::core-tls snodec::net-in
 )
 install(TARGETS wsechoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

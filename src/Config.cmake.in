@@ -1,12 +1,12 @@
 @PACKAGE_INIT@
 
-set(websocketserver_DEPENDENCIES websocketbase httpserver)
-set(websocketclient_DEPENDENCIES websocketbase httpclient)
+set(websocket-server_DEPENDENCIES websocket http-server)
+set(websocket-client_DEPENDENCIES websocket http-client)
 
-set(express_DEPENDENCIES httpserver)
+set(express_DEPENDENCIES http-server)
 
-set(httpserver_DEPENDENCIES http)
-set(httpclient_DEPENDENCIES http)
+set(http-server_DEPENDENCIES http)
+set(http-client_DEPENDENCIES http)
 
 set(net-in_DEPENDENCIES net)
 set(net-in6_DEPENDENCIES net)
@@ -54,11 +54,11 @@ set(_supported_components
     net-un
     db-mariadb
     http
-    httpserver
-    httpclient
+    http-server
+    http-client
     express
-    websocketserver
-    websocketclient
+    websocket-server
+    websocket-client
 )
 
 set(snodec_FOUND True)
