@@ -2,7 +2,7 @@
 import { onMounted, Ref, ref } from 'vue';
 import './styles/app.scss'
 import { authorizationService } from './services/authorization.service'
-import { resourceService} from './services/resource.service'
+import { resourceService } from './services/resource.service'
 
 const authServerUrl: string = 'http://localhost:8082/oauth2'
 const clientId: string = 'bf0aed2a-ecfc-11ec-97b9-08002771075f'
@@ -21,13 +21,6 @@ const content: Ref<string | null> = ref(null)
 
 async function initiateOAuth2(): Promise<void> {
   window.location.href = authRequestUri
-  // try {
-  //   await fetch(AUTH_REQUEST_URI, {
-  //     method: 'get',
-  //   })
-  // } catch (error: unknown) {
-  //   console.error(error);
-  // }
 }
 
 function getQueryParamsFromUrl(url: string): Map<string, string> {
@@ -81,10 +74,15 @@ onMounted(async () => {
     </a>
     <article v-if="content">
       <h2>Content from the resource server</h2>
-      <p>{{content}}</p>
+      <p class="content">{{ content }}</p>
     </article>
   </div>
 </template>
 
-<style>
+<style scoped>
+.content {
+  font-size: 75pt;
+  display: flex;
+  justify-content: center;
+}
 </style>
