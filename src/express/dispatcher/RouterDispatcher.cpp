@@ -45,7 +45,7 @@ namespace express::dispatcher {
 
                 if (dispatched) {
                     break;
-                } else if (state.currentRoute == state.lastRoute && (state.flags & State::INH) != 0) {
+                } else if (state.currentRoute == state.lastRoute) {
                     state.flags &= ~State::INH;
                     if ((state.flags & State::NXT) != 0) {
                         state.flags &= ~State::NXT;

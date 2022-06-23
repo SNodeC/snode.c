@@ -49,15 +49,16 @@ namespace express::dispatcher {
         void operator()(const std::string& how = "") const;
 
     private:
+        RootRoute* rootRoute = nullptr;
+
         express::Request* request = nullptr;
         express::Response* response = nullptr;
 
-        RootRoute* rootRoute = nullptr;
         Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
 
         enum { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
-        mutable int flags;
+        mutable int flags = NON;
 
         friend class RootRoute;
         friend class RouterDispatcher;

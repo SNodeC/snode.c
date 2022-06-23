@@ -27,8 +27,7 @@
 namespace express::dispatcher {
 
     State::State(RootRoute* rootRoute)
-        : rootRoute(rootRoute)
-        , flags(NON) {
+        : rootRoute(rootRoute) {
     }
 
     void State::operator()(const std::string& how) const {
