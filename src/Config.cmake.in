@@ -1,7 +1,7 @@
 @PACKAGE_INIT@
 
-set(websocketserver_DEPENDENCIES websocketbase http-server)
-set(websocketclient_DEPENDENCIES websocketbase http-client)
+set(websocket-server_DEPENDENCIES websocket http-server)
+set(websocket-client_DEPENDENCIES websocket http-client)
 
 set(express_DEPENDENCIES http-server)
 
@@ -57,8 +57,8 @@ set(_supported_components
     http-server
     http-client
     express
-    websocketserver
-    websocketclient
+    websocket-server
+    websocket-client
 )
 
 set(snodec_FOUND True)

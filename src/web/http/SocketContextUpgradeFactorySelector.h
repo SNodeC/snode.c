@@ -45,6 +45,7 @@ namespace web::http {
         using Response = typename SocketContextUpgradeFactory::Response;
 
     protected:
+        using SocketContextUpgrade = web::http::SocketContextUpgrade<Request, Response>;
         SocketContextUpgradeFactorySelector() = default;
         virtual ~SocketContextUpgradeFactorySelector() = default;
 
@@ -65,8 +66,7 @@ namespace web::http {
         void addSocketContextUpgradeSearchPath(const std::string& searchPath);
 
         virtual SocketContextUpgradeFactory* load(const std::string& upgradeContextName) = 0;
-        SocketContextUpgradeFactory* load(const std::string& upgradeContextName,
-                                          typename web::http::SocketContextUpgrade<Request, Response>::Role role);
+        SocketContextUpgradeFactory* load(const std::string& upgradeContextName, typename SocketContextUpgrade::Role role);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 

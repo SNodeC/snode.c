@@ -27,20 +27,20 @@ set(WEBSOCKETCLIENT_H SocketContextUpgrade.h SocketContextUpgradeFactory.h
                       SubProtocol.h SubProtocolFactorySelector.h
 )
 
-add_library(websocketclient SHARED ${WEBSOCKETCLIENT_CPP} ${WEBSOCKETCLIENT_H})
-add_library(snodec::websocketclient ALIAS websocketclient)
+add_library(websocket-client SHARED ${WEBSOCKETCLIENT_CPP} ${WEBSOCKETCLIENT_H})
+add_library(snodec::websocket-client ALIAS websocket-client)
 
 target_compile_definitions(
-    websocketclient
+    websocket-client
     PRIVATE
         WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR="${WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR}"
         WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR="${WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR}"
 )
 
 set_target_properties(
-    websocketclient
+    websocket-client
     PROPERTIES
-        OUTPUT_NAME "snodec-websocket"
+        OUTPUT_NAME "snodec-websocket-client"
         LIBRARY_OUTPUT_DIRECTORY
         "${HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR}"
         INSTALL_RPATH
@@ -57,17 +57,17 @@ set_target_properties(
 )
 
 target_include_directories(
-    websocketclient
+    websocket-client
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(websocketclient PUBLIC snodec::websocketbase)
+target_link_libraries(websocket-client PUBLIC snodec::websocket)
 
 install(
-    TARGETS websocketclient
-    EXPORT snodec_websocketclient_Targets
+    TARGETS websocket-client
+    EXPORT snodec_websocket-client_Targets
     LIBRARY DESTINATION ${HTTP_SOCKETCONTEXTUPGRADE_CLIENT_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -83,8 +83,8 @@ install(
 )
 
 install(
-    EXPORT snodec_websocketclient_Targets
-    FILE snodec_websocketclient_Targets.cmake
+    EXPORT snodec_websocket-client_Targets
+    FILE snodec_websocket-client_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

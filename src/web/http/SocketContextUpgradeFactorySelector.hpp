@@ -62,18 +62,20 @@ namespace web::http {
     }
 
     template <typename SocketContextUpgradeFactory>
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(
-        const std::string& upgradeContextName, typename web::http::SocketContextUpgrade<Request, Response>::Role role) {
+    SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& upgradeContextName,
+                                                                           typename SocketContextUpgrade::Role role) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         for (const std::string& searchPath : searchPaths) {
-            void* handle =
-                core::DynamicLoader::dlOpen((searchPath + "/libsnodec-" + upgradeContextName + ".so").c_str(), RTLD_LAZY | RTLD_GLOBAL);
+            void* handle = core::DynamicLoader::dlOpen((searchPath + "/libsnodec-" + upgradeContextName +
+                                                        (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so")
+                                                           .c_str(),
+                                                       RTLD_LAZY | RTLD_GLOBAL);
 
             if (handle != nullptr) {
                 std::string socketContextUpgradeFactoryName =
-                    upgradeContextName + (role == web::http::SocketContextUpgrade<Request, Response>::Role::SERVER ? "Server" : "Client") +
-                    "ContextUpgradeFactory";
+                    upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "Server" : "Client") + "ContextUpgradeFactory";
                 SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(
                     core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryName));
 

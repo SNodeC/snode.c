@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 3.0)
 
 get_target_property(
-    WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR snodec::websocketserver
+    WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR snodec::websocket-server
     WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR
 )
 
 get_target_property(
-    WEBSOCKET_SUBPROTOCOL_SERVER_INCLUDE_DIRS snodec::websocketserver
+    WEBSOCKET_SUBPROTOCOL_SERVER_INCLUDE_DIRS snodec::websocket-server
     WEBSOCKET_SUBPROTOCOL_SERVER_INCLUDE_DIRS
 )
 
 get_target_property(
-    WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR snodec::websocketserver
+    WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR snodec::websocket-server
     WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR
 )
 
