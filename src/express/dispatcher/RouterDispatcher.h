@@ -28,7 +28,7 @@ namespace express {
 
     namespace dispatcher {
 
-        struct State;
+        class State;
 
     } // namespace dispatcher
 

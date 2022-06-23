@@ -38,11 +38,11 @@ set(HTTPCLIENT_H
     ../tls/un/Client.h
 )
 
-add_library(httpclient SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H})
-add_library(snodec::httpclient ALIAS httpclient)
+add_library(http-client SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H})
+add_library(snodec::http-client ALIAS http-client)
 
 if(LIBMAGIC_FOUND)
-    target_compile_definitions(httpclient PUBLIC HAS_LIBMAGIC)
+    target_compile_definitions(http-client PUBLIC HAS_LIBMAGIC)
 else(LIBMAGIC_FOUND)
     message(
         WARNING
@@ -54,23 +54,23 @@ else(LIBMAGIC_FOUND)
 endif(LIBMAGIC_FOUND)
 
 target_compile_definitions(
-    httpclient
+    http-client
     PRIVATE
         HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR="${HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR}"
         HTTP_SOCKETCONTEXTUPGRADE_CLIENT_INSTALL_LIBDIR="${CMAKE_INSTALL_PREFIX}/${HTTP_SOCKETCONTEXTUPGRADE_CLIENT_INSTALL_LIBDIR}"
 )
 
 target_include_directories(
-    httpclient
+    http-client
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(httpclient PUBLIC snodec::http ${LIBMAGIC_LIBRARIES} dl)
+target_link_libraries(http-client PUBLIC snodec::http ${LIBMAGIC_LIBRARIES} dl)
 
 set_target_properties(
-    httpclient
+    http-client
     PROPERTIES SOVERSION 1
                OUTPUT_NAME snodec-http-client
                HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR
@@ -91,16 +91,16 @@ install(
 )
 
 install(
-    TARGETS httpclient
-    EXPORT snodec_httpclient_Targets
+    TARGETS http-client
+    EXPORT snodec_http-client_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(
-    EXPORT snodec_httpclient_Targets
-    FILE snodec_httpclient_Targets.cmake
+    EXPORT snodec_http-client_Targets
+    FILE snodec_http-client_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

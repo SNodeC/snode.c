@@ -33,20 +33,20 @@ endif(NLOHMANN_JSON_FOUND)
 
 add_executable(jsonclient jsonclient.cpp)
 target_link_libraries(
-    jsonclient PRIVATE snodec::httpclient snodec::core-legacy snodec::net-in
+    jsonclient PRIVATE snodec::http-client snodec::core-legacy snodec::net-in
 )
 install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testparser testparsers.cpp)
 target_link_libraries(
-    testparser PRIVATE snodec::httpserver snodec::httpclient snodec::core
+    testparser PRIVATE snodec::http-server snodec::http-client snodec::core
                        snodec::logger
 )
 install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(lowlevelclient lowlevelclient.cpp)
 target_link_libraries(
-    lowlevelclient PRIVATE snodec::httpclient snodec::core-legacy
+    lowlevelclient PRIVATE snodec::http-client snodec::core-legacy
                            snodec::core-tls snodec::net-in
 )
 install(TARGETS lowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
