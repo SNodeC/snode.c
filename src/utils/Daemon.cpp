@@ -56,10 +56,10 @@ namespace utils {
             } else if (setsid() < 0) {
                 /* On success: The child process becomes session leader */
                 exit(EXIT_FAILURE);
+            } else if (signal(SIGHUP, SIG_IGN) == SIG_ERR) {
+                /* Ignore signal sent from parent to child process */
+                exit(EXIT_FAILURE);
             } else {
-                /* Ignore signal sent from child to parent process */
-                signal(SIGCHLD, SIG_IGN);
-
                 /* Fork off for the second time*/
                 pid = fork();
 

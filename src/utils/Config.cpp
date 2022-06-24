@@ -27,6 +27,7 @@
 
 #include <cerrno>
 #include <cstdlib>
+#include <fcntl.h>
 #include <filesystem>
 #include <memory>  // for __shared_ptr_access, shared_ptr
 #include <ostream> // for ofstream, basic_ostream
@@ -192,6 +193,12 @@ namespace utils {
     void Config::terminate() {
         if (startDaemon) {
             Daemon::erasePidFile(defaultPidDir + "/" + name + ".pid");
+        }
+
+        if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
+            char buf[1024];
+            while (read(STDIN_FILENO, buf, 1024) > 0)
+                ;
         }
     }
 

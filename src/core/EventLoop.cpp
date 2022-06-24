@@ -114,11 +114,8 @@ namespace core {
         utils::Config::prepare();
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
-        sighandler_t oldSigQuitHandler = core::system::signal(SIGQUIT, EventLoop::stoponsig);
-        sighandler_t oldSigHubHandler = core::system::signal(SIGHUP, EventLoop::stoponsig);
         sighandler_t oldSigIntHandler = core::system::signal(SIGINT, EventLoop::stoponsig);
         sighandler_t oldSigTermHandler = core::system::signal(SIGTERM, EventLoop::stoponsig);
-        sighandler_t oldSigAbrtHandler = core::system::signal(SIGABRT, EventLoop::stoponsig);
 
         if (!running) {
             running = true;
@@ -146,11 +143,8 @@ namespace core {
         }
 
         core::system::signal(SIGPIPE, oldSigPipeHandler);
-        core::system::signal(SIGQUIT, oldSigQuitHandler);
-        core::system::signal(SIGHUP, oldSigHubHandler);
         core::system::signal(SIGINT, oldSigIntHandler);
         core::system::signal(SIGTERM, oldSigTermHandler);
-        core::system::signal(SIGABRT, oldSigAbrtHandler);
 
         free();
 
@@ -183,7 +177,7 @@ namespace core {
 
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
-        stopped = true;
+        stop();
     }
 
 } // namespace core
