@@ -36,9 +36,9 @@ namespace net::un::config {
         if (!net::config::ConfigBase::getName().empty()) {
             sunPathOpt = ConfigAddressType::addressSc->add_option("--path", sunPath, "Unix domain socket");
             sunPathOpt->type_name("[sun-path]");
-            sunPathOpt->default_val(std::string('\0' + net::config::ConfigBase::getName()));
+            sunPathOpt->default_val(std::string('\0' + net::config::ConfigBase::getName() + "_" + std::to_string(getpid())));
         }
-        ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigBase::getName()));
+        ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigBase::getName() + "_" + std::to_string(getpid())));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
