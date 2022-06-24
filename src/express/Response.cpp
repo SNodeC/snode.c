@@ -35,28 +35,16 @@ namespace express {
 
     void Response::json(const nlohmann::json& json) {
         set("Content-Type", "application/json");
-
         send(json.dump());
     }
 
-    void Response::attachment(const std::string& fileName) {
-        set("Content-Disposition", "attachment" + ((!fileName.empty()) ? ("; filename=\"" + fileName + "\"") : ""));
-    }
-
     void Response::download(const std::string& file, const std::function<void(int err)>& onError) {
-        std::string name = std::filesystem::path(file);
-
-        download(file, name, onError);
+        download(file, std::filesystem::path(file).filename(), onError);
     }
 
-    void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) {
-        attachment(name);
-
+    void Response::download(const std::string& file, const std::string& fileName, const std::function<void(int err)>& onError) {
+        attachment(fileName);
         sendFile(file, onError);
-    }
-
-    void Response::location(const std::string& loc) {
-        set("Location", loc);
     }
 
     void Response::redirect(const std::string& loc) {
@@ -64,17 +52,27 @@ namespace express {
     }
 
     void Response::redirect(int state, const std::string& loc) {
-        status(state);
         location(loc);
-        end();
-    }
-
-    void Response::vary(const std::string& field) {
-        append("Vary", field);
+        sendStatus(state);
     }
 
     void Response::sendStatus(int state) {
         this->status(state).send(web::http::StatusCode::reason(state));
+    }
+
+    Response& Response::attachment(const std::string& fileName) {
+        set("Content-Disposition", "attachment" + ((!fileName.empty()) ? ("; filename=\"" + fileName + "\"") : ""));
+        return *this;
+    }
+
+    Response& Response::location(const std::string& loc) {
+        set("Location", loc);
+        return *this;
+    }
+
+    Response& Response::vary(const std::string& field) {
+        append("Vary", field);
+        return *this;
     }
 
 } // namespace express

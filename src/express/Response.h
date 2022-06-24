@@ -42,17 +42,17 @@ namespace express {
 
         void json(const nlohmann::json& json);
 
-        void attachment(const std::string& fileName = "");
         void download(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
+        void download(const std::string& file, const std::string& fileName, const std::function<void(int err)>& onError);
 
-        void location(const std::string& loc);
         void redirect(const std::string& loc);
         void redirect(int state, const std::string& loc);
 
-        void vary(const std::string& field);
-
         void sendStatus(int state);
+
+        Response& attachment(const std::string& fileName = "");
+        Response& location(const std::string& loc);
+        Response& vary(const std::string& field);
     };
 
 } // namespace express

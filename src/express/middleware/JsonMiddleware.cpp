@@ -29,6 +29,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
+
 namespace express::middleware {
 
     JsonMiddleware::JsonMiddleware() {
