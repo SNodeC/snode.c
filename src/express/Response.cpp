@@ -18,17 +18,12 @@
 
 #include "express/Response.h"
 
-#include "core/file/FileReader.h"
-#include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
-#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno> // for errno, EACCES, ENOENT
 #include <filesystem>
-#include <map>          // for map
-#include <system_error> // for error_code
+#include <nlohmann/json.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -38,62 +33,48 @@ namespace express {
         : web::http::server::Response(requestContext) {
     }
 
-    void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
-        std::string absolutFileName = file;
+    void Response::json(const nlohmann::json& json) {
+        set("Content-Type", "application/json");
 
-        if (std::filesystem::exists(absolutFileName)) {
-            std::error_code ec;
-            absolutFileName = std::filesystem::canonical(absolutFileName);
+        send(json.dump());
+    }
 
-            if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::connect(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
-                    if (err == 0) {
-                        headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
-                                        {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
-                        headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-                    } else {
-                        onError(err);
-                        sendStatus(500);
-                    }
-                });
-            } else {
-                errno = EACCES;
-                onError(errno);
-                sendStatus(500);
-            }
-        } else {
-            errno = ENOENT;
-            onError(errno);
-            sendStatus(404);
-        }
+    void Response::attachment(const std::string& fileName) {
+        set("Content-Disposition", "attachment" + ((!fileName.empty()) ? ("; filename=\"" + fileName + "\"") : ""));
     }
 
     void Response::download(const std::string& file, const std::function<void(int err)>& onError) {
-        std::string name = file;
-
-        if (name[0] == '/') {
-            name.erase(0, 1);
-        }
+        std::string name = std::filesystem::path(file);
 
         download(file, name, onError);
     }
 
     void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) {
-        set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}});
+        attachment(name);
+
         sendFile(file, onError);
     }
 
-    void Response::redirect(const std::string& name) {
-        redirect(302, name);
+    void Response::location(const std::string& loc) {
+        set("Location", loc);
     }
 
-    void Response::redirect(int status, const std::string& name) {
-        this->status(status).set({{"Location", name}});
+    void Response::redirect(const std::string& loc) {
+        redirect(302, loc);
+    }
+
+    void Response::redirect(int state, const std::string& loc) {
+        status(state);
+        location(loc);
         end();
     }
 
-    void Response::sendStatus(int status) {
-        this->status(status).send(web::http::StatusCode::reason(status));
+    void Response::vary(const std::string& field) {
+        append("Vary", field);
+    }
+
+    void Response::sendStatus(int state) {
+        this->status(state).send(web::http::StatusCode::reason(state));
     }
 
 } // namespace express

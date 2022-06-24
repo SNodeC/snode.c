@@ -30,7 +30,8 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
+#include <cstddef>    // for size_t
+#include <functional> // IWYU pragma: export
 #include <map>
 #include <string>
 
@@ -60,6 +61,8 @@ namespace web::http::server {
         Response& type(const std::string& type);
 
         void upgrade(Request& req);
+
+        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
 
     protected:
         RequestContextBase* requestContext;

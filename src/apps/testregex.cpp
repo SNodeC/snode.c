@@ -45,8 +45,6 @@
 
 using namespace express;
 
-int i = 0;
-
 Router router(database::mariadb::MariaDBClient& db) {
     Router router;
 
@@ -80,13 +78,13 @@ Router router(database::mariadb::MariaDBClient& db) {
                              "    <table border = \"1\">\n";
                  });
 
-                 i = 0;
+                 int i = 0;
                  db.query(
                      "SELECT * FROM snodec where username = '" + userId + "'",
-                     [next, &req](const MYSQL_ROW row) -> void {
+                     [next, &req, i](const MYSQL_ROW row) mutable -> void {
                          if (row != nullptr) {
                              i++;
-                             req.getAttribute<std::string, "html-table">([row](std::string& table) -> void {
+                             req.getAttribute<std::string, "html-table">([row, &i](std::string& table) -> void {
                                  table.append("      <tr>\n"
                                               "        <td>\n" +
                                               std::to_string(i) +
@@ -126,9 +124,13 @@ Router router(database::mariadb::MariaDBClient& db) {
              [] APPLICATION(req, res) {
                  VLOG(0) << "SendResult";
 
-                 req.getAttribute<std::string, "html-table">([&res](std::string& table) -> void {
-                     res.send(table);
-                 });
+                 req.getAttribute<std::string, "html-table">(
+                     [&res](std::string& table) -> void {
+                         res.send(table);
+                     },
+                     [&res](const std::string&) -> void {
+                         res.end();
+                     });
              })
         .get("/account/:userId(\\d*)/:userName",
              [&db] APPLICATION(req, res) { // http://localhost:8080/account/123/perfectNDSgroup

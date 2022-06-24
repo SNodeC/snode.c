@@ -63,8 +63,8 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.post("/", [] APPLICATION(req, res) {
-        VLOG(0) << "Content-Type: " << req.header("Content-Type");
-        VLOG(0) << "Content-Length: " << req.header("Content-Length");
+        VLOG(0) << "Content-Type: " << req.get("Content-Type");
+        VLOG(0) << "Content-Length: " << req.get("Content-Length");
 
         req.body.push_back(0);
         VLOG(0) << req.body.data();

@@ -29,7 +29,7 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -40,14 +40,19 @@ namespace express {
     public:
         explicit Response(web::http::server::RequestContextBase* requestContext);
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
+        void json(const nlohmann::json& json);
+
+        void attachment(const std::string& fileName = "");
         void download(const std::string& file, const std::function<void(int err)>& onError);
         void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
 
-        void redirect(const std::string& name);
-        void redirect(int status, const std::string& name);
+        void location(const std::string& loc);
+        void redirect(const std::string& loc);
+        void redirect(int state, const std::string& loc);
 
-        void sendStatus(int status);
+        void vary(const std::string& field);
+
+        void sendStatus(int state);
     };
 
 } // namespace express

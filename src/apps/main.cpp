@@ -122,9 +122,9 @@ int timerApp() {
             std::cout << "RCookie: " << req.cookie("test") << std::endl;
 
             //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
-            std::cout << "RHeader: " << req.header("Accept") << std::endl;
+            std::cout << "RHeader: " << req.get("Accept") << std::endl;
 
-            std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
+            std::cout << "If-Modified: " << req.get("If-Modified-Since") << std::endl;
 
             std::cout << "RQuery: " << req.query("Hallo") << std::endl;
 
@@ -151,7 +151,7 @@ int timerApp() {
     app.get("/search/", [&](express::Request& req, express::Response& res) -> void {
         //                  res.set({{"Content-Length", "7"}});
 
-        std::string host = req.header("Host");
+        std::string host = req.get("Host");
 
         //                std::cout << "Host: " << host << std::endl;
 

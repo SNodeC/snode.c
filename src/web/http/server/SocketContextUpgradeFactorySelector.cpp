@@ -57,7 +57,7 @@ namespace web::http::server {
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        std::string upgradeContextNames = req.header("upgrade");
+        std::string upgradeContextNames = req.get("upgrade");
 
         if (!upgradeContextNames.empty()) {
             std::string upgradeContextName;

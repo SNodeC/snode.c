@@ -28,8 +28,8 @@
 
 namespace express {
 
-    std::string& Request::param(const std::string& id) {
-        return params[id];
+    const std::string& Request::param(const std::string& id, const std::string& fallBack) {
+        return params.contains(id) ? params[id] : fallBack;
     }
 
     void Request::extend() {

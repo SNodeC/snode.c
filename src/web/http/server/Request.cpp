@@ -29,7 +29,7 @@
 
 namespace web::http::server {
 
-    const std::string& Request::header(const std::string& key, int i) const {
+    const std::string& Request::get(const std::string& key, int i) const {
         std::string tmpKey = key;
         httputils::to_lower(tmpKey);
 

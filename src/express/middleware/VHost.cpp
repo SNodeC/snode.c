@@ -30,7 +30,7 @@ namespace express::middleware {
     VHost::VHost(const std::string& host)
         : host(host) {
         use([&host = this->host] MIDDLEWARE(req, res, next) {
-            if (req.header("Host") == host) {
+            if (req.get("Host") == host) {
                 next();
             } else {
                 next("route");

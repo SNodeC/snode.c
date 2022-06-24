@@ -32,7 +32,7 @@ namespace express {
 
     class Request : public web::http::server::Request {
     public:
-        std::string& param(const std::string& id);
+        const std::string& param(const std::string& id, const std::string& fallBack = "");
 
         std::string originalUrl;
         std::string path;

@@ -41,7 +41,7 @@ namespace web::http::server {
         virtual ~Request() = default;
 
     public:
-        const std::string& header(const std::string& key, int i = 0) const;
+        const std::string& get(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
         const std::string& query(const std::string& key) const;
 
