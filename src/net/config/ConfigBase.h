@@ -55,7 +55,7 @@ namespace net::config {
     private:
         CLI::App* baseSc = nullptr;
 
-        std::string name;
+        const std::string name;
     };
 
 } // namespace net::config

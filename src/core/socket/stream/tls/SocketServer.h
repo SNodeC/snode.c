@@ -61,20 +61,16 @@ namespace core::socket::stream::tls {
             : SocketServer("", onConnect, onConnected, onDisconnect, options) {
         }
 
-    private:
-        void addSniCtx(const std::string& domain, SSL_CTX* sslCtx) {
+    public:
+        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& sniCert) {
+            SSL_CTX* sslCtx = ssl_ctx_new(sniCert, true);
+
             if (sslCtx != nullptr) {
                 sniSslCtxs->insert({{domain, sslCtx}});
                 VLOG(2) << "SSL_CTX for domain '" << domain << "' installed";
             } else {
                 VLOG(2) << "Can not create SSL_CTX for SNI '" << domain << "'";
             }
-        }
-
-    public:
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& sniCert) {
-            SSL_CTX* sslCtx = ssl_ctx_new(sniCert, true);
-            addSniCtx(domain, sslCtx);
         }
 
         void addSniCerts(const std::map<std::string, std::map<std::string, std::any>>& sniCerts) {
