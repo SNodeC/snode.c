@@ -18,10 +18,11 @@
 
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
-#include "web/http/SocketContextUpgrade.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/client/Response.h" // IWYU pragma: keep
 #include "web/http/http_utils.h"
+
+// IWYU pragma: no_include "web/http/SocketContextUpgrade.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
