@@ -14,6 +14,12 @@ set(net-l2_DEPENDENCIES net)
 set(net-rc_DEPENDENCIES net)
 set(net-un_DEPENDENCIES net)
 
+set(net-in-stream_DEPENDENCIES net-in)
+set(net-in6-stream_DEPENDENCIES net-in6)
+set(net-l2-stream_DEPENDENCIES net-l2)
+set(net-rc-stream_DEPENDENCIES net-rc)
+set(net-un-stream_DEPENDENCIES net-un)
+
 set(db-mariadb_DEPENDENCIES core)
 
 set(core-legacy_DEPENDENCIES core)
@@ -47,11 +53,11 @@ set(_supported_components
     core
     core-legacy
     core-tls
-    net-in
-    net-in6
-    net-rc
-    net-l2
-    net-un
+    net-in-stream
+    net-in6-stream
+    net-rc-stream
+    net-l2-stream
+    net-un-stream
     db-mariadb
     http
     http-server

@@ -1,36 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NET-IN6_CPP
-    SocketAddress.cpp
-    config/ConfigAddress.cpp
-    stream/Socket.cpp
-    stream/config/ConfigClientSocket.cpp
-    stream/config/ConfigServerSocket.cpp
-    stream/legacy/SocketClient.cpp
-    stream/legacy/SocketServer.cpp
-    stream/tls/SocketClient.cpp
-    stream/tls/SocketServer.cpp
-)
+set(NET-IN6_CPP SocketAddress.cpp config/ConfigAddress.cpp)
 
-set(NET-IN6_H
-    SocketAddress.h
-    config/ConfigAddress.h
-    stream/ClientSocket.h
-    stream/ClientSocket.hpp
-    stream/ServerSocket.h
-    stream/ServerSocket.hpp
-    stream/Socket.h
-    stream/config/ConfigClientSocket.h
-    stream/config/ConfigServerSocket.h
-    stream/legacy/SocketClient.h
-    stream/legacy/SocketServer.h
-    stream/legacy/config/ConfigSocketClient.h
-    stream/legacy/config/ConfigSocketServer.h
-    stream/tls/SocketClient.h
-    stream/tls/SocketServer.h
-    stream/tls/config/ConfigSocketClient.h
-    stream/tls/config/ConfigSocketServer.h
-)
+set(NET-IN6_H SocketAddress.h config/ConfigAddress.h)
 
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
 add_library(snodec::net-in6 ALIAS net-in6)
@@ -61,6 +33,8 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "stream" EXCLUDE
+    PATTERN "dgram" EXCLUDE
 )
 
 install(
@@ -69,3 +43,5 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
+
+add_subdirectory(stream)
