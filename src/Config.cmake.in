@@ -3,7 +3,7 @@
 set(websocket-server_DEPENDENCIES websocket http-server)
 set(websocket-client_DEPENDENCIES websocket http-client)
 
-set(express_DEPENDENCIES http-server)
+set(http-server-express_DEPENDENCIES http-server)
 
 set(http-server_DEPENDENCIES http)
 set(http-client_DEPENDENCIES http)
@@ -66,7 +66,7 @@ set(_supported_components
     http
     http-server
     http-client
-    express
+    http-server-express
     websocket-server
     websocket-client
 )

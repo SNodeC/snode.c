@@ -87,7 +87,7 @@ install(
 install(
     TARGETS http-server
     EXPORT snodec_http-server_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/web
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )

@@ -22,7 +22,7 @@ set(NLOHMANN_JSON_FOUND
     CACHE INTERNAL "nlohmann found?" FORCE
 )
 
-set(EXPRESS_CPP
+set(HTTP_SERVER_EXPRESS_CPP
     Request.cpp
     Response.cpp
     Router.cpp
@@ -41,7 +41,7 @@ set(EXPRESS_CPP
     ${JSONMIDDLEWARE_CPP}
 )
 
-set(EXPRESS_H
+set(HTTP_SERVER_EXPRESS_H
     Request.h
     Response.h
     Router.h
@@ -68,26 +68,26 @@ set(EXPRESS_H
     ${JSONMIDDLEWARE_H}
 )
 
-add_library(express SHARED ${EXPRESS_CPP} ${EXPRESS_H})
-add_library(snodec::express ALIAS express)
+add_library(http-server-express SHARED ${HTTP_SERVER_EXPRESS_CPP} ${HTTP_SERVER_EXPRESS_H})
+add_library(snodec::http-server-express ALIAS http-server-express)
 
 target_include_directories(
-    express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    http-server-express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                    "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
-    express
+    http-server-express
     PUBLIC snodec::http-server
     PRIVATE ${JSON_LIBRARY}
 )
 
-set_target_properties(express PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-express)
+set_target_properties(http-server-express PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http-server-express)
 
 install(
-    TARGETS express
-    EXPORT snodec_express_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    TARGETS http-server-express
+    EXPORT snodec_http-server-express_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/web
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
@@ -101,8 +101,8 @@ install(
 )
 
 install(
-    EXPORT snodec_express_Targets
-    FILE snodec_express_Targets.cmake
+    EXPORT snodec_http-server-express_Targets
+    FILE snodec_http-server-express_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

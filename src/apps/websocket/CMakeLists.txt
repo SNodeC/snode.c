@@ -9,7 +9,7 @@ target_compile_definitions(
     wsechoserver PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 target_link_libraries(
-    wsechoserver PRIVATE snodec::express snodec::core-socket-stream-legacy
+    wsechoserver PRIVATE snodec::http-server-express snodec::core-socket-stream-legacy
                          snodec::core-socket-stream-tls snodec::net-in-stream
 )
 install(TARGETS wsechoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
