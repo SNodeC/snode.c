@@ -25,7 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <nlohmann/json.hpp> // IWYU pragma: export
+#include <nlohmann/json.hpp>     // IWYU pragma: export
+#include <nlohmann/json_fwd.hpp> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

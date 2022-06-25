@@ -26,6 +26,7 @@
 #include "utils/CLI11.hpp"
 
 #include <string>
+#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

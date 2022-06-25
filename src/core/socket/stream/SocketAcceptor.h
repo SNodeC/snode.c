@@ -21,6 +21,7 @@
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/eventreceiver/InitAcceptEventReceiver.h"
+#include "core/socket/stream/SocketConnectionEstablisher.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -46,7 +47,8 @@ namespace core::socket::stream {
     class SocketAcceptor
         : protected ServerSocketT::Socket
         , protected core::eventreceiver::InitAcceptEventReceiver
-        , protected core::eventreceiver::AcceptEventReceiver {
+        , protected core::eventreceiver::AcceptEventReceiver
+        , protected core::socket::stream::SocketConnectionEstablisher<ServerSocketT, SocketConnectionT> {
         SocketAcceptor() = delete;
         SocketAcceptor(const SocketAcceptor&) = delete;
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
@@ -57,6 +59,7 @@ namespace core::socket::stream {
 
     protected:
         using SocketConnection = SocketConnectionT<Socket>;
+        using SocketConnectionEstablisher = core::socket::stream::SocketConnectionEstablisher<ServerSocketT, SocketConnectionT>;
 
     public:
         using Config = typename ServerSocket::Config;
@@ -74,10 +77,7 @@ namespace core::socket::stream {
                        const std::map<std::string, std::any>& options)
             : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
             , core::eventreceiver::AcceptEventReceiver("SocketAcceptor")
-            , socketContextFactory(socketContextFactory)
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect)
+            , SocketConnectionEstablisher(socketContextFactory, onConnect, onConnected, onDisconnect)
             , options(options) {
         }
 
@@ -141,14 +141,14 @@ namespace core::socket::stream {
         }
 
         void acceptEvent() override {
-            typename SocketAddress::SockAddr remoteAddress{};
-            socklen_t remoteAddressLength = sizeof(remoteAddress);
-
             int fd = -1;
 
             int acceptsPerTick = config->getAcceptsPerTick();
 
             do {
+                typename SocketAddress::SockAddr remoteAddress{};
+                socklen_t remoteAddressLength = sizeof(remoteAddress);
+
                 fd = core::system::accept4(
                     Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
@@ -157,19 +157,7 @@ namespace core::socket::stream {
                     socklen_t addressLength = sizeof(localAddress);
 
                     if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                        SocketConnection* socketConnection = new SocketConnection(fd,
-                                                                                  socketContextFactory,
-                                                                                  SocketAddress(localAddress),
-                                                                                  SocketAddress(remoteAddress),
-                                                                                  onConnect,
-                                                                                  onDisconnect,
-                                                                                  config->getReadTimeout(),
-                                                                                  config->getWriteTimeout(),
-                                                                                  config->getReadBlockSize(),
-                                                                                  config->getWriteBlockSize(),
-                                                                                  config->getTerminateTimeout());
-
-                        onConnected(socketConnection);
+                        SocketConnectionEstablisher::establishConnection(fd, localAddress, remoteAddress, config);
                     } else {
                         PLOG(ERROR) << "getsockname";
                         core::system::shutdown(fd, SHUT_RDWR);
@@ -195,12 +183,6 @@ namespace core::socket::stream {
             destruct();
         }
 
-        std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
-
-        std::function<void(SocketConnection*)> onConnect;
-        std::function<void(SocketConnection*)> onDestruct;
-        std::function<void(SocketConnection*)> onConnected;
-        std::function<void(SocketConnection*)> onDisconnect;
         std::function<void(const SocketAddress&, int)> onError = nullptr;
 
     protected:

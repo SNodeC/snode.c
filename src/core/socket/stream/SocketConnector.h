@@ -21,6 +21,7 @@
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/eventreceiver/InitConnectEventReceiver.h"
+#include "core/socket/stream/SocketConnectionEstablisher.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -44,7 +45,8 @@ namespace core::socket::stream {
     class SocketConnector
         : protected ClientSocketT::Socket
         , protected core::eventreceiver::InitConnectEventReceiver
-        , protected core::eventreceiver::ConnectEventReceiver {
+        , protected core::eventreceiver::ConnectEventReceiver
+        , protected core::socket::stream::SocketConnectionEstablisher<ClientSocketT, SocketConnectionT> {
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
@@ -55,6 +57,7 @@ namespace core::socket::stream {
 
     protected:
         using SocketConnection = SocketConnectionT<Socket>;
+        using SocketConnectionEstablisher = core::socket::stream::SocketConnectionEstablisher<ClientSocketT, SocketConnectionT>;
 
     public:
         using Config = typename ClientSocket::Config;
@@ -67,10 +70,7 @@ namespace core::socket::stream {
                         const std::map<std::string, std::any>& options)
             : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
             , core::eventreceiver::ConnectEventReceiver("SocketConnector")
-            , socketContextFactory(socketContextFactory)
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect)
+            , SocketConnectionEstablisher(socketContextFactory, onConnect, onConnected, onDisconnect)
             , options(options) {
         }
 
@@ -136,19 +136,7 @@ namespace core::socket::stream {
                                 0 &&
                             core::system::getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
                                 0) {
-                            SocketConnection* socketConnection = new SocketConnection(SocketConnector::getFd(),
-                                                                                      socketContextFactory,
-                                                                                      SocketAddress(localAddress),
-                                                                                      SocketAddress(remoteAddress),
-                                                                                      onConnect,
-                                                                                      onDisconnect,
-                                                                                      config->getReadTimeout(),
-                                                                                      config->getWriteTimeout(),
-                                                                                      config->getReadBlockSize(),
-                                                                                      config->getWriteBlockSize(),
-                                                                                      config->getTerminateTimeout());
-
-                            onConnected(socketConnection);
+                            SocketConnectionEstablisher::establishConnection(Socket::getFd(), localAddress, remoteAddress, config);
 
                             Socket::dontClose(true);
                         } else {
@@ -179,13 +167,6 @@ namespace core::socket::stream {
         void unobservedEvent() override {
             destruct();
         }
-
-        std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
-
-        std::function<void(SocketConnection*)> onConnect;
-        std::function<void(SocketConnection*)> onDestruct;
-        std::function<void(SocketConnection*)> onConnected;
-        std::function<void(SocketConnection*)> onDisconnect;
 
     protected:
         std::function<void(const SocketAddress& socketAddress, int err)> onError;
