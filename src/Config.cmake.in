@@ -3,7 +3,7 @@
 set(websocket-server_DEPENDENCIES websocket http-server)
 set(websocket-client_DEPENDENCIES websocket http-client)
 
-set(express_DEPENDENCIES http-server)
+set(http-server-express_DEPENDENCIES http-server)
 
 set(http-server_DEPENDENCIES http)
 set(http-client_DEPENDENCIES http)
@@ -14,10 +14,20 @@ set(net-l2_DEPENDENCIES net)
 set(net-rc_DEPENDENCIES net)
 set(net-un_DEPENDENCIES net)
 
+set(net-in-stream_DEPENDENCIES net-in)
+set(net-in6-stream_DEPENDENCIES net-in6)
+set(net-l2-stream_DEPENDENCIES net-l2)
+set(net-rc-stream_DEPENDENCIES net-rc)
+set(net-un-stream_DEPENDENCIES net-un)
+
 set(db-mariadb_DEPENDENCIES core)
 
-set(core-legacy_DEPENDENCIES core)
-set(core-tls_DEPENDENCIES core)
+set(core-socket_DEPENDENCIES core)
+
+set(core-socket-stream_DEPENDENCIES core-socket)
+
+set(core-socket-stream-legacy_DEPENDENCIES core-socket-stream)
+set(core-socket-stream-tls_DEPENDENCIES core-socket-stream)
 
 set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils logger)
 
@@ -45,18 +55,18 @@ endmacro()
 
 set(_supported_components
     core
-    core-legacy
-    core-tls
-    net-in
-    net-in6
-    net-rc
-    net-l2
-    net-un
+    core-socket-stream-legacy
+    core-socket-stream-tls
+    net-in-stream
+    net-in6-stream
+    net-rc-stream
+    net-l2-stream
+    net-un-stream
     db-mariadb
     http
     http-server
     http-client
-    express
+    http-server-express
     websocket-server
     websocket-client
 )

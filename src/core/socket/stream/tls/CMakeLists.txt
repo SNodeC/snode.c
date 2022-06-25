@@ -10,11 +10,11 @@ if(NOT OpenSSL_FOUND)
     )
 else(NOT OpenSSL_FOUND)
 
-    set(CORE-TLS_CPP ssl_utils.cpp TLSHandshake.cpp TLSShutdown.cpp
-                     system/ssl.cpp
+    set(CORE-SOCKET_STREAM-TLS_CPP ssl_utils.cpp TLSHandshake.cpp
+                                   TLSShutdown.cpp system/ssl.cpp
     )
 
-    set(CORE-TLS_H
+    set(CORE-SOCKET_STREAM-TLS_H
         SocketAcceptor.h
         SocketClient.h
         SocketConnection.h
@@ -28,26 +28,32 @@ else(NOT OpenSSL_FOUND)
         system/ssl.h
     )
 
-    add_library(core-tls SHARED ${CORE-TLS_CPP} ${CORE-TLS_H})
-    add_library(snodec::core-tls ALIAS core-tls)
+    add_library(
+        core-socket-stream-tls SHARED ${CORE-SOCKET_STREAM-TLS_CPP}
+                                      ${CORE-SOCKET_STREAM-TLS_H}
+    )
+    add_library(snodec::core-socket-stream-tls ALIAS core-socket-stream-tls)
 
     target_include_directories(
-        core-tls
+        core-socket-stream-tls
         PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
                "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
 
-    target_link_libraries(core-tls PUBLIC snodec::core ${OPENSSL_LIBRARIES})
+    target_link_libraries(
+        core-socket-stream-tls PUBLIC core-socket-stream ${OPENSSL_LIBRARIES}
+    )
 
     set_target_properties(
-        core-tls PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-tls
+        core-socket-stream-tls
+        PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-socket-stream-tls
     )
 
     install(
-        TARGETS core-tls
-        EXPORT snodec_core-tls_Targets
+        TARGETS core-socket-stream-tls
+        EXPORT snodec_core-socket-stream-tls_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         INCLUDES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -63,8 +69,8 @@ else(NOT OpenSSL_FOUND)
     )
 
     install(
-        EXPORT snodec_core-tls_Targets
-        FILE snodec_core-tls_Targets.cmake
+        EXPORT snodec_core-socket-stream-tls_Targets
+        FILE snodec_core-socket-stream-tls_Targets.cmake
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     )

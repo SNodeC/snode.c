@@ -65,6 +65,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
             : SocketServer("", onConnect, onConnected, onDisconnect, options) {
+            Super::config::add_subcommand("cluster", "Clustering");
         }
 
         SocketServer(const SocketServer&) = default;
