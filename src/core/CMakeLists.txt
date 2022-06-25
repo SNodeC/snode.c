@@ -136,9 +136,8 @@ install(
     PATTERN "timer/IntervalTimerStopable.h" EXCLUDE
     PATTERN "timer/SingleshoTimer.h" EXCLUDE
     PATTERN "cmake" EXCLUDE
-    PATTERN "socket/stream/tls" EXCLUDE
-    PATTERN "socket/stream/legacy" EXCLUDE
     PATTERN "multiplexer" EXCLUDE
+    PATTERN "socket" EXCLUDE
 )
 
 install(
@@ -149,6 +148,4 @@ install(
 )
 
 add_subdirectory(multiplexer)
-
-add_subdirectory(socket/stream/legacy)
-add_subdirectory(socket/stream/tls)
+add_subdirectory(socket)

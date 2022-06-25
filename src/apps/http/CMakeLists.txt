@@ -64,7 +64,7 @@ foreach(NET IN LISTS NETS)
         )
         target_link_libraries(
             httpserver-${STREAM}-${NET}
-            PUBLIC snodec::express snodec::core-${STREAM}
+            PUBLIC snodec::express snodec::core-socket-stream-${STREAM}
                    snodec::net-${NET}-stream
         )
         target_compile_definitions(
@@ -81,7 +81,7 @@ foreach(NET IN LISTS NETS)
         )
         target_link_libraries(
             httpclient-${STREAM}-${NET}
-            PUBLIC snodec::http-client snodec::core-${STREAM}
+            PUBLIC snodec::http-client snodec::core-socket-stream-${STREAM}
                    snodec::net-${NET}-stream
         )
         target_compile_definitions(
@@ -100,7 +100,7 @@ foreach(NET IN LISTS NETS)
             )
             target_link_libraries(
                 httpserverclientcert-${STREAM}-${NET}
-                PUBLIC snodec::express snodec::core-${STREAM}
+                PUBLIC snodec::express snodec::core-socket-stream-${STREAM}
                        snodec::net-${NET}-stream
             )
             target_compile_definitions(
@@ -118,7 +118,7 @@ foreach(NET IN LISTS NETS)
             )
             target_link_libraries(
                 httpclientclientcert-${STREAM}-${NET}
-                PUBLIC snodec::http-client snodec::core-${STREAM}
+                PUBLIC snodec::http-client snodec::core-socket-stream-${STREAM}
                        snodec::net-${NET}-stream
             )
             target_compile_definitions(
@@ -135,7 +135,8 @@ endforeach()
 
 add_executable(httplowlevelclient httplowlevelclient.cpp)
 target_link_libraries(
-    httplowlevelclient PUBLIC snodec::core-legacy snodec::core-tls
-                              snodec::net-in-stream snodec::http-client
+    httplowlevelclient
+    PUBLIC snodec::core-socket-stream-legacy snodec::core-socket-stream-tls
+           snodec::net-in-stream snodec::http-client
 )
 install(TARGETS httplowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

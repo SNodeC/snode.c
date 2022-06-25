@@ -11,22 +11,23 @@ install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testpost testpost.cpp)
 target_link_libraries(
-    testpost PRIVATE snodec::express snodec::core-legacy snodec::core-tls
-                     snodec::net-in-stream
+    testpost PRIVATE snodec::express snodec::core-socket-stream-legacy
+                     snodec::core-socket-stream-tls snodec::net-in-stream
 )
 install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(verysimpleserver verysimpleserver.cpp)
 target_link_libraries(
-    verysimpleserver PRIVATE snodec::express snodec::core-legacy
-                             snodec::core-tls snodec::net-in-stream
+    verysimpleserver
+    PRIVATE snodec::express snodec::core-socket-stream-legacy
+            snodec::core-socket-stream-tls snodec::net-in-stream
 )
 install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(NLOHMANN_JSON_FOUND)
     add_executable(jsonserver jsonserver.cpp)
     target_link_libraries(
-        jsonserver PRIVATE snodec::express snodec::core-legacy
+        jsonserver PRIVATE snodec::express snodec::core-socket-stream-legacy
                            snodec::net-in-stream
     )
     install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -34,7 +35,7 @@ endif(NLOHMANN_JSON_FOUND)
 
 add_executable(jsonclient jsonclient.cpp)
 target_link_libraries(
-    jsonclient PRIVATE snodec::http-client snodec::core-legacy
+    jsonclient PRIVATE snodec::http-client snodec::core-socket-stream-legacy
                        snodec::net-in-stream
 )
 install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -48,29 +49,32 @@ install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(lowlevelclient lowlevelclient.cpp)
 target_link_libraries(
-    lowlevelclient PRIVATE snodec::http-client snodec::core-legacy
-                           snodec::core-tls snodec::net-in-stream
+    lowlevelclient
+    PRIVATE snodec::http-client snodec::core-socket-stream-legacy
+            snodec::core-socket-stream-tls snodec::net-in-stream
 )
 install(TARGETS lowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testregex testregex.cpp)
 target_link_libraries(
-    testregex PRIVATE snodec::express snodec::core-legacy snodec::core-tls
-                      snodec::net-in-stream snodec::db-mariadb
+    testregex
+    PRIVATE snodec::express snodec::core-socket-stream-legacy
+            snodec::core-socket-stream-tls snodec::net-in-stream
+            snodec::db-mariadb
 )
 install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(warema-jalousien warema-jalousien.cpp)
 target_link_libraries(
-    warema-jalousien PRIVATE snodec::express snodec::core-legacy
+    warema-jalousien PRIVATE snodec::express snodec::core-socket-stream-legacy
                              snodec::net-in-stream
 )
 install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(vhostserver vhostserver.cpp)
 target_link_libraries(
-    vhostserver PRIVATE snodec::express snodec::core-legacy snodec::core-tls
-                        snodec::net-in6-stream
+    vhostserver PRIVATE snodec::express snodec::core-socket-stream-legacy
+                        snodec::core-socket-stream-tls snodec::net-in6-stream
 )
 install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -84,8 +88,9 @@ install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testbasicauthentication testbasicauthentication.cpp)
 target_link_libraries(
-    testbasicauthentication PRIVATE snodec::express snodec::core-legacy
-                                    snodec::core-tls snodec::net-in6-stream
+    testbasicauthentication
+    PRIVATE snodec::express snodec::core-socket-stream-legacy
+            snodec::core-socket-stream-tls snodec::net-in6-stream
 )
 install(TARGETS testbasicauthentication
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
