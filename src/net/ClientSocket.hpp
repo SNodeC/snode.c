@@ -17,6 +17,7 @@
  */
 
 #include "net/ClientSocket.h"
+#include "net/SocketConfig.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,15 +26,10 @@
 namespace net {
 
     template <typename Config, typename Socket>
-    ClientSocket<Config, Socket>::ClientSocket(const std::string& name)
-        : config(std::make_shared<Config>(name)) {
-    }
-
-    template <typename Config, typename Socket>
     void ClientSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
                                                const SocketAddress& localAddress,
                                                const std::function<void(const SocketAddress&, int)>& onError) const {
-        config->setLocalAddress(localAddress);
+        Super::config->setLocalAddress(localAddress);
 
         connect(remoteAddress, onError);
     }
@@ -41,14 +37,9 @@ namespace net {
     template <typename Config, typename Socket>
     void ClientSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
                                                const std::function<void(const SocketAddress&, int)>& onError) const {
-        config->setRemoteAddress(remoteAddress);
+        Super::config->setRemoteAddress(remoteAddress);
 
         connect(onError);
-    }
-
-    template <typename Config, typename Socket>
-    Config& ClientSocket<Config, Socket>::getConfig() {
-        return *config;
     }
 
 } // namespace net

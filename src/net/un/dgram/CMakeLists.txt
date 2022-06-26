@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NET-UN-DGRAM_CPP
-    Socket.cpp
-)
+set(NET-UN-DGRAM_CPP Socket.cpp)
 
-set(NET-UN-DGRAM_H
-    Socket.h
-)
+set(NET-UN-DGRAM_H Socket.h)
 
 add_library(net-un-dgram SHARED ${NET-UN-DGRAM_CPP} ${NET-UN-DGRAM_H})
 add_library(snodec::net-un-dgram ALIAS net-un-dgram)

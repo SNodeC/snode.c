@@ -19,6 +19,8 @@
 #ifndef NET_CLIENTSOCKET_H
 #define NET_CLIENTSOCKET_H
 
+#include "net/SocketConfig.h" // IWYU pragma: export
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -30,15 +32,15 @@
 namespace net {
 
     template <typename ConfigT, typename SocketT>
-    class ClientSocket {
+    class ClientSocket : public SocketConfig<ConfigT> {
     protected:
-        explicit ClientSocket(const std::string& name);
-
-        ClientSocket(const ClientSocket&) = default;
+        using Super = SocketConfig<ConfigT>;
 
         virtual ~ClientSocket() = default;
 
     public:
+        using Super::Super;
+
         using Config = ConfigT;
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -50,11 +52,6 @@ namespace net {
                      const std::function<void(const SocketAddress&, int)>& onError) const;
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
-
-        Config& getConfig();
-
-    protected:
-        std::shared_ptr<Config> config;
     };
 
 } // namespace net

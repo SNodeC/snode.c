@@ -16,14 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ServerSocket.hpp" // IWYU pragma: keep
-#include "net/l2/stream/ServerSocket.hpp"
-#include "net/l2/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: keep
+#include "SocketConfig.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-template class net::l2::stream::ServerSocket<net::l2::stream::legacy::config::ConfigSocketServer>;
-template class net::ServerSocket<net::l2::stream::legacy::config::ConfigSocketServer, net::l2::stream::Socket>;
-template class net::SocketConfig<net::l2::stream::legacy::config::ConfigSocketServer>;
+namespace net {
+
+    template <typename Config>
+    SocketConfig<Config>::SocketConfig(const std::string& name)
+        : config(std::make_shared<Config>(name)) {
+    }
+
+    template <typename Config>
+    const Config& SocketConfig<Config>::getConfig() {
+        return *config;
+    }
+
+} // namespace net

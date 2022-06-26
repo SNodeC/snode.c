@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(NET_CPP
-    config/ConfigBase.cpp config/ConfigConnection.cpp config/ConfigLegacy.cpp
-    config/ConfigListen.cpp config/ConfigTls.cpp
+    config/ConfigBase.cpp config/ConfigConnection.cpp
+    config/ConfigLegacy.cpp config/ConfigListen.cpp config/ConfigTls.cpp
 )
 
 set(NET_H
@@ -14,6 +14,8 @@ set(NET_H
     Socket.hpp
     SocketAddress.h
     SocketAddress.hpp
+    SocketConfig.h
+    SocketConfig.hpp
     config/ConfigAddress.h
     config/ConfigAddress.hpp
     config/ConfigAddressLocal.h

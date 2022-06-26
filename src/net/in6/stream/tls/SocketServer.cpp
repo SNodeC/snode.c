@@ -26,3 +26,4 @@
 
 template class net::in6::stream::ServerSocket<net::in6::stream::tls::config::ConfigSocketServer>;
 template class net::ServerSocket<net::in6::stream::tls::config::ConfigSocketServer, net::in6::stream::Socket>;
+template class net::SocketConfig<net::in6::stream::tls::config::ConfigSocketServer>;

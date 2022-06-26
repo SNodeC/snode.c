@@ -26,3 +26,4 @@
 
 template class net::in::stream::ClientSocket<net::in::stream::tls::config::ConfigSocketClient>;
 template class net::ClientSocket<net::in::stream::tls::config::ConfigSocketClient, net::in::stream::Socket>;
+template class net::SocketConfig<net::in::stream::tls::config::ConfigSocketClient>;
