@@ -5,7 +5,9 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 # installing)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/snode.c/web")
+set(CMAKE_INSTALL_RPATH
+    "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/snode.c/web"
+)
 
 # add the automatically determined parts of the RPATH which point to directories
 # outside the build tree to the install RPATH

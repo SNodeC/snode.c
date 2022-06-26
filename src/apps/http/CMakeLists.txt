@@ -64,7 +64,8 @@ foreach(NET IN LISTS NETS)
         )
         target_link_libraries(
             httpserver-${STREAM}-${NET}
-            PUBLIC snodec::http-server-express snodec::core-socket-stream-${STREAM}
+            PUBLIC snodec::http-server-express
+                   snodec::core-socket-stream-${STREAM}
                    snodec::net-${NET}-stream
         )
         target_compile_definitions(
@@ -100,7 +101,8 @@ foreach(NET IN LISTS NETS)
             )
             target_link_libraries(
                 httpserverclientcert-${STREAM}-${NET}
-                PUBLIC snodec::http-server-express snodec::core-socket-stream-${STREAM}
+                PUBLIC snodec::http-server-express
+                       snodec::core-socket-stream-${STREAM}
                        snodec::net-${NET}-stream
             )
             target_compile_definitions(

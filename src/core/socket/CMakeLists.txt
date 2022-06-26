@@ -15,8 +15,8 @@ target_include_directories(
 )
 
 target_link_libraries(
-    core-socket PUBLIC snodec::core snodec::mux-${IO_Multiplexer} snodec::logger
-                       snodec::utils
+    core-socket PUBLIC snodec::core snodec::mux-${IO_Multiplexer}
+                       snodec::logger snodec::utils
 )
 
 set_target_properties(
