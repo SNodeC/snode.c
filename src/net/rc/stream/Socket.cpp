@@ -18,8 +18,6 @@
 
 #include "net/rc/stream/Socket.h"
 
-#include "net/Socket.hpp" // IWYU pragma: keep
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
@@ -33,7 +31,3 @@ namespace net::rc::stream {
     }
 
 } // namespace net::rc::stream
-
-namespace net {
-    template class Socket<net::rc::SocketAddress>;
-}

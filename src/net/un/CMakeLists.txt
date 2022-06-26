@@ -45,3 +45,4 @@ install(
 )
 
 add_subdirectory(stream)
+add_subdirectory(dgram)
