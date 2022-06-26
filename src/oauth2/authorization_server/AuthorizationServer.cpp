@@ -47,33 +47,6 @@ std::string hashSha1(const std::string& str) {
     return checksum.final();
 }
 
-/*
-void validClientId(express::Request& req, express::Response& res, database::mariadb::MariaDBClient& db, std::function<void()> onValid) {
-    std::string queryClientId{req.query("client_id")};
-    if (queryClientId.length() > 0) {
-        db.query(
-            "select count(*) from client where uuid = '" + queryClientId + "'",
-            [&res, queryClientId, onValid](const MYSQL_ROW row) -> void {
-                if (row != nullptr) {
-                    if (std::stoi(row[0]) > 0) {
-                        VLOG(0) << "Valid client id '" << queryClientId << "'";
-                        onValid();
-                    } else {
-                        VLOG(0) << "Invalid client id '" << queryClientId << "'";
-                        res.status(401).send("Invalid query parameter 'client_id' with value '" + queryClientId + "'");
-                    }
-                }
-            },
-            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
-                VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
-                res.sendStatus(500);
-            });
-    } else {
-        res.status(401).send("Missing query parameter 'client_id'");
-    }
-}
-*/
-
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
     express::legacy::in::WebApp app{"OAuth2AuthorizationServer"};
@@ -480,7 +453,7 @@ int main(int argc, char* argv[]) {
                           })
                         .query(
                             "select last_insert_id()",
-                            [&req, &res, &db, accessToken](const MYSQL_ROW row) -> void {
+                            [&req, &res, &db, accessToken, accessTokenExpireSeconds](const MYSQL_ROW row) -> void {
                                 if (row != nullptr) {
                                     db.exec(
                                         "update client "
@@ -489,8 +462,9 @@ int main(int argc, char* argv[]) {
                                             "' "
                                             "where uuid = '" +
                                             req.query("client_id") + "'",
-                                        [&res, accessToken]() -> void {
-                                            nlohmann::json responseJson = {{"access_token", accessToken}};
+                                        [&res, accessToken, accessTokenExpireSeconds]() -> void {
+                                            nlohmann::json responseJson = {{"access_token", accessToken},
+                                                                           {"expires_in", accessTokenExpireSeconds}};
                                             res.send(responseJson.dump(4));
                                         },
                                         [&res](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -540,10 +514,10 @@ int main(int argc, char* argv[]) {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) == 0) {
                             nlohmann::json errorJson = {{"error", "Invalid access token"}};
-                            VLOG(0) << "########################################" << jsonClientId + ", " + jsonAccessToken;
+                            VLOG(0) << "Sending 401: Invalid access token '" << jsonAccessToken << "'";
                             res.status(401).send(errorJson.dump(4));
                         } else {
-                            VLOG(0) << "######################################### valid access token";
+                            VLOG(0) << "Sending 200: Valid access token '" << jsonAccessToken << "";
                             nlohmann::json successJson = {{"success", "Valid access token"}};
                             res.status(200).send(successJson.dump(4));
                         }

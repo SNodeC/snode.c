@@ -84,12 +84,6 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "Resource server client connecting to " << socketAddress.toString();
                 }
             });
-
-        /*
-        nlohmann::json successJson = {{"content", "🦆"}};
-        VLOG(0) << "Sending response:  " << successJson.dump(2);
-        res.status(200).send(successJson.dump(4));
-        */
     });
 
     app.listen(8083, [](const express::legacy::in::WebApp::SocketAddress socketAddress, int err) {
