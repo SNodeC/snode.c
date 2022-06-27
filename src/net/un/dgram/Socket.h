@@ -19,7 +19,7 @@
 #ifndef NET_UN_DGRAM_SOCKET_H
 #define NET_UN_DGRAM_SOCKET_H
 
-#include "net/Socket.h"           // IWYU pragma: export
+#include "net/un/Socket.h"        // IWYU pragma: export
 #include "net/un/SocketAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,7 +28,7 @@
 
 namespace net::un::dgram {
 
-    class Socket : public net::Socket<net::un::SocketAddress> {
+    class Socket : public net::un::Socket {
     protected:
         ~Socket() override;
 

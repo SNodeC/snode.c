@@ -16,30 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ClientSocket.h"
-#include "net/SocketConfig.hpp"
+#ifndef NET_UN_SOCKET_H
+#define NET_UN_SOCKET_H
+
+#include "net/Socket.h"           // IWYU pragma: export
+#include "net/un/SocketAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::un {
 
-    template <typename Config, typename Socket>
-    void ClientSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
-                                               const SocketAddress& localAddress,
-                                               const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->setLocalAddress(localAddress);
+    class Socket : public net::Socket<net::un::SocketAddress> {
+    protected:
+        bool connectInProgress() override;
+    };
 
-        connect(remoteAddress, onError);
-    }
+} // namespace net::un
 
-    template <typename Config, typename Socket>
-    void ClientSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
-                                               const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->setRemoteAddress(remoteAddress);
-
-        connect(onError);
-    }
-
-} // namespace net
+#endif // NET_UN_SOCKET_H

@@ -25,7 +25,7 @@
 
 #include "core/system/socket.h" // IWYU pragma: export
 
-#include <functional>
+#include <functional> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,6 +45,8 @@ namespace net {
         virtual ~Socket() = default;
 
         virtual int create(int flags) = 0;
+
+        virtual bool connectInProgress();
 
     public:
         void open(const std::function<void(int)>& onError, int flags = 0);

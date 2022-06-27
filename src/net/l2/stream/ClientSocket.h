@@ -19,8 +19,8 @@
 #ifndef NET_L2_STREAM_CLIENTSOCKET_H
 #define NET_L2_STREAM_CLIENTSOCKET_H
 
-#include "net/ClientSocket.h"     // IWYU pragma: export
-#include "net/l2/stream/Socket.h" // IWYU pragma: export
+#include "net/l2/stream/Socket.h"    // IWYU pragma: export
+#include "net/stream/ClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,8 +33,8 @@
 namespace net::l2::stream {
 
     template <typename ConfigT>
-    class ClientSocket : public net::ClientSocket<ConfigT, net::l2::stream::Socket> {
-        using Super = net::ClientSocket<ConfigT, net::l2::stream::Socket>;
+    class ClientSocket : public net::stream::ClientSocket<ConfigT, net::l2::stream::Socket> {
+        using Super = net::stream::ClientSocket<ConfigT, net::l2::stream::Socket>;
 
     protected:
         explicit ClientSocket(const std::string& name);

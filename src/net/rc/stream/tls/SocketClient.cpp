@@ -16,14 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ClientSocket.hpp" // IWYU pragma: keep
 #include "net/rc/stream/ClientSocket.hpp"
 #include "net/rc/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: keep
+#include "net/stream/ClientSocket.hpp"                   // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-template class net::SocketConfig<net::rc::stream::tls::config::ConfigSocketClient>;
 template class net::rc::stream::ClientSocket<net::rc::stream::tls::config::ConfigSocketClient>;
-template class net::ClientSocket<net::rc::stream::tls::config::ConfigSocketClient, net::rc::stream::Socket>;
+template class net::stream::ClientSocket<net::rc::stream::tls::config::ConfigSocketClient, net::rc::stream::Socket>;
+template class net::SocketConfig<net::rc::stream::tls::config::ConfigSocketClient>;

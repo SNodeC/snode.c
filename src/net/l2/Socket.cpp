@@ -16,40 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SERVERSOCKET_H
-#define NET_SERVERSOCKET_H
+#include "net/l2/Socket.h" // IWYU pragma: export
 
-#include "net/SocketConfig.h" // IWYU pragma: export
+#include "net/Socket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <functional>
-#include <memory>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
-
-    template <typename ConfigT, typename SocketT>
-    class ServerSocket : public SocketConfig<ConfigT> {
-    protected:
-        using Super = SocketConfig<ConfigT>;
-
-        virtual ~ServerSocket() = default;
-
-    public:
-        using Super::Super;
-
-        using Config = ConfigT;
-        using Socket = SocketT;
-        using SocketAddress = typename Socket::SocketAddress;
-
-        virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
-
-        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
-    };
-
+    template class Socket<net::l2::SocketAddress>;
 } // namespace net
-
-#endif // NET_SERVERSOCKET_H

@@ -100,7 +100,7 @@ namespace core::socket::stream {
                                                                 &config->getRemoteAddress().getSockAddr(),
                                                                 config->getRemoteAddress().getSockAddrLen());
 
-                                if (ret == 0 || errno == EINPROGRESS) {
+                                if (ret == 0 || Socket::connectInProgress()) {
                                     enable(Socket::getFd());
                                     onError(config->getRemoteAddress(), 0);
                                 } else {
@@ -122,7 +122,8 @@ namespace core::socket::stream {
 
             if (err == 0) {
                 errno = cErrno;
-                if (errno != EINPROGRESS) {
+                //                if (errno != EINPROGRESS) {
+                if (!Socket::connectInProgress()) {
                     if (errno == 0) {
                         disable();
 

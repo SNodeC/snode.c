@@ -6,10 +6,6 @@ set(NET_CPP
 )
 
 set(NET_H
-    ClientSocket.h
-    ClientSocket.hpp
-    ServerSocket.h
-    ServerSocket.hpp
     Socket.h
     Socket.hpp
     SocketAddress.h
@@ -27,6 +23,12 @@ set(NET_H
     config/ConfigLegacy.h
     config/ConfigListen.h
     config/ConfigTls.h
+    dgram/PeerSocket.h
+    dgram/PeerSocket.hpp
+    stream/ClientSocket.h
+    stream/ClientSocket.hpp
+    stream/ServerSocket.h
+    stream/ServerSocket.hpp
 )
 
 add_library(net SHARED ${NET_CPP} ${NET_H})

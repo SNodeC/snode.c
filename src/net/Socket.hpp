@@ -27,6 +27,11 @@
 namespace net {
 
     template <typename SocketAddress>
+    bool Socket<SocketAddress>::connectInProgress() {
+        return errno == EINPROGRESS;
+    }
+
+    template <typename SocketAddress>
     void Socket<SocketAddress>::open(const std::function<void(int)>& onError, int flags) {
         attachFd(create(flags));
 
