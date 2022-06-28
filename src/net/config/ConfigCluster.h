@@ -16,32 +16,39 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
-#define NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#ifndef NET_CONFIG_CONFIGCLUSTER_H
+#define NET_CONFIG_CONFIGCLUSTER_H
 
-#include "net/config/ConfigAddressLocal.h"
-#include "net/config/ConfigCluster.h"
-#include "net/config/ConfigConnection.h"
-#include "net/config/ConfigListen.h"
-#include "net/un/config/ConfigAddress.h"
+#include "net/config/ConfigBase.h"
 
-// IWYU pragma: no_include "net/un/config/ConfigAddress.hpp"
+namespace CLI {
+    class App;
+    class Option;
+} // namespace CLI
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream::config {
+namespace net::config {
 
-    class ConfigServerSocket
-        : public net::config::ConfigListen
-        , public net::un::config::ConfigAddress<net::config::ConfigAddressLocal>
-        , public net::config::ConfigCluster
-        , public net::config::ConfigConnection {
+    class ConfigCluster : virtual protected ConfigBase {
     public:
-        ConfigServerSocket();
+        ConfigCluster();
+
+        enum { PRIMARY, SECONDARY, PROXY };
+
+        bool isCluster() const;
+
+        int getClusterMode() const;
+
+    private:
+        CLI::App* clusterSc = nullptr;
+        CLI::Option* modeOpt = nullptr;
+
+        int mode = PRIMARY;
     };
 
-} // namespace net::un::stream::config
+} // namespace net::config
 
-#endif // NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#endif // NET_CONFIG_CONFIGCLUSTER_H

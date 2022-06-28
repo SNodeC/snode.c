@@ -77,22 +77,22 @@ namespace core::socket::stream {
             if (Super::config->isLocalInitialized()) {
                 SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
+                // Depenent on commandline arguments
+                //
+                // for cluster primary: accept connection and send it to a particular (schedulling) SocketAcceptorSecondary/Proxy
+                //     SocketAcceptor* socketAcceptor = new SocketAcceptorPrimary; // via net::un::dgram or net::un::stream
+
+                // for cluster secondary: receive connection from SocketAcceptorPrimary/Proxy and create SocketConnection
+                //     SocketAcceptor* socketAcceptor = new SocketAcceptorSecondary; // via net::un::dgram or net::un::stream
+
+                // for cluster proxy: receive connection from SocketAceptorPrimary/Proxy and send it to particular (schedulling)
+                // SocketAcceptorSecondary/Proxy
+                //    SocketAcceptor* socketAcceptor = new SocketAcceptorProxy; // via net::un::dgram or net::un::stream
+
                 socketAcceptor->listen(Super::config, onError);
             } else {
                 LOG(ERROR) << "Parameterless listen on anonymous server instance";
             }
-
-            // Depenent on commandline arguments
-            //
-            // for cluster primary: accept connection and send it to a particular (schedulling) SocketAcceptorSecondary/Proxy
-            //     SocketAcceptor* socketAcceptor = new SocketAcceptorPrimary; // via net::un::dgram or net::un::stream
-
-            // for cluster secondary: receive connection from SocketAcceptorPrimary/Proxy and create SocketConnection
-            //     SocketAcceptor* socketAcceptor = new SocketAcceptorSecondary; // via net::un::dgram or net::un::stream
-
-            // for cluster proxy: receive connection from SocketAceptorPrimary/Proxy and send it to particular (schedulling)
-            // SocketAcceptorSecondary/Proxy
-            //    SocketAcceptor* socketAcceptor = new SocketAcceptorProxy; // via net::un::dgram or net::un::stream
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {

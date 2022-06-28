@@ -29,7 +29,7 @@ set(db-mariadb_DEPENDENCIES core)
 
 set(core-socket_DEPENDENCIES core)
 
-set(core-socket-stream_DEPENDENCIES core-socket)
+set(core-socket-stream_DEPENDENCIES core-socket net-un-dgram)
 
 set(core-socket-stream-legacy_DEPENDENCIES core-socket-stream)
 set(core-socket-stream-tls_DEPENDENCIES core-socket-stream)

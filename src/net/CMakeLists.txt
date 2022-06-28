@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(NET_CPP
-    config/ConfigBase.cpp config/ConfigConnection.cpp config/ConfigLegacy.cpp
+    config/ConfigBase.cpp config/ConfigCluster.cpp config/ConfigConnection.cpp config/ConfigLegacy.cpp
     config/ConfigListen.cpp config/ConfigTls.cpp
 )
 
@@ -19,6 +19,7 @@ set(NET_H
     config/ConfigAddressRemote.h
     config/ConfigAddressRemote.hpp
     config/ConfigBase.h
+    config/ConfigCluster.h
     config/ConfigConnection.h
     config/ConfigLegacy.h
     config/ConfigListen.h
