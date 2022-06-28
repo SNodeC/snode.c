@@ -16,32 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
-#define NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
-
-#include "net/config/ConfigAddressLocal.h"
 #include "net/config/ConfigCluster.h"
-#include "net/config/ConfigConnection.h"
-#include "net/config/ConfigListen.h"
-#include "net/un/config/ConfigAddress.h"
-
-// IWYU pragma: no_include "net/un/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream::config {
+namespace net::config {
 
-    class ConfigServerSocket
-        : public net::config::ConfigListen
-        , public net::un::config::ConfigAddress<net::config::ConfigAddressLocal>
-        , public net::config::ConfigCluster
-        , public net::config::ConfigConnection {
-    public:
-        ConfigServerSocket();
-    };
+    ConfigCluster::ConfigCluster() {
+        if (!getName().empty()) {
+            clusterSc = add_subcommand("cluster", "Options for clustering");
+            clusterSc->group("Option groups");
 
-} // namespace net::un::stream::config
+            modeOpt = clusterSc->add_option("--mode", mode, "Clusterint mode");
+            modeOpt->type_name("[" + std::to_string(PRIMARY) + " = PRIMARY, " + std::to_string(SECONDARY) + " = SECONDARY, " +
+                               std::to_string(PROXY) + " = PROXY]");
+            modeOpt->default_val(PRIMARY);
+        }
+    }
 
-#endif // NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+    bool ConfigCluster::isCluster() const {
+        return clusterSc != nullptr && clusterSc->count() > 0;
+    }
+
+    int ConfigCluster::getClusterMode() const {
+        return mode;
+    }
+
+} // namespace net::config

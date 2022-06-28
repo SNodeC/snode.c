@@ -53,6 +53,9 @@ namespace net {
 
         void bind(const SocketAddress& bindAddress, const std::function<void(int)>& onError);
 
+        ssize_t write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
+        ssize_t read_fd(void* ptr, size_t nbytes, int* recvfd);
+
         enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
         void shutdown(shutdown how);

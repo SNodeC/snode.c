@@ -5,7 +5,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(snode.c main.cpp)
 target_link_libraries(
-    snode.c PRIVATE snodec::http-server-express snodec::core
+    snode.c PRIVATE snodec::http-server-express snodec::core-socket-stream-legacy
                     snodec::net-in-stream
 )
 install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -38,8 +38,8 @@ namespace net::un::config {
             sunPathOpt = ConfigAddressType::addressSc->add_option("--path", sunPath, "Unix domain socket");
             sunPathOpt->type_name("[sun-path]");
             sunPathOpt->default_val(std::string('\0' + net::config::ConfigBase::getName() + "_" + std::to_string(getpid())));
+            ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigBase::getName() + "_" + std::to_string(getpid())));
         }
-        ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigBase::getName() + "_" + std::to_string(getpid())));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

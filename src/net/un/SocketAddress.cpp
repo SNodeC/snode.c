@@ -35,6 +35,7 @@ namespace net::un {
         std::memset(&sockAddr, 0, sizeof(sockAddr));
 
         sockAddr.sun_family = AF_UNIX;
+        *sockAddr.sun_path = 0;
     }
 
     SocketAddress::SocketAddress(const std::string& sunPath)

@@ -29,7 +29,7 @@
 namespace net::un::dgram {
 
     class Socket : public net::un::Socket {
-    protected:
+    public:
         ~Socket() override;
 
         int create(int flags) override;
