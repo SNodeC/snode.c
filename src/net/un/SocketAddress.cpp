@@ -29,20 +29,6 @@
 
 namespace net::un {
 
-    class bad_sunpath : public std::exception {
-    public:
-        explicit bad_sunpath(const std::string& sunPath) {
-            message = "Bad sun-path \"" + sunPath + "\"";
-        }
-
-        const char* what() const noexcept override {
-            return message.c_str();
-        }
-
-    protected:
-        static std::string message;
-    };
-
     std::string bad_sunpath::message;
 
     SocketAddress::SocketAddress() {
@@ -71,6 +57,14 @@ namespace net::un {
 
     std::string SocketAddress::toString() const {
         return address();
+    }
+
+    bad_sunpath::bad_sunpath(const std::string& sunPath) {
+        message = "Bad sun-path \"" + sunPath + "\"";
+    }
+
+    const char* bad_sunpath::what() const noexcept {
+        return message.c_str();
     }
 
 } // namespace net::un

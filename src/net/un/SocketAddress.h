@@ -32,6 +32,16 @@
 
 namespace net::un {
 
+    class bad_sunpath : public std::exception {
+    public:
+        explicit bad_sunpath(const std::string& sunPath);
+
+        const char* what() const noexcept override;
+
+    protected:
+        static std::string message;
+    };
+
     class SocketAddress : public net::SocketAddress<struct sockaddr_un> {
     public:
         using net::SocketAddress<struct sockaddr_un>::SocketAddress;

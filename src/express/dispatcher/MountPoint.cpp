@@ -24,9 +24,9 @@
 
 namespace express::dispatcher {
 
-    MountPoint::MountPoint(const std::string &method, const std::string &relativeMountPath)
+    MountPoint::MountPoint(const std::string& method, const std::string& relativeMountPath)
         : method(method)
         , relativeMountPath(relativeMountPath) {
     }
 
-}
+} // namespace express::dispatcher

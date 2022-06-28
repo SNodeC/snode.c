@@ -33,6 +33,16 @@
 
 namespace net::in {
 
+    class bad_hostname : public std::exception {
+    public:
+        explicit bad_hostname(const std::string& hostName);
+
+        const char* what() const noexcept override;
+
+    protected:
+        static std::string message;
+    };
+
     class SocketAddress : public net::SocketAddress<struct sockaddr_in> {
     public:
         using net::SocketAddress<struct sockaddr_in>::SocketAddress;

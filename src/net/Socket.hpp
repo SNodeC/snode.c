@@ -43,13 +43,13 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    void Socket<SocketAddress>::bind(const SocketAddress& localAddress, const std::function<void(int)>& onError) {
-        int ret = core::system::bind(getFd(), &localAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+    void Socket<SocketAddress>::bind(const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
+        int ret = core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
         if (ret < 0) {
             onError(errno);
         } else {
-            this->bindAddress = localAddress;
+            this->bindAddress = bindAddress;
             onError(0);
         }
     }

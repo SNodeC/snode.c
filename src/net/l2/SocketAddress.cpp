@@ -29,20 +29,6 @@
 
 namespace net::l2 {
 
-    class bad_bdaddress : public std::exception {
-    public:
-        explicit bad_bdaddress(const std::string& bdAddress) {
-            message = "Bad bad bdaddress \"" + bdAddress + "\"";
-        }
-
-        const char* what() const noexcept override {
-            return message.c_str();
-        }
-
-    protected:
-        static std::string message;
-    };
-
     std::string bad_bdaddress::message;
 
     SocketAddress::SocketAddress() {
@@ -90,6 +76,14 @@ namespace net::l2 {
 
     std::string SocketAddress::toString() const {
         return address() + ":" + std::to_string(psm());
+    }
+
+    bad_bdaddress::bad_bdaddress(const std::string& bdAddress) {
+        message = "Bad bad bdaddress \"" + bdAddress + "\"";
+    }
+
+    const char* bad_bdaddress::what() const noexcept {
+        return message.c_str();
     }
 
 } // namespace net::l2
