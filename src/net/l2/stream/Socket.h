@@ -19,7 +19,7 @@
 #ifndef NET_L2_STREAM_SOCKET_H
 #define NET_L2_STREAM_SOCKET_H
 
-#include "net/Socket.h"           // IWYU pragma: export
+#include "net/l2/Socket.h"        // IWYU pragma: export
 #include "net/l2/SocketAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,7 +28,7 @@
 
 namespace net::l2::stream {
 
-    class Socket : public net::Socket<net::l2::SocketAddress> {
+    class Socket : public net::l2::Socket {
     protected:
         int create(int flags = 0) override;
     };

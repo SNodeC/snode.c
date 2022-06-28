@@ -38,8 +38,11 @@ namespace core {
         Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
         ~Descriptor();
 
+    public:
         void attachFd(int fd);
         int getFd() const;
+
+    protected:
         void dontClose(bool dontClose);
         bool dontClose() const;
 

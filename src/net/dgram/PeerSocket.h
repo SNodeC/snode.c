@@ -16,8 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CLIENTSOCKET_H
-#define NET_CLIENTSOCKET_H
+#ifndef NET_DGRAM_PEERSOCKET_H
+#define NET_DGRAM_PEERSOCKET_H
+
+#include "net/SocketConfig.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,18 +29,18 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::dgram {
 
     template <typename ConfigT, typename SocketT>
-    class ClientSocket {
+    class PeerSocket : public SocketConfig<ConfigT> {
     protected:
-        explicit ClientSocket(const std::string& name);
+        using Super = SocketConfig<ConfigT>;
 
-        ClientSocket(const ClientSocket&) = default;
-
-        virtual ~ClientSocket() = default;
+        virtual ~PeerSocket() = default;
 
     public:
+        using Super::Super;
+
         using Config = ConfigT;
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -50,13 +52,8 @@ namespace net {
                      const std::function<void(const SocketAddress&, int)>& onError) const;
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
-
-        Config& getConfig();
-
-    protected:
-        std::shared_ptr<Config> config;
     };
 
-} // namespace net
+} // namespace net::dgram
 
-#endif // NET_CLIENTSOCKET_H
+#endif // NET_DGRAM_PEERSOCKET_H

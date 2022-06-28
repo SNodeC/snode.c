@@ -20,6 +20,7 @@
 #define NET_L2_STREAM_CONFIG_CONFIGSERVERSOCKET_H
 
 #include "net/config/ConfigAddressLocal.h"
+#include "net/config/ConfigCluster.h"
 #include "net/config/ConfigConnection.h"
 #include "net/config/ConfigListen.h"
 #include "net/l2/config/ConfigAddress.h"
@@ -35,6 +36,7 @@ namespace net::l2::stream::config {
     class ConfigServerSocket
         : public net::config::ConfigListen
         , public net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>
+        , public net::config::ConfigCluster
         , public net::config::ConfigConnection {
     public:
         ConfigServerSocket();

@@ -33,6 +33,16 @@
 
 namespace net::in6 {
 
+    class bad_hostname : public std::exception {
+    public:
+        explicit bad_hostname(const std::string& hostName);
+
+        const char* what() const noexcept override;
+
+    protected:
+        static std::string message;
+    };
+
     class SocketAddress : public net::SocketAddress<struct sockaddr_in6> {
     public:
         using net::SocketAddress<struct sockaddr_in6>::SocketAddress;

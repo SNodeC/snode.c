@@ -8,23 +8,28 @@ set(http-server-express_DEPENDENCIES http-server)
 set(http-server_DEPENDENCIES http)
 set(http-client_DEPENDENCIES http)
 
+# Base network code
 set(net-in_DEPENDENCIES net)
 set(net-in6_DEPENDENCIES net)
 set(net-l2_DEPENDENCIES net)
 set(net-rc_DEPENDENCIES net)
 set(net-un_DEPENDENCIES net)
 
+# Base network-stream code
 set(net-in-stream_DEPENDENCIES net-in)
 set(net-in6-stream_DEPENDENCIES net-in6)
 set(net-l2-stream_DEPENDENCIES net-l2)
 set(net-rc-stream_DEPENDENCIES net-rc)
 set(net-un-stream_DEPENDENCIES net-un)
 
+# Base network-dgram code
+set(net-un-dgram_DEPENDENCIES net-un)
+
 set(db-mariadb_DEPENDENCIES core)
 
 set(core-socket_DEPENDENCIES core)
 
-set(core-socket-stream_DEPENDENCIES core-socket)
+set(core-socket-stream_DEPENDENCIES core-socket net-un-dgram)
 
 set(core-socket-stream-legacy_DEPENDENCIES core-socket-stream)
 set(core-socket-stream-tls_DEPENDENCIES core-socket-stream)
@@ -62,6 +67,7 @@ set(_supported_components
     net-rc-stream
     net-l2-stream
     net-un-stream
+    net-un-dgram
     db-mariadb
     http
     http-server

@@ -18,8 +18,6 @@
 
 #include "net/in6/stream/Socket.h"
 
-#include "net/Socket.hpp" // IWYU pragma: keep
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -31,7 +29,3 @@ namespace net::in6::stream {
     }
 
 } // namespace net::in6::stream
-
-namespace net {
-    template class Socket<net::in6::SocketAddress>;
-}

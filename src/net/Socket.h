@@ -25,7 +25,7 @@
 
 #include "core/system/socket.h" // IWYU pragma: export
 
-#include <functional>
+#include <functional> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -46,10 +46,15 @@ namespace net {
 
         virtual int create(int flags) = 0;
 
+        virtual bool connectInProgress();
+
     public:
         void open(const std::function<void(int)>& onError, int flags = 0);
 
-        void bind(const SocketAddress& localAddress, const std::function<void(int)>& onError);
+        void bind(const SocketAddress& bindAddress, const std::function<void(int)>& onError);
+
+        ssize_t write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
+        ssize_t read_fd(void* ptr, size_t nbytes, int* recvfd);
 
         enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 

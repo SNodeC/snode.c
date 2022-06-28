@@ -35,6 +35,10 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketClient<ClientSocketT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT>;
 
         using Super::Super;
+
+    public:
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
     };
 
 } // namespace core::socket::stream::tls

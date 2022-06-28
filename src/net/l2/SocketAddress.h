@@ -34,6 +34,16 @@
 
 namespace net::l2 {
 
+    class bad_bdaddress : public std::exception {
+    public:
+        explicit bad_bdaddress(const std::string& bdAddress);
+
+        const char* what() const noexcept override;
+
+    protected:
+        static std::string message;
+    };
+
     class SocketAddress : public net::SocketAddress<struct sockaddr_l2> {
     public:
         using net::SocketAddress<struct sockaddr_l2>::SocketAddress;

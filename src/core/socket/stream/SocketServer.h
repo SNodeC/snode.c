@@ -65,7 +65,6 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
             : SocketServer("", onConnect, onConnected, onDisconnect, options) {
-            Super::config::add_subcommand("cluster", "Clustering");
         }
 
         SocketServer(const SocketServer&) = default;
@@ -77,6 +76,18 @@ namespace core::socket::stream {
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
             if (Super::config->isLocalInitialized()) {
                 SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+
+                // Depenent on commandline arguments
+                //
+                // for cluster primary: accept connection and send it to a particular (schedulling) SocketAcceptorSecondary/Proxy
+                //     SocketAcceptor* socketAcceptor = new SocketAcceptorPrimary; // via net::un::dgram or net::un::stream
+
+                // for cluster secondary: receive connection from SocketAcceptorPrimary/Proxy and create SocketConnection
+                //     SocketAcceptor* socketAcceptor = new SocketAcceptorSecondary; // via net::un::dgram or net::un::stream
+
+                // for cluster proxy: receive connection from SocketAceptorPrimary/Proxy and send it to particular (schedulling)
+                // SocketAcceptorSecondary/Proxy
+                //    SocketAcceptor* socketAcceptor = new SocketAcceptorProxy; // via net::un::dgram or net::un::stream
 
                 socketAcceptor->listen(Super::config, onError);
             } else {

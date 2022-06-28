@@ -68,12 +68,15 @@ set(HTTP_SERVER_EXPRESS_H
     ${JSONMIDDLEWARE_H}
 )
 
-add_library(http-server-express SHARED ${HTTP_SERVER_EXPRESS_CPP} ${HTTP_SERVER_EXPRESS_H})
+add_library(
+    http-server-express SHARED ${HTTP_SERVER_EXPRESS_CPP}
+                               ${HTTP_SERVER_EXPRESS_H}
+)
 add_library(snodec::http-server-express ALIAS http-server-express)
 
 target_include_directories(
     http-server-express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                   "$<INSTALL_INTERFACE:include/snode.c>"
+                               "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
@@ -82,7 +85,10 @@ target_link_libraries(
     PRIVATE ${JSON_LIBRARY}
 )
 
-set_target_properties(http-server-express PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http-server-express)
+set_target_properties(
+    http-server-express PROPERTIES SOVERSION 1 OUTPUT_NAME
+                                               snodec-http-server-express
+)
 
 install(
     TARGETS http-server-express

@@ -16,43 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SERVERSOCKET_H
-#define NET_SERVERSOCKET_H
+#include "net/un/stream/config/ConfigClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::un::stream::config {
 
-    template <typename ConfigT, typename SocketT>
-    class ServerSocket {
-    protected:
-        explicit ServerSocket(const std::string& name);
+    ConfigClientSocket::ConfigClientSocket() {
+        if (!getName().empty()) {
+            net::un::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
+        }
+    }
 
-        ServerSocket(const ServerSocket&) = default;
-
-        virtual ~ServerSocket() = default;
-
-    public:
-        using Config = ConfigT;
-        using Socket = SocketT;
-        using SocketAddress = typename Socket::SocketAddress;
-
-        virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
-
-        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
-
-        Config& getConfig();
-
-    protected:
-        std::shared_ptr<Config> config;
-    };
-
-} // namespace net
-
-#endif // NET_SERVERSOCKET_H
+} // namespace net::un::stream::config

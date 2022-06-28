@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h" // IWYU pragma: export
-
 #include <cstring>
 #include <string>
 

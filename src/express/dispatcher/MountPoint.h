@@ -28,10 +28,7 @@
 namespace express::dispatcher {
 
     struct MountPoint {
-        MountPoint(const std::string& method, const std::string& relativeMountPath)
-            : method(method)
-            , relativeMountPath(relativeMountPath) {
-        }
+        MountPoint(const std::string& method, const std::string& relativeMountPath);
 
         std::string method;
         std::string relativeMountPath;

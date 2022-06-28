@@ -147,43 +147,35 @@ namespace core::socket::stream::tls {
             if (SSL_get_servername_type(ssl) != -1) {
                 std::string serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
 
-                if (!socketAcceptor->masterSslCtxDomains.contains(serverNameIndication)) {
-                    if (socketAcceptor->sniSslCtxs->contains(serverNameIndication)) {
-                        SSL_CTX* sniSslCtx = (*socketAcceptor->sniSslCtxs.get())[serverNameIndication];
+                if (socketAcceptor->masterSslCtxDomains.contains(serverNameIndication)) {
+                    LOG(INFO) << "SSL_CTX: Master SSL_CTX already provides SNI '" << serverNameIndication << "'";
+                } else if (socketAcceptor->sniSslCtxs->contains(serverNameIndication)) {
+                    SSL_CTX* sniSslCtx = (*socketAcceptor->sniSslCtxs.get())[serverNameIndication];
 
-                        SSL_CTX* nowUsedSslCtx = SSL_set_SSL_CTX(ssl, sniSslCtx);
+                    SSL_CTX* nowUsedSslCtx = SSL_set_SSL_CTX(ssl, sniSslCtx);
 
-                        if (nowUsedSslCtx == sniSslCtx) {
-                            LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
-                        } else if (nowUsedSslCtx != nullptr) {
-                            if (!socketAcceptor->forceSni) {
-                                LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication
-                                             << "'. Master SSL_CTX still used.";
-                                ret = SSL_TLSEXT_ERR_ALERT_WARNING;
-                            } else {
-                                LOG(ERROR) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'.";
-                                ret = SSL_TLSEXT_ERR_ALERT_FATAL;
-                            }
-                        } else {
-                            if (!socketAcceptor->forceSni) {
-                                LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication
-                                             << "'. Master SSL_CTX still used.";
-                                ret = SSL_TLSEXT_ERR_ALERT_WARNING;
-                            } else {
-                                LOG(ERROR) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
-                                ret = SSL_TLSEXT_ERR_ALERT_FATAL;
-                            }
-                        }
-                    } else {
+                    if (nowUsedSslCtx == sniSslCtx) {
+                        LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
+                    } else if (nowUsedSslCtx != nullptr) {
                         if (!socketAcceptor->forceSni) {
-                            LOG(WARNING) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
+                            LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
+                            ret = SSL_TLSEXT_ERR_ALERT_WARNING;
                         } else {
-                            LOG(ERROR) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'.";
+                            LOG(ERROR) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'.";
                             ret = SSL_TLSEXT_ERR_ALERT_FATAL;
                         }
+                    } else if (!socketAcceptor->forceSni) {
+                        LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
+                        ret = SSL_TLSEXT_ERR_ALERT_WARNING;
+                    } else {
+                        LOG(ERROR) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
+                        ret = SSL_TLSEXT_ERR_ALERT_FATAL;
                     }
+                } else if (!socketAcceptor->forceSni) {
+                    LOG(WARNING) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
                 } else {
-                    LOG(INFO) << "SSL_CTX: Master SSL_CTX already provides SNI '" << serverNameIndication << "'";
+                    LOG(ERROR) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'.";
+                    ret = SSL_TLSEXT_ERR_ALERT_FATAL;
                 }
             }
 

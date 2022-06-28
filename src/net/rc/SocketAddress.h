@@ -34,6 +34,16 @@
 
 namespace net::rc {
 
+    class bad_bdaddress : public std::exception {
+    public:
+        explicit bad_bdaddress(const std::string& bdAddress);
+
+        const char* what() const noexcept override;
+
+    protected:
+        static std::string message;
+    };
+
     class SocketAddress : public net::SocketAddress<struct sockaddr_rc> {
     public:
         using net::SocketAddress<struct sockaddr_rc>::SocketAddress;

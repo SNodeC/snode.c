@@ -18,8 +18,6 @@
 
 #include "net/un/stream/Socket.h"
 
-#include "net/Socket.hpp" // IWYU pragma: keep
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -42,7 +40,3 @@ namespace net::un::stream {
     }
 
 } // namespace net::un::stream
-
-namespace net {
-    template class Socket<net::un::SocketAddress>;
-}

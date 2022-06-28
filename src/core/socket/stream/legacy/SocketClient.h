@@ -36,6 +36,10 @@ namespace core::socket::stream::legacy {
             core::socket::stream::SocketClient<ClientSocketT, core::socket::stream::legacy::SocketConnector, SocketContextFactoryT>;
 
         using Super::Super;
+
+    public:
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
     };
 
 } // namespace core::socket::stream::legacy

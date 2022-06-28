@@ -5,9 +5,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-    set(NET-L2_CPP SocketAddress.cpp config/ConfigAddress.cpp)
+    set(NET-L2_CPP Socket.cpp SocketAddress.cpp config/ConfigAddress.cpp)
 
-    set(NET-L2_H SocketAddress.h config/ConfigAddress.h)
+    set(NET-L2_H Socket.h SocketAddress.h config/ConfigAddress.h)
 
     add_library(net-l2 SHARED ${NET-L2_CPP} ${NET-L2_H})
     add_library(snodec::net-l2 ALIAS net-l2)
@@ -35,7 +35,7 @@ if(BLUEZ_FOUND)
 
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2cap
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2
         FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"

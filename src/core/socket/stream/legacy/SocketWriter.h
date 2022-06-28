@@ -38,6 +38,13 @@ namespace core::socket::stream::legacy {
         ssize_t write(const char* junk, std::size_t junkLen) override {
             return core::system::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }
+
+        ssize_t sendMsgToPeer(struct msghdr* msg, int flags) {
+            msg->msg_name = nullptr; // should be nullptr for SOCK_STREAM
+            msg->msg_namelen = 0;    // should be 0 for SOCK_STREAM
+
+            return sendmsg(this->getFd(), msg, flags);
+        }
     };
 
 } // namespace core::socket::stream::legacy

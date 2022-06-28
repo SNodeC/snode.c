@@ -16,32 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ServerSocket.h"
+#ifndef NET_IN6_SOCKET_H
+#define NET_IN6_SOCKET_H
+
+#include "net/Socket.h"            // IWYU pragma: export
+#include "net/in6/SocketAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::in6 {
 
-    template <typename Config, typename Socket>
-    ServerSocket<Config, Socket>::ServerSocket(const std::string& name)
-        : config(std::make_shared<Config>(name)) {
-    }
+    class Socket : public net::Socket<net::in6::SocketAddress> {};
 
-    template <typename Config, typename Socket>
-    void ServerSocket<Config, Socket>::listen(const SocketAddress& localAddress,
-                                              int backlog,
-                                              const std::function<void(const SocketAddress&, int)>& onError) const {
-        config->setLocalAddress(localAddress);
-        config->setBacklog(backlog);
+} // namespace net::in6
 
-        listen(onError);
-    }
-
-    template <typename Config, typename Socket>
-    Config& ServerSocket<Config, Socket>::getConfig() {
-        return *config;
-    }
-
-} // namespace net
+#endif // NET_IN6_SOCKET_H

@@ -22,4 +22,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {}
+namespace express::dispatcher {
+
+    MountPoint::MountPoint(const std::string& method, const std::string& relativeMountPath)
+        : method(method)
+        , relativeMountPath(relativeMountPath) {
+    }
+
+} // namespace express::dispatcher

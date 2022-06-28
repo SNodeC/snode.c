@@ -31,20 +31,6 @@
 
 namespace net::in {
 
-    class bad_hostname : public std::exception {
-    public:
-        explicit bad_hostname(const std::string& hostName) {
-            message = "Bad hostname \"" + hostName + "\"";
-        }
-
-        const char* what() const noexcept override {
-            return message.c_str();
-        }
-
-    protected:
-        static std::string message;
-    };
-
     std::string bad_hostname::message;
 
     SocketAddress::SocketAddress() {
@@ -139,8 +125,16 @@ namespace net::in {
         return host() + ":" + std::to_string(port());
     }
 
+    bad_hostname::bad_hostname(const std::string& hostName) {
+        message = "Bad hostname \"" + hostName + "\"";
+    }
+
+    const char* bad_hostname::what() const noexcept {
+        return message.c_str();
+    }
+
 } // namespace net::in
 
 namespace net {
     template class SocketAddress<struct sockaddr_in>;
-}
+} // namespace net
