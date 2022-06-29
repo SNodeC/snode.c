@@ -25,6 +25,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <exception>
 #include <string>
 #include <sys/un.h>
 

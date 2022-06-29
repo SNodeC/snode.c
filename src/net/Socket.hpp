@@ -74,7 +74,7 @@ namespace net {
         cmptr->cmsg_level = SOL_SOCKET;
         cmptr->cmsg_type = SCM_RIGHTS;
 
-        /**((int*)*/ *reinterpret_cast<int*>(CMSG_DATA(cmptr)) = sendfd;
+        *reinterpret_cast<int*>(CMSG_DATA(cmptr)) = sendfd;
         msg.msg_name = const_cast<sockaddr*>(&destAddress.getSockAddr());
         msg.msg_namelen = sizeof(destAddress.getSockAddr());
         iov[0].iov_base = ptr;
@@ -126,7 +126,7 @@ namespace net {
                 *recvfd = -1;
                 n = -1;
             } else {
-                *recvfd = /**((int*)*/ *reinterpret_cast<int*>(CMSG_DATA(cmptr));
+                *recvfd = *reinterpret_cast<int*>(CMSG_DATA(cmptr));
             }
         } else {
             errno = ENOMSG;

@@ -224,25 +224,27 @@ namespace core::socket::stream {
                 // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
 
                 char buf[10];
-                udpSocket->read_fd((void*) buf, 10, &fd);
+                if (udpSocket->read_fd((void*) buf, 10, &fd) >= 0) {
+                    if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY) {
+                        typename SocketAddress::SockAddr localAddress{};
+                        socklen_t localAddressLength = sizeof(localAddress);
 
-                if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY) {
-                    typename SocketAddress::SockAddr localAddress{};
-                    socklen_t localAddressLength = sizeof(localAddress);
+                        typename SocketAddress::SockAddr remoteAddress{};
+                        socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                    typename SocketAddress::SockAddr remoteAddress{};
-                    socklen_t remoteAddressLength = sizeof(remoteAddress);
-
-                    if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
-                        core::system::getpeername(fd, reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                        SocketConnectionEstablisher::establishConnection(fd, localAddress, remoteAddress, config);
-                    } else {
-                        PLOG(ERROR) << "getsockname";
-                        core::system::shutdown(fd, SHUT_RDWR);
-                        core::system::close(fd);
+                        if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
+                            core::system::getpeername(fd, reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
+                            SocketConnectionEstablisher::establishConnection(fd, localAddress, remoteAddress, config);
+                        } else {
+                            PLOG(ERROR) << "getsockname";
+                            core::system::shutdown(fd, SHUT_RDWR);
+                            core::system::close(fd);
+                        }
+                    } else { // PROXY
+                        // Send to SECONDARY (TERTIARY)
                     }
-                } else { // PROXY
-                    // Send to SECONDARY (TERTIARY)
+                } else {
+                    PLOG(ERROR) << "read_fd";
                 }
             }
         }

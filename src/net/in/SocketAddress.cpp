@@ -25,7 +25,6 @@
 #include "core/system/netdb.h"
 
 #include <cstring>
-#include <exception>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
