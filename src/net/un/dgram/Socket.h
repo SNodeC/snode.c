@@ -32,6 +32,7 @@ namespace net::un::dgram {
     public:
         ~Socket() override;
 
+    protected:
         int create(int flags) override;
     };
 

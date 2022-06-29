@@ -85,33 +85,21 @@ namespace core::socket::stream {
 
     private:
         void initConnectEvent() override {
-            Socket::open(
-                [this](int errnum) -> void {
-                    if (errnum > 0) {
-                        onError(config->getRemoteAddress(), errnum);
-                        destruct();
-                    } else {
-                        Socket::bind(config->getLocalAddress(), [this](int errnum) -> void {
-                            if (errnum > 0) {
-                                onError(config->getRemoteAddress(), errnum);
-                                destruct();
-                            } else {
-                                int ret = core::system::connect(Socket::getFd(),
-                                                                &config->getRemoteAddress().getSockAddr(),
-                                                                config->getRemoteAddress().getSockAddrLen());
-
-                                if (ret == 0 || Socket::connectInProgress()) {
-                                    enable(Socket::getFd());
-                                    onError(config->getRemoteAddress(), 0);
-                                } else {
-                                    onError(config->getRemoteAddress(), errno);
-                                    destruct();
-                                }
-                            }
-                        });
-                    }
-                },
-                SOCK_NONBLOCK);
+            if (Socket::open(SOCK_NONBLOCK) < 0) {
+                onError(config->getRemoteAddress(), errno);
+                destruct();
+            } else if (Socket::bind(config->getLocalAddress()) < 0) {
+                onError(config->getRemoteAddress(), errno);
+                destruct();
+            } else if (core::system::connect(
+                           Socket::getFd(), &config->getRemoteAddress().getSockAddr(), config->getRemoteAddress().getSockAddrLen()) < 0 &&
+                       !Socket::connectInProgress()) {
+                onError(config->getRemoteAddress(), errno);
+                destruct();
+            } else {
+                onError(config->getLocalAddress(), 0);
+                enable(Socket::getFd());
+            }
         }
 
         void connectEvent() override {
@@ -122,7 +110,6 @@ namespace core::socket::stream {
 
             if (err == 0) {
                 errno = cErrno;
-                //                if (errno != EINPROGRESS) {
                 if (!Socket::connectInProgress()) {
                     if (errno == 0) {
                         disable();

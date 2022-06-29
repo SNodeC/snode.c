@@ -49,9 +49,9 @@ namespace net {
         virtual bool connectInProgress();
 
     public:
-        void open(const std::function<void(int)>& onError, int flags = 0);
+        int open(int flags = 0);
 
-        void bind(const SocketAddress& bindAddress, const std::function<void(int)>& onError);
+        int bind(const SocketAddress& bindAddress);
 
         ssize_t write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
         ssize_t read_fd(void* ptr, size_t nbytes, int* recvfd);

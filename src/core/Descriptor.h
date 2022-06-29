@@ -39,7 +39,7 @@ namespace core {
         ~Descriptor();
 
     public:
-        void attachFd(int fd);
+        int attachFd(int fd);
         int getFd() const;
 
     protected:

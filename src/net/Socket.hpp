@@ -32,26 +32,15 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    void Socket<SocketAddress>::open(const std::function<void(int)>& onError, int flags) {
-        attachFd(create(flags));
-
-        if (getFd() >= 0) {
-            onError(0);
-        } else {
-            onError(errno);
-        }
+    int Socket<SocketAddress>::open(int flags) {
+        return attachFd(create(flags));
     }
 
     template <typename SocketAddress>
-    void Socket<SocketAddress>::bind(const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
-        int ret = core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+    int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
+        this->bindAddress = bindAddress;
 
-        if (ret < 0) {
-            onError(errno);
-        } else {
-            this->bindAddress = bindAddress;
-            onError(0);
-        }
+        return core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
     }
 
     template <typename SocketAddress>
@@ -116,12 +105,10 @@ namespace net {
 
         if ((cmptr = CMSG_FIRSTHDR(&msg)) != NULL && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
             if (cmptr->cmsg_level != SOL_SOCKET) {
-                //                err_quit("control level != SOL_SOCKET");
                 errno = EBADE;
                 *recvfd = -1;
                 n = -1;
             } else if (cmptr->cmsg_type != SCM_RIGHTS) {
-                //                err_quit("control type != SCM_RIGHTS");
                 errno = EBADE;
                 *recvfd = -1;
                 n = -1;
@@ -132,7 +119,6 @@ namespace net {
             errno = ENOMSG;
             *recvfd = -1;
             n = -1;
-            /* descriptor was not passed */
         }
 
         return n;
