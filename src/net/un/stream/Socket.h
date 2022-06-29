@@ -28,9 +28,10 @@
 namespace net::un::stream {
 
     class Socket : public net::un::Socket {
-    protected:
+    public:
         ~Socket() override;
 
+    protected:
         int create(int flags) override;
     };
 

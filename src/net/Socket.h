@@ -41,9 +41,9 @@ namespace net {
         Socket(const Socket&) = delete;
         Socket& operator=(const Socket&) = delete;
 
-    protected:
         virtual ~Socket() = default;
 
+    protected:
         virtual int create(int flags) = 0;
 
         virtual bool connectInProgress();

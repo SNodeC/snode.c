@@ -47,8 +47,9 @@ namespace core::socket::stream {
 
     template <typename ServerSocketT, template <typename SocketT> class SocketConnectionT>
     class SocketAcceptor
-        : protected ServerSocketT::Socket
-        , protected core::eventreceiver::InitAcceptEventReceiver
+        : /*protected ServerSocketT::Socket
+        ,*/
+          protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver
         , protected core::socket::stream::SocketConnectionEstablisher<ServerSocketT, SocketConnectionT> {
         SocketAcceptor() = delete;
@@ -83,7 +84,14 @@ namespace core::socket::stream {
             , options(options) {
         }
 
-        ~SocketAcceptor() override = default;
+        ~SocketAcceptor() override {
+            if (dgramSocket != nullptr) {
+                delete dgramSocket;
+            }
+            if (streamSocket != nullptr) {
+                delete streamSocket;
+            }
+        }
 
         void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
             this->config = config;
@@ -97,7 +105,8 @@ namespace core::socket::stream {
             if (!config->isCluster() || config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
                 VLOG(0) << "Cluster: BARE or PRIMARY";
 
-                if (Socket::open(SOCK_NONBLOCK) < 0) {
+                streamSocket = new Socket();
+                if (streamSocket->open(SOCK_NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
 #if !defined(NDEBUG)
@@ -105,42 +114,42 @@ namespace core::socket::stream {
                     onError(config->getLocalAddress(), errno);
                     destruct();
 #endif // !defined(NDEBUG)
-                } else if (Socket::bind(config->getLocalAddress()) < 0) {
+                } else if (streamSocket->bind(config->getLocalAddress()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (core::system::listen(Socket::getFd(), config->getBacklog()) < 0) {
+                } else if (core::system::listen(streamSocket->getFd(), config->getBacklog()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else if (config->isCluster() && config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
                     VLOG(0) << "Cluster: PRIMARY";
-                    udpSocket = new net::un::dgram::Socket();
-                    if (udpSocket->open(SOCK_NONBLOCK) < 0) {
+                    dgramSocket = new net::un::dgram::Socket();
+                    if (dgramSocket->open(SOCK_NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
-                    } else if (udpSocket->bind(net::un::SocketAddress("/tmp/primary")) < 0) {
+                    } else if (dgramSocket->bind(net::un::SocketAddress("/tmp/primary")) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
                         onError(config->getLocalAddress(), 0);
-                        enable(Socket::getFd());
+                        enable(streamSocket->getFd());
                     }
                 } else {
                     onError(config->getLocalAddress(), 0);
-                    enable(Socket::getFd());
+                    enable(streamSocket->getFd());
                 }
             } else if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY ||
                        config->getClusterMode() == net::config::ConfigCluster::PROXY) {
                 VLOG(0) << "Cluster: SECONDARY or PROXY";
-                udpSocket = new net::un::dgram::Socket();
-                if (udpSocket->open(SOCK_NONBLOCK) < 0) {
+                dgramSocket = new net::un::dgram::Socket();
+                if (dgramSocket->open(SOCK_NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (udpSocket->bind(net::un::SocketAddress("/tmp/secondary")) < 0) {
+                } else if (dgramSocket->bind(net::un::SocketAddress("/tmp/secondary")) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else {
                     onError(config->getLocalAddress(), 0);
-                    enable(udpSocket->getFd());
+                    enable(dgramSocket->getFd());
                 }
             }
         }
@@ -156,7 +165,7 @@ namespace core::socket::stream {
                     socklen_t remoteAddressLength = sizeof(remoteAddress);
 
                     fd = core::system::accept4(
-                        Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+                        streamSocket->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
                     if (!config->isCluster()) {
                         if (fd >= 0) {
@@ -174,7 +183,7 @@ namespace core::socket::stream {
                     } else {
                         // Send descriptor to SECONDARY
                         VLOG(0) << "Sending to secondary";
-                        udpSocket->write_fd(net::un::Socket::SocketAddress("/tmp/secondary"), (void*) "", 1, fd);
+                        dgramSocket->write_fd(net::un::Socket::SocketAddress("/tmp/secondary"), (void*) "", 1, fd);
                         core::system::close(fd);
                     }
                 } while (fd >= 0 && --acceptsPerTick > 0);
@@ -188,7 +197,7 @@ namespace core::socket::stream {
                 // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
 
                 char buf[10];
-                if (udpSocket->read_fd((void*) buf, 10, &fd) >= 0) {
+                if (dgramSocket->read_fd((void*) buf, 10, &fd) >= 0) {
                     if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY) {
                         typename SocketAddress::SockAddr localAddress{};
                         socklen_t localAddressLength = sizeof(localAddress);
@@ -215,9 +224,6 @@ namespace core::socket::stream {
 
     protected:
         void destruct() {
-            if (udpSocket != nullptr) {
-                delete udpSocket;
-            }
             delete this;
         }
 
@@ -227,7 +233,7 @@ namespace core::socket::stream {
         int reuseAddress() {
             int sockopt = 1;
 
-            return core::system::setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
+            return core::system::setsockopt(streamSocket->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
         }
 
         void unobservedEvent() override {
@@ -240,7 +246,8 @@ namespace core::socket::stream {
         std::map<std::string, std::any> options;
 
     private:
-        net::un::dgram::Socket* udpSocket = nullptr;
+        net::un::dgram::Socket* dgramSocket = nullptr;
+        Socket* streamSocket = nullptr;
     };
 
 } // namespace core::socket::stream

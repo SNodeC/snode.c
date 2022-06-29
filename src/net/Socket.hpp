@@ -51,7 +51,7 @@ namespace net {
 
         union {
             struct cmsghdr cm;
-            char control[CMSG_SPACE(sizeof(int))];
+            char control[CMSG_SPACE(sizeof(int))] = {};
         } control_un;
         struct cmsghdr* cmptr;
 
@@ -81,7 +81,7 @@ namespace net {
 
         union {
             struct cmsghdr cm;
-            char control[CMSG_SPACE(sizeof(int))];
+            char control[CMSG_SPACE(sizeof(int))] = {};
 
         } control_un;
 
