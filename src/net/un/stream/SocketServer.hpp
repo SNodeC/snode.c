@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/un/stream/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,13 +30,13 @@
 namespace net::un::stream {
 
     template <typename Config>
-    ServerSocket<Config>::ServerSocket(const std::string& name)
+    SocketServer<Config>::SocketServer(const std::string& name)
         : Super(name) {
     }
 
     template <typename Config>
     void
-    ServerSocket<Config>::listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
+    SocketServer<Config>::listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
         if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
             PLOG(ERROR) << "listen: sunPath: " << sunPath;
         } else {

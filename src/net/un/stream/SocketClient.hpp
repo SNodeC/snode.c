@@ -16,34 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_STREAM_SERVERSOCKET_H
-#define NET_UN_STREAM_STREAM_SERVERSOCKET_H
-
-#include "net/stream/ServerSocket.h" // IWYU pragma: export
-#include "net/un/stream/Socket.h"    // IWYU pragma: export
+#include "net/un/stream/SocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <functional>
-#include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream {
 
-    template <typename ConfigT>
-    class ServerSocket : public net::stream::ServerSocket<ConfigT, net::un::stream::Socket> {
-        using Super = net::stream::ServerSocket<ConfigT, net::un::stream::Socket>;
+    template <typename Config>
+    SocketClient<Config>::SocketClient(const std::string& name)
+        : Super(name) {
+    }
 
-    protected:
-        explicit ServerSocket(const std::string& name);
+    template <typename Config>
+    void SocketClient<Config>::connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
+        connect(SocketAddress(sunPath), onError);
+    }
 
-    public:
-        using Super::listen;
-
-        void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
-    };
+    template <typename Config>
+    void SocketClient<Config>::connect(const std::string& remoteSunPath,
+                                       const std::string& localSunPath,
+                                       const std::function<void(const SocketAddress&, int)>& onError) {
+        connect(SocketAddress(remoteSunPath), SocketAddress(localSunPath), onError);
+    }
 
 } // namespace net::un::stream
-
-#endif // NET_UN_STREAM_STREAM_SERVERSOCKET_H

@@ -11,10 +11,10 @@ set(NET-UN-STREAM_CPP
 )
 
 set(NET-UN-STREAM_H
-    ClientSocket.h
-    ClientSocket.hpp
-    ServerSocket.h
-    ServerSocket.hpp
+    SocketClient.h
+    SocketClient.hpp
+    SocketServer.h
+    SocketServer.hpp
     Socket.h
     config/ConfigClientSocket.h
     config/ConfigServerSocket.h
