@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in6/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/in6/stream/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,24 +25,24 @@
 namespace net::in6::stream {
 
     template <typename Config>
-    ServerSocket<Config>::ServerSocket(const std::string& name)
+    SocketServer<Config>::SocketServer(const std::string& name)
         : Super(name) {
     }
 
     template <typename Config>
-    void ServerSocket<Config>::listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
+    void SocketServer<Config>::listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
         listen(SocketAddress(port), backlog, onError);
     }
 
     template <typename Config>
-    void ServerSocket<Config>::listen(const std::string& ipOrHostname,
+    void SocketServer<Config>::listen(const std::string& ipOrHostname,
                                       int backlog,
                                       const std::function<void(const SocketAddress&, int)>& onError) {
         listen(SocketAddress(ipOrHostname), backlog, onError);
     }
 
     template <typename Config>
-    void ServerSocket<Config>::listen(const std::string& ipOrHostname,
+    void SocketServer<Config>::listen(const std::string& ipOrHostname,
                                       uint16_t port,
                                       int backlog,
                                       const std::function<void(const SocketAddress&, int)>& onError) {
