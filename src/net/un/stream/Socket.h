@@ -33,6 +33,8 @@ namespace net::un::stream {
 
     public:
         Socket();
+
+        bool connectInProgress() override;
     };
 
 } // namespace net::un::stream

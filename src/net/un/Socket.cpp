@@ -24,7 +24,6 @@
 
 #include "log/Logger.h"
 
-#include <cerrno>
 #include <cstdio> // for remove
 #include <string> // for string
 
@@ -40,10 +39,6 @@ namespace net::un {
         if (!getBindAddress().toString().empty() && std::remove(getBindAddress().address().data()) != 0) {
             PLOG(ERROR) << "remove: sunPath: " << getBindAddress().toString();
         }
-    }
-
-    bool Socket::connectInProgress() {
-        return errno == EAGAIN;
     }
 
 } // namespace net::un
