@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_CLIENTSOCKET_H
-#define NET_STREAM_CLIENTSOCKET_H
+#ifndef NET_STREAM_SOCKETCLIENT_H
+#define NET_STREAM_SOCKETCLIENT_H
 
 #include "net/SocketConfig.h" // IWYU pragma: export
 
@@ -32,11 +32,11 @@
 namespace net::stream {
 
     template <typename ConfigT, typename SocketT>
-    class ClientSocket : public SocketConfig<ConfigT> {
+    class SocketClient : public SocketConfig<ConfigT> {
     protected:
         using Super = SocketConfig<ConfigT>;
 
-        virtual ~ClientSocket() = default;
+        virtual ~SocketClient() = default;
 
     public:
         using Super::Super;
@@ -56,4 +56,4 @@ namespace net::stream {
 
 } // namespace net::stream
 
-#endif // NET_STREAM_CLIENTSOCKET_H
+#endif // NET_STREAM_SOCKETCLIENT_H

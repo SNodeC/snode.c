@@ -17,13 +17,14 @@
  */
 
 #include "net/in/stream/SocketServer.hpp"
+
 #include "net/in/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: keep
-#include "net/stream/ServerSocket.hpp"                   // IWYU pragma: keep
+#include "net/stream/SocketServer.hpp"                   // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::in::stream::SocketServer<net::in::stream::tls::config::ConfigSocketServer>;
-template class net::stream::ServerSocket<net::in::stream::tls::config::ConfigSocketServer, net::in::stream::Socket>;
+template class net::stream::SocketServer<net::in::stream::tls::config::ConfigSocketServer, net::in::stream::Socket>;
 template class net::SocketConfig<net::in::stream::tls::config::ConfigSocketServer>;

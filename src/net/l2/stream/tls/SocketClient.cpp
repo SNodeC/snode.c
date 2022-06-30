@@ -17,13 +17,14 @@
  */
 
 #include "net/l2/stream/SocketClient.hpp"
+
 #include "net/l2/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: keep
-#include "net/stream/ClientSocket.hpp"                   // IWYU pragma: keep
+#include "net/stream/SocketClient.hpp"                   // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::l2::stream::SocketClient<net::l2::stream::tls::config::ConfigSocketClient>;
-template class net::stream::ClientSocket<net::l2::stream::tls::config::ConfigSocketClient, net::l2::stream::Socket>;
+template class net::stream::SocketClient<net::l2::stream::tls::config::ConfigSocketClient, net::l2::stream::Socket>;
 template class net::SocketConfig<net::l2::stream::tls::config::ConfigSocketClient>;

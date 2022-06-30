@@ -20,7 +20,7 @@
 #define NET_IN_STREAM_SOCKETSERVER_H
 
 #include "net/in/stream/Socket.h"    // IWYU pragma: export
-#include "net/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/stream/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,8 +33,8 @@
 namespace net::in::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::stream::ServerSocket<ConfigT, net::in::stream::Socket> {
-        using Super = net::stream::ServerSocket<ConfigT, net::in::stream::Socket>;
+    class SocketServer : public net::stream::SocketServer<ConfigT, net::in::stream::Socket> {
+        using Super = net::stream::SocketServer<ConfigT, net::in::stream::Socket>;
 
     protected:
         explicit SocketServer(const std::string& name);

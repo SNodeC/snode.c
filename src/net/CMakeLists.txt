@@ -26,10 +26,10 @@ set(NET_H
     config/ConfigTls.h
     dgram/PeerSocket.h
     dgram/PeerSocket.hpp
-    stream/ClientSocket.h
-    stream/ClientSocket.hpp
-    stream/ServerSocket.h
-    stream/ServerSocket.hpp
+    stream/SocketClient.h
+    stream/SocketClient.hpp
+    stream/SocketServer.h
+    stream/SocketServer.hpp
 )
 
 add_library(net SHARED ${NET_CPP} ${NET_H})

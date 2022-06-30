@@ -17,7 +17,7 @@
  */
 
 #include "net/SocketConfig.hpp"
-#include "net/stream/ClientSocket.h"
+#include "net/stream/SocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 namespace net::stream {
 
     template <typename Config, typename Socket>
-    void ClientSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
+    void SocketClient<Config, Socket>::connect(const SocketAddress& remoteAddress,
                                                const SocketAddress& localAddress,
                                                const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->setLocalAddress(localAddress);
@@ -35,7 +35,7 @@ namespace net::stream {
     }
 
     template <typename Config, typename Socket>
-    void ClientSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
+    void SocketClient<Config, Socket>::connect(const SocketAddress& remoteAddress,
                                                const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->setRemoteAddress(remoteAddress);
 

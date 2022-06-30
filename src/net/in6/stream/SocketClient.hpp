@@ -25,19 +25,19 @@
 namespace net::in6::stream {
 
     template <typename Config>
-    ClientSocket<Config>::ClientSocket(const std::string& name)
+    SocketClient<Config>::SocketClient(const std::string& name)
         : Super(name) {
     }
 
     template <typename Config>
-    void ClientSocket<Config>::connect(const std::string& ipOrHostname,
+    void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
                                        const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(ipOrHostname, port), onError);
     }
 
     template <typename Config>
-    void ClientSocket<Config>::connect(const std::string& ipOrHostname,
+    void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
                                        const std::string& bindIpOrHostname,
                                        const std::function<void(const SocketAddress&, int)>& onError) {
@@ -45,7 +45,7 @@ namespace net::in6::stream {
     }
 
     template <typename Config>
-    void ClientSocket<Config>::connect(const std::string& ipOrHostname,
+    void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
                                        const std::string& bindIpOrHostname,
                                        uint16_t bindPort,

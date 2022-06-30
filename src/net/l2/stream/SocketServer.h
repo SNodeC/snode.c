@@ -20,7 +20,7 @@
 #define NET_L2_STREAM_SERVERSOCKET_H
 
 #include "net/l2/stream/Socket.h"    // IWYU pragma: export
-#include "net/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/stream/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,8 +33,8 @@
 namespace net::l2::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::stream::ServerSocket<ConfigT, net::l2::stream::Socket> {
-        using Super = net::stream::ServerSocket<ConfigT, net::l2::stream::Socket>;
+    class SocketServer : public net::stream::SocketServer<ConfigT, net::l2::stream::Socket> {
+        using Super = net::stream::SocketServer<ConfigT, net::l2::stream::Socket>;
 
     protected:
         explicit SocketServer(const std::string& name);

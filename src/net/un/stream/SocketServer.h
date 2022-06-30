@@ -19,7 +19,7 @@
 #ifndef NET_UN_STREAM_STREAM_SOCKETSERVER_H
 #define NET_UN_STREAM_STREAM_SOCKETSERVER_H
 
-#include "net/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/stream/SocketServer.h" // IWYU pragma: export
 #include "net/un/stream/Socket.h"    // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,8 +32,8 @@
 namespace net::un::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::stream::ServerSocket<ConfigT, net::un::stream::Socket> {
-        using Super = net::stream::ServerSocket<ConfigT, net::un::stream::Socket>;
+    class SocketServer : public net::stream::SocketServer<ConfigT, net::un::stream::Socket> {
+        using Super = net::stream::SocketServer<ConfigT, net::un::stream::Socket>;
 
     protected:
         explicit SocketServer(const std::string& name);

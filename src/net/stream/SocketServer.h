@@ -16,23 +16,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/SocketConfig.hpp"
-#include "net/stream/ServerSocket.h"
+#ifndef NET_STREAM_SERVERSOCKET_H
+#define NET_STREAM_SERVERSOCKET_H
+
+#include "net/SocketConfig.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional>
+#include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
 
-    template <typename Config, typename Socket>
-    void ServerSocket<Config, Socket>::listen(const SocketAddress& localAddress,
-                                              int backlog,
-                                              const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->setLocalAddress(localAddress);
-        Super::config->setBacklog(backlog);
+    template <typename ConfigT, typename SocketT>
+    class SocketServer : public SocketConfig<ConfigT> {
+    protected:
+        using Super = SocketConfig<ConfigT>;
 
-        listen(onError);
-    }
+        virtual ~SocketServer() = default;
+
+    public:
+        using Super::Super;
+
+        using Config = ConfigT;
+        using Socket = SocketT;
+        using SocketAddress = typename Socket::SocketAddress;
+
+        virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+
+        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+    };
 
 } // namespace net::stream
+
+#endif // NET_STREAM_SERVERSOCKET_H
