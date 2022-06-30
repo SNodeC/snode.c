@@ -11,10 +11,10 @@ set(NET-RC-STREAM_CPP
 )
 
 set(NET-RC-STREAM_H
-    ClientSocket.h
-    ClientSocket.hpp
-    ServerSocket.h
-    ServerSocket.hpp
+    SocketClient.h
+    SocketClient.hpp
+    SocketServer.h
+    SocketServer.hpp
     Socket.h
     config/ConfigClientSocket.h
     config/ConfigServerSocket.h

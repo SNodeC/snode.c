@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RC_STREAM_CLIENTSOCKET_H
-#define NET_RC_STREAM_CLIENTSOCKET_H
+#ifndef NET_RC_STREAM_SOCKETSERVER_H
+#define NET_RC_STREAM_SOCKETSERVER_H
 
 #include "net/rc/stream/Socket.h"    // IWYU pragma: export
-#include "net/stream/ClientSocket.h" // IWYU pragma: export
+#include "net/stream/ServerSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,29 +33,23 @@
 namespace net::rc::stream {
 
     template <typename ConfigT>
-    class ClientSocket : public net::stream::ClientSocket<ConfigT, net::rc::stream::Socket> {
-        using Super = net::stream::ClientSocket<ConfigT, net::rc::stream::Socket>;
+    class SocketServer : public net::stream::ServerSocket<ConfigT, net::rc::stream::Socket> {
+        using Super = net::stream::ServerSocket<ConfigT, net::rc::stream::Socket>;
 
     protected:
-        explicit ClientSocket(const std::string& name);
+        explicit SocketServer(const std::string& name);
 
     public:
-        using Super::connect;
+        using Super::listen;
 
-        void connect(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void connect(const std::string& address,
-                     uint8_t channel,
-                     const std::string& localAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(const std::string& address, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void connect(const std::string& address,
-                     uint8_t channel,
-                     const std::string& localAddress,
-                     uint8_t bindChannel,
-                     const std::function<void(const SocketAddress&, int)>& onError);
+        void
+        listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::rc::stream
 
-#endif // NET_RC_STREAM_CLIENTSOCKET_H
+#endif // NET_RC_STREAM_SOCKETSERVER_H

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/ServerSocket.hpp"
+#include "net/rc/stream/SocketServer.hpp"
 #include "net/rc/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: keep
 #include "net/stream/ServerSocket.hpp"                      // IWYU pragma: keep
 
@@ -24,6 +24,6 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-template class net::rc::stream::ServerSocket<net::rc::stream::legacy::config::ConfigSocketServer>;
+template class net::rc::stream::SocketServer<net::rc::stream::legacy::config::ConfigSocketServer>;
 template class net::stream::ServerSocket<net::rc::stream::legacy::config::ConfigSocketServer, net::rc::stream::Socket>;
 template class net::SocketConfig<net::rc::stream::legacy::config::ConfigSocketServer>;
