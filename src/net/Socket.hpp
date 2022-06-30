@@ -40,7 +40,7 @@ namespace net {
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::open(int flags) {
-        return attachFd(create(flags));
+        return Descriptor::open(create(flags));
     }
 
     template <typename SocketAddress>

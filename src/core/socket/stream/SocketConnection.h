@@ -78,7 +78,7 @@ namespace core::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            SocketConnection::attachFd(fd);
+            SocketConnection::Descriptor::open(fd);
 
             SocketReader::enable(fd);
             SocketWriter::enable(fd);

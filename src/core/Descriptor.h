@@ -34,7 +34,7 @@ namespace core {
 
         ~Descriptor();
 
-        int attachFd(int fd);
+        virtual int open(int fd);
         int getFd() const;
 
         void dontClose(bool dontClose);

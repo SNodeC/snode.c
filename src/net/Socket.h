@@ -47,7 +47,7 @@ namespace net {
         int create(int flags);
 
     public:
-        int open(int flags = 0);
+        int open(int flags = 0) override;
 
         int bind(const SocketAddress& bindAddress);
 

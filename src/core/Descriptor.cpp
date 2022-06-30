@@ -35,7 +35,7 @@ namespace core {
         close();
     }
 
-    int Descriptor::attachFd(int fd) {
+    int Descriptor::open(int fd) {
         return this->fd = fd;
     }
 
