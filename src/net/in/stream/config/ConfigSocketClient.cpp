@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in/stream/config/ConfigClientSocket.h"
+#include "net/in/stream/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 
 namespace net::in::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket() {
+    ConfigSocketClient::ConfigSocketClient() {
         if (!getName().empty()) {
             net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
         }

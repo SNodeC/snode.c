@@ -20,7 +20,7 @@
 #define NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
 #include "net/config/ConfigTls.h"                    // IWYU pragma: export
-#include "net/in/stream/config/ConfigClientSocket.h" // IWYU pragma: export
+#include "net/in/stream/config/ConfigSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@
 namespace net::in::stream::tls::config {
 
     class ConfigSocketClient
-        : public net::in::stream::config::ConfigClientSocket
+        : public net::in::stream::config::ConfigSocketClient
         , public net::config::ConfigTls {
     public:
         explicit ConfigSocketClient(const std::string& name)
