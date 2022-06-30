@@ -19,8 +19,7 @@
 #ifndef NET_IN6_STREAM_SOCKET_H
 #define NET_IN6_STREAM_SOCKET_H
 
-#include "net/in6/Socket.h"        // IWYU pragma: export
-#include "net/in6/SocketAddress.h" // IWYU pragma: export
+#include "net/in6/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

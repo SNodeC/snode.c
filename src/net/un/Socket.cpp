@@ -16,15 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/Socket.h" // IWYU pragma: export
+#include "net/un/Socket.h"
 
-#include "net/Socket.hpp" // IWYU pragma: keep
+#include "net/Socket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 
 #include <cerrno>
+#include <cstdio> // for remove
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -49,4 +51,5 @@ namespace net::un {
 namespace net {
 
     template class Socket<net::un::SocketAddress>;
+
 }

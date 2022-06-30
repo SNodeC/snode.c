@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/Socket.h" // IWYU pragma: export
+#include "net/rc/Socket.h"
 
-#include "net/Socket.hpp" // IWYU pragma: keep
+#include "net/Socket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
