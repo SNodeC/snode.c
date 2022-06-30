@@ -29,7 +29,7 @@
 namespace net::un {
 
     class Socket : public net::Socket<net::un::SocketAddress> {
-    protected:
+    public:
         bool connectInProgress() override;
     };
 

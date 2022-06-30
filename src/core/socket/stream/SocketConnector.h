@@ -43,8 +43,7 @@ namespace core::socket::stream {
 
     template <typename ClientSocketT, template <typename SocketT> class SocketConnectionT>
     class SocketConnector
-        : protected ClientSocketT::Socket
-        , protected core::eventreceiver::InitConnectEventReceiver
+        : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
@@ -73,7 +72,11 @@ namespace core::socket::stream {
             , options(options) {
         }
 
-        ~SocketConnector() override = default;
+        ~SocketConnector() override {
+            if (socket != nullptr) {
+                delete socket;
+            }
+        }
 
         void connect(const std::shared_ptr<Config>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
             this->config = clientConfig;
@@ -84,20 +87,21 @@ namespace core::socket::stream {
 
     private:
         void initConnectEvent() override {
-            if (Socket::open(SOCK_NONBLOCK) < 0) {
+            socket = new Socket();
+            if (socket->open(SOCK_NONBLOCK) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
-            } else if (Socket::bind(config->getLocalAddress()) < 0) {
+            } else if (socket->bind(config->getLocalAddress()) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else if (core::system::connect(
-                           Socket::getFd(), &config->getRemoteAddress().getSockAddr(), config->getRemoteAddress().getSockAddrLen()) < 0 &&
-                       !Socket::connectInProgress()) {
+                           socket->getFd(), &config->getRemoteAddress().getSockAddr(), config->getRemoteAddress().getSockAddrLen()) < 0 &&
+                       !socket->connectInProgress()) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else {
                 onError(config->getLocalAddress(), 0);
-                enable(Socket::getFd());
+                enable(socket->getFd());
             }
         }
 
@@ -105,11 +109,11 @@ namespace core::socket::stream {
             int cErrno = -1;
             socklen_t cErrnoLen = sizeof(cErrno);
 
-            int err = core::system::getsockopt(SocketConnector::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+            int err = core::system::getsockopt(socket->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
             if (err == 0) {
                 errno = cErrno;
-                if (!Socket::connectInProgress()) {
+                if (!socket->connectInProgress()) {
                     if (errno == 0) {
                         disable();
 
@@ -119,13 +123,13 @@ namespace core::socket::stream {
                         typename SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                        if (core::system::getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) ==
+                        if (core::system::getsockname(socket->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) ==
                                 0 &&
-                            core::system::getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
+                            core::system::getpeername(socket->getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
                                 0) {
-                            socketConnectionEstablisher.establishConnection(Socket::getFd(), localAddress, remoteAddress, config);
+                            socketConnectionEstablisher.establishConnection(socket->getFd(), localAddress, remoteAddress, config);
 
-                            Socket::dontClose(true);
+                            socket->dontClose(true);
                         } else {
                             onError(config->getRemoteAddress(), errno);
                             disable();
@@ -159,6 +163,8 @@ namespace core::socket::stream {
         std::function<void(const SocketAddress& socketAddress, int err)> onError;
 
         SocketConnectionEstablisher socketConnectionEstablisher;
+
+        Socket* socket = nullptr;
 
         std::map<std::string, std::any> options;
     };

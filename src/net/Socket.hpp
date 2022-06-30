@@ -27,11 +27,6 @@
 namespace net {
 
     template <typename SocketAddress>
-    bool Socket<SocketAddress>::connectInProgress() {
-        return errno == EINPROGRESS;
-    }
-
-    template <typename SocketAddress>
     int Socket<SocketAddress>::open(int flags) {
         return attachFd(create(flags));
     }
@@ -41,6 +36,11 @@ namespace net {
         this->bindAddress = bindAddress;
 
         return core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+    }
+
+    template <typename SocketAddress>
+    bool Socket<SocketAddress>::connectInProgress() {
+        return errno == EINPROGRESS;
     }
 
     template <typename SocketAddress>

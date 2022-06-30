@@ -46,12 +46,12 @@ namespace net {
     protected:
         virtual int create(int flags) = 0;
 
-        virtual bool connectInProgress();
-
     public:
         int open(int flags = 0);
 
         int bind(const SocketAddress& bindAddress);
+
+        virtual bool connectInProgress();
 
         ssize_t write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
         ssize_t read_fd(void* ptr, size_t nbytes, int* recvfd);
