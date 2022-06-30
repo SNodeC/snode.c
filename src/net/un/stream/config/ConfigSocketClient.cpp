@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/config/ConfigServerSocket.h"
+#include "net/un/stream/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,9 +26,9 @@
 
 namespace net::un::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket() {
+    ConfigSocketClient::ConfigSocketClient() {
         if (!getName().empty()) {
-            net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
+            net::un::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
         }
     }
 

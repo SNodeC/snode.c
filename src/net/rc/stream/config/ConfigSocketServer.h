@@ -16,32 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
-#define NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#ifndef NET_RC_STREAM_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_RC_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigAddressLocal.h"
 #include "net/config/ConfigCluster.h"
 #include "net/config/ConfigConnection.h"
 #include "net/config/ConfigListen.h"
-#include "net/un/config/ConfigAddress.h"
+#include "net/rc/config/ConfigAddress.h"
 
-// IWYU pragma: no_include "net/un/config/ConfigAddress.hpp"
+// IWYU pragma: no_include "net/rf/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream::config {
+namespace net::rc::stream::config {
 
-    class ConfigServerSocket
+    class ConfigSocketServer
         : public net::config::ConfigListen
-        , public net::un::config::ConfigAddress<net::config::ConfigAddressLocal>
+        , public net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigCluster
         , public net::config::ConfigConnection {
     public:
-        ConfigServerSocket();
+        ConfigSocketServer();
     };
 
-} // namespace net::un::stream::config
+} // namespace net::rc::stream::config
 
-#endif // NET_UN_STREAM_CONFIG_CONFIGSERVERSOCKET_H
+#endif // NET_RC_STREAM_CONFIG_CONFIGSOCKETSERVER_H

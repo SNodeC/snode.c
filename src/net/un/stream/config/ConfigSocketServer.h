@@ -16,12 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
-#define NET_UN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#ifndef NET_UN_STREAM_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_UN_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigAddressLocal.h"
-#include "net/config/ConfigAddressRemote.h"
+#include "net/config/ConfigCluster.h"
 #include "net/config/ConfigConnection.h"
+#include "net/config/ConfigListen.h"
 #include "net/un/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/un/config/ConfigAddress.hpp"
@@ -32,14 +33,15 @@
 
 namespace net::un::stream::config {
 
-    class ConfigClientSocket
-        : public net::un::config::ConfigAddress<net::config::ConfigAddressRemote>
+    class ConfigSocketServer
+        : public net::config::ConfigListen
         , public net::un::config::ConfigAddress<net::config::ConfigAddressLocal>
+        , public net::config::ConfigCluster
         , public net::config::ConfigConnection {
     public:
-        ConfigClientSocket();
+        ConfigSocketServer();
     };
 
 } // namespace net::un::stream::config
 
-#endif // NET_UN_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#endif // NET_UN_STREAM_CONFIG_CONFIGSOCKETSERVER_H

@@ -16,20 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/config/ConfigClientSocket.h"
+#ifndef NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
+
+#include "net/config/ConfigAddressLocal.h"
+#include "net/config/ConfigAddressRemote.h"
+#include "net/config/ConfigConnection.h"
+#include "net/rc/config/ConfigAddress.h"
+
+// IWYU pragma: no_include "net/rf/config/ConfigAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket() {
-        if (!getName().empty()) {
-            net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
-        }
-    }
+    class ConfigSocketClient
+        : public net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>
+        , public net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>
+        , public net::config::ConfigConnection {
+    public:
+        ConfigSocketClient();
+    };
 
 } // namespace net::rc::stream::config
+
+#endif // NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H

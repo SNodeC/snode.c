@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/config/ConfigServerSocket.h"
+#include "net/rc/stream/config/ConfigSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 
 namespace net::rc::stream::config {
 
-    ConfigServerSocket::ConfigServerSocket() {
+    ConfigSocketServer::ConfigSocketServer() {
         if (!getName().empty()) {
             net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
         }
