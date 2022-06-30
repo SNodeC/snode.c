@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_CLIENTSOCKET_H
-#define NET_IN_STREAM_CLIENTSOCKET_H
+#ifndef NET_IN_STREAM_SOCKETSERVER_H
+#define NET_IN_STREAM_SOCKETSERVER_H
 
 #include "net/in/stream/Socket.h"    // IWYU pragma: export
-#include "net/stream/ClientSocket.h" // IWYU pragma: export
+#include "net/stream/ServerSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,31 +33,25 @@
 namespace net::in::stream {
 
     template <typename ConfigT>
-    class ClientSocket : public net::stream::ClientSocket<ConfigT, net::in::stream::Socket> {
-        using Super = net::stream::ClientSocket<ConfigT, net::in::stream::Socket>;
+    class SocketServer : public net::stream::ServerSocket<ConfigT, net::in::stream::Socket> {
+        using Super = net::stream::ServerSocket<ConfigT, net::in::stream::Socket>;
 
     protected:
-        explicit ClientSocket(const std::string& name);
+        explicit SocketServer(const std::string& name);
 
     public:
         using Config = ConfigT;
 
-        using Super::connect;
+        using Super::listen;
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
 
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     uint16_t bindPort,
-                     const std::function<void(const SocketAddress&, int)>& onError);
+        void
+        listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
     };
 
 } // namespace net::in::stream
 
-#endif // NET_IN_STREAM_CLIENTSOCKET_H
+#endif // NET_IN_STREAM_SOCKETSERVER_H

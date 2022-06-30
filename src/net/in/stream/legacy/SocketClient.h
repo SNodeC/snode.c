@@ -20,7 +20,7 @@
 #define NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H
 
 #include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
-#include "net/in/stream/ClientSocket.h"             // IWYU pragma: export
+#include "net/in/stream/SocketClient.h"             // IWYU pragma: export
 #include "net/in/stream/legacy/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,7 +31,7 @@ namespace net::in::stream::legacy {
 
     template <typename SocketContextFactoryT>
     using SocketClient =
-        core::socket::stream::legacy::SocketClient<net::in::stream::ClientSocket<net::in::stream::legacy::config::ConfigSocketClient>,
+        core::socket::stream::legacy::SocketClient<net::in::stream::SocketClient<net::in::stream::legacy::config::ConfigSocketClient>,
                                                    SocketContextFactoryT>;
 
 } // namespace net::in::stream::legacy

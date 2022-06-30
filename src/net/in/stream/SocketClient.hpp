@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in/stream/ClientSocket.h" // IWYU pragma: export
+#include "net/in/stream/SocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,19 +25,19 @@
 namespace net::in::stream {
 
     template <typename Config>
-    ClientSocket<Config>::ClientSocket(const std::string& name)
+    SocketClient<Config>::SocketClient(const std::string& name)
         : Super(name) {
     }
 
     template <typename Config>
-    void ClientSocket<Config>::connect(const std::string& ipOrHostname,
+    void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
                                        const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(ipOrHostname, port), onError);
     }
 
     template <typename Config>
-    void ClientSocket<Config>::connect(const std::string& ipOrHostname,
+    void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
                                        const std::string& bindIpOrHostname,
                                        const std::function<void(const SocketAddress&, int)>& onError) {
@@ -45,7 +45,7 @@ namespace net::in::stream {
     }
 
     template <typename Config>
-    void ClientSocket<Config>::connect(const std::string& ipOrHostname,
+    void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
                                        const std::string& bindIpOrHostname,
                                        uint16_t bindPort,
