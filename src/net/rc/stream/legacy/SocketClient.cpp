@@ -16,10 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/SocketClient.hpp"
+#include "net/rc/stream/legacy/SocketClient.h"
 
-#include "net/rc/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: keep
-#include "net/stream/SocketClient.hpp"                      // IWYU pragma: keep
+#include "net/rc/stream/SocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

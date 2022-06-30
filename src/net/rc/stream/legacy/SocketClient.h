@@ -19,9 +19,9 @@
 #ifndef NET_RC_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_RC_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
-#include "net/rc/stream/SocketClient.h"             // IWYU pragma: export
-#include "net/rc/stream/legacy/config/ConfigSocketClient.h"
+#include "core/socket/stream/legacy/SocketClient.h"         // IWYU pragma: export
+#include "net/rc/stream/SocketClient.h"                     // IWYU pragma: export
+#include "net/rc/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
