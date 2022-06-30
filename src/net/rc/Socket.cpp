@@ -24,6 +24,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace net::rc {
+
+    Socket::Socket(int type, int protocol)
+        : Super(PF_BLUETOOTH, type, protocol) {
+    }
+
+} // namespace net::rc
+
 namespace net {
     template class Socket<net::rc::SocketAddress>;
+
 } // namespace net

@@ -27,6 +27,18 @@
 namespace net {
 
     template <typename SocketAddress>
+    Socket<SocketAddress>::Socket(int domain, int type, int protocol)
+        : domain(domain)
+        , type(type)
+        , protocol(protocol) {
+    }
+
+    template <typename SocketAddressT>
+    int Socket<SocketAddressT>::create(int flags) {
+        return core::system::socket(domain, type | flags, protocol);
+    }
+
+    template <typename SocketAddress>
     int Socket<SocketAddress>::open(int flags) {
         return attachFd(create(flags));
     }

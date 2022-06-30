@@ -29,14 +29,8 @@
 
 namespace net::un::stream {
 
-    Socket::~Socket() {
-        if (!getBindAddress().toString().empty() && std::remove(getBindAddress().address().data()) != 0) {
-            PLOG(ERROR) << "remove: sunPath: " << getBindAddress().toString();
-        }
-    }
-
-    int Socket::create(int flags) {
-        return core::system::socket(PF_UNIX, SOCK_STREAM | flags, 0);
+    Socket::Socket()
+        : Super(SOCK_STREAM) {
     }
 
 } // namespace net::un::stream

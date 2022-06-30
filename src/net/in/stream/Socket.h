@@ -29,8 +29,11 @@
 namespace net::in::stream {
 
     class Socket : public net::in::Socket {
-    protected:
-        int create(int flags) override;
+    private:
+        using Super = net::in::Socket;
+
+    public:
+        Socket();
     };
 
 } // namespace net::in::stream

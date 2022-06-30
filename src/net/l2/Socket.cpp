@@ -24,6 +24,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace net::l2 {
+
+    l2::Socket::Socket(int type, int protocol)
+        : Super(PF_BLUETOOTH, type, protocol) {
+    }
+
+} // namespace net::l2
+
 namespace net {
     template class Socket<net::l2::SocketAddress>;
 } // namespace net

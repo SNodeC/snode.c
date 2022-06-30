@@ -29,6 +29,13 @@
 namespace net::un {
 
     class Socket : public net::Socket<net::un::SocketAddress> {
+    private:
+        using Super = net::Socket<net::un::SocketAddress>;
+
+    public:
+        explicit Socket(int type, int protocol = 0);
+        ~Socket();
+
     public:
         bool connectInProgress() override;
     };

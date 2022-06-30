@@ -22,11 +22,23 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un {
+
+    Socket::Socket(int type, int protocol)
+        : Super(PF_UNIX, type, protocol) {
+    }
+
+    Socket::~Socket() {
+        if (!getBindAddress().toString().empty() && std::remove(getBindAddress().address().data()) != 0) {
+            PLOG(ERROR) << "remove: sunPath: " << getBindAddress().toString();
+        }
+    }
 
     bool Socket::connectInProgress() {
         return errno == EAGAIN;

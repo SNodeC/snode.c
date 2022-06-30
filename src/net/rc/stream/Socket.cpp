@@ -26,8 +26,8 @@
 
 namespace net::rc::stream {
 
-    int Socket::create(int flags) {
-        return core::system::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
+    Socket::Socket()
+        : Super(SOCK_STREAM, BTPROTO_RFCOMM) {
     }
 
 } // namespace net::rc::stream

@@ -29,11 +29,11 @@
 namespace net::un::dgram {
 
     class Socket : public net::un::Socket {
-    public:
-        ~Socket() override;
+    private:
+        using Super = net::un::Socket;
 
-    protected:
-        int create(int flags) override;
+    public:
+        Socket();
     };
 
 } // namespace net::un::dgram

@@ -28,7 +28,13 @@
 
 namespace net::l2 {
 
-    class Socket : public net::Socket<net::l2::SocketAddress> {};
+    class Socket : public net::Socket<net::l2::SocketAddress> {
+    private:
+        using Super = net::Socket<net::l2::SocketAddress>;
+
+    public:
+        explicit Socket(int type, int protocol = 0);
+    };
 
 } // namespace net::l2
 

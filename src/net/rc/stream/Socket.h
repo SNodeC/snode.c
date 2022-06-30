@@ -29,8 +29,11 @@
 namespace net::rc::stream {
 
     class Socket : public net::rc::Socket {
-    protected:
-        int create(int flags) override;
+    private:
+        using Super = net::rc::Socket;
+
+    public:
+        Socket();
     };
 
 } // namespace net::rc::stream

@@ -28,7 +28,13 @@
 
 namespace net::rc {
 
-    class Socket : public net::Socket<net::rc::SocketAddress> {};
+    class Socket : public net::Socket<net::rc::SocketAddress> {
+    private:
+        using Super = net::Socket<net::rc::SocketAddress>;
+
+    public:
+        explicit Socket(int type, int protocol = 0);
+    };
 
 } // namespace net::rc
 

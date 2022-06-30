@@ -24,6 +24,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace net::in {
+
+    Socket::Socket(int type, int protocol)
+        : Super(PF_INET, type, protocol) {
+    }
+
+} // namespace net::in
+
 namespace net {
     template class Socket<net::in::SocketAddress>;
 } // namespace net

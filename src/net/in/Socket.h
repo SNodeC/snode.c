@@ -28,7 +28,13 @@
 
 namespace net::in {
 
-    class Socket : public net::Socket<net::in::SocketAddress> {};
+    class Socket : public net::Socket<net::in::SocketAddress> {
+    private:
+        using Super = net::Socket<net::in::SocketAddress>;
+
+    public:
+        explicit Socket(int type, int protocol = 0);
+    };
 
 } // namespace net::in
 

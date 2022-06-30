@@ -24,8 +24,8 @@
 
 namespace net::in6::stream {
 
-    int Socket::create(int flags) {
-        return core::system::socket(PF_INET6, SOCK_STREAM | flags, 0);
+    Socket::Socket()
+        : Super(SOCK_STREAM) {
     }
 
 } // namespace net::in6::stream

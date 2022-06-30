@@ -26,8 +26,8 @@
 
 namespace net::l2::stream {
 
-    int Socket::create(int flags) {
-        return core::system::socket(PF_BLUETOOTH, SOCK_SEQPACKET | flags, BTPROTO_L2CAP);
+    Socket::Socket()
+        : Super(SOCK_SEQPACKET, BTPROTO_L2CAP) {
     }
 
 } // namespace net::l2::stream

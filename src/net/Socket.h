@@ -36,7 +36,7 @@ namespace net {
     public:
         using SocketAddress = SocketAddressT;
 
-        Socket() = default;
+        Socket(int domain, int type, int protocol);
 
         Socket(const Socket&) = delete;
         Socket& operator=(const Socket&) = delete;
@@ -44,7 +44,7 @@ namespace net {
         virtual ~Socket() = default;
 
     protected:
-        virtual int create(int flags) = 0;
+        int create(int flags);
 
     public:
         int open(int flags = 0);
@@ -64,6 +64,11 @@ namespace net {
 
     protected:
         SocketAddress bindAddress{};
+
+    private:
+        int domain{};
+        int type{};
+        int protocol{};
     };
 
 } // namespace net
