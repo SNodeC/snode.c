@@ -16,12 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
-#define NET_IN6_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#ifndef NET_IN6_STREAM_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_IN6_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigAddressLocal.h"
-#include "net/config/ConfigAddressRemote.h"
+#include "net/config/ConfigCluster.h"
 #include "net/config/ConfigConnection.h"
+#include "net/config/ConfigListen.h"
 #include "net/in6/config/ConfigAddress.h"
 
 // IWYU pragma: no_include "net/in6/config/ConfigAddress.hpp"
@@ -32,14 +33,15 @@
 
 namespace net::in6::stream::config {
 
-    class ConfigClientSocket
-        : public net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>
+    class ConfigSocketServer
+        : public net::config::ConfigListen
         , public net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>
+        , public net::config::ConfigCluster
         , public net::config::ConfigConnection {
     public:
-        ConfigClientSocket();
+        ConfigSocketServer();
     };
 
 } // namespace net::in6::stream::config
 
-#endif // NET_IN6_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#endif // NET_IN6_STREAM_CONFIG_CONFIGSOCKETSERVER_H
