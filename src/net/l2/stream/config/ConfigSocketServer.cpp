@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/stream/config/ConfigClientSocket.h"
+#include "net/l2/stream/config/ConfigSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,9 +26,9 @@
 
 namespace net::l2::stream::config {
 
-    ConfigClientSocket::ConfigClientSocket() {
+    ConfigSocketServer::ConfigSocketServer() {
         if (!getName().empty()) {
-            net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
+            net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
         }
     }
 

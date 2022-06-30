@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
-#define NET_L2_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#ifndef NET_L2_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_L2_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 
 #include "net/config/ConfigAddressLocal.h"
 #include "net/config/ConfigAddressRemote.h"
@@ -32,14 +32,14 @@
 
 namespace net::l2::stream::config {
 
-    class ConfigClientSocket
+    class ConfigSocketClient
         : public net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>
         , public net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection {
     public:
-        ConfigClientSocket();
+        ConfigSocketClient();
     };
 
 } // namespace net::l2::stream::config
 
-#endif // NET_L2_STREAM_CONFIG_CONFIGCLIENTSOCKET_H
+#endif // NET_L2_STREAM_CONFIG_CONFIGSOCKETCLIENT_H

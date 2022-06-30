@@ -16,32 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_CONFIG_CONFIGSERVERSOCKET_H
-#define NET_L2_STREAM_CONFIG_CONFIGSERVERSOCKET_H
-
-#include "net/config/ConfigAddressLocal.h"
-#include "net/config/ConfigCluster.h"
-#include "net/config/ConfigConnection.h"
-#include "net/config/ConfigListen.h"
-#include "net/l2/config/ConfigAddress.h"
-
-// IWYU pragma: no_include "net/l2/config/ConfigAddress.hpp"
+#include "net/l2/stream/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream::config {
 
-    class ConfigServerSocket
-        : public net::config::ConfigListen
-        , public net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>
-        , public net::config::ConfigCluster
-        , public net::config::ConfigConnection {
-    public:
-        ConfigServerSocket();
-    };
+    ConfigSocketClient::ConfigSocketClient() {
+        if (!getName().empty()) {
+            net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
+        }
+    }
 
 } // namespace net::l2::stream::config
-
-#endif // NET_L2_STREAM_CONFIG_CONFIGSERVERSOCKET_H
