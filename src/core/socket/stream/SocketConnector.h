@@ -45,8 +45,7 @@ namespace core::socket::stream {
     class SocketConnector
         : protected ClientSocketT::Socket
         , protected core::eventreceiver::InitConnectEventReceiver
-        , protected core::eventreceiver::ConnectEventReceiver
-        , protected core::socket::stream::SocketConnectionEstablisher<ClientSocketT, SocketConnectionT> {
+        , protected core::eventreceiver::ConnectEventReceiver {
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
@@ -70,7 +69,7 @@ namespace core::socket::stream {
                         const std::map<std::string, std::any>& options)
             : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
             , core::eventreceiver::ConnectEventReceiver("SocketConnector")
-            , SocketConnectionEstablisher(socketContextFactory, onConnect, onConnected, onDisconnect)
+            , socketConnectionEstablisher(socketContextFactory, onConnect, onConnected, onDisconnect)
             , options(options) {
         }
 
@@ -124,7 +123,7 @@ namespace core::socket::stream {
                                 0 &&
                             core::system::getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
                                 0) {
-                            SocketConnectionEstablisher::establishConnection(Socket::getFd(), localAddress, remoteAddress, config);
+                            socketConnectionEstablisher.establishConnection(Socket::getFd(), localAddress, remoteAddress, config);
 
                             Socket::dontClose(true);
                         } else {
@@ -158,6 +157,8 @@ namespace core::socket::stream {
 
     protected:
         std::function<void(const SocketAddress& socketAddress, int err)> onError;
+
+        SocketConnectionEstablisher socketConnectionEstablisher;
 
         std::map<std::string, std::any> options;
     };

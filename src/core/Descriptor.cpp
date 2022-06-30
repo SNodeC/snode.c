@@ -25,12 +25,12 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-
-    Descriptor::Descriptor(int fd, enum Descriptor::FLAGS flags)
-        : flags(flags)
-        , fd(fd) {
-    }
-
+    /*
+        Descriptor::Descriptor(int fd, enum Descriptor::FLAGS flags)
+            : flags(flags)
+            , fd(fd) {
+        }
+    */
     Descriptor::~Descriptor() {
         close();
     }

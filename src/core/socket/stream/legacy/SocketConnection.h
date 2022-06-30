@@ -58,8 +58,8 @@ namespace core::socket::stream::legacy {
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
                          const utils::Timeval& terminateTimeout)
-            : Super::Descriptor(fd)
-            , Super(
+            : Super(
+                  fd,
                   socketProtocolFactory,
                   localAddress,
                   remoteAddress,

@@ -62,8 +62,8 @@ namespace core::socket::stream::tls {
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
                          const utils::Timeval& terminateTimeout)
-            : Super::Descriptor(fd)
-            , Super(
+            : Super(
+                  fd,
                   socketContextFactory,
                   localAddress,
                   remoteAddress,

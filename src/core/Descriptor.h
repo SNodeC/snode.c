@@ -26,8 +26,21 @@
 namespace core {
 
     class Descriptor {
+    public:
+        Descriptor() = default;
+
         Descriptor(const Descriptor& d) = delete;
         Descriptor& operator=(const Descriptor& descriptor) = delete;
+
+        ~Descriptor();
+
+        int attachFd(int fd);
+        int getFd() const;
+
+        void dontClose(bool dontClose);
+        bool dontClose() const;
+
+        void close();
 
     protected:
         enum struct FLAGS : unsigned short {
@@ -35,20 +48,7 @@ namespace core {
             dontClose = 0x01 << 0 // do not close sys-descriptor in case of desctruction
         } flags{FLAGS::none};
 
-        Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
-        ~Descriptor();
-
-    public:
-        int attachFd(int fd);
-        int getFd() const;
-
-    protected:
-        void dontClose(bool dontClose);
-        bool dontClose() const;
-
     private:
-        void close();
-
         int fd = -1;
 
         friend enum FLAGS operator|(const enum FLAGS& f1, const enum FLAGS& f2);

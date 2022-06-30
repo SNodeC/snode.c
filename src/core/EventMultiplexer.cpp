@@ -93,8 +93,6 @@ namespace core {
         checkTimedOutEvents(currentTime);
         unobserveDisabledEvents(currentTime);
 
-        DynamicLoader::execDlCloseDeleyed();
-
         if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
             utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
 
@@ -153,6 +151,7 @@ namespace core {
 
     void EventMultiplexer::executeEventQueue(const utils::Timeval& currentTime) {
         eventQueue.execute(currentTime);
+        DynamicLoader::execDlCloseDeleyed();
     }
 
     EventMultiplexer::EventQueue::EventQueue()

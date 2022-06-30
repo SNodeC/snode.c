@@ -77,16 +77,11 @@ namespace core {
             static const utils::Timeval MAX;
         };
 
-        int getRegisteredFd();
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
-
-        bool isEnabled() const;
-        bool isSuspended() const;
-
-    protected:
         explicit DescriptorEventReceiver(const std::string& name,
                                          DescriptorEventPublisher& descriptorEventPublisher,
                                          const utils::Timeval& timeout = TIMEOUT::DISABLE);
+
+        int getRegisteredFd();
 
         void enable(int fd);
         void disable();
@@ -94,7 +89,12 @@ namespace core {
         void suspend();
         void resume();
 
+        bool isEnabled() const;
+        bool isSuspended() const;
+
         void setTimeout(const utils::Timeval& timeout);
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+
         void checkTimeout(const utils::Timeval& currentTime);
 
         virtual void terminate();

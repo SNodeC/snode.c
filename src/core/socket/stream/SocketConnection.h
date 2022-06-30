@@ -49,7 +49,8 @@ namespace core::socket::stream {
 
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnection(int fd,
+                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void()>& onConnect,
@@ -77,6 +78,12 @@ namespace core::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
+            SocketConnection::attachFd(fd);
+
+            SocketReader::enable(fd);
+            SocketWriter::enable(fd);
+            SocketWriter::suspend();
+
             onConnect();
         }
 
@@ -179,12 +186,6 @@ namespace core::socket::stream {
         core::socket::SocketContext* newSocketContext = nullptr;
 
         std::function<void()> onDisconnect;
-
-        template <typename ServerSocket, template <typename Socket> class SocketConnection>
-        friend class SocketAcceptor;
-
-        template <typename ClientSocket, template <typename Socket> class SocketConnection>
-        friend class SocketConnector;
     };
 
 } // namespace core::socket::stream

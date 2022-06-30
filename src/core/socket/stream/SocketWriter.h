@@ -53,8 +53,6 @@ namespace core::socket::stream {
             , terminateTimeout(terminateTimeout) {
             setBlockSize(blockSize);
             setTimeout(timeout);
-            enable(Socket::getFd());
-            suspend();
         }
 
         ~SocketWriter() override = default;

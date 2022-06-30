@@ -41,6 +41,7 @@ namespace core::socket::stream {
     protected:
         using SocketConnection = SocketConnectionT<Socket>;
 
+    public:
         SocketConnectionEstablisher(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                                     const std::function<void(SocketConnection*)>& onConnect,
                                     const std::function<void(SocketConnection*)>& onConnected,
@@ -51,7 +52,6 @@ namespace core::socket::stream {
             , onDisconnect(onDisconnect) {
         }
 
-    public:
         using Config = typename ServerSocket::Config;
         using SocketAddress = typename Socket::SocketAddress;
 
