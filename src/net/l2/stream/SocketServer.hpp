@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/l2/stream/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,25 +25,25 @@
 namespace net::l2::stream {
 
     template <typename Config>
-    ServerSocket<Config>::ServerSocket(const std::string& name)
+    SocketServer<Config>::SocketServer(const std::string& name)
         : Super(name) {
     }
 
     template <typename Config>
     void
-    ServerSocket<Config>::listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
+    SocketServer<Config>::listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
         listen(SocketAddress(psm), backlog, onError);
     }
 
     template <typename Config>
-    void ServerSocket<Config>::listen(const std::string& address,
+    void SocketServer<Config>::listen(const std::string& address,
                                       int backlog,
                                       const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
         listen(SocketAddress(address), backlog, onError);
     }
 
     template <typename Config>
-    void ServerSocket<Config>::listen(const std::string& address,
+    void SocketServer<Config>::listen(const std::string& address,
                                       uint16_t psm,
                                       int backlog,
                                       const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {

@@ -33,11 +33,11 @@
 namespace net::l2::stream {
 
     template <typename ConfigT>
-    class ServerSocket : public net::stream::ServerSocket<ConfigT, net::l2::stream::Socket> {
+    class SocketServer : public net::stream::ServerSocket<ConfigT, net::l2::stream::Socket> {
         using Super = net::stream::ServerSocket<ConfigT, net::l2::stream::Socket>;
 
     protected:
-        explicit ServerSocket(const std::string& name);
+        explicit SocketServer(const std::string& name);
 
     public:
         using Super::listen;

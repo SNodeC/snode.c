@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/stream/ClientSocket.h" // IWYU pragma: export
+#include "net/l2/stream/SocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,18 +25,18 @@
 namespace net::l2::stream {
 
     template <typename Config>
-    ClientSocket<Config>::ClientSocket(const std::string& name)
+    SocketClient<Config>::SocketClient(const std::string& name)
         : Super(name) {
     }
 
     template <typename Config>
     void
-    ClientSocket<Config>::connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) {
+    SocketClient<Config>::connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) {
         connect(SocketAddress(address, psm), onError);
     }
 
     template <typename Config>
-    void ClientSocket<Config>::connect(const std::string& address,
+    void SocketClient<Config>::connect(const std::string& address,
                                        uint16_t psm,
                                        const std::string& localAddress,
                                        const std::function<void(const SocketAddress&, int)>& onError) {
@@ -44,7 +44,7 @@ namespace net::l2::stream {
     }
 
     template <typename Config>
-    void ClientSocket<Config>::connect(const std::string& address,
+    void SocketClient<Config>::connect(const std::string& address,
                                        uint16_t psm,
                                        const std::string& localAddress,
                                        uint16_t bindPsm,

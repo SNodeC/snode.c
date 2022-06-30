@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_CLIENTSOCKET_H
-#define NET_L2_STREAM_CLIENTSOCKET_H
+#ifndef NET_L2_STREAM_SOCKETCLIENT_H
+#define NET_L2_STREAM_SOCKETCLIENT_H
 
 #include "net/l2/stream/Socket.h"    // IWYU pragma: export
 #include "net/stream/ClientSocket.h" // IWYU pragma: export
@@ -33,11 +33,11 @@
 namespace net::l2::stream {
 
     template <typename ConfigT>
-    class ClientSocket : public net::stream::ClientSocket<ConfigT, net::l2::stream::Socket> {
+    class SocketClient : public net::stream::ClientSocket<ConfigT, net::l2::stream::Socket> {
         using Super = net::stream::ClientSocket<ConfigT, net::l2::stream::Socket>;
 
     protected:
-        explicit ClientSocket(const std::string& name);
+        explicit SocketClient(const std::string& name);
 
     public:
         using Super::connect;
@@ -58,4 +58,4 @@ namespace net::l2::stream {
 
 } // namespace net::l2::stream
 
-#endif // NET_L2_STREAM_CLIENTSOCKET_H
+#endif // NET_L2_STREAM_SOCKETCLIENT_H
