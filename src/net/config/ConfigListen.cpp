@@ -22,8 +22,6 @@
 
 #include "utils/CLI11.hpp"
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #ifndef DEFAULT_ACCEPTSPERTICK

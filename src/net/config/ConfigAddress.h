@@ -27,8 +27,6 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include <string>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {

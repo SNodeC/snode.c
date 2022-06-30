@@ -38,7 +38,7 @@ namespace net::config {
 
         enum { PRIMARY, SECONDARY, PROXY };
 
-        bool isCluster() const;
+        bool isStandalone() const;
 
         int getClusterMode() const;
 

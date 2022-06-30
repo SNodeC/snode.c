@@ -38,8 +38,8 @@ namespace net::config {
         }
     }
 
-    bool ConfigCluster::isCluster() const {
-        return clusterSc != nullptr && clusterSc->count() > 0;
+    bool ConfigCluster::isStandalone() const {
+        return clusterSc == nullptr ? true : clusterSc->count() == 0;
     }
 
     int ConfigCluster::getClusterMode() const {
