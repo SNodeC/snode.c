@@ -49,6 +49,10 @@ namespace net {
     public:
         int open(int flags = 0) override;
 
+        int reuseAddress();
+
+        int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
+
         int bind(const SocketAddress& bindAddress);
 
         virtual bool connectInProgress();

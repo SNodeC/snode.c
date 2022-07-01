@@ -107,14 +107,14 @@ namespace core::socket::stream {
                     onError(config->getLocalAddress(), errno);
                     destruct();
 #if !defined(NDEBUG)
-                } else if (reuseAddress() < 0) {
+                } else if (primarySocket->reuseAddress() < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
 #endif // !defined(NDEBUG)
                 } else if (primarySocket->bind(config->getLocalAddress()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (core::system::listen(primarySocket->getFd(), config->getBacklog()) < 0) {
+                } else if (primarySocket->listen(config->getBacklog()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else if (!config->isStandalone()) {
@@ -161,8 +161,7 @@ namespace core::socket::stream {
                     typename SocketAddress::SockAddr remoteAddress{};
                     socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                    fd = core::system::accept4(
-                        primarySocket->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+                    fd = primarySocket->accept4(reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength);
 
                     if (config->isStandalone()) {
                         if (fd >= 0) {

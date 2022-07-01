@@ -22,4 +22,21 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {}
+namespace net::stream {
+
+    template <typename Socket>
+    int ServerSocket<Socket>::listen([[maybe_unused]] int backlog) {
+        return core::system::listen(Socket::getFd(), backlog);
+    }
+
+    template <typename Socket>
+    int ServerSocket<Socket>::accept(struct sockaddr* addr, socklen_t* addrlen) {
+        return core::system::accept(Socket::getFd(), addr, addrlen);
+    }
+
+    template <typename Socket>
+    int ServerSocket<Socket>::accept4(struct sockaddr* addr, socklen_t* addrlen, int flags) {
+        return core::system::accept4(Socket::getFd(), addr, addrlen, flags);
+    }
+
+} // namespace net::stream

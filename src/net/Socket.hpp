@@ -44,6 +44,17 @@ namespace net {
     }
 
     template <typename SocketAddress>
+    int Socket<SocketAddress>::reuseAddress() {
+        int sockopt = 1;
+        return setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
+    }
+
+    template <typename SocketAddress>
+    int Socket<SocketAddress>::setSockopt(int level, int optname, const void* optval, socklen_t optlen) {
+        return core::system::setsockopt(Socket::getFd(), level, optname, optval, optlen);
+    }
+
+    template <typename SocketAddress>
     int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
         this->bindAddress = bindAddress;
 

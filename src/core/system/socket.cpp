@@ -41,6 +41,11 @@ namespace core::system {
         return ::listen(sockfd, backlog);
     }
 
+    int accept(int sockfd, struct sockaddr* addr, socklen_t* addrlen) {
+        errno = 0;
+        return ::accept(sockfd, addr, addrlen);
+    }
+
     int accept4(int sockfd, struct sockaddr* addr, socklen_t* addrlen, int flags) {
         errno = 0;
         return ::accept4(sockfd, addr, addrlen, flags);

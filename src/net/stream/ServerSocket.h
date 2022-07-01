@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h" // IWYU pragma: export
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
@@ -30,6 +32,10 @@ namespace net::stream {
     public:
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
+
+        int listen(int backlog);
+        int accept(struct sockaddr* addr, socklen_t* addrlen);
+        int accept4(struct sockaddr* addr, socklen_t* addrlen, int flags = SOCK_NONBLOCK);
     };
 
 } // namespace net::stream
