@@ -59,6 +59,11 @@ namespace net {
     }
 
     template <typename SockAddrT>
+    sockaddr& SocketAddress<SockAddrT>::getSockAddr() {
+        return reinterpret_cast<sockaddr&>(sockAddr);
+    }
+
+    template <typename SockAddrT>
     const sockaddr& SocketAddress<SockAddrT>::getSockAddr() const {
         return reinterpret_cast<const sockaddr&>(sockAddr);
     }

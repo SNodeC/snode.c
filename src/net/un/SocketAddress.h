@@ -43,9 +43,9 @@ namespace net::un {
         static std::string message;
     };
 
-    class SocketAddress : public net::SocketAddress<struct sockaddr_un> {
+    class SocketAddress : public net::SocketAddress<sockaddr_un> {
     public:
-        using net::SocketAddress<struct sockaddr_un>::SocketAddress;
+        using net::SocketAddress<sockaddr_un>::SocketAddress;
 
         SocketAddress();
         explicit SocketAddress(const std::string& sunPath);

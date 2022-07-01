@@ -34,8 +34,8 @@ namespace net::stream {
         using SocketAddress = typename Socket::SocketAddress;
 
         int listen(int backlog);
-        int accept(struct sockaddr* addr, socklen_t* addrlen);
-        int accept4(struct sockaddr* addr, socklen_t* addrlen, int flags = SOCK_NONBLOCK);
+        int accept(sockaddr* addr, socklen_t* addrlen);
+        int accept4(sockaddr* addr, socklen_t* addrlen, int flags = SOCK_NONBLOCK);
     };
 
 } // namespace net::stream

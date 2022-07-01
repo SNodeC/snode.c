@@ -72,5 +72,5 @@ namespace net::un {
 } // namespace net::un
 
 namespace net {
-    template class SocketAddress<struct sockaddr_un>;
+    template class SocketAddress<sockaddr_un>;
 } // namespace net

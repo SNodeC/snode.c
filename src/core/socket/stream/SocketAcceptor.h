@@ -161,7 +161,7 @@ namespace core::socket::stream {
                     typename SocketAddress::SockAddr remoteAddress{};
                     socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                    fd = primarySocket->accept4(reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength);
+                    fd = primarySocket->accept4(reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength);
 
                     if (config->isStandalone()) {
                         if (fd >= 0) {

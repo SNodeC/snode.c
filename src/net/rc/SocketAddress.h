@@ -45,9 +45,9 @@ namespace net::rc {
         static std::string message;
     };
 
-    class SocketAddress : public net::SocketAddress<struct sockaddr_rc> {
+    class SocketAddress : public net::SocketAddress<sockaddr_rc> {
     public:
-        using net::SocketAddress<struct sockaddr_rc>::SocketAddress;
+        using net::SocketAddress<sockaddr_rc>::SocketAddress;
 
         SocketAddress();
         explicit SocketAddress(const std::string& btAddress);

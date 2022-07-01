@@ -30,12 +30,12 @@ namespace net::stream {
     }
 
     template <typename Socket>
-    int ServerSocket<Socket>::accept(struct sockaddr* addr, socklen_t* addrlen) {
+    int ServerSocket<Socket>::accept(sockaddr* addr, socklen_t* addrlen) {
         return core::system::accept(Socket::getFd(), addr, addrlen);
     }
 
     template <typename Socket>
-    int ServerSocket<Socket>::accept4(struct sockaddr* addr, socklen_t* addrlen, int flags) {
+    int ServerSocket<Socket>::accept4(sockaddr* addr, socklen_t* addrlen, int flags) {
         return core::system::accept4(Socket::getFd(), addr, addrlen, flags);
     }
 

@@ -45,9 +45,9 @@ namespace net::l2 {
         static std::string message;
     };
 
-    class SocketAddress : public net::SocketAddress<struct sockaddr_l2> {
+    class SocketAddress : public net::SocketAddress<sockaddr_l2> {
     public:
-        using net::SocketAddress<struct sockaddr_l2>::SocketAddress;
+        using net::SocketAddress<sockaddr_l2>::SocketAddress;
 
         SocketAddress();
         explicit SocketAddress(const std::string& btAddress);

@@ -90,5 +90,5 @@ namespace net::rc {
 } // namespace net::rc
 
 namespace net {
-    template class SocketAddress<struct sockaddr_rc>;
+    template class SocketAddress<sockaddr_rc>;
 } // namespace net

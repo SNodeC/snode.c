@@ -31,7 +31,7 @@ namespace core::system {
         return ::socket(domain, type, protocol);
     }
 
-    int bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen) {
+    int bind(int sockfd, const sockaddr* addr, socklen_t addrlen) {
         errno = 0;
         return ::bind(sockfd, addr, addrlen);
     }
@@ -41,26 +41,26 @@ namespace core::system {
         return ::listen(sockfd, backlog);
     }
 
-    int accept(int sockfd, struct sockaddr* addr, socklen_t* addrlen) {
+    int accept(int sockfd, sockaddr* addr, socklen_t* addrlen) {
         errno = 0;
         return ::accept(sockfd, addr, addrlen);
     }
 
-    int accept4(int sockfd, struct sockaddr* addr, socklen_t* addrlen, int flags) {
+    int accept4(int sockfd, sockaddr* addr, socklen_t* addrlen, int flags) {
         errno = 0;
         return ::accept4(sockfd, addr, addrlen, flags);
     }
-    int connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen) {
+    int connect(int sockfd, const sockaddr* addr, socklen_t addrlen) {
         errno = 0;
         return ::connect(sockfd, addr, addrlen);
     }
 
-    int getsockname(int sockfd, struct sockaddr* addr, socklen_t* addrlen) {
+    int getsockname(int sockfd, sockaddr* addr, socklen_t* addrlen) {
         errno = 0;
         return ::getsockname(sockfd, addr, addrlen);
     }
 
-    int getpeername(int sockfd, struct sockaddr* addr, socklen_t* addrlen) {
+    int getpeername(int sockfd, sockaddr* addr, socklen_t* addrlen) {
         errno = 0;
         return ::getpeername(sockfd, addr, addrlen);
     }

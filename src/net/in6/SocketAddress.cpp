@@ -135,5 +135,5 @@ namespace net::in6 {
 } // namespace net::in6
 
 namespace net {
-    template class SocketAddress<struct sockaddr_in6>;
+    template class SocketAddress<sockaddr_in6>;
 } // namespace net
