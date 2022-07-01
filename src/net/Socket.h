@@ -36,6 +36,8 @@ namespace net {
     public:
         using SocketAddress = SocketAddressT;
 
+        Socket();
+        Socket(int fd);
         Socket(int domain, int type, int protocol);
 
         Socket(const Socket&) = delete;
@@ -49,11 +51,16 @@ namespace net {
     public:
         int open(int flags = 0) override;
 
+        bool isValid() const;
+
         int reuseAddress();
 
         int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
 
         int bind(const SocketAddress& bindAddress);
+
+        int getSockname(SocketAddress& socketAddress);
+        int getPeername(SocketAddress& socketAddress);
 
         virtual bool connectInProgress();
 

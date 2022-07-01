@@ -160,6 +160,7 @@ namespace core::socket::stream {
                 do {
                     SocketAddress remoteAddress{};
 
+                    [[maybe_unused]] net::Socket<SocketAddress> socket = primarySocket->accept4(remoteAddress);
                     fd = primarySocket->accept4(remoteAddress);
 
                     if (config->isStandalone()) {
@@ -167,8 +168,7 @@ namespace core::socket::stream {
                             SocketAddress localAddress{};
                             socklen_t addressLength = sizeof(typename SocketAddress::SockAddr);
 
-                            if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress.getSockAddr()), &addressLength) ==
-                                0) {
+                            if (core::system::getsockname(fd, localAddress, &addressLength) == 0) {
                                 socketConnectionEstablisher.establishConnection(fd, localAddress, remoteAddress, config);
                             } else {
                                 PLOG(ERROR) << "getsockname";
@@ -201,10 +201,8 @@ namespace core::socket::stream {
                         SocketAddress remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                        if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress.getSockAddr()), &localAddressLength) ==
-                                0 &&
-                            core::system::getpeername(
-                                fd, reinterpret_cast<sockaddr*>(&remoteAddress.getSockAddr()), &remoteAddressLength) == 0) {
+                        if (core::system::getsockname(fd, localAddress, &localAddressLength) == 0 &&
+                            core::system::getpeername(fd, remoteAddress, &remoteAddressLength) == 0) {
                             socketConnectionEstablisher.establishConnection(fd, localAddress, remoteAddress, config);
                         } else {
                             PLOG(ERROR) << "getsockname";

@@ -36,8 +36,7 @@ namespace core::system {
         return ::freeaddrinfo(res);
     }
 
-    int
-    getnameinfo(const sockaddr* addr, socklen_t addrlen, char* host, socklen_t hostlen, char* serv, socklen_t servlen, int flags) {
+    int getnameinfo(const sockaddr* addr, socklen_t addrlen, char* host, socklen_t hostlen, char* serv, socklen_t servlen, int flags) {
         errno = 0;
         return ::getnameinfo(addr, addrlen, host, hostlen, serv, servlen, flags);
     }

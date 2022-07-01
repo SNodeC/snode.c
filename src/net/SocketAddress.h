@@ -44,6 +44,9 @@ namespace net {
 
         SocketAddress& operator=(const SockAddr& sockAddr);
 
+        operator sockaddr* const();
+        operator const sockaddr* const() const;
+
         sockaddr& getSockAddr();
         const sockaddr& getSockAddr() const;
 

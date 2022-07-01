@@ -94,8 +94,8 @@ namespace core::socket::stream {
             } else if (socket->bind(config->getLocalAddress()) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
-            } else if (core::system::connect(
-                           socket->getFd(), &config->getRemoteAddress().getSockAddr(), config->getRemoteAddress().getSockAddrLen()) < 0 &&
+            } else if (core::system::connect(socket->getFd(), config->getRemoteAddress(), config->getRemoteAddress().getSockAddrLen()) <
+                           0 &&
                        !socket->connectInProgress()) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
@@ -123,10 +123,8 @@ namespace core::socket::stream {
                         SocketAddress remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                        if (core::system::getsockname(
-                                socket->getFd(), reinterpret_cast<sockaddr*>(&localAddress.getSockAddr()), &localAddressLength) == 0 &&
-                            core::system::getpeername(
-                                socket->getFd(), reinterpret_cast<sockaddr*>(&remoteAddress.getSockAddr()), &remoteAddressLength) == 0) {
+                        if (core::system::getsockname(socket->getFd(), localAddress, &localAddressLength) == 0 &&
+                            core::system::getpeername(socket->getFd(), remoteAddress, &remoteAddressLength) == 0) {
                             socketConnectionEstablisher.establishConnection(socket->getFd(), localAddress, remoteAddress, config);
 
                             socket->dontClose(true);

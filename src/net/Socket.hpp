@@ -27,6 +27,16 @@
 namespace net {
 
     template <typename SocketAddress>
+    Socket<SocketAddress>::Socket() {
+        Descriptor::open(-1);
+    }
+
+    template <typename SocketAddress>
+    Socket<SocketAddress>::Socket(int fd) {
+        Descriptor::open(fd);
+    }
+
+    template <typename SocketAddress>
     Socket<SocketAddress>::Socket(int domain, int type, int protocol)
         : domain(domain)
         , type(type)
@@ -41,6 +51,11 @@ namespace net {
     template <typename SocketAddress>
     int Socket<SocketAddress>::open(int flags) {
         return Descriptor::open(create(flags));
+    }
+
+    template <typename SocketAddress>
+    bool Socket<SocketAddress>::isValid() const {
+        return getFd() >= 0;
     }
 
     template <typename SocketAddress>
@@ -59,6 +74,18 @@ namespace net {
         this->bindAddress = bindAddress;
 
         return core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+    }
+
+    template <typename SocketAddress>
+    int Socket<SocketAddress>::getSockname(SocketAddress& socketAddress) {
+        socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
+        return core::system::getsockname(getFd(), &socketAddress.getSockAddr(), &addrLen);
+    }
+
+    template <typename SocketAddress>
+    int Socket<SocketAddress>::getPeername(SocketAddress& socketAddress) {
+        socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
+        return core::system::getpeername(getFd(), &socketAddress.getSockAddr(), &addrLen);
     }
 
     template <typename SocketAddress>
