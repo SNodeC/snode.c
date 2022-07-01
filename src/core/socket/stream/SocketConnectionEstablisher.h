@@ -55,10 +55,7 @@ namespace core::socket::stream {
         using Config = typename ServerSocket::Config;
         using SocketAddress = typename Socket::SocketAddress;
 
-        void establishConnection(int fd,
-                                 typename SocketAddress::SockAddr& localAddress,
-                                 typename SocketAddress::SockAddr& remoteAddress,
-                                 const std::shared_ptr<Config>& config) {
+        void establishConnection(int fd, SocketAddress& localAddress, SocketAddress& remoteAddress, const std::shared_ptr<Config>& config) {
             if (fd >= 0) {
                 onConnected(new SocketConnection(fd,
                                                  socketContextFactory,

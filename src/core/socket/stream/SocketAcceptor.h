@@ -158,17 +158,18 @@ namespace core::socket::stream {
                 int acceptsPerTick = config->getAcceptsPerTick();
 
                 do {
-                    typename SocketAddress::SockAddr remoteAddress{};
-                    socklen_t remoteAddressLength = sizeof(remoteAddress);
+                    SocketAddress remoteAddress{};
+                    socklen_t remoteAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                    fd = primarySocket->accept4(reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength);
+                    fd = primarySocket->accept4(remoteAddress, &remoteAddressLength);
 
                     if (config->isStandalone()) {
                         if (fd >= 0) {
-                            typename SocketAddress::SockAddr localAddress{};
-                            socklen_t addressLength = sizeof(localAddress);
+                            SocketAddress localAddress{};
+                            socklen_t addressLength = sizeof(typename SocketAddress::SockAddr);
 
-                            if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
+                            if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress.getSockAddr()), &addressLength) ==
+                                0) {
                                 socketConnectionEstablisher.establishConnection(fd, localAddress, remoteAddress, config);
                             } else {
                                 PLOG(ERROR) << "getsockname";
@@ -195,14 +196,16 @@ namespace core::socket::stream {
                 char msg;
                 if (secondarySocket->read_fd(&msg, 1, &fd) >= 0) {
                     if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY) {
-                        typename SocketAddress::SockAddr localAddress{};
-                        socklen_t localAddressLength = sizeof(localAddress);
+                        SocketAddress localAddress{};
+                        socklen_t localAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                        typename SocketAddress::SockAddr remoteAddress{};
-                        socklen_t remoteAddressLength = sizeof(remoteAddress);
+                        SocketAddress remoteAddress{};
+                        socklen_t remoteAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                        if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
-                            core::system::getpeername(fd, reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
+                        if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress.getSockAddr()), &localAddressLength) ==
+                                0 &&
+                            core::system::getpeername(
+                                fd, reinterpret_cast<sockaddr*>(&remoteAddress.getSockAddr()), &remoteAddressLength) == 0) {
                             socketConnectionEstablisher.establishConnection(fd, localAddress, remoteAddress, config);
                         } else {
                             PLOG(ERROR) << "getsockname";

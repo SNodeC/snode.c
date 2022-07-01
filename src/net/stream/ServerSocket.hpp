@@ -25,18 +25,18 @@
 namespace net::stream {
 
     template <typename Socket>
-    int ServerSocket<Socket>::listen([[maybe_unused]] int backlog) {
+    int ServerSocket<Socket>::listen(int backlog) {
         return core::system::listen(Socket::getFd(), backlog);
     }
 
     template <typename Socket>
-    int ServerSocket<Socket>::accept(sockaddr* addr, socklen_t* addrlen) {
-        return core::system::accept(Socket::getFd(), addr, addrlen);
+    int ServerSocket<Socket>::accept(typename Socket::SocketAddress& addr, socklen_t* addrlen) {
+        return core::system::accept(Socket::getFd(), &addr.getSockAddr(), addrlen);
     }
 
     template <typename Socket>
-    int ServerSocket<Socket>::accept4(sockaddr* addr, socklen_t* addrlen, int flags) {
-        return core::system::accept4(Socket::getFd(), addr, addrlen, flags);
+    int ServerSocket<Socket>::accept4(typename Socket::SocketAddress& addr, socklen_t* addrlen, int flags) {
+        return core::system::accept4(Socket::getFd(), &addr.getSockAddr(), addrlen, flags);
     }
 
 } // namespace net::stream

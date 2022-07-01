@@ -117,16 +117,16 @@ namespace core::socket::stream {
                     if (errno == 0) {
                         disable();
 
-                        typename SocketAddress::SockAddr localAddress{};
-                        socklen_t localAddressLength = sizeof(localAddress);
+                        SocketAddress localAddress{};
+                        socklen_t localAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                        typename SocketAddress::SockAddr remoteAddress{};
-                        socklen_t remoteAddressLength = sizeof(remoteAddress);
+                        SocketAddress remoteAddress{};
+                        socklen_t remoteAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                        if (core::system::getsockname(socket->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) ==
-                                0 &&
-                            core::system::getpeername(socket->getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
-                                0) {
+                        if (core::system::getsockname(
+                                socket->getFd(), reinterpret_cast<sockaddr*>(&localAddress.getSockAddr()), &localAddressLength) == 0 &&
+                            core::system::getpeername(
+                                socket->getFd(), reinterpret_cast<sockaddr*>(&remoteAddress.getSockAddr()), &remoteAddressLength) == 0) {
                             socketConnectionEstablisher.establishConnection(socket->getFd(), localAddress, remoteAddress, config);
 
                             socket->dontClose(true);
