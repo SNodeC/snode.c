@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(NET-IN6-STREAM_CPP
+    ClientSocket.cpp
+    ServerSocket.cpp
     Socket.cpp
     config/ConfigSocketClient.cpp
     config/ConfigSocketServer.cpp
@@ -11,6 +13,8 @@ set(NET-IN6-STREAM_CPP
 )
 
 set(NET-IN6-STREAM_H
+    ClientSocket.h
+    ServerSocket.h
     SocketClient.h
     SocketClient.hpp
     SocketServer.h

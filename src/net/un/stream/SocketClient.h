@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_STREAM_SOCKETCLIENT_H
-#define NET_UN_STREAM_STREAM_SOCKETCLIENT_H
+#ifndef NET_UN_STREAM_SOCKETCLIENT_H
+#define NET_UN_STREAM_SOCKETCLIENT_H
 
-#include "net/stream/SocketClient.h" // IWYU pragma: export
-#include "net/un/stream/Socket.h"    // IWYU pragma: export
+#include "net/stream/SocketClient.h"    // IWYU pragma: export
+#include "net/un/stream/ClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,8 +32,8 @@
 namespace net::un::stream {
 
     template <typename ConfigT>
-    class SocketClient : public net::stream::SocketClient<ConfigT, net::un::stream::Socket> {
-        using Super = net::stream::SocketClient<ConfigT, net::un::stream::Socket>;
+    class SocketClient : public net::stream::SocketClient<ConfigT, net::un::stream::ClientSocket> {
+        using Super = net::stream::SocketClient<ConfigT, net::un::stream::ClientSocket>;
 
     protected:
         explicit SocketClient(const std::string& name);
@@ -51,4 +51,4 @@ namespace net::un::stream {
 
 } // namespace net::un::stream
 
-#endif // NET_UN_STREAM_STREAM_SOCKETCLIENT_H
+#endif // NET_UN_STREAM_SOCKETCLIENT_H

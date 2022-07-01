@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_SERVERSOCKET_H
-#define NET_L2_STREAM_SERVERSOCKET_H
+#ifndef NET_L2_STREAM_SOCKETSERVER_H
+#define NET_L2_STREAM_SOCKETSERVER_H
 
-#include "net/l2/stream/Socket.h"    // IWYU pragma: export
-#include "net/stream/SocketServer.h" // IWYU pragma: export
+#include "net/l2/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/stream/SocketServer.h"    // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,8 +33,8 @@
 namespace net::l2::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::stream::SocketServer<ConfigT, net::l2::stream::Socket> {
-        using Super = net::stream::SocketServer<ConfigT, net::l2::stream::Socket>;
+    class SocketServer : public net::stream::SocketServer<ConfigT, net::l2::stream::ServerSocket> {
+        using Super = net::stream::SocketServer<ConfigT, net::l2::stream::ServerSocket>;
 
     protected:
         explicit SocketServer(const std::string& name);
@@ -54,4 +54,4 @@ namespace net::l2::stream {
 
 } // namespace net::l2::stream
 
-#endif // NET_L2_STREAM_SERVERSOCKET_H
+#endif // NET_L2_STREAM_SOCKETSERVER_H

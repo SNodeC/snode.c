@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_SERVERSOCKET_H
-#define NET_STREAM_SERVERSOCKET_H
+#ifndef NET_STREAM_SOCKETSERVER_H
+#define NET_STREAM_SOCKETSERVER_H
 
 #include "net/SocketConfig.h" // IWYU pragma: export
 
@@ -52,4 +52,4 @@ namespace net::stream {
 
 } // namespace net::stream
 
-#endif // NET_STREAM_SERVERSOCKET_H
+#endif // NET_STREAM_SOCKETSERVER_H

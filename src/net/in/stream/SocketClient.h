@@ -19,8 +19,8 @@
 #ifndef NET_IN_STREAM_SOCKETCLIENT_H
 #define NET_IN_STREAM_SOCKETCLIENT_H
 
-#include "net/in/stream/Socket.h"    // IWYU pragma: export
-#include "net/stream/SocketClient.h" // IWYU pragma: export
+#include "net/in/stream/ClientSocket.h" // IWYU pragma: export
+#include "net/stream/SocketClient.h"    // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,8 +33,8 @@
 namespace net::in::stream {
 
     template <typename ConfigT>
-    class SocketClient : public net::stream::SocketClient<ConfigT, net::in::stream::Socket> {
-        using Super = net::stream::SocketClient<ConfigT, net::in::stream::Socket>;
+    class SocketClient : public net::stream::SocketClient<ConfigT, net::in::stream::ClientSocket> {
+        using Super = net::stream::SocketClient<ConfigT, net::in::stream::ClientSocket>;
 
     protected:
         explicit SocketClient(const std::string& name);

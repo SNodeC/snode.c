@@ -16,14 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in/stream/legacy/SocketServer.h"
+#ifndef NET_IN6_STREAM_CLIENTSOCKET_H
+#define NET_IN6_STREAM_CLIENTSOCKET_H
 
-#include "net/in/stream/SocketServer.hpp" // IWYU pragma: keep
+#include "net/in6/stream/Socket.h"
+#include "net/stream/ClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-template class net::in::stream::SocketServer<net::in::stream::legacy::config::ConfigSocketServer>;
-template class net::stream::SocketServer<net::in::stream::legacy::config::ConfigSocketServer, net::in::stream::ServerSocket>;
-template class net::SocketConfig<net::in::stream::legacy::config::ConfigSocketServer>;
+namespace net::in6::stream {
+
+    class ClientSocket : public net::stream::ClientSocket<net::in6::stream::Socket> {};
+
+} // namespace net::in6::stream
+
+#endif // NET_IN6_STREAM_CLIENTSOCKET_H

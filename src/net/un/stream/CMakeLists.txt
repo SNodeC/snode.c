@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(NET-UN-STREAM_CPP
+    ClientSocket.cpp
+    ServerSocket.cpp
     Socket.cpp
     config/ConfigSocketClient.cpp
     config/ConfigSocketServer.cpp
@@ -11,11 +13,13 @@ set(NET-UN-STREAM_CPP
 )
 
 set(NET-UN-STREAM_H
+    ClientSocket.h
+    ServerSocket.h
+    Socket.h
     SocketClient.h
     SocketClient.hpp
     SocketServer.h
     SocketServer.hpp
-    Socket.h
     config/ConfigSocketClient.h
     config/ConfigSocketServer.h
     legacy/SocketClient.h

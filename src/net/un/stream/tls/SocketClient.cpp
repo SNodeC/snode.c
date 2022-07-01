@@ -25,5 +25,5 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::un::stream::SocketClient<net::un::stream::tls::config::ConfigSocketClient>;
-template class net::stream::SocketClient<net::un::stream::tls::config::ConfigSocketClient, net::un::stream::Socket>;
+template class net::stream::SocketClient<net::un::stream::tls::config::ConfigSocketClient, net::un::stream::ClientSocket>;
 template class net::SocketConfig<net::un::stream::tls::config::ConfigSocketClient>;
