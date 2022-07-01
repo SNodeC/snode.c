@@ -67,7 +67,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    ssize_t Socket<SocketAddress>::write_fd([[maybe_unused]] const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd) {
+    ssize_t Socket<SocketAddress>::write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd) {
         struct msghdr msg;
 
         struct iovec iov[1];

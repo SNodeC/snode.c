@@ -38,11 +38,6 @@ namespace net {
     }
 
     template <typename SockAddrT>
-    SocketAddress<SockAddrT>::SocketAddress(const SockAddr& sockAddr) {
-        this->sockAddr = sockAddr;
-    }
-
-    template <typename SockAddrT>
     SocketAddress<SockAddrT>& SocketAddress<SockAddrT>::operator=(const SocketAddress& socketAddress) {
         if (this != &socketAddress) {
             this->sockAddr = socketAddress.sockAddr;

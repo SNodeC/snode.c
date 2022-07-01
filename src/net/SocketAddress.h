@@ -38,8 +38,6 @@ namespace net {
 
         SocketAddress(const SocketAddress& socketAddress);
 
-        explicit SocketAddress(const SockAddr& sockAddr);
-
         virtual ~SocketAddress() = default;
 
         SocketAddress& operator=(const SocketAddress& socketAddress);

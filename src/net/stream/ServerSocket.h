@@ -31,8 +31,8 @@ namespace net::stream {
     class ServerSocket : public SocketT {
     public:
         int listen(int backlog);
-        int accept(typename SocketT::SocketAddress& addr, socklen_t* addrlen);
-        int accept4(typename SocketT::SocketAddress& addr, socklen_t* addrlen, int flags = SOCK_NONBLOCK);
+        int accept(typename SocketT::SocketAddress& addr);
+        int accept4(typename SocketT::SocketAddress& addr, int flags = SOCK_NONBLOCK);
     };
 
 } // namespace net::stream

@@ -159,9 +159,8 @@ namespace core::socket::stream {
 
                 do {
                     SocketAddress remoteAddress{};
-                    socklen_t remoteAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                    fd = primarySocket->accept4(remoteAddress, &remoteAddressLength);
+                    fd = primarySocket->accept4(remoteAddress);
 
                     if (config->isStandalone()) {
                         if (fd >= 0) {

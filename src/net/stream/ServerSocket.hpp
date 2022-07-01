@@ -30,13 +30,15 @@ namespace net::stream {
     }
 
     template <typename Socket>
-    int ServerSocket<Socket>::accept(typename Socket::SocketAddress& addr, socklen_t* addrlen) {
-        return core::system::accept(Socket::getFd(), &addr.getSockAddr(), addrlen);
+    int ServerSocket<Socket>::accept(typename Socket::SocketAddress& addr) {
+        socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
+        return core::system::accept(Socket::getFd(), &addr.getSockAddr(), &addrLen);
     }
 
     template <typename Socket>
-    int ServerSocket<Socket>::accept4(typename Socket::SocketAddress& addr, socklen_t* addrlen, int flags) {
-        return core::system::accept4(Socket::getFd(), &addr.getSockAddr(), addrlen, flags);
+    int ServerSocket<Socket>::accept4(typename Socket::SocketAddress& addr, int flags) {
+        socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
+        return core::system::accept4(Socket::getFd(), &addr.getSockAddr(), &addrLen, flags);
     }
 
 } // namespace net::stream
