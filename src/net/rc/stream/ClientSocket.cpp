@@ -18,7 +18,7 @@
 
 #include "net/rc/stream/ClientSocket.h"
 
-#include "net/stream/ClientSocket.hpp"
+#include "net/stream/ClientSocket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

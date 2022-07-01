@@ -26,11 +26,7 @@
 namespace net::stream {
 
     template <typename SocketT>
-    class ClientSocket : public SocketT {
-    public:
-        using Socket = SocketT;
-        using SocketAddress = typename Socket::SocketAddress;
-    };
+    class ClientSocket : public SocketT {};
 
 } // namespace net::stream
 

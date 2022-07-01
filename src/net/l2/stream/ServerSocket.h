@@ -19,7 +19,7 @@
 #ifndef NET_L2_STREAM_SERVERSOCKET_H
 #define NET_L2_STREAM_SERVERSOCKET_H
 
-#include "net/l2/stream/Socket.h"
+#include "net/l2/stream/Socket.h" // IWYU pragma: export
 #include "net/stream/ServerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

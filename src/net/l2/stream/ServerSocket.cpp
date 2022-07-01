@@ -18,7 +18,7 @@
 
 #include "net/l2/stream/ServerSocket.h"
 
-#include "net/stream/ServerSocket.hpp"
+#include "net/stream/ServerSocket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

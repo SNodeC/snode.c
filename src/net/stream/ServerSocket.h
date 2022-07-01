@@ -30,9 +30,6 @@ namespace net::stream {
     template <typename SocketT>
     class ServerSocket : public SocketT {
     public:
-        using Socket = SocketT;
-        using SocketAddress = typename Socket::SocketAddress;
-
         int listen(int backlog);
         int accept(sockaddr* addr, socklen_t* addrlen);
         int accept4(sockaddr* addr, socklen_t* addrlen, int flags = SOCK_NONBLOCK);
