@@ -53,14 +53,15 @@ namespace net {
         int open(SOCK flags = SOCK::NONE);
         int bind(const SocketAddress& bindAddress);
 
-        int reuseAddress();
-        int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
-        int getSockopt(int level, int optname, void* optval, socklen_t* optlen);
-
         bool isValid() const;
+
+        int reuseAddress();
 
         int getSockname(SocketAddress& socketAddress);
         int getPeername(SocketAddress& socketAddress);
+
+        int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
+        int getSockopt(int level, int optname, void* optval, socklen_t* optlen);
 
         ssize_t write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
         ssize_t read_fd(void* ptr, size_t nbytes, int* recvfd);

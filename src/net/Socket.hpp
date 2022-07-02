@@ -71,6 +71,13 @@ namespace net {
     }
 
     template <typename SocketAddress>
+    int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
+        this->bindAddress = bindAddress;
+
+        return core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+    }
+
+    template <typename SocketAddress>
     bool Socket<SocketAddress>::isValid() const {
         return getFd() >= 0;
     }
@@ -79,23 +86,6 @@ namespace net {
     int Socket<SocketAddress>::reuseAddress() {
         int sockopt = 1;
         return setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
-    }
-
-    template <typename SocketAddress>
-    int Socket<SocketAddress>::setSockopt(int level, int optname, const void* optval, socklen_t optlen) {
-        return core::system::setsockopt(Socket::getFd(), level, optname, optval, optlen);
-    }
-
-    template <typename SocketAddress>
-    int Socket<SocketAddress>::getSockopt(int level, int optname, void* optval, socklen_t* optlen) {
-        return core::system::getsockopt(Socket::getFd(), level, optname, optval, optlen);
-    }
-
-    template <typename SocketAddress>
-    int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
-        this->bindAddress = bindAddress;
-
-        return core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
     }
 
     template <typename SocketAddress>
@@ -108,6 +98,16 @@ namespace net {
     int Socket<SocketAddress>::getPeername(SocketAddress& socketAddress) {
         socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
         return core::system::getpeername(getFd(), &socketAddress.getSockAddr(), &addrLen);
+    }
+
+    template <typename SocketAddress>
+    int Socket<SocketAddress>::setSockopt(int level, int optname, const void* optval, socklen_t optlen) {
+        return core::system::setsockopt(Socket::getFd(), level, optname, optval, optlen);
+    }
+
+    template <typename SocketAddress>
+    int Socket<SocketAddress>::getSockopt(int level, int optname, void* optval, socklen_t* optlen) {
+        return core::system::getsockopt(Socket::getFd(), level, optname, optval, optlen);
     }
 
     template <typename SocketAddress>
@@ -157,7 +157,7 @@ namespace net {
         msg.msg_iov = iov;
         msg.msg_iovlen = 1;
         msg.msg_iov[0].iov_base = ptr;
-        msg.msg_iov[0].iov_len = nbytes, msg.msg_iovlen = 1;
+        msg.msg_iov[0].iov_len = nbytes;
 
         ssize_t n = 0;
 
