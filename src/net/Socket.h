@@ -44,11 +44,13 @@ namespace net {
 
         virtual ~Socket() = default;
 
+        enum SOCK { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
+
     protected:
-        int create(int flags);
+        int create(SOCK flags);
 
     public:
-        int open(int flags = 0) override;
+        int open(SOCK flags = SOCK::NONE);
         int bind(const SocketAddress& bindAddress);
 
         int reuseAddress();
@@ -63,9 +65,9 @@ namespace net {
         ssize_t write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
         ssize_t read_fd(void* ptr, size_t nbytes, int* recvfd);
 
-        enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
+        enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
-        void shutdown(shutdown how);
+        void shutdown(SHUT how);
 
         const SocketAddress& getBindAddress() const;
 

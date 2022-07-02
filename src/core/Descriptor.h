@@ -28,31 +28,21 @@ namespace core {
     class Descriptor {
     public:
         Descriptor() = default;
+        ~Descriptor();
 
         Descriptor(const Descriptor& d) = delete;
         Descriptor& operator=(const Descriptor& descriptor) = delete;
 
-        ~Descriptor();
-
-        virtual int open(int fd);
-        int getFd() const;
-
-        void dontClose(bool dontClose);
-        bool dontClose() const;
-
+        int open(int fd);
         void close();
 
-    protected:
-        enum struct FLAGS : unsigned short {
-            none = 0,
-            dontClose = 0x01 << 0 // do not close sys-descriptor in case of desctruction
-        } flags{FLAGS::none};
+        int getFd() const;
+
+        void dontClose();
 
     private:
         int fd = -1;
-
-        friend enum FLAGS operator|(const enum FLAGS& f1, const enum FLAGS& f2);
-        friend enum FLAGS operator&(const enum FLAGS& f1, const enum FLAGS& f2);
+        bool autoClose = true;
     };
 
 } // namespace core

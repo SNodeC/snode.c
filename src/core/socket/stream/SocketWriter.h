@@ -70,7 +70,7 @@ namespace core::socket::stream {
         virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
             errno = 0;
 
-            Socket::shutdown(Socket::shutdown::WR);
+            Socket::shutdown(Socket::SHUT::WR);
 
             onShutdown(errno);
         }

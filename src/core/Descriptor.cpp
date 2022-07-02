@@ -27,25 +27,13 @@
 namespace core {
 
     Descriptor::~Descriptor() {
-        if (!dontClose()) {
+        if (autoClose) {
             close();
         }
     }
 
     int Descriptor::open(int fd) {
         return this->fd = fd;
-    }
-
-    int Descriptor::getFd() const {
-        return fd;
-    }
-
-    void Descriptor::dontClose(bool dontClose) {
-        this->flags = dontClose ? FLAGS::dontClose : FLAGS::none;
-    }
-
-    bool Descriptor::dontClose() const {
-        return (flags & FLAGS::dontClose) == FLAGS::dontClose;
     }
 
     void Descriptor::close() {
@@ -55,12 +43,12 @@ namespace core {
         }
     }
 
-    enum Descriptor::FLAGS operator|(const enum Descriptor::FLAGS& f1, const enum Descriptor::FLAGS& f2) {
-        return static_cast<enum Descriptor::FLAGS>(static_cast<unsigned short>(f1) | static_cast<unsigned short>(f2));
+    int Descriptor::getFd() const {
+        return fd;
     }
 
-    enum Descriptor::FLAGS operator&(const enum Descriptor::FLAGS& f1, const enum Descriptor::FLAGS& f2) {
-        return static_cast<enum Descriptor::FLAGS>(static_cast<unsigned short>(f1) & static_cast<unsigned short>(f2));
+    void Descriptor::dontClose() {
+        autoClose = false;
     }
 
 } // namespace core

@@ -112,7 +112,7 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
-                Socket::shutdown(Socket::shutdown::RD);
+                Socket::shutdown(Socket::SHUT::RD);
                 shutdownTriggered = true;
             }
         }

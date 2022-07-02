@@ -28,7 +28,7 @@ namespace net {
 
     template <typename SocketAddress>
     Socket<SocketAddress>::Socket() {
-        open(-1);
+        Descriptor::open(-1);
     }
 
     template <typename SocketAddress>
@@ -61,12 +61,12 @@ namespace net {
     }
 
     template <typename SocketAddressT>
-    int Socket<SocketAddressT>::create(int flags) {
+    int Socket<SocketAddressT>::create(SOCK flags) {
         return core::system::socket(domain, type | flags, protocol);
     }
 
     template <typename SocketAddress>
-    int Socket<SocketAddress>::open(int flags) {
+    int Socket<SocketAddress>::open(SOCK flags) {
         return Descriptor::open(create(flags));
     }
 
@@ -183,7 +183,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    void Socket<SocketAddress>::shutdown(enum shutdown how) {
+    void Socket<SocketAddress>::shutdown(SHUT how) {
         core::system::shutdown(getFd(), how);
     }
 

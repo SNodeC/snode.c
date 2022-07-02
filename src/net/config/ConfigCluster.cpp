@@ -31,13 +31,13 @@ namespace net::config {
             clusterSc = add_subcommand("cluster", "Options for clustering");
             clusterSc->group("Option groups");
             clusterSc->preparse_callback([this]([[maybe_unused]] std::size_t num) -> void {
-                mode = PRIMARY;
+                mode = MODE::PRIMARY;
             });
 
             modeOpt = clusterSc->add_option("--mode", mode, "Clustering mode");
-            modeOpt->type_name("[" + std::to_string(NONE) + " = NONE, " + std::to_string(PRIMARY) + " = PRIMARY, " +
-                               std::to_string(SECONDARY) + " = SECONDARY, " + std::to_string(PROXY) + " = PROXY]");
-            modeOpt->default_val(NONE);
+            modeOpt->type_name("[" + std::to_string(MODE::NONE) + " = NONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
+                               std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY]");
+            modeOpt->default_val(MODE::NONE);
         }
     }
 

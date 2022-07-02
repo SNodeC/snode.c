@@ -62,7 +62,7 @@ namespace core::socket::stream {
                                  SocketAddress& remoteAddress,
                                  const std::shared_ptr<Config>& config) {
             if (socket.isValid()) {
-                socket.dontClose(true);
+                socket.dontClose();
                 onConnected(new SocketConnection(socket.getFd(),
                                                  socketContextFactory,
                                                  SocketAddress(localAddress),

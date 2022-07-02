@@ -58,7 +58,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
+        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
@@ -67,7 +67,6 @@ namespace core {
         if (observedEventReceiversDirty) {
             observedEventReceiversDirty = false;
             std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
-                // cppcheck-suppress constVariable
                 // cppcheck-suppress variableScope
                 auto& [fd, observedEventReceiverList] = observedEventReceiversEntry;
                 DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
@@ -117,7 +116,7 @@ namespace core {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         if (!observedEventReceiversDirty) {
-            for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
+            for (const auto& [fd, eventReceivers] : observedEventReceivers) {
                 const DescriptorEventReceiver* eventReceiver = eventReceivers.front();
 
                 if (!eventReceiver->isSuspended()) {
@@ -132,7 +131,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::stop() {
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
+        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->terminate();
             }

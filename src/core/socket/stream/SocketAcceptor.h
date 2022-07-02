@@ -99,12 +99,12 @@ namespace core::socket::stream {
 
     private:
         void initAcceptEvent() override {
-            if (config->getClusterMode() == net::config::ConfigCluster::NONE ||
-                config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
+            if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE ||
+                config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                 VLOG(0) << "Mode: STANDALONE or PRIMARY";
 
                 primarySocket = new PrimarySocket();
-                if (primarySocket->open(SOCK_NONBLOCK) < 0) {
+                if (primarySocket->open(PrimarySocket::SOCK::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
 #if !defined(NDEBUG)
@@ -118,10 +118,10 @@ namespace core::socket::stream {
                 } else if (primarySocket->listen(config->getBacklog()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
+                } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                     VLOG(0) << "    Cluster: PRIMARY";
                     secondarySocket = new net::un::dgram::Socket();
-                    if (secondarySocket->open(SOCK_NONBLOCK) < 0) {
+                    if (secondarySocket->open(net::un::dgram::Socket::SOCK::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else if (secondarySocket->bind(net::un::SocketAddress("/tmp/primary")) < 0) {
@@ -136,11 +136,11 @@ namespace core::socket::stream {
                     onError(config->getLocalAddress(), 0);
                     enable(primarySocket->getFd());
                 }
-            } else if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY ||
-                       config->getClusterMode() == net::config::ConfigCluster::PROXY) {
+            } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
+                       config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
                 VLOG(0) << "    Mode: SECONDARY or PROXY";
                 secondarySocket = new net::un::dgram::Socket();
-                if (secondarySocket->open(SOCK_NONBLOCK) < 0) {
+                if (secondarySocket->open(net::un::dgram::Socket::SOCK::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else if (secondarySocket->bind(net::un::SocketAddress("/tmp/secondary")) < 0) {
@@ -154,8 +154,8 @@ namespace core::socket::stream {
         }
 
         void acceptEvent() override {
-            if (config->getClusterMode() == net::config::ConfigCluster::NONE ||
-                config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
+            if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE ||
+                config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                 net::Socket<SocketAddress> socket;
 
                 int acceptsPerTick = config->getAcceptsPerTick();
@@ -163,28 +163,26 @@ namespace core::socket::stream {
                 do {
                     SocketAddress remoteAddress{};
                     socket = primarySocket->accept4(remoteAddress);
-                    if (config->getClusterMode() == net::config::ConfigCluster::NONE) {
-                        if (socket.isValid()) {
+                    if (socket.isValid()) {
+                        if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE) {
                             SocketAddress localAddress{};
                             if (socket.getSockname(localAddress) == 0) {
                                 socketConnectionEstablisher.establishConnection(socket, localAddress, remoteAddress, config);
                             } else {
                                 PLOG(ERROR) << "getsockname";
                             }
+                        } else {
+                            // Send descriptor to SECONDARY
+                            VLOG(0) << "Sending to secondary";
+                            char msg = 0;
+                            secondarySocket->write_fd(net::un::Socket::SocketAddress("/tmp/secondary"), &msg, 1, socket.getFd());
                         }
-                    } else {
-                        // Send descriptor to SECONDARY
-                        VLOG(0) << "Sending to secondary";
-                        char msg = 0;
-                        secondarySocket->write_fd(net::un::Socket::SocketAddress("/tmp/secondary"), &msg, 1, socket.getFd());
+                    } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
+                        PLOG(ERROR) << "accept";
                     }
                 } while (--acceptsPerTick > 0 && socket.isValid());
-
-                if (!socket.isValid() && errno != EINTR && errno != EAGAIN) {
-                    PLOG(ERROR) << "accept";
-                }
-            } else if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY ||
-                       config->getClusterMode() == net::config::ConfigCluster::PROXY) {
+            } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
+                       config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
                 // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
                 int fd = -1;
                 char msg;
@@ -192,7 +190,7 @@ namespace core::socket::stream {
                 if (secondarySocket->read_fd(&msg, 1, &fd) >= 0) {
                     net::Socket<SocketAddress> socket(fd);
 
-                    if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY) {
+                    if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY) {
                         SocketAddress localAddress{};
                         SocketAddress remoteAddress{};
                         if (socket.getSockname(localAddress) == 0 && socket.getPeername(remoteAddress) == 0) {
