@@ -74,8 +74,8 @@ namespace utils {
         name = std::filesystem::path(argv[0]).filename();
 
         const char* homedir;
-        if ((homedir = getenv("XDG_CONFIG_HOME")) == NULL) {
-            if ((homedir = getenv("HOME")) == NULL) {
+        if ((homedir = getenv("XDG_CONFIG_HOME")) == nullptr) {
+            if ((homedir = getenv("HOME")) == nullptr) {
                 homedir = getpwuid(getuid())->pw_dir;
             }
         }

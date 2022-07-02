@@ -36,15 +36,16 @@ add_compile_options(
     -Wpedantic
     -pedantic-errors
     -fexec-charset=UTF-8
-    # -Weverything -Wno-c++17-compat -Wno-c++98-compat
-    # -Wno-c++98-compat-pedantic -Wno-reserved-identifier
-    # -Wno-shadow-field-in-constructor -Wno-padded -Wno-shadow
-    # -Wno-global-constructors -Wno-shadow-field -Wno-weak-vtables
-    # -Wno-weak-template-vtables -Wno-exit-time-destructors
-    # -Wno-missing-prototypes -Wno-undefined-func-template # has to be
-    # investigated why -Wno-documentation-unknown-command -Wno-double-promotion
-    # -Wno-covered-switch-default -Wno-used-but-marked-unused -fsanitize=address
-    # -fno-omit-frame-pointer
+    # -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded
+    # -Wno-shadow -Wno-weak-vtables -Wno-exit-time-destructors -Wno-shadow-field
+    # -Wno-global-constructors -Wno-reserved-identifier -Wno-missing-prototypes
+    # -Wno-documentation-unknown-command -Wno-suggest-destructor-override
+    # -Wno-double-promotion -Wno-suggest-override
+    # -Wno-inconsistent-missing-destructor-override -Wno-extra-semi-stmt
+    # -Wno-deprecated-copy-with-user-provided-dtor -Wno-covered-switch-default
+    # -Wno-missing-noreturn -Wno-unused-exception-parameter
+    # -Wno-weak-template-vtables -Wno-undefined-func-template
+    # -Wno-used-but-marked-unused -Wno-deprecated-copy-with-dtor
 )
 # set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
 # link_libraries(asan) link_libraries(ubsan)

@@ -58,9 +58,9 @@ namespace core::socket::stream {
         using SocketAddress = typename Socket::SocketAddress;
 
         void create(net::Socket<SocketAddress>& socket,
-                                 SocketAddress& localAddress,
-                                 SocketAddress& remoteAddress,
-                                 const std::shared_ptr<Config>& config) {
+                    SocketAddress& localAddress,
+                    SocketAddress& remoteAddress,
+                    const std::shared_ptr<Config>& config) {
             if (socket.isValid()) {
                 socket.dontClose();
                 onConnected(new SocketConnection(socket.getFd(),

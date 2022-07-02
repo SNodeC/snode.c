@@ -39,6 +39,8 @@ namespace web::http::client {
     protected:
         explicit Request(web::http::SocketContext* clientContext);
 
+        virtual ~Request() = default;
+
     public:
         std::string method = "GET";
         std::string url;

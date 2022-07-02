@@ -36,14 +36,14 @@ namespace net::stream {
     protected:
         using Super = SocketConfig<ConfigT>;
 
-        virtual ~SocketServer() = default;
-
     public:
         using Super::Super;
 
         using Config = ConfigT;
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
+
+        virtual ~SocketServer() = default;
 
         virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 

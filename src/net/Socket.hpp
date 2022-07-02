@@ -150,7 +150,7 @@ namespace net {
         msg.msg_control = control_un.control;
         msg.msg_controllen = sizeof(control_un.control);
 
-        msg.msg_name = NULL;
+        msg.msg_name = nullptr;
         msg.msg_namelen = 0;
 
         iovec iov[1];
@@ -164,7 +164,7 @@ namespace net {
         if ((n = recvmsg(getFd(), &msg, 0)) > 0) {
             cmsghdr* cmptr;
 
-            if ((cmptr = CMSG_FIRSTHDR(&msg)) != NULL && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
+            if ((cmptr = CMSG_FIRSTHDR(&msg)) != nullptr && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
                 if (cmptr->cmsg_level != SOL_SOCKET || cmptr->cmsg_type != SCM_RIGHTS) {
                     errno = EBADE;
                     *recvfd = -1;

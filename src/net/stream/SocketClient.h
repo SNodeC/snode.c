@@ -32,11 +32,9 @@
 namespace net::stream {
 
     template <typename ConfigT, typename SocketT>
-    class SocketClient : public SocketConfig<ConfigT> {
+    class SocketClient : public net::SocketConfig<ConfigT> {
     protected:
-        using Super = SocketConfig<ConfigT>;
-
-        virtual ~SocketClient() = default;
+        using Super = net::SocketConfig<ConfigT>;
 
     public:
         using Super::Super;
@@ -44,6 +42,8 @@ namespace net::stream {
         using Config = ConfigT;
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
+
+        virtual ~SocketClient() = default;
 
         virtual void connect(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
