@@ -153,39 +153,34 @@ namespace core::socket::stream {
 
         void acceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
-                int fd = -1;
+                net::Socket<SocketAddress> socket;
 
                 int acceptsPerTick = config->getAcceptsPerTick();
 
                 do {
                     SocketAddress remoteAddress{};
 
-                    [[maybe_unused]] net::Socket<SocketAddress> socket = primarySocket->accept4(remoteAddress);
-                    fd = primarySocket->accept4(remoteAddress);
-
+                    socket = primarySocket->accept4(remoteAddress);
                     if (config->isStandalone()) {
-                        if (fd >= 0) {
+                        if (socket.isValid()) {
                             SocketAddress localAddress{};
-                            socklen_t addressLength = sizeof(typename SocketAddress::SockAddr);
 
-                            if (core::system::getsockname(fd, localAddress, &addressLength) == 0) {
-                                socketConnectionEstablisher.establishConnection(fd, localAddress, remoteAddress, config);
+                            socket.getSockname(localAddress);
+                            if (socket.getSockname(localAddress) == 0) {
+                                socketConnectionEstablisher.establishConnection(socket, localAddress, remoteAddress, config);
                             } else {
                                 PLOG(ERROR) << "getsockname";
-                                core::system::shutdown(fd, SHUT_RDWR);
-                                core::system::close(fd);
                             }
                         }
                     } else {
                         // Send descriptor to SECONDARY
                         VLOG(0) << "Sending to secondary";
                         char msg = 0;
-                        secondarySocket->write_fd(net::un::Socket::SocketAddress("/tmp/secondary"), &msg, 1, fd);
-                        core::system::close(fd);
+                        secondarySocket->write_fd(net::un::Socket::SocketAddress("/tmp/secondary"), &msg, 1, socket.getFd());
                     }
-                } while (fd >= 0 && --acceptsPerTick > 0);
+                } while (--acceptsPerTick > 0 && socket.isValid());
 
-                if (fd < 0 && errno != EINTR && errno != EAGAIN) {
+                if (!socket.isValid() && errno != EINTR && errno != EAGAIN) {
                     PLOG(ERROR) << "accept";
                 }
             } else if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY ||
@@ -193,21 +188,18 @@ namespace core::socket::stream {
                 // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
                 int fd = -1;
                 char msg;
+
                 if (secondarySocket->read_fd(&msg, 1, &fd) >= 0) {
+                    net::Socket<SocketAddress> socket(fd);
+
                     if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY) {
                         SocketAddress localAddress{};
-                        socklen_t localAddressLength = sizeof(typename SocketAddress::SockAddr);
-
                         SocketAddress remoteAddress{};
-                        socklen_t remoteAddressLength = sizeof(typename SocketAddress::SockAddr);
 
-                        if (core::system::getsockname(fd, localAddress, &localAddressLength) == 0 &&
-                            core::system::getpeername(fd, remoteAddress, &remoteAddressLength) == 0) {
-                            socketConnectionEstablisher.establishConnection(fd, localAddress, remoteAddress, config);
+                        if (socket.getSockname(localAddress) == 0 && socket.getPeername(remoteAddress) == 0) {
+                            socketConnectionEstablisher.establishConnection(socket, localAddress, remoteAddress, config);
                         } else {
                             PLOG(ERROR) << "getsockname";
-                            core::system::shutdown(fd, SHUT_RDWR);
-                            core::system::close(fd);
                         }
                     } else { // PROXY
                         // Send to SECONDARY (TERTIARY)

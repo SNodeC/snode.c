@@ -19,6 +19,8 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTIONESTABLISHER_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTIONESTABLISHER_H
 
+#include "net/Socket.h"
+
 namespace core::socket {
     class SocketContextFactory;
 }
@@ -55,9 +57,13 @@ namespace core::socket::stream {
         using Config = typename ServerSocket::Config;
         using SocketAddress = typename Socket::SocketAddress;
 
-        void establishConnection(int fd, SocketAddress& localAddress, SocketAddress& remoteAddress, const std::shared_ptr<Config>& config) {
-            if (fd >= 0) {
-                onConnected(new SocketConnection(fd,
+        void establishConnection(net::Socket<SocketAddress>& socket,
+                                 SocketAddress& localAddress,
+                                 SocketAddress& remoteAddress,
+                                 const std::shared_ptr<Config>& config) {
+            if (socket.isValid()) {
+                socket.dontClose(true);
+                onConnected(new SocketConnection(socket.getFd(),
                                                  socketContextFactory,
                                                  SocketAddress(localAddress),
                                                  SocketAddress(remoteAddress),

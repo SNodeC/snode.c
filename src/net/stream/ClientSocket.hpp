@@ -20,6 +20,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {}
+namespace net::stream {
+
+    template <typename Socket>
+    bool ClientSocket<Socket>::connectInProgress(int cErrno) {
+        return cErrno == EINPROGRESS;
+    }
+
+} // namespace net::stream

@@ -30,8 +30,4 @@ namespace net::un::stream {
         : Super(SOCK_STREAM) {
     }
 
-    bool Socket::connectInProgress() {
-        return errno == EAGAIN;
-    }
-
 } // namespace net::un::stream

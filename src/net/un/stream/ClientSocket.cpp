@@ -24,7 +24,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {}
+namespace net::un::stream {
+
+    bool ClientSocket::connectInProgress(int cErrno) {
+        return cErrno == EAGAIN;
+    }
+
+} // namespace net::un::stream
 
 namespace net::stream {
     template class ClientSocket<net::un::stream::Socket>;

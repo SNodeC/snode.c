@@ -37,11 +37,10 @@ namespace net {
         using SocketAddress = SocketAddressT;
 
         Socket();
-        Socket(int fd);
+        Socket(int fd); // cppcheck-suppress noExplicitConstructor
         Socket(int domain, int type, int protocol);
 
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
+        Socket& operator=(int fd);
 
         virtual ~Socket() = default;
 
@@ -50,19 +49,16 @@ namespace net {
 
     public:
         int open(int flags = 0) override;
+        int bind(const SocketAddress& bindAddress);
+
+        int reuseAddress();
+        int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
+        int getSockopt(int level, int optname, void* optval, socklen_t* optlen);
 
         bool isValid() const;
 
-        int reuseAddress();
-
-        int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
-
-        int bind(const SocketAddress& bindAddress);
-
         int getSockname(SocketAddress& socketAddress);
         int getPeername(SocketAddress& socketAddress);
-
-        virtual bool connectInProgress();
 
         ssize_t write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
         ssize_t read_fd(void* ptr, size_t nbytes, int* recvfd);

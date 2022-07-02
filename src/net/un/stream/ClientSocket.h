@@ -28,7 +28,10 @@
 
 namespace net::un::stream {
 
-    class ClientSocket : public net::stream::ClientSocket<net::un::stream::Socket> {};
+    class ClientSocket : public net::stream::ClientSocket<net::un::stream::Socket> {
+    public:
+        bool connectInProgress(int cErrno) override;
+    };
 
 } // namespace net::un::stream
 

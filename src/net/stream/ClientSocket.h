@@ -26,7 +26,10 @@
 namespace net::stream {
 
     template <typename SocketT>
-    class ClientSocket : public SocketT {};
+    class ClientSocket : public SocketT {
+    public:
+        virtual bool connectInProgress(int cErrno);
+    };
 
 } // namespace net::stream
 
