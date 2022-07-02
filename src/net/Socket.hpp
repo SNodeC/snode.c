@@ -74,7 +74,7 @@ namespace net {
     int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
         this->bindAddress = bindAddress;
 
-        return core::system::bind(getFd(), &bindAddress.getSockAddr(), bindAddress.getAddrLen());
+        return core::system::bind(getFd(), bindAddress, bindAddress.getAddrLen());
     }
 
     template <typename SocketAddress>
@@ -90,12 +90,12 @@ namespace net {
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::getSockname(SocketAddress& socketAddress) {
-        return core::system::getsockname(getFd(), &socketAddress.getSockAddr(), &socketAddress.getAddrLen());
+        return core::system::getsockname(getFd(), socketAddress, &socketAddress.getAddrLen());
     }
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::getPeername(SocketAddress& socketAddress) {
-        return core::system::getpeername(getFd(), &socketAddress.getSockAddr(), &socketAddress.getAddrLen());
+        return core::system::getpeername(getFd(), socketAddress, &socketAddress.getAddrLen());
     }
 
     template <typename SocketAddress>
