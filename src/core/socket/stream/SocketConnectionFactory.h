@@ -35,7 +35,7 @@ namespace core::socket {
 namespace core::socket::stream {
 
     template <typename ServerSocketT, template <typename SocketT> class SocketConnectionT>
-    class SocketConnectionEstablisher {
+    class SocketConnectionFactory {
     private:
         using ServerSocket = ServerSocketT;
         using Socket = typename ServerSocket::Socket;
@@ -44,10 +44,10 @@ namespace core::socket::stream {
         using SocketConnection = SocketConnectionT<Socket>;
 
     public:
-        SocketConnectionEstablisher(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
-                                    const std::function<void(SocketConnection*)>& onConnect,
-                                    const std::function<void(SocketConnection*)>& onConnected,
-                                    const std::function<void(SocketConnection*)>& onDisconnect)
+        SocketConnectionFactory(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+                                const std::function<void(SocketConnection*)>& onConnect,
+                                const std::function<void(SocketConnection*)>& onConnected,
+                                const std::function<void(SocketConnection*)>& onDisconnect)
             : socketContextFactory(socketContextFactory)
             , onConnect(onConnect)
             , onConnected(onConnected)
@@ -57,7 +57,7 @@ namespace core::socket::stream {
         using Config = typename ServerSocket::Config;
         using SocketAddress = typename Socket::SocketAddress;
 
-        void establishConnection(net::Socket<SocketAddress>& socket,
+        void create(net::Socket<SocketAddress>& socket,
                                  SocketAddress& localAddress,
                                  SocketAddress& remoteAddress,
                                  const std::shared_ptr<Config>& config) {

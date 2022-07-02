@@ -6,7 +6,7 @@ set(CORE_SOCKET_STREAM_H
     SocketAcceptor.h
     SocketClient.h
     SocketConnection.h
-    SocketConnectionEstablisher.h
+    SocketConnectionFactory.h
     SocketConnector.h
     SocketReader.h
     SocketServer.h

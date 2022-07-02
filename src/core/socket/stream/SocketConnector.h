@@ -21,7 +21,7 @@
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/eventreceiver/InitConnectEventReceiver.h"
-#include "core/socket/stream/SocketConnectionEstablisher.h"
+#include "core/socket/stream/SocketConnectionFactory.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -53,7 +53,7 @@ namespace core::socket::stream {
 
     protected:
         using SocketConnection = SocketConnectionT<Socket>;
-        using SocketConnectionEstablisher = core::socket::stream::SocketConnectionEstablisher<ClientSocketT, SocketConnectionT>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<ClientSocketT, SocketConnectionT>;
 
     public:
         using Config = typename ClientSocket::Config;
@@ -66,7 +66,7 @@ namespace core::socket::stream {
                         const std::map<std::string, std::any>& options)
             : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
             , core::eventreceiver::ConnectEventReceiver("SocketConnector")
-            , socketConnectionEstablisher(socketContextFactory, onConnect, onConnected, onDisconnect)
+            , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
             , options(options) {
         }
 
@@ -114,7 +114,7 @@ namespace core::socket::stream {
                         SocketAddress localAddress{};
                         SocketAddress remoteAddress{};
                         if (socket->getSockname(localAddress) == 0 && socket->getPeername(remoteAddress) == 0) {
-                            socketConnectionEstablisher.establishConnection(*socket, localAddress, remoteAddress, config);
+                            socketConnectionFactory.create(*socket, localAddress, remoteAddress, config);
                         } else {
                             onError(config->getRemoteAddress(), errno);
                             disable();
@@ -147,7 +147,7 @@ namespace core::socket::stream {
     protected:
         std::function<void(const SocketAddress& socketAddress, int err)> onError;
 
-        SocketConnectionEstablisher socketConnectionEstablisher;
+        SocketConnectionFactory socketConnectionFactory;
 
         Socket* socket = nullptr;
 
