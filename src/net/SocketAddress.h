@@ -34,15 +34,13 @@ namespace net {
     public:
         using SockAddr = SockAddrT;
 
-        SocketAddress();
+        SocketAddress(socklen_t addrLen = sizeof(SockAddr));
 
         SocketAddress(const SocketAddress& socketAddress);
 
         virtual ~SocketAddress() = default;
 
         SocketAddress& operator=(const SocketAddress& socketAddress);
-
-        SocketAddress& operator=(const SockAddr& sockAddr);
 
         operator sockaddr*();
         operator const sockaddr*() const;

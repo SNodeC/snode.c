@@ -32,7 +32,8 @@ namespace net::un {
 
     std::string bad_sunpath::message;
 
-    SocketAddress::SocketAddress() {
+    SocketAddress::SocketAddress()
+        : Super(offsetof(sockaddr_un, sun_path)) {
         std::memset(&sockAddr, 0, sizeof(sockAddr));
 
         sockAddr.sun_family = AF_UNIX;
@@ -42,12 +43,14 @@ namespace net::un {
     SocketAddress::SocketAddress(const std::string& sunPath)
         : SocketAddress() {
         setSunPath(sunPath);
+        Super::addrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
     }
 
     void SocketAddress::setSunPath(const std::string& sunPath) {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
             std::size_t len = sizeof(sockAddr.sun_path) - 1 < sunPath.size() + 1 ? sizeof(sockAddr.sun_path) - 1 : sunPath.size() + 1;
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
+            Super::addrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
         } else {
             throw bad_sunpath(sunPath);
         }
@@ -58,7 +61,7 @@ namespace net::un {
     }
 
     std::string SocketAddress::toString() const {
-        return address();
+        return address() + " (" + std::to_string(addrLen - offsetof(sockaddr_un, sun_path) - 1) + ")";
     }
 
     bad_sunpath::bad_sunpath(const std::string& sunPath) {

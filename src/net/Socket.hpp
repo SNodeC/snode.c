@@ -90,11 +90,13 @@ namespace net {
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::getSockname(SocketAddress& socketAddress) {
+        socketAddress.getAddrLen() = sizeof(typename SocketAddress::SockAddr);
         return core::system::getsockname(getFd(), socketAddress, &socketAddress.getAddrLen());
     }
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::getPeername(SocketAddress& socketAddress) {
+        socketAddress.getAddrLen() = sizeof(typename SocketAddress::SockAddr);
         return core::system::getpeername(getFd(), socketAddress, &socketAddress.getAddrLen());
     }
 

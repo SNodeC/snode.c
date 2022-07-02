@@ -36,8 +36,8 @@ namespace net::un {
     }
 
     Socket::~Socket() {
-        if (!getBindAddress().toString().empty() && std::remove(getBindAddress().address().data()) != 0) {
-            PLOG(ERROR) << "remove: sunPath: " << getBindAddress().toString();
+        if (!getBindAddress().address().empty() && std::remove(getBindAddress().address().data()) != 0) {
+            PLOG(ERROR) << "remove: sunPath: " << getBindAddress().address();
         }
     }
 

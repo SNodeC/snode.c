@@ -44,6 +44,9 @@ namespace net::un {
     };
 
     class SocketAddress : public net::SocketAddress<sockaddr_un> {
+    private:
+        using Super = net::SocketAddress<sockaddr_un>;
+
     public:
         using net::SocketAddress<sockaddr_un>::SocketAddress;
 

@@ -28,9 +28,9 @@
 namespace net {
 
     template <typename SockAddrT>
-    SocketAddress<SockAddrT>::SocketAddress()
+    SocketAddress<SockAddrT>::SocketAddress(socklen_t addrLen)
         : sockAddr{}
-        , addrLen(sizeof(SockAddr)) {
+        , addrLen(addrLen) {
     }
 
     template <typename SockAddrT>
@@ -42,14 +42,8 @@ namespace net {
     SocketAddress<SockAddrT>& SocketAddress<SockAddrT>::operator=(const SocketAddress& socketAddress) {
         if (this != &socketAddress) {
             this->sockAddr = socketAddress.sockAddr;
+            this->addrLen = socketAddress.addrLen;
         }
-
-        return *this;
-    }
-
-    template <typename SockAddrT>
-    SocketAddress<SockAddrT>& SocketAddress<SockAddrT>::operator=(const SockAddr& sockAddr) {
-        this->sockAddr = sockAddr;
 
         return *this;
     }

@@ -33,11 +33,13 @@ namespace net::stream {
 
     template <typename Socket>
     int ServerSocket<Socket>::accept(typename Socket::SocketAddress& addr) {
+        addr.getAddrLen() = sizeof(typename Socket::SocketAddress::SockAddr);
         return core::system::accept(Socket::getFd(), addr, &addr.getAddrLen());
     }
 
     template <typename Socket>
     int ServerSocket<Socket>::accept4(typename Socket::SocketAddress& addr, int flags) {
+        addr.getAddrLen() = sizeof(typename Socket::SocketAddress::SockAddr);
         return core::system::accept4(Socket::getFd(), addr, &addr.getAddrLen(), flags);
     }
 
