@@ -99,7 +99,8 @@ namespace core::socket::stream {
 
     private:
         void initAcceptEvent() override {
-            if (config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
+            if (config->getClusterMode() == net::config::ConfigCluster::NONE ||
+                config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
                 VLOG(0) << "Mode: STANDALONE or PRIMARY";
 
                 primarySocket = new PrimarySocket();
@@ -117,7 +118,7 @@ namespace core::socket::stream {
                 } else if (primarySocket->listen(config->getBacklog()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (!config->isStandalone()) {
+                } else if (config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
                     VLOG(0) << "    Cluster: PRIMARY";
                     secondarySocket = new net::un::dgram::Socket();
                     if (secondarySocket->open(SOCK_NONBLOCK) < 0) {
@@ -131,6 +132,7 @@ namespace core::socket::stream {
                         enable(primarySocket->getFd());
                     }
                 } else {
+                    VLOG(0) << "    Cluster: NONE";
                     onError(config->getLocalAddress(), 0);
                     enable(primarySocket->getFd());
                 }
@@ -152,7 +154,8 @@ namespace core::socket::stream {
         }
 
         void acceptEvent() override {
-            if (config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
+            if (config->getClusterMode() == net::config::ConfigCluster::NONE ||
+                config->getClusterMode() == net::config::ConfigCluster::PRIMARY) {
                 net::Socket<SocketAddress> socket;
 
                 int acceptsPerTick = config->getAcceptsPerTick();
@@ -160,7 +163,7 @@ namespace core::socket::stream {
                 do {
                     SocketAddress remoteAddress{};
                     socket = primarySocket->accept4(remoteAddress);
-                    if (config->isStandalone()) {
+                    if (config->getClusterMode() == net::config::ConfigCluster::NONE) {
                         if (socket.isValid()) {
                             SocketAddress localAddress{};
                             if (socket.getSockname(localAddress) == 0) {

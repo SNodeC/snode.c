@@ -30,16 +30,15 @@ namespace net::config {
         if (!getName().empty()) {
             clusterSc = add_subcommand("cluster", "Options for clustering");
             clusterSc->group("Option groups");
+            clusterSc->preparse_callback([this]([[maybe_unused]] std::size_t num) -> void {
+                mode = PRIMARY;
+            });
 
-            modeOpt = clusterSc->add_option("--mode", mode, "Clusterint mode");
-            modeOpt->type_name("[" + std::to_string(PRIMARY) + " = PRIMARY, " + std::to_string(SECONDARY) + " = SECONDARY, " +
-                               std::to_string(PROXY) + " = PROXY]");
-            modeOpt->default_val(PRIMARY);
+            modeOpt = clusterSc->add_option("--mode", mode, "Clustering mode");
+            modeOpt->type_name("[" + std::to_string(NONE) + " = NONE, " + std::to_string(PRIMARY) + " = PRIMARY, " +
+                               std::to_string(SECONDARY) + " = SECONDARY, " + std::to_string(PROXY) + " = PROXY]");
+            modeOpt->default_val(NONE);
         }
-    }
-
-    bool ConfigCluster::isStandalone() const {
-        return clusterSc == nullptr ? true : clusterSc->count() == 0;
     }
 
     int ConfigCluster::getClusterMode() const {
