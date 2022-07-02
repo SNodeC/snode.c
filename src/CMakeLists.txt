@@ -27,6 +27,42 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(ADDITIONAL_OPTIONS
+        -Weverything
+        -Wno-c++98-compat
+        -Wno-c++98-compat-pedantic
+        -Wno-padded
+        -Wno-shadow
+        -Wno-weak-vtables
+        -Wno-exit-time-destructors
+        -Wno-shadow-field
+        -Wno-global-constructors
+        -Wno-reserved-identifier
+        -Wno-missing-prototypes
+        -Wno-documentation-unknown-command
+        -Wno-suggest-destructor-override
+        -Wno-double-promotion
+        -Wno-suggest-override
+        -Wno-inconsistent-missing-destructor-override
+        -Wno-extra-semi-stmt
+        -Wno-deprecated-copy-with-user-provided-dtor
+        -Wno-covered-switch-default
+        -Wno-missing-noreturn
+        -Wno-unused-exception-parameter
+        -Wno-weak-template-vtables
+        -Wno-undefined-func-template
+        -Wno-used-but-marked-unused
+        -Wno-deprecated-copy-with-dtor
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    # using Intel C++
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # using Visual Studio C++
+endif()
+
 add_compile_options(
     -Werror
     -Wall
@@ -36,16 +72,7 @@ add_compile_options(
     -Wpedantic
     -pedantic-errors
     -fexec-charset=UTF-8
-    # -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded
-    # -Wno-shadow -Wno-weak-vtables -Wno-exit-time-destructors -Wno-shadow-field
-    # -Wno-global-constructors -Wno-reserved-identifier -Wno-missing-prototypes
-    # -Wno-documentation-unknown-command -Wno-suggest-destructor-override
-    # -Wno-double-promotion -Wno-suggest-override
-    # -Wno-inconsistent-missing-destructor-override -Wno-extra-semi-stmt
-    # -Wno-deprecated-copy-with-user-provided-dtor -Wno-covered-switch-default
-    # -Wno-missing-noreturn -Wno-unused-exception-parameter
-    # -Wno-weak-template-vtables -Wno-undefined-func-template
-    # -Wno-used-but-marked-unused -Wno-deprecated-copy-with-dtor
+    ${ADDITIONAL_OPTIONS}
 )
 # set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
 # link_libraries(asan) link_libraries(ubsan)
