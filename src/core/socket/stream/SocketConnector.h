@@ -119,7 +119,6 @@ namespace core::socket::stream {
 
                         SocketAddress localAddress{};
                         SocketAddress remoteAddress{};
-
                         if (socket->getSockname(localAddress) == 0 && socket->getPeername(remoteAddress) == 0) {
                             socketConnectionEstablisher.establishConnection(*socket, localAddress, remoteAddress, config);
                         } else {

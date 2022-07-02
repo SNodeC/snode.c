@@ -159,13 +159,10 @@ namespace core::socket::stream {
 
                 do {
                     SocketAddress remoteAddress{};
-
                     socket = primarySocket->accept4(remoteAddress);
                     if (config->isStandalone()) {
                         if (socket.isValid()) {
                             SocketAddress localAddress{};
-
-                            socket.getSockname(localAddress);
                             if (socket.getSockname(localAddress) == 0) {
                                 socketConnectionEstablisher.establishConnection(socket, localAddress, remoteAddress, config);
                             } else {
@@ -195,7 +192,6 @@ namespace core::socket::stream {
                     if (config->getClusterMode() == net::config::ConfigCluster::SECONDARY) {
                         SocketAddress localAddress{};
                         SocketAddress remoteAddress{};
-
                         if (socket.getSockname(localAddress) == 0 && socket.getPeername(remoteAddress) == 0) {
                             socketConnectionEstablisher.establishConnection(socket, localAddress, remoteAddress, config);
                         } else {
