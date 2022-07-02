@@ -31,8 +31,6 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h"
-#include "core/system/unistd.h"
 #include "log/Logger.h"
 
 #include <any>
@@ -162,7 +160,7 @@ namespace core::socket::stream {
 
                 do {
                     SocketAddress remoteAddress{};
-                    socket = primarySocket->accept4(remoteAddress);
+                    socket = primarySocket->accept4(remoteAddress, SOCK_NONBLOCK);
                     if (socket.isValid()) {
                         if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE) {
                             SocketAddress localAddress{};
@@ -218,7 +216,7 @@ namespace core::socket::stream {
         int reuseAddress() {
             int sockopt = 1;
 
-            return core::system::setsockopt(primarySocket->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
+            return primarySocket->setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
         }
 
         void unobservedEvent() override {

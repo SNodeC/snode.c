@@ -20,11 +20,18 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h" // IWYU pragma: export
+
 #include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
+
+    template <typename Socket>
+    int ClientSocket<Socket>::connect(const typename Socket::SocketAddress& addr) {
+        return core::system::connect(Socket::getFd(), addr, addr.getAddrLen());
+    }
 
     template <typename Socket>
     bool ClientSocket<Socket>::connectInProgress(int cErrno) {

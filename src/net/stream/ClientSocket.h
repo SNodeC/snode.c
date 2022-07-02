@@ -28,6 +28,8 @@ namespace net::stream {
     template <typename SocketT>
     class ClientSocket : public SocketT {
     public:
+        int connect(const typename SocketT::SocketAddress& addr);
+
         virtual bool connectInProgress(int cErrno);
     };
 

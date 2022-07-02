@@ -29,8 +29,6 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h"
-
 #include <any>
 #include <functional>
 #include <map>
@@ -94,9 +92,7 @@ namespace core::socket::stream {
             } else if (socket->bind(config->getLocalAddress()) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
-            } else if (core::system::connect(socket->getFd(), config->getRemoteAddress(), config->getRemoteAddress().getSockAddrLen()) <
-                           0 &&
-                       !socket->connectInProgress(errno)) {
+            } else if (socket->connect(config->getRemoteAddress()) < 0 && !socket->connectInProgress(errno)) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else {
@@ -109,9 +105,7 @@ namespace core::socket::stream {
             int cErrno = -1;
             socklen_t cErrnoLen = sizeof(cErrno);
 
-            int err = core::system::getsockopt(socket->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
-
-            if (err == 0) {
+            if (socket->getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen) == 0) {
                 errno = cErrno;
                 if (!socket->connectInProgress(cErrno)) {
                     if (cErrno == 0) {

@@ -29,7 +29,8 @@ namespace net {
 
     template <typename SockAddrT>
     SocketAddress<SockAddrT>::SocketAddress()
-        : sockAddr{} {
+        : sockAddr{}
+        , addrLen(sizeof(SockAddr)) {
     }
 
     template <typename SockAddrT>
@@ -74,8 +75,13 @@ namespace net {
     }
 
     template <typename SockAddrT>
-    socklen_t SocketAddress<SockAddrT>::getSockAddrLen() const {
-        return sizeof(SockAddr);
+    socklen_t& SocketAddress<SockAddrT>::getAddrLen() {
+        return addrLen;
+    }
+
+    template <typename SockAddrT>
+    const socklen_t& SocketAddress<SockAddrT>::getAddrLen() const {
+        return addrLen;
     }
 
 } // namespace net

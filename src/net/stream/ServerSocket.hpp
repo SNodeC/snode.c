@@ -20,6 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h" // IWYU pragma: export
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
@@ -31,14 +33,12 @@ namespace net::stream {
 
     template <typename Socket>
     int ServerSocket<Socket>::accept(typename Socket::SocketAddress& addr) {
-        socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
-        return core::system::accept(Socket::getFd(), &addr.getSockAddr(), &addrLen);
+        return core::system::accept(Socket::getFd(), &addr.getSockAddr(), &addr.getAddrLen());
     }
 
     template <typename Socket>
     int ServerSocket<Socket>::accept4(typename Socket::SocketAddress& addr, int flags) {
-        socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
-        return core::system::accept4(Socket::getFd(), &addr.getSockAddr(), &addrLen, flags);
+        return core::system::accept4(Socket::getFd(), &addr.getSockAddr(), &addr.getAddrLen(), flags);
     }
 
 } // namespace net::stream

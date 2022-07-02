@@ -74,7 +74,7 @@ namespace net {
     int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
         this->bindAddress = bindAddress;
 
-        return core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+        return core::system::bind(getFd(), &bindAddress.getSockAddr(), bindAddress.getAddrLen());
     }
 
     template <typename SocketAddress>
@@ -90,14 +90,12 @@ namespace net {
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::getSockname(SocketAddress& socketAddress) {
-        socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
-        return core::system::getsockname(getFd(), &socketAddress.getSockAddr(), &addrLen);
+        return core::system::getsockname(getFd(), &socketAddress.getSockAddr(), &socketAddress.getAddrLen());
     }
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::getPeername(SocketAddress& socketAddress) {
-        socklen_t addrLen = sizeof(typename Socket::SocketAddress::SockAddr);
-        return core::system::getpeername(getFd(), &socketAddress.getSockAddr(), &addrLen);
+        return core::system::getpeername(getFd(), &socketAddress.getSockAddr(), &socketAddress.getAddrLen());
     }
 
     template <typename SocketAddress>
@@ -119,7 +117,7 @@ namespace net {
 
         msghdr msg;
         msg.msg_name = const_cast<sockaddr*>(&destAddress.getSockAddr());
-        msg.msg_namelen = destAddress.getSockAddrLen();
+        msg.msg_namelen = destAddress.getAddrLen();
 
         msg.msg_control = control_un.control;
         msg.msg_controllen = sizeof(control_un.control);

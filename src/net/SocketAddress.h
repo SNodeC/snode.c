@@ -50,13 +50,15 @@ namespace net {
         sockaddr& getSockAddr();
         const sockaddr& getSockAddr() const;
 
-        socklen_t getSockAddrLen() const;
+        socklen_t& getAddrLen();
+        const socklen_t& getAddrLen() const;
 
         virtual std::string address() const = 0;
         virtual std::string toString() const = 0;
 
     protected:
         SockAddr sockAddr;
+        socklen_t addrLen;
     };
 
 } // namespace net
