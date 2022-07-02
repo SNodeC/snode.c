@@ -32,7 +32,7 @@
 namespace net {
 
     template <typename SocketAddressT>
-    class Socket : virtual public core::Descriptor {
+    class Socket : public core::Descriptor {
     public:
         using SocketAddress = SocketAddressT;
 
