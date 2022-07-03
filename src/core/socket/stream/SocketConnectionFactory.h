@@ -27,6 +27,8 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <functional>
 #include <memory>
 
@@ -34,14 +36,14 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ServerSocketT, template <typename SocketT> class SocketConnectionT>
+    template <typename BaseSocketT, typename SocketConnectionT>
     class SocketConnectionFactory {
     private:
-        using ServerSocket = ServerSocketT;
-        using Socket = typename ServerSocket::Socket;
+        using BaseSocket = BaseSocketT;
+        using Socket = typename BaseSocket::Socket;
 
     protected:
-        using SocketConnection = SocketConnectionT<Socket>;
+        using SocketConnection = SocketConnectionT;
 
     public:
         SocketConnectionFactory(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
@@ -54,26 +56,29 @@ namespace core::socket::stream {
             , onDisconnect(onDisconnect) {
         }
 
-        using Config = typename ServerSocket::Config;
+        using Config = typename BaseSocket::Config;
         using SocketAddress = typename Socket::SocketAddress;
 
-        void create(net::Socket<SocketAddress>& socket,
-                    SocketAddress& localAddress,
-                    SocketAddress& remoteAddress,
-                    const std::shared_ptr<Config>& config) {
+        void create(Socket& socket, const std::shared_ptr<Config>& config) {
             if (socket.isValid()) {
                 socket.dontClose();
-                onConnected(new SocketConnection(socket.getFd(),
-                                                 socketContextFactory,
-                                                 SocketAddress(localAddress),
-                                                 SocketAddress(remoteAddress),
-                                                 onConnect,
-                                                 onDisconnect,
-                                                 config->getReadTimeout(),
-                                                 config->getWriteTimeout(),
-                                                 config->getReadBlockSize(),
-                                                 config->getWriteBlockSize(),
-                                                 config->getTerminateTimeout()));
+                SocketAddress localAddress{};
+                SocketAddress remoteAddress{};
+                if (socket.getSockname(localAddress) == 0 && socket.getPeername(remoteAddress) == 0) {
+                    onConnected(new SocketConnection(socket.getFd(),
+                                                     socketContextFactory,
+                                                     SocketAddress(localAddress),
+                                                     SocketAddress(remoteAddress),
+                                                     onConnect,
+                                                     onDisconnect,
+                                                     config->getReadTimeout(),
+                                                     config->getWriteTimeout(),
+                                                     config->getReadBlockSize(),
+                                                     config->getWriteBlockSize(),
+                                                     config->getTerminateTimeout()));
+                } else {
+                    PLOG(ERROR) << "getsockname";
+                }
             }
         }
 

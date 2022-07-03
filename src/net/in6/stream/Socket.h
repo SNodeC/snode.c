@@ -32,6 +32,9 @@ namespace net::in6::stream {
         using Super = net::in6::Socket;
 
     public:
+        using Super::Super;
+        using Super::operator=;
+
         Socket();
     };
 

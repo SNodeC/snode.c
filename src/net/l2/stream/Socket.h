@@ -32,6 +32,9 @@ namespace net::l2::stream {
         using Super = net::l2::Socket;
 
     public:
+        using Super::Super;
+        using Super::operator=;
+
         Socket();
     };
 

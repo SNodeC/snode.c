@@ -32,6 +32,9 @@ namespace net::un::stream {
         using Super = net::un::Socket;
 
     public:
+        using Super::Super;
+        using Super::operator=;
+
         Socket();
     };
 

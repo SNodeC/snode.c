@@ -24,7 +24,6 @@
 
 #include <climits>
 #include <string>
-#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

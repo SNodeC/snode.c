@@ -101,6 +101,11 @@ namespace net {
     }
 
     template <typename SocketAddress>
+    int Socket<SocketAddress>::getSockError(void* cErrno, socklen_t* cErrnoLen) {
+        return getSockopt(SOL_SOCKET, SO_ERROR, cErrno, cErrnoLen);
+    }
+
+    template <typename SocketAddress>
     int Socket<SocketAddress>::setSockopt(int level, int optname, const void* optval, socklen_t optlen) {
         return core::system::setsockopt(Socket::getFd(), level, optname, optval, optlen);
     }

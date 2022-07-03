@@ -34,6 +34,7 @@ namespace net::rc::stream {
 
     template <typename ConfigT>
     class SocketClient : public net::stream::SocketClient<ConfigT, net::rc::stream::ClientSocket> {
+    private:
         using Super = net::stream::SocketClient<ConfigT, net::rc::stream::ClientSocket>;
 
     protected:

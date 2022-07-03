@@ -25,7 +25,7 @@
 namespace net::un::dgram {
 
     Socket::Socket()
-        : Super(SOCK_DGRAM) {
+        : Super(SOCK_DGRAM, 0) {
     }
 
 } // namespace net::un::dgram

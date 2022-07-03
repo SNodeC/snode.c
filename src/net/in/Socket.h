@@ -35,7 +35,10 @@ namespace net::in {
         using Super = net::Socket<net::in::SocketAddress>;
 
     public:
-        explicit Socket(int type, int protocol = 0);
+        using Super::Super;
+        using Super::operator=;
+
+        explicit Socket(int type, int protocol);
     };
 
 } // namespace net::in

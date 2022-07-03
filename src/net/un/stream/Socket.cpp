@@ -25,7 +25,7 @@
 namespace net::un::stream {
 
     Socket::Socket()
-        : Super(SOCK_STREAM) {
+        : Super(SOCK_STREAM, 0) {
     }
 
 } // namespace net::un::stream

@@ -39,7 +39,7 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ClientSocketT, template <typename SocketT> class SocketConnectionT>
+    template <typename SocketClientT, template <typename SocketT> class SocketConnectionT>
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
@@ -48,16 +48,16 @@ namespace core::socket::stream {
         SocketConnector& operator=(const SocketConnector&) = delete;
 
     private:
-        using ClientSocket = ClientSocketT;
-        using Socket = typename ClientSocket::Socket;
+        using SocketClient = SocketClientT;
+        using PrimarySocket = typename SocketClient::Socket;
 
     protected:
-        using SocketConnection = SocketConnectionT<Socket>;
-        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<ClientSocketT, SocketConnectionT>;
+        using SocketConnection = SocketConnectionT<PrimarySocket>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<SocketClient, SocketConnection>;
 
     public:
-        using Config = typename ClientSocket::Config;
-        using SocketAddress = typename ClientSocket::SocketAddress;
+        using Config = typename SocketClient::Config;
+        using SocketAddress = typename SocketClient::SocketAddress;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
@@ -85,8 +85,8 @@ namespace core::socket::stream {
 
     private:
         void initConnectEvent() override {
-            socket = new Socket();
-            if (socket->open(Socket::SOCK::NONBLOCK) < 0) {
+            socket = new PrimarySocket();
+            if (socket->open(PrimarySocket::SOCK::NONBLOCK) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else if (socket->bind(config->getLocalAddress()) < 0) {
@@ -110,15 +110,7 @@ namespace core::socket::stream {
                 if (!socket->connectInProgress(cErrno)) {
                     if (cErrno == 0) {
                         disable();
-
-                        SocketAddress localAddress{};
-                        SocketAddress remoteAddress{};
-                        if (socket->getSockname(localAddress) == 0 && socket->getPeername(remoteAddress) == 0) {
-                            socketConnectionFactory.create(*socket, localAddress, remoteAddress, config);
-                        } else {
-                            onError(config->getRemoteAddress(), errno);
-                            disable();
-                        }
+                        socketConnectionFactory.create(*socket, config);
                     } else {
                         onError(config->getRemoteAddress(), errno);
                         disable();
@@ -147,9 +139,9 @@ namespace core::socket::stream {
     protected:
         std::function<void(const SocketAddress& socketAddress, int err)> onError;
 
-        SocketConnectionFactory socketConnectionFactory;
+        PrimarySocket* socket = nullptr;
 
-        Socket* socket = nullptr;
+        SocketConnectionFactory socketConnectionFactory;
 
         std::map<std::string, std::any> options;
     };

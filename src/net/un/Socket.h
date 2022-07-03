@@ -35,7 +35,10 @@ namespace net::un {
         using Super = net::Socket<net::un::SocketAddress>;
 
     public:
-        explicit Socket(int type, int protocol = 0);
+        using Super::Super;
+        using Super::operator=;
+
+        explicit Socket(int type, int protocol);
         ~Socket() override;
     };
 

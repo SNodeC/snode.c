@@ -43,7 +43,7 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ServerSocketT, template <typename SocketT> class SocketConnectionT>
+    template <typename SocketServerT, template <typename SocketT> class SocketConnectionT>
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
@@ -52,15 +52,16 @@ namespace core::socket::stream {
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
     private:
-        using ServerSocket = ServerSocketT;
-        using PrimarySocket = typename ServerSocket::Socket;
+        using SocketServer = SocketServerT;
+        using PrimarySocket = typename SocketServer::Socket;
+        using SecondarySocket = net::un::dgram::Socket;
 
     protected:
         using SocketConnection = SocketConnectionT<PrimarySocket>;
-        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<ServerSocketT, SocketConnectionT>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<SocketServer, SocketConnection>;
 
     public:
-        using Config = typename ServerSocket::Config;
+        using Config = typename SocketServer::Config;
         using SocketAddress = typename PrimarySocket::SocketAddress;
 
         /** Sequence diagramm of res.upgrade(req).
@@ -118,11 +119,11 @@ namespace core::socket::stream {
                     destruct();
                 } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                     VLOG(0) << "    Cluster: PRIMARY";
-                    secondarySocket = new net::un::dgram::Socket();
-                    if (secondarySocket->open(net::un::dgram::Socket::SOCK::NONBLOCK) < 0) {
+                    secondarySocket = new SecondarySocket();
+                    if (secondarySocket->open(SecondarySocket::SOCK::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
-                    } else if (secondarySocket->bind(net::un::SocketAddress("/tmp/primary")) < 0) {
+                    } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/primary")) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
@@ -137,11 +138,11 @@ namespace core::socket::stream {
             } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
                        config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
                 VLOG(0) << "    Mode: SECONDARY or PROXY";
-                secondarySocket = new net::un::dgram::Socket();
-                if (secondarySocket->open(net::un::dgram::Socket::SOCK::NONBLOCK) < 0) {
+                secondarySocket = new SecondarySocket();
+                if (secondarySocket->open(SecondarySocket::SOCK::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (secondarySocket->bind(net::un::SocketAddress("/tmp/secondary")) < 0) {
+                } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/secondary")) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else {
@@ -154,7 +155,7 @@ namespace core::socket::stream {
         void acceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
-                net::Socket<SocketAddress> socket;
+                PrimarySocket socket;
 
                 int acceptsPerTick = config->getAcceptsPerTick();
 
@@ -163,17 +164,12 @@ namespace core::socket::stream {
                     socket = primarySocket->accept4(remoteAddress, SOCK_NONBLOCK);
                     if (socket.isValid()) {
                         if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE) {
-                            SocketAddress localAddress{};
-                            if (socket.getSockname(localAddress) == 0) {
-                                socketConnectionFactory.create(socket, localAddress, remoteAddress, config);
-                            } else {
-                                PLOG(ERROR) << "getsockname";
-                            }
+                            socketConnectionFactory.create(socket, config);
                         } else {
                             // Send descriptor to SECONDARY
                             VLOG(0) << "Sending to secondary";
                             char msg = 0;
-                            secondarySocket->write_fd(net::un::Socket::SocketAddress("/tmp/secondary"), &msg, 1, socket.getFd());
+                            secondarySocket->write_fd(SecondarySocket::SocketAddress("/tmp/secondary"), &msg, 1, socket.getFd());
                         }
                     } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                         PLOG(ERROR) << "accept";
@@ -186,16 +182,10 @@ namespace core::socket::stream {
                 char msg;
 
                 if (secondarySocket->read_fd(&msg, 1, &fd) >= 0) {
-                    net::Socket<SocketAddress> socket(fd);
+                    PrimarySocket socket(fd);
 
                     if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY) {
-                        SocketAddress localAddress{};
-                        SocketAddress remoteAddress{};
-                        if (socket.getSockname(localAddress) == 0 && socket.getPeername(remoteAddress) == 0) {
-                            socketConnectionFactory.create(socket, localAddress, remoteAddress, config);
-                        } else {
-                            PLOG(ERROR) << "getsockname";
-                        }
+                        socketConnectionFactory.create(socket, config);
                     } else { // PROXY
                         // Send to SECONDARY (TERTIARY)
                     }
@@ -226,10 +216,10 @@ namespace core::socket::stream {
     protected:
         std::function<void(const SocketAddress&, int)> onError = nullptr;
 
-        SocketConnectionFactory socketConnectionFactory;
-
-        net::un::dgram::Socket* secondarySocket = nullptr;
         PrimarySocket* primarySocket = nullptr;
+        SecondarySocket* secondarySocket = nullptr;
+
+        SocketConnectionFactory socketConnectionFactory;
 
         std::map<std::string, std::any> options;
     };

@@ -34,6 +34,7 @@ namespace net::in::stream {
 
     template <typename ConfigT>
     class SocketServer : public net::stream::SocketServer<ConfigT, net::in::stream::ServerSocket> {
+    private:
         using Super = net::stream::SocketServer<ConfigT, net::in::stream::ServerSocket>;
 
     protected:

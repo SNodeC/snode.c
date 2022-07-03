@@ -35,7 +35,10 @@ namespace net::in6 {
         using Super = net::Socket<net::in6::SocketAddress>;
 
     public:
-        explicit Socket(int type, int protocol = 0);
+        using Super::Super;
+        using Super::operator=;
+
+        explicit Socket(int type, int protocol);
     };
 
 } // namespace net::in6

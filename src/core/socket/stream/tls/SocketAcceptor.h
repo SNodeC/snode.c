@@ -37,16 +37,16 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename ServerSocketT>
-    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<ServerSocketT, core::socket::stream::tls::SocketConnection> {
+    template <typename SocketServerT>
+    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<SocketServerT, core::socket::stream::tls::SocketConnection> {
     private:
-        using Super = core::socket::stream::SocketAcceptor<ServerSocketT, core::socket::stream::tls::SocketConnection>;
+        using Super = core::socket::stream::SocketAcceptor<SocketServerT, core::socket::stream::tls::SocketConnection>;
 
         using SocketAddress = typename Super::SocketAddress;
 
     public:
         using Config = typename Super::Config;
-        using ServerSocket = ServerSocketT;
+        using SocketServer = SocketServerT;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,

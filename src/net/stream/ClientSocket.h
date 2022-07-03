@@ -27,7 +27,13 @@ namespace net::stream {
 
     template <typename SocketT>
     class ClientSocket : public SocketT {
+    private:
+        using Super = SocketT;
+
     public:
+        using Super::Super;
+        using Super::operator=;
+
         int connect(const typename SocketT::SocketAddress& addr);
 
         virtual bool connectInProgress(int cErrno);

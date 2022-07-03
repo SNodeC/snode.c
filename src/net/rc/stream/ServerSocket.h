@@ -22,13 +22,22 @@
 #include "net/rc/stream/Socket.h" // IWYU pragma: export
 #include "net/stream/ServerSocket.h"
 
+// IWYU pragma: no_include "net/stream/ServerSocket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::stream {
 
-    class ServerSocket : public net::stream::ServerSocket<net::rc::stream::Socket> {};
+    class ServerSocket : public net::stream::ServerSocket<net::rc::stream::Socket> {
+    private:
+        using Super = net::stream::ServerSocket<net::rc::stream::Socket>;
+
+    public:
+        using Super::Super;
+        using Super::operator=;
+    };
 
 } // namespace net::rc::stream
 

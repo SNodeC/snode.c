@@ -27,7 +27,13 @@ namespace net::stream {
 
     template <typename SocketT>
     class ServerSocket : public SocketT {
+    private:
+        using Super = SocketT;
+
     public:
+        using Super::Super;
+        using Super::operator=;
+
         int listen(int backlog);
         int accept(typename SocketT::SocketAddress& addr);
         int accept4(typename SocketT::SocketAddress& addr, int flags);

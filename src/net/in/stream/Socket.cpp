@@ -20,12 +20,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <netinet/in.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in::stream {
 
     Socket::Socket()
-        : Super(SOCK_STREAM) {
+        : Super(SOCK_STREAM, IPPROTO_TCP) {
     }
 
 } // namespace net::in::stream

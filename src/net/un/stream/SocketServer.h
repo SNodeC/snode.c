@@ -33,6 +33,7 @@ namespace net::un::stream {
 
     template <typename ConfigT>
     class SocketServer : public net::stream::SocketServer<ConfigT, net::un::stream::ServerSocket> {
+    private:
         using Super = net::stream::SocketServer<ConfigT, net::un::stream::ServerSocket>;
 
     protected:

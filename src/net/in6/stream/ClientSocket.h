@@ -22,13 +22,22 @@
 #include "net/in6/stream/Socket.h" // IWYU pragma: export
 #include "net/stream/ClientSocket.h"
 
+// IWYU pragma: no_include "net/stream/ClientSocket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::stream {
 
-    class ClientSocket : public net::stream::ClientSocket<net::in6::stream::Socket> {};
+    class ClientSocket : public net::stream::ClientSocket<net::in6::stream::Socket> {
+    private:
+        using Super = net::stream::ClientSocket<net::in6::stream::Socket>;
+
+    public:
+        using Super::Super;
+        using Super::operator=;
+    };
 
 } // namespace net::in6::stream
 

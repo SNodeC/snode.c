@@ -22,6 +22,8 @@
 #include "net/stream/ClientSocket.h"
 #include "net/un/stream/Socket.h" // IWYU pragma: export
 
+// IWYU pragma: no_include "net/stream/ClientSocket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -29,7 +31,13 @@
 namespace net::un::stream {
 
     class ClientSocket : public net::stream::ClientSocket<net::un::stream::Socket> {
+    private:
+        using Super = net::stream::ClientSocket<net::un::stream::Socket>;
+
     public:
+        using Super::Super;
+        using Super::operator=;
+
         bool connectInProgress(int cErrno) override;
     };
 
