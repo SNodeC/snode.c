@@ -37,7 +37,7 @@ namespace core::pipe {
 
     public:
         explicit PipeSource(int fd);
-        ~PipeSource();
+        ~PipeSource() override;
 
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& data);

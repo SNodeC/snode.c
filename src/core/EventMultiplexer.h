@@ -109,4 +109,6 @@ namespace core {
 
 } // namespace core
 
+core::EventMultiplexer& EventMultiplexer();
+
 #endif // CORE_EVENTMULTIPLEXER_H

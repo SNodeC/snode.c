@@ -36,7 +36,7 @@ namespace net::un {
 
     public:
         explicit Socket(int type, int protocol = 0);
-        ~Socket();
+        ~Socket() override;
     };
 
 } // namespace net::un

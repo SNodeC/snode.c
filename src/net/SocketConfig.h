@@ -34,6 +34,7 @@ namespace net {
         using Config = ConfigT;
 
         explicit SocketConfig(const std::string& name);
+        SocketConfig(const SocketConfig&) = default;
 
         const Config& getConfig();
 

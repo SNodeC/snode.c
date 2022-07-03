@@ -43,6 +43,9 @@ namespace net::stream {
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
 
+        SocketClient() = default;
+        SocketClient(const SocketClient&) = default;
+
         virtual ~SocketClient() = default;
 
         virtual void connect(const std::function<void(const SocketAddress&, int)>& onError) const = 0;

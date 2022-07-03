@@ -38,9 +38,13 @@ namespace database::mariadb {
 namespace database::mariadb {
 
     class MariaDBClientASyncAPI {
-    public:
+    protected:
+        MariaDBClientASyncAPI() = default;
+        MariaDBClientASyncAPI(const MariaDBClientASyncAPI&) = default;
+
         virtual ~MariaDBClientASyncAPI() = default;
 
+    public:
         MariaDBCommandSequence& query(const std::string& sql,
                                       const std::function<void(const MYSQL_ROW)>& onQuery,
                                       const std::function<void(const std::string&, unsigned int)>& onError);

@@ -32,28 +32,16 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         -Weverything
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
-        -Wno-padded
-        -Wno-shadow
-        -Wno-weak-vtables
-        -Wno-exit-time-destructors
-        -Wno-shadow-field
-        -Wno-global-constructors
-        -Wno-reserved-identifier
-        -Wno-missing-prototypes
         -Wno-documentation-unknown-command
-        -Wno-suggest-destructor-override
-        -Wno-double-promotion
-        -Wno-suggest-override
-        -Wno-inconsistent-missing-destructor-override
-        -Wno-extra-semi-stmt
-        -Wno-deprecated-copy-with-user-provided-dtor
-        -Wno-covered-switch-default
-        -Wno-missing-noreturn
-        -Wno-unused-exception-parameter
-        -Wno-weak-template-vtables
-        -Wno-undefined-func-template
+        -Wno-exit-time-destructors
+        -Wno-global-constructors
+        -Wno-padded
+        -Wno-reserved-identifier
+        -Wno-shadow
+        -Wno-shadow-field
         -Wno-used-but-marked-unused
-        -Wno-deprecated-copy-with-dtor
+        -Wno-weak-vtables
+        -Wno-weak-template-vtables
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
@@ -70,6 +58,10 @@ add_compile_options(
     -Wno-psabi # needed for RaspberryPi
     -Wconversion
     -Wpedantic
+    -Wconversion
+    -Wuninitialized
+    -Wunreachable-code
+    -Wfloat-equal
     -pedantic-errors
     -fexec-charset=UTF-8
     ${ADDITIONAL_OPTIONS}

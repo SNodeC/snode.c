@@ -12,6 +12,8 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LIBMAGIC libmagic)
 
+add_compile_options(-Wno-undefined-func-template)
+
 set(HTTP_CPP MimeTypes.cpp Parser.cpp StatusCodes.cpp http_utils.cpp)
 
 set(HTTP_H

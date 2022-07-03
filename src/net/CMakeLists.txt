@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+add_compile_options(-Wno-covered-switch-default -Wno-undefined-func-template)
+
 set(NET_CPP
     config/ConfigBase.cpp config/ConfigCluster.cpp config/ConfigConnection.cpp
     config/ConfigLegacy.cpp config/ConfigListen.cpp config/ConfigTls.cpp

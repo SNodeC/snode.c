@@ -203,7 +203,6 @@ int main(int argc, char* argv[]) {
                                                 [](const std::string& errorString, unsigned int errorNumber) -> void {
                                                     VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
                                                 });
-                                        ;
                                     },
                                     0.7,
                                     "Tick 0.7");

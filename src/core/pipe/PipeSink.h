@@ -35,7 +35,7 @@ namespace core::pipe {
 
     public:
         explicit PipeSink(int fd);
-        ~PipeSink();
+        ~PipeSink() override;
 
         void setOnData(const std::function<void(const char* junk, std::size_t junkLen)>& onData);
         void setOnEof(const std::function<void()>& onEof);

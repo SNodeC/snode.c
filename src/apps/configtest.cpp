@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     subApp->required();
     filenameOpt->required();
 
-    CLI11_PARSE(app, argc, argv);
+    CLI11_PARSE(app, argc, argv)
 
     return 0;
 }

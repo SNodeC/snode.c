@@ -45,7 +45,7 @@ namespace database::mariadb {
     class MariaDBCommandStartEvent : private core::EventReceiver {
     public:
         MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
-        ~MariaDBCommandStartEvent();
+        ~MariaDBCommandStartEvent() override;
 
         using core::EventReceiver::publish;
 
@@ -67,7 +67,7 @@ namespace database::mariadb {
         explicit MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails);
         MariaDBConnection(const MariaDBConnection&) = delete;
 
-        ~MariaDBConnection();
+        ~MariaDBConnection() override;
 
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 

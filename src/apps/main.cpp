@@ -87,6 +87,8 @@ public:
     }
 };
 
+int timerApp();
+
 int timerApp() {
     [[maybe_unused]] const Timer tick = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {

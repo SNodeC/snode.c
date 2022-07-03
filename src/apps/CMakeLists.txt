@@ -1,5 +1,17 @@
 cmake_minimum_required(VERSION 3.0)
 
+add_compile_options(-Wno-covered-switch-default -Wno-undefined-func-template)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(-Wno-missing-prototypes)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    # using Intel C++
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # using Visual Studio C++
+endif()
+
 configure_file(config.h.in config.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

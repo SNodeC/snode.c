@@ -45,6 +45,10 @@ set(UTILS_H
     stacktrace.h
 )
 
+set_source_files_properties(
+    Config.cpp PROPERTIES COMPILE_FLAGS -Wno-covered-switch-default
+)
+
 add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})
 add_library(snodec::utils ALIAS utils)
 

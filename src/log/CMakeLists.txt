@@ -38,10 +38,27 @@ set(LOGGER_H Logger.h)
 add_library(logger SHARED ${LOGGER_CPP} ${LOGGER_H})
 add_library(snodec::logger ALIAS logger)
 
+set(EASYLOGGING_COMPILE_FLAGS
+    "\
+    -Wno-conversion\
+    -Wno-float-equal\
+    -Wno-deprecated-copy-with-user-provided-dtor\
+    -Wno-double-promotion\
+    -Wno-extra-semi-stmt\
+    -Wno-implicit-int-conversion\
+    -Wno-implicit-int-float-conversion\
+    -Wno-missing-noreturn\
+    -Wno-range-loop-construct\
+    -Wno-sign-conversion\
+    -Wno-suggest-destructor-override\
+    -Wno-suggest-override\
+    -Wno-unused-exception-parameter\
+    "
+)
+
 set_source_files_properties(
     "${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc"
-    PROPERTIES COMPILE_FLAGS
-               "-Wno-unused-parameter -Wno-conversion -Wno-range-loop-construct"
+    PROPERTIES COMPILE_FLAGS ${EASYLOGGING_COMPILE_FLAGS}
 )
 
 target_compile_definitions(

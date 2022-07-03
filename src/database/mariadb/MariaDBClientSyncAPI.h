@@ -37,9 +37,13 @@ namespace database::mariadb {
 namespace database::mariadb {
 
     class MariaDBClientSyncAPI {
-    public:
+    protected:
+        MariaDBClientSyncAPI() = default;
+        MariaDBClientSyncAPI(const MariaDBClientSyncAPI&) = default;
+
         virtual ~MariaDBClientSyncAPI() = default;
 
+    public:
         void affectedRows(const std::function<void(int)>& onAffectedRows,
                           const std::function<void(const std::string&, unsigned int)>& onErro);
 
