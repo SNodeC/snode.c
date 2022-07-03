@@ -66,6 +66,7 @@ add_compile_options(
     -fexec-charset=UTF-8
     ${ADDITIONAL_OPTIONS}
 )
+
 # set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
 # link_libraries(asan) link_libraries(ubsan)
 

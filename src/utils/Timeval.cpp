@@ -38,7 +38,7 @@ namespace utils {
         : timeVal({0, 0}) {
         if (initList.size() == 2) {
             timeVal.tv_sec = *initList.begin();
-            timeVal.tv_usec = static_cast<useconds_t>(*(initList.begin() + 1));
+            timeVal.tv_usec = static_cast<suseconds_t>(*(initList.begin() + 1));
         } else {
             LOG(WARNING) << "Timeval initialized with an list size != 2. Initializing Timeval with 0";
         }
@@ -50,7 +50,7 @@ namespace utils {
 
     Timeval::Timeval(double time) {
         timeVal.tv_sec = static_cast<time_t>(time);
-        timeVal.tv_usec = static_cast<useconds_t>((time - static_cast<double>(timeVal.tv_sec)) * 1'000'000.0);
+        timeVal.tv_usec = static_cast<suseconds_t>((time - static_cast<double>(timeVal.tv_sec)) * 1'000'000.0);
 
         normalize();
     }
@@ -72,20 +72,7 @@ namespace utils {
 
         return *this;
     }
-    /*
-        Timeval& Timeval::operator=(const std::initializer_list<time_t>& initList) {
-            if (initList.size() == 2) {
-                timeVal.tv_sec = *initList.begin();
-                timeVal.tv_usec = static_cast<useconds_t>(*(initList.begin() + 1));
-            } else {
-                this->timeVal.tv_sec = 0;
-                this->timeVal.tv_usec = 0;
-                LOG(WARNING) << "Timeval assigned with an list size != 2. Assigning Timeval with 0";
-            }
 
-            return *this;
-        }
-    */
     Timeval& Timeval::operator=(const timeval& timeVal) {
         this->timeVal = timeVal;
 
