@@ -18,7 +18,10 @@
 
 #include "express/Route.h"
 
+#include "express/RootRoute.h"
 #include "express/State.h"
+#include "express/dispatcher/ApplicationDispatcher.h"
+#include "express/dispatcher/MiddlewareDispatcher.h"
 #include "express/dispatcher/RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,6 +29,24 @@
 #include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
+    Route& Route::METHOD(const Route& next) {                                                                                              \
+        return *(route = std::make_shared<express::Route>(HTTP_METHOD, "", next.dispatcher)).get();                                        \
+    }                                                                                                                                      \
+    Route& Route::METHOD(const RootRoute& rootRoute) {                                                                                     \
+        return *(route = std::make_shared<express::Route>(HTTP_METHOD, "", rootRoute.getDispatcher())).get();                              \
+    }                                                                                                                                      \
+    Route& Route::METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                       \
+        return *(route = std::make_shared<express::Route>(                                                                                 \
+                     HTTP_METHOD, "", std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)))                                \
+                    .get();                                                                                                                \
+    }                                                                                                                                      \
+    Route& Route::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                               \
+        return *(route = std::make_shared<express::Route>(                                                                                 \
+                     HTTP_METHOD, "", std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)))                               \
+                    .get();                                                                                                                \
+    }
 
 namespace express {
 
@@ -42,11 +63,36 @@ namespace express {
     bool Route::dispatch(State& state, const std::string& parentMountPath) {
         state.setCurrentRoute(this);
 
-        return dispatcher->dispatch(state, parentMountPath, mountPoint);
+        bool dispatched = dispatcher->dispatch(state, parentMountPath, mountPoint);
+
+        if (!dispatched) {
+            if (state.lastRoute == this) {
+                state.flags &= ~State::INH;
+                if ((state.flags & State::NXT) != 0) {
+                    state.flags &= ~State::NXT;
+                } else if (route != nullptr) {
+                    dispatched = route->dispatch(state, parentMountPath);
+                }
+            }
+        }
+
+        return dispatched;
     }
 
     bool Route::dispatch(State& state) {
         return dispatch(state, "");
     }
+
+    DEFINE_ROUTE_REQUESTMETHOD(use, "use")
+    DEFINE_ROUTE_REQUESTMETHOD(all, "all")
+    DEFINE_ROUTE_REQUESTMETHOD(get, "GET")
+    DEFINE_ROUTE_REQUESTMETHOD(put, "PUT")
+    DEFINE_ROUTE_REQUESTMETHOD(post, "POST")
+    DEFINE_ROUTE_REQUESTMETHOD(del, "DELETE")
+    DEFINE_ROUTE_REQUESTMETHOD(connect, "CONNECT")
+    DEFINE_ROUTE_REQUESTMETHOD(options, "OPTIONS")
+    DEFINE_ROUTE_REQUESTMETHOD(trace, "TRACE")
+    DEFINE_ROUTE_REQUESTMETHOD(patch, "PATCH")
+    DEFINE_ROUTE_REQUESTMETHOD(head, "HEAD")
 
 } // namespace express

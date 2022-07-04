@@ -25,15 +25,27 @@ namespace express {
 
     class State;
     class Dispatcher;
+    class RootRoute;
+    class Request;
+    class Response;
+    class Next;
+    class Route;
 
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
 #include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
+    Route& METHOD(const Route& router);                                                                                                    \
+    Route& METHOD(const RootRoute& router);                                                                                                \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
+    Route& METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);
 
 namespace express {
 
@@ -48,7 +60,24 @@ namespace express {
         bool dispatch(express::State& state);
 
         MountPoint mountPoint;
+
+    public:
         std::shared_ptr<Dispatcher> dispatcher;
+
+        std::shared_ptr<Route> route = nullptr;
+
+    public:
+        DECLARE_ROUTE_REQUESTMETHOD(use)
+        DECLARE_ROUTE_REQUESTMETHOD(all)
+        DECLARE_ROUTE_REQUESTMETHOD(get)
+        DECLARE_ROUTE_REQUESTMETHOD(put)
+        DECLARE_ROUTE_REQUESTMETHOD(post)
+        DECLARE_ROUTE_REQUESTMETHOD(del)
+        DECLARE_ROUTE_REQUESTMETHOD(connect)
+        DECLARE_ROUTE_REQUESTMETHOD(options)
+        DECLARE_ROUTE_REQUESTMETHOD(trace)
+        DECLARE_ROUTE_REQUESTMETHOD(patch)
+        DECLARE_ROUTE_REQUESTMETHOD(head)
     };
 
 } // namespace express

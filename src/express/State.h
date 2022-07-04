@@ -55,7 +55,6 @@ namespace express {
 
         enum Flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
 
-    private:
         RootRoute* rootRoute = nullptr;
 
         Route* lastRoute = nullptr;
