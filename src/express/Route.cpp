@@ -40,14 +40,14 @@ namespace express {
         , dispatcher(dispatcher) {
     }
 
-    bool Route::dispatch(State& state) {
-        return dispatch(state, "");
-    }
-
     bool Route::dispatch(State& state, const std::string& parentMountPath) {
         state.setCurrentRoute(this);
 
         return dispatcher->dispatch(state, parentMountPath, mountPoint);
+    }
+
+    bool Route::dispatch(State& state) {
+        return dispatch(state, "");
     }
 
 } // namespace express
