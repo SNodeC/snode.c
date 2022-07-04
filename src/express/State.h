@@ -16,19 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_DISPATCHER_H
-#define EXPRESS_DISPATCHER_DISPATCHER_H
+#ifndef EXPRESS_DISPATCHER_STATE_H
+#define EXPRESS_DISPATCHER_STATE_H
 
 namespace express {
 
     class Request;
     class Response;
+    class Route;
+    class RootRoute;
 
     namespace dispatcher {
 
         class RouterDispatcher;
-        struct MountPoint;
-        class State;
+        class ApplicationDispatcher;
+        class MiddlewareDispatcher;
 
     } // namespace dispatcher
 
@@ -40,22 +42,48 @@ namespace express {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
-    class Dispatcher {
-        Dispatcher(const Dispatcher&) = delete;
-        Dispatcher& operator=(const Dispatcher&) = delete;
+    class State {
+    private:
+        explicit State(RootRoute* rootRoute);
 
     public:
-        Dispatcher() = default;
-        virtual ~Dispatcher() = default;
+        express::Request* getRequest() const;
 
-    protected:
-        virtual bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
+        express::Response* getResponse() const;
 
+        Route* getLastRoute1() const;
+
+        int getFlags() const;
+
+        enum Flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
+
+    private:
+        RootRoute* rootRoute = nullptr;
+
+        express::Request* request = nullptr;
+        express::Response* response = nullptr;
+
+        Route* lastRoute = nullptr;
+        Route* currentRoute = nullptr;
+
+        mutable int flags = NON;
+
+        friend class Next;
         friend class Route;
+        friend class RootRoute;
     };
 
-} // namespace express::dispatcher
+    class Next {
+    public:
+        explicit Next(State& state);
+        void operator()(const std::string& how = "") const;
 
-#endif // EXPRESS_DISPATCHER_DISPATCHER_H
+    private:
+        State state;
+    };
+
+} // namespace express
+
+#endif // EXPRESS_DISPATCHER_STATE_H

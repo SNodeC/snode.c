@@ -23,17 +23,17 @@ set(NLOHMANN_JSON_FOUND
 )
 
 set(HTTP_SERVER_EXPRESS_CPP
+    MountPoint.cpp
     Request.cpp
     Response.cpp
+    Route.cpp
+    RootRoute.cpp
     Router.cpp
+    State.cpp
     WebApp.cpp
     dispatcher/ApplicationDispatcher.cpp
     dispatcher/MiddlewareDispatcher.cpp
-    dispatcher/MountPoint.cpp
-    dispatcher/Route.cpp
-    dispatcher/RootRoute.cpp
     dispatcher/RouterDispatcher.cpp
-    dispatcher/State.cpp
     dispatcher/regex_utils.cpp
     middleware/BasicAuthentication.cpp
     middleware/StaticMiddleware.cpp
@@ -42,19 +42,19 @@ set(HTTP_SERVER_EXPRESS_CPP
 )
 
 set(HTTP_SERVER_EXPRESS_H
+    Dispatcher.h
+    MountPoint.h
     Request.h
     Response.h
+    Route.h
     Router.h
+    RootRoute.h
+    State.h
     WebApp.h
     WebAppT.h
     dispatcher/ApplicationDispatcher.h
-    dispatcher/Dispatcher.h
     dispatcher/MiddlewareDispatcher.h
-    dispatcher/MountPoint.h
-    dispatcher/Route.h
-    dispatcher/RootRoute.h
     dispatcher/RouterDispatcher.h
-    dispatcher/State.h
     dispatcher/regex_utils.h
     middleware/BasicAuthentication.h
     middleware/StaticMiddleware.h

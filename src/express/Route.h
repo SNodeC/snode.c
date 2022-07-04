@@ -16,31 +16,48 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "express/dispatcher/Route.h"
+#ifndef EXPRESS_ROUTE_H
+#define EXPRESS_ROUTE_H
 
-#include "express/dispatcher/RouterDispatcher.h"
-#include "express/dispatcher/State.h"
+#include "express/MountPoint.h" // IWYU pragma: export
+
+namespace express {
+
+    class State;
+    class Dispatcher;
+
+    namespace dispatcher {
+
+        class RouterDispatcher;
+
+    }
+
+} // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
-    Route::Route()
-        : mountPoint("use", "/")
-        , dispatcher(std::make_shared<express::dispatcher::RouterDispatcher>()) {
-    }
+    class Route {
+    public:
+        Route();
+        Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-    Route::Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)
-        : mountPoint(method, relativeMountPath)
-        , dispatcher(dispatcher) {
-    }
+        void dispatch(State& state);
+        bool dispatch(State& state, const std::string& parentMountPath);
 
-    bool Route::dispatch(State state, const std::string& parentMountPath) const {
-        return dispatcher->dispatch(state, parentMountPath, mountPoint);
-    }
+        bool breakDispatch(State& state);
 
-} // namespace express::dispatcher
+    protected:
+        MountPoint mountPoint;
+        std::shared_ptr<Dispatcher> dispatcher;
+    };
+
+} // namespace express
+
+#endif // EXPRESS_ROUTE_H

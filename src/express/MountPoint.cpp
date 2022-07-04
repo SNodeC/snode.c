@@ -16,28 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "express/dispatcher/State.h"
-
-#include "express/dispatcher/RootRoute.h"
+#include "express/MountPoint.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
-    State::State(RootRoute* rootRoute)
-        : rootRoute(rootRoute) {
+    MountPoint::MountPoint(const std::string& method, const std::string& relativeMountPath)
+        : method(method)
+        , relativeMountPath(relativeMountPath) {
     }
 
-    void State::operator()(const std::string& how) const {
-        flags |= INH;
-
-        if (how == "route") {
-            flags |= NXT;
-        }
-
-        rootRoute->dispatch(*const_cast<express::dispatcher::State*>(this));
-    }
-
-} // namespace express::dispatcher
+} // namespace express

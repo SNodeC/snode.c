@@ -16,8 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "express/dispatcher/RootRoute.h"
+#include "express/RootRoute.h"
 
+#include "express/Response.h"
 #include "express/dispatcher/RouterDispatcher.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
     RootRoute::RootRoute()
         : Route()
@@ -49,25 +50,28 @@ namespace express::dispatcher {
     }
 
     std::shared_ptr<express::dispatcher::RouterDispatcher> RootRoute::getDispatcher() {
-        return std::dynamic_pointer_cast<RouterDispatcher>(dispatcher);
+        return std::dynamic_pointer_cast<express::dispatcher::RouterDispatcher>(dispatcher);
     }
 
     std::list<Route>& RootRoute::routes() {
-        return std::dynamic_pointer_cast<RouterDispatcher>(dispatcher)->routes;
+        return std::dynamic_pointer_cast<express::dispatcher::RouterDispatcher>(dispatcher)->routes;
     }
 
-    bool RootRoute::dispatch(Request& req, Response& res) {
+    void RootRoute::dispatch(Request& req, Response& res) {
+        state.lastRoute = nullptr;
+        state.currentRoute = nullptr;
+
         state.request = &req;
         state.response = &res;
 
-        return Route::dispatch(state, "");
+        Route::dispatch(state);
     }
 
-    bool RootRoute::dispatch(State& state) {
+    void RootRoute::dispatch(State& state) {
         state.lastRoute = state.currentRoute;
         state.currentRoute = nullptr;
 
-        return Route::dispatch(state, "");
+        Route::dispatch(state);
     }
 
-} // namespace express::dispatcher
+} // namespace express

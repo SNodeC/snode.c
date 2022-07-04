@@ -16,20 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_STATE_H
-#define EXPRESS_DISPATCHER_STATE_H
+#ifndef EXPRESS_DISPATCHER_H
+#define EXPRESS_DISPATCHER_H
 
 namespace express {
 
     class Request;
     class Response;
-
-    namespace dispatcher {
-
-        class Route;
-        class RootRoute;
-
-    } // namespace dispatcher
+    class State;
+    struct MountPoint;
 
 } // namespace express
 
@@ -39,33 +34,22 @@ namespace express {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
-    class State {
-    private:
-        explicit State(RootRoute* rootRoute);
+    class Dispatcher {
+        Dispatcher(const Dispatcher&) = delete;
+        Dispatcher& operator=(const Dispatcher&) = delete;
 
     public:
-        void operator()(const std::string& how = "") const;
+        Dispatcher() = default;
+        virtual ~Dispatcher() = default;
 
-    private:
-        RootRoute* rootRoute = nullptr;
+    protected:
+        virtual bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
 
-        express::Request* request = nullptr;
-        express::Response* response = nullptr;
-
-        Route* lastRoute = nullptr;
-        Route* currentRoute = nullptr;
-
-        enum { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
-        mutable int flags = NON;
-
-        friend class RootRoute;
-        friend class RouterDispatcher;
-        friend class ApplicationDispatcher;
-        friend class MiddlewareDispatcher;
+        friend class Route;
     };
 
-} // namespace express::dispatcher
+} // namespace express
 
-#endif // EXPRESS_DISPATCHER_STATE_H
+#endif // EXPRESS_DISPATCHER_H

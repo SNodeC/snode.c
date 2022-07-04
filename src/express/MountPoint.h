@@ -16,17 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "express/dispatcher/MountPoint.h"
+#ifndef EXPRESS_MOUNTPOINT_H
+#define EXPRESS_MOUNTPOINT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
-    MountPoint::MountPoint(const std::string& method, const std::string& relativeMountPath)
-        : method(method)
-        , relativeMountPath(relativeMountPath) {
-    }
+    struct MountPoint {
+        MountPoint(const std::string& method, const std::string& relativeMountPath);
 
-} // namespace express::dispatcher
+        std::string method;
+        std::string relativeMountPath;
+    };
+
+} // namespace express
+
+#endif // EXPRESS_MOUNTPOINT_H

@@ -16,24 +16,48 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_MOUNTPOINT_H
-#define EXPRESS_DISPATCHER_MOUNTPOINT_H
+#include "express/State.h"
+
+#include "express/RootRoute.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
-    struct MountPoint {
-        MountPoint(const std::string& method, const std::string& relativeMountPath);
+    State::State(RootRoute* rootRoute)
+        : rootRoute(rootRoute) {
+    }
 
-        std::string method;
-        std::string relativeMountPath;
-    };
+    express::Request* State::getRequest() const {
+        return request;
+    }
 
-} // namespace express::dispatcher
+    express::Response* State::getResponse() const {
+        return response;
+    }
 
-#endif // EXPRESS_DISPATCHER_MOUNTPOINT_H
+    Route* State::getLastRoute1() const {
+        return lastRoute;
+    }
+
+    int State::getFlags() const {
+        return flags;
+    }
+
+    Next::Next(State& state)
+        : state(state) {
+    }
+
+    void Next::operator()(const std::string& how) const {
+        state.flags |= State::INH;
+
+        if (how == "route") {
+            state.flags |= State::NXT;
+        }
+
+        state.rootRoute->dispatch(*const_cast<express::State*>(&state));
+    }
+
+} // namespace express

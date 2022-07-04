@@ -16,20 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_ROOTROUTE_H
-#define EXPRESS_DISPATCHER_ROOTROUTE_H
+#ifndef EXPRESS_ROOTROUTE_H
+#define EXPRESS_ROOTROUTE_H
 
-#include "express/dispatcher/Route.h" // IWYU pragma: export
-#include "express/dispatcher/State.h" // IWYU pragma: export
+#include "express/Route.h" // IWYU pragma: export
+#include "express/State.h" // IWYU pragma: export
 
 namespace express {
 
     class Request;
     class Response;
+    class Dispatcher;
 
     namespace dispatcher {
 
-        class Dispatcher;
         class RouterDispatcher;
 
     } // namespace dispatcher
@@ -44,9 +44,9 @@ namespace express {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
-    class RootRoute : protected express::dispatcher::Route {
+    class RootRoute : protected express::Route {
     public:
         RootRoute();
         RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
@@ -54,19 +54,16 @@ namespace express::dispatcher {
         RootRoute(const RootRoute& route);
         RootRoute(RootRoute&& route);
 
-        bool dispatch(Request& req, Response& res);
+        void dispatch(Request& req, Response& res);
+        void dispatch(State& state);
 
-        std::shared_ptr<RouterDispatcher> getDispatcher();
+        std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher();
         std::list<Route>& routes();
 
     protected:
-        bool dispatch(State& state);
-
         State state;
-
-        friend State;
     };
 
-} // namespace express::dispatcher
+} // namespace express
 
-#endif // EXPRESS_DISPATCHER_ROOTROUTE_H
+#endif // EXPRESS_ROOTROUTE_H

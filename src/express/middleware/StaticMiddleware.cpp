@@ -61,8 +61,9 @@ namespace express::middleware {
 
         use([&root = this->root] APPLICATION(req, res) {
             LOG(INFO) << "GET " + req.url + " -> " + root + req.url;
-            res.sendFile(root + req.url, [&req](int ret) -> void {
+            res.sendFile(root + req.url, [&req, &res](int ret) -> void {
                 if (ret != 0) {
+                    res.status(404).end();
                     PLOG(ERROR) << req.url;
                 }
             });

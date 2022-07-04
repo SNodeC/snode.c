@@ -18,9 +18,9 @@
 
 #include "MiddlewareDispatcher.h"
 
+#include "express/MountPoint.h" // for MountPoint
 #include "express/Request.h"
-#include "express/dispatcher/MountPoint.h" // for MountPoint
-#include "express/dispatcher/State.h"      // for State, State::INH
+#include "express/State.h" // for State, State::INH
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,27 +29,27 @@
 
 namespace express::dispatcher {
 
-    MiddlewareDispatcher::MiddlewareDispatcher(const std::function<void(Request&, Response&, State&)>& lambda)
+    MiddlewareDispatcher::MiddlewareDispatcher(const std::function<void(Request&, Response&, const express::Next&)>& lambda)
         : lambda(lambda) {
     }
 
-    bool MiddlewareDispatcher::dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
+    bool MiddlewareDispatcher::dispatch(express::State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
         bool dispatched = false;
 
-        if ((state.flags & State::INH) == 0) {
+        if ((state.getFlags() & State::INH) == 0) {
             std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
             // TODO: Fix regex-match
-            if ((state.request->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
-                ((absoluteMountPath == state.request->path || checkForUrlMatch(absoluteMountPath, state.request->url)) &&
-                 (state.request->method == mountPoint.method || mountPoint.method == "all"))) {
+            if ((state.getRequest()->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
+                ((absoluteMountPath == state.getRequest()->path || checkForUrlMatch(absoluteMountPath, state.getRequest()->url)) &&
+                 (state.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
                 dispatched = true;
 
                 if (hasResult(absoluteMountPath)) {
-                    setParams(absoluteMountPath, *state.request);
+                    setParams(absoluteMountPath, *state.getRequest());
                 }
 
-                lambda(*state.request, *state.response, state);
+                lambda(*state.getRequest(), *state.getResponse(), Next(state));
             }
         }
 
