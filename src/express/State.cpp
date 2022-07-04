@@ -30,6 +30,15 @@ namespace express {
         : rootRoute(rootRoute) {
     }
 
+    State::State(Request& request, Response& response)
+        : request(&request)
+        , response(&response) {
+    }
+
+    void State::setCurrentRoute(Route* newCurrentRoute) {
+        currentRoute = newCurrentRoute;
+    }
+
     express::Request* State::getRequest() const {
         return request;
     }
@@ -38,12 +47,22 @@ namespace express {
         return response;
     }
 
-    Route* State::getLastRoute1() const {
-        return lastRoute;
-    }
-
     int State::getFlags() const {
         return flags;
+    }
+
+    bool State::breakDispatch(Route& route) {
+        bool breakDispatching = false;
+
+        if (lastRoute == &route) {
+            flags &= ~INH;
+            if ((flags & NXT) != 0) {
+                flags &= ~NXT;
+                breakDispatching = true;
+            }
+        }
+
+        return breakDispatching;
     }
 
     Next::Next(State& state)

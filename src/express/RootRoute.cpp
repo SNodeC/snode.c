@@ -29,24 +29,16 @@
 
 namespace express {
 
-    RootRoute::RootRoute()
-        : Route()
-        , state(this) {
-    }
-
     RootRoute::RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)
-        : Route(method, relativeMountPath, dispatcher)
-        , state(this) {
+        : Route(method, relativeMountPath, dispatcher) {
     }
 
     RootRoute::RootRoute(const RootRoute& route)
-        : Route(route)
-        , state(this) {
+        : Route(route) {
     }
 
     RootRoute::RootRoute(RootRoute&& route)
-        : Route(route)
-        , state(this) {
+        : Route(route) {
     }
 
     std::shared_ptr<express::dispatcher::RouterDispatcher> RootRoute::getDispatcher() {
@@ -58,20 +50,16 @@ namespace express {
     }
 
     void RootRoute::dispatch(Request& req, Response& res) {
-        state.lastRoute = nullptr;
-        state.currentRoute = nullptr;
-
-        state.request = &req;
-        state.response = &res;
-
-        Route::dispatch(state);
+        State state(req, res);
+        dispatch(state);
     }
 
     void RootRoute::dispatch(State& state) {
-        state.lastRoute = state.currentRoute;
-        state.currentRoute = nullptr;
+        state.setRootRoute(this);
 
-        Route::dispatch(state);
+        if (!Route::dispatch(state, "")) {
+            state.getResponse()->sendStatus(501);
+        }
     }
 
 } // namespace express

@@ -48,10 +48,8 @@ namespace express {
         Route();
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-        void dispatch(State& state);
+        bool dispatch(State& state);
         bool dispatch(State& state, const std::string& parentMountPath);
-
-        bool breakDispatch(State& state);
 
     protected:
         MountPoint mountPoint;

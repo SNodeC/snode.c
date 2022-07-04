@@ -40,32 +40,14 @@ namespace express {
         , dispatcher(dispatcher) {
     }
 
-    void Route::dispatch(State& state) {
-        if (!dispatch(state, "")) {
-            state.response->sendStatus(501);
-        }
+    bool Route::dispatch(State& state) {
+        return dispatch(state, "");
     }
 
     bool Route::dispatch(State& state, const std::string& parentMountPath) {
-        state.currentRoute = this;
+        state.setCurrentRoute(this);
 
-        bool dispatched = dispatcher->dispatch(state, parentMountPath, mountPoint);
-
-        return dispatched;
-    }
-
-    bool Route::breakDispatch(State& state) {
-        bool breakRouting = false;
-
-        if (this == state.lastRoute) {
-            state.flags &= ~State::INH;
-            if ((state.flags & State::NXT) != 0) {
-                state.flags &= ~State::NXT;
-                breakRouting = true;
-            }
-        }
-
-        return breakRouting;
+        return dispatcher->dispatch(state, parentMountPath, mountPoint);
     }
 
 } // namespace express

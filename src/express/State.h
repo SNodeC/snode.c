@@ -46,24 +46,33 @@ namespace express {
 
     class State {
     private:
-        explicit State(RootRoute* rootRoute);
-
     public:
-        express::Request* getRequest() const;
+        explicit State(RootRoute* rootRoute);
+        State(Request& request, Response& response);
 
-        express::Response* getResponse() const;
+        void setCurrentRoute(Route* newCurrentRoute);
 
-        Route* getLastRoute1() const;
+        Request* getRequest() const;
+        Response* getResponse() const;
 
         int getFlags() const;
+
+        bool breakDispatch(Route& route);
+
+        void setRootRoute(RootRoute* rootRoute) {
+            this->rootRoute = rootRoute;
+
+            lastRoute = currentRoute;
+            currentRoute = nullptr;
+        }
 
         enum Flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
 
     private:
         RootRoute* rootRoute = nullptr;
 
-        express::Request* request = nullptr;
-        express::Response* response = nullptr;
+        Request* request = nullptr;
+        Response* response = nullptr;
 
         Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
@@ -71,8 +80,6 @@ namespace express {
         mutable int flags = NON;
 
         friend class Next;
-        friend class Route;
-        friend class RootRoute;
     };
 
     class Next {
