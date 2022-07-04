@@ -30,6 +30,7 @@ namespace express {
     class Response;
     class Next;
     class Route;
+    class Router;
 
 } // namespace express
 
@@ -61,10 +62,8 @@ namespace express {
 
         MountPoint mountPoint;
 
-    public:
         std::shared_ptr<Dispatcher> dispatcher;
-
-        std::shared_ptr<Route> route = nullptr;
+        std::shared_ptr<Route> nextRoute = nullptr;
 
     public:
         DECLARE_ROUTE_REQUESTMETHOD(use)

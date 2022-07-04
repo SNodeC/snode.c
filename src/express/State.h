@@ -30,6 +30,7 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -52,9 +53,11 @@ namespace express {
 
         void next(const std::string& how);
         bool next(Route& route);
+        bool next(std::shared_ptr<Route>& route, const std::string& parentMountPath);
 
         enum Flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
 
+    private:
         RootRoute* rootRoute = nullptr;
 
         Route* lastRoute = nullptr;

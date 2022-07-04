@@ -49,15 +49,15 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROOTROUTE_REQUESTMETHOD(METHOD)                                                                                            \
-    RootRoute& METHOD(const Router& router);                                                                                               \
-    RootRoute& METHOD(const std::string& relativeMountPath, const Router& router);                                                         \
-    RootRoute& METHOD(const RootRoute& router);                                                                                            \
-    RootRoute& METHOD(const std::string& relativeMountPath, const RootRoute& router);                                                      \
-    RootRoute& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                   \
-    RootRoute& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);             \
-    RootRoute& METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);                           \
-    RootRoute& METHOD(const std::string& relativeMountPath,                                                                                \
-                      const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);
+    Route& METHOD(const Router& router);                                                                                                   \
+    Route& METHOD(const std::string& relativeMountPath, const Router& router);                                                             \
+    Route& METHOD(const RootRoute& router);                                                                                                \
+    Route& METHOD(const std::string& relativeMountPath, const RootRoute& router);                                                          \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
+    Route& METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);                               \
+    Route& METHOD(const std::string& relativeMountPath,                                                                                    \
+                  const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);
 
 namespace express {
 
@@ -73,9 +73,11 @@ namespace express {
         void dispatch(State& state);
         void dispatch(State&& state);
 
+    protected:
         std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher() const;
         std::list<Route>& routes();
 
+    public:
         DECLARE_ROOTROUTE_REQUESTMETHOD(use)
         DECLARE_ROOTROUTE_REQUESTMETHOD(all)
         DECLARE_ROOTROUTE_REQUESTMETHOD(get)
@@ -87,6 +89,8 @@ namespace express {
         DECLARE_ROOTROUTE_REQUESTMETHOD(trace)
         DECLARE_ROOTROUTE_REQUESTMETHOD(patch)
         DECLARE_ROOTROUTE_REQUESTMETHOD(head)
+
+        friend class Route;
     };
 
 } // namespace express

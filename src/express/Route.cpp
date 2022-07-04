@@ -18,8 +18,7 @@
 
 #include "express/Route.h"
 
-#include "express/RootRoute.h"
-#include "express/State.h"
+#include "express/Router.h"
 #include "express/dispatcher/ApplicationDispatcher.h"
 #include "express/dispatcher/MiddlewareDispatcher.h"
 #include "express/dispatcher/RouterDispatcher.h"
@@ -32,18 +31,18 @@
 
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
     Route& Route::METHOD(const Route& next) {                                                                                              \
-        return *(route = std::make_shared<express::Route>(HTTP_METHOD, "", next.dispatcher)).get();                                        \
+        return *(nextRoute = std::make_shared<express::Route>(HTTP_METHOD, "", next.dispatcher)).get();                                    \
     }                                                                                                                                      \
     Route& Route::METHOD(const RootRoute& rootRoute) {                                                                                     \
-        return *(route = std::make_shared<express::Route>(HTTP_METHOD, "", rootRoute.getDispatcher())).get();                              \
+        return *(nextRoute = std::make_shared<express::Route>(HTTP_METHOD, "", rootRoute.getDispatcher())).get();                          \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                       \
-        return *(route = std::make_shared<express::Route>(                                                                                 \
+        return *(nextRoute = std::make_shared<express::Route>(                                                                             \
                      HTTP_METHOD, "", std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)))                                \
                     .get();                                                                                                                \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                               \
-        return *(route = std::make_shared<express::Route>(                                                                                 \
+        return *(nextRoute = std::make_shared<express::Route>(                                                                             \
                      HTTP_METHOD, "", std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)))                               \
                     .get();                                                                                                                \
     }
@@ -66,14 +65,7 @@ namespace express {
         bool dispatched = dispatcher->dispatch(state, parentMountPath, mountPoint);
 
         if (!dispatched) {
-            if (state.lastRoute == this) {
-                state.flags &= ~State::INH;
-                if ((state.flags & State::NXT) != 0) {
-                    state.flags &= ~State::NXT;
-                } else if (route != nullptr) {
-                    dispatched = route->dispatch(state, parentMountPath);
-                }
-            }
+            dispatched = state.next(nextRoute, parentMountPath);
         }
 
         return dispatched;

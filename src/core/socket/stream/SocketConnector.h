@@ -103,7 +103,7 @@ namespace core::socket::stream {
 
         void connectEvent() override {
             int cErrno = -1;
-            
+
             if ((cErrno = socket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
                 if (!socket->connectInProgress(cErrno)) {
                     if (cErrno == 0) {

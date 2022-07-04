@@ -18,8 +18,6 @@
 
 #include "express/Router.h"
 
-#include "express/RootRoute.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <vector> // IWYU pragma: keep
@@ -27,29 +25,29 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
-    RootRoute& Router::METHOD(const Router& router) {                                                                                      \
+    Route& Router::METHOD(const Router& router) {                                                                                          \
         return rootRoute->METHOD(router);                                                                                                  \
     }                                                                                                                                      \
-    RootRoute& Router::METHOD(const std::string& relativeMountPath, const Router& router) {                                                \
+    Route& Router::METHOD(const std::string& relativeMountPath, const Router& router) {                                                    \
         return rootRoute->METHOD(relativeMountPath, router);                                                                               \
     }                                                                                                                                      \
-    RootRoute& Router::METHOD(const RootRoute& root) {                                                                                     \
+    Route& Router::METHOD(const RootRoute& root) {                                                                                         \
         return rootRoute->METHOD(root);                                                                                                    \
     }                                                                                                                                      \
-    RootRoute& Router::METHOD(const std::string& relativeMountPath, const RootRoute& root) {                                               \
+    Route& Router::METHOD(const std::string& relativeMountPath, const RootRoute& root) {                                                   \
         return rootRoute->METHOD(relativeMountPath, root);                                                                                 \
     }                                                                                                                                      \
-    RootRoute& Router::METHOD(const std::string& relativeMountPath,                                                                        \
-                              const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                  \
+    Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
+                          const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                      \
         return rootRoute->METHOD(relativeMountPath, lambda);                                                                               \
     }                                                                                                                                      \
-    RootRoute& Router::METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                  \
+    Route& Router::METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                      \
         return rootRoute->METHOD(lambda);                                                                                                  \
     }                                                                                                                                      \
-    RootRoute& Router::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {    \
+    Route& Router::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {        \
         return rootRoute->METHOD(relativeMountPath, lambda);                                                                               \
     }                                                                                                                                      \
-    RootRoute& Router::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                          \
+    Route& Router::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                              \
         return rootRoute->METHOD(lambda);                                                                                                  \
     }
 
