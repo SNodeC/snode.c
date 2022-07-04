@@ -17,7 +17,7 @@
  */
 
 #include "net/stream/SocketClient.hpp"
-#include "net/un/stream/SocketClient.h" // IWYU pragma: export
+#include "net/un/stream/SocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
