@@ -19,7 +19,7 @@
 #include "express/dispatcher/RouterDispatcher.h"
 
 #include "express/Request.h" // for Request
-#include "express/Route.h"
+#include "express/Route.h"   // for Route
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,12 +30,15 @@
 
 namespace express::dispatcher {
 
+    std::list<Route>& RouterDispatcher::getRoutes() {
+        return routes;
+    }
+
     bool RouterDispatcher::dispatch(express::State& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-        // TODO: Fix regex-match
         if ((state.getRequest()->path.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || state.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
             for (Route& route : routes) {

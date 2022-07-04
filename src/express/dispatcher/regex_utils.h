@@ -47,7 +47,7 @@ namespace express::dispatcher {
 
     bool matchFunction(const std::string& cpath, const std::string& reqpath);
 
-    void setParams(const std::string& cpath, Request& req);
+    void setParams(const std::string& cpath, express::Request& req);
 
     bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath);
 

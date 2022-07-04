@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {
@@ -82,14 +80,6 @@ namespace express {
         }
 
         return breakDispatching;
-    }
-
-    Next::Next(State& state)
-        : state(state) {
-    }
-
-    void Next::operator()(const std::string& how) {
-        state.next(how);
     }
 
 } // namespace express

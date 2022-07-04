@@ -41,9 +41,6 @@ namespace express {
     protected:
         Request& extend();
 
-        template <typename ServerT>
-        friend class WebAppT;
-
         friend class State;
     };
 

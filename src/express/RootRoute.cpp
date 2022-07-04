@@ -19,7 +19,8 @@
 #include "express/RootRoute.h"
 
 #include "express/Response.h"
-#include "express/dispatcher/RouterDispatcher.h" // IWYU pragma: keep
+#include "express/State.h"
+#include "express/dispatcher/RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,7 +47,7 @@ namespace express {
     }
 
     std::list<Route>& RootRoute::routes() {
-        return std::dynamic_pointer_cast<express::dispatcher::RouterDispatcher>(dispatcher)->routes;
+        return std::dynamic_pointer_cast<express::dispatcher::RouterDispatcher>(dispatcher)->getRoutes();
     }
 
     void RootRoute::dispatch(Request& req, Response& res) {

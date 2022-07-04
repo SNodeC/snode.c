@@ -44,10 +44,7 @@ namespace express {
         Dispatcher() = default;
         virtual ~Dispatcher() = default;
 
-    protected:
         virtual bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
-
-        friend class Route;
     };
 
 } // namespace express

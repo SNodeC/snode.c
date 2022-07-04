@@ -20,19 +20,19 @@
 #define EXPRESS_ROOTROUTE_H
 
 #include "express/Route.h" // IWYU pragma: export
-#include "express/State.h" // IWYU pragma: export
 
 namespace express {
 
+    class Dispatcher;
     class Request;
     class Response;
-    class Dispatcher;
+    class State;
 
     namespace dispatcher {
 
         class RouterDispatcher;
 
-    } // namespace dispatcher
+    }
 
 } // namespace express
 

@@ -39,7 +39,6 @@ namespace express::dispatcher {
         if ((state.getFlags() & State::INH) == 0) {
             std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-            // TODO: Fix regex-match
             if ((state.getRequest()->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
                 ((absoluteMountPath == state.getRequest()->path || checkForUrlMatch(absoluteMountPath, state.getRequest()->url)) &&
                  (state.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {

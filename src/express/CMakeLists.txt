@@ -24,6 +24,7 @@ set(NLOHMANN_JSON_FOUND
 
 set(HTTP_SERVER_EXPRESS_CPP
     MountPoint.cpp
+    Next.cpp
     Request.cpp
     Response.cpp
     Route.cpp
@@ -44,6 +45,7 @@ set(HTTP_SERVER_EXPRESS_CPP
 set(HTTP_SERVER_EXPRESS_H
     Dispatcher.h
     MountPoint.h
+    Next.h
     Request.h
     Response.h
     Route.h

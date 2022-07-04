@@ -18,7 +18,6 @@
 
 #include "express/Route.h"
 
-#include "express/Response.h"
 #include "express/State.h"
 #include "express/dispatcher/RouterDispatcher.h"
 

@@ -16,39 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
-#define EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
+#ifndef EXPRESS_NEXT_H
+#define EXPRESS_NEXT_H
 
-#include "express/Dispatcher.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "express/Route.h"
-
-namespace express {
-
-    class State;
-    class Route; // IWYU pragma: keep
-
-} // namespace express
+#include "express/State.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::dispatcher {
+namespace express {
 
-    class RouterDispatcher : public express::Dispatcher {
+    class Next {
     public:
-        std::list<express::Route>& getRoutes();
+        explicit Next(State& state);
+
+        void operator()(const std::string& how = "");
 
     private:
-        bool dispatch(express::State& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
-
-        std::list<express::Route> routes;
+        State state;
     };
 
-} // namespace express::dispatcher
+} // namespace express
 
-#endif // EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
+#endif // EXPRESS_NEXT_H

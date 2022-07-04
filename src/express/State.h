@@ -23,16 +23,8 @@ namespace express {
 
     class Request;
     class Response;
-    class Route;
     class RootRoute;
-
-    namespace dispatcher {
-
-        class RouterDispatcher;
-        class ApplicationDispatcher;
-        class MiddlewareDispatcher;
-
-    } // namespace dispatcher
+    class Route;
 
 } // namespace express
 
@@ -45,7 +37,6 @@ namespace express {
 namespace express {
 
     class State {
-    private:
     public:
         State(Request& request, Response& response);
 
@@ -74,16 +65,6 @@ namespace express {
         Response* response = nullptr;
 
         int flags = NON;
-    };
-
-    class Next {
-    public:
-        explicit Next(State& state);
-
-        void operator()(const std::string& how = "");
-
-    private:
-        State state;
     };
 
 } // namespace express

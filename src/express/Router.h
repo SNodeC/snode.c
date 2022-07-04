@@ -19,6 +19,7 @@
 #ifndef EXPRESS_ROUTER_H
 #define EXPRESS_ROUTER_H
 
+#include "express/Next.h"      // IWYU pragma: export
 #include "express/Request.h"   // IWYU pragma: export
 #include "express/Response.h"  // IWYU pragma: export
 #include "express/RootRoute.h" // IWYU pragma: export
