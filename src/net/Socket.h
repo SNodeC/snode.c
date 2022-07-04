@@ -60,7 +60,7 @@ namespace net {
         int getSockname(SocketAddress& socketAddress);
         int getPeername(SocketAddress& socketAddress);
 
-        int getSockError(void* cErrno, socklen_t* cErrnoLen);
+        int getSockError();
 
         int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
         int getSockopt(int level, int optname, void* optval, socklen_t* optlen);

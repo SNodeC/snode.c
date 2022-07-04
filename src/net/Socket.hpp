@@ -101,8 +101,12 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int Socket<SocketAddress>::getSockError(void* cErrno, socklen_t* cErrnoLen) {
-        return getSockopt(SOL_SOCKET, SO_ERROR, cErrno, cErrnoLen);
+    int Socket<SocketAddress>::getSockError() {
+        int cErrno = 0;
+        socklen_t cErrnoLen = sizeof(cErrno);
+        int err = getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+
+        return err == 0 ? cErrno : err;
     }
 
     template <typename SocketAddress>

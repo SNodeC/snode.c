@@ -103,10 +103,8 @@ namespace core::socket::stream {
 
         void connectEvent() override {
             int cErrno = -1;
-            socklen_t cErrnoLen = sizeof(cErrno);
-
-            if (socket->getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen) == 0) {
-                errno = cErrno;
+            
+            if ((cErrno = socket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
                 if (!socket->connectInProgress(cErrno)) {
                     if (cErrno == 0) {
                         disable();

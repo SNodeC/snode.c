@@ -190,18 +190,15 @@ namespace web::http::server {
                         headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                     } else {
                         onError(err);
-                        status(500).end();
                     }
                 });
             } else {
-                errno = EACCES;
+                errno = EEXIST;
                 onError(errno);
-                status(500).end();
             }
         } else {
             errno = ENOENT;
             onError(errno);
-            status(404).end();
         }
     }
 
