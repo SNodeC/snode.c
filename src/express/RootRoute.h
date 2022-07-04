@@ -26,7 +26,10 @@ namespace express {
     class Dispatcher;
     class Request;
     class Response;
+    class Next;
     class State;
+    class Router;
+    class RootRoute;
 
     namespace dispatcher {
 
@@ -38,11 +41,23 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
 #include <list>
 #include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#define DECLARE_ROOTROUTE_REQUESTMETHOD(METHOD)                                                                                            \
+    RootRoute& METHOD(const Router& router);                                                                                               \
+    RootRoute& METHOD(const std::string& relativeMountPath, const Router& router);                                                         \
+    RootRoute& METHOD(const RootRoute& router);                                                                                            \
+    RootRoute& METHOD(const std::string& relativeMountPath, const RootRoute& router);                                                      \
+    RootRoute& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                   \
+    RootRoute& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);             \
+    RootRoute& METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);                           \
+    RootRoute& METHOD(const std::string& relativeMountPath,                                                                                \
+                      const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);
 
 namespace express {
 
@@ -58,8 +73,20 @@ namespace express {
         void dispatch(State& state);
         void dispatch(State&& state);
 
-        std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher();
+        std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher() const;
         std::list<Route>& routes();
+
+        DECLARE_ROOTROUTE_REQUESTMETHOD(use)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(all)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(get)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(put)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(post)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(del)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(connect)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(options)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(trace)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(patch)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(head)
     };
 
 } // namespace express
