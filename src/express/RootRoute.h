@@ -28,7 +28,6 @@ namespace express {
     class Response;
     class Next;
     class State;
-    class Router;
     class RootRoute;
 
     namespace dispatcher {
@@ -49,10 +48,8 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROOTROUTE_REQUESTMETHOD(METHOD)                                                                                            \
-    Route& METHOD(const Router& router);                                                                                                   \
-    Route& METHOD(const std::string& relativeMountPath, const Router& router);                                                             \
-    Route& METHOD(const RootRoute& router);                                                                                                \
-    Route& METHOD(const std::string& relativeMountPath, const RootRoute& router);                                                          \
+    Route& METHOD(const RootRoute& rootRoute);                                                                                             \
+    Route& METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute);                                                       \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
     Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
     Route& METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);                               \

@@ -18,7 +18,8 @@
 
 #include "express/RootRoute.h"
 
-#include "express/Router.h"
+#include "express/Response.h"
+#include "express/State.h"
 #include "express/dispatcher/ApplicationDispatcher.h"
 #include "express/dispatcher/MiddlewareDispatcher.h"
 #include "express/dispatcher/RouterDispatcher.h"
@@ -30,13 +31,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROOTROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                \
-    Route& RootRoute::METHOD(const std::string& relativeMountPath, const Router& router) {                                                 \
-        return routes().emplace_back(express::Route(HTTP_METHOD, relativeMountPath, router.rootRoute->getDispatcher()));                   \
-    }                                                                                                                                      \
-    Route& RootRoute::METHOD(const Router& router) {                                                                                       \
-        routes().emplace_back(express::Route(HTTP_METHOD, "/", router.rootRoute->getDispatcher()));                                        \
-        return *this;                                                                                                                      \
-    }                                                                                                                                      \
     Route& RootRoute::METHOD(const RootRoute& rootRoute) {                                                                                 \
         return routes().emplace_back(express::Route(HTTP_METHOD, "/", rootRoute.getDispatcher()));                                         \
     }                                                                                                                                      \

@@ -30,7 +30,6 @@ namespace express {
     class Response;
     class Next;
     class Route;
-    class Router;
 
 } // namespace express
 

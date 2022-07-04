@@ -71,11 +71,9 @@ namespace express {
     bool State::next(Route& route) {
         bool breakDispatching = false;
 
-        if (lastRoute == &route) {
-            if ((flags & State::NXT) != 0) {
-                flags &= ~State::NXT;
-                breakDispatching = true;
-            }
+        if (lastRoute == &route && (flags & State::NXT) != 0) {
+            flags &= ~State::NXT;
+            breakDispatching = true;
         }
 
         return breakDispatching;
@@ -84,14 +82,11 @@ namespace express {
     bool State::next(std::shared_ptr<Route>& route, const std::string& parentMountPath) {
         bool dispatched = false;
 
-        if ((flags & State::INH) != 0) {
-            if (lastRoute == currentRoute) {
-                flags &= ~State::INH;
-            }
-            if (route != nullptr) {
-                dispatched = route->dispatch(*const_cast<express::State*>(this), parentMountPath);
-            }
-        } else if (route != nullptr) {
+        if (lastRoute == currentRoute && (flags & State::INH) != 0) {
+            flags &= ~State::INH;
+        }
+
+        if (route != nullptr) {
             dispatched = route->dispatch(*const_cast<express::State*>(this), parentMountPath);
         }
 
