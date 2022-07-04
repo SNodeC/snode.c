@@ -38,7 +38,7 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MIDDLEWARE(req, res, state)                                                                                                        \
-    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] const express::Next&(state))
+    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] express::Next && (state))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
@@ -47,9 +47,9 @@ namespace express {
     Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
     Router& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                      \
     Router& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                \
-    Router& METHOD(const std::function<void(Request & req, Response & res, const express::Next& state)>& lambda);                          \
+    Router& METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);                              \
     Router& METHOD(const std::string& relativeMountPath,                                                                                   \
-                   const std::function<void(Request & req, Response & res, const express::Next& state)>& lambda);
+                   const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);
 
 namespace express {
 

@@ -50,16 +50,20 @@ namespace express {
     }
 
     void RootRoute::dispatch(Request& req, Response& res) {
-        State state(req, res);
-        dispatch(state);
+        dispatch(State(req, res));
     }
 
     void RootRoute::dispatch(State& state) {
         state.setRootRoute(this);
+        state.switchRoutes();
 
         if (!Route::dispatch(state, "")) {
             state.getResponse()->sendStatus(501);
         }
+    }
+
+    void RootRoute::dispatch(State&& state) {
+        dispatch(state);
     }
 
 } // namespace express

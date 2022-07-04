@@ -18,25 +18,38 @@
 
 #include "express/State.h"
 
+#include "express/Request.h"
 #include "express/RootRoute.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {
 
-    State::State(RootRoute* rootRoute)
-        : rootRoute(rootRoute) {
-    }
-
     State::State(Request& request, Response& response)
         : request(&request)
         , response(&response) {
+        request.extend();
     }
 
-    void State::setCurrentRoute(Route* newCurrentRoute) {
-        currentRoute = newCurrentRoute;
+    void State::setRootRoute(RootRoute* rootRoute) {
+        this->rootRoute = rootRoute;
+    }
+
+    void State::setCurrentRoute(Route* currentRoute) {
+        this->currentRoute = currentRoute;
+    }
+
+    void State::switchRoutes() {
+        lastRoute = currentRoute;
+        currentRoute = nullptr;
+    }
+
+    int State::getFlags() const {
+        return flags;
     }
 
     express::Request* State::getRequest() const {
@@ -47,11 +60,17 @@ namespace express {
         return response;
     }
 
-    int State::getFlags() const {
-        return flags;
+    void State::next(const std::string& how) {
+        flags |= INH;
+
+        if (how == "route") {
+            flags |= NXT;
+        }
+
+        rootRoute->dispatch(*const_cast<express::State*>(this));
     }
 
-    bool State::breakDispatch(Route& route) {
+    bool State::next(Route& route) {
         bool breakDispatching = false;
 
         if (lastRoute == &route) {
@@ -69,14 +88,8 @@ namespace express {
         : state(state) {
     }
 
-    void Next::operator()(const std::string& how) const {
-        state.flags |= State::INH;
-
-        if (how == "route") {
-            state.flags |= State::NXT;
-        }
-
-        state.rootRoute->dispatch(*const_cast<express::State*>(&state));
+    void Next::operator()(const std::string& how) {
+        state.next(how);
     }
 
 } // namespace express

@@ -43,7 +43,7 @@ namespace express::dispatcher {
     private:
         bool dispatch(express::State& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
-        std::list<Route> routes;
+        std::list<express::Route> routes;
 
         friend class express::RootRoute;
 

@@ -39,12 +39,12 @@
         return *this;                                                                                                                      \
     }                                                                                                                                      \
     Router& Router::METHOD(const std::string& relativeMountPath,                                                                           \
-                           const std::function<void(Request & req, Response & res, const express::Next& state)>& lambda) {                 \
+                           const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                     \
         rootRoute->routes().emplace_back(                                                                                                  \
             express::Route(HTTP_METHOD, relativeMountPath, std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));          \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res, const express::Next& state)>& lambda) {                 \
+    Router& Router::METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                     \
         rootRoute->routes().emplace_back(                                                                                                  \
             express::Route(HTTP_METHOD, "/", std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)));                        \
         return *this;                                                                                                                      \

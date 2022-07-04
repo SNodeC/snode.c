@@ -39,10 +39,12 @@ namespace express {
         std::map<std::string, std::string> params;
 
     protected:
-        void extend();
+        Request& extend();
 
         template <typename ServerT>
         friend class WebAppT;
+
+        friend class State;
     };
 
 } // namespace express

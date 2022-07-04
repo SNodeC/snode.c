@@ -41,12 +41,12 @@ namespace express::dispatcher {
 
     class ApplicationDispatcher : public express::Dispatcher {
     public:
-        explicit ApplicationDispatcher(const std::function<void(Request& req, Response& res)>& lambda);
+        explicit ApplicationDispatcher(const std::function<void(express::Request& req, express::Response& res)>& lambda);
 
     private:
         bool dispatch(express::State& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
-        const std::function<void(Request& req, Response& res)> lambda;
+        const std::function<void(express::Request& req, express::Response& res)> lambda;
     };
 
 } // namespace express::dispatcher

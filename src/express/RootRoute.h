@@ -56,6 +56,7 @@ namespace express {
 
         void dispatch(Request& req, Response& res);
         void dispatch(State& state);
+        void dispatch(State&& state);
 
         std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher();
         std::list<Route>& routes();

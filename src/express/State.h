@@ -47,45 +47,40 @@ namespace express {
     class State {
     private:
     public:
-        explicit State(RootRoute* rootRoute);
         State(Request& request, Response& response);
 
+        void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* newCurrentRoute);
+
+        void switchRoutes();
+
+        int getFlags() const;
 
         Request* getRequest() const;
         Response* getResponse() const;
 
-        int getFlags() const;
-
-        bool breakDispatch(Route& route);
-
-        void setRootRoute(RootRoute* rootRoute) {
-            this->rootRoute = rootRoute;
-
-            lastRoute = currentRoute;
-            currentRoute = nullptr;
-        }
+        void next(const std::string& how);
+        bool next(Route& route);
 
         enum Flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
 
     private:
         RootRoute* rootRoute = nullptr;
 
-        Request* request = nullptr;
-        Response* response = nullptr;
-
         Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
 
-        mutable int flags = NON;
+        Request* request = nullptr;
+        Response* response = nullptr;
 
-        friend class Next;
+        int flags = NON;
     };
 
     class Next {
     public:
         explicit Next(State& state);
-        void operator()(const std::string& how = "") const;
+
+        void operator()(const std::string& how = "");
 
     private:
         State state;

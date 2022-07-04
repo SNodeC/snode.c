@@ -75,9 +75,7 @@ namespace express {
                   },
                   [rootRoute = this->rootRoute](express::Request& req,
                                                 express::Response& res) -> void { // onRequestReady
-                      req.extend();
-
-                      rootRoute->dispatch(req, res);
+                      rootRoute->dispatch(State(req, res));
                   },
                   [](SocketConnection* socketConnection) -> void { // onDisconnect
                       VLOG(0) << "OnDisconnect:";

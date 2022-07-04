@@ -32,13 +32,15 @@ namespace express {
         return params.contains(id) ? params[id] : fallBack;
     }
 
-    void Request::extend() {
+    Request& Request::extend() {
         originalUrl = url;
         url = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
         path = httputils::str_split_last(url, '/').first;
         if (path.empty()) {
             path = "/";
         }
+
+        return *this;
     }
 
 } // namespace express

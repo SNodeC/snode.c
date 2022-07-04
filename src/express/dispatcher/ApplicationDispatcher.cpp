@@ -29,7 +29,7 @@
 
 namespace express::dispatcher {
 
-    ApplicationDispatcher::ApplicationDispatcher(const std::function<void(Request&, Response&)>& lambda)
+    ApplicationDispatcher::ApplicationDispatcher(const std::function<void(express::Request&, express::Response&)>& lambda)
         : lambda(lambda) {
     }
 
