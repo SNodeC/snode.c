@@ -37,6 +37,10 @@ namespace express {
         this->rootRoute = rootRoute;
     }
 
+    void State::setStackRoute(Route* stackRoute) {
+        this->stackRoute = stackRoute;
+    }
+
     void State::setCurrentRoute(Route* currentRoute) {
         this->currentRoute = currentRoute;
     }
@@ -63,12 +67,13 @@ namespace express {
 
         if (how == "route") {
             flags |= NXT;
+        } else if (how == "router") {
         }
 
         rootRoute->dispatch(*const_cast<express::State*>(this));
     }
 
-    bool State::next(Route& route) {
+    bool State::next(Route& route) { // called with stack root-route from RouterDispatcher
         bool breakDispatching = false;
 
         if (lastRoute == &route && (flags & State::NXT) != 0) {
@@ -84,9 +89,14 @@ namespace express {
 
         if (lastRoute == currentRoute && (flags & State::INH) != 0) {
             flags &= ~State::INH;
-        }
-
-        if (nextRoute != nullptr && (flags & State::NXT) == 0) {
+            if (nextRoute != nullptr) {
+                if ((flags & State::NXT) == 0) {
+                    dispatched = nextRoute->dispatch(*const_cast<express::State*>(this), parentMountPath);
+                } else if (stackRoute != currentRoute) {
+                    flags &= State::NXT;
+                }
+            }
+        } else if (nextRoute != nullptr) {
             dispatched = nextRoute->dispatch(*const_cast<express::State*>(this), parentMountPath);
         }
 

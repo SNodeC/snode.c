@@ -42,6 +42,7 @@ namespace express {
         State(Request& request, Response& response);
 
         void setRootRoute(RootRoute* rootRoute);
+        void setStackRoute(Route* stackRoute);
         void setCurrentRoute(Route* newCurrentRoute);
 
         void switchRoutes();
@@ -61,6 +62,7 @@ namespace express {
         RootRoute* rootRoute = nullptr;
 
         Route* lastRoute = nullptr;
+        Route* stackRoute = nullptr;
         Route* currentRoute = nullptr;
 
         Request* request = nullptr;
