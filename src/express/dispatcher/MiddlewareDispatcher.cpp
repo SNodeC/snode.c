@@ -36,7 +36,7 @@ namespace express::dispatcher {
     bool MiddlewareDispatcher::dispatch(express::State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
         bool dispatched = false;
 
-        if ((state.getFlags() & State::INH) == 0) {
+        if ((state.getFlags() & State::NEXT) == 0) {
             std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
             if ((state.getRequest()->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||

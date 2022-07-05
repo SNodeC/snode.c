@@ -56,7 +56,7 @@ namespace express {
         bool next(Route& route);
         bool next(std::shared_ptr<Route>& nextRoute, const std::string& parentMountPath);
 
-        enum Flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
+        enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };
 
     private:
         RootRoute* rootRoute = nullptr;
@@ -68,7 +68,7 @@ namespace express {
         Request* request = nullptr;
         Response* response = nullptr;
 
-        int flags = NON;
+        int flags = NONE;
     };
 
 } // namespace express

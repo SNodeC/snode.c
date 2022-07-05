@@ -63,11 +63,12 @@ namespace express {
     }
 
     void State::next(const std::string& how) {
-        flags |= INH;
+        flags = NEXT;
 
         if (how == "route") {
-            flags |= NXT;
+            flags |= NEXT_ROUTE;
         } else if (how == "router") {
+            flags |= NEXT_ROUTER;
         }
 
         rootRoute->dispatch(*const_cast<express::State*>(this));
@@ -76,8 +77,8 @@ namespace express {
     bool State::next(Route& route) { // called with stack root-route from RouterDispatcher
         bool breakDispatching = false;
 
-        if (lastRoute == &route && (flags & State::NXT) != 0) {
-            flags &= ~State::NXT;
+        if (lastRoute == &route && (flags & State::NEXT_ROUTER) != 0) {
+            flags &= ~State::NEXT_ROUTER;
             breakDispatching = true;
         }
 
@@ -87,14 +88,12 @@ namespace express {
     bool State::next(std::shared_ptr<Route>& nextRoute, const std::string& parentMountPath) {
         bool dispatched = false;
 
-        if (lastRoute == currentRoute && (flags & State::INH) != 0) {
-            flags &= ~State::INH;
-            if (nextRoute != nullptr) {
-                if ((flags & State::NXT) == 0) {
-                    dispatched = nextRoute->dispatch(*const_cast<express::State*>(this), parentMountPath);
-                } else if (stackRoute != currentRoute) {
-                    flags &= State::NXT;
-                }
+        if (lastRoute == currentRoute && (flags & State::NEXT) != 0) {
+            flags &= ~State::NEXT;
+            if ((flags & State::NEXT_ROUTE) != 0) {
+                flags &= ~State::NEXT_ROUTE;
+            } else if (nextRoute != nullptr && (flags & State::NEXT_ROUTER) == 0) {
+                dispatched = nextRoute->dispatch(*const_cast<express::State*>(this), parentMountPath);
             }
         } else if (nextRoute != nullptr) {
             dispatched = nextRoute->dispatch(*const_cast<express::State*>(this), parentMountPath);
