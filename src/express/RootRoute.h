@@ -23,7 +23,6 @@
 
 namespace express {
 
-    class Dispatcher;
     class Request;
     class Response;
     class Next;
@@ -61,10 +60,6 @@ namespace express {
     class RootRoute : protected express::Route {
     public:
         RootRoute() = default;
-        RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
-
-        RootRoute(const RootRoute& route);
-        RootRoute(RootRoute&& route);
 
         void dispatch(Request& req, Response& res);
         void dispatch(State&& state);

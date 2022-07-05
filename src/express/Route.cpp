@@ -30,8 +30,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
-    Route& Route::METHOD(const Route& next) {                                                                                              \
-        return *(nextRoute = std::make_shared<express::Route>(HTTP_METHOD, "", next.dispatcher)).get();                                    \
+    Route& Route::METHOD(const Route& route) {                                                                                             \
+        return *(nextRoute = std::make_shared<express::Route>(HTTP_METHOD, "", route.dispatcher)).get();                                   \
     }                                                                                                                                      \
     Route& Route::METHOD(const RootRoute& rootRoute) {                                                                                     \
         return *(nextRoute = std::make_shared<express::Route>(HTTP_METHOD, "", rootRoute.getDispatcher())).get();                          \

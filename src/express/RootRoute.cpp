@@ -57,18 +57,6 @@
 
 namespace express {
 
-    RootRoute::RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)
-        : Route(method, relativeMountPath, dispatcher) {
-    }
-
-    RootRoute::RootRoute(const RootRoute& route)
-        : Route(route) {
-    }
-
-    RootRoute::RootRoute(RootRoute&& route)
-        : Route(route) {
-    }
-
     std::shared_ptr<express::dispatcher::RouterDispatcher> RootRoute::getDispatcher() const {
         return std::dynamic_pointer_cast<express::dispatcher::RouterDispatcher>(dispatcher);
     }

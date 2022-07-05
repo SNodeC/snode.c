@@ -42,8 +42,8 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
-    Route& METHOD(const Route& router);                                                                                                    \
-    Route& METHOD(const RootRoute& router);                                                                                                \
+    Route& METHOD(const Route& route);                                                                                                 \
+    Route& METHOD(const RootRoute& rootRoute);                                                                                              \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
     Route& METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);
 
@@ -76,6 +76,8 @@ namespace express {
         DECLARE_ROUTE_REQUESTMETHOD(trace)
         DECLARE_ROUTE_REQUESTMETHOD(patch)
         DECLARE_ROUTE_REQUESTMETHOD(head)
+
+        friend class RootRoute;
     };
 
 } // namespace express
