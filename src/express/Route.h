@@ -60,8 +60,8 @@ namespace express {
         bool dispatch(express::State& state);
 
         MountPoint mountPoint;
-
         std::shared_ptr<Dispatcher> dispatcher;
+
         std::shared_ptr<Route> nextRoute = nullptr;
 
     public:

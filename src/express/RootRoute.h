@@ -67,8 +67,8 @@ namespace express {
         RootRoute(RootRoute&& route);
 
         void dispatch(Request& req, Response& res);
-        void dispatch(State& state);
         void dispatch(State&& state);
+        void dispatch(State& state);
 
     protected:
         std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher() const;

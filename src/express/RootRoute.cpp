@@ -81,6 +81,10 @@ namespace express {
         dispatch(State(req, res));
     }
 
+    void RootRoute::dispatch(State&& state) {
+        dispatch(state);
+    }
+
     void RootRoute::dispatch(State& state) {
         state.setRootRoute(this);
         state.switchRoutes();
@@ -88,10 +92,6 @@ namespace express {
         if (!Route::dispatch(state, "")) {
             state.getResponse()->sendStatus(501);
         }
-    }
-
-    void RootRoute::dispatch(State&& state) {
-        dispatch(state);
     }
 
     DEFINE_ROOTROUTE_REQUESTMETHOD(use, "use")

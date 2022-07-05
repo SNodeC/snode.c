@@ -79,15 +79,15 @@ namespace express {
         return breakDispatching;
     }
 
-    bool State::next(std::shared_ptr<Route>& route, const std::string& parentMountPath) {
+    bool State::next(std::shared_ptr<Route>& nextRoute, const std::string& parentMountPath) {
         bool dispatched = false;
 
         if (lastRoute == currentRoute && (flags & State::INH) != 0) {
             flags &= ~State::INH;
         }
 
-        if (route != nullptr) {
-            dispatched = route->dispatch(*const_cast<express::State*>(this), parentMountPath);
+        if (nextRoute != nullptr && (flags & State::NXT) == 0) {
+            dispatched = nextRoute->dispatch(*const_cast<express::State*>(this), parentMountPath);
         }
 
         return dispatched;

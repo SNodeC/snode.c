@@ -53,7 +53,7 @@ namespace express {
 
         void next(const std::string& how);
         bool next(Route& route);
-        bool next(std::shared_ptr<Route>& route, const std::string& parentMountPath);
+        bool next(std::shared_ptr<Route>& nextRoute, const std::string& parentMountPath);
 
         enum Flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
 
