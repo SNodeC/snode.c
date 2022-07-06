@@ -44,7 +44,7 @@ namespace express::dispatcher {
             for (Route& route : routes) {
                 dispatched = route.dispatch(state, absoluteMountPath);
 
-                if (dispatched || state.next(route)) {
+                if (dispatched || state.nextRouter(route)) {
                     break;
                 }
             }

@@ -23,6 +23,7 @@ set(NLOHMANN_JSON_FOUND
 )
 
 set(HTTP_SERVER_EXPRESS_CPP
+    Dispatcher.cpp
     MountPoint.cpp
     Next.cpp
     Request.cpp

@@ -56,7 +56,7 @@ namespace express {
 
 namespace express {
 
-    class RootRoute : protected Route {
+    class RootRoute : public Route {
     public:
         RootRoute() = default;
 

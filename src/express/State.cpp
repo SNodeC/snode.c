@@ -68,7 +68,7 @@ namespace express {
         rootRoute->dispatch(*const_cast<State*>(this));
     }
 
-    bool State::next(Route& route) { // called with stack root-route from RouterDispatcher
+    bool State::nextRouter(Route& route) { // called with stack root-route from RouterDispatcher
         bool breakDispatching = false;
 
         if (lastRoute == &route && (flags & State::NEXT_ROUTER) != 0) {

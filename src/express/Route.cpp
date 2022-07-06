@@ -70,13 +70,7 @@ namespace express {
     }
 
     bool Route::dispatchNext(State& state, const std::string& parentMountPath) {
-        bool dispatched = false;
-
-        if (dispatcher->next != nullptr) {
-            dispatched = dispatcher->next->dispatch(state, parentMountPath);
-        }
-
-        return dispatched;
+        return dispatcher->dispatchNext(state, parentMountPath);
     }
 
     bool Route::dispatch(State& state) {

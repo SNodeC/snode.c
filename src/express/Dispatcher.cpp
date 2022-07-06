@@ -16,43 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_H
-#define EXPRESS_DISPATCHER_H
+#include "Dispatcher.h"
 
-namespace express {
-
-    class Route;
-    class State;
-    struct MountPoint;
-
-} // namespace express
+#include "Route.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <memory>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {
 
-    class Dispatcher {
-        Dispatcher(const Dispatcher&) = delete;
-        Dispatcher& operator=(const Dispatcher&) = delete;
+    bool Dispatcher::dispatchNext(State& state, const std::string& parentMountPath) {
+        bool dispatched = false;
 
-    public:
-        Dispatcher() = default;
-        virtual ~Dispatcher() = default;
+        if (next != nullptr) {
+            dispatched = next->dispatch(state, parentMountPath);
+        }
 
-        virtual bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
-        bool dispatchNext(State& state, const std::string& parentMountPath);
-
-    protected:
-        std::shared_ptr<Route> next = nullptr;
-
-        friend class Route;
-    };
+        return dispatched;
+    }
 
 } // namespace express
-
-#endif // EXPRESS_DISPATCHER_H
