@@ -66,12 +66,12 @@ namespace express {
     }
 
     void RootRoute::dispatch(State&& state) {
+        state.setRootRoute(this);
+
         dispatch(state);
     }
 
     void RootRoute::dispatch(State& state) {
-        state.setRootRoute(this);
-
         if (!Route::dispatch(state, "")) {
             state.getResponse()->sendStatus(501);
         }

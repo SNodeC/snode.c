@@ -35,9 +35,6 @@ namespace express {
 
     void State::setRootRoute(RootRoute* rootRoute) {
         this->rootRoute = rootRoute;
-
-        lastRoute = currentRoute;
-        currentRoute = nullptr;
     }
 
     void State::setCurrentRoute(Route* currentRoute) {
@@ -65,13 +62,16 @@ namespace express {
             flags |= NEXT_ROUTER;
         }
 
+        lastRoute = currentRoute;
+        currentRoute = nullptr;
+
         rootRoute->dispatch(*this);
     }
 
-    bool State::nextRouter(Route& route) { // called with stack root-route from RouterDispatcher
+    bool State::nextRouter(/* Route& route */) { // called with stack root-route from RouterDispatcher
         bool breakDispatching = false;
 
-        if (lastRoute == &route && (flags & State::NEXT_ROUTER) != 0) {
+        if (lastRoute == currentRoute /* &route */ && (flags & State::NEXT_ROUTER) != 0) {
             flags &= ~State::NEXT_ROUTER;
             breakDispatching = true;
         }

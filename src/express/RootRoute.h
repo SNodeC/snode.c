@@ -61,10 +61,11 @@ namespace express {
         RootRoute() = default;
 
         void dispatch(Request& req, Response& res);
+
+    protected:
         void dispatch(State&& state);
         void dispatch(State& state);
 
-    protected:
         std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher() const;
         std::list<Route>& routes();
 
@@ -82,6 +83,10 @@ namespace express {
         DECLARE_ROOTROUTE_REQUESTMETHOD(head)
 
         friend class Route;
+        friend class State;
+
+        template <typename Server>
+        friend class WebAppT;
     };
 
 } // namespace express
