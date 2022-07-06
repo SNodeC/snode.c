@@ -23,6 +23,7 @@ namespace express {
 
     class Request;
     class Response;
+    class Route;
     class State;
     struct MountPoint;
 
@@ -30,6 +31,7 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -45,6 +47,11 @@ namespace express {
         virtual ~Dispatcher() = default;
 
         virtual bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
+
+    protected:
+        std::shared_ptr<Route> next = nullptr;
+
+        friend class Route;
     };
 
 } // namespace express

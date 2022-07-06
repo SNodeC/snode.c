@@ -55,14 +55,13 @@ namespace express {
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
         bool dispatch(State& state, const std::string& parentMountPath);
+        bool dispatchNext(State& state, const std::string& parentMountPath);
 
     protected:
         bool dispatch(State& state);
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
-
-        std::shared_ptr<Route> nextRoute = nullptr;
 
     public:
         DECLARE_ROUTE_REQUESTMETHOD(use)

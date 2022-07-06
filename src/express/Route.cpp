@@ -31,16 +31,18 @@
 
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
     Route& Route::METHOD(const Route& route) {                                                                                             \
-        return *(nextRoute = std::make_shared<Route>(HTTP_METHOD, "", route.dispatcher)).get();                                            \
+        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, "", route.dispatcher)).get();                                     \
     }                                                                                                                                      \
     Route& Route::METHOD(const RootRoute& rootRoute) {                                                                                     \
-        return *(nextRoute = std::make_shared<Route>(HTTP_METHOD, "", rootRoute.getDispatcher())).get();                                   \
+        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, "", rootRoute.getDispatcher())).get();                            \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                                \
-        return *(nextRoute = std::make_shared<Route>(HTTP_METHOD, "", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda))).get();  \
+        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, "", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))  \
+                    .get();                                                                                                                \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                               \
-        return *(nextRoute = std::make_shared<Route>(HTTP_METHOD, "", std::make_shared<dispatcher::ApplicationDispatcher>(lambda))).get(); \
+        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, "", std::make_shared<dispatcher::ApplicationDispatcher>(lambda))) \
+                    .get();                                                                                                                \
     }
 
 namespace express {
@@ -61,7 +63,17 @@ namespace express {
         bool dispatched = dispatcher->dispatch(state, parentMountPath, mountPoint);
 
         if (!dispatched) {
-            dispatched = state.next(nextRoute, parentMountPath);
+            dispatched = state.dispatchNext(parentMountPath);
+        }
+
+        return dispatched;
+    }
+
+    bool Route::dispatchNext(State& state, const std::string& parentMountPath) {
+        bool dispatched = false;
+
+        if (dispatcher->next != nullptr) {
+            dispatched = dispatcher->next->dispatch(state, parentMountPath);
         }
 
         return dispatched;
