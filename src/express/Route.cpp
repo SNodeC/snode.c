@@ -46,7 +46,7 @@
 namespace express {
 
     Route::Route()
-        : mountPoint("use", "/")
+        : mountPoint("use", "")
         , dispatcher(std::make_shared<dispatcher::RouterDispatcher>()) {
     }
 

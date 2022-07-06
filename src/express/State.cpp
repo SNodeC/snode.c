@@ -35,19 +35,13 @@ namespace express {
 
     void State::setRootRoute(RootRoute* rootRoute) {
         this->rootRoute = rootRoute;
-    }
 
-    void State::setCurrentRoute(Route* currentRoute) {
-        this->currentRoute = currentRoute;
-    }
-
-    void State::switchRoutes() {
         lastRoute = currentRoute;
         currentRoute = nullptr;
     }
 
-    int State::getFlags() const {
-        return flags;
+    void State::setCurrentRoute(Route* currentRoute) {
+        this->currentRoute = currentRoute;
     }
 
     Request* State::getRequest() const {
@@ -56,6 +50,10 @@ namespace express {
 
     Response* State::getResponse() const {
         return response;
+    }
+
+    int State::getFlags() const {
+        return flags;
     }
 
     void State::next(const std::string& how) {

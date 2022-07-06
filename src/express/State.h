@@ -44,12 +44,9 @@ namespace express {
         void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* newCurrentRoute);
 
-        void switchRoutes();
-
-        int getFlags() const;
-
         Request* getRequest() const;
         Response* getResponse() const;
+        int getFlags() const;
 
         void next(const std::string& how);
         bool next(Route& route);

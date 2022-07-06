@@ -71,7 +71,6 @@ namespace express {
 
     void RootRoute::dispatch(State& state) {
         state.setRootRoute(this);
-        state.switchRoutes();
 
         if (!Route::dispatch(state, "")) {
             state.getResponse()->sendStatus(501);
