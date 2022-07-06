@@ -42,8 +42,6 @@ namespace express::dispatcher {
         if ((state.getRequest()->path.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || state.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
             for (Route& route : routes) {
-                state.setStackRoute(&route);
-
                 dispatched = route.dispatch(state, absoluteMountPath);
 
                 if (dispatched || state.next(route)) {

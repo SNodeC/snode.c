@@ -31,27 +31,23 @@
 
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
     Route& Route::METHOD(const Route& route) {                                                                                             \
-        return *(nextRoute = std::make_shared<express::Route>(HTTP_METHOD, "", route.dispatcher)).get();                                   \
+        return *(nextRoute = std::make_shared<Route>(HTTP_METHOD, "", route.dispatcher)).get();                                            \
     }                                                                                                                                      \
     Route& Route::METHOD(const RootRoute& rootRoute) {                                                                                     \
-        return *(nextRoute = std::make_shared<express::Route>(HTTP_METHOD, "", rootRoute.getDispatcher())).get();                          \
+        return *(nextRoute = std::make_shared<Route>(HTTP_METHOD, "", rootRoute.getDispatcher())).get();                                   \
     }                                                                                                                                      \
-    Route& Route::METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                       \
-        return *(nextRoute = std::make_shared<express::Route>(                                                                             \
-                     HTTP_METHOD, "", std::make_shared<express::dispatcher::MiddlewareDispatcher>(lambda)))                                \
-                    .get();                                                                                                                \
+    Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                                \
+        return *(nextRoute = std::make_shared<Route>(HTTP_METHOD, "", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda))).get();  \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                               \
-        return *(nextRoute = std::make_shared<express::Route>(                                                                             \
-                     HTTP_METHOD, "", std::make_shared<express::dispatcher::ApplicationDispatcher>(lambda)))                               \
-                    .get();                                                                                                                \
+        return *(nextRoute = std::make_shared<Route>(HTTP_METHOD, "", std::make_shared<dispatcher::ApplicationDispatcher>(lambda))).get(); \
     }
 
 namespace express {
 
     Route::Route()
         : mountPoint("use", "/")
-        , dispatcher(std::make_shared<express::dispatcher::RouterDispatcher>()) {
+        , dispatcher(std::make_shared<dispatcher::RouterDispatcher>()) {
     }
 
     Route::Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)

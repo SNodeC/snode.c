@@ -42,10 +42,10 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
-    Route& METHOD(const Route& route);                                                                                                 \
-    Route& METHOD(const RootRoute& rootRoute);                                                                                              \
+    Route& METHOD(const Route& route);                                                                                                     \
+    Route& METHOD(const RootRoute& rootRoute);                                                                                             \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
-    Route& METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda);
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);
 
 namespace express {
 
@@ -54,10 +54,10 @@ namespace express {
         Route();
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-        bool dispatch(express::State& state, const std::string& parentMountPath);
+        bool dispatch(State& state, const std::string& parentMountPath);
 
     protected:
-        bool dispatch(express::State& state);
+        bool dispatch(State& state);
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;

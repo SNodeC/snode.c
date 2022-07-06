@@ -73,8 +73,8 @@ namespace express {
                       VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
                   },
-                  [rootRoute = this->rootRoute](express::Request& req,
-                                                express::Response& res) -> void { // onRequestReady
+                  [rootRoute = this->rootRoute](Request& req,
+                                                Response& res) -> void { // onRequestReady
                       rootRoute->dispatch(State(req, res));
                   },
                   [](SocketConnection* socketConnection) -> void { // onDisconnect

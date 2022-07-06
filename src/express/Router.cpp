@@ -38,10 +38,10 @@
         return this->rootRoute->METHOD(relativeMountPath, rootRoute);                                                                      \
     }                                                                                                                                      \
     Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
-                          const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                      \
+                          const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                               \
         return this->rootRoute->METHOD(relativeMountPath, lambda);                                                                         \
     }                                                                                                                                      \
-    Route& Router::METHOD(const std::function<void(Request & req, Response & res, express::Next && state)>& lambda) {                      \
+    Route& Router::METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                               \
         return this->rootRoute->METHOD(lambda);                                                                                            \
     }                                                                                                                                      \
     Route& Router::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {        \
