@@ -25,11 +25,11 @@ namespace express {
 
     class State;
     class Dispatcher;
-    class RootRoute;
     class Request;
     class Response;
     class Next;
     class Route;
+    class Router;
 
 } // namespace express
 
@@ -42,8 +42,7 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
-    Route& METHOD(const Route& route);                                                                                                     \
-    Route& METHOD(const RootRoute& rootRoute);                                                                                             \
+    Route& METHOD(const Router& router);                                                                                                   \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
     Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);
 

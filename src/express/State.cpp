@@ -65,7 +65,7 @@ namespace express {
             flags |= NEXT_ROUTER;
         }
 
-        rootRoute->dispatch(*const_cast<State*>(this));
+        rootRoute->dispatch(*this);
     }
 
     bool State::nextRouter(Route& route) { // called with stack root-route from RouterDispatcher
@@ -87,10 +87,10 @@ namespace express {
             if ((flags & State::NEXT_ROUTE) != 0) {
                 flags &= ~State::NEXT_ROUTE;
             } else {
-                dispatched = currentRoute->dispatchNext(*const_cast<State*>(this), parentMountPath);
+                dispatched = currentRoute->dispatchNext(*this, parentMountPath);
             }
         } else {
-            dispatched = currentRoute->dispatchNext(*const_cast<State*>(this), parentMountPath);
+            dispatched = currentRoute->dispatchNext(*this, parentMountPath);
         }
 
         return dispatched;

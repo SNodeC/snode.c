@@ -46,8 +46,6 @@ namespace express {
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Route& METHOD(const Router& router);                                                                                                   \
     Route& METHOD(const std::string& relativeMountPath, const Router& router);                                                             \
-    Route& METHOD(const RootRoute& rootRoute);                                                                                             \
-    Route& METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute);                                                       \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
     Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
     Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);                                        \
@@ -57,6 +55,8 @@ namespace express {
 
     class Router /*: protected express::dispatcher::Route*/ {
     public:
+        Router();
+
         DECLARE_REQUESTMETHOD(use)
         DECLARE_REQUESTMETHOD(all)
         DECLARE_REQUESTMETHOD(get)
@@ -70,7 +70,7 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<RootRoute> rootRoute = std::make_shared<RootRoute>();
+        std::shared_ptr<RootRoute> rootRoute = nullptr;
 
         friend class Route;
         friend class RootRoute;

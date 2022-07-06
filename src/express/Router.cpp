@@ -31,12 +31,6 @@
     Route& Router::METHOD(const std::string& relativeMountPath, const Router& router) {                                                    \
         return rootRoute->METHOD(relativeMountPath, *router.rootRoute.get());                                                              \
     }                                                                                                                                      \
-    Route& Router::METHOD(const RootRoute& newRootRoute) {                                                                                 \
-        return rootRoute->METHOD(newRootRoute);                                                                                            \
-    }                                                                                                                                      \
-    Route& Router::METHOD(const std::string& relativeMountPath, const RootRoute& newRootRoute) {                                           \
-        return rootRoute->METHOD(relativeMountPath, newRootRoute);                                                                         \
-    }                                                                                                                                      \
     Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
                           const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                               \
         return rootRoute->METHOD(relativeMountPath, lambda);                                                                               \
@@ -52,6 +46,10 @@
     }
 
 namespace express {
+
+    Router::Router()
+        : rootRoute(std::make_shared<RootRoute>()) {
+    }
 
     DEFINE_REQUESTMETHOD(use, "use")
     DEFINE_REQUESTMETHOD(all, "all")
