@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_compile_options(-Wno-covered-switch-default -Wno-undefined-func-template)
+add_compile_options(
+    -Wno-covered-switch-default -Wno-float-equal
+    -Wno-implicit-int-float-conversion -Wno-undefined-func-template
+)
 
 set(NET_CPP
     config/ConfigBase.cpp config/ConfigCluster.cpp config/ConfigConnection.cpp

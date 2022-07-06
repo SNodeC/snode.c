@@ -35,11 +35,13 @@ namespace net::config {
             clusterSc->preparse_callback([this]([[maybe_unused]] std::size_t num) -> void {
                 mode = MODE::PRIMARY;
             });
+            clusterSc->configurable(false);
 
             modeOpt = clusterSc->add_option("--mode", mode, "Clustering mode");
             modeOpt->type_name("[" + std::to_string(MODE::NONE) + " = NONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
                                std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY]");
             modeOpt->default_val(MODE::NONE);
+            modeOpt->configurable(false);
         }
     }
 
