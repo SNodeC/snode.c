@@ -31,14 +31,17 @@
 
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
     Route& Route::METHOD(const Router& router) {                                                                                           \
-        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, "", router.rootRoute->getDispatcher())).get();                    \
+        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, mountPoint.relativeMountPath, router.rootRoute->getDispatcher())) \
+                    .get();                                                                                                                \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                                \
-        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, "", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))  \
+        return *(dispatcher->next = std::make_shared<Route>(                                                                               \
+                     HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))               \
                     .get();                                                                                                                \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                               \
-        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, "", std::make_shared<dispatcher::ApplicationDispatcher>(lambda))) \
+        return *(dispatcher->next = std::make_shared<Route>(                                                                               \
+                     HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda)))              \
                     .get();                                                                                                                \
     }
 
@@ -59,7 +62,7 @@ namespace express {
 
         bool dispatched = dispatcher->dispatch(state, parentMountPath, mountPoint);
 
-        if (!dispatched) {
+        if (!dispatched) { // TODO: only call if parent route matched
             dispatched = state.dispatchNext(parentMountPath);
         }
 

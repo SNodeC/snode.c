@@ -48,7 +48,7 @@ namespace express {
         int getFlags() const;
 
         void next(const std::string& how);
-        bool nextRouter(/* Route& route */);
+        bool nextRouter();
         bool dispatchNext(const std::string& parentMountPath);
 
         enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };

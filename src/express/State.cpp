@@ -68,10 +68,10 @@ namespace express {
         rootRoute->dispatch(*this);
     }
 
-    bool State::nextRouter(/* Route& route */) { // called with stack root-route from RouterDispatcher
+    bool State::nextRouter() {
         bool breakDispatching = false;
 
-        if (lastRoute == currentRoute /* &route */ && (flags & State::NEXT_ROUTER) != 0) {
+        if (lastRoute == currentRoute && (flags & State::NEXT_ROUTER) != 0) {
             flags &= ~State::NEXT_ROUTER;
             breakDispatching = true;
         }
@@ -82,15 +82,17 @@ namespace express {
     bool State::dispatchNext(const std::string& parentMountPath) {
         bool dispatched = false;
 
-        if (lastRoute == currentRoute && (flags & State::NEXT) != 0) {
-            flags &= ~State::NEXT;
-            if ((flags & State::NEXT_ROUTE) != 0) {
-                flags &= ~State::NEXT_ROUTE;
-            } else {
+        if (((flags & State::NEXT) != 0)) {
+            if (lastRoute == currentRoute) {
+                flags &= ~State::NEXT;
+                if ((flags & State::NEXT_ROUTE) != 0) {
+                    flags &= ~State::NEXT_ROUTE;
+                } else if ((flags & State::NEXT_ROUTER) == 0) {
+                    dispatched = currentRoute->dispatchNext(*this, parentMountPath);
+                }
+            } else { // ? Optimization: Dispatch only parent route matched path
                 dispatched = currentRoute->dispatchNext(*this, parentMountPath);
             }
-        } else {
-            dispatched = currentRoute->dispatchNext(*this, parentMountPath);
         }
 
         return dispatched;

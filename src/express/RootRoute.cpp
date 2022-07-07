@@ -73,7 +73,7 @@ namespace express {
 
     void RootRoute::dispatch(State& state) {
         if (!Route::dispatch(state, "")) {
-            state.getResponse()->sendStatus(501);
+            state.getResponse()->sendStatus(404);
         }
     }
 
