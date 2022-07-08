@@ -30,10 +30,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
-    Route& Route::METHOD(const Router& router) {                                                                                           \
-        return *(dispatcher->next = std::make_shared<Route>(HTTP_METHOD, mountPoint.relativeMountPath, router.rootRoute->getDispatcher())) \
-                    .get();                                                                                                                \
-    }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                                \
         return *(dispatcher->next = std::make_shared<Route>(                                                                               \
                      HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))               \

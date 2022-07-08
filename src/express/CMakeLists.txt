@@ -106,6 +106,7 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express
     FILES_MATCHING
     PATTERN "*.h"
+    PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
 )
 

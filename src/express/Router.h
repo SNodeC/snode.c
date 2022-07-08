@@ -23,6 +23,7 @@
 #include "express/Request.h"   // IWYU pragma: export
 #include "express/Response.h"  // IWYU pragma: export
 #include "express/RootRoute.h" // IWYU pragma: export
+#include "express/Route.hpp"   // IWYU pragma: export
 
 namespace express {
 
@@ -49,7 +50,18 @@ namespace express {
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
     Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
     Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);                                        \
-    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next && state)>& lambda);
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next && state)>& lambda);  \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);                                   \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(                                                                                                                         \
+        const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);       \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda, Lambdas... lambdas);                    \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::string& relativeMountPath,                                                                                    \
+                  const std::function<void(Request & req, Response & res, Next && state)>& lambda,                                         \
+                  Lambdas... lambdas);
 
 namespace express {
 
@@ -77,5 +89,7 @@ namespace express {
     };
 
 } // namespace express
+
+#include "express/Router.hpp" // IWYU pragma: export
 
 #endif // EXPRESS_ROUTER_H

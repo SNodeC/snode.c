@@ -29,22 +29,24 @@ namespace express {
     class Response;
     class Next;
     class Route;
-    class Router;
 
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <functional> // IWYU pragma: export
 #include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
-    Route& METHOD(const Router& router);                                                                                                   \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);                                        \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);                                   \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda, Lambdas... lambdas);
 
 namespace express {
 
