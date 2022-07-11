@@ -39,7 +39,7 @@ namespace express {
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda, Lambdas... lambdas) {            \
+    Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda, Lambdas... lambdas) {             \
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }
 

@@ -59,6 +59,9 @@ namespace express {
         Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
 
+        unsigned long lastTick = 0;
+        unsigned long currentTick = 0;
+
         Request* request = nullptr;
         Response* response = nullptr;
 

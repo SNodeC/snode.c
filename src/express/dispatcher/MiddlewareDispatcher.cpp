@@ -29,7 +29,7 @@
 
 namespace express::dispatcher {
 
-    MiddlewareDispatcher::MiddlewareDispatcher(const std::function<void(express::Request&, express::Response&, express::Next&&)>& lambda)
+    MiddlewareDispatcher::MiddlewareDispatcher(const std::function<void(express::Request&, express::Response&, express::Next&)>& lambda)
         : lambda(lambda) {
     }
 
@@ -48,7 +48,14 @@ namespace express::dispatcher {
                     setParams(absoluteMountPath, *state.getRequest());
                 }
 
-                lambda(*state.getRequest(), *state.getResponse(), Next(state));
+                Next next(state);
+                lambda(*state.getRequest(), *state.getResponse(), next);
+
+                // If next() was called synchroneously continue current route-tree traversal
+                if ((next.state.getFlags() & express::State::NEXT) != 0) {
+                    dispatched = false;
+                    state = next.state;
+                }
             }
         }
 

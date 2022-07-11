@@ -18,6 +18,7 @@
 
 #include "express/State.h"
 
+#include "core/EventLoop.h"
 #include "express/Request.h"
 #include "express/RootRoute.h"
 
@@ -31,6 +32,7 @@ namespace express {
         : request(&request)
         , response(&response) {
         request.extend();
+        lastTick = core::EventLoop::getTickCounter();
     }
 
     void State::setRootRoute(RootRoute* rootRoute) {
@@ -63,9 +65,10 @@ namespace express {
         }
 
         lastRoute = currentRoute;
-        currentRoute = nullptr;
 
-        rootRoute->dispatch(*this);
+        if (lastTick != core::EventLoop::getTickCounter()) { // If asynchron next() start traversing of rout-tree
+            rootRoute->dispatch(*this);
+        }
     }
 
     bool State::nextRouter() {

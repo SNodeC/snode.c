@@ -40,7 +40,7 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MIDDLEWARE(req, res, state)                                                                                                        \
-    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] express::Next && (state))
+    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] express::Next & (state))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
@@ -49,18 +49,18 @@ namespace express {
     Route& METHOD(const std::string& relativeMountPath, const Router& router);                                                             \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
     Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);                                        \
-    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next && state)>& lambda);  \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda);                                         \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next & state)>& lambda);   \
     template <typename... Lambdas>                                                                                                         \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);                                   \
     template <typename... Lambdas>                                                                                                         \
     Route& METHOD(                                                                                                                         \
         const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);       \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda, Lambdas... lambdas);                    \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda, Lambdas... lambdas);                     \
     template <typename... Lambdas>                                                                                                         \
     Route& METHOD(const std::string& relativeMountPath,                                                                                    \
-                  const std::function<void(Request & req, Response & res, Next && state)>& lambda,                                         \
+                  const std::function<void(Request & req, Response & res, Next & state)>& lambda,                                          \
                   Lambdas... lambdas);
 
 namespace express {

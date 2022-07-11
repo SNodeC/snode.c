@@ -53,11 +53,11 @@ namespace std {
 
 #define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);                                        \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda);                                         \
     template <typename... Lambdas>                                                                                                         \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);                                   \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda, Lambdas... lambdas);
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda, Lambdas... lambdas);
 
 namespace express {
 

@@ -21,6 +21,12 @@
 
 #include "express/State.h" // IWYU pragma: export
 
+namespace express::dispatcher {
+
+    class MiddlewareDispatcher;
+
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -37,6 +43,8 @@ namespace express {
 
     private:
         State state;
+
+        friend class dispatcher::MiddlewareDispatcher;
     };
 
 } // namespace express

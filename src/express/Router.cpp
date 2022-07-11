@@ -32,10 +32,10 @@
         return rootRoute->METHOD(relativeMountPath, *router.rootRoute.get());                                                              \
     }                                                                                                                                      \
     Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
-                          const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                               \
+                          const std::function<void(Request & req, Response & res, Next & state)>& lambda) {                                \
         return rootRoute->METHOD(relativeMountPath, lambda);                                                                               \
     }                                                                                                                                      \
-    Route& Router::METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda) {                               \
+    Route& Router::METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda) {                                \
         return rootRoute->METHOD(lambda);                                                                                                  \
     }                                                                                                                                      \
     Route& Router::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {        \

@@ -51,8 +51,8 @@ namespace express {
     Route& METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute);                                                       \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
     Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda);                                        \
-    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next && state)>& lambda);
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda);                                         \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next & state)>& lambda);
 
 namespace express {
 
@@ -60,9 +60,9 @@ namespace express {
     public:
         RootRoute() = default;
 
+    protected:
         void dispatch(Request& req, Response& res);
 
-    protected:
         void dispatch(State&& state);
         void dispatch(State& state);
 

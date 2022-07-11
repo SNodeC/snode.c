@@ -32,12 +32,12 @@
 #define DEFINE_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                 \
     template <typename... Lambdas>                                                                                                         \
     Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
-                          const std::function<void(Request & req, Response & res, Next && state)>& lambda,                                 \
+                          const std::function<void(Request & req, Response & res, Next & state)>& lambda,                                  \
                           Lambdas... lambdas) {                                                                                            \
         return rootRoute->METHOD(relativeMountPath, lambda).METHOD(lambdas...);                                                            \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Router::METHOD(const std::function<void(Request & req, Response & res, Next && state)>& lambda, Lambdas... lambdas) {           \
+    Route& Router::METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda, Lambdas... lambdas) {            \
         return rootRoute->METHOD(lambda).METHOD(lambdas...);                                                                               \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
