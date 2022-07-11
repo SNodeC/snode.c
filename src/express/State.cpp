@@ -29,10 +29,10 @@
 namespace express {
 
     State::State(Request& request, Response& response)
-        : request(&request)
+        : lastTick(core::EventLoop::getTickCounter())
+        , request(&request)
         , response(&response) {
         request.extend();
-        lastTick = core::EventLoop::getTickCounter();
     }
 
     void State::setRootRoute(RootRoute* rootRoute) {

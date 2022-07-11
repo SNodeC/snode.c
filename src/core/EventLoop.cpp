@@ -85,9 +85,7 @@ namespace core {
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
         tickCounter++;
 
-        TickStatus tickStatus = eventMultiplexer.tick(tickTimeOut);
-
-        return tickStatus;
+        return eventMultiplexer.tick(tickTimeOut);
     }
 
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
@@ -119,7 +117,6 @@ namespace core {
 
         if (!running) {
             running = true;
-
             stopped = false;
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
