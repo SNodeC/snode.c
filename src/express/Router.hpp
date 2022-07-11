@@ -36,7 +36,7 @@ namespace express {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define DEFINE_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                 \
+#define DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                          \
     template <typename... Lambdas>                                                                                                         \
     Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
                           const std::function<void(Request & req, Response & res, Next & state)>& lambda,                                  \
@@ -59,17 +59,17 @@ namespace express {
 
 namespace express {
 
-    DEFINE_TEMPLATE_REQUESTMETHOD(use, "use")
-    DEFINE_TEMPLATE_REQUESTMETHOD(all, "all")
-    DEFINE_TEMPLATE_REQUESTMETHOD(get, "GET")
-    DEFINE_TEMPLATE_REQUESTMETHOD(put, "PUT")
-    DEFINE_TEMPLATE_REQUESTMETHOD(post, "POST")
-    DEFINE_TEMPLATE_REQUESTMETHOD(del, "DELETE")
-    DEFINE_TEMPLATE_REQUESTMETHOD(connect, "CONNECT")
-    DEFINE_TEMPLATE_REQUESTMETHOD(options, "OPTIONS")
-    DEFINE_TEMPLATE_REQUESTMETHOD(trace, "TRACE")
-    DEFINE_TEMPLATE_REQUESTMETHOD(patch, "PATCH")
-    DEFINE_TEMPLATE_REQUESTMETHOD(head, "HEAD")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(use, "use")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(all, "all")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(get, "GET")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(put, "PUT")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(post, "POST")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(del, "DELETE")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(connect, "CONNECT")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(options, "OPTIONS")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(trace, "TRACE")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(patch, "PATCH")
+    DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(head, "HEAD")
 
 } // namespace express
 

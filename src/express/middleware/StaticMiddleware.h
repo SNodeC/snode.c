@@ -20,7 +20,8 @@
 #define EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 
 #include "express/Router.h"
-#include "web/http/CookieOptions.h"
+
+// IWYU pragma: no_include "web/http/CookieOptions.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

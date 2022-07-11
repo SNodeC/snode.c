@@ -43,7 +43,7 @@ namespace express {
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
-#define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
+#define DECLARE_ROUTER_REQUESTMETHOD(METHOD)                                                                                               \
     Route& METHOD(const Router& router);                                                                                                   \
     Route& METHOD(const std::string& relativeMountPath, const Router& router);                                                             \
     Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
@@ -68,17 +68,17 @@ namespace express {
     public:
         Router();
 
-        DECLARE_REQUESTMETHOD(use)
-        DECLARE_REQUESTMETHOD(all)
-        DECLARE_REQUESTMETHOD(get)
-        DECLARE_REQUESTMETHOD(put)
-        DECLARE_REQUESTMETHOD(post)
-        DECLARE_REQUESTMETHOD(del)
-        DECLARE_REQUESTMETHOD(connect)
-        DECLARE_REQUESTMETHOD(options)
-        DECLARE_REQUESTMETHOD(trace)
-        DECLARE_REQUESTMETHOD(patch)
-        DECLARE_REQUESTMETHOD(head)
+        DECLARE_ROUTER_REQUESTMETHOD(use)
+        DECLARE_ROUTER_REQUESTMETHOD(all)
+        DECLARE_ROUTER_REQUESTMETHOD(get)
+        DECLARE_ROUTER_REQUESTMETHOD(put)
+        DECLARE_ROUTER_REQUESTMETHOD(post)
+        DECLARE_ROUTER_REQUESTMETHOD(del)
+        DECLARE_ROUTER_REQUESTMETHOD(connect)
+        DECLARE_ROUTER_REQUESTMETHOD(options)
+        DECLARE_ROUTER_REQUESTMETHOD(trace)
+        DECLARE_ROUTER_REQUESTMETHOD(patch)
+        DECLARE_ROUTER_REQUESTMETHOD(head)
 
     protected:
         std::shared_ptr<RootRoute> rootRoute = nullptr;

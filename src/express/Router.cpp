@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
+#define DEFINE_ROUTER_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                   \
     Route& Router::METHOD(const Router& router) {                                                                                          \
         return rootRoute->METHOD(*router.rootRoute.get());                                                                                 \
     }                                                                                                                                      \
@@ -51,16 +51,16 @@ namespace express {
         : rootRoute(std::make_shared<RootRoute>()) {
     }
 
-    DEFINE_REQUESTMETHOD(use, "use")
-    DEFINE_REQUESTMETHOD(all, "all")
-    DEFINE_REQUESTMETHOD(get, "GET")
-    DEFINE_REQUESTMETHOD(put, "PUT")
-    DEFINE_REQUESTMETHOD(post, "POST")
-    DEFINE_REQUESTMETHOD(del, "DELETE")
-    DEFINE_REQUESTMETHOD(connect, "CONNECT")
-    DEFINE_REQUESTMETHOD(options, "OPTIONS")
-    DEFINE_REQUESTMETHOD(trace, "TRACE")
-    DEFINE_REQUESTMETHOD(patch, "PATCH")
-    DEFINE_REQUESTMETHOD(head, "HEAD")
+    DEFINE_ROUTER_REQUESTMETHOD(use, "use")
+    DEFINE_ROUTER_REQUESTMETHOD(all, "all")
+    DEFINE_ROUTER_REQUESTMETHOD(get, "GET")
+    DEFINE_ROUTER_REQUESTMETHOD(put, "PUT")
+    DEFINE_ROUTER_REQUESTMETHOD(post, "POST")
+    DEFINE_ROUTER_REQUESTMETHOD(del, "DELETE")
+    DEFINE_ROUTER_REQUESTMETHOD(connect, "CONNECT")
+    DEFINE_ROUTER_REQUESTMETHOD(options, "OPTIONS")
+    DEFINE_ROUTER_REQUESTMETHOD(trace, "TRACE")
+    DEFINE_ROUTER_REQUESTMETHOD(patch, "PATCH")
+    DEFINE_ROUTER_REQUESTMETHOD(head, "HEAD")
 
 } // namespace express
