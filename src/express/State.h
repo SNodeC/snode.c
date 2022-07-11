@@ -43,17 +43,15 @@ namespace express {
         void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* newCurrentRoute);
 
-        void switchRoutes();
-
-        int getFlags() const;
-
         Request* getRequest() const;
         Response* getResponse() const;
+        int getFlags() const;
 
         void next(const std::string& how);
-        bool next(Route& route);
+        bool nextRouter();
+        bool dispatchNext(const std::string& parentMountPath);
 
-        enum Flags { NON = 0, INH = 1 << 0, NXT = 1 << 1 };
+        enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };
 
     private:
         RootRoute* rootRoute = nullptr;
@@ -61,10 +59,13 @@ namespace express {
         Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
 
+        unsigned long lastTick = 0;
+        unsigned long currentTick = 0;
+
         Request* request = nullptr;
         Response* response = nullptr;
 
-        int flags = NON;
+        int flags = NONE;
     };
 
 } // namespace express

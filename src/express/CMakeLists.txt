@@ -23,6 +23,7 @@ set(NLOHMANN_JSON_FOUND
 )
 
 set(HTTP_SERVER_EXPRESS_CPP
+    Dispatcher.cpp
     MountPoint.cpp
     Next.cpp
     Request.cpp
@@ -105,6 +106,7 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express
     FILES_MATCHING
     PATTERN "*.h"
+    PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
 )
 

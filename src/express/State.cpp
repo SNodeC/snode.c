@@ -18,6 +18,7 @@
 
 #include "express/State.h"
 
+#include "core/EventLoop.h"
 #include "express/Request.h"
 #include "express/RootRoute.h"
 
@@ -31,6 +32,7 @@ namespace express {
         : request(&request)
         , response(&response) {
         request.extend();
+        lastTick = core::EventLoop::getTickCounter();
     }
 
     void State::setRootRoute(RootRoute* rootRoute) {
@@ -41,45 +43,62 @@ namespace express {
         this->currentRoute = currentRoute;
     }
 
-    void State::switchRoutes() {
-        lastRoute = currentRoute;
-        currentRoute = nullptr;
+    Request* State::getRequest() const {
+        return request;
+    }
+
+    Response* State::getResponse() const {
+        return response;
     }
 
     int State::getFlags() const {
         return flags;
     }
 
-    express::Request* State::getRequest() const {
-        return request;
-    }
-
-    express::Response* State::getResponse() const {
-        return response;
-    }
-
     void State::next(const std::string& how) {
-        flags |= INH;
+        flags = NEXT;
 
         if (how == "route") {
-            flags |= NXT;
+            flags |= NEXT_ROUTE;
+        } else if (how == "router") {
+            flags |= NEXT_ROUTER;
         }
 
-        rootRoute->dispatch(*const_cast<express::State*>(this));
+        lastRoute = currentRoute;
+
+        if (lastTick != core::EventLoop::getTickCounter()) { // If asynchron next() start traversing of rout-tree
+            rootRoute->dispatch(*this);
+        }
     }
 
-    bool State::next(Route& route) {
+    bool State::nextRouter() {
         bool breakDispatching = false;
 
-        if (lastRoute == &route) {
-            flags &= ~INH;
-            if ((flags & NXT) != 0) {
-                flags &= ~NXT;
-                breakDispatching = true;
-            }
+        if (lastRoute == currentRoute && (flags & State::NEXT_ROUTER) != 0) {
+            flags &= ~State::NEXT_ROUTER;
+            breakDispatching = true;
         }
 
         return breakDispatching;
+    }
+
+    bool State::dispatchNext(const std::string& parentMountPath) {
+        bool dispatched = false;
+
+        if (((flags & State::NEXT) != 0)) {
+            if (lastRoute == currentRoute) {
+                flags &= ~State::NEXT;
+                if ((flags & State::NEXT_ROUTE) != 0) {
+                    flags &= ~State::NEXT_ROUTE;
+                } else if ((flags & State::NEXT_ROUTER) == 0) {
+                    dispatched = currentRoute->dispatchNext(*this, parentMountPath);
+                }
+            } else { // ? Optimization: Dispatch only parent route matched path
+                dispatched = currentRoute->dispatchNext(*this, parentMountPath);
+            }
+        }
+
+        return dispatched;
     }
 
 } // namespace express

@@ -31,43 +31,42 @@ namespace express::middleware {
 
     StaticMiddleware::StaticMiddleware(const std::string& root)
         : root(root) {
-        use([&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &forceClose = this->forceClose] MIDDLEWARE(req, res, next) {
-            if (req.method == "GET") {
-                if (forceClose) {
-                    res.set("Connection", "Close");
+        use(
+            [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &forceClose = this->forceClose] MIDDLEWARE(req, res, next) {
+                if (req.method == "GET") {
+                    if (forceClose) {
+                        res.set("Connection", "Close");
+                    } else {
+                        res.set("Connection", "Keep-Alive");
+                    }
+                    res.set(stdHeaders);
+                    for (auto& [value, options] : stdCookies) {
+                        res.cookie(value, options.getValue(), options.getOptions());
+                    }
+                    next();
                 } else {
-                    res.set("Connection", "Keep-Alive");
+                    LOG(DEBUG) << "Wrong method " << req.method;
+                    res.set("Connection", "Close");
+                    res.sendStatus(400);
                 }
-                res.set(stdHeaders);
-                for (auto& [value, options] : stdCookies) {
-                    res.cookie(value, options.getValue(), options.getOptions());
+            },
+            [] MIDDLEWARE(req, res, next) {
+                if (req.url == "/") {
+                    LOG(INFO) << "REDIRECT " + req.url + " -> " + "/index.html";
+                    res.redirect(308, "/index.html");
+                } else {
+                    next();
                 }
-                next();
-            } else {
-                LOG(DEBUG) << "Wrong method " << req.method;
-                res.set("Connection", "Close");
-                res.sendStatus(400);
-            }
-        });
-
-        use([] MIDDLEWARE(req, res, next) {
-            if (req.url == "/") {
-                LOG(INFO) << "REDIRECT " + req.url + " -> " + "/index.html";
-                res.redirect(308, "/index.html");
-            } else {
-                next();
-            }
-        });
-
-        use([&root = this->root] APPLICATION(req, res) {
-            LOG(INFO) << "GET " + req.url + " -> " + root + req.url;
-            res.sendFile(root + req.url, [&req, &res](int ret) -> void {
-                if (ret != 0) {
-                    res.status(404).end();
-                    PLOG(ERROR) << req.url;
-                }
+            },
+            [&root = this->root] APPLICATION(req, res) {
+                LOG(INFO) << "GET " + req.url + " -> " + root + req.url;
+                res.sendFile(root + req.url, [&req, &res](int ret) -> void {
+                    if (ret != 0) {
+                        res.status(404).end();
+                        PLOG(ERROR) << req.url;
+                    }
+                });
             });
-        });
     }
 
     class StaticMiddleware& StaticMiddleware::clearStdHeaders() {

@@ -26,7 +26,7 @@
 
 using namespace express;
 
-int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
+int main(int argc, char* argv[]) {
     logger::Logger::setVerboseLevel(2);
 
     WebApp::init(argc, argv);

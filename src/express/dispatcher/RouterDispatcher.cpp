@@ -20,11 +20,10 @@
 
 #include "express/Request.h" // for Request
 #include "express/Route.h"   // for Route
+#include "express/State.h"   // for State, State::INH, State::NXT
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "express/State.h" // for State, State::INH, State::NXT
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -44,7 +43,7 @@ namespace express::dispatcher {
             for (Route& route : routes) {
                 dispatched = route.dispatch(state, absoluteMountPath);
 
-                if (dispatched || state.next(route)) {
+                if (dispatched || state.nextRouter()) {
                     break;
                 }
             }

@@ -20,6 +20,8 @@
 
 #include "express/Response.h"
 #include "express/State.h"
+#include "express/dispatcher/ApplicationDispatcher.h"
+#include "express/dispatcher/MiddlewareDispatcher.h"
 #include "express/dispatcher/RouterDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,43 +30,63 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define DEFINE_ROOTROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                \
+    Route& RootRoute::METHOD(const RootRoute& rootRoute) {                                                                                 \
+        return routes().emplace_back(Route(HTTP_METHOD, "/", rootRoute.getDispatcher()));                                                  \
+    }                                                                                                                                      \
+    Route& RootRoute::METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) {                                           \
+        return routes().emplace_back(Route(HTTP_METHOD, relativeMountPath, rootRoute.getDispatcher()));                                    \
+    }                                                                                                                                      \
+    Route& RootRoute::METHOD(const std::string& relativeMountPath,                                                                         \
+                             const std::function<void(Request & req, Response & res, Next & state)>& lambda) {                             \
+        return routes().emplace_back(Route(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)));   \
+    }                                                                                                                                      \
+    Route& RootRoute::METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda) {                             \
+        return routes().emplace_back(Route(HTTP_METHOD, "/", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)));                 \
+    }                                                                                                                                      \
+    Route& RootRoute::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {     \
+        return routes().emplace_back(Route(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda)));  \
+    }                                                                                                                                      \
+    Route& RootRoute::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                           \
+        return routes().emplace_back(Route(HTTP_METHOD, "/", std::make_shared<dispatcher::ApplicationDispatcher>(lambda)));                \
+    }
+
 namespace express {
 
-    RootRoute::RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher)
-        : Route(method, relativeMountPath, dispatcher) {
-    }
-
-    RootRoute::RootRoute(const RootRoute& route)
-        : Route(route) {
-    }
-
-    RootRoute::RootRoute(RootRoute&& route)
-        : Route(route) {
-    }
-
-    std::shared_ptr<express::dispatcher::RouterDispatcher> RootRoute::getDispatcher() {
-        return std::dynamic_pointer_cast<express::dispatcher::RouterDispatcher>(dispatcher);
+    std::shared_ptr<dispatcher::RouterDispatcher> RootRoute::getDispatcher() const {
+        return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher);
     }
 
     std::list<Route>& RootRoute::routes() {
-        return std::dynamic_pointer_cast<express::dispatcher::RouterDispatcher>(dispatcher)->getRoutes();
+        return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getRoutes();
     }
 
     void RootRoute::dispatch(Request& req, Response& res) {
         dispatch(State(req, res));
     }
 
-    void RootRoute::dispatch(State& state) {
+    void RootRoute::dispatch(State&& state) {
         state.setRootRoute(this);
-        state.switchRoutes();
 
+        dispatch(state);
+    }
+
+    void RootRoute::dispatch(State& state) {
         if (!Route::dispatch(state, "")) {
-            state.getResponse()->sendStatus(501);
+            state.getResponse()->sendStatus(404);
         }
     }
 
-    void RootRoute::dispatch(State&& state) {
-        dispatch(state);
-    }
+    DEFINE_ROOTROUTE_REQUESTMETHOD(use, "use")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(all, "all")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(get, "GET")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(put, "PUT")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(post, "POST")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(del, "DELETE")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(connect, "CONNECT")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(options, "OPTIONS")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(trace, "TRACE")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(patch, "PATCH")
+    DEFINE_ROOTROUTE_REQUESTMETHOD(head, "HEAD")
 
 } // namespace express

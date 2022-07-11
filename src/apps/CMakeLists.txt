@@ -102,6 +102,11 @@ install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 add_executable(configtest configtest.cpp)
 target_link_libraries(configtest PRIVATE snodec::core)
 install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+set_source_files_properties(
+    configtest.cpp
+    PROPERTIES COMPILE_FLAGS
+               "-Wno-float-equal -Wno-implicit-int-float-conversion"
+)
 
 add_executable(testbasicauthentication testbasicauthentication.cpp)
 target_link_libraries(

@@ -29,14 +29,14 @@
 
 namespace express::dispatcher {
 
-    MiddlewareDispatcher::MiddlewareDispatcher(const std::function<void(express::Request&, express::Response&, express::Next&&)>& lambda)
+    MiddlewareDispatcher::MiddlewareDispatcher(const std::function<void(express::Request&, express::Response&, express::Next&)>& lambda)
         : lambda(lambda) {
     }
 
     bool MiddlewareDispatcher::dispatch(express::State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
         bool dispatched = false;
 
-        if ((state.getFlags() & State::INH) == 0) {
+        if ((state.getFlags() & State::NEXT) == 0) {
             std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
             if ((state.getRequest()->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
@@ -48,7 +48,14 @@ namespace express::dispatcher {
                     setParams(absoluteMountPath, *state.getRequest());
                 }
 
-                lambda(*state.getRequest(), *state.getResponse(), Next(state));
+                Next next(state);
+                lambda(*state.getRequest(), *state.getResponse(), next);
+
+                // If next() was called synchroneously continue current route-tree traversal
+                if ((next.state.getFlags() & express::State::NEXT) != 0) {
+                    dispatched = false;
+                    state = next.state;
+                }
             }
         }
 

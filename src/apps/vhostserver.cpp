@@ -70,11 +70,15 @@ int main(int argc, char* argv[]) {
         {
             express::tls::in6::WebApp tlsApp("tls", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
-            tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
+            Router& vh = middleware::VHost("localhost:8088");
+            vh.use(getRouter());
+            tlsApp.use(vh);
 
-            tlsApp.use(middleware::VHost("atlas.home.vchrist.at:8088").get("/", [] APPLICATION(req, res) {
+            vh = middleware::VHost("atlas.home.vchrist.at:8088");
+            vh.get("/", [] APPLICATION(req, res) {
                 res.send("Hello! I am VHOST atlas.home.vchrist.at.");
-            }));
+            });
+            tlsApp.use(vh);
 
             tlsApp.use([] APPLICATION(req, res) {
                 res.status(404).send("The requested resource is not found.");

@@ -25,32 +25,78 @@ namespace express {
 
     class State;
     class Dispatcher;
+    class Request;
+    class Response;
+    class Next;
+    class Route;
+
+    namespace dispatcher {
+        class RouterDispatcher;
+    }
 
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional> // IWYU pragma: export
 #include <memory>
 #include <string>
 
+namespace std {
+
+    template <typename _Tp, typename... _Args>
+    constexpr auto construct_at(_Tp* __location, _Args&&... __args);
+
+}
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda);                                         \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);                                   \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda, Lambdas... lambdas);
 
 namespace express {
 
     class Route {
     public:
-        Route();
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-        bool dispatch(express::State& state, const std::string& parentMountPath);
-
     protected:
-        bool dispatch(express::State& state);
+        Route();
+
+        bool dispatch(State& state);
+        bool dispatch(State& state, const std::string& parentMountPath);
+        bool dispatchNext(State& state, const std::string& parentMountPath);
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
+
+    public:
+        DECLARE_ROUTE_REQUESTMETHOD(use)
+        DECLARE_ROUTE_REQUESTMETHOD(all)
+        DECLARE_ROUTE_REQUESTMETHOD(get)
+        DECLARE_ROUTE_REQUESTMETHOD(put)
+        DECLARE_ROUTE_REQUESTMETHOD(post)
+        DECLARE_ROUTE_REQUESTMETHOD(del)
+        DECLARE_ROUTE_REQUESTMETHOD(connect)
+        DECLARE_ROUTE_REQUESTMETHOD(options)
+        DECLARE_ROUTE_REQUESTMETHOD(trace)
+        DECLARE_ROUTE_REQUESTMETHOD(patch)
+        DECLARE_ROUTE_REQUESTMETHOD(head)
+
+        friend class dispatcher::RouterDispatcher;
+        friend class Dispatcher;
+        friend class RootRoute;
+        friend class Route;
+        friend class State;
     };
 
 } // namespace express
+
+#include "express/Route.hpp" // IWYU pragma: export
 
 #endif // EXPRESS_ROUTE_H

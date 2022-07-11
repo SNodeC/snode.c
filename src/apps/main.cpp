@@ -27,6 +27,7 @@
 #include <iostream>
 #include <stdio.h>  // for perror
 #include <string.h> // for strerror
+#include <typeinfo>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -208,8 +209,44 @@ private:
     std::function<void(int)> function;
 };
 
+void g() {
+}
+
+void g(const std::function<void(express::Request&, express::Response&)>& arg) {
+    VLOG(0) << "Arg type 1: " << typeid(arg).name();
+}
+
+void g(const std::function<void(express::Request&, express::Response&, express::Next&& state)>& arg) {
+    VLOG(0) << "Arg type 2: " << typeid(arg).name();
+}
+
+template <typename... Ts>
+void g(const std::function<void(express::Request&, express::Response&)>& arg, Ts... args) {
+    VLOG(0) << "Rec Arg type 1: " << typeid(arg).name();
+
+    g(args...);
+}
+
+template <typename... Ts>
+void g(const std::function<void(express::Request&, express::Response&, express::Next&& state)>& arg, Ts... args) {
+    VLOG(0) << "Rec Arg type 2: " << typeid(arg).name();
+
+    g(args...);
+}
+
 int main(int argc, char** argv) {
     express::WebApp::init(argc, argv);
+
+    g(
+        []([[maybe_unused]] express::Request& req, [[maybe_unused]] express::Response& res, [[maybe_unused]] express::Next&& next) -> void {
+            VLOG(0) << "hihih";
+        },
+        []([[maybe_unused]] express::Request& req, [[maybe_unused]] express::Response& res) -> void {
+            VLOG(0) << "hihih";
+        },
+        []([[maybe_unused]] express::Request& req, [[maybe_unused]] express::Response& res) -> void {
+            VLOG(0) << "hihih";
+        });
 
     File test;
     FileReader test1;

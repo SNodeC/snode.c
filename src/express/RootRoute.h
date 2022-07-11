@@ -23,10 +23,11 @@
 
 namespace express {
 
-    class Dispatcher;
     class Request;
     class Response;
+    class Next;
     class State;
+    class RootRoute;
 
     namespace dispatcher {
 
@@ -38,28 +39,54 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
 #include <list>
 #include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define DECLARE_ROOTROUTE_REQUESTMETHOD(METHOD)                                                                                            \
+    Route& METHOD(const RootRoute& rootRoute);                                                                                             \
+    Route& METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute);                                                       \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda);                                         \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next & state)>& lambda);
+
 namespace express {
 
-    class RootRoute : protected express::Route {
+    class RootRoute : public Route {
     public:
         RootRoute() = default;
-        RootRoute(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-        RootRoute(const RootRoute& route);
-        RootRoute(RootRoute&& route);
-
+    protected:
         void dispatch(Request& req, Response& res);
-        void dispatch(State& state);
-        void dispatch(State&& state);
 
-        std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher();
+        void dispatch(State&& state);
+        void dispatch(State& state);
+
+        std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher() const;
         std::list<Route>& routes();
+
+    public:
+        DECLARE_ROOTROUTE_REQUESTMETHOD(use)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(all)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(get)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(put)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(post)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(del)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(connect)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(options)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(trace)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(patch)
+        DECLARE_ROOTROUTE_REQUESTMETHOD(head)
+
+        friend class Route;
+        friend class State;
+
+        template <typename Server>
+        friend class WebAppT;
     };
 
 } // namespace express
