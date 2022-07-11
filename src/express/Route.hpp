@@ -19,17 +19,18 @@
 #ifndef EXPRESS_ROUTE_HPP
 #define EXPRESS_ROUTE_HPP
 
-#include "express/Route.h" // IWYU pragma: export
-
 namespace express {
 
+    class Next;
     class Request;
     class Response;
-    class Next;
+    class Route;
 
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional> // for function
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

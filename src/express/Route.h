@@ -97,4 +97,6 @@ namespace express {
 
 } // namespace express
 
+#include "express/Route.hpp" // IWYU pragma: export
+
 #endif // EXPRESS_ROUTE_H

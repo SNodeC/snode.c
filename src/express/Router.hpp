@@ -19,8 +19,15 @@
 #ifndef EXPRESS_ROUTER_HPP
 #define EXPRESS_ROUTER_HPP
 
-//#include "express/Route.h"
-#include "express/Router.h"
+// IWYU pragma: no_include "express/RootRoute.h"
+
+namespace express {
+
+    class Next;
+    class Request;
+    class Response;
+
+} // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

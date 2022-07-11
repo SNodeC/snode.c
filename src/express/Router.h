@@ -23,7 +23,6 @@
 #include "express/Request.h"   // IWYU pragma: export
 #include "express/Response.h"  // IWYU pragma: export
 #include "express/RootRoute.h" // IWYU pragma: export
-#include "express/Route.hpp"   // IWYU pragma: export
 
 namespace express {
 
