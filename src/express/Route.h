@@ -30,6 +30,10 @@ namespace express {
     class Next;
     class Route;
 
+    namespace dispatcher {
+        class RouterDispatcher;
+    }
+
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -37,6 +41,13 @@ namespace express {
 #include <functional> // IWYU pragma: export
 #include <memory>
 #include <string>
+
+namespace std {
+
+    template <typename _Tp, typename... _Args>
+    constexpr auto construct_at(_Tp* __location, _Args&&... __args);
+
+}
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -52,14 +63,14 @@ namespace express {
 
     class Route {
     public:
-        Route();
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
+    protected:
+        Route();
+
+        bool dispatch(State& state);
         bool dispatch(State& state, const std::string& parentMountPath);
         bool dispatchNext(State& state, const std::string& parentMountPath);
-
-    protected:
-        bool dispatch(State& state);
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
@@ -77,7 +88,11 @@ namespace express {
         DECLARE_ROUTE_REQUESTMETHOD(patch)
         DECLARE_ROUTE_REQUESTMETHOD(head)
 
+        friend class dispatcher::RouterDispatcher;
+        friend class Dispatcher;
         friend class RootRoute;
+        friend class Route;
+        friend class State;
     };
 
 } // namespace express

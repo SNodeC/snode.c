@@ -53,6 +53,10 @@ namespace express {
         , dispatcher(dispatcher) {
     }
 
+    bool Route::dispatch(State& state) {
+        return dispatch(state, "");
+    }
+
     bool Route::dispatch(State& state, const std::string& parentMountPath) {
         state.setCurrentRoute(this);
 
@@ -67,10 +71,6 @@ namespace express {
 
     bool Route::dispatchNext(State& state, const std::string& parentMountPath) {
         return dispatcher->dispatchNext(state, parentMountPath);
-    }
-
-    bool Route::dispatch(State& state) {
-        return dispatch(state, "");
     }
 
     DEFINE_ROUTE_REQUESTMETHOD(use, "use")
