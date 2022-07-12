@@ -22,12 +22,19 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <netinet/in.h> // for IPPROTO_IPV6, IPV6_V6ONLY
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6 {
 
     Socket::Socket(int type, int protocol)
         : Super(PF_INET6, type, protocol) {
+    }
+
+    void Socket::setSockOpt() {
+        int one = 1;
+        setsockopt(getFd(), IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
     }
 
 } // namespace net::in6

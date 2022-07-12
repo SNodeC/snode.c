@@ -39,6 +39,9 @@ namespace net::in6 {
         using Super::operator=;
 
         explicit Socket(int type, int protocol);
+
+    private:
+        void setSockOpt() override;
     };
 
 } // namespace net::in6
