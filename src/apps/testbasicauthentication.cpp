@@ -26,6 +26,8 @@
 #include "express/tls/in6/WebApp.h"
 #include "log/Logger.h"
 
+#include <cerrno>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;

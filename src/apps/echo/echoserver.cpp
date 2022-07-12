@@ -21,6 +21,8 @@
 #include "log/Logger.h"  // for Writer
 #include "model/servers.h"
 
+#include <cerrno>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

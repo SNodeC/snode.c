@@ -3,6 +3,7 @@
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
 
+#include <cerrno>
 #include <cstdlib>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -26,6 +26,7 @@
 #include "web/http/client/Response.h"  // for Response
 #include "web/http/legacy/in/Client.h" // for Client, Client<>...
 
+#include <cerrno>
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>:...
 
