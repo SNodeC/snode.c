@@ -40,8 +40,11 @@ int main(int argc, char* argv[]) {
     Client client = apps::http::STREAM::getClient(options);
 
     client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << errnum;
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            errno = errnum;
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }

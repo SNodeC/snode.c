@@ -96,7 +96,7 @@ namespace core::socket::stream {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else {
-                onError(config->getLocalAddress(), 0);
+                onError(config->getRemoteAddress(), 0);
                 enable(socket->getFd());
             }
         }
@@ -110,14 +110,15 @@ namespace core::socket::stream {
                         disable();
                         socketConnectionFactory.create(*socket, config);
                     } else {
-                        onError(config->getRemoteAddress(), errno);
+                        errno = cErrno;
+                        onError(config->getRemoteAddress(), cErrno);
                         disable();
                     }
                 } else {
                     // Do nothing: connect() still in progress
                 }
             } else {
-                onError(config->getRemoteAddress(), errno);
+                onError(config->getRemoteAddress(), cErrno);
                 disable();
             }
         }

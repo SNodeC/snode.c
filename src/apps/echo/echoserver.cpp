@@ -47,10 +47,13 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 #endif
 
     server.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString() << " : " << errnum;
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            errno = errnum;
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }
     }); // cppcheck-suppress syntaxError
 

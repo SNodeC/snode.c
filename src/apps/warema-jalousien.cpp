@@ -55,11 +55,14 @@ int main(int argc, char* argv[]) {
         res.status(404).send("No Jalousie specified");
     });
 
-    webApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
+    webApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            errno = errnum;
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "warema-jalousien listening on " << socketAddress.toString();
+            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }
     });
 

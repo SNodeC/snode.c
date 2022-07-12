@@ -98,24 +98,36 @@ namespace net::in {
     }
 
     std::string SocketAddress::host() const {
+        int tmpErrno = errno;
+
         char host[NI_MAXHOST];
         int ret =
             core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, NI_NAMEREQD);
+
+        errno = tmpErrno;
 
         return ret == EAI_NONAME ? address() : ret >= 0 ? host : gai_strerror(ret);
     }
 
     std::string SocketAddress::address() const {
+        int tmpErrno = errno;
+
         char ip[NI_MAXHOST];
         int ret =
             core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
+
+        errno = tmpErrno;
 
         return ret >= 0 ? ip : gai_strerror(ret);
     }
 
     std::string SocketAddress::serv() const {
+        int tmpErrno = errno;
+
         char serv[NI_MAXSERV];
         int ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
+
+        errno = tmpErrno;
 
         return ret >= 0 ? serv : gai_strerror(ret);
     }

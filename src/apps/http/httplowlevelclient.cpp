@@ -278,11 +278,14 @@ int main(int argc, char* argv[]) {
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
         legacyClient.connect(legacyRemoteAddress,
-                             [](const tls::SocketAddress& socketAddress, int err) -> void { // example.com:81 simulate connnect timeout
-                                 if (err) {
-                                     PLOG(ERROR) << "Connect: " << std::to_string(err);
+                             [](const tls::SocketAddress& socketAddress, int errnum) -> void { // example.com:81 simulate connnect timeout
+                                 if (errnum < 0) {
+                                     PLOG(ERROR) << "OnError";
+                                 } else if (errnum > 0) {
+                                     errno = errnum;
+                                     PLOG(ERROR) << "OnError: " << socketAddress.toString();
                                  } else {
-                                     VLOG(0) << "Connecting to " << socketAddress.toString();
+                                     VLOG(0) << "snode.c connecting to " << socketAddress.toString();
                                  }
                              });
 
@@ -290,11 +293,14 @@ int main(int argc, char* argv[]) {
 
         tls::SocketClient tlsClient = tls::getClient();
 
-        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
+        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int errnum) -> void {
+            if (errnum < 0) {
+                PLOG(ERROR) << "OnError";
+            } else if (errnum > 0) {
+                errno = errnum;
+                PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
+                VLOG(0) << "snode.c connecting to " << socketAddress.toString();
             }
         });
     }

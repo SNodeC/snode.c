@@ -208,11 +208,14 @@ namespace tls {
 
         SocketAddress remoteAddress("localhost", 8088);
 
-        client.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " + std::to_string(err);
+        client.connect(remoteAddress, [](const SocketAddress& socketAddress, int errnum) -> void {
+            if (errnum < 0) {
+                PLOG(ERROR) << "OnError";
+            } else if (errnum > 0) {
+                errno = errnum;
+                PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
-                VLOG(0) << "Connected to " << socketAddress.toString();
+                VLOG(0) << "snode.c connecting to " << socketAddress.toString();
             }
         });
 
@@ -253,11 +256,14 @@ namespace legacy {
 
         SocketAddress remoteAddress("localhost", 8080);
 
-        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
+        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, int errnum) -> void {
+            if (errnum < 0) {
+                PLOG(ERROR) << "OnError";
+            } else if (errnum > 0) {
+                errno = errnum;
+                PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
-                VLOG(0) << "Connected to " << socketAddress.toString();
+                VLOG(0) << "snode.c connecting to " << socketAddress.toString();
             }
         });
 
@@ -273,23 +279,30 @@ int main(int argc, char* argv[]) {
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
         legacy::SocketAddress legacyRemoteAddress("localhost", 8080);
-        legacyClient.connect(legacyRemoteAddress,
-                             [](const legacy::SocketAddress& socketAddress, int err) -> void { // example.com:81 simulate connnect timeout
-                                 if (err) {
-                                     PLOG(ERROR) << "Connect: " << std::to_string(err);
-                                 } else {
-                                     VLOG(0) << "Connecting to " << socketAddress.toString();
-                                 }
-                             });
+        legacyClient.connect(
+            legacyRemoteAddress,
+            [](const legacy::SocketAddress& socketAddress, int errnum) -> void { // example.com:81 simulate connnect timeout
+                if (errnum < 0) {
+                    PLOG(ERROR) << "OnError";
+                } else if (errnum > 0) {
+                    errno = errnum;
+                    PLOG(ERROR) << "OnError: " << socketAddress.toString();
+                } else {
+                    VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+                }
+            });
 
         tls::SocketClient tlsClient = tls::getClient();
 
         tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
-        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
+        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int errnum) -> void {
+            if (errnum < 0) {
+                PLOG(ERROR) << "OnError";
+            } else if (errnum > 0) {
+                errno = errnum;
+                PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
+                VLOG(0) << "snode.c connecting to " << socketAddress.toString();
             }
         });
     }
