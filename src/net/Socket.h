@@ -68,8 +68,8 @@ namespace net {
         int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
         int getSockopt(int level, int optname, void* optval, socklen_t* optlen);
 
-        ssize_t write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
-        ssize_t read_fd(void* ptr, size_t nbytes, int* recvfd);
+        ssize_t sendFd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
+        ssize_t recvFd(void* ptr, size_t nbytes, int* recvfd);
 
         enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 

@@ -130,7 +130,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    ssize_t Socket<SocketAddress>::write_fd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd) {
+    ssize_t Socket<SocketAddress>::sendFd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd) {
         union {
             struct cmsghdr cm;
             char control[CMSG_SPACE(sizeof(int))] = {};
@@ -159,7 +159,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    ssize_t Socket<SocketAddress>::read_fd(void* ptr, size_t nbytes, int* recvfd) {
+    ssize_t Socket<SocketAddress>::recvFd(void* ptr, size_t nbytes, int* recvfd) {
         union {
             struct cmsghdr cm;
             char control[CMSG_SPACE(sizeof(int))] = {};

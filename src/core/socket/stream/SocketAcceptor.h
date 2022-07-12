@@ -169,7 +169,7 @@ namespace core::socket::stream {
                             // Send descriptor to SECONDARY
                             VLOG(0) << "Sending to secondary";
                             char msg = 0;
-                            secondarySocket->write_fd(SecondarySocket::SocketAddress("/tmp/secondary"), &msg, 1, socket.getFd());
+                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary"), &msg, 1, socket.getFd());
                         }
                     } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                         PLOG(ERROR) << "accept";
@@ -181,7 +181,7 @@ namespace core::socket::stream {
                 int fd = -1;
                 char msg;
 
-                if (secondarySocket->read_fd(&msg, 1, &fd) >= 0) {
+                if (secondarySocket->recvFd(&msg, 1, &fd) >= 0) {
                     PrimarySocket socket(fd);
 
                     if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY) {
