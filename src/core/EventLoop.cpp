@@ -111,15 +111,30 @@ namespace core {
 
         utils::Config::prepare();
 
-        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
-        sighandler_t oldSigIntHandler = core::system::signal(SIGINT, EventLoop::stoponsig);
-        sighandler_t oldSigTermHandler = core::system::signal(SIGTERM, EventLoop::stoponsig);
+        struct sigaction sact;
+
+        sigemptyset(&sact.sa_mask);
+        sact.sa_flags = 0;
+        sact.sa_handler = EventLoop::stoponsig;
+
+        struct sigaction oldPipeAct;
+        sigaction(SIGPIPE, &sact, &oldPipeAct);
+
+        struct sigaction oldIntAct;
+        sigaction(SIGINT, &sact, &oldIntAct);
+
+        struct sigaction oldTermAct;
+        sigaction(SIGTERM, &sact, &oldTermAct);
+
+        struct sigaction oldAlarmAct;
+        sigaction(SIGALRM, &sact, &oldAlarmAct);
 
         if (!running) {
             running = true;
             stopped = false;
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
+
             while (tickStatus == TickStatus::SUCCESS && !stopped) {
                 tickStatus = EventLoop::instance()._tick(timeOut);
             }
@@ -139,9 +154,10 @@ namespace core {
             running = false;
         }
 
-        core::system::signal(SIGPIPE, oldSigPipeHandler);
-        core::system::signal(SIGINT, oldSigIntHandler);
-        core::system::signal(SIGTERM, oldSigTermHandler);
+        sigaction(SIGPIPE, &oldPipeAct, nullptr);
+        sigaction(SIGINT, &oldIntAct, nullptr);
+        sigaction(SIGTERM, &oldTermAct, nullptr);
+        sigaction(SIGALRM, &oldAlarmAct, nullptr);
 
         free();
 

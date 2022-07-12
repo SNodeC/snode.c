@@ -33,6 +33,8 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/signal.h"
+
 #include <array> // IWYU pragma: export
 #include <list>
 
@@ -65,6 +67,9 @@ namespace core {
         private:
             std::list<Event*>* executeQueue;
             std::list<Event*>* publishQueue;
+
+            sigset_t newSet;
+            sigset_t oldSet;
         };
 
     public:

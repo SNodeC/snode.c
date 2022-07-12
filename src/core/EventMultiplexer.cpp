@@ -157,6 +157,11 @@ namespace core {
     EventMultiplexer::EventQueue::EventQueue()
         : executeQueue(new std::list<Event*>()) // cppcheck-suppress [noCopyConstructor, noOperatorEq]
         , publishQueue(new std::list<Event*>()) {
+        sigemptyset(&newSet);
+        sigaddset(&newSet, SIGPIPE);
+        sigaddset(&newSet, SIGINT);
+        sigaddset(&newSet, SIGTERM);
+        sigaddset(&newSet, SIGALRM);
     }
 
     EventMultiplexer::EventQueue::~EventQueue() {
@@ -175,9 +180,13 @@ namespace core {
     void EventMultiplexer::EventQueue::execute(const utils::Timeval& currentTime) {
         std::swap(executeQueue, publishQueue);
 
+        sigprocmask(SIG_BLOCK, &newSet, &oldSet);
+
         for (Event* event : *executeQueue) {
             event->dispatch(currentTime);
         }
+
+        sigprocmask(SIG_SETMASK, &oldSet, &newSet);
 
         executeQueue->clear();
     }
