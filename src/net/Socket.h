@@ -49,6 +49,9 @@ namespace net {
     protected:
         int create(SOCK flags);
 
+    private:
+        virtual void setSockOpt();
+
     public:
         int open(SOCK flags = SOCK::NONE);
         int bind(const SocketAddress& bindAddress);

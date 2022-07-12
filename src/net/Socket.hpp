@@ -67,7 +67,17 @@ namespace net {
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::open(SOCK flags) {
-        return Descriptor::open(create(flags));
+        int ret = Descriptor::open(create(flags));
+
+        if (ret >= 0) {
+            setSockOpt();
+        }
+
+        return ret;
+    }
+
+    template <typename SocketAddress>
+    void Socket<SocketAddress>::setSockOpt() {
     }
 
     template <typename SocketAddress>
