@@ -89,6 +89,6 @@ int main(int argc, char* argv[]) {
         }
 
 #ifdef NET_TYPE
-    }); // cppcheck-suppress syntaxError
+    });
 #endif
 */

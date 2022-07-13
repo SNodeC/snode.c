@@ -146,7 +146,7 @@ namespace core::socket::stream {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else {
-                    onError(config->getLocalAddress(), 0);
+                    onError(config->getLocalAddress(), errno);
                     enable(secondarySocket->getFd());
                 }
             }

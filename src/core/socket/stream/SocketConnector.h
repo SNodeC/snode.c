@@ -109,11 +109,11 @@ namespace core::socket::stream {
                         disable();
                         socketConnectionFactory.create(*socket, config);
                         errno = errno == 0 ? cErrno : errno;
-                        onError(config->getRemoteAddress(), cErrno);
+                        onError(config->getRemoteAddress(), errno);
                     } else {
                         disable();
                         errno = errno == 0 ? cErrno : errno;
-                        onError(config->getRemoteAddress(), cErrno);
+                        onError(config->getRemoteAddress(), errno);
                     }
                 } else {
                     // Do nothing: connect() still in progress

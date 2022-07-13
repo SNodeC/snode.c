@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
         } else if (errnum > 0) {
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+            VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }
     });
 
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
         } else if (errnum > 0) {
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+            VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }
     });
 
