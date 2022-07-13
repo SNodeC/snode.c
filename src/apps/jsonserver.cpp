@@ -24,8 +24,6 @@
 #include "express/middleware/JsonMiddleware.h"
 #include "log/Logger.h"
 
-#include <cerrno>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 // using namespace express;
@@ -47,7 +45,6 @@ int main(int argc, char* argv[]) {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";
         } else if (errnum > 0) {
-            errno = errnum;
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c connecting to " << socketAddress.toString();

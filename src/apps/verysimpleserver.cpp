@@ -24,8 +24,6 @@
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
-#include <cerrno>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
@@ -42,7 +40,6 @@ int main(int argc, char* argv[]) {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";
         } else if (errnum > 0) {
-            errno = errnum;
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c connecting to " << socketAddress.toString();
@@ -53,7 +50,6 @@ int main(int argc, char* argv[]) {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";
         } else if (errnum > 0) {
-            errno = errnum;
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c connecting to " << socketAddress.toString();

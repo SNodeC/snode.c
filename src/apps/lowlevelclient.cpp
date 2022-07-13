@@ -27,7 +27,6 @@
 #include "net/in/stream/tls/SocketClient.h"    // for SocketC...
 #include "web/http/client/ResponseParser.h"    // for ResponseParser
 
-#include <cerrno>
 #include <openssl/asn1.h>    // for ASN1_STRING_get...
 #include <openssl/crypto.h>  // for OPENSSL_free
 #include <openssl/obj_mac.h> // for NID_subject_alt...
@@ -213,7 +212,6 @@ namespace tls {
             if (errnum < 0) {
                 PLOG(ERROR) << "OnError";
             } else if (errnum > 0) {
-                errno = errnum;
                 PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
                 VLOG(0) << "snode.c connecting to " << socketAddress.toString();
@@ -261,7 +259,6 @@ namespace legacy {
             if (errnum < 0) {
                 PLOG(ERROR) << "OnError";
             } else if (errnum > 0) {
-                errno = errnum;
                 PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
                 VLOG(0) << "snode.c connecting to " << socketAddress.toString();
@@ -286,7 +283,6 @@ int main(int argc, char* argv[]) {
                 if (errnum < 0) {
                     PLOG(ERROR) << "OnError";
                 } else if (errnum > 0) {
-                    errno = errnum;
                     PLOG(ERROR) << "OnError: " << socketAddress.toString();
                 } else {
                     VLOG(0) << "snode.c connecting to " << socketAddress.toString();
@@ -300,7 +296,6 @@ int main(int argc, char* argv[]) {
             if (errnum < 0) {
                 PLOG(ERROR) << "OnError";
             } else if (errnum > 0) {
-                errno = errnum;
                 PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
                 VLOG(0) << "snode.c connecting to " << socketAddress.toString();

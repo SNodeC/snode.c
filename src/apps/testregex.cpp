@@ -24,7 +24,6 @@
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
-#include <cerrno>
 #include <iostream>          // for operator<<, endl
 #include <openssl/asn1.h>    // for ASN1_STRING_get0...
 #include <openssl/crypto.h>  // for OPENSSL_free
@@ -247,7 +246,6 @@ int main(int argc, char* argv[]) {
             if (errnum < 0) {
                 PLOG(ERROR) << "OnError";
             } else if (errnum > 0) {
-                errno = errnum;
                 PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
                 VLOG(0) << "snode.c connecting to " << socketAddress.toString();
@@ -276,7 +274,6 @@ int main(int argc, char* argv[]) {
             if (errnum < 0) {
                 PLOG(ERROR) << "OnError";
             } else if (errnum > 0) {
-                errno = errnum;
                 PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
                 VLOG(0) << "snode.c connecting to " << socketAddress.toString();
