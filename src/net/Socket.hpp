@@ -70,14 +70,14 @@ namespace net {
         int ret = Descriptor::open(create(flags));
 
         if (ret >= 0) {
-            setSockOpt();
+            setSockopt();
         }
 
         return ret;
     }
 
     template <typename SocketAddress>
-    void Socket<SocketAddress>::setSockOpt() {
+    void Socket<SocketAddress>::setSockopt() {
     }
 
     template <typename SocketAddress>

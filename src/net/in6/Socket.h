@@ -40,8 +40,10 @@ namespace net::in6 {
 
         explicit Socket(int type, int protocol);
 
+        using Super::setSockopt;
+
     private:
-        void setSockOpt() override;
+        void setSockopt() override;
     };
 
 } // namespace net::in6

@@ -66,7 +66,7 @@ namespace express {
 
         lastRoute = currentRoute;
 
-        if (lastTick != core::EventLoop::getTickCounter()) { // If asynchron next() start traversing of rout-tree
+        if (lastTick != core::EventLoop::getTickCounter()) { // If asynchron next() start traversing of route-tree
             rootRoute->dispatch(*this);
         }
     }

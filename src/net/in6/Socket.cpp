@@ -32,9 +32,9 @@ namespace net::in6 {
         : Super(PF_INET6, type, protocol) {
     }
 
-    void Socket::setSockOpt() {
+    void Socket::setSockopt() {
         int one = 1;
-        setsockopt(getFd(), IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+        this->setSockopt(IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
     }
 
 } // namespace net::in6

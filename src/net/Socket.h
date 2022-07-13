@@ -49,8 +49,7 @@ namespace net {
     protected:
         int create(SOCK flags);
 
-    private:
-        virtual void setSockOpt();
+        virtual void setSockopt();
 
     public:
         int open(SOCK flags = SOCK::NONE);
