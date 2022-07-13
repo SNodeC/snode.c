@@ -34,7 +34,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigTls : virtual protected ConfigBase {
+    class ConfigTls : virtual public ConfigBase {
     public:
         ConfigTls();
 

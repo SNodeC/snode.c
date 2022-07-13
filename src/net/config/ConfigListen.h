@@ -31,7 +31,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigListen : virtual protected ConfigBase {
+    class ConfigListen : virtual public ConfigBase {
     public:
         ConfigListen();
 

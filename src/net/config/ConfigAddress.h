@@ -32,7 +32,7 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddress : virtual protected ConfigBase {
+    class ConfigAddress : virtual public ConfigBase {
         using SocketAddress = SocketAddressT;
 
     public:

@@ -27,7 +27,7 @@
 
 namespace net::config {
 
-    class ConfigLegacy : virtual protected ConfigBase {};
+    class ConfigLegacy : virtual public ConfigBase {};
 
 } // namespace net::config
 

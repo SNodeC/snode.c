@@ -32,7 +32,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigCluster : virtual protected ConfigBase {
+    class ConfigCluster : virtual public ConfigBase {
     public:
         ConfigCluster();
 
