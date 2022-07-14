@@ -30,8 +30,6 @@
 
 namespace net::un {
 
-    std::string bad_sunpath::message;
-
     SocketAddress::SocketAddress()
         : Super(offsetof(sockaddr_un, sun_path)) {
         std::memset(&sockAddr, 0, sizeof(sockAddr));

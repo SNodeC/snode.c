@@ -29,8 +29,8 @@
 namespace net::stream {
 
     template <typename Socket>
-    int ClientSocket<Socket>::connect(const typename Socket::SocketAddress& addr) {
-        return core::system::connect(Socket::getFd(), addr, addr.getAddrLen());
+    int ClientSocket<Socket>::connect(const typename Socket::SocketAddress& remoteAddress) {
+        return core::system::connect(Socket::getFd(), remoteAddress, remoteAddress.getAddrLen());
     }
 
     template <typename Socket>

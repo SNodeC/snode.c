@@ -42,7 +42,7 @@ namespace net::l2 {
         const char* what() const noexcept override;
 
     protected:
-        static std::string message;
+        std::string message;
     };
 
     class SocketAddress : public net::SocketAddress<sockaddr_l2> {

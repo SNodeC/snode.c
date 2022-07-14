@@ -31,8 +31,6 @@
 
 namespace net::in {
 
-    std::string bad_hostname::message;
-
     SocketAddress::SocketAddress() {
         memset(&sockAddr, 0, sizeof(sockAddr));
 

@@ -41,7 +41,7 @@ namespace net::in6 {
         const char* what() const noexcept override;
 
     protected:
-        static std::string message;
+        std::string message;
     };
 
     class SocketAddress : public net::SocketAddress<sockaddr_in6> {

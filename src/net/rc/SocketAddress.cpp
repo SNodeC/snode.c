@@ -30,8 +30,6 @@
 
 namespace net::rc {
 
-    std::string bad_bdaddress::message;
-
     SocketAddress::SocketAddress() {
         std::memset(&sockAddr, 0, sizeof(sockAddr));
 

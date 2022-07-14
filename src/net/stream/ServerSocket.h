@@ -35,8 +35,8 @@ namespace net::stream {
         using Super::operator=;
 
         int listen(int backlog);
-        int accept(typename SocketT::SocketAddress& addr);
-        int accept4(typename SocketT::SocketAddress& addr, int flags);
+        int accept(typename SocketT::SocketAddress& remoteAddress);
+        int accept4(typename SocketT::SocketAddress& remoteAddress, int flags);
     };
 
 } // namespace net::stream

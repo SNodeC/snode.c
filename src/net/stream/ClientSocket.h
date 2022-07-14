@@ -34,7 +34,7 @@ namespace net::stream {
         using Super::Super;
         using Super::operator=;
 
-        int connect(const typename SocketT::SocketAddress& addr);
+        int connect(const typename SocketT::SocketAddress& remoteAddress);
 
         virtual bool connectInProgress(int cErrno);
     };

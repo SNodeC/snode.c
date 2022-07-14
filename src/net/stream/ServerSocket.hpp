@@ -32,15 +32,15 @@ namespace net::stream {
     }
 
     template <typename Socket>
-    int ServerSocket<Socket>::accept(typename Socket::SocketAddress& addr) {
-        addr.getAddrLen() = sizeof(typename Socket::SocketAddress::SockAddr);
-        return core::system::accept(Socket::getFd(), addr, &addr.getAddrLen());
+    int ServerSocket<Socket>::accept(typename Socket::SocketAddress& remoteAddress) {
+        remoteAddress.getAddrLen() = sizeof(typename Socket::SocketAddress::SockAddr);
+        return core::system::accept(Socket::getFd(), remoteAddress, &remoteAddress.getAddrLen());
     }
 
     template <typename Socket>
-    int ServerSocket<Socket>::accept4(typename Socket::SocketAddress& addr, int flags) {
-        addr.getAddrLen() = sizeof(typename Socket::SocketAddress::SockAddr);
-        return core::system::accept4(Socket::getFd(), addr, &addr.getAddrLen(), flags);
+    int ServerSocket<Socket>::accept4(typename Socket::SocketAddress& remoteAddress, int flags) {
+        remoteAddress.getAddrLen() = sizeof(typename Socket::SocketAddress::SockAddr);
+        return core::system::accept4(Socket::getFd(), remoteAddress, &remoteAddress.getAddrLen(), flags);
     }
 
 } // namespace net::stream
