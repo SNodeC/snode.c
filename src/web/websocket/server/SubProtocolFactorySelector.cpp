@@ -46,7 +46,7 @@ namespace web::websocket::server {
     }
 
     void SubProtocolFactorySelector::link(const std::string& subProtocolName, void* (*getSubProtocolFactory)()) {
-        SubProtocolFactorySelector::instance()->linkSubProtocolFactory(subProtocolName, getSubProtocolFactory);
+        SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
     }
 
     void SubProtocolFactorySelector::addSubProtocolSearchPath(const std::string& searchPath) {
