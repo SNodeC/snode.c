@@ -54,12 +54,13 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxDel(int fd) {
-        if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr) == 0) {
+        if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr) == 0 || errno == EBADF) {
             interestCount--;
-        }
 
-        while (ePollEvents.size() > (interestCount * 2) + 1) {
-            ePollEvents.resize(ePollEvents.size() / 2);
+            if (ePollEvents.size() > (interestCount * 2) + 1) {
+                ePollEvents.resize(ePollEvents.size() / 2);
+                ePollEvents.shrink_to_fit();
+            }
         }
     }
 

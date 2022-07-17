@@ -101,9 +101,16 @@ namespace core::socket::stream {
                         suspend();
                     }
                     if (!writeBuffer.empty()) {
+                        if (writeBuffer.capacity() > writeBuffer.size() * 2) {
+                            writeBuffer.shrink_to_fit();
+                        }
                         publish();
-                    } else if (markShutdown) {
-                        shutdown(onShutdown);
+                    } else {
+                        writeBuffer.shrink_to_fit();
+
+                        if (markShutdown) {
+                            shutdown(onShutdown);
+                        }
                     }
                 } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
                     if (isSuspended()) {
