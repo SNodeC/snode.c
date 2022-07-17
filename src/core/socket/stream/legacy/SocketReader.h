@@ -38,10 +38,6 @@ namespace core::socket::stream::legacy {
         ssize_t read(char* junk, std::size_t junkLen) override {
             return core::system::recv(this->getFd(), junk, junkLen, 0);
         }
-
-        ssize_t recvMsgToPeer(struct msghdr* msg, int flags) {
-            return recvmsg(this->getFd(), msg, &flags);
-        }
     };
 
 } // namespace core::socket::stream::legacy

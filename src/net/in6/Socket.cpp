@@ -18,7 +18,7 @@
 
 #include "net/in6/Socket.h"
 
-#include "net/Socket.hpp"
+#include "net/Socket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -27,75 +27,10 @@
 namespace net {
 
     template <typename SocketAddress>
-    Socket<SocketAddress>::Socket() {
-        Descriptor::open(-1);
-    }
-
-    template <typename SocketAddress>
-    Socket<SocketAddress>::Socket(int fd) {
-        Descriptor::open(fd);
-
-        socklen_t optLen = sizeof(domain);
-        getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
-        getSockopt(SOL_SOCKET, SO_TYPE, &type, &optLen);
-        getSockopt(SOL_SOCKET, SO_PROTOCOL, &protocol, &optLen);
-    }
-
-    template <typename SocketAddress>
-    Socket<SocketAddress>::Socket(int domain, int type, int protocol)
-        : domain(domain)
-        , type(type)
-        , protocol(protocol) {
-    }
-
-    template <typename SocketAddress>
-    Socket<SocketAddress>& Socket<SocketAddress>::operator=(int fd) {
-        Descriptor::open(fd);
-
-        socklen_t optLen = sizeof(domain);
-        getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
-        getSockopt(SOL_SOCKET, SO_TYPE, &type, &optLen);
-        getSockopt(SOL_SOCKET, SO_PROTOCOL, &protocol, &optLen);
-
-        return *this;
-    }
-
-    template <typename SocketAddressT>
-    int Socket<SocketAddressT>::create(SOCK flags) {
-        return core::system::socket(domain, type | flags, protocol);
-    }
-
-    template <typename SocketAddress>
-    int Socket<SocketAddress>::open(SOCK flags) {
-        int ret = Descriptor::open(create(flags));
-
-        if (ret >= 0) {
-            setSockopt();
-        }
-
-        return ret;
-    }
-
-    template <typename SocketAddress>
-    void Socket<SocketAddress>::setSockopt() {
-    }
-
-    template <typename SocketAddress>
     int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
         this->bindAddress = bindAddress;
 
         return core::system::bind(getFd(), bindAddress, bindAddress.getAddrLen());
-    }
-
-    template <typename SocketAddress>
-    bool Socket<SocketAddress>::isValid() const {
-        return getFd() >= 0;
-    }
-
-    template <typename SocketAddress>
-    int Socket<SocketAddress>::reuseAddress() {
-        int sockopt = 1;
-        return setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
     }
 
     template <typename SocketAddress>
@@ -111,33 +46,19 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int Socket<SocketAddress>::getSockError() {
-        int cErrno = 0;
-        socklen_t cErrnoLen = sizeof(cErrno);
-        int err = getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
-
-        return err == 0 ? cErrno : err;
+    ssize_t Socket<SocketAddress>::sendFd(SocketAddress&& destAddress, int sendfd) {
+        return sendFd(destAddress, sendfd);
     }
 
-    template <typename SocketAddress>
-    int Socket<SocketAddress>::setSockopt(int level, int optname, const void* optval, socklen_t optlen) {
-        return core::system::setsockopt(Socket::getFd(), level, optname, optval, optlen);
-    }
-
-    template <typename SocketAddress>
-    int Socket<SocketAddress>::getSockopt(int level, int optname, void* optval, socklen_t* optlen) {
-        return core::system::getsockopt(Socket::getFd(), level, optname, optval, optlen);
-    }
-
-    template <typename SocketAddress>
-    ssize_t Socket<SocketAddress>::sendFd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd) {
+    template <typename SocketAddressT>
+    ssize_t Socket<SocketAddressT>::sendFd(SocketAddress& destAddress, int sendfd) {
         union {
             struct cmsghdr cm;
             char control[CMSG_SPACE(sizeof(int))] = {};
         } control_un;
 
         msghdr msg;
-        msg.msg_name = const_cast<sockaddr*>(&destAddress.getSockAddr());
+        msg.msg_name = &destAddress.getSockAddr();
         msg.msg_namelen = destAddress.getAddrLen();
 
         msg.msg_control = control_un.control;
@@ -146,8 +67,10 @@ namespace net {
         iovec iov[1];
         msg.msg_iov = iov;
         msg.msg_iovlen = 1;
-        msg.msg_iov[0].iov_base = ptr;
-        msg.msg_iov[0].iov_len = nbytes;
+
+        char ptr = 0;
+        msg.msg_iov[0].iov_base = &ptr;
+        msg.msg_iov[0].iov_len = 1;
 
         cmsghdr* cmptr = CMSG_FIRSTHDR(&msg);
         cmptr->cmsg_level = SOL_SOCKET;
@@ -159,7 +82,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    ssize_t Socket<SocketAddress>::recvFd(void* ptr, size_t nbytes, int* recvfd) {
+    ssize_t Socket<SocketAddress>::recvFd(int* recvfd) {
         union {
             struct cmsghdr cm;
             char control[CMSG_SPACE(sizeof(int))] = {};
@@ -175,8 +98,10 @@ namespace net {
         iovec iov[1];
         msg.msg_iov = iov;
         msg.msg_iovlen = 1;
-        msg.msg_iov[0].iov_base = ptr;
-        msg.msg_iov[0].iov_len = nbytes;
+
+        char ptr;
+        msg.msg_iov[0].iov_base = &ptr;
+        msg.msg_iov[0].iov_len = 1;
 
         ssize_t n = 0;
 
@@ -199,11 +124,6 @@ namespace net {
         }
 
         return n;
-    }
-
-    template <typename SocketAddress>
-    void Socket<SocketAddress>::shutdown(SHUT how) {
-        core::system::shutdown(getFd(), how);
     }
 
     template <typename SocketAddress>

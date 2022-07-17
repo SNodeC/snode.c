@@ -32,8 +32,6 @@
 namespace net::in {
 
     SocketAddress::SocketAddress() {
-        memset(&sockAddr, 0, sizeof(sockAddr));
-
         sockAddr.sin_family = AF_INET;
         sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
         sockAddr.sin_port = 0;

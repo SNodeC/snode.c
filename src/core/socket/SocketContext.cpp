@@ -52,6 +52,10 @@ namespace core::socket {
         socketConnection->setTimeout(timeout);
     }
 
+    Socket& SocketContext::getSocket() {
+        return socketConnection->getSocket();
+    }
+
     void SocketContext::onConnected() {
         PLOG(INFO) << "Protocol connected";
     }

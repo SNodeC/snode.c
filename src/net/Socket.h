@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_H
 #define NET_SOCKET_H
 
-#include "core/Descriptor.h"
+#include "core/socket/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,57 +32,29 @@
 namespace net {
 
     template <typename SocketAddressT>
-    class Socket : public core::Descriptor {
+    class Socket : public core::socket::Socket {
+    private:
+        using Super = core::socket::Socket;
+
     public:
+        using Super::Super;
+        using Super::operator=;
         using SocketAddress = SocketAddressT;
 
-        Socket();
-        Socket(int fd); // cppcheck-suppress noExplicitConstructor
-        Socket(int domain, int type, int protocol);
-
-        Socket& operator=(int fd);
-
-        virtual ~Socket() = default;
-
-        enum SOCK { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
-
-    protected:
-        int create(SOCK flags);
-
-        virtual void setSockopt();
-
     public:
-        int open(SOCK flags = SOCK::NONE);
         int bind(const SocketAddress& bindAddress);
-
-        bool isValid() const;
-
-        int reuseAddress();
 
         int getSockname(SocketAddress& socketAddress);
         int getPeername(SocketAddress& socketAddress);
 
-        int getSockError();
-
-        int setSockopt(int level, int optname, const void* optval, socklen_t optlen);
-        int getSockopt(int level, int optname, void* optval, socklen_t* optlen);
-
-        ssize_t sendFd(const SocketAddress& destAddress, void* ptr, size_t nbytes, int sendfd);
-        ssize_t recvFd(void* ptr, size_t nbytes, int* recvfd);
-
-        enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
-
-        void shutdown(SHUT how);
+        ssize_t sendFd(SocketAddress&& destAddress, int sendfd);
+        ssize_t sendFd(SocketAddress& destAddress, int sendfd);
+        ssize_t recvFd(int* recvfd);
 
         const SocketAddress& getBindAddress() const;
 
     protected:
         SocketAddress bindAddress{};
-
-    private:
-        int domain{};
-        int type{};
-        int protocol{};
     };
 
 } // namespace net

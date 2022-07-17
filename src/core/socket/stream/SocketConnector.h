@@ -86,7 +86,7 @@ namespace core::socket::stream {
     private:
         void initConnectEvent() override {
             socket = new PrimarySocket();
-            if (socket->open(PrimarySocket::SOCK::NONBLOCK) < 0) {
+            if (socket->open(PrimarySocket::Flags::NONBLOCK) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else if (socket->bind(config->getLocalAddress()) < 0) {

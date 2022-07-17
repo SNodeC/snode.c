@@ -24,15 +24,11 @@
 
 #include "core/system/socket.h" // for AF_BLUETOOTH
 
-#include <cstring> // for memset
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::rc {
 
     SocketAddress::SocketAddress() {
-        std::memset(&sockAddr, 0, sizeof(sockAddr));
-
         sockAddr.rc_family = AF_BLUETOOTH;
         sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
         sockAddr.rc_channel = static_cast<unsigned char>(0);

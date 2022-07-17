@@ -19,6 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
+#include "core/socket/Socket.h"
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -134,8 +135,8 @@ namespace core::socket::stream {
             return localAddress;
         }
 
-        int getDescriptor() const override {
-            return SocketConnection::getFd();
+        Socket& getSocket() override {
+            return *this;
         }
 
         std::size_t readFromPeer(char* junk, std::size_t junkLen) final {

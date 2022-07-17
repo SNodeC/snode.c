@@ -32,8 +32,6 @@
 namespace net::in6 {
 
     SocketAddress::SocketAddress() {
-        std::memset(&sockAddr, 0, sizeof(sockAddr));
-
         sockAddr.sin6_family = AF_INET6;
         sockAddr.sin6_addr = in6addr_any;
         sockAddr.sin6_port = 0;

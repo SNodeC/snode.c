@@ -26,6 +26,7 @@ namespace utils {
 }
 
 namespace core::socket {
+    class Socket;               // IWYU pragma: keep
     class SocketConnection;     // IWYU pragma: keep
     class SocketContextFactory; // IWYU pragma: keep
 } // namespace core::socket
@@ -47,6 +48,7 @@ namespace core::socket {
 
     public:
         void setTimeout(const utils::Timeval& timeout);
+        Socket& getSocket();
 
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);

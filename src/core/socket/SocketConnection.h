@@ -28,6 +28,7 @@ namespace utils {
 namespace core::socket {
     class SocketContextFactory; // IWYU pragma: keep
     class SocketContext;        // IWYU pragma: keep
+    class Socket;               // IWYU pragma: keep
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -53,7 +54,7 @@ namespace core::socket {
     public:
         core::socket::SocketContext* getSocketContext();
 
-        virtual int getDescriptor() const = 0;
+        virtual Socket& getSocket() = 0;
 
         virtual void close() = 0;
 

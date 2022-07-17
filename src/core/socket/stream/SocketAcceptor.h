@@ -103,7 +103,7 @@ namespace core::socket::stream {
                 VLOG(0) << "Mode: STANDALONE or PRIMARY";
 
                 primarySocket = new PrimarySocket();
-                if (primarySocket->open(PrimarySocket::SOCK::NONBLOCK) < 0) {
+                if (primarySocket->open(PrimarySocket::Flags::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
 #if !defined(NDEBUG)
@@ -120,7 +120,7 @@ namespace core::socket::stream {
                 } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                     VLOG(0) << "    Cluster: PRIMARY";
                     secondarySocket = new SecondarySocket();
-                    if (secondarySocket->open(SecondarySocket::SOCK::NONBLOCK) < 0) {
+                    if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/primary")) < 0) {
@@ -139,7 +139,7 @@ namespace core::socket::stream {
                        config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
                 VLOG(0) << "    Mode: SECONDARY or PROXY";
                 secondarySocket = new SecondarySocket();
-                if (secondarySocket->open(SecondarySocket::SOCK::NONBLOCK) < 0) {
+                if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/secondary")) < 0) {
@@ -168,8 +168,8 @@ namespace core::socket::stream {
                         } else {
                             // Send descriptor to SECONDARY
                             VLOG(0) << "Sending to secondary";
-                            char msg = 0;
-                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary"), &msg, 1, socket.getFd());
+                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary"), socket.getFd());
+                            SecondarySocket::SocketAddress address;
                         }
                     } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                         PLOG(ERROR) << "accept";
@@ -179,9 +179,8 @@ namespace core::socket::stream {
                        config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
                 // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
                 int fd = -1;
-                char msg;
 
-                if (secondarySocket->recvFd(&msg, 1, &fd) >= 0) {
+                if (secondarySocket->recvFd(&fd) >= 0) {
                     PrimarySocket socket(fd);
 
                     if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY) {
