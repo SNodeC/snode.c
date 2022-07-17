@@ -19,8 +19,6 @@
 #ifndef CORE_SOCKET_SOCKETCONNECTION_H
 #define CORE_SOCKET_SOCKETCONNECTION_H
 
-// IWYU pragma: no_include "core/socket/SocketContextFactory.h"
-
 namespace utils {
     class Timeval;
 }
@@ -34,7 +32,6 @@ namespace core::socket {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
-#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -42,13 +39,11 @@ namespace core::socket {
 namespace core::socket {
 
     class SocketConnection {
-        SocketConnection() = delete;
         SocketConnection(const core::socket::SocketConnection&) = delete;
         SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
 
     protected:
-        SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory);
-
+        SocketConnection() = default;
         virtual ~SocketConnection();
 
     public:
@@ -71,6 +66,8 @@ namespace core::socket {
 
         void onWriteError(int errnum);
         void onReadError(int errnum);
+
+        core::socket::SocketContext* setSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
     public: // will be called class SocketContext
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;

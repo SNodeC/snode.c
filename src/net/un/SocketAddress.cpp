@@ -57,7 +57,7 @@ namespace net::un {
     }
 
     std::string SocketAddress::toString() const {
-        return address() + " (" + std::to_string(addrLen - offsetof(sockaddr_un, sun_path) - 1) + ")";
+        return address();
     }
 
     bad_sunpath::bad_sunpath(const std::string& sunPath) {

@@ -25,8 +25,6 @@
 
 #include "core/system/socket.h" // IWYU pragma: export
 
-#include <functional> // IWYU pragma: export
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket {

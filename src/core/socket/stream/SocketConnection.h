@@ -19,7 +19,6 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
-#include "core/socket/Socket.h"
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -61,8 +60,7 @@ namespace core::socket::stream {
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
                          const utils::Timeval& terminateTimeout)
-            : Super(socketContextFactory)
-            , SocketReader(
+            : SocketReader(
                   [this](int errnum) -> void {
                       onReadError(errnum);
                   },
@@ -80,6 +78,8 @@ namespace core::socket::stream {
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
             SocketConnection::Descriptor::open(fd);
+
+            setSocketContext(socketContextFactory.get());
 
             SocketReader::enable(fd);
             SocketWriter::enable(fd);

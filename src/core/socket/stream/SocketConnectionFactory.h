@@ -19,8 +19,6 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTIONESTABLISHER_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTIONESTABLISHER_H
 
-#include "net/Socket.h"
-
 namespace core::socket {
     class SocketContextFactory;
 }
