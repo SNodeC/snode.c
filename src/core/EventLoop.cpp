@@ -115,10 +115,13 @@ namespace core {
 
         sigemptyset(&sact.sa_mask);
         sact.sa_flags = 0;
-        sact.sa_handler = EventLoop::stoponsig;
+
+        sact.sa_handler = SIG_IGN;
 
         struct sigaction oldPipeAct;
         sigaction(SIGPIPE, &sact, &oldPipeAct);
+
+        sact.sa_handler = EventLoop::stoponsig;
 
         struct sigaction oldIntAct;
         sigaction(SIGINT, &sact, &oldIntAct);
