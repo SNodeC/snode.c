@@ -67,8 +67,6 @@ namespace core::socket::stream {
             : SocketServer("", onConnect, onConnected, onDisconnect, options) {
         }
 
-        SocketServer(const SocketServer&) = default;
-
         using Super::listen;
 
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {

@@ -30,8 +30,6 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional> // for function
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROUTE_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                           \
@@ -40,7 +38,7 @@ namespace express {
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda, Lambdas... lambdas) {             \
+    Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas) {              \
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }
 

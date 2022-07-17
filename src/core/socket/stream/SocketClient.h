@@ -73,8 +73,6 @@ namespace core::socket::stream {
             : SocketClient("", onConnect, onConnected, onDisconnect, options) {
         }
 
-        SocketClient(const SocketClient&) = default;
-
         using Super::connect;
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const override {

@@ -38,10 +38,10 @@
         return routes().emplace_back(Route(HTTP_METHOD, relativeMountPath, rootRoute.getDispatcher()));                                    \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath,                                                                         \
-                             const std::function<void(Request & req, Response & res, Next & state)>& lambda) {                             \
+                             const std::function<void(Request & req, Response & res, Next & next)>& lambda) {                              \
         return routes().emplace_back(Route(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)));   \
     }                                                                                                                                      \
-    Route& RootRoute::METHOD(const std::function<void(Request & req, Response & res, Next & state)>& lambda) {                             \
+    Route& RootRoute::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda) {                              \
         return routes().emplace_back(Route(HTTP_METHOD, "/", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)));                 \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {     \
