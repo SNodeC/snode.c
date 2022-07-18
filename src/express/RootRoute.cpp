@@ -19,7 +19,7 @@
 #include "express/RootRoute.h"
 
 #include "express/Response.h"
-#include "express/State.h"
+#include "express/Controller.h"
 #include "express/dispatcher/ApplicationDispatcher.h"
 #include "express/dispatcher/MiddlewareDispatcher.h"
 #include "express/dispatcher/RouterDispatcher.h"
@@ -62,16 +62,16 @@ namespace express {
     }
 
     void RootRoute::dispatch(Request& req, Response& res) {
-        dispatch(State(req, res));
+        dispatch(Controller(req, res));
     }
 
-    void RootRoute::dispatch(State&& state) {
+    void RootRoute::dispatch(Controller&& state) {
         state.setRootRoute(this);
 
         dispatch(state);
     }
 
-    void RootRoute::dispatch(State& state) {
+    void RootRoute::dispatch(Controller& state) {
         if (!Route::dispatch(state, "")) {
             state.getResponse()->sendStatus(404);
         }

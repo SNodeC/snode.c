@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "express/State.h"
+#include "express/Controller.h"
 
 #include "core/EventLoop.h"
 #include "express/Request.h"
@@ -28,34 +28,34 @@
 
 namespace express {
 
-    State::State(Request& request, Response& response)
+    Controller::Controller(Request& request, Response& response)
         : lastTick(core::EventLoop::getTickCounter())
         , request(&request)
         , response(&response) {
         request.extend();
     }
 
-    void State::setRootRoute(RootRoute* rootRoute) {
+    void Controller::setRootRoute(RootRoute* rootRoute) {
         this->rootRoute = rootRoute;
     }
 
-    void State::setCurrentRoute(Route* currentRoute) {
+    void Controller::setCurrentRoute(Route* currentRoute) {
         this->currentRoute = currentRoute;
     }
 
-    Request* State::getRequest() const {
+    Request* Controller::getRequest() const {
         return request;
     }
 
-    Response* State::getResponse() const {
+    Response* Controller::getResponse() const {
         return response;
     }
 
-    int State::getFlags() const {
+    int Controller::getFlags() const {
         return flags;
     }
 
-    void State::next(const std::string& how) {
+    void Controller::next(const std::string& how) {
         flags = NEXT;
 
         if (how == "route") {
@@ -71,26 +71,26 @@ namespace express {
         }
     }
 
-    bool State::nextRouter() {
+    bool Controller::nextRouter() {
         bool breakDispatching = false;
 
-        if (lastRoute == currentRoute && (flags & State::NEXT_ROUTER) != 0) {
-            flags &= ~State::NEXT_ROUTER;
+        if (lastRoute == currentRoute && (flags & Controller::NEXT_ROUTER) != 0) {
+            flags &= ~Controller::NEXT_ROUTER;
             breakDispatching = true;
         }
 
         return breakDispatching;
     }
 
-    bool State::dispatchNext(const std::string& parentMountPath) {
+    bool Controller::dispatchNext(const std::string& parentMountPath) {
         bool dispatched = false;
 
-        if (((flags & State::NEXT) != 0)) {
+        if (((flags & Controller::NEXT) != 0)) {
             if (lastRoute == currentRoute) {
-                flags &= ~State::NEXT;
-                if ((flags & State::NEXT_ROUTE) != 0) {
-                    flags &= ~State::NEXT_ROUTE;
-                } else if ((flags & State::NEXT_ROUTER) == 0) {
+                flags &= ~Controller::NEXT;
+                if ((flags & Controller::NEXT_ROUTE) != 0) {
+                    flags &= ~Controller::NEXT_ROUTE;
+                } else if ((flags & Controller::NEXT_ROUTER) == 0) {
                     dispatched = currentRoute->dispatchNext(*this, parentMountPath);
                 }
             } else { // ? Optimization: Dispatch only parent route matched path

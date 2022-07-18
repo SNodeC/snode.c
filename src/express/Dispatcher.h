@@ -22,7 +22,7 @@
 namespace express {
 
     class Route;
-    class State;
+    class Controller;
     struct MountPoint;
 
 } // namespace express
@@ -44,8 +44,8 @@ namespace express {
         Dispatcher() = default;
         virtual ~Dispatcher() = default;
 
-        virtual bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
-        bool dispatchNext(State& state, const std::string& parentMountPath);
+        virtual bool dispatch(Controller& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
+        bool dispatchNext(Controller& state, const std::string& parentMountPath);
 
     protected:
         std::shared_ptr<Route> next = nullptr;

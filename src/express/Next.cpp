@@ -26,7 +26,7 @@
 
 namespace express {
 
-    Next::Next(State& state)
+    Next::Next(Controller& state)
         : state(state) {
     }
 

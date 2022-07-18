@@ -20,7 +20,7 @@
 
 #include "express/Request.h" // for Request
 #include "express/Route.h"   // for Route
-#include "express/State.h"   // for State, State::INH, State::NXT
+#include "express/Controller.h"   // for State, State::INH, State::NXT
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,7 +33,7 @@ namespace express::dispatcher {
         return routes;
     }
 
-    bool RouterDispatcher::dispatch(express::State& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
+    bool RouterDispatcher::dispatch(express::Controller& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);

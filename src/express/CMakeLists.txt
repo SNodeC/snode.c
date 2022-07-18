@@ -23,6 +23,7 @@ set(NLOHMANN_JSON_FOUND
 )
 
 set(HTTP_SERVER_EXPRESS_CPP
+    Controller.cpp
     Dispatcher.cpp
     MountPoint.cpp
     Next.cpp
@@ -31,7 +32,6 @@ set(HTTP_SERVER_EXPRESS_CPP
     Route.cpp
     RootRoute.cpp
     Router.cpp
-    State.cpp
     WebApp.cpp
     dispatcher/ApplicationDispatcher.cpp
     dispatcher/MiddlewareDispatcher.cpp
@@ -44,6 +44,7 @@ set(HTTP_SERVER_EXPRESS_CPP
 )
 
 set(HTTP_SERVER_EXPRESS_H
+    Controller.h
     Dispatcher.h
     MountPoint.h
     Next.h
@@ -52,7 +53,6 @@ set(HTTP_SERVER_EXPRESS_H
     Route.h
     Router.h
     RootRoute.h
-    State.h
     WebApp.h
     WebAppT.h
     dispatcher/ApplicationDispatcher.h

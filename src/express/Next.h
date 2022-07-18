@@ -19,7 +19,7 @@
 #ifndef EXPRESS_NEXT_H
 #define EXPRESS_NEXT_H
 
-#include "express/State.h" // IWYU pragma: export
+#include "express/Controller.h" // IWYU pragma: export
 
 namespace express::dispatcher {
 
@@ -37,12 +37,12 @@ namespace express {
 
     class Next {
     public:
-        explicit Next(State& state);
+        explicit Next(Controller& state);
 
         void operator()(const std::string& how = "");
 
     private:
-        State state;
+        Controller state;
 
         friend class dispatcher::MiddlewareDispatcher;
     };

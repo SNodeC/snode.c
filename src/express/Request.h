@@ -41,7 +41,7 @@ namespace express {
     protected:
         Request& extend();
 
-        friend class State;
+        friend class Controller;
     };
 
 } // namespace express

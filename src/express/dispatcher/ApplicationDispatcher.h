@@ -26,7 +26,7 @@ namespace express {
     struct MountPoint;
     class Request;
     class Response;
-    class State;
+    class Controller;
 
 } // namespace express
 
@@ -44,7 +44,7 @@ namespace express::dispatcher {
         explicit ApplicationDispatcher(const std::function<void(express::Request& req, express::Response& res)>& lambda);
 
     private:
-        bool dispatch(express::State& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
+        bool dispatch(express::Controller& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
         const std::function<void(express::Request& req, express::Response& res)> lambda;
     };

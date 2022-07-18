@@ -25,7 +25,7 @@
 
 namespace express {
 
-    class State;
+    class Controller;
     class Route; // IWYU pragma: keep
 
 } // namespace express
@@ -44,7 +44,7 @@ namespace express::dispatcher {
         std::list<express::Route>& getRoutes();
 
     private:
-        bool dispatch(express::State& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
+        bool dispatch(express::Controller& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
         std::list<express::Route> routes;
     };

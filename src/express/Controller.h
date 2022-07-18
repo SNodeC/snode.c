@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_DISPATCHER_STATE_H
-#define EXPRESS_DISPATCHER_STATE_H
+#ifndef EXPRESS_DISPATCHER_CONTROLLER_H
+#define EXPRESS_DISPATCHER_CONTROLLER_H
 
 namespace express {
 
@@ -36,9 +36,9 @@ namespace express {
 
 namespace express {
 
-    class State {
+    class Controller {
     public:
-        State(Request& request, Response& response);
+        Controller(Request& request, Response& response);
 
         void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* newCurrentRoute);
@@ -69,4 +69,4 @@ namespace express {
 
 } // namespace express
 
-#endif // EXPRESS_DISPATCHER_STATE_H
+#endif // EXPRESS_DISPATCHER_CONTROLLER_H

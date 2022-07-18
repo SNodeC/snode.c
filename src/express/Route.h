@@ -23,7 +23,7 @@
 
 namespace express {
 
-    class State;
+    class Controller;
     class Dispatcher;
     class Request;
     class Response;
@@ -68,9 +68,9 @@ namespace express {
     protected:
         Route();
 
-        bool dispatch(State& state);
-        bool dispatch(State& state, const std::string& parentMountPath);
-        bool dispatchNext(State& state, const std::string& parentMountPath);
+        bool dispatch(Controller& state);
+        bool dispatch(Controller& state, const std::string& parentMountPath);
+        bool dispatchNext(Controller& state, const std::string& parentMountPath);
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
@@ -92,7 +92,7 @@ namespace express {
         friend class Dispatcher;
         friend class RootRoute;
         friend class Route;
-        friend class State;
+        friend class Controller;
     };
 
 } // namespace express

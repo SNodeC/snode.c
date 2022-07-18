@@ -18,7 +18,7 @@
 
 #include "express/Route.h"
 
-#include "express/State.h"
+#include "express/Controller.h"
 #include "express/dispatcher/ApplicationDispatcher.h"
 #include "express/dispatcher/MiddlewareDispatcher.h"
 #include "express/dispatcher/RouterDispatcher.h"
@@ -53,11 +53,11 @@ namespace express {
         , dispatcher(dispatcher) {
     }
 
-    bool Route::dispatch(State& state) {
+    bool Route::dispatch(Controller& state) {
         return dispatch(state, "");
     }
 
-    bool Route::dispatch(State& state, const std::string& parentMountPath) {
+    bool Route::dispatch(Controller& state, const std::string& parentMountPath) {
         state.setCurrentRoute(this);
 
         bool dispatched = dispatcher->dispatch(state, parentMountPath, mountPoint);
@@ -69,7 +69,7 @@ namespace express {
         return dispatched;
     }
 
-    bool Route::dispatchNext(State& state, const std::string& parentMountPath) {
+    bool Route::dispatchNext(Controller& state, const std::string& parentMountPath) {
         return dispatcher->dispatchNext(state, parentMountPath);
     }
 
