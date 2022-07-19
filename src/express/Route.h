@@ -91,7 +91,6 @@ namespace express {
         friend class dispatcher::RouterDispatcher;
         friend class Dispatcher;
         friend class RootRoute;
-        friend class Route;
         friend class Controller;
     };
 
