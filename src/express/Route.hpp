@@ -30,6 +30,8 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional> // for function
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROUTE_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                           \
