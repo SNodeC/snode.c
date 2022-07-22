@@ -66,9 +66,8 @@ namespace core {
     void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         if (observedEventReceiversDirty) {
             observedEventReceiversDirty = false;
-            std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
-                // cppcheck-suppress variableScope
-                auto& [fd, observedEventReceiverList] = observedEventReceiversEntry;
+
+            for (auto& [fd, observedEventReceiverList] : observedEventReceivers) {
                 DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
                 std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
                     bool isDisabled = !descriptorEventReceiver->isEnabled();
@@ -80,6 +79,7 @@ namespace core {
                     }
                     return isDisabled;
                 });
+
                 if (observedEventReceiverList.empty()) {
                     muxDel(fd);
                 } else {
@@ -93,7 +93,9 @@ namespace core {
                         }
                     }
                 }
-                return observedEventReceiverList.empty();
+            }
+            std::erase_if(observedEventReceivers, [](auto& observedEventReceiversEntry) -> bool {
+                return observedEventReceiversEntry.second.empty();
             });
         }
     }
