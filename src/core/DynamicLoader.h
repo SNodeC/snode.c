@@ -34,8 +34,8 @@ namespace core {
     class DynamicLoader {
     private:
         struct Library {
-            std::string fileName = ""; // cppcheck-suppress unusedStructMember
-            std::size_t refCount = 0;  // cppcheck-suppress unusedStructMember
+            std::string fileName = "";
+            std::size_t refCount = 0;
         };
 
         DynamicLoader() = delete;

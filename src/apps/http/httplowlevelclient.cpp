@@ -35,8 +35,9 @@
 #include <openssl/x509.h>   // for X509_NAME_oneline
 #include <openssl/x509v3.h> // for GENERAL_NAME
 #include <type_traits>      // for add_const<>::type
-#include <utility>          // for tuple_element<>...
+#include <utility>          // IWYU pragma: keep
 
+// IWYU pragma: no_include <bits/utility.h>
 // IWYU pragma: no_include <openssl/ssl3.h>
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L

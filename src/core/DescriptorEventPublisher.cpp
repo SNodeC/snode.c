@@ -27,6 +27,8 @@
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>::type
 
+// IWYU pragma: no_include <bits/utility.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -69,31 +71,32 @@ namespace core {
 
             for (auto& [fd, observedEventReceiverList] : observedEventReceivers) {
                 DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
-                std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
-                    bool isDisabled = !descriptorEventReceiver->isEnabled();
-                    if (isDisabled) {
-                        descriptorEventReceiver->setDisabled();
-                        if (!descriptorEventReceiver->isObserved()) {
-                            descriptorEventReceiver->unobservedEvent();
+                if (std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
+                        bool isDisabled = !descriptorEventReceiver->isEnabled();
+                        if (isDisabled) {
+                            descriptorEventReceiver->setDisabled();
+                            if (!descriptorEventReceiver->isObserved()) {
+                                descriptorEventReceiver->unobservedEvent();
+                            }
                         }
-                    }
-                    return isDisabled;
-                });
-
-                if (observedEventReceiverList.empty()) {
-                    muxDel(fd);
-                } else {
-                    DescriptorEventReceiver* afterFirst = observedEventReceiverList.front();
-                    if (beforeFirst != afterFirst) {
-                        afterFirst->triggered(currentTime);
-                        if (!afterFirst->isSuspended()) {
-                            muxOn(afterFirst);
-                        } else {
-                            muxOff(afterFirst);
+                        return isDisabled;
+                    }) > 0) {
+                    if (observedEventReceiverList.empty()) {
+                        muxDel(fd);
+                    } else {
+                        DescriptorEventReceiver* afterFirst = observedEventReceiverList.front();
+                        if (beforeFirst != afterFirst) {
+                            afterFirst->triggered(currentTime);
+                            if (!afterFirst->isSuspended()) {
+                                muxOn(afterFirst);
+                            } else {
+                                muxOff(afterFirst);
+                            }
                         }
                     }
                 }
             }
+
             std::erase_if(observedEventReceivers, [](auto& observedEventReceiversEntry) -> bool {
                 return observedEventReceiversEntry.second.empty();
             });

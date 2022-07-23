@@ -26,6 +26,7 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <utility> // for move

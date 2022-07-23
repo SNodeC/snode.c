@@ -46,8 +46,8 @@ namespace web::http {
 
     private:
         using SocketContextPlugin = struct SocketContextPlugin {
-            SocketContextUpgradeFactory* socketContextUpgradeFactory; // cppcheck-suppress unusedStructMember
-            void* handle = nullptr;                                   // cppcheck-suppress unusedStructMember
+            SocketContextUpgradeFactory* socketContextUpgradeFactory;
+            void* handle = nullptr;
         };
 
     public:

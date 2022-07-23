@@ -27,7 +27,9 @@
 #include "web/http/legacy/in/Client.h" // for Client, Client<>...
 
 #include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>:...
+#include <utility>     // IWYU pragma: keep
+
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

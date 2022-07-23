@@ -28,6 +28,8 @@
 #include <tuple>   // for tie, tuple
 #include <utility> // for tuple_element<>::type, pair
 
+// IWYU pragma: no_include <bits/utility.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 // ************** TWO LINER ***************
@@ -98,7 +100,7 @@ namespace web::http::client {
     }
 
     enum Parser::ParserState ResponseParser::parseHeader() {
-        for (const auto& [headerFieldName, headerFieldValue] : Parser::headers) { // cppcheck-suppress unassignedVariable
+        for (const auto& [headerFieldName, headerFieldValue] : Parser::headers) {
             if (headerFieldName != "set-cookie") {
                 if (headerFieldName == "content-length") {
                     Parser::contentLength = static_cast<std::size_t>(std::stoi(headerFieldValue));

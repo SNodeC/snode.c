@@ -30,9 +30,10 @@
 #include <openssl/ssl.h>  // IWYU pragma: keep
 #include <openssl/x509.h> // for X509_NAME_oneline, X509_STORE_CTX_get_current_cert, X509_STORE_CTX_get_error, X509_STORE_CTX_get_error_depth, X509_get_subject_name, X509_verify_cert_error_string, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN
 #include <string>
-#include <utility> // for tuple_element<>::type
+#include <utility> // IWYU pragma: keep
 
 // IWYU pragma: no_include <openssl/ssl3.h>
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -92,7 +93,7 @@ namespace core::socket::stream::tls {
         std::string caDir;
         bool useDefaultCaDir = false;
 
-        for (const auto& [name, value] : options) { // cppcheck-suppress unassignedVariable
+        for (const auto& [name, value] : options) {
             if (name == "CertChain") {
                 certChain = std::any_cast<const char*>(value);
             } else if (name == "CertChainKey") {
