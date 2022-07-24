@@ -18,9 +18,6 @@
 
 #include "ExceptionalConditionEventReceiver.h"
 
-#include "core/EventLoop.h"
-#include "core/EventMultiplexer.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -29,9 +26,7 @@ namespace core::eventreceiver {
 
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const std::string& name, const utils::Timeval& timeout)
         : core::DescriptorEventReceiver(
-              "ExceptionalConditionEventReceiver: " + name,
-              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::EX),
-              timeout) {
+              "ExceptionalConditionEventReceiver: " + name, core::DescriptorEventReceiver::DISP_TYPE::EX, timeout) {
     }
 
     void ExceptionalConditionEventReceiver::outOfBandTimeout() {

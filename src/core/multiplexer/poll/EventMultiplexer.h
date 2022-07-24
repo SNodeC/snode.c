@@ -19,15 +19,7 @@
 #ifndef CORE_POLL_EVENTDISPATCHER_H
 #define CORE_POLL_EVENTDISPATCHER_H
 
-#include "core/EventMultiplexer.h"
-
-namespace core {
-    class DescriptorEventReceiver;
-}
-
-namespace utils {
-    class Timeval;
-}
+#include "core/EventMultiplexer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -20,7 +20,6 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
-#include "core/eventreceiver/InitConnectEventReceiver.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
 
 namespace core::socket {

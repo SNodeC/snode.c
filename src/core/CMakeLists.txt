@@ -16,8 +16,6 @@ set(CORE_CPP
     eventreceiver/AcceptEventReceiver.cpp
     eventreceiver/ConnectEventReceiver.cpp
     eventreceiver/ExceptionalConditionEventReceiver.cpp
-    eventreceiver/InitAcceptEventReceiver.cpp
-    eventreceiver/InitConnectEventReceiver.cpp
     eventreceiver/ReadEventReceiver.cpp
     eventreceiver/WriteEventReceiver.cpp
     file/File.cpp
@@ -61,8 +59,6 @@ set(CORE_H
     eventreceiver/AcceptEventReceiver.h
     eventreceiver/ConnectEventReceiver.h
     eventreceiver/ExceptionalConditionEventReceiver.h
-    eventreceiver/InitAcceptEventReceiver.h
-    eventreceiver/InitConnectEventReceiver.h
     eventreceiver/ReadEventReceiver.h
     eventreceiver/WriteEventReceiver.h
     file/File.h

@@ -19,7 +19,8 @@
 #ifndef CORE_EVENTMULTIPLEXER_H
 #define CORE_EVENTMULTIPLEXER_H
 
-#include "core/TickStatus.h" // IWYU pragma: export
+#include "core/DescriptorEventReceiver.h" // IWYU pragma: export
+#include "core/TickStatus.h"              // IWYU pragma: export
 
 namespace core {
     class Event;
@@ -28,7 +29,7 @@ namespace core {
 } // namespace core
 
 namespace utils {
-    class Timeval;
+    class Timeval; // IWYU pragma: keep
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -74,9 +75,8 @@ namespace core {
 
     public:
 #define DISP_COUNT 3
-        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
-        DescriptorEventPublisher& getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE dispType);
+        DescriptorEventPublisher& getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType);
         TimerEventPublisher& getTimerEventPublisher();
 
         void publish(core::Event* event);

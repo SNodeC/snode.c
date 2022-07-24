@@ -19,6 +19,8 @@
 #include "DescriptorEventReceiver.h"
 
 #include "DescriptorEventPublisher.h"
+#include "EventLoop.h"
+#include "EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,11 +36,9 @@ namespace core {
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {-1, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::MAX = {LONG_MAX, 0};
 
-    DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name,
-                                                     DescriptorEventPublisher& descriptorEventPublisher,
-                                                     const utils::Timeval& timeout)
+    DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name, DISP_TYPE dispType, const utils::Timeval& timeout)
         : EventReceiver(name)
-        , descriptorEventPublisher(descriptorEventPublisher)
+        , descriptorEventPublisher(core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(dispType))
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }

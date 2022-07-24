@@ -19,7 +19,6 @@
 #include "EventMultiplexer.h"
 
 #include "DescriptorEventPublisher.h"
-#include "DescriptorEventReceiver.h"
 #include "DynamicLoader.h"
 #include "Event.h" // for Event
 #include "TimerEventPublisher.h"
@@ -49,7 +48,7 @@ namespace core {
         delete timerEventPublisher;
     }
 
-    DescriptorEventPublisher& EventMultiplexer::getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE dispType) {
+    DescriptorEventPublisher& EventMultiplexer::getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType) {
         return *descriptorEventPublishers[dispType];
     }
 

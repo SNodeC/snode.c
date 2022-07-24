@@ -20,7 +20,6 @@
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
-#include "core/eventreceiver/InitAcceptEventReceiver.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
 #include "net/config/ConfigCluster.h"
 #include "net/un/dgram/Socket.h"

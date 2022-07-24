@@ -23,9 +23,7 @@ namespace core {
     class DescriptorEventPublisher;
 } // namespace core
 
-#include "EventReceiver.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "core/EventReceiver.h"
+#include "core/EventReceiver.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -64,7 +62,7 @@ namespace core {
     };
 
     class DescriptorEventReceiver
-        : virtual public Observer
+        : virtual protected Observer
         , public EventReceiver {
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
@@ -77,9 +75,11 @@ namespace core {
             static const utils::Timeval MAX;
         };
 
-        explicit DescriptorEventReceiver(const std::string& name,
-                                         DescriptorEventPublisher& descriptorEventPublisher,
-                                         const utils::Timeval& timeout = TIMEOUT::DISABLE);
+        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
+
+        DescriptorEventReceiver(const std::string& name,
+                                core::DescriptorEventReceiver::DISP_TYPE dispType,
+                                const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
         int getRegisteredFd();
 

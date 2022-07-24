@@ -19,11 +19,8 @@
 #include "EventMultiplexer.h"
 
 #include "DescriptorEventPublisher.h"
-#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "utils/Timeval.h" // IWYU pragma: keep
 
 #include <algorithm> // for remove_if
 #include <cstdint>

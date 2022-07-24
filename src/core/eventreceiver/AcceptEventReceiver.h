@@ -43,6 +43,16 @@ namespace core::eventreceiver {
         void timeoutEvent() final;
     };
 
+    class InitAcceptEventReceiver : public core::EventReceiver {
+    protected:
+        InitAcceptEventReceiver(const std::string& name);
+
+    private:
+        void event(const utils::Timeval& currentTime) override;
+
+        virtual void initAcceptEvent() = 0;
+    };
+
 } // namespace core::eventreceiver
 
 #endif // CORE_EVENTRECEIVER_ACCEPTEVENTRECEIVER_H

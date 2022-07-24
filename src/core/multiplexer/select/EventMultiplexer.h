@@ -24,10 +24,6 @@
 
 // IWYU pragma: no_include "core/multiplexer/select/DescriptorEventPublisher.h"
 
-namespace utils {
-    class Timeval;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

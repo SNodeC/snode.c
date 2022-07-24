@@ -43,6 +43,16 @@ namespace core::eventreceiver {
         void timeoutEvent() final;
     };
 
+    class InitConnectEventReceiver : public core::EventReceiver {
+    protected:
+        InitConnectEventReceiver(const std::string& name);
+
+    private:
+        void event(const utils::Timeval& currentTime) override;
+
+        virtual void initConnectEvent() = 0;
+    };
+
 } // namespace core::eventreceiver
 
 #endif // CORE_EVENTRECEIVER_CONNECTEVENTRECEIVER_H
