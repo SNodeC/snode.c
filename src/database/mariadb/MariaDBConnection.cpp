@@ -20,7 +20,6 @@
 #include "database/mariadb/MariaDBConnection.h"
 
 #include "database/mariadb/MariaDBClient.h"
-#include "database/mariadb/MariaDBCommand.h" // for MariaDBCommand
 #include "database/mariadb/commands/async/MariaDBConnectCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
