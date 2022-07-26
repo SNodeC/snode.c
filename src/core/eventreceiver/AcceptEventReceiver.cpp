@@ -26,7 +26,6 @@ namespace core::eventreceiver {
 
     AcceptEventReceiver::AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout)
         : core::DescriptorEventReceiver("AcceptEventReceiver: " + name, core::DescriptorEventReceiver::DISP_TYPE::RD, timeout) {
-
     }
 
     void AcceptEventReceiver::acceptTimeout() {

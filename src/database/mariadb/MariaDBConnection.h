@@ -55,8 +55,6 @@ namespace database::mariadb {
         void event(const utils::Timeval& currentTime) override;
 
         MariaDBConnection* mariaDBConnection = nullptr;
-
-        //        bool published = false;
     };
 
     class MariaDBConnection

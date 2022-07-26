@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGCLUSTER_H
 #define NET_CONFIG_CONFIGCLUSTER_H
 
-#include "net/config/ConfigBase.h"
+#include "net/config/ConfigBase.h" // IWYU pragma: export
 
 namespace CLI {
     class App;

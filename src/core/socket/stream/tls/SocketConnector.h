@@ -20,7 +20,7 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 
 #include "core/socket/stream/SocketConnector.h"
-#include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -46,7 +46,7 @@ namespace express::dispatcher {
             const std::function<void(express::Request& req, express::Response& res, express::Next& next)>& lambda);
 
     private:
-        bool dispatch(express::Controller& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
+        bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
         const std::function<void(express::Request& req, express::Response& res, express::Next& next)> lambda;
     };

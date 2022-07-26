@@ -26,12 +26,12 @@
 
 namespace express {
 
-    Next::Next(Controller& state)
-        : state(state) {
+    Next::Next(Controller& controller)
+        : controller(controller) {
     }
 
     void Next::operator()(const std::string& how) {
-        state.next(how);
+        controller.next(how);
     }
 
 } // namespace express

@@ -1,7 +1,5 @@
 #include "TowerCalculator.h"
 
-//#include "log/Logger.h"
-
 #include <iostream>
 #include <string>
 

@@ -19,7 +19,7 @@
 #ifndef WEB_WEBSOCKET_SERVER_SOCKTECONTEXT_H
 #define WEB_WEBSOCKET_SERVER_SOCKTECONTEXT_H
 
-#include "web/websocket/SocketContextUpgrade.h" // IWYU pragma: export
+#include "web/websocket/SocketContextUpgrade.h"
 
 namespace core::socket {
     class SocketConnection;
@@ -36,8 +36,7 @@ namespace web::websocket::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // IWYU pragma: export
-#include <string>  // for string
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

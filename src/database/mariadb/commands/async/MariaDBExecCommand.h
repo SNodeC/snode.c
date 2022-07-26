@@ -20,7 +20,7 @@
 #ifndef DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBINSERTCOMMAND
 #define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBINSERTCOMMAND
 
-#include "database/mariadb/MariaDBCommandASync.h" // IWYU pragma: export
+#include "database/mariadb/MariaDBCommandASync.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

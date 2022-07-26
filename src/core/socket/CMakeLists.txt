@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CORE_SOCKET_CPP Socket.cpp SocketConnection.cpp SocketContext.cpp)
 
-set(CORE_SOCKET_H Socket.h SocketConnection.h SocketContext.h SocketContextFactory.h)
+set(CORE_SOCKET_H Socket.h SocketConnection.h SocketContext.h
+                  SocketContextFactory.h
+)
 
 add_library(core-socket SHARED ${CORE_SOCKET_CPP} ${CORE_SOCKET_H})
 add_library(snodec::core-socket ALIAS core-socket)

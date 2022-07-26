@@ -26,8 +26,6 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-//#include "utils/CLI11.hpp"
-
 #include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

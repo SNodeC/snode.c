@@ -19,13 +19,12 @@
 #ifndef CORE_SOCKET_SOCKETCONTEXT_H
 #define CORE_SOCKET_SOCKETCONTEXT_H
 
-#include "core/socket/Socket.h" // IWYU pragma: export
-
 namespace utils {
     class Timeval;
 }
 
 namespace core::socket {
+    class Socket;
     class SocketConnection;
     class SocketContextFactory;
 } // namespace core::socket

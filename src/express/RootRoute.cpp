@@ -18,8 +18,8 @@
 
 #include "express/RootRoute.h"
 
-#include "express/Response.h"
 #include "express/Controller.h"
+#include "express/Response.h"
 #include "express/dispatcher/ApplicationDispatcher.h"
 #include "express/dispatcher/MiddlewareDispatcher.h"
 #include "express/dispatcher/RouterDispatcher.h"

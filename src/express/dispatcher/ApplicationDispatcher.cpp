@@ -18,9 +18,9 @@
 
 #include "ApplicationDispatcher.h"
 
+#include "express/Controller.h" // for State, State::INH
 #include "express/MountPoint.h"
 #include "express/Request.h" // for Request
-#include "express/Controller.h"   // for State, State::INH
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,7 +33,8 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool ApplicationDispatcher::dispatch(express::Controller& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
+    bool
+    ApplicationDispatcher::dispatch(express::Controller& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
         if ((state.getFlags() & Controller::NEXT) == 0) {

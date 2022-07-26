@@ -18,9 +18,9 @@
 
 #include "express/dispatcher/RouterDispatcher.h"
 
-#include "express/Request.h" // for Request
-#include "express/Route.h"   // for Route
-#include "express/Controller.h"   // for State, State::INH, State::NXT
+#include "express/Controller.h" // for State, State::INH, State::NXT
+#include "express/Request.h"    // for Request
+#include "express/Route.h"      // for Route
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

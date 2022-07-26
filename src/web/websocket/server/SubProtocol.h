@@ -19,7 +19,7 @@
 #ifndef WEB_WEBSOCKET_SERVER_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SERVER_SUBSPROTOCOL_H
 
-#include "web/websocket/SubProtocol.h" // IWYU pragma: export
+#include "web/websocket/SubProtocol.h"
 
 // IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
 

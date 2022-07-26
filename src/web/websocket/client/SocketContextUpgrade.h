@@ -19,7 +19,7 @@
 #ifndef WEB_WEBSOCKET_CLIENT_SOCKETCONTEXT_H
 #define WEB_WEBSOCKET_CLIENT_SOCKETCONTEXT_H
 
-#include "web/websocket/SocketContextUpgrade.h" // IWYU pragma: export
+#include "web/websocket/SocketContextUpgrade.h"
 
 namespace core::socket {
     class SocketConnection;

@@ -27,7 +27,7 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/epoll.h" // IWYU pragma: export
+#include "core/system/epoll.h"
 
 #include <cstdint>
 #include <string> // for string

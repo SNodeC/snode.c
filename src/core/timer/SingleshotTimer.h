@@ -19,7 +19,7 @@
 #ifndef NET_TIMER_SINGLESHOTTIMER_H
 #define NET_TIMER_SINGLESHOTTIMER_H
 
-#include "core/TimerEventReceiver.h" // IWYU pragma: export
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

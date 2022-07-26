@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "core/socket/SocketContextFactory.h" // IWYU pragma: export
+#include "core/socket/SocketContextFactory.h"
 
 namespace core::socket {
     class SocketContext;

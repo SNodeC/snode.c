@@ -19,7 +19,7 @@
 #ifndef CORE_TIMEREVENTRECEIVER_H
 #define CORE_TIMEREVENTRECEIVER_H
 
-#include "core/EventReceiver.h" // IWYU pragma: export
+#include "core/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

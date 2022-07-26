@@ -37,12 +37,12 @@ namespace express {
 
     class Next {
     public:
-        explicit Next(Controller& state);
+        explicit Next(Controller& controller);
 
         void operator()(const std::string& how = "");
 
     private:
-        Controller state;
+        Controller controller;
 
         friend class dispatcher::MiddlewareDispatcher;
     };

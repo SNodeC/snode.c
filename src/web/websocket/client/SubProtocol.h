@@ -19,7 +19,7 @@
 #ifndef WEB_WEBSOCKET_CLIENT_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_CLIENT_SUBSPROTOCOL_H
 
-#include "web/websocket/SubProtocol.h" // IWYU pragma: export
+#include "web/websocket/SubProtocol.h"
 
 namespace web::websocket::client {
     class SocketContextUpgrade;
