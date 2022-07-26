@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EventMultiplexer.h"
+#include "core/EventMultiplexer.h"
 
-#include "DescriptorEventPublisher.h"
-#include "DynamicLoader.h"
-#include "Event.h" // for Event
-#include "TimerEventPublisher.h"
+#include "core/DescriptorEventPublisher.h"
+#include "core/DynamicLoader.h"
+#include "core/Event.h" // for Event
+#include "core/TimerEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

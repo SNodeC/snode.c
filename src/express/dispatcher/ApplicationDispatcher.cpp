@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ApplicationDispatcher.h"
+#include "express/dispatcher/ApplicationDispatcher.h"
 
 #include "express/Controller.h" // for State, State::INH
 #include "express/MountPoint.h"

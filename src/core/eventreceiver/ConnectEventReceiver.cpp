@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ConnectEventReceiver.h"
+#include "core/eventreceiver/ConnectEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

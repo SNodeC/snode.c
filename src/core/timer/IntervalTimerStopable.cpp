@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IntervalTimerStopable.h"
+#include "core/timer/IntervalTimerStopable.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DescriptorEventPublisher.h"
+#include "core/multiplexer/select/DescriptorEventPublisher.h"
 
 #include "core/DescriptorEventReceiver.h"
 

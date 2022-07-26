@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MiddlewareDispatcher.h"
+#include "express/dispatcher/MiddlewareDispatcher.h"
 
 #include "express/MountPoint.h" // for MountPoint
 #include "express/Next.h"       // for Next

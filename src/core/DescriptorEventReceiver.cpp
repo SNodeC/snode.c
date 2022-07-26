@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DescriptorEventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
-#include "DescriptorEventPublisher.h"
-#include "EventLoop.h"
-#include "EventMultiplexer.h"
+#include "core/DescriptorEventPublisher.h"
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -19,11 +19,11 @@
 #ifndef CORE_DESCRIPTOREVENTRECEIVER_H
 #define CORE_DESCRIPTOREVENTRECEIVER_H
 
+#include "core/EventReceiver.h" // IWYU pragma: export
+
 namespace core {
     class DescriptorEventPublisher;
 } // namespace core
-
-#include "core/EventReceiver.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Descriptor.h"
+#include "core/Descriptor.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
