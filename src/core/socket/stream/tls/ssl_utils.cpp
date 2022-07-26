@@ -30,7 +30,6 @@
 #include <openssl/ssl.h>  // IWYU pragma: keep
 #include <openssl/x509.h> // for X509_NAME_oneline, X509_STORE_CTX_get_current_cert, X509_STORE_CTX_get_error, X509_STORE_CTX_get_error_depth, X509_get_subject_name, X509_verify_cert_error_string, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN
 #include <string>
-#include <utility> // IWYU pragma: keep
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <bits/utility.h>

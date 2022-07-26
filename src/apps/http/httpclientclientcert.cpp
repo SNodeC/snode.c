@@ -19,7 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/clients.h"
-#include "config.h"      // IWYU pragma: keep
+#include "config.h"
 #include "core/SNodeC.h" // for SNodeC
 #include "log/Logger.h"  // for Writer, Storage
 

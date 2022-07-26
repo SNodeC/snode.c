@@ -27,7 +27,6 @@
 #include <map>         // for map
 #include <string>      // for allocator, string, operator+, char_t...
 #include <type_traits> // for add_const<>::type
-#include <utility>     // IWYU pragma: keep
 
 // IWYU pragma: no_include <bits/utility.h>
 

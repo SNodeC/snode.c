@@ -27,8 +27,8 @@ namespace utils {
 }
 
 namespace core::socket {
-    class SocketConnection;     // IWYU pragma: keep
-    class SocketContextFactory; // IWYU pragma: keep
+    class SocketConnection;
+    class SocketContextFactory;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

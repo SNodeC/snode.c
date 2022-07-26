@@ -30,7 +30,7 @@
 
 #include SOCKETCLIENT_INCLUDE // IWYU pragma: export
 
-#include "EchoSocketContext.h" // IWYU pragma: keep
+#include "EchoSocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -34,7 +34,6 @@
 #include <openssl/x509.h> // for X509_NAME_oneline, X509_free, X509_get_ext_d2i, X509_get_issuer_name, X509_get_subject_name, X509_verify_...
 #include <openssl/x509v3.h>
 #include <type_traits> // for add_const<>::type
-#include <utility>     // IWYU pragma: keep
 
 // IWYU pragma: no_include <bits/utility.h>
 // IWYU pragma: no_include <openssl/ssl3.h>

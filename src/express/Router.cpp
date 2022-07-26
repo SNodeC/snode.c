@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <vector> // IWYU pragma: keep
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROUTER_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                   \
