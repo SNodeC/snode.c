@@ -22,8 +22,6 @@
 #include "web/http/client/Response.h" // IWYU pragma: keep
 #include "web/http/http_utils.h"
 
-// IWYU pragma: no_include "web/http/SocketContextUpgrade.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

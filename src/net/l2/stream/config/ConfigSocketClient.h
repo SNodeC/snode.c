@@ -24,8 +24,6 @@
 #include "net/config/ConfigConnection.h"
 #include "net/l2/config/ConfigAddress.h"
 
-// IWYU pragma: no_include "net/l2/config/ConfigAddress.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

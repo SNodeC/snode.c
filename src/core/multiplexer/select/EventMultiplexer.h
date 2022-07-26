@@ -19,10 +19,8 @@
 #ifndef CORE_SELECT_EVENTDISPATCHER_H
 #define CORE_SELECT_EVENTDISPATCHER_H
 
-#include "DescriptorEventPublisher.h" // IWYU pragma: export
 #include "core/EventMultiplexer.h"
-
-// IWYU pragma: no_include "core/multiplexer/select/DescriptorEventPublisher.h"
+#include "core/multiplexer/select/DescriptorEventPublisher.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

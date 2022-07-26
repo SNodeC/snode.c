@@ -19,7 +19,6 @@
 #ifndef CORE_SOCKET_SOCKETCONTEXT_H
 #define CORE_SOCKET_SOCKETCONTEXT_H
 
-// IWYU pragma: no_include "core/socket/SocketConnection.h"
 #include "core/socket/Socket.h" // IWYU pragma: export
 
 namespace utils {

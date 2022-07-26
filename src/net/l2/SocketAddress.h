@@ -19,7 +19,7 @@
 #ifndef NET_L2_SOCKETADDRESS_H
 #define NET_L2_SOCKETADDRESS_H
 
-#include "net/SocketAddress.h" // IWYU pragma: export
+#include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 

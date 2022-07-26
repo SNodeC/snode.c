@@ -27,8 +27,6 @@
 #include <functional>
 #include <string>
 
-// IWYU pragma: no_include "mysql.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands::sync {

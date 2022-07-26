@@ -22,8 +22,6 @@
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h" // IWYU pragma: keep
 
-// IWYU pragma: no_include "web/http/SocketContextUpgrade.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <tuple> // for tie, tuple

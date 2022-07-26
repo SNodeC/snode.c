@@ -25,8 +25,6 @@
 #include "net/config/ConfigListen.h"
 #include "net/in6/config/ConfigAddress.h"
 
-// IWYU pragma: no_include "net/in6/config/ConfigAddress.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
