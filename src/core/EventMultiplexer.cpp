@@ -90,7 +90,7 @@ namespace core {
         publishActiveEvents(currentTime);
         executeEventQueue(currentTime);
         checkTimedOutEvents(currentTime);
-        unobserveDisabledEvents(currentTime);
+        releaseExpiredResources(currentTime);
 
         if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
             utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
@@ -141,16 +141,16 @@ namespace core {
         publishActiveEvents();
     }
 
-    void EventMultiplexer::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+    void EventMultiplexer::releaseExpiredResources(const utils::Timeval& currentTime) {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
             descriptorEventPublisher->unobserveDisabledEvents(currentTime);
         }
         timerEventPublisher->unobserveDisableEvents();
+        DynamicLoader::execDlCloseDeleyed();
     }
 
     void EventMultiplexer::executeEventQueue(const utils::Timeval& currentTime) {
         eventQueue.execute(currentTime);
-        DynamicLoader::execDlCloseDeleyed();
     }
 
     EventMultiplexer::EventQueue::EventQueue()

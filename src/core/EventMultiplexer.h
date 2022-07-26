@@ -97,7 +97,7 @@ namespace core {
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
         void publishActiveEvents(const utils::Timeval& currentTime);
         virtual void publishActiveEvents() = 0;
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        void releaseExpiredResources(const utils::Timeval& currentTime);
         void executeEventQueue(const utils::Timeval& currentTime);
 
     protected:
