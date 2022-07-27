@@ -31,7 +31,10 @@ typedef struct st_mysql MYSQL;
 #include "utils/Timeval.h"
 
 #include <functional>
+#include <mysql.h> // IWYU pragma: export
 #include <string>
+
+// IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
