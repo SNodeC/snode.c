@@ -36,11 +36,11 @@ namespace database::mariadb::commands::sync {
         MariaDBFieldCountCommand(const std::function<void(unsigned int)>& onFieldCount,
                                  const std::function<void(const std::string&, unsigned int)>& onError);
 
+    private:
         int commandStart() override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
 
-    protected:
         unsigned int fieldCount = 0;
 
         const std::function<void(unsigned int)> onFieldCount;

@@ -39,12 +39,12 @@ namespace database::mariadb::commands::async {
         MariaDBRollbackCommand(const std::function<void(void)>& onRollback,
                                const std::function<void(const std::string&, unsigned int)>& onError);
 
+    private:
         int commandStart() override;
         int commandContinue(int status) override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
 
-    protected:
         my_bool ret = false;
 
         const std::function<void(void)> onRollback;

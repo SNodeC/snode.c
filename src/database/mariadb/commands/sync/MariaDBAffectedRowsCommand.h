@@ -37,11 +37,11 @@ namespace database::mariadb::commands::sync {
         MariaDBAffectedRowsCommand(const std::function<void(my_ulonglong)>& onAffectedRows,
                                    const std::function<void(const std::string&, unsigned int)>& onError);
 
+    private:
         int commandStart() override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
 
-    protected:
         my_ulonglong affectedRows = 0;
 
         const std::function<void(my_ulonglong)> onAffectedRows;

@@ -42,13 +42,13 @@ namespace database::mariadb::commands::async {
                               const std::function<void(void)>& onConnect,
                               const std::function<void(const std::string&, unsigned int)>& onError);
 
+    private:
         int commandStart() override;
         int commandContinue(int status) override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
-    protected:
         MYSQL* ret = nullptr;
         const database::mariadb::MariaDBConnectionDetails details;
 
