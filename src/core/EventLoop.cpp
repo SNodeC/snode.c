@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/EventLoop.h" // for EventLoop
+#include "core/EventLoop.h"
 
 #include "core/DynamicLoader.h"
 #include "core/EventMultiplexer.h"
@@ -24,11 +24,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/signal.h"
-#include "log/Logger.h" // for Logger
+#include "log/Logger.h"
 #include "utils/Config.h"
 
-#include <cstdlib> // for exit
-#include <string>  // for string, to_string
+#include <cstdlib>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

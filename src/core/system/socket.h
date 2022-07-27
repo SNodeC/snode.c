@@ -25,7 +25,7 @@
 
 #include <cstddef>
 #include <sys/socket.h>
-#include <sys/types.h> // for ssize_t
+#include <sys/types.h>
 
 // IWYU pragma: end_exports
 

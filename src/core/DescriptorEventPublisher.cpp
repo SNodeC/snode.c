@@ -23,9 +23,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <iterator>    // for reverse_iterator
-#include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>::type
+#include <iterator>
+#include <type_traits>
+#include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
 

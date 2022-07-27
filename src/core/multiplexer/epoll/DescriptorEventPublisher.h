@@ -30,7 +30,7 @@ namespace core {
 #include "core/system/epoll.h"
 
 #include <cstdint>
-#include <string> // for string
+#include <string>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

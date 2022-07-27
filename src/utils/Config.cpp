@@ -29,10 +29,10 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <filesystem>
-#include <memory>  // for __shared_ptr_access, shared_ptr
-#include <ostream> // for ofstream, basic_ostream
+#include <memory>
+#include <ostream>
 #include <pwd.h>
-#include <stdexcept> // for invalid_argument, out_of_range
+#include <stdexcept>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

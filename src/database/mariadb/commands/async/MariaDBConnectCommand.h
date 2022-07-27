@@ -27,7 +27,7 @@
 
 #include <functional>
 #include <mysql.h> // IWYU pragma: export
-#include <string>  // for string
+#include <string>
 
 // IWYU pragma: no_include "mysql.h"
 

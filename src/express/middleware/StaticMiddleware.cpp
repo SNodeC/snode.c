@@ -23,7 +23,7 @@
 #include "log/Logger.h"
 
 #include <map>
-#include <memory> // for shared_ptr, __shared_ptr_access
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

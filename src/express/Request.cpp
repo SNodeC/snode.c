@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility> // for pair
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

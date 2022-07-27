@@ -27,7 +27,7 @@
 
 #include <bluetooth/bluetooth.h> // IWYU pragma: keep
 #include <bluetooth/l2cap.h>
-#include <cstdint> // for uint16_t
+#include <cstdint>
 #include <exception>
 #include <string>
 

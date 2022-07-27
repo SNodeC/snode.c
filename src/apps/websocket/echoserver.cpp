@@ -22,7 +22,7 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
-#include "web/http/http_utils.h" // for ci_contains
+#include "web/http/http_utils.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

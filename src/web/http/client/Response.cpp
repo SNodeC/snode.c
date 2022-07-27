@@ -26,8 +26,8 @@
 
 #include "log/Logger.h"
 
-#include <iterator> // for advance, distance
-#include <utility>  // for pair
+#include <iterator>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

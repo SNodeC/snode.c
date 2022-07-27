@@ -18,22 +18,22 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                    // for SERVERCAFILE
-#include "core/SNodeC.h"               // for SNodeC
-#include "log/Logger.h"                // for Writer, Storage
-#include "web/http/client/Request.h"   // for Request, client
-#include "web/http/client/Response.h"  // for Response
-#include "web/http/legacy/in/Client.h" // for Client, Client<>...
-#include "web/http/tls/in/Client.h"    // for Client, Client<>...
+#include "config.h"
+#include "core/SNodeC.h"
+#include "log/Logger.h"
+#include "web/http/client/Request.h"
+#include "web/http/client/Response.h"
+#include "web/http/legacy/in/Client.h"
+#include "web/http/tls/in/Client.h"
 
-#include <openssl/asn1.h>    // for ASN1_STRING_get0_data, ASN1_STRING_length
-#include <openssl/crypto.h>  // for OPENSSL_free
-#include <openssl/obj_mac.h> // for NID_subject_alt_name
+#include <openssl/asn1.h>
+#include <openssl/crypto.h>
+#include <openssl/obj_mac.h>
 #include <openssl/opensslv.h>
-#include <openssl/ssl.h>  // IWYU pragma: keep
-#include <openssl/x509.h> // for X509_NAME_oneline, X509_free, X509_get_ext_d2i, X509_get_issuer_name, X509_get_subject_name, X509_verify_...
+#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/x509.h>
 #include <openssl/x509v3.h>
-#include <type_traits> // for add_const<>::type
+#include <type_traits>
 
 // IWYU pragma: no_include <bits/utility.h>
 // IWYU pragma: no_include <openssl/ssl3.h>

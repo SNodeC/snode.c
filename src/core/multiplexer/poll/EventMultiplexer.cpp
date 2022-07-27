@@ -22,10 +22,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm> // for remove_if
+#include <algorithm>
 #include <cstdint>
-#include <memory>  // for allocator_traits<>::value_type
-#include <utility> // for pair
+#include <memory>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

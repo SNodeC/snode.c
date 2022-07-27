@@ -24,7 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <tuple> // for tie, tuple
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

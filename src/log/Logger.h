@@ -22,7 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <easylogging++.h> // IWYU pragma: export
-#include <string>          // for allocator, string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

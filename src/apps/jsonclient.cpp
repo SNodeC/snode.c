@@ -20,13 +20,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/SNodeC.h"               // for SNodeC
-#include "log/Logger.h"                // for Writer, Storage
-#include "web/http/client/Request.h"   // for Request
-#include "web/http/client/Response.h"  // for Response
-#include "web/http/legacy/in/Client.h" // for Client, Client<>...
+#include "core/SNodeC.h"
+#include "log/Logger.h"
+#include "web/http/client/Request.h"
+#include "web/http/client/Response.h"
+#include "web/http/legacy/in/Client.h"
 
-#include <type_traits> // for add_const<>::type
+#include <type_traits>
 
 // IWYU pragma: no_include <bits/utility.h>
 

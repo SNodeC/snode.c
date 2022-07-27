@@ -25,7 +25,7 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
+#include <cstddef>
 #include <cstdint> // IWYU pragma: export
 #include <map>
 #include <regex>

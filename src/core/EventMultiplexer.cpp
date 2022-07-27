@@ -20,15 +20,15 @@
 
 #include "core/DescriptorEventPublisher.h"
 #include "core/DynamicLoader.h"
-#include "core/Event.h" // for Event
+#include "core/Event.h"
 #include "core/TimerEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm> // for min, max
-#include <cerrno>    // for EINTR, errno
+#include <algorithm>
+#include <cerrno>
 #include <numeric>
-#include <utility> // for swap
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

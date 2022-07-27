@@ -22,7 +22,7 @@
 
 #include "utils/CLI11.hpp"
 
-#include <cstddef> // for size_t
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

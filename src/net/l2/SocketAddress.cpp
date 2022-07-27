@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h" // for AF_BLUETOOTH
+#include "core/system/socket.h"
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

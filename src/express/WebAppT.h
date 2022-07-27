@@ -28,7 +28,7 @@
 #include <any> // IWYU pragma: export
 #include <functional>
 #include <map>
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

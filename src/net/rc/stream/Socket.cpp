@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
+#include <bluetooth/bluetooth.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

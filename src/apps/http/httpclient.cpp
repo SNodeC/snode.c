@@ -20,8 +20,8 @@
 
 #include "apps/http/model/clients.h"
 #include "config.h"      // IWYU pragma: keep
-#include "core/SNodeC.h" // for SNodeC
-#include "log/Logger.h"  // for Writer, Storage
+#include "core/SNodeC.h"
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

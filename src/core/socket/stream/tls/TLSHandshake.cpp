@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>        // for allocator
+#include <memory>
 #include <openssl/ssl.h> // IWYU pragma: keep
 
 // IWYU pragma: no_include <openssl/ssl3.h>

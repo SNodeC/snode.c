@@ -25,8 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>    // for map
-#include <string> // for string, operator<=>
+#include <map>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

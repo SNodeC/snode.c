@@ -22,8 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <unordered_map> // for unordered_map, _Map_base<>::mapped_type
-#include <utility>       // for tuple_element<>::type
+#include <unordered_map>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

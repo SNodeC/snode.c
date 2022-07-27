@@ -24,9 +24,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <regex>   // for regex_match, match_results<>::_Base_type
-#include <tuple>   // for tie, tuple
-#include <utility> // for tuple_element<>::type, pair
+#include <regex>
+#include <tuple>
+#include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
 

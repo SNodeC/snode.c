@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno> // for EAGAIN
+#include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

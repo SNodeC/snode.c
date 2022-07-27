@@ -18,9 +18,9 @@
 
 #include "express/dispatcher/ApplicationDispatcher.h"
 
-#include "express/Controller.h" // for State, State::INH
+#include "express/Controller.h"
 #include "express/MountPoint.h"
-#include "express/Request.h" // for Request
+#include "express/Request.h"
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -22,13 +22,13 @@
 
 #include "log/Logger.h"
 
-#include <cerrno>  // for errno
-#include <cstdlib> // for free
+#include <cerrno>
+#include <cstdlib>
 #include <cstring>
-#include <openssl/err.h> // for ERR_peek_error
+#include <openssl/err.h>
 #include <openssl/opensslv.h>
-#include <openssl/ssl.h>  // IWYU pragma: keep
-#include <openssl/x509.h> // for X509_NAME_oneline, X509_STORE_CTX_get_current_cert, X509_STORE_CTX_get_error, X509_STORE_CTX_get_error_depth, X509_get_subject_name, X509_verify_cert_error_string, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN
+#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/x509.h>
 #include <string>
 
 // IWYU pragma: no_include <openssl/ssl3.h>

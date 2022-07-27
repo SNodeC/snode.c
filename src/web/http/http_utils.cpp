@@ -27,7 +27,7 @@
 #include <iomanip> // std::setw
 #include <sstream>
 #include <sys/stat.h>
-// IWYU pragma: no_include <bits/struct_stat.h>  // for st_mtime
+// IWYU pragma: no_include <bits/struct_stat.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

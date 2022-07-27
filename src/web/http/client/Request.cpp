@@ -24,7 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility> // for pair, tuple_element<>::type
+#include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
 

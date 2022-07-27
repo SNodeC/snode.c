@@ -29,7 +29,7 @@ namespace core {
 
 #include "utils/Timeval.h" // IWYU pragma: export
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

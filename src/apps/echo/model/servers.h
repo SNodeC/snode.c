@@ -19,7 +19,7 @@
 #ifndef APPS_MODEL_LOWLEVELLEGACYCLIENT_H
 #define APPS_MODEL_LOWLEVELLEGACYCLIENT_H
 
-#include "log/Logger.h" // for Writer
+#include "log/Logger.h"
 
 #define QUOTE_INCLUDE(a) STR_INCLUDE(a)
 #define STR_INCLUDE(a) #a
@@ -36,10 +36,10 @@
 
 #include <any>
 #include <map>
-#include <string> // for string
+#include <string>
 
 #if (STREAM_TYPE == TLS) // tls
-#include <cstddef>       // for size_t
+#include <cstddef>
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #endif

@@ -24,13 +24,13 @@
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
-#include <iostream>          // for operator<<, endl
-#include <openssl/asn1.h>    // for ASN1_STRING_get0...
-#include <openssl/crypto.h>  // for OPENSSL_free
-#include <openssl/obj_mac.h> // for NID_subject_alt_...
+#include <iostream>
+#include <openssl/asn1.h>
+#include <openssl/crypto.h>
+#include <openssl/obj_mac.h>
 #include <openssl/opensslv.h>
-#include <openssl/ssl.h>  // IWYU pragma: keep
-#include <openssl/x509.h> // for X509_NAME_oneline
+#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
 // IWYU pragma: no_include <openssl/ssl3.h>

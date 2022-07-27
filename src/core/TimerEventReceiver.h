@@ -30,7 +30,7 @@ namespace core {
     class TimerEventPublisher;
 } // namespace core
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

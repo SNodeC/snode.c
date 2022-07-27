@@ -24,8 +24,8 @@
 
 #include "log/Logger.h"
 
-#include <cstdio> // for remove
-#include <string> // for string
+#include <cstdio>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

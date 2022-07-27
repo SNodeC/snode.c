@@ -17,8 +17,8 @@
  */
 
 #include "config.h"      // IWYU pragma: keep
-#include "core/SNodeC.h" // for SNodeC
-#include "log/Logger.h"  // for Writer
+#include "core/SNodeC.h"
+#include "log/Logger.h"
 #include "model/servers.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

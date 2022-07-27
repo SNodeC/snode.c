@@ -24,9 +24,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
-#include <cstdint> // for uint16_t
-#include <string>  // for allocator, string
+#include <cstddef>
+#include <cstdint>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

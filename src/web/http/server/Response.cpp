@@ -34,8 +34,8 @@
 #include <cerrno>
 #include <filesystem>
 #include <numeric>
-#include <system_error> // for error_code
-#include <utility>      // for pair
+#include <system_error>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

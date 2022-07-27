@@ -31,7 +31,7 @@ typedef struct st_mysql MYSQL;
 #include "utils/Timeval.h"
 
 #include <functional>
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

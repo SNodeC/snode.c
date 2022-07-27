@@ -23,8 +23,8 @@
 
 #include "log/Logger.h"
 
-#include <cerrno> // for errno, ENOENT
-#include <cstdio> // for remove
+#include <cerrno>
+#include <cstdio>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

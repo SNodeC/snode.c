@@ -26,7 +26,7 @@
 #include "log/Logger.h"
 
 #include <cerrno>
-#include <cstddef> // for std::size_t
+#include <cstddef>
 #include <functional>
 #include <sys/types.h>
 #include <vector>

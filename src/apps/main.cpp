@@ -25,8 +25,8 @@
 
 #include <fcntl.h>
 #include <iostream>
-#include <stdio.h>  // for perror
-#include <string.h> // for strerror
+#include <stdio.h>
+#include <string.h>
 #include <typeinfo>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

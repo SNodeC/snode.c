@@ -18,8 +18,8 @@
 
 #include "express/dispatcher/MiddlewareDispatcher.h"
 
-#include "express/MountPoint.h" // for MountPoint
-#include "express/Next.h"       // for Next
+#include "express/MountPoint.h"
+#include "express/Next.h"
 #include "express/Request.h"
 #include "express/dispatcher/regex_utils.h"
 

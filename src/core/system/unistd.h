@@ -23,10 +23,10 @@
 
 // IWYU pragma: begin_exports
 
-#include <cstddef> // for size_t
+#include <cstddef>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/types.h> // for ssize_t
+#include <sys/types.h>
 #include <unistd.h>
 
 // IWYU pragma: end_exports
