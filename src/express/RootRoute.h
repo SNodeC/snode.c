@@ -22,7 +22,6 @@
 #include "express/Route.h" // IWYU pragma: export
 
 namespace express {
-
     class Request;
     class Response;
     class Next;
@@ -30,11 +29,8 @@ namespace express {
     class RootRoute;
 
     namespace dispatcher {
-
         class RouterDispatcher;
-
     }
-
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

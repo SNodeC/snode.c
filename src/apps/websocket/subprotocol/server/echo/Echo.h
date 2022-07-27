@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
-#define WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 
 #include "core/timer/Timer.h"
 #include "web/websocket/server/SubProtocol.h"
@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::subprotocol::echo::server {
+namespace apps::websocket::subprotocol::echo::server {
 
     class Echo : public web::websocket::server::SubProtocol {
     public:
@@ -53,6 +53,6 @@ namespace web::websocket::subprotocol::echo::server {
         core::timer::Timer pingTimer;
     };
 
-} // namespace web::websocket::subprotocol::echo::server
+} // namespace apps::websocket::subprotocol::echo::server
 
-#endif // WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#endif // APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H

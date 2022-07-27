@@ -22,9 +22,7 @@
 #include "web/http/server/Response.h" // IWYU pragma: export
 
 namespace web::http::server {
-
     class RequestContextBase;
-
 } // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

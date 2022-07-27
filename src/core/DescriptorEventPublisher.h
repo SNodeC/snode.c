@@ -22,7 +22,6 @@
 namespace core {
     class Event;
     class DescriptorEventReceiver;
-
 } // namespace core
 
 namespace utils {

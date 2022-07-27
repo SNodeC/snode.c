@@ -22,13 +22,11 @@
 #include "express/Dispatcher.h"
 
 namespace express {
-
     struct MountPoint;
     class Request;
     class Response;
     class Controller;
     class Next;
-
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

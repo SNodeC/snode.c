@@ -21,14 +21,14 @@
 
 #include "web/websocket/SubProtocolFactorySelector.h" // IWYU pragma: export
 
-namespace web::websocket::client {
-    class SubProtocol;
-}
-
 namespace web::websocket {
     template <typename SubProtocolT>
     class SubProtocolFactory;
-}
+
+    namespace client {
+        class SubProtocol;
+    }
+} // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

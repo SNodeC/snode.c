@@ -25,9 +25,7 @@
 #include "express/RootRoute.h" // IWYU pragma: export
 
 namespace express {
-
     class Router;
-
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -20,11 +20,9 @@
 #define EXPRESS_DISPATCHER_H
 
 namespace express {
-
     class Route;
     class Controller;
     struct MountPoint;
-
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

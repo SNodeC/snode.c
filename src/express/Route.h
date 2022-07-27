@@ -22,7 +22,6 @@
 #include "express/MountPoint.h" // IWYU pragma: export
 
 namespace express {
-
     class Controller;
     class Dispatcher;
     class Request;
@@ -33,7 +32,6 @@ namespace express {
     namespace dispatcher {
         class RouterDispatcher;
     }
-
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -41,13 +39,6 @@ namespace express {
 #include <functional> // IWYU pragma: export
 #include <memory>
 #include <string>
-
-namespace std {
-
-    template <typename _Tp, typename... _Args>
-    constexpr auto construct_at(_Tp* __location, _Args&&... __args);
-
-}
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

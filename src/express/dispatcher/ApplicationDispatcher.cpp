@@ -33,23 +33,25 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool
-    ApplicationDispatcher::dispatch(express::Controller& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
+    bool ApplicationDispatcher::dispatch(express::Controller& controller,
+                                         const std::string& parentMountPath,
+                                         const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
-        if ((state.getFlags() & Controller::NEXT) == 0) {
+        if ((controller.getFlags() & Controller::NEXT) == 0) {
             std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-            if ((state.getRequest()->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
-                ((absoluteMountPath == state.getRequest()->path || checkForUrlMatch(absoluteMountPath, state.getRequest()->url)) &&
-                 (state.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
+            if ((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
+                ((absoluteMountPath == controller.getRequest()->path ||
+                  checkForUrlMatch(absoluteMountPath, controller.getRequest()->url)) &&
+                 (controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
                 dispatched = true;
 
                 if (hasResult(absoluteMountPath)) {
-                    setParams(absoluteMountPath, *state.getRequest());
+                    setParams(absoluteMountPath, *controller.getRequest());
                 }
 
-                lambda(*state.getRequest(), *state.getResponse());
+                lambda(*controller.getRequest(), *controller.getResponse());
             }
         }
 

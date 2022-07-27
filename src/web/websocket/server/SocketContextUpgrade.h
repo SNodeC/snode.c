@@ -25,14 +25,16 @@ namespace core::socket {
     class SocketConnection;
 } // namespace core::socket
 
-namespace web::http::server {
-    class Request;
-    class Response;
-} // namespace web::http::server
+namespace web {
+    namespace http::server {
+        class Request;
+        class Response;
+    } // namespace http::server
 
-namespace web::websocket::server {
-    class SubProtocol;
-} // namespace web::websocket::server
+    namespace websocket::server {
+        class SubProtocol;
+    }
+} // namespace web
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -22,9 +22,7 @@
 #include "express/Controller.h" // IWYU pragma: export
 
 namespace express::dispatcher {
-
     class MiddlewareDispatcher;
-
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
