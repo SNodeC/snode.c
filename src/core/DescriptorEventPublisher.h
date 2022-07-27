@@ -58,7 +58,7 @@ namespace core {
 
         virtual int publishActiveEvents() = 0;
         void checkTimedOutEvents(const utils::Timeval& currentTime);
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        void releaseDisabledEvents(const utils::Timeval& currentTime);
 
         int getObservedEventReceiverCount() const;
         int getMaxFd() const;

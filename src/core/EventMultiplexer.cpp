@@ -143,7 +143,7 @@ namespace core {
 
     void EventMultiplexer::releaseExpiredResources(const utils::Timeval& currentTime) {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->unobserveDisabledEvents(currentTime);
+            descriptorEventPublisher->releaseDisabledEvents(currentTime);
         }
         timerEventPublisher->unobserveDisableEvents();
         DynamicLoader::execDlCloseDeleyed();
@@ -154,7 +154,7 @@ namespace core {
     }
 
     EventMultiplexer::EventQueue::EventQueue()
-        : executeQueue(new std::list<Event*>()) // cppcheck-suppress [noCopyConstructor, noOperatorEq]
+        : executeQueue(new std::list<Event*>())
         , publishQueue(new std::list<Event*>()) {
         sigemptyset(&newSet);
         sigaddset(&newSet, SIGPIPE);

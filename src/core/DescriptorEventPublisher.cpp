@@ -65,7 +65,7 @@ namespace core {
         }
     }
 
-    void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventPublisher::releaseDisabledEvents(const utils::Timeval& currentTime) {
         if (observedEventReceiversDirty) {
             observedEventReceiversDirty = false;
 
