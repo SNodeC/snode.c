@@ -53,24 +53,24 @@ namespace express {
         , dispatcher(dispatcher) {
     }
 
-    bool Route::dispatch(Controller& state) {
-        return dispatch(state, "");
+    bool Route::dispatch(Controller& controller) {
+        return dispatch(controller, "");
     }
 
-    bool Route::dispatch(Controller& state, const std::string& parentMountPath) {
-        state.setCurrentRoute(this);
+    bool Route::dispatch(Controller& controller, const std::string& parentMountPath) {
+        controller.setCurrentRoute(this);
 
-        bool dispatched = dispatcher->dispatch(state, parentMountPath, mountPoint);
+        bool dispatched = dispatcher->dispatch(controller, parentMountPath, mountPoint);
 
         if (!dispatched) { // TODO: only call if parent route matched
-            dispatched = state.dispatchNext(parentMountPath);
+            dispatched = controller.dispatchNext(parentMountPath);
         }
 
         return dispatched;
     }
 
-    bool Route::dispatchNext(Controller& state, const std::string& parentMountPath) {
-        return dispatcher->dispatchNext(state, parentMountPath);
+    bool Route::dispatchNext(Controller& controller, const std::string& parentMountPath) {
+        return dispatcher->dispatchNext(controller, parentMountPath);
     }
 
     DEFINE_ROUTE_REQUESTMETHOD(use, "use")

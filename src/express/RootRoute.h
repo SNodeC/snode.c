@@ -59,8 +59,8 @@ namespace express {
     protected:
         void dispatch(Request& req, Response& res);
 
-        void dispatch(Controller&& state);
-        void dispatch(Controller& state);
+        void dispatch(Controller&& controller);
+        void dispatch(Controller& controller);
 
         std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher() const;
         std::list<Route>& routes();

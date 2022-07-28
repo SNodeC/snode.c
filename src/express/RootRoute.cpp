@@ -65,15 +65,15 @@ namespace express {
         dispatch(Controller(req, res));
     }
 
-    void RootRoute::dispatch(Controller&& state) {
-        state.setRootRoute(this);
+    void RootRoute::dispatch(Controller&& controller) {
+        controller.setRootRoute(this);
 
-        dispatch(state);
+        dispatch(controller);
     }
 
-    void RootRoute::dispatch(Controller& state) {
-        if (!Route::dispatch(state, "")) {
-            state.getResponse()->sendStatus(404);
+    void RootRoute::dispatch(Controller& controller) {
+        if (!Route::dispatch(controller, "")) {
+            controller.getResponse()->sendStatus(404);
         }
     }
 

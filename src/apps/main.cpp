@@ -216,7 +216,7 @@ void g(const std::function<void(express::Request&, express::Response&)>& arg) {
     VLOG(0) << "Arg type 1: " << typeid(arg).name();
 }
 
-void g(const std::function<void(express::Request&, express::Response&, express::Next&& state)>& arg) {
+void g(const std::function<void(express::Request&, express::Response&, express::Next&& next)>& arg) {
     VLOG(0) << "Arg type 2: " << typeid(arg).name();
 }
 
@@ -228,7 +228,7 @@ void g(const std::function<void(express::Request&, express::Response&)>& arg, Ts
 }
 
 template <typename... Ts>
-void g(const std::function<void(express::Request&, express::Response&, express::Next&& state)>& arg, Ts... args) {
+void g(const std::function<void(express::Request&, express::Response&, express::Next&& next)>& arg, Ts... args) {
     VLOG(0) << "Rec Arg type 2: " << typeid(arg).name();
 
     g(args...);

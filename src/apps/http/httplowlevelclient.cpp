@@ -31,11 +31,11 @@
 #include <openssl/crypto.h>
 #include <openssl/obj_mac.h>
 #include <openssl/opensslv.h>
-#include <openssl/ssl.h>  // IWYU pragma: keep
+#include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <type_traits>
-#include <utility>     // IWYU pragma: keep
+#include <utility> // IWYU pragma: keep
 
 // IWYU pragma: no_include <bits/utility.h>
 // IWYU pragma: no_include <openssl/ssl3.h>

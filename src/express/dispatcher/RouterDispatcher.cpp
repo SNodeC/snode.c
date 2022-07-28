@@ -33,17 +33,17 @@ namespace express::dispatcher {
         return routes;
     }
 
-    bool RouterDispatcher::dispatch(express::Controller& state, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
+    bool RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-        if ((state.getRequest()->path.rfind(absoluteMountPath, 0) == 0 &&
-             (mountPoint.method == "use" || state.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
+        if ((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 &&
+             (mountPoint.method == "use" || controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
             for (Route& route : routes) {
-                dispatched = route.dispatch(state, absoluteMountPath);
+                dispatched = route.dispatch(controller, absoluteMountPath);
 
-                if (dispatched || state.nextRouter()) {
+                if (dispatched || controller.nextRouter()) {
                     break;
                 }
             }

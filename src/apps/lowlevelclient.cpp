@@ -31,7 +31,7 @@
 #include <openssl/crypto.h>
 #include <openssl/obj_mac.h>
 #include <openssl/opensslv.h>
-#include <openssl/ssl.h>  // IWYU pragma: keep
+#include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <type_traits>

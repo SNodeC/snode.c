@@ -59,9 +59,9 @@ namespace express {
     protected:
         Route();
 
-        bool dispatch(Controller& state);
-        bool dispatch(Controller& state, const std::string& parentMountPath);
-        bool dispatchNext(Controller& state, const std::string& parentMountPath);
+        bool dispatch(Controller& controller);
+        bool dispatch(Controller& controller, const std::string& parentMountPath);
+        bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;

@@ -42,8 +42,8 @@ namespace express {
         Dispatcher() = default;
         virtual ~Dispatcher() = default;
 
-        virtual bool dispatch(Controller& state, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
-        bool dispatchNext(Controller& state, const std::string& parentMountPath);
+        virtual bool dispatch(Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
+        bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
     protected:
         std::shared_ptr<Route> next = nullptr;

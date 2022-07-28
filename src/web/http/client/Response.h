@@ -26,7 +26,7 @@
 #include <cstdint> // IWYU pragma: export
 #include <map>
 #include <string>
-#include <vector>  // IWYU pragma: export
+#include <vector> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

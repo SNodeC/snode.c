@@ -26,11 +26,11 @@
 
 namespace express {
 
-    bool Dispatcher::dispatchNext(Controller& state, const std::string& parentMountPath) {
+    bool Dispatcher::dispatchNext(Controller& controller, const std::string& parentMountPath) {
         bool dispatched = false;
 
         if (next != nullptr) {
-            dispatched = next->dispatch(state, parentMountPath);
+            dispatched = next->dispatch(controller, parentMountPath);
         }
 
         return dispatched;
