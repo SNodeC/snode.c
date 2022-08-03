@@ -25,7 +25,9 @@
 #include <map>
 #include <memory>
 
-namespace std {
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace utils {
 
     template <unsigned N>
     struct fixed_string {
@@ -43,12 +45,6 @@ namespace std {
     };
     template <unsigned N>
     fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
-
-} // namespace std
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace utils {
 
     template <typename Attribute>
     concept InjectableAttribute = std::copy_constructible<Attribute> and std::default_initializable<Attribute> and std::copyable<Attribute>;
@@ -124,7 +120,7 @@ namespace utils {
 
     class MultibleAttributeInjector {
     public:
-        template <InjectableAttribute Attribute, std::fixed_string key = "">
+        template <InjectableAttribute Attribute, fixed_string key = "">
         constexpr bool setAttribute(const Attribute& attribute, const std::string& subKey = "", bool overwrite = false) const {
             bool inserted = false;
 
@@ -137,7 +133,7 @@ namespace utils {
             return inserted;
         }
 
-        template <InjectableAttribute Attribute, std::fixed_string key = "">
+        template <InjectableAttribute Attribute, fixed_string key = "">
         constexpr bool setAttribute(const Attribute&& attribute, const std::string& subKey = "", bool overwrite = false) const {
             bool inserted = false;
 
@@ -150,21 +146,21 @@ namespace utils {
             return inserted;
         }
 
-        template <InjectableAttribute Attribute, std::fixed_string key = "">
+        template <InjectableAttribute Attribute, fixed_string key = "">
         constexpr bool delAttribute(const std::string& subKey = "") const {
             bool deleted = attributes.erase(typeid(Attribute).name() + std::string(key) + subKey) > 0;
 
             return deleted;
         }
 
-        template <InjectableAttribute Attribute, std::fixed_string key = "">
+        template <InjectableAttribute Attribute, fixed_string key = "">
         constexpr bool hasAttribute(const std::string& subKey = "") const {
             bool found = attributes.find(typeid(Attribute).name() + std::string(key) + subKey) != attributes.end();
 
             return found;
         }
 
-        template <InjectableAttribute Attribute, std::fixed_string key = "">
+        template <InjectableAttribute Attribute, fixed_string key = "">
         bool getAttribute(const std::function<void(Attribute&)>& onFound, const std::string& subKey = "") const {
             bool found = false;
 
@@ -180,7 +176,7 @@ namespace utils {
             return found;
         }
 
-        template <InjectableAttribute Attribute, std::fixed_string key = "">
+        template <InjectableAttribute Attribute, fixed_string key = "">
         void getAttribute(const std::function<void(Attribute&)>& onFound,
                           const std::function<void(const std::string&)>& onNotFound,
                           const std::string& subKey = "") const {

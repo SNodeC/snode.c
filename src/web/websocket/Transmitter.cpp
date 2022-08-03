@@ -163,7 +163,7 @@ namespace web::websocket {
             char keyAsBytes[4];
         };
 
-        MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(generator)};
+        MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 
         if (masking) {
             sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));

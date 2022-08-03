@@ -33,7 +33,8 @@ namespace express::dispatcher {
         return routes;
     }
 
-    bool RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
+    bool
+    RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);

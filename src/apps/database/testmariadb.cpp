@@ -288,8 +288,8 @@ int main(int argc, char* argv[]) {
                         [&db2, j, stop](const MYSQL_ROW row) -> void {
                             if (row != nullptr) {
                                 VLOG(0) << "Row Result count(*) 16: " << row[0];
-                                if (std::atoi(row[0]) != j + 1) {
-                                    VLOG(0) << "Wrong number of rows 16: " << std::atoi(row[0]) << " != " << j + 1;
+                                if (std::atoi(row[0]) != j + 1) {                                                   // NOLINT
+                                    VLOG(0) << "Wrong number of rows 16: " << std::atoi(row[0]) << " != " << j + 1; // NOLINT
                                     exit(1);
                                 }
                             } else {

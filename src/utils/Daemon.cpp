@@ -157,7 +157,7 @@ namespace utils {
     }
 
     void Daemon::erasePidFile(const std::string& pidFileName) {
-        std::remove(pidFileName.data());
+        (void) std::remove(pidFileName.data());
     }
 
 } // namespace utils
