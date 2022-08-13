@@ -219,7 +219,8 @@ int main(int argc, char* argv[]) {
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        tlsClient.connect("localhost", 8088, [](const TLSSocketAddress& socketAddress, int err) -> void {
+        //        tlsClient.connect("localhost", 8088, [](int err) -> void {
+        tlsClient.connect([](const TLSSocketAddress& socketAddress, int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             } else {

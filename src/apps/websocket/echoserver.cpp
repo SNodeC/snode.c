@@ -110,11 +110,7 @@ int main(int argc, char* argv[]) {
             VLOG(1) << "user-agent: " << req.get("user-agent");
 
             if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
-                if (req.get("Sec-WebSocket-Protocol") == "echo") {
-                    res.upgrade(req);
-                } else {
-                    res.sendStatus(404);
-                }
+                res.upgrade(req);
             } else {
                 res.sendStatus(404);
             }
