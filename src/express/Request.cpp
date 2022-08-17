@@ -37,7 +37,7 @@ namespace express {
         url = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
         path = httputils::str_split_last(url, '/').first;
         if (path.empty()) {
-            path = "/";
+            path = std::string("/");
         }
 
         return *this;

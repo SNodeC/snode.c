@@ -184,7 +184,8 @@ namespace utils {
     }
 
     std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal) {
-        return ostream << "{" + std::to_string(timeVal.timeVal.tv_sec) + ":" + std::to_string(timeVal.timeVal.tv_usec) + "}";
+        return ostream << std::string("{") + std::to_string(timeVal.timeVal.tv_sec) + std::string(":") +
+                              std::to_string(timeVal.timeVal.tv_usec) + std::string("}");
     }
 
 } // namespace utils
