@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(NET-IN6-STREAM_CPP
-    ClientSocket.cpp
-    ServerSocket.cpp
-    Socket.cpp
-    config/ConfigSocketClient.cpp
+    ClientSocket.cpp ServerSocket.cpp Socket.cpp config/ConfigSocketClient.cpp
     config/ConfigSocketServer.cpp
-    legacy/SocketClient.cpp
-    legacy/SocketServer.cpp
-    tls/SocketClient.cpp
-    tls/SocketServer.cpp
 )
 
 set(NET-IN6-STREAM_H
@@ -22,14 +15,6 @@ set(NET-IN6-STREAM_H
     Socket.h
     config/ConfigSocketClient.h
     config/ConfigSocketServer.h
-    legacy/SocketClient.h
-    legacy/SocketServer.h
-    legacy/config/ConfigSocketClient.h
-    legacy/config/ConfigSocketServer.h
-    tls/SocketClient.h
-    tls/SocketServer.h
-    tls/config/ConfigSocketClient.h
-    tls/config/ConfigSocketServer.h
 )
 
 add_library(net-in6-stream SHARED ${NET-IN6-STREAM_CPP} ${NET-IN6-STREAM_H})
@@ -63,6 +48,8 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "legacy" EXCLUDE
+    PATTERN "tls" EXCLUDE
 )
 
 install(
@@ -71,3 +58,6 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
+
+add_subdirectory(legacy)
+add_subdirectory(tls)
