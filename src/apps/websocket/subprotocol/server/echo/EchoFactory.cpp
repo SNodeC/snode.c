@@ -26,14 +26,14 @@
 
 #define NAME "echo"
 
-namespace web::websocket::subprotocol::echo::server {
+namespace apps::websocket::subprotocol::echo::server {
 
     Echo* EchoFactory::create() {
         return new Echo(getName());
     }
 
-} // namespace web::websocket::subprotocol::echo::server
+} // namespace apps::websocket::subprotocol::echo::server
 
 extern "C" void* echoServerSubProtocolFactory() {
-    return new web::websocket::subprotocol::echo::server::EchoFactory(NAME);
+    return new apps::websocket::subprotocol::echo::server::EchoFactory(NAME);
 }

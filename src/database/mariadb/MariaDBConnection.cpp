@@ -26,9 +26,10 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
 #include <memory>
 #include <string>
-#include <utility> // for move
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,7 +42,7 @@ namespace database::mariadb {
         , mariaDBClient(mariaDBClient)
         , mysql(mysql_init(nullptr))
         , commandStartEvent("MariaDBCommandStartEvent", this) {
-        mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0);
+        mysql_options(mysql, MYSQL_OPT_NONBLOCK, nullptr);
 
         execute_async(std::move(MariaDBCommandSequence().execute_async(new database::mariadb::commands::async::MariaDBConnectCommand(
             connectionDetails,
@@ -115,12 +116,9 @@ namespace database::mariadb {
     void MariaDBConnection::commandStart(const utils::Timeval& currentTime) {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
+
             currentCommand->setMariaDBConnection(this);
-
-            // VLOG(0) << "Start: " << currentCommand->commandInfo();
-
-            int status = currentCommand->commandStart(mysql, currentTime);
-            checkStatus(status);
+            checkStatus(currentCommand->commandStart(mysql, currentTime));
         } else if (mariaDBClient != nullptr) {
             if (ReadEventReceiver::isSuspended()) {
                 ReadEventReceiver::resume();
@@ -134,12 +132,8 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandContinue(int status) {
         if (currentCommand != nullptr) {
-            // VLOG(0) << "Continue: " << currentCommand->commandInfo();
-            int currentStatus = currentCommand->commandContinue(status);
-            checkStatus(currentStatus);
+            checkStatus(currentCommand->commandContinue(status));
         } else if ((status & MYSQL_WAIT_READ) != 0 && commandSequenceQueue.empty()) {
-            VLOG(0) << "Read-Event but no command in queue: Disabling EventReceivers";
-
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
             ExceptionalConditionEventReceiver::disable();

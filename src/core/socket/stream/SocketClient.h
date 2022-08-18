@@ -34,8 +34,8 @@
 
 namespace core::socket::stream {
 
-    template <typename ClientSocketT, template <typename ClientSocket> class SocketConnectorT, typename SocketContextFactoryT>
-    class SocketClient : public ClientSocketT {
+    template <typename SocketClientT, template <typename ClientSocket> class SocketConnectorT, typename SocketContextFactoryT>
+    class SocketClient : public SocketClientT {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
         !include core/socket/stream/pu/SocketClient.pu
@@ -45,7 +45,7 @@ namespace core::socket::stream {
         SocketClient() = delete;
 
     private:
-        using Super = ClientSocketT;
+        using Super = SocketClientT;
         using SocketConnector = SocketConnectorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
@@ -72,10 +72,6 @@ namespace core::socket::stream {
                      const std::map<std::string, std::any>& options = {{}})
             : SocketClient("", onConnect, onConnected, onDisconnect, options) {
         }
-
-        SocketClient(const SocketClient&) = default;
-
-        ~SocketClient() override = default;
 
         using Super::connect;
 

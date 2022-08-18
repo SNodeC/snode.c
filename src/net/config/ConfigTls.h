@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGTLS_H
 #define NET_CONFIG_CONFIGTLS_H
 
-#include "net/config/ConfigBase.h"
+#include "net/config/ConfigBase.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,9 +34,9 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigTls : virtual protected ConfigBase {
+    class ConfigTls : virtual public ConfigBase {
     public:
-        explicit ConfigTls();
+        ConfigTls();
 
         utils::Timeval getInitTimeout() const;
         utils::Timeval getShutdownTimeout() const;

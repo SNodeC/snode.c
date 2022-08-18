@@ -22,18 +22,20 @@ set(NLOHMANN_JSON_FOUND
     CACHE INTERNAL "nlohmann found?" FORCE
 )
 
-set(EXPRESS_CPP
+set(HTTP_SERVER_EXPRESS_CPP
+    Controller.cpp
+    Dispatcher.cpp
+    MountPoint.cpp
+    Next.cpp
     Request.cpp
     Response.cpp
+    Route.cpp
+    RootRoute.cpp
     Router.cpp
     WebApp.cpp
     dispatcher/ApplicationDispatcher.cpp
     dispatcher/MiddlewareDispatcher.cpp
-    dispatcher/MountPoint.cpp
-    dispatcher/Route.cpp
-    dispatcher/RootRoute.cpp
     dispatcher/RouterDispatcher.cpp
-    dispatcher/State.cpp
     dispatcher/regex_utils.cpp
     middleware/BasicAuthentication.cpp
     middleware/StaticMiddleware.cpp
@@ -41,20 +43,21 @@ set(EXPRESS_CPP
     ${JSONMIDDLEWARE_CPP}
 )
 
-set(EXPRESS_H
+set(HTTP_SERVER_EXPRESS_H
+    Controller.h
+    Dispatcher.h
+    MountPoint.h
+    Next.h
     Request.h
     Response.h
+    Route.h
     Router.h
+    RootRoute.h
     WebApp.h
     WebAppT.h
     dispatcher/ApplicationDispatcher.h
-    dispatcher/Dispatcher.h
     dispatcher/MiddlewareDispatcher.h
-    dispatcher/MountPoint.h
-    dispatcher/Route.h
-    dispatcher/RootRoute.h
     dispatcher/RouterDispatcher.h
-    dispatcher/State.h
     dispatcher/regex_utils.h
     middleware/BasicAuthentication.h
     middleware/StaticMiddleware.h
@@ -68,26 +71,32 @@ set(EXPRESS_H
     ${JSONMIDDLEWARE_H}
 )
 
-add_library(express SHARED ${EXPRESS_CPP} ${EXPRESS_H})
-add_library(snodec::express ALIAS express)
+add_library(
+    http-server-express SHARED ${HTTP_SERVER_EXPRESS_CPP}
+                               ${HTTP_SERVER_EXPRESS_H}
+)
+add_library(snodec::http-server-express ALIAS http-server-express)
 
 target_include_directories(
-    express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                   "$<INSTALL_INTERFACE:include/snode.c>"
+    http-server-express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
-    express
-    PUBLIC snodec::httpserver
+    http-server-express
+    PUBLIC snodec::http-server
     PRIVATE ${JSON_LIBRARY}
 )
 
-set_target_properties(express PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-express)
+set_target_properties(
+    http-server-express PROPERTIES SOVERSION 1 OUTPUT_NAME
+                                               snodec-http-server-express
+)
 
 install(
-    TARGETS express
-    EXPORT snodec_express_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    TARGETS http-server-express
+    EXPORT snodec_http-server-express_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/web
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
@@ -97,12 +106,13 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express
     FILES_MATCHING
     PATTERN "*.h"
+    PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
 )
 
 install(
-    EXPORT snodec_express_Targets
-    FILE snodec_express_Targets.cmake
+    EXPORT snodec_http-server-express_Targets
+    FILE snodec_http-server-express_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

@@ -40,8 +40,7 @@ namespace core::system {
     void freeaddrinfo(struct addrinfo* res);
 
     // #include <sys/socket>, #include <netdb.h>
-    int
-    getnameinfo(const struct sockaddr* addr, socklen_t addrlen, char* host, socklen_t hostlen, char* serv, socklen_t servlen, int flags);
+    int getnameinfo(const sockaddr* addr, socklen_t addrlen, char* host, socklen_t hostlen, char* serv, socklen_t servlen, int flags);
 
 } // namespace core::system
 

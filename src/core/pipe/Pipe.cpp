@@ -18,14 +18,14 @@
 
 #include "core/pipe/Pipe.h"
 
-#include "core/pipe/PipeSink.h"   // for PipeSink
-#include "core/pipe/PipeSource.h" // for PipeSource
+#include "core/pipe/PipeSink.h"
+#include "core/pipe/PipeSource.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
-#include <fcntl.h>  /* Obtain O_* constant definitions */
-#include <unistd.h> // for pipe2
+#include <fcntl.h> /* Obtain O_* constant definitions */
+#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

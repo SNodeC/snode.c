@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
-#define WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
+#ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
+#define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
 #include "web/websocket/SubProtocolFactory.h"
 
-namespace web::websocket::subprotocol::echo::server {
+namespace apps::websocket::subprotocol::echo::server {
     class Echo; // IWYU pragma: keep
 }
 
@@ -29,11 +29,11 @@ namespace web::websocket::subprotocol::echo::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::subprotocol::echo::server {
+namespace apps::websocket::subprotocol::echo::server {
 
     class EchoFactory : public web::websocket::SubProtocolFactory<Echo> {
     public:
@@ -43,8 +43,8 @@ namespace web::websocket::subprotocol::echo::server {
         Echo* create() override;
     };
 
-} // namespace web::websocket::subprotocol::echo::server
+} // namespace apps::websocket::subprotocol::echo::server
 
 extern "C" void* echoServerSubProtocolFactory();
 
-#endif // ECHOINTERFACE_H
+#endif // APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H

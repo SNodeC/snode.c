@@ -22,7 +22,7 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
-#include "web/http/http_utils.h" // for ci_contains
+#include "web/http/http_utils.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -52,17 +52,17 @@ int main(int argc, char* argv[]) {
         VLOG(1) << "OriginalUri: " << uri;
         VLOG(1) << "Uri: " << req.url;
 
-        VLOG(1) << "Host: " << req.header("host");
-        VLOG(1) << "Connection: " << req.header("connection");
-        VLOG(1) << "Origin: " << req.header("origin");
-        VLOG(1) << "Sec-WebSocket-Protocol: " << req.header("sec-websocket-protocol");
-        VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
-        VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
-        VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
-        VLOG(1) << "upgrade: " << req.header("upgrade");
-        VLOG(1) << "user-agent: " << req.header("user-agent");
+        VLOG(1) << "Host: " << req.get("host");
+        VLOG(1) << "Connection: " << req.get("connection");
+        VLOG(1) << "Origin: " << req.get("origin");
+        VLOG(1) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
+        VLOG(1) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
+        VLOG(1) << "sec-websocket-key: " << req.get("sec-websocket-key");
+        VLOG(1) << "sec-websocket-version: " << req.get("sec-websocket-version");
+        VLOG(1) << "upgrade: " << req.get("upgrade");
+        VLOG(1) << "user-agent: " << req.get("user-agent");
 
-        if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
+        if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
             res.upgrade(req);
         } else {
             res.sendStatus(404);
@@ -99,17 +99,17 @@ int main(int argc, char* argv[]) {
             VLOG(1) << "OriginalUri: " << uri;
             VLOG(1) << "Uri: " << req.url;
 
-            VLOG(1) << "Connection: " << req.header("connection");
-            VLOG(1) << "Host: " << req.header("host");
-            VLOG(1) << "Origin: " << req.header("origin");
-            VLOG(1) << "Sec-WebSocket-Protocol: " << req.header("sec-websocket-protocol");
-            VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
-            VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
-            VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
-            VLOG(1) << "upgrade: " << req.header("upgrade");
-            VLOG(1) << "user-agent: " << req.header("user-agent");
+            VLOG(1) << "Connection: " << req.get("connection");
+            VLOG(1) << "Host: " << req.get("host");
+            VLOG(1) << "Origin: " << req.get("origin");
+            VLOG(1) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
+            VLOG(1) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
+            VLOG(1) << "sec-websocket-key: " << req.get("sec-websocket-key");
+            VLOG(1) << "sec-websocket-version: " << req.get("sec-websocket-version");
+            VLOG(1) << "upgrade: " << req.get("upgrade");
+            VLOG(1) << "user-agent: " << req.get("user-agent");
 
-            if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
+            if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
                 res.upgrade(req);
             } else {
                 res.sendStatus(404);

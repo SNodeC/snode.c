@@ -26,7 +26,7 @@
 #include "log/Logger.h"
 
 #include <cerrno>
-#include <cstddef> // for std::size_t
+#include <cstddef>
 #include <functional>
 #include <sys/types.h>
 #include <vector>
@@ -53,7 +53,6 @@ namespace core::socket::stream {
             , terminateTimeout(terminateTimeout) {
             setBlockSize(blockSize);
             setTimeout(timeout);
-            enable(Socket::getFd());
         }
 
         ~SocketReader() override = default;
@@ -113,7 +112,7 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
-                Socket::shutdown(Socket::shutdown::RD);
+                Socket::shutdown(Socket::SHUT::RD);
                 shutdownTriggered = true;
             }
         }

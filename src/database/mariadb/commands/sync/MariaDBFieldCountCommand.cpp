@@ -21,10 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <mysql.h>
-
-// IWYU pragma: no_include "mysql.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb::commands::sync {

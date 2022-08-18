@@ -20,10 +20,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/unistd.h" // for write, ssize_t
+#include "core/system/unistd.h"
 
-#include <errno.h> // for errno, EAGAIN, EINTR, EWOULDBLOCK
-#include <string>  // for string
+#include <errno.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

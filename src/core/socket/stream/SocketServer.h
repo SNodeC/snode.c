@@ -34,12 +34,12 @@
 
 namespace core::socket::stream {
 
-    template <typename ServerSocketT, template <typename ServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public ServerSocketT {
+    template <typename SocketServerT, template <typename ServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
+    class SocketServer : public SocketServerT {
         SocketServer() = delete;
 
     private:
-        using Super = ServerSocketT;
+        using Super = SocketServerT;
         using SocketAcceptor = SocketAcceptorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
@@ -67,16 +67,11 @@ namespace core::socket::stream {
             : SocketServer("", onConnect, onConnected, onDisconnect, options) {
         }
 
-        SocketServer(const SocketServer&) = default;
-
-        ~SocketServer() override = default;
-
         using Super::listen;
 
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
             if (Super::config->isLocalInitialized()) {
                 SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
-
                 socketAcceptor->listen(Super::config, onError);
             } else {
                 LOG(ERROR) << "Parameterless listen on anonymous server instance";

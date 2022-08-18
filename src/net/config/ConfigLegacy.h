@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGLEGACY_H
 #define NET_CONFIG_CONFIGLEGACY_H
 
-#include "net/config/ConfigBase.h"
+#include "net/config/ConfigBase.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 namespace net::config {
 
-    class ConfigLegacy : virtual protected ConfigBase {};
+    class ConfigLegacy : virtual public ConfigBase {};
 
 } // namespace net::config
 

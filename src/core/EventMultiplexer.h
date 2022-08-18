@@ -19,7 +19,8 @@
 #ifndef CORE_EVENTMULTIPLEXER_H
 #define CORE_EVENTMULTIPLEXER_H
 
-#include "core/TickStatus.h" // IWYU pragma: export
+#include "core/DescriptorEventReceiver.h" // IWYU pragma: export
+#include "core/TickStatus.h"              // IWYU pragma: export
 
 namespace core {
     class Event;
@@ -28,10 +29,12 @@ namespace core {
 } // namespace core
 
 namespace utils {
-    class Timeval;
+    class Timeval; // IWYU pragma: keep
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/signal.h"
 
 #include <array> // IWYU pragma: export
 #include <list>
@@ -65,13 +68,15 @@ namespace core {
         private:
             std::list<Event*>* executeQueue;
             std::list<Event*>* publishQueue;
+
+            sigset_t newSet;
+            sigset_t oldSet;
         };
 
     public:
 #define DISP_COUNT 3
-        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
-        DescriptorEventPublisher& getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE dispType);
+        DescriptorEventPublisher& getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType);
         TimerEventPublisher& getTimerEventPublisher();
 
         void publish(core::Event* event);
@@ -92,7 +97,7 @@ namespace core {
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
         void publishActiveEvents(const utils::Timeval& currentTime);
         virtual void publishActiveEvents() = 0;
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        void releaseExpiredResources(const utils::Timeval& currentTime);
         void executeEventQueue(const utils::Timeval& currentTime);
 
     protected:
@@ -108,5 +113,7 @@ namespace core {
     };
 
 } // namespace core
+
+core::EventMultiplexer& EventMultiplexer();
 
 #endif // CORE_EVENTMULTIPLEXER_H

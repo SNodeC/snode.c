@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ApplicationDispatcher.h"
+#include "express/dispatcher/ApplicationDispatcher.h"
 
-#include "express/Request.h" // for Request
-#include "express/dispatcher/MountPoint.h"
-#include "express/dispatcher/State.h" // for State, State::INH
+#include "express/Controller.h"
+#include "express/MountPoint.h"
+#include "express/Request.h"
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,27 +29,29 @@
 
 namespace express::dispatcher {
 
-    ApplicationDispatcher::ApplicationDispatcher(const std::function<void(Request&, Response&)>& lambda)
+    ApplicationDispatcher::ApplicationDispatcher(const std::function<void(express::Request&, express::Response&)>& lambda)
         : lambda(lambda) {
     }
 
-    bool ApplicationDispatcher::dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
+    bool ApplicationDispatcher::dispatch(express::Controller& controller,
+                                         const std::string& parentMountPath,
+                                         const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
-        if ((state.flags & State::INH) == 0) {
+        if ((controller.getFlags() & Controller::NEXT) == 0) {
             std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-            // TODO: Fix regex-match
-            if ((state.request->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
-                ((absoluteMountPath == state.request->path || checkForUrlMatch(absoluteMountPath, state.request->url)) &&
-                 (state.request->method == mountPoint.method || mountPoint.method == "all"))) {
+            if ((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 && mountPoint.method == "use") ||
+                ((absoluteMountPath == controller.getRequest()->path ||
+                  checkForUrlMatch(absoluteMountPath, controller.getRequest()->url)) &&
+                 (controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
                 dispatched = true;
 
                 if (hasResult(absoluteMountPath)) {
-                    setParams(absoluteMountPath, *state.request);
+                    setParams(absoluteMountPath, *controller.getRequest());
                 }
 
-                lambda(*state.request, *state.response);
+                lambda(*controller.getRequest(), *controller.getResponse());
             }
         }
 

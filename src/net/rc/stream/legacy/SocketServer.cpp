@@ -16,13 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ServerSocket.hpp" // IWYU pragma: keep
-#include "net/rc/stream/ServerSocket.hpp"
-#include "net/rc/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: keep
+#include "net/rc/stream/legacy/SocketServer.h"
+
+#include "net/rc/stream/SocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-template class net::rc::stream::ServerSocket<net::rc::stream::legacy::config::ConfigSocketServer>;
-template class net::ServerSocket<net::rc::stream::legacy::config::ConfigSocketServer, net::rc::stream::Socket>;
+template class net::rc::stream::SocketServer<net::rc::stream::legacy::config::ConfigSocketServer>;
+template class net::stream::SocketServer<net::rc::stream::legacy::config::ConfigSocketServer, net::rc::stream::ServerSocket>;
+template class net::SocketConfig<net::rc::stream::legacy::config::ConfigSocketServer>;

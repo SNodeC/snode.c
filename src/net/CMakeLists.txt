@@ -1,19 +1,22 @@
 cmake_minimum_required(VERSION 3.0)
 
+add_compile_options(
+    -Wno-covered-switch-default -Wno-float-equal
+    -Wno-implicit-int-float-conversion -Wno-undefined-func-template
+)
+
 set(NET_CPP
-    config/ConfigBase.cpp config/ConfigConnection.cpp config/ConfigLegacy.cpp
-    config/ConfigListen.cpp config/ConfigTls.cpp
+    config/ConfigBase.cpp config/ConfigCluster.cpp config/ConfigConnection.cpp
+    config/ConfigLegacy.cpp config/ConfigListen.cpp config/ConfigTls.cpp
 )
 
 set(NET_H
-    ClientSocket.h
-    ClientSocket.hpp
-    ServerSocket.h
-    ServerSocket.hpp
     Socket.h
     Socket.hpp
     SocketAddress.h
     SocketAddress.hpp
+    SocketConfig.h
+    SocketConfig.hpp
     config/ConfigAddress.h
     config/ConfigAddress.hpp
     config/ConfigAddressLocal.h
@@ -21,10 +24,21 @@ set(NET_H
     config/ConfigAddressRemote.h
     config/ConfigAddressRemote.hpp
     config/ConfigBase.h
+    config/ConfigCluster.h
     config/ConfigConnection.h
     config/ConfigLegacy.h
     config/ConfigListen.h
     config/ConfigTls.h
+    dgram/PeerSocket.h
+    dgram/PeerSocket.hpp
+    stream/ClientSocket.h
+    stream/ClientSocket.hpp
+    stream/ServerSocket.h
+    stream/ServerSocket.hpp
+    stream/SocketClient.h
+    stream/SocketClient.hpp
+    stream/SocketServer.h
+    stream/SocketServer.hpp
 )
 
 add_library(net SHARED ${NET_CPP} ${NET_H})

@@ -38,7 +38,7 @@ namespace net::config {
         using SocketAddress = SocketAddressT;
 
     protected:
-        explicit ConfigAddressLocal();
+        ConfigAddressLocal();
 
     public:
         bool isLocalInitialized();

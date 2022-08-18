@@ -49,6 +49,10 @@ namespace net::config {
         return baseSc->add_option(name, variable, description);
     }
 
+    CLI::Option* ConfigBase::add_flag(const std::string& name, const std::string& description) {
+        return baseSc->add_flag(name, description);
+    }
+
     void ConfigBase::parse(bool forceError) const {
         utils::Config::parse(forceError);
     }

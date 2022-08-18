@@ -19,13 +19,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/clients.h"
-#include "config.h"      // IWYU pragma: keep
-#include "core/SNodeC.h" // for SNodeC
-#include "log/Logger.h"  // for Writer, Storage
+#include "config.h" // IWYU pragma: keep
+#include "core/SNodeC.h"
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
+int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
 #if (STREAM_TYPE == LEGACY)
@@ -40,8 +40,10 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     Client client = apps::http::STREAM::getClient(options);
 
     client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << errnum;
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }
@@ -83,6 +85,6 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
         }
 
 #ifdef NET_TYPE
-    }); // cppcheck-suppress syntaxError
+    });
 #endif
 */

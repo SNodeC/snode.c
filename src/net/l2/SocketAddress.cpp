@@ -22,32 +22,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstring> // for memset
-#include <exception>
+#include "core/system/socket.h"
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::l2 {
 
-    class bad_bdaddress : public std::exception {
-    public:
-        explicit bad_bdaddress(const std::string& bdAddress) {
-            message = "Bad bad bdaddress \"" + bdAddress + "\"";
-        }
-
-        const char* what() const noexcept override {
-            return message.c_str();
-        }
-
-    protected:
-        static std::string message;
-    };
-
-    std::string bad_bdaddress::message;
-
     SocketAddress::SocketAddress() {
-        std::memset(&sockAddr, 0, sizeof(sockAddr));
-
         sockAddr.l2_family = AF_BLUETOOTH;
         sockAddr.l2_bdaddr = {{0, 0, 0, 0, 0, 0}};
         sockAddr.l2_psm = htobs(0);
@@ -92,8 +73,16 @@ namespace net::l2 {
         return address() + ":" + std::to_string(psm());
     }
 
+    bad_bdaddress::bad_bdaddress(const std::string& bdAddress) {
+        message = "Bad bad bdaddress \"" + bdAddress + "\"";
+    }
+
+    const char* bad_bdaddress::what() const noexcept {
+        return message.c_str();
+    }
+
 } // namespace net::l2
 
 namespace net {
-    template class SocketAddress<struct sockaddr_l2>;
-}
+    template class SocketAddress<sockaddr_l2>;
+} // namespace net

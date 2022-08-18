@@ -16,16 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"      // IWYU pragma: keep
-#include "core/SNodeC.h" // for SNodeC
-#include "log/Logger.h"  // for Writer
+#include "config.h" // IWYU pragma: keep
+#include "core/SNodeC.h"
+#include "log/Logger.h"
 #include "model/clients.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
+int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
 #if (STREAM_TYPE == LEGACY)
@@ -43,8 +43,11 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     SocketClient client = apps::echo::model::STREAM::getClient(options);
 
     client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString() << " : " << errnum;
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            //            errno = errnum;
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }
@@ -79,13 +82,17 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 #elif (NET_TYPE == UN) // un
     client.connect("/tmp/testme", [](int errnum) -> void {
 #endif
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << errnum;
-        } else {
-            VLOG(0) << "snode.c connected";
-        }
+
+    if (errnum < 0) {
+        PLOG(ERROR) << "OnError";
+    } else if (errnum > 0) {
+        errno = errnum;
+        PLOG(ERROR) << "OnError: " << socketAddress.toString();
+    } else {
+        VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+    }
 
 #ifdef NET_TYPE
-    }); // cppcheck-suppress syntaxError
+    });
 #endif
 */

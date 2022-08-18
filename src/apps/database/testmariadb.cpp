@@ -25,8 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdlib>    // for atoi
-#include <functional> // for function
+#include <cstdlib>
+#include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -203,7 +203,6 @@ int main(int argc, char* argv[]) {
                                                 [](const std::string& errorString, unsigned int errorNumber) -> void {
                                                     VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
                                                 });
-                                        ;
                                     },
                                     0.7,
                                     "Tick 0.7");
@@ -289,8 +288,8 @@ int main(int argc, char* argv[]) {
                         [&db2, j, stop](const MYSQL_ROW row) -> void {
                             if (row != nullptr) {
                                 VLOG(0) << "Row Result count(*) 16: " << row[0];
-                                if (std::atoi(row[0]) != j + 1) {
-                                    VLOG(0) << "Wrong number of rows 16: " << std::atoi(row[0]) << " != " << j + 1;
+                                if (std::atoi(row[0]) != j + 1) {                                                   // NOLINT
+                                    VLOG(0) << "Wrong number of rows 16: " << std::atoi(row[0]) << " != " << j + 1; // NOLINT
                                     exit(1);
                                 }
                             } else {

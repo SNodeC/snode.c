@@ -18,7 +18,6 @@
 
 #include "web/http/client/Response.h"
 
-#include "web/http/CookieOptions.h"
 #include "web/http/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
@@ -27,8 +26,8 @@
 
 #include "log/Logger.h"
 
-#include <iterator> // for advance, distance
-#include <utility>  // for pair
+#include <iterator>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -19,15 +19,18 @@
 #ifndef WEB_WEBSOCKET_SERVER_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SERVER_SUBSPROTOCOL_H
 
-#include "web/websocket/SubProtocol.h"                 // IWYU pragma: export
-#include "web/websocket/server/SocketContextUpgrade.h" // IWYU pragma: keep
+#include "web/websocket/SubProtocol.h"
 
 // IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
 
+namespace web::websocket::server {
+    class SocketContextUpgrade;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>    // IWYU pragma: keep
-#include <functional> // for function
+#include <cstddef>
+#include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

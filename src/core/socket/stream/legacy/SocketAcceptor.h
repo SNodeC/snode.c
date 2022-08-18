@@ -28,16 +28,16 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename ServerSocketT>
-    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<ServerSocketT, core::socket::stream::legacy::SocketConnection> {
+    template <typename SocketServerT>
+    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<SocketServerT, core::socket::stream::legacy::SocketConnection> {
     private:
-        using Super = core::socket::stream::SocketAcceptor<ServerSocketT, core::socket::stream::legacy::SocketConnection>;
+        using Super = core::socket::stream::SocketAcceptor<SocketServerT, core::socket::stream::legacy::SocketConnection>;
 
         using SocketAddress = typename Super::SocketAddress;
 
     public:
         using Config = typename Super::Config;
-        using ServerSocket = ServerSocketT;
+        using ServerSocket = SocketServerT;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,

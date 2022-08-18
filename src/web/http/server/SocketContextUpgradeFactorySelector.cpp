@@ -18,14 +18,13 @@
 
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
-#include "web/http/SocketContextUpgrade.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <tuple> // for tie, tuple
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,11 +32,11 @@ namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
         : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>() {
-        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR);
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR);
 
-#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR)
+#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR)
 
-        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR);
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR);
 
 #endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR)
     }
@@ -57,7 +56,7 @@ namespace web::http::server {
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        std::string upgradeContextNames = req.header("upgrade");
+        std::string upgradeContextNames = req.get("upgrade");
 
         if (!upgradeContextNames.empty()) {
             std::string upgradeContextName;

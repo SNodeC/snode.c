@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DescriptorEventPublisher.h"
+#include "core/multiplexer/select/DescriptorEventPublisher.h"
 
 #include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <type_traits> // for add_const<>::type
+#include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

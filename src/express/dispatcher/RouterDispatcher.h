@@ -19,19 +19,12 @@
 #ifndef EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
 #define EXPRESS_DISPATCHER_ROUTERDISPATCHER_H
 
-#include "express/dispatcher/Dispatcher.h" // IWYU pragma: export
-#include "express/dispatcher/Route.h"      // for Route
+#include "express/Dispatcher.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "express/Route.h"
 
 namespace express {
-
-    class Router;
-
-    namespace dispatcher {
-
-        struct State;
-
-    } // namespace dispatcher
-
+    class Controller;
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,16 +36,14 @@ namespace express {
 
 namespace express::dispatcher {
 
-    class RouterDispatcher : public Dispatcher {
+    class RouterDispatcher : public express::Dispatcher {
+    public:
+        std::list<express::Route>& getRoutes();
+
     private:
-        bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) override;
+        bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
-        std::list<Route> routes;
-
-        friend class express::Router;
-        friend class ApplicationDispatcher;
-        friend class MiddlewareDispatcher;
-        friend class RootRoute;
+        std::list<express::Route> routes;
     };
 
 } // namespace express::dispatcher

@@ -63,8 +63,8 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.post("/", [] APPLICATION(req, res) {
-        VLOG(0) << "Content-Type: " << req.header("Content-Type");
-        VLOG(0) << "Content-Length: " << req.header("Content-Length");
+        VLOG(0) << "Content-Type: " << req.get("Content-Type");
+        VLOG(0) << "Content-Length: " << req.get("Content-Length");
 
         req.body.push_back(0);
         VLOG(0) << req.body.data();
@@ -79,17 +79,21 @@ int main(int argc, char* argv[]) {
     express::tls::in::WebApp tlsApp("tls-testpost", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
     tlsApp.use(legacyApp);
 
-    legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080";
+    legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }
     });
 
-    tlsApp.listen(8088, [](const express::tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8088";
+    tlsApp.listen(8088, [](const express::tls::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }

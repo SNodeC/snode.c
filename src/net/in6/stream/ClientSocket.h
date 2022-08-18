@@ -16,46 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_STREAM_CLIENTSOCKET_H
-#define NET_IN6_STREAM_STREAM_CLIENTSOCKET_H
+#ifndef NET_IN6_STREAM_CLIENTSOCKET_H
+#define NET_IN6_STREAM_CLIENTSOCKET_H
 
-#include "net/ClientSocket.h"      // IWYU pragma: export
 #include "net/in6/stream/Socket.h" // IWYU pragma: export
+#include "net/stream/ClientSocket.h"
+
+// IWYU pragma: no_include "net/stream/ClientSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint> // IWYU pragma: export
-#include <functional>
-#include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::stream {
 
-    template <typename ConfigT>
-    class ClientSocket : public net::ClientSocket<ConfigT, net::in6::stream::Socket> {
-        using Super = net::ClientSocket<ConfigT, net::in6::stream::Socket>;
-
-    protected:
-        explicit ClientSocket(const std::string& name);
+    class ClientSocket : public net::stream::ClientSocket<net::in6::stream::Socket> {
+    private:
+        using Super = net::stream::ClientSocket<net::in6::stream::Socket>;
 
     public:
-        using Super::connect;
-
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError);
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     const std::function<void(const SocketAddress&, int)>& onError);
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     uint16_t bindPort,
-                     const std::function<void(const SocketAddress&, int)>& onError);
+        using Super::Super;
+        using Super::operator=;
     };
 
 } // namespace net::in6::stream
 
-#endif // NET_IN6_STREAM_STREAM_CLIENTSOCKET_H
+#endif // NET_IN6_STREAM_CLIENTSOCKET_H

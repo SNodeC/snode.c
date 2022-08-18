@@ -19,9 +19,9 @@
 #ifndef NET_UN_STREAM_TLS_SOCKETCLIENT_H
 #define NET_UN_STREAM_TLS_SOCKETCLIENT_H
 
-#include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
-#include "net/un/stream/ClientSocket.h"          // IWYU pragma: export
-#include "net/un/stream/tls/config/ConfigSocketClient.h"
+#include "core/socket/stream/tls/SocketClient.h"         // IWYU pragma: export
+#include "net/un/stream/SocketClient.h"                  // IWYU pragma: export
+#include "net/un/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace net::un::stream::tls {
 
     template <typename SocketContextFactoryT>
     using SocketClient =
-        core::socket::stream::tls::SocketClient<net::un::stream::ClientSocket<net::un::stream::tls::config::ConfigSocketClient>,
+        core::socket::stream::tls::SocketClient<net::un::stream::SocketClient<net::un::stream::tls::config::ConfigSocketClient>,
                                                 SocketContextFactoryT>;
 
 } // namespace net::un::stream::tls

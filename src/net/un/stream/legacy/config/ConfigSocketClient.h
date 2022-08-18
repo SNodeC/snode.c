@@ -20,7 +20,7 @@
 #define NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
 
 #include "net/config/ConfigLegacy.h"
-#include "net/un/stream/config/ConfigClientSocket.h"
+#include "net/un/stream/config/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@
 namespace net::un::stream::legacy::config {
 
     class ConfigSocketClient
-        : public net::un::stream::config::ConfigClientSocket
+        : public net::un::stream::config::ConfigSocketClient
         , public net::config::ConfigLegacy {
     public:
         explicit ConfigSocketClient(const std::string& name)

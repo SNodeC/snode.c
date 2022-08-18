@@ -25,7 +25,7 @@
 
 #include "log/Logger.h"
 
-#include <tuple> // for tie, tuple
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,8 +43,7 @@ namespace web::http {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {
-            SocketContextPlugin<SocketContextUpgradeFactory> socketContextPlugin = {
-                .socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
+            SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
             std::tie(std::ignore, success) = socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
         }
 
@@ -62,18 +61,20 @@ namespace web::http {
     }
 
     template <typename SocketContextUpgradeFactory>
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(
-        const std::string& upgradeContextName, typename web::http::SocketContextUpgrade<Request, Response>::Role role) {
+    SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& upgradeContextName,
+                                                                           typename SocketContextUpgrade::Role role) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         for (const std::string& searchPath : searchPaths) {
-            void* handle =
-                core::DynamicLoader::dlOpen((searchPath + "/libsnodec-" + upgradeContextName + ".so").c_str(), RTLD_LAZY | RTLD_GLOBAL);
+            void* handle = core::DynamicLoader::dlOpen((searchPath + "/libsnodec-" + upgradeContextName +
+                                                        (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so")
+                                                           .c_str(),
+                                                       RTLD_LAZY | RTLD_GLOBAL);
 
             if (handle != nullptr) {
                 std::string socketContextUpgradeFactoryName =
-                    upgradeContextName + (role == web::http::SocketContextUpgrade<Request, Response>::Role::SERVER ? "Server" : "Client") +
-                    "ContextUpgradeFactory";
+                    upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "Server" : "Client") + "ContextUpgradeFactory";
                 SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(
                     core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryName));
 
@@ -140,7 +141,7 @@ namespace web::http {
         std::string upgradeContextNames = socketContextUpgradeFactory->name();
 
         if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
-            SocketContextPlugin<SocketContextUpgradeFactory>& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
+            SocketContextPlugin& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
 
             delete socketContextUpgradeFactory;
 

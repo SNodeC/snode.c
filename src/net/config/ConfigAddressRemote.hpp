@@ -19,8 +19,8 @@
 #ifndef NET_CONFIG_CONFIGADDRESSREMOTE_HPP
 #define NET_CONFIG_CONFIGADDRESSREMOTE_HPP
 
-#include "ConfigAddressRemote.h"        // IWYU pragma: export
-#include "net/config/ConfigAddress.hpp" // IWYU pragma: export
+#include "net/config/ConfigAddress.hpp"     // IWYU pragma: export
+#include "net/config/ConfigAddressRemote.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -16,16 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DescriptorEventPublisher.h"
+#include "core/DescriptorEventPublisher.h"
 
-#include "DescriptorEventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <iterator>    // for reverse_iterator
-#include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>::type
+#include <iterator>
+#include <type_traits>
+#include <utility>
+
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -58,43 +60,45 @@ namespace core {
     }
 
     void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
+        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
 
-    void DescriptorEventPublisher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventPublisher::releaseDisabledEvents(const utils::Timeval& currentTime) {
         if (observedEventReceiversDirty) {
             observedEventReceiversDirty = false;
-            std::erase_if(observedEventReceivers, [this, &currentTime](auto& observedEventReceiversEntry) -> bool {
-                // cppcheck-suppress constVariable
-                // cppcheck-suppress variableScope
-                auto& [fd, observedEventReceiverList] = observedEventReceiversEntry;
+
+            for (auto& [fd, observedEventReceiverList] : observedEventReceivers) {
                 DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
-                std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
-                    bool isDisabled = !descriptorEventReceiver->isEnabled();
-                    if (isDisabled) {
-                        descriptorEventReceiver->setDisabled();
-                        if (!descriptorEventReceiver->isObserved()) {
-                            descriptorEventReceiver->unobservedEvent();
+                if (std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
+                        bool isDisabled = !descriptorEventReceiver->isEnabled();
+                        if (isDisabled) {
+                            descriptorEventReceiver->setDisabled();
+                            if (!descriptorEventReceiver->isObserved()) {
+                                descriptorEventReceiver->unobservedEvent();
+                            }
                         }
-                    }
-                    return isDisabled;
-                });
-                if (observedEventReceiverList.empty()) {
-                    muxDel(fd);
-                } else {
-                    DescriptorEventReceiver* afterFirst = observedEventReceiverList.front();
-                    if (beforeFirst != afterFirst) {
-                        afterFirst->triggered(currentTime);
-                        if (!afterFirst->isSuspended()) {
-                            muxOn(afterFirst);
-                        } else {
-                            muxOff(afterFirst);
+                        return isDisabled;
+                    }) > 0) {
+                    if (observedEventReceiverList.empty()) {
+                        muxDel(fd);
+                    } else {
+                        DescriptorEventReceiver* afterFirst = observedEventReceiverList.front();
+                        if (beforeFirst != afterFirst) {
+                            afterFirst->triggered(currentTime);
+                            if (!afterFirst->isSuspended()) {
+                                muxOn(afterFirst);
+                            } else {
+                                muxOff(afterFirst);
+                            }
                         }
                     }
                 }
-                return observedEventReceiverList.empty();
+            }
+
+            std::erase_if(observedEventReceivers, [](auto& observedEventReceiversEntry) -> bool {
+                return observedEventReceiversEntry.second.empty();
             });
         }
     }
@@ -117,7 +121,7 @@ namespace core {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         if (!observedEventReceiversDirty) {
-            for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
+            for (const auto& [fd, eventReceivers] : observedEventReceivers) {
                 const DescriptorEventReceiver* eventReceiver = eventReceivers.front();
 
                 if (!eventReceiver->isSuspended()) {
@@ -132,7 +136,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::stop() {
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unusedVariable
+        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->terminate();
             }

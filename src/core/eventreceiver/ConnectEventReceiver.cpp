@@ -16,10 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ConnectEventReceiver.h"
-
-#include "core/EventLoop.h"
-#include "core/EventMultiplexer.h"
+#include "core/eventreceiver/ConnectEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,10 +25,7 @@
 namespace core::eventreceiver {
 
     ConnectEventReceiver::ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout)
-        : core::DescriptorEventReceiver(
-              "ConnectEventReceiver: " + name,
-              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR),
-              timeout) {
+        : core::DescriptorEventReceiver("ConnectEventReceiver: " + name, core::DescriptorEventReceiver::DISP_TYPE::WR, timeout) {
     }
 
     void ConnectEventReceiver::connectTimeout() {
@@ -44,6 +38,14 @@ namespace core::eventreceiver {
 
     void ConnectEventReceiver::timeoutEvent() {
         connectTimeout();
+    }
+
+    InitConnectEventReceiver::InitConnectEventReceiver(const std::string& name)
+        : core::EventReceiver("InitConnectEventReceiver: " + name) {
+    }
+
+    void InitConnectEventReceiver::event([[maybe_unused]] const utils::Timeval& currentTime) {
+        initConnectEvent();
     }
 
 } // namespace core::eventreceiver

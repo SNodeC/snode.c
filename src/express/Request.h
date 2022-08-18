@@ -32,17 +32,16 @@ namespace express {
 
     class Request : public web::http::server::Request {
     public:
-        std::string& param(const std::string& id);
+        const std::string& param(const std::string& id, const std::string& fallBack = "");
 
         std::string originalUrl;
         std::string path;
         std::map<std::string, std::string> params;
 
     protected:
-        void extend();
+        Request& extend();
 
-        template <typename ServerT>
-        friend class WebAppT;
+        friend class Controller;
     };
 
 } // namespace express

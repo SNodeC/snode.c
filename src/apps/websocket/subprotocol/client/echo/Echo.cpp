@@ -27,7 +27,7 @@
 #define MAX_FLYING_PINGS 3
 #define PING_DELAY 5
 
-namespace web::websocket::subprotocol::echo::client {
+namespace apps::websocket::subprotocol::echo::client {
 
     Echo::Echo(const std::string& name)
         : web::websocket::client::SubProtocol(name)
@@ -87,4 +87,4 @@ namespace web::websocket::subprotocol::echo::client {
         VLOG(0) << "Echo disconnected:";
     }
 
-} // namespace web::websocket::subprotocol::echo::client
+} // namespace apps::websocket::subprotocol::echo::client

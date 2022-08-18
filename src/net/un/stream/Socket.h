@@ -19,8 +19,7 @@
 #ifndef NET_UN_STREAM_SOCKET_H
 #define NET_UN_STREAM_SOCKET_H
 
-#include "net/Socket.h"           // IWYU pragma: export
-#include "net/un/SocketAddress.h" // IWYU pragma: export
+#include "net/un/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,11 +27,15 @@
 
 namespace net::un::stream {
 
-    class Socket : public net::Socket<net::un::SocketAddress> {
-    protected:
-        ~Socket() override;
+    class Socket : public net::un::Socket {
+    private:
+        using Super = net::un::Socket;
 
-        int create(int flags) override;
+    public:
+        using Super::Super;
+        using Super::operator=;
+
+        Socket();
     };
 
 } // namespace net::un::stream

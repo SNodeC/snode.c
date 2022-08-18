@@ -19,14 +19,13 @@
 #ifndef EXPRESS_ROUTER_H
 #define EXPRESS_ROUTER_H
 
-#include "express/Request.h"              // IWYU pragma: export
-#include "express/Response.h"             // IWYU pragma: export
-#include "express/dispatcher/RootRoute.h" // IWYU pragma: export
+#include "express/Next.h"      // IWYU pragma: export
+#include "express/Request.h"   // IWYU pragma: export
+#include "express/Response.h"  // IWYU pragma: export
+#include "express/RootRoute.h" // IWYU pragma: export
 
 namespace express {
-
     class Router;
-
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -37,42 +36,57 @@ namespace express {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MIDDLEWARE(req, res, state)                                                                                                        \
-    ([[maybe_unused]] express::Request & (req),                                                                                            \
-     [[maybe_unused]] express::Response & (res),                                                                                           \
-     [[maybe_unused]] express::dispatcher::State & (state))
+#define MIDDLEWARE(req, res, next)                                                                                                         \
+    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] express::Next & (next))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
-#define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
-    Router& METHOD(const Router& router);                                                                                                  \
-    Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
-    Router& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                      \
-    Router& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                \
-    Router& METHOD(const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);                  \
-    Router& METHOD(const std::string& relativeMountPath,                                                                                   \
-                   const std::function<void(Request & req, Response & res, express::dispatcher::State & state)>& lambda);
+#define DECLARE_ROUTER_REQUESTMETHOD(METHOD)                                                                                               \
+    Route& METHOD(const Router& router);                                                                                                   \
+    Route& METHOD(const std::string& relativeMountPath, const Router& router);                                                             \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda);                                          \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next & next)>& lambda);    \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);                                   \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(                                                                                                                         \
+        const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);       \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas);                      \
+    template <typename... Lambdas>                                                                                                         \
+    Route& METHOD(const std::string& relativeMountPath,                                                                                    \
+                  const std::function<void(Request & req, Response & res, Next & next)>& lambda,                                           \
+                  Lambdas... lambdas);
 
 namespace express {
 
     class Router /*: protected express::dispatcher::Route*/ {
     public:
-        DECLARE_REQUESTMETHOD(use)
-        DECLARE_REQUESTMETHOD(all)
-        DECLARE_REQUESTMETHOD(get)
-        DECLARE_REQUESTMETHOD(put)
-        DECLARE_REQUESTMETHOD(post)
-        DECLARE_REQUESTMETHOD(del)
-        DECLARE_REQUESTMETHOD(connect)
-        DECLARE_REQUESTMETHOD(options)
-        DECLARE_REQUESTMETHOD(trace)
-        DECLARE_REQUESTMETHOD(patch)
-        DECLARE_REQUESTMETHOD(head)
+        Router();
+
+        DECLARE_ROUTER_REQUESTMETHOD(use)
+        DECLARE_ROUTER_REQUESTMETHOD(all)
+        DECLARE_ROUTER_REQUESTMETHOD(get)
+        DECLARE_ROUTER_REQUESTMETHOD(put)
+        DECLARE_ROUTER_REQUESTMETHOD(post)
+        DECLARE_ROUTER_REQUESTMETHOD(del)
+        DECLARE_ROUTER_REQUESTMETHOD(connect)
+        DECLARE_ROUTER_REQUESTMETHOD(options)
+        DECLARE_ROUTER_REQUESTMETHOD(trace)
+        DECLARE_ROUTER_REQUESTMETHOD(patch)
+        DECLARE_ROUTER_REQUESTMETHOD(head)
 
     protected:
-        std::shared_ptr<express::dispatcher::RootRoute> rootRoute = std::make_shared<express::dispatcher::RootRoute>();
+        std::shared_ptr<RootRoute> rootRoute = nullptr;
+
+        friend class Route;
+        friend class RootRoute;
     };
 
 } // namespace express
+
+#include "express/Router.hpp" // IWYU pragma: export
 
 #endif // EXPRESS_ROUTER_H

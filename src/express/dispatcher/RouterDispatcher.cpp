@@ -18,39 +18,34 @@
 
 #include "express/dispatcher/RouterDispatcher.h"
 
-#include "express/Request.h" // for Request
-#include "express/dispatcher/Route.h"
+#include "express/Controller.h"
+#include "express/Request.h"
+#include "express/Route.h"
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "express/dispatcher/State.h" // for State, State::INH, State::NXT
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    bool RouterDispatcher::dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) {
+    std::list<Route>& RouterDispatcher::getRoutes() {
+        return routes;
+    }
+
+    bool
+    RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
         std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-        // TODO: Fix regex-match
-        if ((state.request->path.rfind(absoluteMountPath, 0) == 0 &&
-             (mountPoint.method == "use" || state.request->method == mountPoint.method || mountPoint.method == "all"))) {
+        if ((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 &&
+             (mountPoint.method == "use" || controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
             for (Route& route : routes) {
-                state.currentRoute = &route;
+                dispatched = route.dispatch(controller, absoluteMountPath);
 
-                dispatched = route.dispatch(state, absoluteMountPath);
-
-                if (dispatched) {
+                if (dispatched || controller.nextRouter()) {
                     break;
-                } else if (state.currentRoute == state.lastRoute && (state.flags & State::INH) != 0) {
-                    state.flags &= ~State::INH;
-                    if ((state.flags & State::NXT) != 0) {
-                        state.flags &= ~State::NXT;
-                        break;
-                    }
                 }
             }
         }

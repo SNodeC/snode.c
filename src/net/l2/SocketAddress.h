@@ -27,16 +27,27 @@
 
 #include <bluetooth/bluetooth.h> // IWYU pragma: keep
 #include <bluetooth/l2cap.h>
-#include <cstdint> // for uint16_t
+#include <cstdint>
+#include <exception>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2 {
 
-    class SocketAddress : public net::SocketAddress<struct sockaddr_l2> {
+    class bad_bdaddress : public std::exception {
     public:
-        using net::SocketAddress<struct sockaddr_l2>::SocketAddress;
+        explicit bad_bdaddress(const std::string& bdAddress);
+
+        const char* what() const noexcept override;
+
+    protected:
+        std::string message;
+    };
+
+    class SocketAddress : public net::SocketAddress<sockaddr_l2> {
+    public:
+        using net::SocketAddress<sockaddr_l2>::SocketAddress;
 
         SocketAddress();
         explicit SocketAddress(const std::string& btAddress);

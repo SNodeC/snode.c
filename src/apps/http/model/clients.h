@@ -1,7 +1,7 @@
 #ifndef APPS_HTTP_MODEL_CLIENTS_H
 #define APPS_HTTP_MODEL_CLIENTS_H
 
-#include "log/Logger.h" // for Writer, Storage
+#include "log/Logger.h"
 
 #define QUOTE_INCLUDE(a) STR_INCLUDE(a)
 #define STR_INCLUDE(a) #a
@@ -12,11 +12,11 @@
 
 #include CLIENT_INCLUDE // IWYU pragma: export
 
-#include "web/http/client/Request.h"  // for Request, client
-#include "web/http/client/Response.h" // for Response
+#include "web/http/client/Request.h"
+#include "web/http/client/Response.h"
 
 #if (STREAM_TYPE == TLS) // tls
-#include <cstddef>       // for size_t
+#include <cstddef>
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #endif

@@ -26,7 +26,7 @@
 #include "log/Logger.h"
 
 #include <cerrno>
-#include <cstddef> // for std::size_t
+#include <cstddef>
 #include <functional>
 #include <sys/types.h>
 #include <vector>
@@ -53,8 +53,6 @@ namespace core::socket::stream {
             , terminateTimeout(terminateTimeout) {
             setBlockSize(blockSize);
             setTimeout(timeout);
-            enable(Socket::getFd());
-            suspend();
         }
 
         ~SocketWriter() override = default;
@@ -72,7 +70,7 @@ namespace core::socket::stream {
         virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
             errno = 0;
 
-            Socket::shutdown(Socket::shutdown::WR);
+            Socket::shutdown(Socket::SHUT::WR);
 
             onShutdown(errno);
         }
@@ -103,9 +101,16 @@ namespace core::socket::stream {
                         suspend();
                     }
                     if (!writeBuffer.empty()) {
+                        if (writeBuffer.capacity() > writeBuffer.size() * 2) {
+                            writeBuffer.shrink_to_fit();
+                        }
                         publish();
-                    } else if (markShutdown) {
-                        shutdown(onShutdown);
+                    } else {
+                        writeBuffer.shrink_to_fit();
+
+                        if (markShutdown) {
+                            shutdown(onShutdown);
+                        }
                     }
                 } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
                     if (isSuspended()) {

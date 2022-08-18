@@ -16,19 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EventMultiplexer.h"
+#include "core/multiplexer/poll/EventMultiplexer.h"
 
-#include "DescriptorEventPublisher.h"
-#include "core/DescriptorEventReceiver.h"
+#include "core/multiplexer/poll/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h" // IWYU pragma: keep
-
-#include <algorithm> // for remove_if
+#include <algorithm>
 #include <cstdint>
-#include <memory>  // for allocator_traits<>::value_type
-#include <utility> // for pair
+#include <memory>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

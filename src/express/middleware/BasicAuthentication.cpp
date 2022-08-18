@@ -26,8 +26,8 @@
 #include "web/http/http_utils.h"
 
 #include <list>
-#include <memory>  // for shared_ptr
-#include <utility> // for pair
+#include <memory>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,7 +41,7 @@ namespace express::middleware {
         credentials = base64::base64_encode(reinterpret_cast<unsigned char*>(userNamePassword.data()), userNamePassword.length());
 
         use([realm, this] MIDDLEWARE(req, res, next) {
-            std::string authCredentials = httputils::str_split(req.header("Authorization"), ' ').second;
+            std::string authCredentials = httputils::str_split(req.get("Authorization"), ' ').second;
 
             if (authCredentials == credentials) {
                 next();

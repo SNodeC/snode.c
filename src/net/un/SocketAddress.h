@@ -25,6 +25,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <exception>
 #include <string>
 #include <sys/un.h>
 
@@ -32,9 +33,22 @@
 
 namespace net::un {
 
-    class SocketAddress : public net::SocketAddress<struct sockaddr_un> {
+    class bad_sunpath : public std::exception {
     public:
-        using net::SocketAddress<struct sockaddr_un>::SocketAddress;
+        explicit bad_sunpath(const std::string& sunPath);
+
+        const char* what() const noexcept override;
+
+    protected:
+        std::string message;
+    };
+
+    class SocketAddress : public net::SocketAddress<sockaddr_un> {
+    private:
+        using Super = net::SocketAddress<sockaddr_un>;
+
+    public:
+        using net::SocketAddress<sockaddr_un>::SocketAddress;
 
         SocketAddress();
         explicit SocketAddress(const std::string& sunPath);

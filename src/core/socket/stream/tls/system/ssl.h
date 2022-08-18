@@ -21,8 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/opensslv.h> // IWYU pragma: export
-#include <openssl/ssl.h>      // IWYU pragma: export
+#include <openssl/opensslv.h>
+#include <openssl/ssl.h> // IWYU pragma: export
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/types.h>

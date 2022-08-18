@@ -20,7 +20,7 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 
 #include "core/socket/stream/SocketConnector.h"
-#include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,16 +32,16 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename ClientSocketT>
-    class SocketConnector : protected core::socket::stream::SocketConnector<ClientSocketT, core::socket::stream::tls::SocketConnection> {
+    template <typename SocketClientT>
+    class SocketConnector : protected core::socket::stream::SocketConnector<SocketClientT, core::socket::stream::tls::SocketConnection> {
     private:
-        using Super = core::socket::stream::SocketConnector<ClientSocketT, core::socket::stream::tls::SocketConnection>;
+        using Super = core::socket::stream::SocketConnector<SocketClientT, core::socket::stream::tls::SocketConnection>;
 
         using SocketAddress = typename Super::SocketAddress;
 
     public:
         using Config = typename Super::Config;
-        using ClientSocket = ClientSocketT;
+        using SocketClient = SocketClientT;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,

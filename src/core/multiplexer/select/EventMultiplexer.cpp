@@ -16,12 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EventMultiplexer.h"
+#include "core/multiplexer/select/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/select.h"
-#include "utils/Timeval.h" // for Timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -34,14 +33,18 @@ core::EventMultiplexer& EventMultiplexer() {
 namespace core::select {
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::select::DescriptorEventPublisher("READ", fdSets[DISP_TYPE::RD]),
-                                 new core::select::DescriptorEventPublisher("WRITE", fdSets[DISP_TYPE::WR]),
-                                 new core::select::DescriptorEventPublisher("EXCEPT", fdSets[DISP_TYPE::EX])) {
+        : core::EventMultiplexer(
+              new core::select::DescriptorEventPublisher("READ", fdSets[core::DescriptorEventReceiver::DISP_TYPE::RD]),
+              new core::select::DescriptorEventPublisher("WRITE", fdSets[core::DescriptorEventReceiver::DISP_TYPE::WR]),
+              new core::select::DescriptorEventPublisher("EXCEPT", fdSets[core::DescriptorEventReceiver::DISP_TYPE::EX])) {
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
-        return core::system::select(
-            getMaxFd() + 1, &fdSets[DISP_TYPE::RD].get(), &fdSets[DISP_TYPE::WR].get(), &fdSets[DISP_TYPE::EX].get(), &tickTimeOut);
+        return core::system::select(getMaxFd() + 1,
+                                    &fdSets[core::DescriptorEventReceiver::DISP_TYPE::RD].get(),
+                                    &fdSets[core::DescriptorEventReceiver::DISP_TYPE::WR].get(),
+                                    &fdSets[core::DescriptorEventReceiver::DISP_TYPE::EX].get(),
+                                    &tickTimeOut);
     }
 
     void EventMultiplexer::publishActiveEvents() {

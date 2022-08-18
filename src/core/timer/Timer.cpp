@@ -24,7 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <type_traits> // for remove_reference<>::type
+#include <type_traits>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

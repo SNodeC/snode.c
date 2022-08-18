@@ -23,7 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,6 +41,16 @@ namespace core::eventreceiver {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
+    };
+
+    class InitAcceptEventReceiver : public core::EventReceiver {
+    protected:
+        InitAcceptEventReceiver(const std::string& name);
+
+    private:
+        void event(const utils::Timeval& currentTime) override;
+
+        virtual void initAcceptEvent() = 0;
     };
 
 } // namespace core::eventreceiver

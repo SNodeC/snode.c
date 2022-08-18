@@ -19,8 +19,8 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETCLIENT_H
 
-#include "core/socket/stream/SocketClient.h"        // IWYU pragma: export
-#include "core/socket/stream/tls/SocketConnector.h" // IWYU pragma: export
+#include "core/socket/stream/SocketClient.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketConnector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,13 +28,17 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename ClientSocketT, typename SocketContextFactoryT>
+    template <typename SocketClientT, typename SocketContextFactoryT>
     class SocketClient
-        : public core::socket::stream::SocketClient<ClientSocketT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT> {
+        : public core::socket::stream::SocketClient<SocketClientT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketClient<ClientSocketT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT>;
+        using Super = core::socket::stream::SocketClient<SocketClientT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT>;
 
         using Super::Super;
+
+    public:
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
     };
 
 } // namespace core::socket::stream::tls

@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.18)
 
 project(snode.c)
 
-set(CPACK_PROJECT_NAME "snodec")
-
 set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
 
 get_filename_component(
@@ -16,6 +14,7 @@ include(format)
 include(doxygen)
 include(uninstall)
 
+set(CPACK_PROJECT_NAME "snodec")
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Volker Christian") # required
 include(CPack)

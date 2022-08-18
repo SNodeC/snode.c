@@ -19,9 +19,7 @@
 #ifndef CORE_TIMEREVENTRECEIVER_H
 #define CORE_TIMEREVENTRECEIVER_H
 
-#include "EventReceiver.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "core/EventReceiver.h"
+#include "core/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,7 +30,7 @@ namespace core {
     class TimerEventPublisher;
 } // namespace core
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

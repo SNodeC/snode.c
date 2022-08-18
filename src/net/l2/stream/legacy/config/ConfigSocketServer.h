@@ -20,7 +20,7 @@
 #define NET_L2_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigLegacy.h"
-#include "net/l2/stream/config/ConfigServerSocket.h"
+#include "net/l2/stream/config/ConfigSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@
 namespace net::l2::stream::legacy::config {
 
     class ConfigSocketServer
-        : public net::l2::stream::config::ConfigServerSocket
+        : public net::l2::stream::config::ConfigSocketServer
         , public net::config::ConfigLegacy {
     public:
         explicit ConfigSocketServer(const std::string& name)

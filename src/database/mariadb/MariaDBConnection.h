@@ -36,7 +36,7 @@ namespace database::mariadb {
 
 #include <deque>
 #include <mysql.h>
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,7 +45,7 @@ namespace database::mariadb {
     class MariaDBCommandStartEvent : private core::EventReceiver {
     public:
         MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
-        ~MariaDBCommandStartEvent();
+        ~MariaDBCommandStartEvent() override;
 
         using core::EventReceiver::publish;
 
@@ -55,8 +55,6 @@ namespace database::mariadb {
         void event(const utils::Timeval& currentTime) override;
 
         MariaDBConnection* mariaDBConnection = nullptr;
-
-        //        bool published = false;
     };
 
     class MariaDBConnection
@@ -67,7 +65,7 @@ namespace database::mariadb {
         explicit MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails);
         MariaDBConnection(const MariaDBConnection&) = delete;
 
-        ~MariaDBConnection();
+        ~MariaDBConnection() override;
 
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 

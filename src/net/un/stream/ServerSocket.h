@@ -16,34 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_STREAM_SERVERSOCKET_H
-#define NET_UN_STREAM_STREAM_SERVERSOCKET_H
+#ifndef NET_UN_STREAM_SERVERSOCKET_H
+#define NET_UN_STREAM_SERVERSOCKET_H
 
-#include "net/ServerSocket.h"     // IWYU pragma: export
+#include "net/stream/ServerSocket.h"
 #include "net/un/stream/Socket.h" // IWYU pragma: export
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+// IWYU pragma: no_include "net/stream/ServerSocket.hpp"
 
-#include <functional>
-#include <string> // IWYU pragma: export
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::stream {
 
-    template <typename ConfigT>
-    class ServerSocket : public net::ServerSocket<ConfigT, net::un::stream::Socket> {
-        using Super = net::ServerSocket<ConfigT, net::un::stream::Socket>;
-
-    protected:
-        explicit ServerSocket(const std::string& name);
+    class ServerSocket : public net::stream::ServerSocket<net::un::stream::Socket> {
+    private:
+        using Super = net::stream::ServerSocket<net::un::stream::Socket>;
 
     public:
-        using Super::listen;
-
-        void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        using Super::Super;
+        using Super::operator=;
     };
 
 } // namespace net::un::stream
 
-#endif // NET_UN_STREAM_STREAM_SERVERSOCKET_H
+#endif // NET_STREAM_SERVERSOCKET_H

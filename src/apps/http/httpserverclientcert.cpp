@@ -26,7 +26,7 @@
 
 using namespace express;
 
-int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
+int main(int argc, char* argv[]) {
     logger::Logger::setVerboseLevel(2);
 
     WebApp::init(argc, argv);
@@ -49,12 +49,14 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 #endif
 
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(FATAL) << "listen";
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }
-    }); // cppcheck-suppress syntaxError
+    });
 
     return WebApp::start();
 }
@@ -92,6 +94,6 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
         }
 
 #ifdef NET_TYPE
-    }); // cppcheck-suppress syntaxError
+    });
 #endif
 */

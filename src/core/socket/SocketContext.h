@@ -19,15 +19,14 @@
 #ifndef CORE_SOCKET_SOCKETCONTEXT_H
 #define CORE_SOCKET_SOCKETCONTEXT_H
 
-// IWYU pragma: no_include "core/socket/SocketConnection.h"
-
 namespace utils {
     class Timeval;
 }
 
 namespace core::socket {
-    class SocketConnection;     // IWYU pragma: keep
-    class SocketContextFactory; // IWYU pragma: keep
+    class Socket;
+    class SocketConnection;
+    class SocketContextFactory;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -47,6 +46,7 @@ namespace core::socket {
 
     public:
         void setTimeout(const utils::Timeval& timeout);
+        Socket& getSocket();
 
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);

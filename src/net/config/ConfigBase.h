@@ -26,9 +26,7 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-//#include "utils/CLI11.hpp"
-
-#include <string>
+#include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -49,13 +47,14 @@ namespace net::config {
     protected:
         CLI::App* add_subcommand(const std::string& name, const std::string& description = "");
         CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
+        CLI::Option* add_flag(const std::string& name, const std::string& description = "");
 
         void parse(bool forceError = false) const;
 
     private:
         CLI::App* baseSc = nullptr;
 
-        std::string name;
+        const std::string name;
     };
 
 } // namespace net::config

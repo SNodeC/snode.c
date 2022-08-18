@@ -21,8 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>     // for std::size_t
-#include <sys/types.h> // for ssize_t
+#include <cstddef>
+#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

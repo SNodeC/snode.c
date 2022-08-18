@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 
-#include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/tls/SocketReader.h"
 #include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
@@ -62,8 +62,8 @@ namespace core::socket::stream::tls {
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
                          const utils::Timeval& terminateTimeout)
-            : Super::Descriptor(fd)
-            , Super(
+            : Super(
+                  fd,
                   socketContextFactory,
                   localAddress,
                   remoteAddress,

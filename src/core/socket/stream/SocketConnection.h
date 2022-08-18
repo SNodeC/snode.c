@@ -49,7 +49,8 @@ namespace core::socket::stream {
 
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnection(int fd,
+                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void()>& onConnect,
@@ -59,8 +60,7 @@ namespace core::socket::stream {
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
                          const utils::Timeval& terminateTimeout)
-            : Super(socketContextFactory)
-            , SocketReader(
+            : SocketReader(
                   [this](int errnum) -> void {
                       onReadError(errnum);
                   },
@@ -77,6 +77,14 @@ namespace core::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
+            SocketConnection::Descriptor::open(fd);
+
+            setSocketContext(socketContextFactory.get());
+
+            SocketReader::enable(fd);
+            SocketWriter::enable(fd);
+            SocketWriter::suspend();
+
             onConnect();
         }
 
@@ -127,8 +135,8 @@ namespace core::socket::stream {
             return localAddress;
         }
 
-        int getDescriptor() const override {
-            return SocketConnection::getFd();
+        Socket& getSocket() override {
+            return *this;
         }
 
         std::size_t readFromPeer(char* junk, std::size_t junkLen) final {
@@ -179,12 +187,6 @@ namespace core::socket::stream {
         core::socket::SocketContext* newSocketContext = nullptr;
 
         std::function<void()> onDisconnect;
-
-        template <typename ServerSocket, template <typename Socket> class SocketConnection>
-        friend class SocketAcceptor;
-
-        template <typename ClientSocket, template <typename Socket> class SocketConnection>
-        friend class SocketConnector;
     };
 
 } // namespace core::socket::stream

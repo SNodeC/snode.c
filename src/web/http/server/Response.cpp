@@ -18,6 +18,8 @@
 
 #include "web/http/server/Response.h"
 
+#include "core/file/FileReader.h"
+#include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
@@ -29,8 +31,11 @@
 #include "core/system/time.h"
 #include "log/Logger.h"
 
+#include <cerrno>
+#include <filesystem>
 #include <numeric>
-#include <utility> // for pair
+#include <system_error>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -156,7 +161,7 @@ namespace web::http::server {
      */
 
     void Response::upgrade(Request& req) {
-        if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
+        if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
             web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
@@ -167,6 +172,33 @@ namespace web::http::server {
             }
         } else {
             set("Connection", "close").status(400).end();
+        }
+    }
+
+    void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
+        std::string absolutFileName = file;
+
+        if (std::filesystem::exists(absolutFileName)) {
+            std::error_code ec;
+            absolutFileName = std::filesystem::canonical(absolutFileName);
+
+            if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
+                core::file::FileReader::connect(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
+                    if (err == 0) {
+                        headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
+                                        {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
+                        headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                    } else {
+                        onError(err);
+                    }
+                });
+            } else {
+                errno = EEXIST;
+                onError(errno);
+            }
+        } else {
+            errno = ENOENT;
+            onError(errno);
         }
     }
 

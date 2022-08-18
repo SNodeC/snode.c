@@ -18,16 +18,16 @@
 
 #include "express/dispatcher/regex_utils.h"
 
-#include "express/Request.h" // for Request
+#include "express/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>            // for size_t
-#include <ext/alloc_traits.h> // for __alloc_traits<>::value_type
-#include <map>                // for map, map<>::mapped_type
-#include <memory>             // for allocator_traits<>::value_type
+#include <cstddef>
+#include <ext/alloc_traits.h>
+#include <map>
+#include <memory>
 #include <sstream>
-#include <utility> // for move
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

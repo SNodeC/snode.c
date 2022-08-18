@@ -1,23 +1,52 @@
 @PACKAGE_INIT@
 
-set(websocketserver_DEPENDENCIES websocketbase httpserver)
-set(websocketclient_DEPENDENCIES websocketbase httpclient)
+set(websocket-server_DEPENDENCIES websocket http-server)
+set(websocket-client_DEPENDENCIES websocket http-client)
 
-set(express_DEPENDENCIES httpserver)
+set(http-server-express_DEPENDENCIES http-server)
 
-set(httpserver_DEPENDENCIES http)
-set(httpclient_DEPENDENCIES http)
+set(http-server_DEPENDENCIES http)
+set(http-client_DEPENDENCIES http)
 
+# Base network code
 set(net-in_DEPENDENCIES net)
 set(net-in6_DEPENDENCIES net)
 set(net-l2_DEPENDENCIES net)
 set(net-rc_DEPENDENCIES net)
 set(net-un_DEPENDENCIES net)
 
+# Base network-stream code
+set(net-in-stream_DEPENDENCIES net-in)
+set(net-in6-stream_DEPENDENCIES net-in6)
+set(net-l2-stream_DEPENDENCIES net-l2)
+set(net-rc-stream_DEPENDENCIES net-rc)
+set(net-un-stream_DEPENDENCIES net-un)
+
+# Particular legacy network-stream code
+set(net-in-stream-legacy_DEPENDENCIES net-in-stream core-socket-stream-legacy)
+set(net-in6-stream-legacy_DEPENDENCIES net-in6-stream core-socket-stream-legacy)
+set(net-l2-stream-legacy_DEPENDENCIES net-l2-stream core-socket-stream-legacy)
+set(net-rc-stream-legacy_DEPENDENCIES net-rc-stream core-socket-stream-legacy)
+set(net-un-stream-legacy_DEPENDENCIES net-un-stream core-socket-stream-legacy)
+
+# Particular tls network-stream code
+set(net-in-stream-tls_DEPENDENCIES net-in-stream core-socket-stream-tls)
+set(net-in6-stream-tls_DEPENDENCIES net-in6-stream core-socket-stream-tls)
+set(net-l2-stream-tls_DEPENDENCIES net-l2-stream core-socket-stream-tls)
+set(net-rc-stream-tls_DEPENDENCIES net-rc-stream core-socket-stream-tls)
+set(net-un-stream-tls_DEPENDENCIES net-un-stream core-socket-stream-tls)
+
+# Base network-dgram code
+set(net-un-dgram_DEPENDENCIES net-un)
+
 set(db-mariadb_DEPENDENCIES core)
 
-set(core-legacy_DEPENDENCIES core)
-set(core-tls_DEPENDENCIES core)
+set(core-socket_DEPENDENCIES core)
+
+set(core-socket-stream_DEPENDENCIES core-socket net-un-dgram)
+
+set(core-socket-stream-legacy_DEPENDENCIES core-socket-stream)
+set(core-socket-stream-tls_DEPENDENCIES core-socket-stream)
 
 set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils logger)
 
@@ -45,20 +74,26 @@ endmacro()
 
 set(_supported_components
     core
-    core-legacy
-    core-tls
-    net-in
-    net-in6
-    net-rc
-    net-l2
-    net-un
+    core-socket-stream-legacy
+    core-socket-stream-tls
+    net-in-stream-legacy
+    net-in6-stream-legacy
+    net-rc-stream-legacy
+    net-l2-stream-legacy
+    net-un-stream-legacy
+    net-in-stream-tls
+    net-in6-stream-tls
+    net-rc-stream-tls
+    net-l2-stream-tls
+    net-un-stream-tls
+    net-un-dgram
     db-mariadb
     http
-    httpserver
-    httpclient
-    express
-    websocketserver
-    websocketclient
+    http-server
+    http-client
+    http-server-express
+    websocket-server
+    websocket-client
 )
 
 set(snodec_FOUND True)

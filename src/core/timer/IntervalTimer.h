@@ -19,12 +19,12 @@
 #ifndef NET_TIMER_INTERVALTIMER_H
 #define NET_TIMER_INTERVALTIMER_H
 
-#include "core/TimerEventReceiver.h" // IWYU pragma: export
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string> // for allocator, string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

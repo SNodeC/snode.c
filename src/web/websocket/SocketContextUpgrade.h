@@ -109,23 +109,18 @@ namespace web::websocket {
         }
 
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) {
-            char* closePayload = const_cast<char*>(reason);
-            std::size_t closePayloadLength = reasonLength;
+            std::size_t closePayloadLength = reasonLength + 2;
+            char* closePayload = new char[closePayloadLength];
 
-            if (statusCode != 0) {
-                closePayload = new char[reasonLength + 2];
-                *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode);
-                closePayloadLength += 2;
-                if (reasonLength > 0) {
-                    memcpy(closePayload + 2, reason, reasonLength);
-                }
+            *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode);
+
+            if (reasonLength > 0) {
+                memcpy(closePayload + 2, reason, reasonLength);
             }
 
             sendClose(closePayload, closePayloadLength);
 
-            if (statusCode != 0) {
-                delete[] closePayload;
-            }
+            delete[] closePayload;
 
             setTimeout(CLOSE_SOCKET_TIMEOUT);
 
@@ -136,7 +131,6 @@ namespace web::websocket {
         void sendClose(const char* message, std::size_t messageLength) {
             sendMessage(8, message, messageLength);
             shutdownWrite();
-            //            close();
         }
 
         /* WSReceiver */
@@ -253,7 +247,7 @@ namespace web::websocket {
 
         void sendFrameData(const char* frame, uint64_t frameLength) override {
             if (!closeSent) {
-                std::size_t frameOffset = 0;
+                uint64_t frameOffset = 0;
 
                 do {
                     std::size_t sendJunkLen =

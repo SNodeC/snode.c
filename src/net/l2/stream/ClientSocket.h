@@ -19,41 +19,24 @@
 #ifndef NET_L2_STREAM_CLIENTSOCKET_H
 #define NET_L2_STREAM_CLIENTSOCKET_H
 
-#include "net/ClientSocket.h"     // IWYU pragma: export
 #include "net/l2/stream/Socket.h" // IWYU pragma: export
+#include "net/stream/ClientSocket.h"
+
+// IWYU pragma: no_include "net/stream/ClientSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint> // IWYU pragma: export
-#include <functional>
-#include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream {
 
-    template <typename ConfigT>
-    class ClientSocket : public net::ClientSocket<ConfigT, net::l2::stream::Socket> {
-        using Super = net::ClientSocket<ConfigT, net::l2::stream::Socket>;
-
-    protected:
-        explicit ClientSocket(const std::string& name);
+    class ClientSocket : public net::stream::ClientSocket<net::l2::stream::Socket> {
+    private:
+        using Super = net::stream::ClientSocket<net::l2::stream::Socket>;
 
     public:
-        using Super::connect;
-
-        void connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError);
-
-        void connect(const std::string& address,
-                     uint16_t psm,
-                     const std::string& localAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError);
-
-        void connect(const std::string& address,
-                     uint16_t psm,
-                     const std::string& localAddress,
-                     uint16_t bindPsm,
-                     const std::function<void(const SocketAddress&, int)>& onError);
+        using Super::Super;
+        using Super::operator=;
     };
 
 } // namespace net::l2::stream
