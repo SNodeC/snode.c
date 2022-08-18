@@ -22,6 +22,20 @@ set(net-l2-stream_DEPENDENCIES net-l2)
 set(net-rc-stream_DEPENDENCIES net-rc)
 set(net-un-stream_DEPENDENCIES net-un)
 
+# Particular legacy network-stream code
+set(net-in-stream-legacy_DEPENDENCIES net-in-stream core-socket-stream-legacy)
+set(net-in6-stream-legacy_DEPENDENCIES net-in6-stream core-socket-stream-legacy)
+set(net-l2-stream-legacy_DEPENDENCIES net-l2-stream core-socket-stream-legacy)
+set(net-rc-stream-legacy_DEPENDENCIES net-rc-stream core-socket-stream-legacy)
+set(net-un-stream-legacy_DEPENDENCIES net-un-stream core-socket-stream-legacy)
+
+# Particular tls network-stream code
+set(net-in-stream-tls_DEPENDENCIES net-in-stream core-socket-stream-tls)
+set(net-in6-stream-tls_DEPENDENCIES net-in6-stream core-socket-stream-tls)
+set(net-l2-stream-tls_DEPENDENCIES net-l2-stream core-socket-stream-tls)
+set(net-rc-stream-tls_DEPENDENCIES net-rc-stream core-socket-stream-tls)
+set(net-un-stream-tls_DEPENDENCIES net-un-stream core-socket-stream-tls)
+
 # Base network-dgram code
 set(net-un-dgram_DEPENDENCIES net-un)
 
@@ -62,11 +76,16 @@ set(_supported_components
     core
     core-socket-stream-legacy
     core-socket-stream-tls
-    net-in-stream
-    net-in6-stream
-    net-rc-stream
-    net-l2-stream
-    net-un-stream
+    net-in-stream-legacy
+    net-in6-stream-legacy
+    net-rc-stream-legacy
+    net-l2-stream-legacy
+    net-un-stream-legacy
+    net-in-stream-tls
+    net-in6-stream-tls
+    net-rc-stream-tls
+    net-l2-stream-tls
+    net-un-stream-tls
     net-un-dgram
     db-mariadb
     http
