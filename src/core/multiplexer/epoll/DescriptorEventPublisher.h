@@ -65,7 +65,7 @@ namespace core::epoll {
             uint32_t events;
 
             std::vector<epoll_event> ePollEvents;
-            uint32_t interestCount;
+            std::vector<epoll_event>::size_type interestCount;
         };
 
     public:

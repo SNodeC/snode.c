@@ -35,13 +35,10 @@ namespace core::poll {
     class PollFdsManager {
     public:
         struct PollFdIndex {
-            using pollfds_size_type = std::vector<pollfd>::size_type;
-
-            pollfds_size_type index;
+            std::vector<pollfd>::size_type index;
             short events; // cppcheck-suppress unusedStructMember
         };
 
-        using pollfds_size_type = std::vector<pollfd>::size_type;
         explicit PollFdsManager();
 
         void muxAdd(core::DescriptorEventReceiver* eventReceiver, short event);

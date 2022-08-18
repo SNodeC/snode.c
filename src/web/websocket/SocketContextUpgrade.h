@@ -247,7 +247,7 @@ namespace web::websocket {
 
         void sendFrameData(const char* frame, uint64_t frameLength) override {
             if (!closeSent) {
-                std::size_t frameOffset = 0;
+                uint64_t frameOffset = 0;
 
                 do {
                     std::size_t sendJunkLen =
