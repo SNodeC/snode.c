@@ -32,8 +32,13 @@ namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
     SubProtocol<SocketContextUpgradeT>::SubProtocol(const std::string& name)
-        : socketContextUpgrade(nullptr) {
-        this->name = name;
+        : socketContextUpgrade(nullptr)
+        , name(name) {
+    }
+
+    template <typename SocketContextUpgradeT>
+    void SubProtocol<SocketContextUpgradeT>::setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade) {
+        this->socketContextUpgrade = socketContextUpgrade;
     }
 
     template <typename SocketContextUpgradeT>
@@ -89,11 +94,6 @@ namespace web::websocket {
     template <typename SocketContextUpgradeT>
     const std::string& SubProtocol<SocketContextUpgradeT>::getName() {
         return name;
-    }
-
-    template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade) {
-        this->socketContextUpgrade = socketContextUpgrade;
     }
 
 } // namespace web::websocket

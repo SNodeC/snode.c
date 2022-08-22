@@ -50,6 +50,9 @@ namespace web::websocket {
 
         virtual ~SubProtocol() = default;
 
+    private:
+        void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
+
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         void sendMessage(const char* message, std::size_t messageLength);
@@ -77,11 +80,9 @@ namespace web::websocket {
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
-        void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
-
         SocketContextUpgrade* socketContextUpgrade;
 
-        std::string name;
+        const std::string name;
 
         template <typename SubProtocolT, typename RequestT, typename ResponseT>
         friend class web::websocket::SocketContextUpgrade;
