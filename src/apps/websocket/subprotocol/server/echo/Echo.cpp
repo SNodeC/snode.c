@@ -35,8 +35,9 @@ namespace apps::websocket::subprotocol::echo::server {
               [this]([[maybe_unused]] const void* arg) -> void {
                   this->sendPing();
                   this->flyingPings++;
-                  if (this->flyingPings >= MAX_FLYING_PINGS) {
+                  if (this->flyingPings > MAX_FLYING_PINGS) {
                       this->sendClose();
+                      pingTimer.cancel();
                   }
               },
               PING_DELAY,
