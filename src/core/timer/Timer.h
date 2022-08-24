@@ -37,14 +37,12 @@ namespace core::timer {
 
     class Timer : public core::Timer {
     private:
-        Timer() = delete;
         Timer(const Timer&) = delete;
         Timer& operator=(const Timer&) = delete;
 
     public:
         using core::Timer::Timer;
 
-        Timer(Timer&& timer);
         Timer& operator=(Timer&& timer);
 
         static Timer intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,

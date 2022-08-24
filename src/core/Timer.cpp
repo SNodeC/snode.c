@@ -36,14 +36,20 @@ namespace core {
 
     Timer::Timer(Timer&& timer) {
         timerEventReceiver = std::move(timer.timerEventReceiver);
-        timerEventReceiver->setTimer(this);
         timer.timerEventReceiver = nullptr;
+
+        if (timerEventReceiver != nullptr) {
+            timerEventReceiver->setTimer(this);
+        }
     }
 
     Timer& Timer::operator=(Timer&& timer) {
         timerEventReceiver = std::move(timer.timerEventReceiver);
-        timerEventReceiver->setTimer(this);
         timer.timerEventReceiver = nullptr;
+
+        if (timerEventReceiver != nullptr) {
+            timerEventReceiver->setTimer(this);
+        }
 
         return *this;
     }

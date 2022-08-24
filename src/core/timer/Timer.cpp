@@ -31,10 +31,6 @@
 
 namespace core::timer {
 
-    Timer::Timer(Timer&& timer)
-        : core::Timer(std::move(timer)) {
-    }
-
     Timer& Timer::operator=(Timer&& timer) {
         core::Timer::operator=(std::move(timer));
         return *this;

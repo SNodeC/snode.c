@@ -39,6 +39,8 @@ namespace core {
         Timer& operator=(Timer&& timer);
 
     public:
+        Timer() = default;
+
         void cancel();
 
     private:
