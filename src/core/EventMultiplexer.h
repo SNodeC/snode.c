@@ -74,8 +74,6 @@ namespace core {
         };
 
     public:
-#define DISP_COUNT 3
-
         DescriptorEventPublisher& getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType);
         TimerEventPublisher& getTimerEventPublisher();
 
@@ -101,6 +99,8 @@ namespace core {
         void executeEventQueue(const utils::Timeval& currentTime);
 
     protected:
+#define DISP_COUNT 3
+
         std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;
         core::TimerEventPublisher* const timerEventPublisher;
 
