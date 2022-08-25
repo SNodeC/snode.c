@@ -19,6 +19,8 @@
 #ifndef WEB_WEBSOCKET_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SUBSPROTOCOL_H
 
+#include "core/timer/Timer.h"
+
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade;
@@ -43,15 +45,17 @@ namespace web::websocket {
 
     protected:
         SubProtocol() = delete;
-        SubProtocol(const std::string& name);
+        SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
 
         SubProtocol(const SubProtocol&) = delete;
         SubProtocol& operator=(const SubProtocol&) = delete;
 
-        virtual ~SubProtocol() = default;
+        virtual ~SubProtocol();
 
     private:
         void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
+
+        void onPongReceived();
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
@@ -73,16 +77,18 @@ namespace web::websocket {
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
-        virtual void onPongReceived() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
         /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
+        const std::string name;
+
         SocketContextUpgrade* socketContextUpgrade;
 
-        const std::string name;
+        core::timer::Timer pingTimer;
+        int flyingPings = 0;
 
         template <typename SubProtocolT, typename RequestT, typename ResponseT>
         friend class web::websocket::SocketContextUpgrade;

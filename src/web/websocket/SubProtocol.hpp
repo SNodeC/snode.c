@@ -31,9 +31,34 @@
 namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
-    SubProtocol<SocketContextUpgradeT>::SubProtocol(const std::string& name)
-        : socketContextUpgrade(nullptr)
-        , name(name) {
+    SubProtocol<SocketContextUpgradeT>::SubProtocol(const std::string& name, int pingInterval, int maxFlyingPings)
+        : name(name)
+        , socketContextUpgrade(nullptr) {
+        if (pingInterval > 0) {
+            pingTimer = core::timer::Timer::intervalTimer(
+                [this, maxFlyingPings]([[maybe_unused]] const void* arg) -> void {
+                    LOG(INFO) << "Ping sent";
+                    this->sendPing();
+                    this->flyingPings++;
+                    if (this->flyingPings > maxFlyingPings) {
+                        this->sendClose();
+                        pingTimer.cancel();
+                    }
+                },
+                pingInterval,
+                nullptr);
+        }
+    }
+
+    template <typename SocketContextUpgradeT>
+    SubProtocol<SocketContextUpgradeT>::~SubProtocol() {
+        pingTimer.cancel();
+    }
+
+    template <typename SocketContextUpgradeT>
+    void SubProtocol<SocketContextUpgradeT>::onPongReceived() {
+        LOG(INFO) << "Pong received";
+        flyingPings = 0;
     }
 
     template <typename SocketContextUpgradeT>

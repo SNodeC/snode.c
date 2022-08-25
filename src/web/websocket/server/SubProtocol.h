@@ -42,7 +42,7 @@ namespace web::websocket::server {
         using Super = web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
 
     protected:
-        explicit SubProtocol(const std::string& name);
+        explicit SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
 
     public:
         ~SubProtocol() override;

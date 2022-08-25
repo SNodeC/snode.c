@@ -35,7 +35,7 @@ namespace apps::websocket::subprotocol::echo::server {
     class Echo : public web::websocket::server::SubProtocol {
     public:
         explicit Echo(const std::string& name);
-        ~Echo() override;
+        ~Echo() override = default;
 
     private:
         void onConnected() override;
@@ -43,14 +43,9 @@ namespace apps::websocket::subprotocol::echo::server {
         void onMessageData(const char* junk, std::size_t junkLen) override;
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
-        void onPongReceived() override;
         void onDisconnected() override;
 
         std::string data;
-
-        int flyingPings = 0;
-
-        core::timer::Timer pingTimer;
     };
 
 } // namespace apps::websocket::subprotocol::echo::server
