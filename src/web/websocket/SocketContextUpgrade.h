@@ -176,9 +176,9 @@ namespace web::websocket {
                 case OpCode::CLOSE:
                     if (closeSent) { // active close
                         closeSent = false;
-                        VLOG(0) << "Close confirmed from peer";
+                        LOG(INFO) << "Close confirmed from peer";
                     } else { // passive close
-                        VLOG(0) << "Close request received - replying with close";
+                        LOG(INFO) << "Close request received - replying with close";
                         sendClose(pongCloseData.data(), pongCloseData.length());
                         pongCloseData.clear();
                     }
