@@ -92,21 +92,19 @@ int timerApp();
 
 int timerApp() {
     [[maybe_unused]] const Timer tick = Timer::intervalTimer(
-        [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+        []() -> void {
             static int i = 0;
-            std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+            std::cout << "Tick: " << i++ << std::endl;
         },
-        0.5,
-        "Tick");
+        0.5);
 
     Timer tack = Timer::intervalTimer(
-        [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+        [](const std::function<void()>& stop) -> void {
             static int i = 0;
-            std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+            std::cout << "Tack: " << i++ << std::endl;
             stop();
         },
-        1.1,
-        "Tack");
+        1.1);
 
     bool canceled = false;
 

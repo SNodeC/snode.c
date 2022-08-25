@@ -55,6 +55,7 @@ namespace web::websocket {
     private:
         void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
 
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void onPongReceived();
 
     public:
@@ -67,7 +68,6 @@ namespace web::websocket {
         void sendMessageFrame(const std::string& message);
         void sendMessageEnd(const char* message, std::size_t messageLength);
         void sendMessageEnd(const std::string& message);
-        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
         const std::string& getName();

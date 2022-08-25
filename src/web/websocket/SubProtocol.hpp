@@ -36,7 +36,7 @@ namespace web::websocket {
         , socketContextUpgrade(nullptr) {
         if (pingInterval > 0) {
             pingTimer = core::timer::Timer::intervalTimer(
-                [this, maxFlyingPings]([[maybe_unused]] const void* arg) -> void {
+                [this, maxFlyingPings]() -> void {
                     LOG(INFO) << "Ping sent";
                     this->sendPing();
                     this->flyingPings++;
@@ -45,14 +45,18 @@ namespace web::websocket {
                         pingTimer.cancel();
                     }
                 },
-                pingInterval,
-                nullptr);
+                pingInterval);
         }
     }
 
     template <typename SocketContextUpgradeT>
     SubProtocol<SocketContextUpgradeT>::~SubProtocol() {
         pingTimer.cancel();
+    }
+
+    template <typename SocketContextUpgradeT>
+    void SubProtocol<SocketContextUpgradeT>::sendPing(const char* reason, std::size_t reasonLength) {
+        socketContextUpgrade->sendPing(reason, reasonLength);
     }
 
     template <typename SocketContextUpgradeT>
@@ -104,11 +108,6 @@ namespace web::websocket {
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendMessageEnd(const std::string& message) {
         sendMessageEnd(message.data(), message.length());
-    }
-
-    template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendPing(char* reason, std::size_t reasonLength) {
-        socketContextUpgrade->sendPing(reason, reasonLength);
     }
 
     template <typename SocketContextUpgradeT>

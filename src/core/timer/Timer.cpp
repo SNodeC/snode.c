@@ -36,18 +36,16 @@ namespace core::timer {
         return *this;
     }
 
-    Timer Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
-        return Timer(new SingleshotTimer(dispatcher, timeout, arg));
+    Timer Timer::singleshotTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout) {
+        return Timer(new SingleshotTimer(dispatcher, timeout));
     }
 
-    Timer Timer::intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                               const utils::Timeval& timeout,
-                               const void* arg) {
-        return Timer(new IntervalTimerStopable(dispatcher, timeout, arg));
+    Timer Timer::intervalTimer(const std::function<void(const std::function<void()>& stop)>& dispatcher, const utils::Timeval& timeout) {
+        return Timer(new IntervalTimerStopable(dispatcher, timeout));
     }
 
-    Timer Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
-        return Timer(new IntervalTimer(dispatcher, timeout, arg));
+    Timer Timer::intervalTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout) {
+        return Timer(new IntervalTimer(dispatcher, timeout));
     }
 
 } // namespace core::timer

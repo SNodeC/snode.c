@@ -47,7 +47,6 @@ namespace web::websocket::client {
         using Super::sendMessageStart;
 
         using Super::sendClose;
-        using Super::sendPing;
 
         template <typename RequestT, typename ResponseT, typename SubProtocolT>
         friend class web::websocket::SocketContextUpgrade;

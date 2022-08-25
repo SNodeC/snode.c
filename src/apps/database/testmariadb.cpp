@@ -146,9 +146,9 @@ int main(int argc, char* argv[]) {
                                 VLOG(0) << "Row Result 5:";
 
                                 core::timer::Timer dbTimer1 = core::timer::Timer::intervalTimer(
-                                    [&db2, &r1](const void* arg, const std::function<void()>& stop) -> void {
+                                    [&db2, &r1](const std::function<void()>& stop) -> void {
                                         static int i = 0;
-                                        VLOG(0) << static_cast<const char*>(arg) << " " << i++;
+                                        VLOG(0) << "Tick 2: " << i++;
 
                                         r1 = 0;
                                         db2.query(
@@ -166,13 +166,12 @@ int main(int argc, char* argv[]) {
                                                 stop();
                                             });
                                     },
-                                    2,
-                                    "Tick 2");
+                                    2);
 
                                 core::timer::Timer dbTimer2 = core::timer::Timer::intervalTimer(
-                                    [&db2, &r2](const void* arg, const std::function<void()>& stop) -> void {
+                                    [&db2, &r2](const std::function<void()>& stop) -> void {
                                         static int i = 0;
-                                        VLOG(0) << static_cast<const char*>(arg) << " " << i++;
+                                        VLOG(0) << "Tick 0.7: " << i++;
 
                                         r2 = 0;
                                         db2.query(
@@ -204,8 +203,7 @@ int main(int argc, char* argv[]) {
                                                     VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
                                                 });
                                     },
-                                    0.7,
-                                    "Tick 0.7");
+                                    0.7);
                             }
                         },
                         [](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -218,9 +216,9 @@ int main(int argc, char* argv[]) {
             });
 
         core::timer::Timer dbTimer = core::timer::Timer::intervalTimer(
-            [&db2](const void* arg, const std::function<void()>& stop) -> void {
+            [&db2](const std::function<void()>& stop) -> void {
                 static int i = 0;
-                VLOG(0) << static_cast<const char*>(arg) << " " << i++;
+                VLOG(0) << "Tick 0.1: " << i++;
 
                 if (i >= 60000) {
                     VLOG(0) << "Stop Stop";
@@ -316,8 +314,7 @@ int main(int argc, char* argv[]) {
                             stop();
                         });
             },
-            0.1,
-            "Tick 0.1");
+            0.1);
     }
 
     return core::SNodeC::start();

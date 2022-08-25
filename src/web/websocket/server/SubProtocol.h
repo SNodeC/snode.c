@@ -55,7 +55,6 @@ namespace web::websocket::server {
         using Super::sendMessageStart;
 
         using Super::sendClose;
-        using Super::sendPing;
 
         void subscribe(const std::string& channel);
 
