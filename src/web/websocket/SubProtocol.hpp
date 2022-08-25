@@ -55,17 +55,6 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendPing(const char* reason, std::size_t reasonLength) {
-        socketContextUpgrade->sendPing(reason, reasonLength);
-    }
-
-    template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::onPongReceived() {
-        LOG(INFO) << "Pong received";
-        flyingPings = 0;
-    }
-
-    template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade) {
         this->socketContextUpgrade = socketContextUpgrade;
     }
@@ -111,8 +100,19 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgradeT>
+    void SubProtocol<SocketContextUpgradeT>::sendPing(const char* reason, std::size_t reasonLength) {
+        socketContextUpgrade->sendPing(reason, reasonLength);
+    }
+
+    template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
         socketContextUpgrade->sendClose(statusCode, reason, reasonLength);
+    }
+
+    template <typename SocketContextUpgradeT>
+    void SubProtocol<SocketContextUpgradeT>::onPongReceived() {
+        LOG(INFO) << "Pong received";
+        flyingPings = 0;
     }
 
     template <typename SocketContextUpgradeT>

@@ -28,8 +28,6 @@ namespace web::websocket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -40,7 +38,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
     class SubProtocol {
-    public:
+    private:
         using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
@@ -55,9 +53,6 @@ namespace web::websocket {
     private:
         void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
 
-        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
-        void onPongReceived();
-
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         void sendMessage(const char* message, std::size_t messageLength);
@@ -68,21 +63,26 @@ namespace web::websocket {
         void sendMessageFrame(const std::string& message);
         void sendMessageEnd(const char* message, std::size_t messageLength);
         void sendMessageEnd(const std::string& message);
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
-        const std::string& getName();
-
     private:
+        /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
+        virtual void onConnected() = 0;
+        virtual void onDisconnected() = 0;
+
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
-        /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
-        virtual void onConnected() = 0;
-        virtual void onDisconnected() = 0;
+        virtual void onPongReceived();
 
+    public:
+        const std::string& getName();
+
+    private:
         const std::string name;
 
         SocketContextUpgrade* socketContextUpgrade;
