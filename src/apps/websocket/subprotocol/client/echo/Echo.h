@@ -19,7 +19,6 @@
 #ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 #define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 
-#include "core/timer/Timer.h"
 #include "web/websocket/client/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

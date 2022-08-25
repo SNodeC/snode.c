@@ -35,7 +35,6 @@ namespace web::http {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "utils/Timeval.h"
 
 #include <cstdint>
 #include <string>
