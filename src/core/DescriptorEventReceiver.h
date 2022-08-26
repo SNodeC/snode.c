@@ -64,10 +64,11 @@ namespace core {
     class DescriptorEventReceiver
         : virtual protected Observer
         , public EventReceiver {
+    public:
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
+
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
-    public:
         class TIMEOUT {
         public:
             static const utils::Timeval DEFAULT;
@@ -89,11 +90,11 @@ namespace core {
         void suspend();
         void resume();
 
-        bool isEnabled() const;
-        bool isSuspended() const;
+        [[nodiscard]] bool isEnabled() const;
+        [[nodiscard]] bool isSuspended() const;
 
         void setTimeout(const utils::Timeval& timeout);
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+        [[nodiscard]] utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
 
         void checkTimeout(const utils::Timeval& currentTime);
 

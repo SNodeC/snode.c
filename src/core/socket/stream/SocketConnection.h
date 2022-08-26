@@ -38,6 +38,7 @@ namespace core::socket::stream {
         : protected core::socket::SocketConnection
         , protected SocketReaderT<SocketT>
         , protected SocketWriterT<SocketT> {
+    public:
         SocketConnection() = delete;
 
     protected:

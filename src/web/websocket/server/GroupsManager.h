@@ -36,13 +36,14 @@ namespace web::websocket::server {
 namespace web::websocket::server {
 
     class GroupsManager {
-    private:
+    public:
         GroupsManager() = default;
         GroupsManager(const GroupsManager&) = delete;
 
-        ~GroupsManager();
-
         GroupsManager& operator=(const GroupsManager&) = delete;
+
+    private:
+        ~GroupsManager();
 
     public:
         static GroupsManager* instance();

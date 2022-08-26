@@ -32,14 +32,13 @@ namespace CLI {
 namespace utils {
 
     class Config {
-    private:
+    public:
         Config() = delete;
         Config(const Config&) = delete;
         ~Config() = delete;
 
         Config& operator=(const Config&) = delete;
 
-    public:
         static int init(int argc, char* argv[]);
         static void prepare();
         static void terminate();

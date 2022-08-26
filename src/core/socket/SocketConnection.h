@@ -39,7 +39,9 @@ namespace core::socket {
 namespace core::socket {
 
     class SocketConnection {
+    public:
         SocketConnection(const core::socket::SocketConnection&) = delete;
+
         SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
 
     protected:

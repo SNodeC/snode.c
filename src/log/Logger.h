@@ -29,10 +29,10 @@
 namespace logger {
 
     class Logger {
+    public:
         Logger() = delete;
         ~Logger() = delete;
 
-    public:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
 

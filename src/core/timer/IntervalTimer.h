@@ -31,6 +31,7 @@
 namespace core::timer {
 
     class IntervalTimer : public core::TimerEventReceiver {
+    public:
         IntervalTimer(const IntervalTimer&) = delete;
 
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;

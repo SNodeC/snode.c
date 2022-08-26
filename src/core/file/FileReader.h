@@ -27,7 +27,7 @@
 
 namespace utils {
     class Timeval;
-}
+} // namespace utils
 
 #include <functional>
 #include <string>
@@ -36,7 +36,7 @@ namespace utils {
 
 namespace core::pipe {
     class Sink;
-}
+} // namespace core::pipe
 
 namespace core::file {
 

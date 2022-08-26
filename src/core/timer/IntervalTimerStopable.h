@@ -31,6 +31,7 @@
 namespace core::timer {
 
     class IntervalTimerStopable : public core::TimerEventReceiver {
+    public:
         IntervalTimerStopable(const IntervalTimerStopable&) = delete;
 
         IntervalTimerStopable& operator=(const IntervalTimerStopable& timer) = delete;

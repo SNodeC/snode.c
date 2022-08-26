@@ -33,8 +33,8 @@
 
 namespace core {
 
-    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name)
-        : name(name) {
+    DescriptorEventPublisher::DescriptorEventPublisher(std::string name)
+        : name(std::move(name)) {
     }
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {

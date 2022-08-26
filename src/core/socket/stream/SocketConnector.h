@@ -42,8 +42,10 @@ namespace core::socket::stream {
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
+    public:
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
+
         SocketConnector& operator=(const SocketConnector&) = delete;
 
     private:

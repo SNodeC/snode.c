@@ -28,14 +28,16 @@
 namespace web::http {
 
     class SocketContext : public core::socket::SocketContext {
+    public:
+        SocketContext(const SocketContext&) = delete;
+
+        SocketContext& operator=(const SocketContext&) = delete;
+
     private:
         using Super = core::socket::SocketContext;
         using Super::Super;
 
     protected:
-        SocketContext(const SocketContext&) = delete;
-        SocketContext& operator=(const SocketContext&) = delete;
-
         std::size_t onReceiveFromPeer() override = 0;
 
     public:

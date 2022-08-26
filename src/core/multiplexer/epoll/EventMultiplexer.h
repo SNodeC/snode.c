@@ -30,10 +30,11 @@
 namespace core::epoll {
 
     class EventMultiplexer : public core::EventMultiplexer {
+    public:
         EventMultiplexer(const EventMultiplexer&) = delete;
+
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
-    public:
         EventMultiplexer();
         ~EventMultiplexer() override = default;
 

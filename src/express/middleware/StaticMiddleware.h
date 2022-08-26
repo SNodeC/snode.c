@@ -33,7 +33,9 @@
 namespace express::middleware {
 
     class StaticMiddleware : public Router {
+    public:
         StaticMiddleware(const StaticMiddleware&) = delete;
+
         StaticMiddleware& operator=(const StaticMiddleware&) = delete;
 
     protected:

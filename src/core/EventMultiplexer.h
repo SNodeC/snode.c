@@ -44,14 +44,15 @@ namespace utils {
 namespace core {
 
     class EventMultiplexer {
+    public:
         EventMultiplexer(const EventMultiplexer&) = delete;
+
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     protected:
         EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventPublisher,
                          DescriptorEventPublisher* const writeDescriptorEventPublisher,
                          DescriptorEventPublisher* const exceptionDescriptorEventPublisher);
-
         virtual ~EventMultiplexer();
 
     private:

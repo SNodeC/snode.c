@@ -32,7 +32,6 @@ namespace core::epoll {
         : epfd(epfd)
         , events(events) {
         epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
-        interestCount = 0;
         ePollEvents.resize(1);
     }
 

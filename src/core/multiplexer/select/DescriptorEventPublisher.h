@@ -51,10 +51,11 @@ namespace core::select {
     };
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
+    public:
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
-    public:
         explicit DescriptorEventPublisher(const std::string& name, FdSet& fdSet);
 
     private:

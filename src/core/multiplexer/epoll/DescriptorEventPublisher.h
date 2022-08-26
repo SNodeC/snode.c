@@ -38,7 +38,9 @@ namespace core {
 namespace core::epoll {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
+    public:
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     private:
@@ -65,7 +67,7 @@ namespace core::epoll {
             uint32_t events;
 
             std::vector<epoll_event> ePollEvents;
-            std::vector<epoll_event>::size_type interestCount;
+            std::vector<epoll_event>::size_type interestCount = 0;
         };
 
     public:

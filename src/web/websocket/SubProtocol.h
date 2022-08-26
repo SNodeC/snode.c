@@ -38,16 +38,16 @@ namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
     class SubProtocol {
+    public:
+        SubProtocol() = delete;
+        SubProtocol(const SubProtocol&) = delete;
+        SubProtocol& operator=(const SubProtocol&) = delete;
+
     private:
         using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
-        SubProtocol() = delete;
         SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
-
-        SubProtocol(const SubProtocol&) = delete;
-        SubProtocol& operator=(const SubProtocol&) = delete;
-
         virtual ~SubProtocol();
 
     private:

@@ -36,7 +36,7 @@ namespace core {
         int open(int fd);
         void close();
 
-        int getFd() const;
+        [[nodiscard]] int getFd() const;
 
         void dontClose();
 

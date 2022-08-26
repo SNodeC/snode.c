@@ -30,10 +30,11 @@
 namespace core::pipe {
 
     class PipeSink : public core::eventreceiver::ReadEventReceiver {
+    public:
         PipeSink(const PipeSink&) = delete;
+
         PipeSink& operator=(const PipeSink&) = delete;
 
-    public:
         explicit PipeSink(int fd);
         ~PipeSink() override;
 

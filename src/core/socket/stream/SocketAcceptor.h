@@ -46,8 +46,10 @@ namespace core::socket::stream {
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
+    public:
         SocketAcceptor() = delete;
         SocketAcceptor(const SocketAcceptor&) = delete;
+
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
     private:

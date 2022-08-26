@@ -41,7 +41,7 @@ namespace core::socket::stream {
         !include core/socket/stream/pu/SocketClient.pu
         @enduml
         */
-
+    public:
         SocketClient() = delete;
 
     private:

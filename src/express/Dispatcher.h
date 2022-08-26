@@ -35,10 +35,11 @@ namespace express {
 namespace express {
 
     class Dispatcher {
+    public:
         Dispatcher(const Dispatcher&) = delete;
+
         Dispatcher& operator=(const Dispatcher&) = delete;
 
-    public:
         Dispatcher() = default;
         virtual ~Dispatcher() = default;
 

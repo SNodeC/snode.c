@@ -39,6 +39,7 @@ namespace core::socket::stream {
     class SocketReader
         : public core::eventreceiver::ReadEventReceiver
         , virtual public SocketT {
+    public:
         SocketReader() = delete;
 
     protected:

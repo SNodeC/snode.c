@@ -50,6 +50,11 @@ namespace web::websocket {
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
+    public:
+        SocketContextUpgrade() = delete;
+        SocketContextUpgrade(const SocketContextUpgrade&) = delete;
+        SocketContextUpgrade& operator=(const SocketContextUpgrade&) = delete;
+
     private:
         using Super = web::http::SocketContextUpgrade<RequestT, ResponseT>;
 
@@ -75,10 +80,6 @@ namespace web::websocket {
             , Transmitter(role == Role::CLIENT)
             , subProtocol(subProtocol) {
         }
-
-        SocketContextUpgrade() = delete;
-        SocketContextUpgrade(const SocketContextUpgrade&) = delete;
-        SocketContextUpgrade& operator=(const SocketContextUpgrade&) = delete;
 
         ~SocketContextUpgrade() override = default;
 

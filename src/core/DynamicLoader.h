@@ -38,11 +38,10 @@ namespace core {
             std::size_t refCount = 0;
         };
 
+    public:
         DynamicLoader() = delete;
-
         ~DynamicLoader() = delete;
 
-    public:
         static void* dlOpen(const std::string& libFile, int flags);
         static void dlCloseDelayed(void* handle);
         static int dlClose(void* handle);

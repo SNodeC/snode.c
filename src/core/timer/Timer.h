@@ -36,11 +36,11 @@ namespace core {
 namespace core::timer {
 
     class Timer : public core::Timer {
-    private:
+    public:
         Timer(const Timer&) = delete;
+
         Timer& operator=(const Timer&) = delete;
 
-    public:
         using core::Timer::Timer;
 
         Timer& operator=(Timer&& timer);

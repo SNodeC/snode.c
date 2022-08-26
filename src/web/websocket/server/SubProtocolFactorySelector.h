@@ -40,6 +40,11 @@ namespace web::websocket::server {
 
     class SubProtocolFactorySelector
         : public web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>> {
+    public:
+        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
+
+        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
+
     private:
         using Super = web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>>;
 
@@ -53,10 +58,6 @@ namespace web::websocket::server {
 
     private:
         SubProtocolFactorySelector();
-
-        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
-
-        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
     };
 
 } // namespace web::websocket::server

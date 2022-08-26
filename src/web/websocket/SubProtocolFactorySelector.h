@@ -36,16 +36,15 @@ namespace web::websocket {
     template <typename SubProtocolFactoryT>
     class SubProtocolFactorySelector {
     public:
+        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
+        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
+
         using SubProtocolFactory = SubProtocolFactoryT;
 
         enum class Role { SERVER, CLIENT };
 
     protected:
         SubProtocolFactorySelector() = default;
-
-        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
-        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
-
         virtual ~SubProtocolFactorySelector() = default;
 
     protected:

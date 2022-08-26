@@ -39,12 +39,14 @@ namespace utils {
 namespace core {
 
     class DescriptorEventPublisher {
+    public:
+        DescriptorEventPublisher() = delete;
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     protected:
-        DescriptorEventPublisher() = delete;
-        DescriptorEventPublisher(const std::string& name);
+        DescriptorEventPublisher(std::string name);
 
     public:
         virtual ~DescriptorEventPublisher() = default;
