@@ -33,11 +33,11 @@ namespace utils {
 
     class Timeval {
     public:
-        Timeval();
-        Timeval(const std::initializer_list<time_t>& initList); // cppcheck-suppress noExplicitConstructor
-        Timeval(const Timeval& timeVal);
-        Timeval(double time);            // cppcheck-suppress noExplicitConstructor
-        Timeval(const timeval& timeVal); // cppcheck-suppress noExplicitConstructor
+        Timeval() noexcept;
+        Timeval(const std::initializer_list<time_t>& initList) noexcept; // cppcheck-suppress noExplicitConstructor
+        Timeval(const Timeval& timeVal) noexcept;
+        Timeval(double time) noexcept;            // cppcheck-suppress noExplicitConstructor
+        Timeval(const timeval& timeVal) noexcept; // cppcheck-suppress noExplicitConstructor
 
         static Timeval currentTime();
 

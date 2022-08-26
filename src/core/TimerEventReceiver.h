@@ -52,7 +52,7 @@ namespace core {
         void cancel();
 
     private:
-        void event(const utils::Timeval& currentTime) final;
+        void onEvent(const utils::Timeval& currentTime) final;
 
         virtual void dispatchEvent() = 0;
         virtual void unobservedEvent() = 0;

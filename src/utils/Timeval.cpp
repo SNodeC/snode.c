@@ -29,12 +29,12 @@
 
 namespace utils {
 
-    Timeval::Timeval()
-        : timeVal({0, 0}) {
+    Timeval::Timeval() noexcept
+        : timeVal({}) {
     }
 
-    Timeval::Timeval(const std::initializer_list<time_t>& initList)
-        : timeVal({0, 0}) {
+    Timeval::Timeval(const std::initializer_list<time_t>& initList) noexcept
+        : timeVal({}) {
         if (initList.size() == 2) {
             timeVal.tv_sec = *initList.begin();
             timeVal.tv_usec = static_cast<suseconds_t>(*(initList.begin() + 1));
@@ -43,18 +43,18 @@ namespace utils {
         }
     }
 
-    Timeval::Timeval(const Timeval& timeVal) {
+    Timeval::Timeval(const Timeval& timeVal) noexcept {
         this->timeVal = timeVal.timeVal;
     }
 
-    Timeval::Timeval(double time) {
+    Timeval::Timeval(double time) noexcept {
         timeVal.tv_sec = static_cast<time_t>(time);
         timeVal.tv_usec = static_cast<suseconds_t>((time - static_cast<double>(timeVal.tv_sec)) * 1'000'000.0);
 
         normalize();
     }
 
-    Timeval::Timeval(const timeval& timeVal)
+    Timeval::Timeval(const timeval& timeVal) noexcept
         : timeVal(timeVal) {
     }
 

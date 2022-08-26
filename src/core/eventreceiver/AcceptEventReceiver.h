@@ -48,7 +48,7 @@ namespace core::eventreceiver {
         InitAcceptEventReceiver(const std::string& name);
 
     private:
-        void event(const utils::Timeval& currentTime) override;
+        void onEvent(const utils::Timeval& currentTime) override;
 
         virtual void initAcceptEvent() = 0;
     };

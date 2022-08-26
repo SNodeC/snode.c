@@ -35,8 +35,9 @@ namespace web::websocket::client {
 
 #endif // !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR)
 
-        if (getenv("DL_WSCLIENT_SUBPROTOCOL_PATH") != nullptr) {
-            Super::addSubProtocolSearchPath(getenv("DL_WSCLIENT_SUBPROTOCOL_PATH"));
+        char* envDlWsClientSubprotocolPath = getenv("DL_WSCLIENT_SUBPROTOCOL_PATH");
+        if (envDlWsClientSubprotocolPath != nullptr) {
+            Super::addSubProtocolSearchPath(envDlWsClientSubprotocolPath);
         }
     }
 

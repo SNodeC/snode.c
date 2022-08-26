@@ -21,7 +21,7 @@ protected:
 
     void calculate();
 
-    void event(const utils::Timeval& currentTime) override;
+    void onEvent(const utils::Timeval& currentTime) override;
 
     long currentValue;
 

@@ -34,8 +34,9 @@ namespace web::websocket::server {
 
 #endif // !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR)
 
-        if (getenv("DL_WSSERVER_SUBPROTOCOL_PATH") != nullptr) {
-            Super::addSubProtocolSearchPath(getenv("DL_WSSERVER_SUBPROTOCOL_PATH"));
+        char* envDlWsServerSubprotocolPath = getenv("DL_WSSERVER_SUBPROTOCOL_PATH");
+        if (envDlWsServerSubprotocolPath != nullptr) {
+            Super::addSubProtocolSearchPath(envDlWsServerSubprotocolPath);
         }
     }
 

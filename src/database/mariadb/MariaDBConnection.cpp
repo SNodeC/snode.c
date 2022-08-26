@@ -251,7 +251,7 @@ namespace database::mariadb {
         core::EventReceiver::publish();
     }
 
-    void MariaDBCommandStartEvent::event(const utils::Timeval& currentTime) {
+    void MariaDBCommandStartEvent::onEvent(const utils::Timeval& currentTime) {
         mariaDBConnection->commandStart(currentTime);
     }
 

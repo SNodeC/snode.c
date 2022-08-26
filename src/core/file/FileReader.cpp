@@ -55,7 +55,7 @@ namespace core::file {
         return fileReader;
     }
 
-    void FileReader::event([[maybe_unused]] const utils::Timeval& currentTime) {
+    void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
         if (!suspended) {
             // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
             static char junk[MFREADSIZE];
