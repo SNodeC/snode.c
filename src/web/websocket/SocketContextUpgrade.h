@@ -30,7 +30,7 @@ namespace core::socket {
 namespace web::http {
     template <typename RequestT, typename ResponseT>
     class SocketContextUpgradeFactory;
-}
+} // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

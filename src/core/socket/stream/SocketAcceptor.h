@@ -26,7 +26,7 @@
 
 namespace core::socket {
     class SocketContextFactory;
-}
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

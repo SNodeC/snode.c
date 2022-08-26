@@ -66,10 +66,10 @@ namespace web::websocket {
                             subProtocolFactory->setHandle(handle);
                             VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
                             break;
-                        } else {
-                            VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
-                            core::DynamicLoader::dlClose(handle);
                         }
+                        VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
+                        core::DynamicLoader::dlClose(handle);
+
                     } else {
                         VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
                                 << "\" in plugin failed: " << core::DynamicLoader::dlError();

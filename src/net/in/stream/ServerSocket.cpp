@@ -28,4 +28,4 @@ namespace net::in::stream {}
 
 namespace net::stream {
     template class ServerSocket<net::in::stream::Socket>;
-}
+} // namespace net::stream

@@ -83,8 +83,8 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
-                  options) {
-            ctx = ssl_ctx_new(options, false);
+                  options)
+            , ctx(ssl_ctx_new(options, false)) {
         }
 
         ~SocketConnector() override {

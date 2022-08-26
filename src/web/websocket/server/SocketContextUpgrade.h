@@ -33,7 +33,7 @@ namespace web {
 
     namespace websocket::server {
         class SubProtocol;
-    }
+    } // namespace websocket::server
 } // namespace web
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

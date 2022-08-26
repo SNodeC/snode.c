@@ -21,7 +21,7 @@
 
 namespace utils {
     class Timeval;
-}
+} // namespace utils
 
 namespace core::socket {
     class SocketContextFactory;

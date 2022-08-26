@@ -34,8 +34,8 @@ namespace core {
         timerEventReceiver->enable();
     }
 
-    Timer::Timer(Timer&& timer) {
-        timerEventReceiver = std::move(timer.timerEventReceiver);
+    Timer::Timer(Timer&& timer)
+        : timerEventReceiver(std::move(timer.timerEventReceiver)) {
         timer.timerEventReceiver = nullptr;
 
         if (timerEventReceiver != nullptr) {

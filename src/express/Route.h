@@ -31,7 +31,7 @@ namespace express {
 
     namespace dispatcher {
         class RouterDispatcher;
-    }
+    } // namespace dispatcher
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

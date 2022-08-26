@@ -27,7 +27,7 @@ namespace web::websocket {
 
     namespace server {
         class SubProtocol;
-    }
+    } // namespace server
 } // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

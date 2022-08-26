@@ -25,7 +25,7 @@
 
 namespace web::websocket::server {
     class SocketContextUpgrade;
-}
+} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

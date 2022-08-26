@@ -85,9 +85,8 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
-                  options) {
-            masterSslCtx = ssl_ctx_new(options, true);
-
+                  options)
+            , masterSslCtx(ssl_ctx_new(options, true)) {
             if (masterSslCtx != nullptr) {
                 SSL_CTX_set_tlsext_servername_callback(masterSslCtx, serverNameCallback);
                 SSL_CTX_set_tlsext_servername_arg(masterSslCtx, this);

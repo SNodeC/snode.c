@@ -52,7 +52,7 @@ namespace core::socket::stream::tls {
 
     static int verify_callback(int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {
         char buf[256];
-        X509* err_cert;
+        X509* err_cert = nullptr;
         int err = 0;
         int depth = 0;
 
@@ -212,7 +212,7 @@ namespace core::socket::stream::tls {
     void ssl_log_error(const std::string& message) {
         PLOG(ERROR) << message;
 
-        unsigned long errorCode;
+        unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(ERROR) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
@@ -221,7 +221,7 @@ namespace core::socket::stream::tls {
     void ssl_log_warning(const std::string& message) {
         LOG(WARNING) << message;
 
-        unsigned long errorCode;
+        unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(WARNING) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
@@ -230,7 +230,7 @@ namespace core::socket::stream::tls {
     void ssl_log_info(const std::string& message) {
         PLOG(INFO) << message;
 
-        unsigned long errorCode;
+        unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(INFO) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }

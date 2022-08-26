@@ -111,25 +111,24 @@ namespace core {
 
         utils::Config::prepare();
 
-        struct sigaction sact;
-
+        struct sigaction sact {};
         sigemptyset(&sact.sa_mask);
         sact.sa_flags = 0;
 
         sact.sa_handler = SIG_IGN;
 
-        struct sigaction oldPipeAct;
+        struct sigaction oldPipeAct {};
         sigaction(SIGPIPE, &sact, &oldPipeAct);
 
         sact.sa_handler = EventLoop::stoponsig;
 
-        struct sigaction oldIntAct;
+        struct sigaction oldIntAct {};
         sigaction(SIGINT, &sact, &oldIntAct);
 
-        struct sigaction oldTermAct;
+        struct sigaction oldTermAct {};
         sigaction(SIGTERM, &sact, &oldTermAct);
 
-        struct sigaction oldAlarmAct;
+        struct sigaction oldAlarmAct {};
         sigaction(SIGALRM, &sact, &oldAlarmAct);
 
         if (!running) {
@@ -177,7 +176,7 @@ namespace core {
     }
 
     void EventLoop::free() {
-        core::TickStatus tickStatus;
+        core::TickStatus tickStatus{};
 
         do {
             EventLoop::instance().eventMultiplexer.stop();

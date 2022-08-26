@@ -28,4 +28,4 @@ namespace net::in6::stream {}
 
 namespace net::stream {
     template class ClientSocket<net::in6::stream::Socket>;
-}
+} // namespace net::stream

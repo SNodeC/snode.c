@@ -99,14 +99,14 @@ namespace net {
         msg.msg_iov = iov;
         msg.msg_iovlen = 1;
 
-        char ptr;
+        char ptr = 0;
         msg.msg_iov[0].iov_base = &ptr;
         msg.msg_iov[0].iov_len = 1;
 
         ssize_t n = 0;
 
         if ((n = recvmsg(getFd(), &msg, 0)) > 0) {
-            cmsghdr* cmptr;
+            cmsghdr* cmptr = nullptr;
 
             if ((cmptr = CMSG_FIRSTHDR(&msg)) != nullptr && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
                 if (cmptr->cmsg_level != SOL_SOCKET || cmptr->cmsg_type != SCM_RIGHTS) {

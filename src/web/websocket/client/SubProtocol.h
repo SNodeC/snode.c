@@ -23,7 +23,7 @@
 
 namespace web::websocket::client {
     class SocketContextUpgrade;
-}
+} // namespace web::websocket::client
 
 // IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
 

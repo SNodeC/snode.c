@@ -23,7 +23,7 @@
 
 namespace express::dispatcher {
     class MiddlewareDispatcher;
-}
+} // namespace express::dispatcher
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

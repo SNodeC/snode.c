@@ -22,7 +22,7 @@
 
 namespace database::mariadb {
     class MariaDBConnection;
-}
+} // namespace database::mariadb
 
 typedef struct st_mysql MYSQL;
 

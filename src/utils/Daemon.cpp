@@ -115,7 +115,7 @@ namespace utils {
             std::ifstream pidFile(pidFileName, std::ifstream::in);
 
             if (pidFile.good()) {
-                int pid;
+                int pid = 0;
                 pidFile >> pid;
 
                 struct pollfd pollfd;

@@ -55,8 +55,8 @@ namespace net::in {
 
     void SocketAddress::setHost(const std::string& ipOrHostname) {
         struct addrinfo hints {};
-        struct addrinfo* res;
-        struct addrinfo* resalloc;
+        struct addrinfo* res = nullptr;
+        struct addrinfo* resalloc = nullptr;
 
         memset(&hints, 0, sizeof(hints));
 

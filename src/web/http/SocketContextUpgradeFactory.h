@@ -29,7 +29,7 @@ namespace core::socket {
 namespace web::http {
     template <typename RequestT, typename ResponseT>
     class SocketContextUpgrade;
-}
+} // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -33,6 +33,6 @@ namespace core::system {
 
     int poll(struct pollfd* fds, nfds_t nfds, int timeout);
 
-}
+} // namespace core::system
 
 #endif // NET_SYSTEM_POLL_H

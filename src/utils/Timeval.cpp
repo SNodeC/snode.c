@@ -43,8 +43,8 @@ namespace utils {
         }
     }
 
-    Timeval::Timeval(const Timeval& timeVal) noexcept {
-        this->timeVal = timeVal.timeVal;
+    Timeval::Timeval(const Timeval& timeVal) noexcept
+        : timeVal(timeVal.timeVal) {
     }
 
     Timeval::Timeval(double time) noexcept {

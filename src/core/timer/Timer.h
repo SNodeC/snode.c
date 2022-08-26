@@ -27,7 +27,7 @@
 
 namespace core {
     class TimerEventReceiver;
-}
+} // namespace core
 
 #include <functional>
 

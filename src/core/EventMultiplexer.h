@@ -30,7 +30,7 @@ namespace core {
 
 namespace utils {
     class Timeval; // IWYU pragma: keep
-}
+} // namespace utils
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -70,8 +70,8 @@ namespace core {
             std::list<Event*>* executeQueue;
             std::list<Event*>* publishQueue;
 
-            sigset_t newSet;
-            sigset_t oldSet;
+            sigset_t newSet{};
+            sigset_t oldSet{};
         };
 
     public:

@@ -25,7 +25,7 @@
 
 namespace utils {
     class Timeval;
-}
+} // namespace utils
 
 #include <string>
 

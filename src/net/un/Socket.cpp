@@ -45,4 +45,4 @@ namespace net::un {
 
 namespace net {
     template class Socket<net::un::SocketAddress>;
-}
+} // namespace net

@@ -45,4 +45,4 @@ namespace web::http::server {
 
 namespace web::http {
     template class web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>;
-}
+} // namespace web::http

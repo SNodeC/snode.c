@@ -48,9 +48,8 @@ namespace core::socket::stream::tls {
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
         , onError(onError)
-        , timeoutTriggered(false) {
-        fd = SSL_get_fd(ssl);
-
+        , timeoutTriggered(false)
+        , fd(SSL_get_fd(ssl)) {
         ReadEventReceiver::enable(fd);
         WriteEventReceiver::enable(fd);
         ReadEventReceiver::suspend();
