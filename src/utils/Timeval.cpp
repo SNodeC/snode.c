@@ -43,10 +43,6 @@ namespace utils {
         }
     }
 
-    Timeval::Timeval(const Timeval& timeVal) noexcept
-        : timeVal(timeVal.timeVal) {
-    }
-
     Timeval::Timeval(double time) noexcept {
         timeVal.tv_sec = static_cast<time_t>(time);
         timeVal.tv_usec = static_cast<suseconds_t>((time - static_cast<double>(timeVal.tv_sec)) * 1'000'000.0);

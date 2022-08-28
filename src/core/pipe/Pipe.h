@@ -38,8 +38,8 @@ namespace core::pipe {
 
         Pipe(const std::function<void(PipeSource& pipeSource, PipeSink& pipsSink)>& onSuccess, const std::function<void(int err)>& onError);
 
-    protected:
-        int pipeFd[2];
+    private:
+        int pipeFd[2]{};
     };
 
 } // namespace core::pipe

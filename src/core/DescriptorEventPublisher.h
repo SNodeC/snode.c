@@ -77,9 +77,11 @@ namespace core {
         virtual void muxOn(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxOff(DescriptorEventReceiver* descriptorEventReceiver) = 0;
 
+        unsigned long eventCounter = 0;
+
         std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceivers;
 
-        unsigned long eventCounter = 0;
+    private:
         bool observedEventReceiversDirty = false;
 
         std::string name;

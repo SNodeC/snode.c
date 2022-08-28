@@ -46,7 +46,7 @@ namespace express {
         virtual bool dispatch(Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
-    protected:
+    private:
         std::shared_ptr<Route> next = nullptr;
 
         friend class Route;

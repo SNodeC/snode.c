@@ -36,7 +36,7 @@ namespace core::system {
         return ::dlsym(handle, symbol);
     }
 
-    char* dlerror(void) {
+    char* dlerror() {
         return ::dlerror();
     }
 

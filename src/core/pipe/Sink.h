@@ -44,7 +44,7 @@ namespace core::pipe {
         void connect(Source& source);
         void disconnect(Source& source);
 
-    protected:
+    private:
         Source* source;
     };
 

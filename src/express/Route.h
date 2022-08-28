@@ -63,6 +63,7 @@ namespace express {
         bool dispatch(Controller& controller, const std::string& parentMountPath);
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
+    private:
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
 

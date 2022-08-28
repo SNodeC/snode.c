@@ -213,7 +213,6 @@ namespace core::socket::stream {
             destruct();
         }
 
-    protected:
         std::function<void(const SocketAddress&, int)> onError = nullptr;
 
         PrimarySocket* primarySocket = nullptr;

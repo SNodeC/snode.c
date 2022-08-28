@@ -57,7 +57,7 @@ namespace net {
             char control[CMSG_SPACE(sizeof(int))] = {};
         } control_un;
 
-        msghdr msg;
+        msghdr msg{};
         msg.msg_name = &destAddress.getSockAddr();
         msg.msg_namelen = destAddress.getAddrLen();
 
@@ -88,7 +88,7 @@ namespace net {
             char control[CMSG_SPACE(sizeof(int))] = {};
         } control_un;
 
-        msghdr msg;
+        msghdr msg{};
         msg.msg_control = control_un.control;
         msg.msg_controllen = sizeof(control_un.control);
 

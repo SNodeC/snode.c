@@ -45,7 +45,6 @@ namespace core::pipe {
     private:
         void terminate() override;
 
-    protected:
         void readEvent() override;
         void unobservedEvent() override;
 

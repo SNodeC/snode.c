@@ -82,15 +82,15 @@ namespace web::websocket {
         uint64_t payLoadNumBytesLeft = 0;
 
         uint32_t maskingKey = 0;
-        MaskingKey maskingKeyAsArray;
+        MaskingKey maskingKeyAsArray{};
         uint8_t maskingKeyNumBytes = 4;
         uint8_t maskingKeyNumBytesLeft = 4;
 
         uint16_t errorState = 0;
 
-        char elengthJunk[8];
-        char maskingKeyJunk[4];
-        char payloadJunk[MAX_PAYLOAD_JUNK_LEN];
+        char elengthJunk[8]{};
+        char maskingKeyJunk[4]{};
+        char payloadJunk[MAX_PAYLOAD_JUNK_LEN]{};
     };
 
 } // namespace web::websocket

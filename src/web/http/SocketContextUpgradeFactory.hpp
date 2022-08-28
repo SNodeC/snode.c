@@ -26,10 +26,6 @@
 namespace web::http {
 
     template <typename Request, typename Response>
-    SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory() {
-    }
-
-    template <typename Request, typename Response>
     void SocketContextUpgradeFactory<Request, Response>::prepare(Request& request, Response& response) {
         this->request = &request;
         this->response = &response;

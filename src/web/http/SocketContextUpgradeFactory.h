@@ -46,7 +46,7 @@ namespace web::http {
         using Response = ResponseT;
 
     protected:
-        SocketContextUpgradeFactory();
+        SocketContextUpgradeFactory() = default;
         ~SocketContextUpgradeFactory() override = default;
 
     public:

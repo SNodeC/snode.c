@@ -53,7 +53,6 @@ namespace core::pipe {
     private:
         void terminate() override;
 
-    protected:
         std::function<void(int errnum)> onError;
 
         std::vector<char> writeBuffer;

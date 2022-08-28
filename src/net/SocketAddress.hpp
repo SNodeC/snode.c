@@ -35,8 +35,9 @@ namespace net {
     }
 
     template <typename SockAddr>
-    SocketAddress<SockAddr>::SocketAddress(const SocketAddress& socketAddress) {
-        *this = socketAddress;
+    SocketAddress<SockAddr>::SocketAddress(const SocketAddress& socketAddress)
+        : sockAddr(socketAddress.sockAddr)
+        , addrLen(socketAddress.addrLen) {
     }
 
     template <typename SockAddr>

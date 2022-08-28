@@ -156,7 +156,7 @@ namespace core::socket::stream {
         std::function<void(int)> onShutdown;
 
         std::vector<char> writeBuffer;
-        std::size_t blockSize;
+        std::size_t blockSize = 0;
 
         bool markShutdown = false;
         bool shutdownInProgress = false;

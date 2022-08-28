@@ -70,6 +70,7 @@ namespace web::websocket::server {
 
         static GroupsManager* groupsManager;
 
+    private:
         std::map<std::string, std::set<SubProtocol*>> groups;
     };
 

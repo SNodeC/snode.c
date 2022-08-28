@@ -103,11 +103,12 @@ namespace core {
 #define DISP_COUNT 3
 
         std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;
-        core::TimerEventPublisher* const timerEventPublisher;
 
         int activeEventCount = 0;
 
     private:
+        core::TimerEventPublisher* const timerEventPublisher;
+
         EventQueue eventQueue;
 
         friend class DescriptorEventPublisher;

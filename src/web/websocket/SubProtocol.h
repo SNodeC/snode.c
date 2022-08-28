@@ -19,7 +19,7 @@
 #ifndef WEB_WEBSOCKET_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SUBSPROTOCOL_H
 
-#include "core/timer/Timer.h"
+#include "core/timer/Timer.h" // IWYU pragma: export
 
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>

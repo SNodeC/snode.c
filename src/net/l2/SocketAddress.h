@@ -41,7 +41,7 @@ namespace net::l2 {
 
         const char* what() const noexcept override;
 
-    protected:
+    private:
         std::string message;
     };
 

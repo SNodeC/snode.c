@@ -45,9 +45,9 @@ namespace core::select {
         void zero();
         fd_set& get();
 
-    protected:
-        fd_set registered;
-        fd_set active;
+    private:
+        fd_set registered{};
+        fd_set active{};
     };
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {

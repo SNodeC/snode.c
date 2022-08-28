@@ -36,7 +36,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
-        epoll_event ePollEvent;
+        epoll_event ePollEvent{};
 
         ePollEvent.data.ptr = eventReceiver;
         ePollEvent.events = events;
@@ -64,7 +64,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) {
-        epoll_event ePollEvent;
+        epoll_event ePollEvent{};
 
         ePollEvent.data.ptr = eventReceiver;
         ePollEvent.events = events;

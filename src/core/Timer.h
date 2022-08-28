@@ -32,11 +32,11 @@ namespace core {
     class Timer {
     protected:
         explicit Timer(core::TimerEventReceiver* timerEventReceiver);
-        explicit Timer(Timer&& timer);
+        explicit Timer(Timer&& timer) noexcept;
 
         virtual ~Timer();
 
-        Timer& operator=(Timer&& timer);
+        Timer& operator=(Timer&& timer) noexcept;
 
     public:
         Timer() = default;

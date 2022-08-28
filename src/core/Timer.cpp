@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -34,8 +32,8 @@ namespace core {
         timerEventReceiver->enable();
     }
 
-    Timer::Timer(Timer&& timer)
-        : timerEventReceiver(std::move(timer.timerEventReceiver)) {
+    Timer::Timer(Timer&& timer) noexcept
+        : timerEventReceiver(timer.timerEventReceiver) {
         timer.timerEventReceiver = nullptr;
 
         if (timerEventReceiver != nullptr) {
@@ -43,8 +41,8 @@ namespace core {
         }
     }
 
-    Timer& Timer::operator=(Timer&& timer) {
-        timerEventReceiver = std::move(timer.timerEventReceiver);
+    Timer& Timer::operator=(Timer&& timer) noexcept {
+        timerEventReceiver = timer.timerEventReceiver;
         timer.timerEventReceiver = nullptr;
 
         if (timerEventReceiver != nullptr) {

@@ -45,7 +45,7 @@ namespace core::epoll {
         int epfd;
 
         int epfds[3];
-        epoll_event ePollEvents[3];
+        epoll_event ePollEvents[3]{};
     };
 
 } // namespace core::epoll

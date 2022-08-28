@@ -53,6 +53,7 @@ namespace web::http {
             socketContextUpgradeFactory->decRefCount();
         }
 
+    private:
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
     };
 

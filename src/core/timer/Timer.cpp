@@ -31,7 +31,7 @@
 
 namespace core::timer {
 
-    Timer& Timer::operator=(Timer&& timer) {
+    Timer& Timer::operator=(Timer&& timer) noexcept {
         core::Timer::operator=(std::move(timer));
         return *this;
     }

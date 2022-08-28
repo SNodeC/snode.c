@@ -137,12 +137,12 @@ namespace core::socket::stream {
             destruct();
         }
 
-    protected:
-        std::function<void(const SocketAddress& socketAddress, int err)> onError;
-
         PrimarySocket* socket = nullptr;
 
         SocketConnectionFactory socketConnectionFactory;
+
+    protected:
+        std::function<void(const SocketAddress& socketAddress, int err)> onError;
 
         std::map<std::string, std::any> options;
     };

@@ -44,7 +44,7 @@ namespace database::mariadb::commands::async {
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
-        int ret;
+        int ret = 0;
 
         const std::string sql;
         const std::function<void(void)> onQuery;

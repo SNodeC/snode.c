@@ -98,8 +98,8 @@ namespace net::in {
         int tmpErrno = errno;
 
         char host[NI_MAXHOST];
-        int ret =
-            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, NI_NAMEREQD);
+        int ret = core::system::getnameinfo(
+            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
 
         errno = tmpErrno;
 
@@ -110,8 +110,8 @@ namespace net::in {
         int tmpErrno = errno;
 
         char ip[NI_MAXHOST];
-        int ret =
-            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
+        int ret = core::system::getnameinfo(
+            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
 
         errno = tmpErrno;
 
@@ -122,7 +122,8 @@ namespace net::in {
         int tmpErrno = errno;
 
         char serv[NI_MAXSERV];
-        int ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
+        int ret =
+            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, 0);
 
         errno = tmpErrno;
 

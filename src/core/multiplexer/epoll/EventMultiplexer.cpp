@@ -38,7 +38,7 @@ namespace core::epoll {
               new core::epoll::DescriptorEventPublisher("WRITE", epfds[core::DescriptorEventReceiver::DISP_TYPE::WR], EPOLLOUT),
               new core::epoll::DescriptorEventPublisher("EXCEPT", epfds[core::DescriptorEventReceiver::DISP_TYPE::EX], EPOLLPRI))
         , epfd(core::system::epoll_create1(EPOLL_CLOEXEC)) {
-        epoll_event event;
+        epoll_event event{};
         event.events = EPOLLIN;
 
         event.data.ptr = descriptorEventPublishers[core::DescriptorEventReceiver::DISP_TYPE::RD];

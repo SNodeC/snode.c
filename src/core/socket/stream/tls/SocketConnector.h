@@ -60,12 +60,12 @@ namespace core::socket::stream::tls {
                           ssl_set_sni(ssl, this->options);
 
                           socketConnection->doSSLHandshake(
-                              [onConnected, socketConnection](void) -> void { // onSuccess
+                              [onConnected, socketConnection]() -> void { // onSuccess
                                   LOG(INFO) << "SSL/TLS initial handshake success";
                                   onConnected(socketConnection);
                                   socketConnection->onConnected();
                               },
-                              [this](void) -> void { // onTimeout
+                              [this]() -> void { // onTimeout
                                   LOG(WARNING) << "SSL/TLS initial handshake timed out";
                                   this->onError(this->config->getRemoteAddress(), ETIMEDOUT);
                               },
@@ -101,7 +101,7 @@ namespace core::socket::stream::tls {
             }
         }
 
-    protected:
+    private:
         SSL_CTX* ctx = nullptr;
     };
 

@@ -45,7 +45,7 @@ namespace core {
 
         const std::string& getName();
 
-    protected:
+    private:
         Event event;
     };
 

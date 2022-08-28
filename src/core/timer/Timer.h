@@ -43,7 +43,7 @@ namespace core::timer {
 
         using core::Timer::Timer;
 
-        Timer& operator=(Timer&& timer);
+        Timer& operator=(Timer&& timer) noexcept;
 
         static Timer intervalTimer(const std::function<void(const std::function<void()>& stop)>& dispatcher, const utils::Timeval& timeout);
 

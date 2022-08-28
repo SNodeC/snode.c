@@ -133,7 +133,7 @@ namespace core::socket::stream {
         std::function<void(int)> onError;
 
         std::vector<char> readBuffer;
-        std::size_t blockSize;
+        std::size_t blockSize = 0;
 
         std::size_t size = 0;
         std::size_t cursor = 0;

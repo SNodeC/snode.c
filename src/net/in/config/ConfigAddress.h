@@ -48,10 +48,10 @@ namespace net::in::config {
         void required();
         void portRequired();
 
+    private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
 
-    private:
         void updateFromCommandLine() override;
 
         std::string host{};

@@ -65,12 +65,12 @@ namespace core::socket::stream::tls {
                           SSL_set_accept_state(ssl);
 
                           socketConnection->doSSLHandshake(
-                              [&onConnected, socketConnection](void) -> void { // onSuccess
+                              [&onConnected, socketConnection]() -> void { // onSuccess
                                   LOG(INFO) << "SSL/TLS initial handshake success";
                                   onConnected(socketConnection);
                                   socketConnection->onConnected();
                               },
-                              [](void) -> void { // onTimeout
+                              []() -> void { // onTimeout
                                   LOG(WARNING) << "SSL/TLS initial handshake timed out";
                               },
                               [](int sslErr) -> void { // onError
