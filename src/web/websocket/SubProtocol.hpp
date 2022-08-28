@@ -36,13 +36,14 @@ namespace web::websocket {
         , socketContextUpgrade(nullptr) {
         if (pingInterval > 0) {
             pingTimer = core::timer::Timer::intervalTimer(
-                [this, maxFlyingPings]() -> void {
-                    LOG(INFO) << "Ping sent";
-                    this->sendPing();
-                    this->flyingPings++;
-                    if (this->flyingPings > maxFlyingPings) {
-                        this->sendClose();
-                        pingTimer.cancel();
+                [this, maxFlyingPings](const std::function<void()>& stop) -> void {
+                    if (this->flyingPings < maxFlyingPings) {
+                        LOG(INFO) << "Ping sent";
+                        sendPing();
+                        flyingPings++;
+                    } else {
+                        sendClose();
+                        stop();
                     }
                 },
                 pingInterval);
