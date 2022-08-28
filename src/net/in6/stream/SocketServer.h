@@ -33,9 +33,9 @@
 namespace net::in6::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::stream::SocketServer<ConfigT, net::in6::stream::ServerSocket> {
+    class SocketServer : public net::stream::SocketServer<net::in6::stream::ServerSocket, ConfigT> {
     private:
-        using Super = net::stream::SocketServer<ConfigT, net::in6::stream::ServerSocket>;
+        using Super = net::stream::SocketServer<net::in6::stream::ServerSocket, ConfigT>;
 
     protected:
         explicit SocketServer(const std::string& name);

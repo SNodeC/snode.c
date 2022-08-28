@@ -31,7 +31,7 @@
 
 namespace net::stream {
 
-    template <typename ConfigT, typename SocketT>
+    template <typename SocketT, typename ConfigT>
     class SocketServer : public net::SocketConfig<ConfigT> {
     protected:
         using Super = SocketConfig<ConfigT>;
