@@ -26,3 +26,4 @@
 
 template class net::un::stream::SocketServer<net::un::stream::legacy::config::ConfigSocketServer>;
 template class net::stream::SocketServer<net::un::stream::ServerSocket, net::un::stream::legacy::config::ConfigSocketServer>;
+template class net::SocketConfig<net::un::stream::legacy::config::ConfigSocketServer>;
