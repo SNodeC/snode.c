@@ -90,11 +90,11 @@ namespace core {
         void suspend();
         void resume();
 
-        [[nodiscard]] bool isEnabled() const;
-        [[nodiscard]] bool isSuspended() const;
+        bool isEnabled() const;
+        bool isSuspended() const;
 
         void setTimeout(const utils::Timeval& timeout);
-        [[nodiscard]] utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
 
         void checkTimeout(const utils::Timeval& currentTime);
 
