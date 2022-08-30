@@ -64,8 +64,8 @@ namespace web::http {
         std::size_t refCount = 0;
 
     private:
-        Request* request;
-        Response* response;
+        Request* request = nullptr;
+        Response* response = nullptr;
 
         virtual SocketContextUpgrade<Request, Response>*
         create(core::socket::SocketConnection* socketConnection, Request* request, Response* response) = 0;
