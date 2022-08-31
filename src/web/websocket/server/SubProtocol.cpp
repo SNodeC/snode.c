@@ -82,8 +82,4 @@ namespace web::websocket::server {
 
 } // namespace web::websocket::server
 
-namespace web::websocket {
-
-    template class SubProtocol<web::websocket::server::SocketContextUpgrade>;
-
-} // namespace web::websocket
+template class web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;

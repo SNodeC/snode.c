@@ -83,6 +83,4 @@ namespace net::l2 {
 
 } // namespace net::l2
 
-namespace net {
-    template class SocketAddress<sockaddr_l2>;
-} // namespace net
+template class net::SocketAddress<sockaddr_l2>;

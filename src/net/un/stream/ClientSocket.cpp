@@ -34,6 +34,4 @@ namespace net::un::stream {
 
 } // namespace net::un::stream
 
-namespace net::stream {
-    template class ClientSocket<net::un::stream::Socket>;
-} // namespace net::stream
+template class net::stream::ClientSocket<net::un::stream::Socket>;

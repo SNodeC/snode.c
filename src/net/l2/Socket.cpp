@@ -32,6 +32,4 @@ namespace net::l2 {
 
 } // namespace net::l2
 
-namespace net {
-    template class Socket<net::l2::SocketAddress>;
-} // namespace net
+template class net::Socket<net::l2::SocketAddress>;

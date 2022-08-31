@@ -43,6 +43,4 @@ namespace net::un {
 
 } // namespace net::un
 
-namespace net {
-    template class Socket<net::un::SocketAddress>;
-} // namespace net
+template class net::Socket<net::un::SocketAddress>;

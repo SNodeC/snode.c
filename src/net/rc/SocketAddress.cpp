@@ -83,6 +83,4 @@ namespace net::rc {
 
 } // namespace net::rc
 
-namespace net {
-    template class SocketAddress<sockaddr_rc>;
-} // namespace net
+template class net::SocketAddress<sockaddr_rc>;

@@ -70,6 +70,4 @@ namespace net::un {
 
 } // namespace net::un
 
-namespace net {
-    template class SocketAddress<sockaddr_un>;
-} // namespace net
+template class net::SocketAddress<sockaddr_un>;

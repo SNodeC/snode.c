@@ -43,6 +43,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-namespace web::http {
-    template class web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>;
-} // namespace web::http
+template class web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>;

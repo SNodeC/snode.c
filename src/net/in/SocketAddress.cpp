@@ -144,6 +144,4 @@ namespace net::in {
 
 } // namespace net::in
 
-namespace net {
-    template class SocketAddress<sockaddr_in>;
-} // namespace net
+template class net::SocketAddress<sockaddr_in>;
