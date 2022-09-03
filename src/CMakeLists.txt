@@ -8,11 +8,12 @@ include(iwyu)
 include(instrumentation)
 include(rpath-use-always)
 
+set(IO_Multiplexers "epoll;poll;select")
+list(SUBLIST IO_Multiplexers 0 1 IO_DefaultMultiplexer)
 set(IO_Multiplexer
-    "epoll"
+    ${IO_DefaultMultiplexer}
     CACHE STRING "I/O-Multiplexer to use"
 )
-set(IO_Multiplexers "epoll;poll;select")
 set_property(CACHE IO_Multiplexer PROPERTY STRINGS ${IO_Multiplexers})
 message(STATUS "I/O-Multiplexer selected: '${IO_Multiplexer}'")
 
