@@ -37,7 +37,7 @@ namespace web::websocket {
         if (pingInterval > 0) {
             pingTimer = core::timer::Timer::intervalTimer(
                 [this, maxFlyingPings](const std::function<void()>& stop) -> void {
-                    if (this->flyingPings < maxFlyingPings) {
+                    if (flyingPings < maxFlyingPings) {
                         LOG(INFO) << "Ping sent";
                         sendPing();
                         flyingPings++;
