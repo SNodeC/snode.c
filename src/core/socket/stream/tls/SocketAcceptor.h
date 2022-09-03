@@ -160,11 +160,11 @@ namespace core::socket::stream::tls {
                             LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
                             ret = SSL_TLSEXT_ERR_ALERT_WARNING;
                         } else {
-                            LOG(ERROR) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'.";
+                            LOG(ERROR) << "SSL_CTX: Not switched for SNI '" << serverNameIndication << "'.";
                             ret = SSL_TLSEXT_ERR_ALERT_FATAL;
                         }
                     } else if (!socketAcceptor->forceSni) {
-                        LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
+                        LOG(WARNING) << "SSL_CTX: Not switched for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
                         ret = SSL_TLSEXT_ERR_ALERT_WARNING;
                     } else {
                         LOG(ERROR) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
