@@ -47,11 +47,14 @@ namespace core::socket::stream::tls {
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
             : Super(name, onConnect, onConnected, onDisconnect, options)
-            , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [this](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-                freeSniCerts(sniSslCtxs);
+            , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
+                for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
+                    ssl_ctx_free(sniSslCtx);
+                }
+                delete sniSslCtxs;
             }) {
             Super::options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
-            Super::options.insert({{"FORCE_SNI", &forceSni}});
+            Super::options.insert({{"FORCE_SNI", false}});
         }
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
@@ -79,20 +82,11 @@ namespace core::socket::stream::tls {
             }
         }
 
-        void setForceSni() {
-            forceSni = true;
-        }
-
-    private:
-        void freeSniCerts(std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-            for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
-                ssl_ctx_free(sniSslCtx);
-            }
-            delete sniSslCtxs;
+        void forceSni(bool forceSni = true) {
+            Super::options.insert_or_assign("FORCE_SNI", forceSni);
         }
 
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
-        bool forceSni = false;
     };
 
 } // namespace core::socket::stream::tls

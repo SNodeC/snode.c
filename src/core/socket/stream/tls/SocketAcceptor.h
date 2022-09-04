@@ -94,7 +94,7 @@ namespace core::socket::stream::tls {
             }
 
             sniSslCtxs = std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second);
-            forceSni = *std::any_cast<bool*>(options.find("FORCE_SNI")->second);
+            forceSni = std::any_cast<bool>(options.find("FORCE_SNI")->second);
         }
 
         ~SocketAcceptor() override {
