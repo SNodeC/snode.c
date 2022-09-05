@@ -69,7 +69,7 @@ namespace core::socket::stream::tls {
             SSL_CTX* sslCtx = ssl_ctx_new(sniCert, true);
 
             if (sslCtx != nullptr) {
-                sniSslCtxs->insert({{domain, sslCtx}});
+                sniSslCtxs->insert_or_assign(domain, sslCtx);
                 VLOG(2) << "SSL_CTX for domain '" << domain << "' installed";
             } else {
                 VLOG(2) << "Can not create SSL_CTX for SNI '" << domain << "'";

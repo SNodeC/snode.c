@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
 
 #if (STREAM_TYPE == TLS)
     webApp.addSniCerts(sniCerts);
+    webApp.forceSni();
 #endif
 
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {

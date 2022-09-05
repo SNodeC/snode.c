@@ -86,11 +86,11 @@ namespace core::socket::stream::tls {
                       onDisconnect(socketConnection);
                   },
                   options)
-            , masterSslCtx(ssl_ctx_new(options, true)) {
+            , masterSslCtx(ssl_ctx_new(options, true))
+            //, masterSslCtx(SSL_CTX_new(TLS_server_method()))
+            , masterSslCtxDomains(ssl_get_sans(masterSslCtx)) {
             if (masterSslCtx != nullptr) {
-                SSL_CTX_set_tlsext_servername_callback(masterSslCtx, serverNameCallback);
-                SSL_CTX_set_tlsext_servername_arg(masterSslCtx, this);
-                addMasterCtx(masterSslCtx);
+                SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
             }
 
             sniSslCtxs = std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second);
@@ -112,70 +112,49 @@ namespace core::socket::stream::tls {
         }
 
     private:
-        void addMasterCtx(SSL_CTX* sslCtx) {
-            if (sslCtx != nullptr) {
-                X509* x509 = SSL_CTX_get0_certificate(sslCtx);
-                if (x509 != nullptr) {
-                    GENERAL_NAMES* subjectAltNames =
-                        static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(x509, NID_subject_alt_name, nullptr, nullptr));
-
-                    int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-
-                    for (int32_t i = 0; i < altNameCount; ++i) {
-                        GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
-                        if (generalName->type == GEN_DNS) {
-                            std::string subjectAltName =
-                                std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
-                                            static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            VLOG(2) << "SSL_CTX for domain '" << subjectAltName << "' installed";
-                            masterSslCtxDomains.insert(subjectAltName);
-                        }
-                    }
-                    sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
-                } else {
-                    VLOG(2) << "\tClient certificate: no certificate";
-                }
-            }
-        }
-
-        static int serverNameCallback(SSL* ssl, [[maybe_unused]] int* al, void* arg) {
-            int ret = SSL_TLSEXT_ERR_OK;
+        static int clientHelloCallback(SSL* ssl, int* al, void* arg) {
+            int ret = SSL_CLIENT_HELLO_SUCCESS;
 
             SocketAcceptor* socketAcceptor = static_cast<SocketAcceptor*>(arg);
 
-            if (SSL_get_servername_type(ssl) != -1) {
-                std::string serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
+            std::string serverNameIndication = ssl_get_servername_from_client_hello(ssl);
+
+            if (!serverNameIndication.empty()) {
+                LOG(INFO) << "ServerNameIndication: " << serverNameIndication;
 
                 if (socketAcceptor->masterSslCtxDomains.contains(serverNameIndication)) {
                     LOG(INFO) << "SSL_CTX: Master SSL_CTX already provides SNI '" << serverNameIndication << "'";
                 } else if (socketAcceptor->sniSslCtxs->contains(serverNameIndication)) {
                     SSL_CTX* sniSslCtx = (*socketAcceptor->sniSslCtxs.get())[serverNameIndication];
 
-                    SSL_CTX* nowUsedSslCtx = SSL_set_SSL_CTX(ssl, sniSslCtx);
+                    SSL_CTX* nowUsedSslCtx = ssl_set_ssl_ctx(ssl, sniSslCtx);
 
                     if (nowUsedSslCtx == sniSslCtx) {
                         LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
                     } else if (nowUsedSslCtx != nullptr) {
                         if (!socketAcceptor->forceSni) {
                             LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
-                            ret = SSL_TLSEXT_ERR_ALERT_WARNING;
                         } else {
                             LOG(ERROR) << "SSL_CTX: Not switched for SNI '" << serverNameIndication << "'.";
-                            ret = SSL_TLSEXT_ERR_ALERT_FATAL;
+                            ret = SSL_CLIENT_HELLO_ERROR;
+                            *al = SSL_AD_UNRECOGNIZED_NAME;
                         }
                     } else if (!socketAcceptor->forceSni) {
                         LOG(WARNING) << "SSL_CTX: Not switched for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
-                        ret = SSL_TLSEXT_ERR_ALERT_WARNING;
                     } else {
                         LOG(ERROR) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
-                        ret = SSL_TLSEXT_ERR_ALERT_FATAL;
+                        ret = SSL_CLIENT_HELLO_ERROR;
+                        *al = SSL_AD_UNRECOGNIZED_NAME;
                     }
                 } else if (!socketAcceptor->forceSni) {
                     LOG(WARNING) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
                 } else {
                     LOG(ERROR) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'.";
-                    ret = SSL_TLSEXT_ERR_ALERT_FATAL;
+                    ret = SSL_CLIENT_HELLO_ERROR;
+                    *al = SSL_AD_UNRECOGNIZED_NAME;
                 }
+            } else {
+                LOG(INFO) << "ServerNameIndication: client did not request a concrete server name";
             }
 
             return ret;

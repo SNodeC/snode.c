@@ -213,12 +213,13 @@ namespace core::socket::stream {
             destruct();
         }
 
-        std::function<void(const SocketAddress&, int)> onError = nullptr;
-
         PrimarySocket* primarySocket = nullptr;
         SecondarySocket* secondarySocket = nullptr;
 
         SocketConnectionFactory socketConnectionFactory;
+
+    protected:
+        std::function<void(const SocketAddress&, int)> onError = nullptr;
 
         std::map<std::string, std::any> options;
     };
