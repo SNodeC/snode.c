@@ -112,6 +112,57 @@ namespace core::socket::stream::tls {
         }
 
     private:
+        SSL_CTX* getMasterSniCtx(const std::string& serverNameIndication) {
+            SSL_CTX* sniSslCtx = nullptr;
+
+            LOG(INFO) << "Search for sni = '" << serverNameIndication << "' in master certificate";
+
+            std::set<std::string>::iterator masterSniIt = std::find_if(
+                masterSslCtxDomains.begin(), masterSslCtxDomains.end(), [&serverNameIndication](const std::string& sni) -> bool {
+                    LOG(TRACE) << "  .. " << sni.c_str();
+                    return match(sni.c_str(), serverNameIndication.c_str());
+                });
+            if (masterSniIt != masterSslCtxDomains.end()) {
+                LOG(INFO) << "found: " << *masterSniIt;
+                sniSslCtx = masterSslCtx;
+            } else {
+                LOG(INFO) << "not found";
+            }
+
+            return sniSslCtx;
+        }
+
+        SSL_CTX* getPoolSniCtx(const std::string& serverNameIndication) {
+            SSL_CTX* sniCtx = nullptr;
+
+            LOG(INFO) << "Search for sni = '" << serverNameIndication << "' in sni certificates";
+
+            std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
+                sniSslCtxs->begin(), sniSslCtxs->end(), [&serverNameIndication](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
+                    LOG(TRACE) << "  .. " << sniPair.first.c_str();
+                    return match(sniPair.first.c_str(), serverNameIndication.c_str());
+                });
+
+            if (sniPairIt != sniSslCtxs->end()) {
+                LOG(INFO) << "found: " << sniPairIt->first;
+                sniCtx = sniPairIt->second;
+            } else {
+                LOG(INFO) << "not found";
+            }
+
+            return sniCtx;
+        }
+
+        SSL_CTX* getSniCtx(const std::string& serverNameIndication) {
+            SSL_CTX* sniSslCtx = getMasterSniCtx(serverNameIndication);
+
+            if (sniSslCtx == nullptr) {
+                sniSslCtx = getPoolSniCtx(serverNameIndication);
+            }
+
+            return sniSslCtx;
+        }
+
         static int clientHelloCallback(SSL* ssl, int* al, void* arg) {
             int ret = SSL_CLIENT_HELLO_SUCCESS;
 
@@ -120,47 +171,58 @@ namespace core::socket::stream::tls {
             std::string serverNameIndication = ssl_get_servername_from_client_hello(ssl);
 
             if (!serverNameIndication.empty()) {
-                LOG(INFO) << "ServerNameIndication: " << serverNameIndication;
-
-                if (socketAcceptor->masterSslCtxDomains.contains(serverNameIndication)) {
-                    LOG(INFO) << "SSL_CTX: Master SSL_CTX already provides SNI '" << serverNameIndication << "'";
-                } else if (socketAcceptor->sniSslCtxs->contains(serverNameIndication)) {
-                    SSL_CTX* sniSslCtx = (*socketAcceptor->sniSslCtxs.get())[serverNameIndication];
-
-                    SSL_CTX* nowUsedSslCtx = ssl_set_ssl_ctx(ssl, sniSslCtx);
-
-                    if (nowUsedSslCtx == sniSslCtx) {
-                        LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
-                    } else if (nowUsedSslCtx != nullptr) {
-                        if (!socketAcceptor->forceSni) {
-                            LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
-                        } else {
-                            LOG(ERROR) << "SSL_CTX: Not switched for SNI '" << serverNameIndication << "'.";
-                            ret = SSL_CLIENT_HELLO_ERROR;
-                            *al = SSL_AD_UNRECOGNIZED_NAME;
-                        }
-                    } else if (!socketAcceptor->forceSni) {
-                        LOG(WARNING) << "SSL_CTX: Not switched for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
-                    } else {
-                        LOG(ERROR) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
-                        ret = SSL_CLIENT_HELLO_ERROR;
-                        *al = SSL_AD_UNRECOGNIZED_NAME;
-                    }
-                } else if (!socketAcceptor->forceSni) {
-                    LOG(WARNING) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
-                } else {
-                    LOG(ERROR) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'.";
+                SSL_CTX* sniSslCtx = socketAcceptor->getSniCtx(serverNameIndication);
+                if (sniSslCtx != nullptr) {
+                    LOG(INFO) << "Setting sni certificate for " << serverNameIndication;
+                    ssl_set_ssl_ctx(ssl, sniSslCtx);
+                } else if (socketAcceptor->forceSni) {
+                    LOG(WARNING) << "No sni certificate found but forceSni set - terminating";
                     ret = SSL_CLIENT_HELLO_ERROR;
                     *al = SSL_AD_UNRECOGNIZED_NAME;
+                } else {
+                    LOG(INFO) << "No sni certificate found - still using master certificate";
                 }
             } else {
-                LOG(INFO) << "ServerNameIndication: client did not request a concrete server name";
+                LOG(INFO) << "No sni certificate set - the client did not request one";
             }
 
             return ret;
         }
 
-    private:
+        // From https://www.geeksforgeeks.org/wildcard-character-matching/
+        //
+        // The main function that checks if two given strings
+        // match. The first string may contain wildcard characters
+        static bool match(const char* first, const char* second) {
+            // If we reach at the end of both strings, we are done
+            if (*first == '\0' && *second == '\0')
+                return true;
+
+            // Make sure to eliminate consecutive '*'
+            if (*first == '*') {
+                while (*(first + 1) == '*')
+                    first++;
+            }
+
+            // Make sure that the characters after '*' are present
+            // in second string. This function assumes that the
+            // first string will not contain two consecutive '*'
+            if (*first == '*' && *(first + 1) != '\0' && *second == '\0')
+                return false;
+
+            // If the first string contains '?', or current
+            // characters of both strings match
+            if (*first == '?' || *first == *second)
+                return match(first + 1, second + 1);
+
+            // If there is *, then there are two possibilities
+            // a) We consider current character of second string
+            // b) We ignore current character of second string.
+            if (*first == '*')
+                return match(first + 1, second) || match(first, second + 1);
+            return false;
+        }
+
         SSL_CTX* masterSslCtx = nullptr;
         std::set<std::string> masterSslCtxDomains;
 

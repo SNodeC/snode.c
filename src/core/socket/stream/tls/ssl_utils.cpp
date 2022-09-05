@@ -54,7 +54,7 @@ namespace core::socket::stream::tls {
         return static_cast<int>(::strlen(buf));
     }
 
-    static int verify_callback(int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {
+    static int verify_callback(int preverify_ok, X509_STORE_CTX* ctx) {
         char buf[256];
         X509* err_cert = nullptr;
         int err = 0;
@@ -67,9 +67,9 @@ namespace core::socket::stream::tls {
         X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
 
         if (!preverify_ok) {
-            LOG(INFO) << "verify_error:num=" << err << ":" << X509_verify_cert_error_string(err) << ":depth=" << depth << ":" << buf;
+            LOG(INFO) << "verify_error:num=" << err << ": " << X509_verify_cert_error_string(err) << ":depth=" << depth << ": " << buf;
         } else {
-            LOG(INFO) << "depth=" << depth << ":" << buf;
+            LOG(TRACE) << "depth=" << depth << ": " << buf;
         }
 
         /*
