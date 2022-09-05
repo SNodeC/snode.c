@@ -38,7 +38,8 @@ int main(int argc, char* argv[]) {
         {"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
     std::map<std::string, std::map<std::string, std::any>> sniCerts = {
         {"snodec.home.vchrist.at",
-         {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}}}};
+         {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}}},
+        {"www.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}}}};
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;

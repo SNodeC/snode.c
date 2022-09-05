@@ -87,6 +87,12 @@ namespace core::socket::stream::tls {
     }
 
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        using ssl_option_t = uint64_t;
+#else
+        using ssl_option_t = uint32_t;
+#endif
+
         static int sslSessionCtxId = 1;
 
         std::string certChain;
@@ -96,7 +102,7 @@ namespace core::socket::stream::tls {
         std::string caDir;
         bool useDefaultCaDir = false;
         std::string cipherList;
-        uint64_t sslOptions = 0;
+        ssl_option_t sslOptions = 0;
 
         for (const auto& [name, value] : options) {
             if (name == "CertChain") {
@@ -114,7 +120,7 @@ namespace core::socket::stream::tls {
             } else if (name == "CipherList") {
                 cipherList = std::any_cast<const char*>(value);
             } else if (name == "SslOptions") {
-                sslOptions = std::any_cast<uint64_t>(value);
+                sslOptions = std::any_cast<ssl_option_t>(value);
             }
         }
 
@@ -267,7 +273,7 @@ namespace core::socket::stream::tls {
 
                 for (int32_t i = 0; i < altNameCount; ++i) {
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
-                    if (generalName->type == GEN_DNS) {
+                    if (generalName->type == GEN_DNS || generalName->type == GEN_URI || generalName->type == GEN_EMAIL) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
