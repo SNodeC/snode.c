@@ -27,10 +27,8 @@
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
 
-#include <cstddef>
 #include <map>
 #include <memory>
-#include <openssl/x509v3.h>
 #include <set>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

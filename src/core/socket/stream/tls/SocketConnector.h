@@ -26,8 +26,6 @@
 
 #include "core/socket/stream/tls/ssl_utils.h"
 
-#include <cstddef>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {

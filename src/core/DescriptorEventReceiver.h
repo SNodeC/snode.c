@@ -37,6 +37,7 @@ namespace core {
 
     class Observer {
     public:
+        Observer() = default;
         virtual ~Observer() = default;
 
         bool isObserved() {

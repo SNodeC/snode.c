@@ -38,9 +38,6 @@ namespace core::socket::stream {
         : protected core::socket::SocketConnection
         , protected SocketReaderT<SocketT>
         , protected SocketWriterT<SocketT> {
-    public:
-        SocketConnection() = delete;
-
     protected:
         using Super = core::socket::SocketConnection;
 
@@ -50,6 +47,10 @@ namespace core::socket::stream {
 
         using SocketAddress = typename Socket::SocketAddress;
 
+    public:
+        SocketConnection() = delete;
+
+    protected:
         SocketConnection(int fd,
                          const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
