@@ -79,8 +79,6 @@ namespace core::socket {
 
     protected:
         core::socket::SocketContext* socketContext = nullptr;
-
-    private:
         core::socket::SocketContext* newSocketContext = nullptr;
     };
 

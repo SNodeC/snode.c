@@ -188,8 +188,6 @@ namespace core::socket::stream {
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
 
-        core::socket::SocketContext* newSocketContext = nullptr;
-
         std::function<void()> onDisconnect;
     };
 
