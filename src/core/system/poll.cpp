@@ -27,7 +27,6 @@
 namespace core::system {
 
     int poll(pollfd* fds, nfds_t nfds, int timeout) {
-        errno = 0;
         return ::poll(fds, nfds, timeout);
     }
 

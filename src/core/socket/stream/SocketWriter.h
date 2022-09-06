@@ -61,34 +61,11 @@ namespace core::socket::stream {
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
-        void writeEvent() override = 0;
-
-    protected:
-        void setBlockSize(std::size_t writeBlockSize) {
-            this->blockSize = writeBlockSize;
-        }
-
-        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
-            errno = 0;
-
-            Socket::shutdown(Socket::SHUT::WR);
-
-            onShutdown(errno);
-        }
-
-        void sendToPeer(const char* junk, std::size_t junkLen) {
-            if (!shutdownInProgress && !markShutdown) {
-                if (writeBuffer.empty()) {
-                    resume();
-                }
-
-                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-            }
+        void writeEvent() final {
+            doWrite();
         }
 
         void doWrite() {
-            errno = 0;
-
             if (!writeBuffer.empty()) {
                 std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
                 ssize_t retWrite = write(writeBuffer.data(), writeLen);
@@ -124,6 +101,29 @@ namespace core::socket::stream {
             } else if (!isSuspended()) {
                 suspend();
             }
+        }
+
+    protected:
+        void setBlockSize(std::size_t writeBlockSize) {
+            this->blockSize = writeBlockSize;
+        }
+
+        void sendToPeer(const char* junk, std::size_t junkLen) {
+            if (!shutdownInProgress && !markShutdown) {
+                if (writeBuffer.empty()) {
+                    resume();
+                }
+
+                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            }
+        }
+
+        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
+            errno = 0;
+
+            Socket::shutdown(Socket::SHUT::WR);
+
+            onShutdown(errno);
         }
 
         void shutdown(const std::function<void(int)>& onShutdown) {

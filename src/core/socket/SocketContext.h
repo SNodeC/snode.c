@@ -42,9 +42,9 @@ namespace core::socket {
     protected:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
+    public:
         virtual ~SocketContext() = default;
 
-    public:
         void setTimeout(const utils::Timeval& timeout);
         Socket& getSocket();
 
@@ -64,8 +64,10 @@ namespace core::socket {
         virtual void onConnected();
         virtual void onDisconnected();
 
+    public:
         virtual std::size_t onReceiveFromPeer() = 0;
 
+    private:
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
 

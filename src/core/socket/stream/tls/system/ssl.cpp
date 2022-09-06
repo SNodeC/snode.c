@@ -27,11 +27,9 @@
 namespace core::ssl {
 
     int SSL_read(SSL* ssl, void* buf, int num) {
-        errno = 0;
         return ::SSL_read(ssl, buf, num);
     }
     int SSL_write(SSL* ssl, const void* buf, int num) {
-        errno = 0;
         return ::SSL_write(ssl, buf, num);
     }
 

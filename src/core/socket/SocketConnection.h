@@ -64,8 +64,6 @@ namespace core::socket {
         void onConnected();
         void onDisconnected();
 
-        std::size_t onReceiveFromPeer();
-
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
@@ -79,8 +77,10 @@ namespace core::socket {
 
         core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
-    private:
+    protected:
         core::socket::SocketContext* socketContext = nullptr;
+
+    private:
         core::socket::SocketContext* newSocketContext = nullptr;
     };
 

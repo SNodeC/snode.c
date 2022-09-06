@@ -185,6 +185,7 @@ namespace core::socket::stream::tls {
         }
 
         // From https://www.geeksforgeeks.org/wildcard-character-matching/
+        // ... beatifull solution!
         //
         // The main function that checks if two given strings
         // match. The first string may contain wildcard characters
