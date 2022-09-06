@@ -169,11 +169,9 @@ namespace core::socket::stream::tls {
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
-                            errno = EINVAL;
                             ssl_log_error("Can not load private key");
                             sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
-                            errno = EINVAL;
                             ssl_log_error("Private key not consistent with CA files");
                             sslErr = true;
                         }
@@ -290,6 +288,7 @@ namespace core::socket::stream::tls {
         return sans;
     }
 
+    // From: https://www.bit-hive.com/documents/openssl-tutorial/
     std::string ssl_get_servername_from_client_hello(SSL* ssl) {
         const unsigned char* ext;
         size_t ext_len;

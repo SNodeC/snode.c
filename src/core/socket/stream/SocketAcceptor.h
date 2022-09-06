@@ -46,12 +46,6 @@ namespace core::socket::stream {
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
-    public:
-        SocketAcceptor() = delete;
-        SocketAcceptor(const SocketAcceptor&) = delete;
-
-        SocketAcceptor& operator=(const SocketAcceptor&) = delete;
-
     private:
         using SocketServer = SocketServerT;
         using PrimarySocket = typename SocketServer::Socket;
@@ -70,6 +64,12 @@ namespace core::socket::stream {
         !include core/socket/stream/pu/SocketAcceptor.pu!0
         @enduml
         */
+
+        SocketAcceptor() = delete;
+        SocketAcceptor(const SocketAcceptor&) = delete;
+
+        SocketAcceptor& operator=(const SocketAcceptor&) = delete;
+
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,

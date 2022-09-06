@@ -41,12 +41,11 @@ namespace core::socket::stream::tls {
     class SocketAcceptor : protected core::socket::stream::SocketAcceptor<SocketServerT, core::socket::stream::tls::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketAcceptor<SocketServerT, core::socket::stream::tls::SocketConnection>;
-
+        using SocketServer = SocketServerT;
         using SocketAddress = typename Super::SocketAddress;
+        using Config = typename Super::Config;
 
     public:
-        using Config = typename Super::Config;
-        using SocketServer = SocketServerT;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
@@ -87,14 +86,12 @@ namespace core::socket::stream::tls {
                   },
                   options)
             , masterSslCtx(ssl_ctx_new(options, true))
-            //, masterSslCtx(SSL_CTX_new(TLS_server_method()))
-            , masterSslCtxDomains(ssl_get_sans(masterSslCtx)) {
+            , masterSslCtxDomains(ssl_get_sans(masterSslCtx))
+            , sniSslCtxs(std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second))
+            , forceSni(std::any_cast<bool>(options.find("FORCE_SNI")->second)) {
             if (masterSslCtx != nullptr) {
                 SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
             }
-
-            sniSslCtxs = std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second);
-            forceSni = std::any_cast<bool>(options.find("FORCE_SNI")->second);
         }
 
         ~SocketAcceptor() override {

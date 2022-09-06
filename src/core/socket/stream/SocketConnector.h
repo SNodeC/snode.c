@@ -42,12 +42,6 @@ namespace core::socket::stream {
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
-    public:
-        SocketConnector() = delete;
-        SocketConnector(const SocketConnector&) = delete;
-
-        SocketConnector& operator=(const SocketConnector&) = delete;
-
     private:
         using SocketClient = SocketClientT;
         using PrimarySocket = typename SocketClient::Socket;
@@ -59,6 +53,11 @@ namespace core::socket::stream {
     public:
         using Config = typename SocketClient::Config;
         using SocketAddress = typename SocketClient::SocketAddress;
+
+        SocketConnector() = delete;
+        SocketConnector(const SocketConnector&) = delete;
+
+        SocketConnector& operator=(const SocketConnector&) = delete;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
