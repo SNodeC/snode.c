@@ -135,7 +135,7 @@ namespace web::websocket {
 
         /* WSReceiver */
         void onMessageStart(int opCode) override {
-            opCodeReceived = opCode;
+            receivedOpCode = opCode;
 
             switch (opCode) {
                 case OpCode::CLOSE:
@@ -151,7 +151,7 @@ namespace web::websocket {
         }
 
         void onMessageData(const char* junk, uint64_t junkLen) override {
-            switch (opCodeReceived) {
+            switch (receivedOpCode) {
                 case OpCode::CLOSE:
                     [[fallthrough]];
                 case OpCode::PING:
@@ -173,7 +173,7 @@ namespace web::websocket {
         }
 
         void onMessageEnd() override {
-            switch (opCodeReceived) {
+            switch (receivedOpCode) {
                 case OpCode::CLOSE:
                     if (closeSent) { // active close
                         closeSent = false;
@@ -269,7 +269,7 @@ namespace web::websocket {
     private:
         bool closeSent = false;
 
-        int opCodeReceived = 0;
+        int receivedOpCode = 0;
 
         std::string pongCloseData;
 
