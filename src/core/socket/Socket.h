@@ -63,7 +63,7 @@ namespace core::socket {
 
         void shutdown(SHUT how);
 
-    protected:
+    private:
         int domain{};
         int type{};
         int protocol{};

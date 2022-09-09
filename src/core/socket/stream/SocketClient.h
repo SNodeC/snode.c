@@ -41,9 +41,6 @@ namespace core::socket::stream {
         !include core/socket/stream/pu/SocketClient.pu
         @enduml
         */
-
-        SocketClient() = delete;
-
     private:
         using Super = SocketClientT;
         using SocketConnector = SocketConnectorT<Super>;
@@ -52,6 +49,8 @@ namespace core::socket::stream {
     public:
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+
+        SocketClient() = delete;
 
         SocketClient(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
@@ -102,13 +101,14 @@ namespace core::socket::stream {
             return socketContextFactory;
         }
 
-    protected:
+    private:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;
         std::function<void(SocketConnection*)> _onConnected;
         std::function<void(SocketConnection*)> _onDisconnect;
 
+    protected:
         std::map<std::string, std::any> options;
     };
 

@@ -129,11 +129,11 @@ namespace core::socket::stream::tls {
 
             TLSHandshake::doHandshake(
                 ssl,
-                [onSuccess, this](void) -> void { // onSuccess
+                [onSuccess, this]() -> void { // onSuccess
                     SocketReader::publish();
                     onSuccess();
                 },
-                [onTimeout, this](void) -> void { // onTimeout
+                [onTimeout, this]() -> void { // onTimeout
                     SocketConnection::close();
                     onTimeout();
                 },
@@ -163,7 +163,7 @@ namespace core::socket::stream::tls {
 
             TLSShutdown::doShutdown(
                 ssl,
-                [onSuccess, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onSuccess
+                [onSuccess, this, resumeSocketReader, resumeSocketWriter]() -> void { // onSuccess
                     if (resumeSocketReader) {
                         SocketReader::resume();
                     }
@@ -172,7 +172,7 @@ namespace core::socket::stream::tls {
                     }
                     onSuccess();
                 },
-                [onTimeout, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onTimeout
+                [onTimeout, this, resumeSocketReader, resumeSocketWriter]() -> void { // onTimeout
                     if (resumeSocketReader) {
                         SocketReader::resume();
                     }

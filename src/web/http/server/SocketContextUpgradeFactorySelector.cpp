@@ -79,6 +79,4 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-namespace web::http {
-    template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;
-}
+template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;

@@ -40,12 +40,12 @@ namespace web::http::server {
             if (std::distance(range.first, range.second) >= i) {
                 std::advance(range.first, i);
                 return (*(range.first)).second;
-            } else {
-                return nullstr;
             }
-        } else {
+
             return nullstr;
         }
+
+        return nullstr;
     }
 
     const std::string& Request::cookie(const std::string& key) const {
@@ -53,9 +53,9 @@ namespace web::http::server {
 
         if (it != cookies.end()) {
             return it->second;
-        } else {
-            return nullstr;
         }
+
+        return nullstr;
     }
 
     const std::string& Request::query(const std::string& key) const {
@@ -63,9 +63,9 @@ namespace web::http::server {
 
         if (it != queries.end()) {
             return it->second;
-        } else {
-            return nullstr;
         }
+
+        return nullstr;
     }
 
     void Request::reset() {

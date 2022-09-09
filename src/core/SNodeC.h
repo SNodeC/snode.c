@@ -32,13 +32,12 @@
 namespace core {
 
     class SNodeC {
+    public:
         SNodeC() = delete;
         ~SNodeC() = delete;
 
-    private:
         void* operator new(std::size_t count) = delete;
 
-    public:
         static void init(int argc, char* argv[]);
         static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
         static void stop();

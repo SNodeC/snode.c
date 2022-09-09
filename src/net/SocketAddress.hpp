@@ -28,35 +28,26 @@
 namespace net {
 
     template <typename SockAddr>
-    SocketAddress<SockAddr>::SocketAddress(socklen_t addrLen)
+    SocketAddress<SockAddr>::SocketAddress(socklen_t sockAddrLen)
         : sockAddr{}
-        , addrLen(addrLen) {
+        , sockAddrLen(sockAddrLen) {
         std::memset(&sockAddr, 0, sizeof(sockAddr));
     }
 
     template <typename SockAddr>
-    SocketAddress<SockAddr>::SocketAddress(const SocketAddress& socketAddress) {
-        *this = socketAddress;
+    SocketAddress<SockAddr>::SocketAddress(const SocketAddress& socketAddress)
+        : sockAddr(socketAddress.sockAddr)
+        , sockAddrLen(socketAddress.sockAddrLen) {
     }
 
     template <typename SockAddr>
     SocketAddress<SockAddr>& SocketAddress<SockAddr>::operator=(const SocketAddress& socketAddress) {
         if (this != &socketAddress) {
             this->sockAddr = socketAddress.sockAddr;
-            this->addrLen = socketAddress.addrLen;
+            this->sockAddrLen = socketAddress.sockAddrLen;
         }
 
         return *this;
-    }
-
-    template <typename SockAddr>
-    SocketAddress<SockAddr>::operator sockaddr*() {
-        return reinterpret_cast<sockaddr*>(&sockAddr);
-    }
-
-    template <typename SockAddr>
-    SocketAddress<SockAddr>::operator const sockaddr*() const {
-        return reinterpret_cast<const sockaddr*>(&sockAddr);
     }
 
     template <typename SockAddr>
@@ -70,13 +61,13 @@ namespace net {
     }
 
     template <typename SockAddr>
-    socklen_t& SocketAddress<SockAddr>::getAddrLen() {
-        return addrLen;
+    socklen_t& SocketAddress<SockAddr>::getSockAddrLen() {
+        return sockAddrLen;
     }
 
     template <typename SockAddr>
-    const socklen_t& SocketAddress<SockAddr>::getAddrLen() const {
-        return addrLen;
+    const socklen_t& SocketAddress<SockAddr>::getSockAddrLen() const {
+        return sockAddrLen;
     }
 
 } // namespace net

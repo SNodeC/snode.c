@@ -36,16 +36,15 @@ namespace web::websocket {
     template <typename SubProtocolFactoryT>
     class SubProtocolFactorySelector {
     public:
+        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
+        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
+
         using SubProtocolFactory = SubProtocolFactoryT;
 
         enum class Role { SERVER, CLIENT };
 
     protected:
         SubProtocolFactorySelector() = default;
-
-        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
-        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
-
         virtual ~SubProtocolFactorySelector() = default;
 
     protected:
@@ -67,10 +66,10 @@ namespace web::websocket {
                             subProtocolFactory->setHandle(handle);
                             VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
                             break;
-                        } else {
-                            VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
-                            core::DynamicLoader::dlClose(handle);
                         }
+                        VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
+                        core::DynamicLoader::dlClose(handle);
+
                     } else {
                         VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
                                 << "\" in plugin failed: " << core::DynamicLoader::dlError();

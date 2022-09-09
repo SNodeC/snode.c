@@ -26,6 +26,4 @@
 
 namespace net::l2::stream {}
 
-namespace net::stream {
-    template class ServerSocket<net::l2::stream::Socket>;
-}
+template class net::stream::ServerSocket<net::l2::stream::Socket>;

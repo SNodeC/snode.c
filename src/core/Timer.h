@@ -21,7 +21,7 @@
 
 namespace core {
     class TimerEventReceiver;
-}
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,13 +32,15 @@ namespace core {
     class Timer {
     protected:
         explicit Timer(core::TimerEventReceiver* timerEventReceiver);
-        explicit Timer(Timer&& timer);
+        explicit Timer(Timer&& timer) noexcept;
 
         virtual ~Timer();
 
-        Timer& operator=(Timer&& timer);
+        Timer& operator=(Timer&& timer) noexcept;
 
     public:
+        Timer() = default;
+
         void cancel();
 
     private:

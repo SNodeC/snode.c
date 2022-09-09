@@ -7,7 +7,6 @@ find_package(nlohmann_json 3.7.0)
 if(NLOHMANN_JSON_FOUND)
     set(JSONMIDDLEWARE_CPP middleware/JsonMiddleware.cpp)
     set(JSONMIDDLEWARE_H middleware/JsonMiddleware.h)
-    set(JSON_LIBRARY nlohmann_json::nlohmann_json)
 else(NLOHMANN_JSON_FOUND)
     message(
         WARNING
@@ -85,7 +84,7 @@ target_include_directories(
 target_link_libraries(
     http-server-express
     PUBLIC snodec::http-server
-    PRIVATE ${JSON_LIBRARY}
+    PRIVATE ${NLOHMANN_JSON_LIBRARIES}
 )
 
 set_target_properties(

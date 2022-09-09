@@ -48,12 +48,12 @@ namespace web::http::client {
             if (std::distance(range.first, range.second) >= i) {
                 std::advance(range.first, i);
                 return (*(range.first)).second;
-            } else {
-                return nullstr;
             }
-        } else {
+
             return nullstr;
         }
+
+        return nullstr;
     }
 
     const std::string& Response::cookie(const std::string& key) const {
@@ -61,9 +61,9 @@ namespace web::http::client {
 
         if (it != cookies.end()) {
             return it->second.getValue();
-        } else {
-            return nullstr;
         }
+
+        return nullstr;
     }
 
     void Response::upgrade(Request& request) {

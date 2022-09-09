@@ -39,14 +39,14 @@ namespace net::un {
     SocketAddress::SocketAddress(const std::string& sunPath)
         : SocketAddress() {
         setSunPath(sunPath);
-        addrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
+        sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
     }
 
     void SocketAddress::setSunPath(const std::string& sunPath) {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
             std::size_t len = sizeof(sockAddr.sun_path) - 1 < sunPath.size() + 1 ? sizeof(sockAddr.sun_path) - 1 : sunPath.size() + 1;
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
-            addrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
+            sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
         } else {
             throw bad_sunpath(sunPath);
         }
@@ -70,6 +70,4 @@ namespace net::un {
 
 } // namespace net::un
 
-namespace net {
-    template class SocketAddress<sockaddr_un>;
-} // namespace net
+template class net::SocketAddress<sockaddr_un>;

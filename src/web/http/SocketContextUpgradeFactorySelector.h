@@ -71,11 +71,11 @@ namespace web::http {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
+    private:
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
 
-    private:
         bool onlyLinked = false;
     };
 

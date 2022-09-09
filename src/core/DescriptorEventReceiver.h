@@ -37,6 +37,7 @@ namespace core {
 
     class Observer {
     public:
+        Observer() = default;
         virtual ~Observer() = default;
 
         bool isObserved() {
@@ -64,10 +65,11 @@ namespace core {
     class DescriptorEventReceiver
         : virtual protected Observer
         , public EventReceiver {
+    public:
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
+
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
-    public:
         class TIMEOUT {
         public:
             static const utils::Timeval DEFAULT;
@@ -100,7 +102,7 @@ namespace core {
         virtual void terminate();
 
     private:
-        void event(const utils::Timeval& currentTime) final;
+        void onEvent(const utils::Timeval& currentTime) final;
         void triggered(const utils::Timeval& currentTime);
         void setEnabled(const utils::Timeval& currentTime);
         void setDisabled();

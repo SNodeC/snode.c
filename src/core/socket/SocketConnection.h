@@ -21,7 +21,7 @@
 
 namespace utils {
     class Timeval;
-}
+} // namespace utils
 
 namespace core::socket {
     class SocketContextFactory;
@@ -39,7 +39,9 @@ namespace core::socket {
 namespace core::socket {
 
     class SocketConnection {
+    public:
         SocketConnection(const core::socket::SocketConnection&) = delete;
+
         SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
 
     protected:
@@ -62,8 +64,6 @@ namespace core::socket {
         void onConnected();
         void onDisconnected();
 
-        std::size_t onReceiveFromPeer();
-
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
@@ -77,7 +77,7 @@ namespace core::socket {
 
         core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
-    private:
+    protected:
         core::socket::SocketContext* socketContext = nullptr;
         core::socket::SocketContext* newSocketContext = nullptr;
     };

@@ -30,12 +30,11 @@ namespace core::socket {
 namespace web::http {
     template <typename RequestT, typename ResponseT>
     class SocketContextUpgradeFactory;
-}
+} // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "utils/Timeval.h"
 
 #include <cstdint>
 #include <string>
@@ -51,6 +50,11 @@ namespace web::websocket {
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
+    public:
+        SocketContextUpgrade() = delete;
+        SocketContextUpgrade(const SocketContextUpgrade&) = delete;
+        SocketContextUpgrade& operator=(const SocketContextUpgrade&) = delete;
+
     private:
         using Super = web::http::SocketContextUpgrade<RequestT, ResponseT>;
 
@@ -76,10 +80,6 @@ namespace web::websocket {
             , Transmitter(role == Role::CLIENT)
             , subProtocol(subProtocol) {
         }
-
-        SocketContextUpgrade() = delete;
-        SocketContextUpgrade(const SocketContextUpgrade&) = delete;
-        SocketContextUpgrade& operator=(const SocketContextUpgrade&) = delete;
 
         ~SocketContextUpgrade() override = default;
 
@@ -135,7 +135,7 @@ namespace web::websocket {
 
         /* WSReceiver */
         void onMessageStart(int opCode) override {
-            opCodeReceived = opCode;
+            receivedOpCode = opCode;
 
             switch (opCode) {
                 case OpCode::CLOSE:
@@ -151,7 +151,7 @@ namespace web::websocket {
         }
 
         void onMessageData(const char* junk, uint64_t junkLen) override {
-            switch (opCodeReceived) {
+            switch (receivedOpCode) {
                 case OpCode::CLOSE:
                     [[fallthrough]];
                 case OpCode::PING:
@@ -173,13 +173,13 @@ namespace web::websocket {
         }
 
         void onMessageEnd() override {
-            switch (opCodeReceived) {
+            switch (receivedOpCode) {
                 case OpCode::CLOSE:
                     if (closeSent) { // active close
                         closeSent = false;
-                        VLOG(0) << "Close confirmed from peer";
+                        LOG(INFO) << "Close confirmed from peer";
                     } else { // passive close
-                        VLOG(0) << "Close request received - replying with close";
+                        LOG(INFO) << "Close request received - replying with close";
                         sendClose(pongCloseData.data(), pongCloseData.length());
                         pongCloseData.clear();
                     }
@@ -269,7 +269,7 @@ namespace web::websocket {
     private:
         bool closeSent = false;
 
-        int opCodeReceived = 0;
+        int receivedOpCode = 0;
 
         std::string pongCloseData;
 

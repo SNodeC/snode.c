@@ -27,7 +27,7 @@
 
 namespace core {
     class TimerEventReceiver;
-}
+} // namespace core
 
 #include <functional>
 
@@ -36,24 +36,20 @@ namespace core {
 namespace core::timer {
 
     class Timer : public core::Timer {
-    private:
-        Timer() = delete;
+    public:
         Timer(const Timer&) = delete;
+
         Timer& operator=(const Timer&) = delete;
 
-    public:
         using core::Timer::Timer;
 
-        Timer(Timer&& timer);
-        Timer& operator=(Timer&& timer);
+        Timer& operator=(Timer&& timer) noexcept;
 
-        static Timer intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                                   const utils::Timeval& timeout,
-                                   const void* arg);
+        static Timer intervalTimer(const std::function<void(const std::function<void()>& stop)>& dispatcher, const utils::Timeval& timeout);
 
-        static Timer intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
+        static Timer intervalTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout);
 
-        static Timer singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
+        static Timer singleshotTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout);
     };
 
 } // namespace core::timer

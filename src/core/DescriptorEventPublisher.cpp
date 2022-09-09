@@ -33,8 +33,8 @@
 
 namespace core {
 
-    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name)
-        : name(name) {
+    DescriptorEventPublisher::DescriptorEventPublisher(std::string name)
+        : name(std::move(name)) {
     }
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
@@ -122,11 +122,7 @@ namespace core {
 
         if (!observedEventReceiversDirty) {
             for (const auto& [fd, eventReceivers] : observedEventReceivers) {
-                const DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-
-                if (!eventReceiver->isSuspended()) {
-                    nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
-                }
+                nextTimeout = std::min(eventReceivers.front()->getTimeout(currentTime), nextTimeout);
             }
         } else {
             nextTimeout = 0;

@@ -26,7 +26,7 @@
 
 namespace core::socket {
     class SocketContextFactory;
-}
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,10 +46,6 @@ namespace core::socket::stream {
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
-        SocketAcceptor() = delete;
-        SocketAcceptor(const SocketAcceptor&) = delete;
-        SocketAcceptor& operator=(const SocketAcceptor&) = delete;
-
     private:
         using SocketServer = SocketServerT;
         using PrimarySocket = typename SocketServer::Socket;
@@ -68,6 +64,12 @@ namespace core::socket::stream {
         !include core/socket/stream/pu/SocketAcceptor.pu!0
         @enduml
         */
+
+        SocketAcceptor() = delete;
+        SocketAcceptor(const SocketAcceptor&) = delete;
+
+        SocketAcceptor& operator=(const SocketAcceptor&) = delete;
+
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
@@ -211,13 +213,13 @@ namespace core::socket::stream {
             destruct();
         }
 
-    protected:
-        std::function<void(const SocketAddress&, int)> onError = nullptr;
-
         PrimarySocket* primarySocket = nullptr;
         SecondarySocket* secondarySocket = nullptr;
 
         SocketConnectionFactory socketConnectionFactory;
+
+    protected:
+        std::function<void(const SocketAddress&, int)> onError = nullptr;
 
         std::map<std::string, std::any> options;
     };

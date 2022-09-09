@@ -55,7 +55,7 @@ namespace web::http::client {
             this->onResponseReady = onResponseReady;
         }
 
-        void setOnResponseError(const std::function<void(int, const std::string&)> onResponseError) {
+        void setOnResponseError(const std::function<void(int, const std::string&)>& onResponseError) {
             this->onResponseError = onResponseError;
         }
 

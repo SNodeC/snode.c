@@ -19,14 +19,14 @@
 #ifndef WEB_WEBSOCKET_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SUBSPROTOCOL_H
 
+#include "core/timer/Timer.h" // IWYU pragma: export
+
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade;
-}
+} // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -39,16 +39,19 @@ namespace web::websocket {
     template <typename SocketContextUpgradeT>
     class SubProtocol {
     public:
-        using SocketContextUpgrade = SocketContextUpgradeT;
-
-    protected:
         SubProtocol() = delete;
-        SubProtocol(const std::string& name);
-
         SubProtocol(const SubProtocol&) = delete;
         SubProtocol& operator=(const SubProtocol&) = delete;
 
-        virtual ~SubProtocol() = default;
+    private:
+        using SocketContextUpgrade = SocketContextUpgradeT;
+
+    protected:
+        SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
+        virtual ~SubProtocol();
+
+    private:
+        void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
@@ -60,28 +63,32 @@ namespace web::websocket {
         void sendMessageFrame(const std::string& message);
         void sendMessageEnd(const char* message, std::size_t messageLength);
         void sendMessageEnd(const std::string& message);
-        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
-        const std::string& getName();
-
     private:
-        /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
-        virtual void onMessageStart(int opCode) = 0;
-        virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
-        virtual void onMessageEnd() = 0;
-        virtual void onPongReceived() = 0;
-        virtual void onMessageError(uint16_t errnum) = 0;
-
         /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
-        void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
+        /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
+        virtual void onMessageStart(int opCode) = 0;
+        virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onMessageEnd() = 0;
+        virtual void onMessageError(uint16_t errnum) = 0;
+
+        virtual void onPongReceived();
+
+    public:
+        const std::string& getName();
+
+    private:
+        const std::string name;
 
         SocketContextUpgrade* socketContextUpgrade;
 
-        std::string name;
+        core::timer::Timer pingTimer;
+        int flyingPings = 0;
 
         template <typename SubProtocolT, typename RequestT, typename ResponseT>
         friend class web::websocket::SocketContextUpgrade;

@@ -22,7 +22,7 @@
 
 #include "core/system/unistd.h"
 
-#include <errno.h>
+#include <cerrno>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

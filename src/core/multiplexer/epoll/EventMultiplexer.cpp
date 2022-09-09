@@ -36,10 +36,9 @@ namespace core::epoll {
         : core::EventMultiplexer(
               new core::epoll::DescriptorEventPublisher("READ", epfds[core::DescriptorEventReceiver::DISP_TYPE::RD], EPOLLIN),
               new core::epoll::DescriptorEventPublisher("WRITE", epfds[core::DescriptorEventReceiver::DISP_TYPE::WR], EPOLLOUT),
-              new core::epoll::DescriptorEventPublisher("EXCEPT", epfds[core::DescriptorEventReceiver::DISP_TYPE::EX], EPOLLPRI)) {
-        epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
-
-        epoll_event event;
+              new core::epoll::DescriptorEventPublisher("EXCEPT", epfds[core::DescriptorEventReceiver::DISP_TYPE::EX], EPOLLPRI))
+        , epfd(core::system::epoll_create1(EPOLL_CLOEXEC)) {
+        epoll_event event{};
         event.events = EPOLLIN;
 
         event.data.ptr = descriptorEventPublishers[core::DescriptorEventReceiver::DISP_TYPE::RD];

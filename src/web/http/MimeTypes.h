@@ -33,17 +33,19 @@
 namespace web::http {
 
     class MimeTypes {
-        MimeTypes(const MimeTypes&) = delete;
-        MimeTypes operator=(const MimeTypes&) = delete;
-
     public:
-        ~MimeTypes();
+        MimeTypes(const MimeTypes&) = delete;
 
-        static std::string contentType(const std::string& file);
+        MimeTypes operator=(const MimeTypes&) = delete;
 
     private:
         MimeTypes();
+        ~MimeTypes();
 
+    public:
+        static std::string contentType(const std::string& file);
+
+    private:
 #ifdef HAS_LIBMAGIC
         static magic_t magic;
 #endif

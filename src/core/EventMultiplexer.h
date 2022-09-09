@@ -30,7 +30,7 @@ namespace core {
 
 namespace utils {
     class Timeval; // IWYU pragma: keep
-}
+} // namespace utils
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,14 +44,15 @@ namespace utils {
 namespace core {
 
     class EventMultiplexer {
+    public:
         EventMultiplexer(const EventMultiplexer&) = delete;
+
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     protected:
         EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventPublisher,
                          DescriptorEventPublisher* const writeDescriptorEventPublisher,
                          DescriptorEventPublisher* const exceptionDescriptorEventPublisher);
-
         virtual ~EventMultiplexer();
 
     private:
@@ -69,13 +70,11 @@ namespace core {
             std::list<Event*>* executeQueue;
             std::list<Event*>* publishQueue;
 
-            sigset_t newSet;
-            sigset_t oldSet;
+            sigset_t newSet{};
+            sigset_t oldSet{};
         };
 
     public:
-#define DISP_COUNT 3
-
         DescriptorEventPublisher& getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType);
         TimerEventPublisher& getTimerEventPublisher();
 
@@ -101,12 +100,15 @@ namespace core {
         void executeEventQueue(const utils::Timeval& currentTime);
 
     protected:
+#define DISP_COUNT 3
+
         std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;
-        core::TimerEventPublisher* const timerEventPublisher;
 
         int activeEventCount = 0;
 
     private:
+        core::TimerEventPublisher* const timerEventPublisher;
+
         EventQueue eventQueue;
 
         friend class DescriptorEventPublisher;

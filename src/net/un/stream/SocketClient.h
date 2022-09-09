@@ -32,9 +32,9 @@
 namespace net::un::stream {
 
     template <typename ConfigT>
-    class SocketClient : public net::stream::SocketClient<ConfigT, net::un::stream::ClientSocket> {
+    class SocketClient : public net::stream::SocketClient<net::un::stream::ClientSocket, ConfigT> {
     private:
-        using Super = net::stream::SocketClient<ConfigT, net::un::stream::ClientSocket>;
+        using Super = net::stream::SocketClient<net::un::stream::ClientSocket, ConfigT>;
 
     protected:
         explicit SocketClient(const std::string& name);

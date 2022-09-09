@@ -37,13 +37,14 @@ namespace core {
 namespace core {
 
     class TimerEventReceiver : public EventReceiver {
-    private:
+    public:
         TimerEventReceiver(const TimerEventReceiver&) = delete;
+
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
 
     protected:
         TimerEventReceiver(const std::string& name, const utils::Timeval& delay);
-        virtual ~TimerEventReceiver() override;
+        ~TimerEventReceiver() override;
 
         utils::Timeval getTimeout() const;
 
@@ -52,7 +53,7 @@ namespace core {
         void cancel();
 
     private:
-        void event(const utils::Timeval& currentTime) final;
+        void onEvent(const utils::Timeval& currentTime) final;
 
         virtual void dispatchEvent() = 0;
         virtual void unobservedEvent() = 0;

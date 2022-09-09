@@ -38,7 +38,7 @@ namespace httputils {
     }
 
     std::string url_decode(const std::string& text) {
-        int h;
+        int h = 0;
 
         std::string escaped;
 

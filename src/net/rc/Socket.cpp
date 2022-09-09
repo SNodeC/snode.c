@@ -32,6 +32,4 @@ namespace net::rc {
 
 } // namespace net::rc
 
-namespace net {
-    template class Socket<net::rc::SocketAddress>;
-} // namespace net
+template class net::Socket<net::rc::SocketAddress>;

@@ -20,6 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,8 +39,6 @@ namespace core::socket::stream {
         : protected core::socket::SocketConnection
         , protected SocketReaderT<SocketT>
         , protected SocketWriterT<SocketT> {
-        SocketConnection() = delete;
-
     protected:
         using Super = core::socket::SocketConnection;
 
@@ -49,6 +48,10 @@ namespace core::socket::stream {
 
         using SocketAddress = typename Socket::SocketAddress;
 
+    public:
+        SocketConnection() = delete;
+
+    protected:
         SocketConnection(int fd,
                          const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
@@ -164,17 +167,18 @@ namespace core::socket::stream {
         }
 
     private:
-        void readEvent() final {
-            std::size_t availble = SocketReader::doRead();
-            std::size_t consumed = onReceiveFromPeer();
+        std::size_t onReceiveFromPeer() final {
+            std::size_t ret = socketContext->onReceiveFromPeer();
 
-            if (availble != 0 && consumed == 0) {
-                close();
+            if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+                onDisconnected();
+                delete socketContext;
+                socketContext = newSocketContext;
+                newSocketContext = nullptr;
+                onConnected();
             }
-        }
 
-        void writeEvent() final {
-            SocketWriter::doWrite();
+            return ret;
         }
 
         void unobservedEvent() final {
@@ -183,8 +187,6 @@ namespace core::socket::stream {
 
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
-
-        core::socket::SocketContext* newSocketContext = nullptr;
 
         std::function<void()> onDisconnect;
     };

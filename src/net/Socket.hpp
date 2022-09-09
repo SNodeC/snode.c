@@ -30,19 +30,19 @@ namespace net {
     int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
         this->bindAddress = bindAddress;
 
-        return core::system::bind(getFd(), bindAddress, bindAddress.getAddrLen());
+        return core::system::bind(getFd(), &bindAddress.getSockAddr(), bindAddress.getSockAddrLen());
     }
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::getSockname(SocketAddress& socketAddress) {
-        socketAddress.getAddrLen() = sizeof(typename SocketAddress::SockAddr);
-        return core::system::getsockname(getFd(), socketAddress, &socketAddress.getAddrLen());
+        socketAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
+        return core::system::getsockname(getFd(), &socketAddress.getSockAddr(), &socketAddress.getSockAddrLen());
     }
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::getPeername(SocketAddress& socketAddress) {
-        socketAddress.getAddrLen() = sizeof(typename SocketAddress::SockAddr);
-        return core::system::getpeername(getFd(), socketAddress, &socketAddress.getAddrLen());
+        socketAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
+        return core::system::getpeername(getFd(), &socketAddress.getSockAddr(), &socketAddress.getSockAddrLen());
     }
 
     template <typename SocketAddress>
@@ -57,9 +57,9 @@ namespace net {
             char control[CMSG_SPACE(sizeof(int))] = {};
         } control_un;
 
-        msghdr msg;
+        msghdr msg{};
         msg.msg_name = &destAddress.getSockAddr();
-        msg.msg_namelen = destAddress.getAddrLen();
+        msg.msg_namelen = destAddress.getSockAddrLen();
 
         msg.msg_control = control_un.control;
         msg.msg_controllen = sizeof(control_un.control);
@@ -88,7 +88,7 @@ namespace net {
             char control[CMSG_SPACE(sizeof(int))] = {};
         } control_un;
 
-        msghdr msg;
+        msghdr msg{};
         msg.msg_control = control_un.control;
         msg.msg_controllen = sizeof(control_un.control);
 
@@ -99,14 +99,14 @@ namespace net {
         msg.msg_iov = iov;
         msg.msg_iovlen = 1;
 
-        char ptr;
+        char ptr = 0;
         msg.msg_iov[0].iov_base = &ptr;
         msg.msg_iov[0].iov_len = 1;
 
         ssize_t n = 0;
 
         if ((n = recvmsg(getFd(), &msg, 0)) > 0) {
-            cmsghdr* cmptr;
+            cmsghdr* cmptr = nullptr;
 
             if ((cmptr = CMSG_FIRSTHDR(&msg)) != nullptr && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
                 if (cmptr->cmsg_level != SOL_SOCKET || cmptr->cmsg_type != SCM_RIGHTS) {

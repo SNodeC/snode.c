@@ -48,10 +48,10 @@ namespace net::rc::config {
         void required();
         void channelRequired();
 
+    private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* channelOpt = nullptr;
 
-    private:
         void updateFromCommandLine() override;
 
         std::string host{};

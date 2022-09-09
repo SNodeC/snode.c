@@ -35,17 +35,18 @@ namespace express {
 namespace express {
 
     class Dispatcher {
+    public:
         Dispatcher(const Dispatcher&) = delete;
+
         Dispatcher& operator=(const Dispatcher&) = delete;
 
-    public:
         Dispatcher() = default;
         virtual ~Dispatcher() = default;
 
         virtual bool dispatch(Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
-    protected:
+    private:
         std::shared_ptr<Route> next = nullptr;
 
         friend class Route;

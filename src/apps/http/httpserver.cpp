@@ -36,7 +36,8 @@ int main(int argc, char* argv[]) {
 #elif (STREAM_TYPE == TLS)
     std::map<std::string, std::any> options{{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}};
     std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
+        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}},
+        {"www.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;
@@ -44,6 +45,7 @@ int main(int argc, char* argv[]) {
 
 #if (STREAM_TYPE == TLS)
     webApp.addSniCerts(sniCerts);
+    webApp.forceSni();
 #endif
 
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {

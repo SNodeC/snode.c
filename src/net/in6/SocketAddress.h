@@ -40,7 +40,7 @@ namespace net::in6 {
 
         const char* what() const noexcept override;
 
-    protected:
+    private:
         std::string message;
     };
 

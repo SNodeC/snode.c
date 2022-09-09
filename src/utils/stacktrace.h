@@ -28,6 +28,6 @@
 namespace stacktrace {
 
     void stacktrace(std::size_t trace_cnt_max = 32);
-}
+} // namespace stacktrace
 
 #endif // UTILS_STACKTRACE_H

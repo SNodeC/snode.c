@@ -27,8 +27,4 @@
 
 namespace web::websocket::client {} // namespace web::websocket::client
 
-namespace web::websocket {
-
-    template class SubProtocol<web::websocket::client::SocketContextUpgrade>;
-
-} // namespace web::websocket
+template class web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>;

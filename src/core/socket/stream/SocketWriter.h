@@ -39,6 +39,7 @@ namespace core::socket::stream {
     class SocketWriter
         : public core::eventreceiver::WriteEventReceiver
         , virtual public SocketT {
+    public:
         SocketWriter() = delete;
 
     protected:
@@ -60,34 +61,11 @@ namespace core::socket::stream {
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
-        void writeEvent() override = 0;
-
-    protected:
-        void setBlockSize(std::size_t writeBlockSize) {
-            this->blockSize = writeBlockSize;
-        }
-
-        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
-            errno = 0;
-
-            Socket::shutdown(Socket::SHUT::WR);
-
-            onShutdown(errno);
-        }
-
-        void sendToPeer(const char* junk, std::size_t junkLen) {
-            if (!shutdownInProgress && !markShutdown) {
-                if (writeBuffer.empty()) {
-                    resume();
-                }
-
-                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-            }
+        void writeEvent() final {
+            doWrite();
         }
 
         void doWrite() {
-            errno = 0;
-
             if (!writeBuffer.empty()) {
                 std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
                 ssize_t retWrite = write(writeBuffer.data(), writeLen);
@@ -125,6 +103,29 @@ namespace core::socket::stream {
             }
         }
 
+    protected:
+        void setBlockSize(std::size_t writeBlockSize) {
+            this->blockSize = writeBlockSize;
+        }
+
+        void sendToPeer(const char* junk, std::size_t junkLen) {
+            if (!shutdownInProgress && !markShutdown) {
+                if (writeBuffer.empty()) {
+                    resume();
+                }
+
+                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            }
+        }
+
+        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
+            errno = 0;
+
+            Socket::shutdown(Socket::SHUT::WR);
+
+            onShutdown(errno);
+        }
+
         void shutdown(const std::function<void(int)>& onShutdown) {
             if (!shutdownInProgress) {
                 this->onShutdown = onShutdown;
@@ -155,7 +156,7 @@ namespace core::socket::stream {
         std::function<void(int)> onShutdown;
 
         std::vector<char> writeBuffer;
-        std::size_t blockSize;
+        std::size_t blockSize = 0;
 
         bool markShutdown = false;
         bool shutdownInProgress = false;

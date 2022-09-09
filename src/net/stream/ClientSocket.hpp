@@ -30,7 +30,7 @@ namespace net::stream {
 
     template <typename Socket>
     int ClientSocket<Socket>::connect(const typename Socket::SocketAddress& remoteAddress) {
-        return core::system::connect(Socket::getFd(), remoteAddress, remoteAddress.getAddrLen());
+        return core::system::connect(Socket::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
     }
 
     template <typename Socket>

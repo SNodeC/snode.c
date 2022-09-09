@@ -25,7 +25,7 @@
 
 namespace web::websocket::server {
     class SocketContextUpgrade;
-}
+} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,7 +42,7 @@ namespace web::websocket::server {
         using Super = web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
 
     protected:
-        explicit SubProtocol(const std::string& name);
+        explicit SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
 
     public:
         ~SubProtocol() override;
@@ -55,7 +55,6 @@ namespace web::websocket::server {
         using Super::sendMessageStart;
 
         using Super::sendClose;
-        using Super::sendPing;
 
         void subscribe(const std::string& channel);
 

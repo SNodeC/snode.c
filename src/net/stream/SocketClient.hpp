@@ -25,8 +25,8 @@
 
 namespace net::stream {
 
-    template <typename Config, typename Socket>
-    void SocketClient<Config, Socket>::connect(const SocketAddress& remoteAddress,
+    template <typename Socket, typename Config>
+    void SocketClient<Socket, Config>::connect(const SocketAddress& remoteAddress,
                                                const SocketAddress& localAddress,
                                                const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->setLocalAddress(localAddress);
@@ -34,8 +34,8 @@ namespace net::stream {
         connect(remoteAddress, onError);
     }
 
-    template <typename Config, typename Socket>
-    void SocketClient<Config, Socket>::connect(const SocketAddress& remoteAddress,
+    template <typename Socket, typename Config>
+    void SocketClient<Socket, Config>::connect(const SocketAddress& remoteAddress,
                                                const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->setRemoteAddress(remoteAddress);
 

@@ -27,6 +27,6 @@ namespace core {
 
     enum class TickStatus { SUCCESS, NO_OBSERVER, ERROR };
 
-}
+} // namespace core
 
 #endif // CORE_TICKSTATUS_H

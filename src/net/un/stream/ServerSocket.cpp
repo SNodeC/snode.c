@@ -26,6 +26,4 @@
 
 namespace net::un::stream {}
 
-namespace net::stream {
-    template class ServerSocket<net::un::stream::Socket>;
-}
+template class net::stream::ServerSocket<net::un::stream::Socket>;

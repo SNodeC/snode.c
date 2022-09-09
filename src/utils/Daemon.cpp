@@ -115,10 +115,10 @@ namespace utils {
             std::ifstream pidFile(pidFileName, std::ifstream::in);
 
             if (pidFile.good()) {
-                int pid;
+                int pid = 0;
                 pidFile >> pid;
 
-                struct pollfd pollfd;
+                struct pollfd pollfd {};
 
                 int pidfd = static_cast<int>(syscall(__NR_pidfd_open, pid, 0));
 

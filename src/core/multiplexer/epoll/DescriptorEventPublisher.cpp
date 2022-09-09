@@ -32,12 +32,11 @@ namespace core::epoll {
         : epfd(epfd)
         , events(events) {
         epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
-        interestCount = 0;
         ePollEvents.resize(1);
     }
 
     void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
-        epoll_event ePollEvent;
+        epoll_event ePollEvent{};
 
         ePollEvent.data.ptr = eventReceiver;
         ePollEvent.events = events;
@@ -65,7 +64,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) {
-        epoll_event ePollEvent;
+        epoll_event ePollEvent{};
 
         ePollEvent.data.ptr = eventReceiver;
         ePollEvent.events = events;

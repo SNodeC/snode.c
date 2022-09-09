@@ -32,10 +32,11 @@
 namespace core::pipe {
 
     class PipeSource : public core::eventreceiver::WriteEventReceiver {
+    public:
         PipeSource(const PipeSource&) = delete;
+
         PipeSource& operator=(const PipeSource&) = delete;
 
-    public:
         explicit PipeSource(int fd);
         ~PipeSource() override;
 
@@ -52,7 +53,6 @@ namespace core::pipe {
     private:
         void terminate() override;
 
-    protected:
         std::function<void(int errnum)> onError;
 
         std::vector<char> writeBuffer;

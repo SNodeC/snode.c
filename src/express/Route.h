@@ -31,7 +31,7 @@ namespace express {
 
     namespace dispatcher {
         class RouterDispatcher;
-    }
+    } // namespace dispatcher
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -63,6 +63,7 @@ namespace express {
         bool dispatch(Controller& controller, const std::string& parentMountPath);
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
+    private:
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
 

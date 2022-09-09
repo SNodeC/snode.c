@@ -39,6 +39,4 @@ namespace net::in6 {
 
 } // namespace net::in6
 
-namespace net {
-    template class Socket<net::in6::SocketAddress>;
-} // namespace net
+template class net::Socket<net::in6::SocketAddress>;

@@ -25,7 +25,7 @@
 
 namespace utils {
     class Timeval;
-}
+} // namespace utils
 
 #include <string>
 
@@ -41,12 +41,12 @@ namespace core {
         void publish();
         void unPublish();
 
-        virtual void event(const utils::Timeval& currentTime) = 0;
+        virtual void onEvent(const utils::Timeval& currentTime) = 0;
 
-        const std::string& getName();
+        const std::string& getName() const;
 
-    protected:
-        Event _event;
+    private:
+        Event event;
     };
 
 } // namespace core

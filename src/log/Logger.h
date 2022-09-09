@@ -29,11 +29,9 @@
 namespace logger {
 
     class Logger {
+    public:
         Logger() = delete;
         ~Logger() = delete;
-
-    public:
-        enum Level { INFO, DEBUG, WARNING, ERROR, FATAL };
 
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);

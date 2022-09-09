@@ -53,7 +53,7 @@ namespace net {
 
         const SocketAddress& getBindAddress() const;
 
-    protected:
+    private:
         SocketAddress bindAddress{};
     };
 

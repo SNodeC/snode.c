@@ -91,10 +91,10 @@ namespace web::http {
                             core::DynamicLoader::dlCloseDelayed(handle);
                         }
                         break;
-                    } else {
-                        VLOG(0) << "SocketContextUpgradeFactory not created: " << upgradeContextName;
-                        core::DynamicLoader::dlCloseDelayed(handle);
                     }
+                    VLOG(0) << "SocketContextUpgradeFactory not created: " << upgradeContextName;
+                    core::DynamicLoader::dlCloseDelayed(handle);
+
                 } else {
                     VLOG(0) << "Optaining function \"" << socketContextUpgradeFactoryName
                             << "\" in plugin failed: " << core::DynamicLoader::dlError();

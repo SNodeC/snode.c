@@ -32,12 +32,11 @@ namespace core::socket::stream::legacy {
     class SocketConnector : protected core::socket::stream::SocketConnector<SocketClientT, core::socket::stream::legacy::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketConnector<SocketClientT, core::socket::stream::legacy::SocketConnection>;
-
+        using SocketClient = SocketClientT;
         using SocketAddress = typename Super::SocketAddress;
+        using Config = typename Super::Config;
 
     public:
-        using Config = typename Super::Config;
-        using SocketClient = SocketClientT;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,

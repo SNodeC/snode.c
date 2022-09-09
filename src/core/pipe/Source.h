@@ -43,7 +43,7 @@ namespace core::pipe {
         void eof();
         void error(int errnum);
 
-    protected:
+    private:
         Sink* sink;
     };
 

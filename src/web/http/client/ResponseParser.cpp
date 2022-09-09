@@ -124,7 +124,7 @@ namespace web::http::client {
                     httputils::str_trimm(cookieValue);
 
                     std::map<std::string, CookieOptions>::iterator cookieElement;
-                    bool inserted;
+                    bool inserted = false;
                     std::tie(cookieElement, inserted) = cookies.insert({cookieName, CookieOptions(cookieValue)});
 
                     while (!cookieOptions.empty()) {

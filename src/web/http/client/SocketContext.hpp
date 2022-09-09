@@ -37,7 +37,7 @@ namespace web::http::client {
         , response(this)
         , parser(
               this,
-              [](void) -> void {
+              []() -> void {
               },
               [&response = this->response](std::string& httpVersion, std::string& statusCode, std::string& reason) -> void {
                   response.httpVersion = httpVersion;

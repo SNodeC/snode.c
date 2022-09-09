@@ -36,8 +36,6 @@ namespace core::socket::stream {
 
     template <typename SocketServerT, template <typename ServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
     class SocketServer : public SocketServerT {
-        SocketServer() = delete;
-
     private:
         using Super = SocketServerT;
         using SocketAcceptor = SocketAcceptorT<Super>;
@@ -46,6 +44,8 @@ namespace core::socket::stream {
     public:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+
+        SocketServer() = delete;
 
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
@@ -94,13 +94,14 @@ namespace core::socket::stream {
             return socketContextFactory;
         }
 
-    protected:
+    private:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;
         std::function<void(SocketConnection*)> _onConnected;
         std::function<void(SocketConnection*)> _onDisconnect;
 
+    protected:
         std::map<std::string, std::any> options;
     };
 

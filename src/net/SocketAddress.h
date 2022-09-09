@@ -34,7 +34,7 @@ namespace net {
     public:
         using SockAddr = SockAddrT;
 
-        SocketAddress(socklen_t addrLen = sizeof(SockAddr));
+        SocketAddress(socklen_t sockAddrLen = sizeof(SockAddr));
 
         SocketAddress(const SocketAddress& socketAddress);
 
@@ -42,21 +42,18 @@ namespace net {
 
         SocketAddress& operator=(const SocketAddress& socketAddress);
 
-        operator sockaddr*();
-        operator const sockaddr*() const;
-
         sockaddr& getSockAddr();
         const sockaddr& getSockAddr() const;
 
-        socklen_t& getAddrLen();
-        const socklen_t& getAddrLen() const;
+        socklen_t& getSockAddrLen();
+        const socklen_t& getSockAddrLen() const;
 
         virtual std::string address() const = 0;
         virtual std::string toString() const = 0;
 
     protected:
         SockAddr sockAddr;
-        socklen_t addrLen;
+        socklen_t sockAddrLen;
     };
 
 } // namespace net

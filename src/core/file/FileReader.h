@@ -27,7 +27,7 @@
 
 namespace utils {
     class Timeval;
-}
+} // namespace utils
 
 #include <functional>
 #include <string>
@@ -36,7 +36,7 @@ namespace utils {
 
 namespace core::pipe {
     class Sink;
-}
+} // namespace core::pipe
 
 namespace core::file {
 
@@ -50,7 +50,7 @@ namespace core::file {
     public:
         static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
 
-        void event(const utils::Timeval& currentTime) override;
+        void onEvent(const utils::Timeval& currentTime) override;
 
         void suspend();
         void resume();

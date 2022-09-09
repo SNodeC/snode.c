@@ -24,7 +24,7 @@
 
 namespace core::socket {
     class SocketContextFactory;
-}
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,10 +42,6 @@ namespace core::socket::stream {
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
-        SocketConnector() = delete;
-        SocketConnector(const SocketConnector&) = delete;
-        SocketConnector& operator=(const SocketConnector&) = delete;
-
     private:
         using SocketClient = SocketClientT;
         using PrimarySocket = typename SocketClient::Socket;
@@ -57,6 +53,11 @@ namespace core::socket::stream {
     public:
         using Config = typename SocketClient::Config;
         using SocketAddress = typename SocketClient::SocketAddress;
+
+        SocketConnector() = delete;
+        SocketConnector(const SocketConnector&) = delete;
+
+        SocketConnector& operator=(const SocketConnector&) = delete;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
@@ -135,12 +136,12 @@ namespace core::socket::stream {
             destruct();
         }
 
-    protected:
-        std::function<void(const SocketAddress& socketAddress, int err)> onError;
-
         PrimarySocket* socket = nullptr;
 
         SocketConnectionFactory socketConnectionFactory;
+
+    protected:
+        std::function<void(const SocketAddress& socketAddress, int err)> onError;
 
         std::map<std::string, std::any> options;
     };

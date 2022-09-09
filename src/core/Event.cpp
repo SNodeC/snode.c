@@ -50,13 +50,13 @@ namespace core {
         }
     }
 
-    const std::string& Event::getName() {
+    const std::string& Event::getName() const {
         return name;
     }
 
     void Event::dispatch(const utils::Timeval& currentTime) {
         published = false;
-        eventReceiver->event(currentTime);
+        eventReceiver->onEvent(currentTime);
     }
 
 } // namespace core

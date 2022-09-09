@@ -22,9 +22,7 @@
 
 namespace database::mariadb {
     class MariaDBConnection;
-}
-
-typedef struct st_mysql MYSQL;
+} // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,6 +33,8 @@ typedef struct st_mysql MYSQL;
 #include <string>
 
 // IWYU pragma: no_include "mysql.h"
+
+using st_mysql = MYSQL;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,16 +60,18 @@ namespace database::mariadb {
         virtual void commandError(const std::string& errorString, unsigned int errorNumber) = 0;
         virtual std::string commandInfo();
 
-    protected:
+    private:
         std::string name;
 
         MariaDBConnection* mariaDBConnection = nullptr;
+
+    protected:
         MYSQL* mysql = nullptr;
 
-        utils::Timeval startTime = 0;
-
-    public:
         const std::function<void(const std::string&, unsigned int)> onError;
+
+    private:
+        utils::Timeval startTime = 0;
     };
 
 } // namespace database::mariadb

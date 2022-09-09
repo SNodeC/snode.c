@@ -26,6 +26,4 @@
 
 namespace net::in6::stream {}
 
-namespace net::stream {
-    template class ClientSocket<net::in6::stream::Socket>;
-}
+template class net::stream::ClientSocket<net::in6::stream::Socket>;

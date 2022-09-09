@@ -139,10 +139,10 @@ namespace core {
     }
 
     utils::Timeval DescriptorEventReceiver::getTimeout(const utils::Timeval& currentTime) const {
-        return (maxInactivity >= 0) ? maxInactivity - (currentTime - lastTriggered) : TIMEOUT::MAX;
+        return maxInactivity >= 0 ? currentTime > lastTriggered ? maxInactivity - (currentTime - lastTriggered) : 0 : TIMEOUT::MAX;
     }
 
-    void DescriptorEventReceiver::event(const utils::Timeval& currentTime) {
+    void DescriptorEventReceiver::onEvent(const utils::Timeval& currentTime) {
         eventCounter++;
         triggered(currentTime);
 

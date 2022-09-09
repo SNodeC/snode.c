@@ -38,7 +38,7 @@ namespace net::l2 {
         using Super::Super;
         using Super::operator=;
 
-        explicit Socket(int type, int protocol);
+        Socket(int type, int protocol);
     };
 
 } // namespace net::l2
