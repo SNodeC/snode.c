@@ -36,7 +36,7 @@ namespace core {
         event.unPublish();
     }
 
-    const std::string& EventReceiver::getName() {
+    const std::string& EventReceiver::getName() const {
         return event.getName();
     }
 

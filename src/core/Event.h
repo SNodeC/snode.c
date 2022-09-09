@@ -44,7 +44,7 @@ namespace core {
         void publish();
         void unPublish();
 
-        const std::string& getName();
+        const std::string& getName() const;
 
     private:
         void dispatch(const utils::Timeval& currentTime);

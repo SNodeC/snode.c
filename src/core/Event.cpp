@@ -50,7 +50,7 @@ namespace core {
         }
     }
 
-    const std::string& Event::getName() {
+    const std::string& Event::getName() const {
         return name;
     }
 

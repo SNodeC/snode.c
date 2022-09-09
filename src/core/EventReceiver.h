@@ -43,7 +43,7 @@ namespace core {
 
         virtual void onEvent(const utils::Timeval& currentTime) = 0;
 
-        const std::string& getName();
+        const std::string& getName() const;
 
     private:
         Event event;
