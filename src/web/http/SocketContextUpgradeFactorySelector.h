@@ -62,11 +62,10 @@ namespace web::http {
         void unload(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
-        SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
+        SocketContextUpgradeFactory* select(const std::string& upgradeContextName, typename SocketContextUpgrade::Role role);
 
         void addSocketContextUpgradeSearchPath(const std::string& searchPath);
 
-        virtual SocketContextUpgradeFactory* load(const std::string& upgradeContextName) = 0;
         SocketContextUpgradeFactory* load(const std::string& upgradeContextName, typename SocketContextUpgrade::Role role);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);

@@ -110,7 +110,8 @@ namespace web::http {
 
     template <typename SocketContextUpgradeFactory>
     SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(const std::string& upgradeContextName) {
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(const std::string& upgradeContextName,
+                                                                             typename SocketContextUpgrade::Role role) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         if (socketContextUpgradePlugins.contains(upgradeContextName)) {
@@ -119,7 +120,7 @@ namespace web::http {
             socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
             add(socketContextUpgradeFactory);
         } else if (!onlyLinked) {
-            socketContextUpgradeFactory = load(upgradeContextName);
+            socketContextUpgradeFactory = load(upgradeContextName, role);
         }
 
         return socketContextUpgradeFactory;
