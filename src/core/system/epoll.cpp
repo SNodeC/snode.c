@@ -27,14 +27,20 @@
 namespace core::system {
 
     int epoll_create1(int flags) {
+        errno = 0;
+
         return ::epoll_create1(flags);
     }
 
     int epoll_wait(int epfd, epoll_event* events, int maxevents, int timeout) {
+        errno = 0;
+
         return ::epoll_wait(epfd, events, maxevents, timeout);
     }
 
     int epoll_ctl(int epfd, int op, int fd, epoll_event* event) {
+        errno = 0;
+
         return ::epoll_ctl(epfd, op, fd, event);
     }
 
