@@ -27,6 +27,7 @@
 namespace core::system {
 
     sighandler_t signal(int signum, sighandler_t handler) {
+        errno = 0;
         return ::signal(signum, handler);
     }
 

@@ -47,11 +47,6 @@ namespace web::http::server {
         return &socketContextUpgradeFactorySelector;
     }
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return load(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::SERVER);
-    }
-
     /* do not remove */
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
@@ -67,7 +62,7 @@ namespace web::http::server {
 
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName);
+            socketContextUpgradeFactory = select(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::SERVER);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res);
