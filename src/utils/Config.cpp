@@ -26,6 +26,7 @@
 #include "log/Logger.h"
 
 #include <cerrno>
+#include <clocale>
 #include <cstdlib>
 #include <fcntl.h>
 #include <filesystem>
@@ -70,6 +71,8 @@ namespace utils {
     int Config::init(int argc, char* argv[]) {
         Config::argc = argc;
         Config::argv = argv;
+
+        std::setlocale(LC_ALL, "en_US.UTF-8");
 
         name = std::filesystem::path(argv[0]).filename();
 
