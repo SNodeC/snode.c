@@ -34,8 +34,6 @@ install(
     TARGETS core-socket-stream
     EXPORT snodec_core-socket-stream_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream
 )
 
 install(

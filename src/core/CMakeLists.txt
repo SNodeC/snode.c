@@ -117,8 +117,6 @@ install(
     TARGETS core
     EXPORT snodec_core_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core
 )
 
 install(

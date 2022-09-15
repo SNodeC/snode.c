@@ -37,8 +37,6 @@ install(
     TARGETS net-l2-stream
     EXPORT snodec_net-l2-stream_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(

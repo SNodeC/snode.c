@@ -55,8 +55,6 @@ else(NOT OpenSSL_FOUND)
         TARGETS core-socket-stream-tls
         EXPORT snodec_core-socket-stream-tls_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
     )
 
     install(

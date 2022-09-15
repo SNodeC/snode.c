@@ -68,8 +68,6 @@ install(
     TARGETS websocket-client
     EXPORT snodec_websocket-client_Targets
     LIBRARY DESTINATION ${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(

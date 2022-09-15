@@ -29,8 +29,6 @@ if(BLUEZ_FOUND)
         TARGETS net-l2
         EXPORT snodec_net-l2_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
     )
 
     install(
