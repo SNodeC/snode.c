@@ -132,13 +132,15 @@ namespace utils {
                     pollfd.fd = pidfd;
                     pollfd.events = POLLIN;
 
-                    int ready = poll(&pollfd, 1, -1);
+                    int ready = poll(&pollfd, 1, 3);
                     if (ready == -1) {
                         PLOG(ERROR) << "Poll";
+                        close(pidfd);
                         exit(EXIT_FAILURE);
                     } else if (ready == 0) {
-                        PLOG(ERROR) << "Daemon not responding";
-                        exit(EXIT_FAILURE);
+                        PLOG(WARNING) << "Daemon not responding - killing";
+                        ::kill(pid, SIGKILL);
+                        erasePidFile(pidFileName);
                     } else {
                         VLOG(0) << "Daemon terminated";
                     }
