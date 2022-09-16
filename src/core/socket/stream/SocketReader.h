@@ -64,10 +64,10 @@ namespace core::socket::stream {
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
         void readEvent() final {
-            std::size_t availble = SocketReader::doRead();
+            std::size_t available = doRead();
             std::size_t consumed = onReceiveFromPeer();
 
-            if (availble != 0 && consumed == 0) {
+            if (available != 0 && consumed == 0) {
                 Socket::close();
             }
         }
