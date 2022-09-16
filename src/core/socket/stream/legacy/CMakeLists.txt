@@ -28,8 +28,6 @@ install(
     TARGETS core-socket-stream-legacy
     EXPORT snodec_core-socket-stream-legacy_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(

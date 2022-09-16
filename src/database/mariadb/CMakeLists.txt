@@ -67,8 +67,6 @@ if(MARIADB_FOUND)
         TARGETS db-mariadb
         EXPORT snodec_db-mariadb_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
     )
     install(
         EXPORT snodec_db-mariadb_Targets

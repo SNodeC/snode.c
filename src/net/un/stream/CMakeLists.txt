@@ -37,8 +37,6 @@ install(
     TARGETS net-un-stream
     EXPORT snodec_net-un-stream_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(

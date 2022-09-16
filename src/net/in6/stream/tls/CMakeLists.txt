@@ -33,8 +33,6 @@ install(
     TARGETS net-in6-stream-tls
     EXPORT snodec_net-in6-stream-tls_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(
