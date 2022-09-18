@@ -59,16 +59,15 @@ namespace core::socket::stream {
         ~SocketReader() override = default;
 
     private:
-        virtual std::size_t onReceiveFromPeer() = 0;
+        virtual void onReceiveFromPeer(std::size_t available) = 0;
 
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
         void readEvent() final {
-            std::size_t availble = SocketReader::doRead();
-            std::size_t consumed = onReceiveFromPeer();
+            std::size_t available = doRead();
 
-            if (availble != 0 && consumed == 0) {
-                Socket::close();
+            if (available > 0) {
+                onReceiveFromPeer(available);
             }
         }
 

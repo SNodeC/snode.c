@@ -1,0 +1,127 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "A.SNodeCClass",
+    "category": "A.SnodeCC++",
+    "trDescription": "Creates a C++ header and a source file for a new class that you can add to the SNodeC-C++ project.",
+    "trDisplayName": "C++ SNodeC-Class",
+    "trDisplayCategory": "SNodeC - C/C++",
+    "iconText": "h/cpp",
+    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
+
+    "options":
+    [
+        { "key": "TargetPath", "value": "%{Path}" },
+        { "key": "HdrPath", "value": "%{Path}/%{HdrFileName}" },
+        { "key": "SrcPath", "value": "%{Path}/%{SrcFileName}" },
+        { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
+        { "key": "NameSp", "value": "%{NameSpaceEdit}" },
+        { "key": "Base", "value": "%{BaseEdit}" },
+        { "key": "isQObject", "value": "%{JS: [ 'QObject', 'QWidget', 'QMainWindow', 'QDeclarativeItem', 'QQuickItem'].indexOf(value('Base')) >= 0 }" },
+        { "key": "GUARD", "value": "%{JS: value('NameSpaceEdit').toUpperCase().replace(/::/g, '_') + '_' + Cpp.classToHeaderGuard(value('Class'), Util.suffix(value('HdrFileName')))}" },
+        { "key": "Dependencies", "value": "%{JS: '' + (value('IncludeQObject') || value('IncludeQSharedData') || value('BaseCB') === 'QObject' ? ':Qt.core' : '') + (value('IncludeQWidget') || value('IncludeQMainWindow') || value('BaseCB') === 'QWidget' || value('BaseCB') === 'QMainWindow' ? ':Qt.widgets' : '') + (value('IncludeQQuickItem') || value('BaseCB') === 'QQuickItem' ? ':Qt.quick' : '')}"}
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Define Class",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Class",
+                    "trDisplayName": "Class name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "trPlaceholder": "Fully qualified name, including namespaces",
+                        "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
+                        "completion": "namespaces"
+                    }
+                },
+                {
+                    "name": "NameSpaceEdit",
+                    "type": "LineEdit",
+                    "trDisplayName": "Name Space:",
+                    "mandatory": false,
+                    "data":
+                    {
+                        "trText": ""
+                    }
+                },
+                {
+                    "name": "BaseEdit",
+                    "type": "LineEdit",
+                    "trDisplayName": "Base Class:",
+                    "mandatory": false,
+                    "data":
+                    {
+                        "trText": "",
+                        "completion": "classes"
+                    }
+                },
+                {
+                    "name": "HdrFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Header file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-c++hdr'))}" }
+                },
+                {
+                    "name": "SrcFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Source file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-c++src'))}" }
+                },
+                {
+                    "name": "Path",
+                    "type": "PathChooser",
+                    "trDisplayName": "Path:",
+                    "mandatory": true,
+                    "data":
+                    {
+                        "kind": "directory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "file.h",
+                    "target": "%{HdrPath}",
+                    "openInEditor": true,
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{HdrFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
+                },
+                {
+                    "source": "file.cpp",
+                    "target": "%{SrcPath}",
+                    "openInEditor": true,
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{SrcFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
+                }
+            ]
+        }
+    ]
+}

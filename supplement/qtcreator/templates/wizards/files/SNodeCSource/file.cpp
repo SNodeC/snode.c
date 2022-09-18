@@ -16,35 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_DESCRIPTOR_H
-#define CORE_DESCRIPTOR_H
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace core {
+@if '%{NameSp}'
+namespace %{NameSp} {
+@endif
 
-    class Descriptor {
-    public:
-        Descriptor() = default;
-        ~Descriptor();
 
-        Descriptor(const Descriptor& d) = delete;
-        Descriptor& operator=(const Descriptor& descriptor) = delete;
-
-        int open(int fd);
-
-        int getFd() const;
-
-        void dontClose();
-
-    private:
-        void close();
-        int fd = -1;
-        bool autoClose = true;
-    };
-
-} // namespace core
-
-#endif // CORE_DESCRIPTOR_H
+%{JS: Cpp.closeNamespaces('%{Class}')}
+@if '%{NameSp}'
+} // %{NameSp}
+@endif

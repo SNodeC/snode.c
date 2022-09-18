@@ -16,35 +16,44 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_DESCRIPTOR_H
-#define CORE_DESCRIPTOR_H
+@if '%{Cpp:PragmaOnce}'
+#pragma once
+@else
+#ifndef %{GUARD}
+#define %{GUARD}
+@endif
 
+@if '%{Base}'
+%{JS: Cpp.includeStatement('%{Base}', Util.preferredSuffix('text/x-c++hdr'), ['QObject', 'QWidget', 'QMainWindow', 'QQuickItem', 'QSharedData'], '%{TargetPath}')}\
+
+@endif
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace core {
+@if '%{NameSp}'
+namespace %{NameSp} {
+@endif
 
-    class Descriptor {
-    public:
-        Descriptor() = default;
-        ~Descriptor();
+@if '%{Base}'
+class %{CN} : public %{Base}
+@else
+class %{CN}
+@endif
+{
+public:
+    %{CN}();
+    %{CN}(const %{CN} &) = default;
 
-        Descriptor(const Descriptor& d) = delete;
-        Descriptor& operator=(const Descriptor& descriptor) = delete;
+    %{CN} &operator=(const %{CN} &) = default;
 
-        int open(int fd);
+    ~%{CN}();
+};
+%{JS: Cpp.closeNamespaces('%{Class}')}
+@if '%{NameSp}'
+} // %{NameSp}
+@endif
 
-        int getFd() const;
-
-        void dontClose();
-
-    private:
-        void close();
-        int fd = -1;
-        bool autoClose = true;
-    };
-
-} // namespace core
-
-#endif // CORE_DESCRIPTOR_H
+@if ! '%{Cpp:PragmaOnce}'
+#endif // %{GUARD}
+@endif
