@@ -34,13 +34,13 @@ namespace core {
         Descriptor& operator=(const Descriptor& descriptor) = delete;
 
         int open(int fd);
-        void close();
 
         int getFd() const;
 
         void dontClose();
 
     private:
+        void close();
         int fd = -1;
         bool autoClose = true;
     };

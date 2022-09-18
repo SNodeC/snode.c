@@ -167,8 +167,8 @@ namespace core::socket::stream {
         }
 
     private:
-        std::size_t onReceiveFromPeer() final {
-            std::size_t ret = socketContext->onReceiveFromPeer();
+        void onReceiveFromPeer(std::size_t available) final {
+            std::size_t consumed = socketContext->onReceiveFromPeer();
 
             if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
                 onDisconnected();
@@ -178,7 +178,9 @@ namespace core::socket::stream {
                 onConnected();
             }
 
-            return ret;
+            if (available != 0 && consumed == 0) {
+                close();
+            }
         }
 
         void unobservedEvent() final {
