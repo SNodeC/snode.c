@@ -16,7 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#ifndef MQTT_CONTROLPACKET_H
+#define MQTT_CONTROLPACKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,7 +25,11 @@
 
 namespace mqtt {
 
-    Receiver::Receiver() {
-    }
+    class ControlPacket {
+    public:
+        ControlPacket();
+    };
 
 } // namespace mqtt
+
+#endif // MQTT_CONTROLPACKET_H

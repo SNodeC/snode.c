@@ -16,15 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#include "Binary.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace mqtt {
+namespace mqtt::types {
 
-    Receiver::Receiver() {
+    Binary::Binary() {
     }
 
-} // namespace mqtt
+    Binary::~Binary() {
+    }
+
+} // namespace mqtt::types

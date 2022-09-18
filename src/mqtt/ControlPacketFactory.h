@@ -16,15 +16,41 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#ifndef MQTT_CONTROLPACKETFACTORY_H
+#define MQTT_CONTROLPACKETFACTORY_H
+
+#include "mqtt/ControlPacket.h" // IWYU pragma: export
+
+namespace mqtt {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt {
 
-    Receiver::Receiver() {
-    }
+    class ControlPacketFactory {
+    public:
+        explicit ControlPacketFactory(mqtt::SocketContext* socketContext);
+
+        std::size_t construct();
+        bool complete();
+        ControlPacket* get();
+
+    protected:
+        //    Int1_t type;
+        //    IntV_t remainingLength;
+
+    private:
+        [[maybe_unused]] mqtt::SocketContext* socketContext;
+
+        bool completed = false;
+    };
 
 } // namespace mqtt
+
+#endif // MQTT_CONTROLPACKETFACTORY_H

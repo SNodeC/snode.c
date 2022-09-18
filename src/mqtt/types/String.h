@@ -16,15 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#ifndef MQTT_TYPES_STRING_H
+#define MQTT_TYPES_STRING_H
+
+#include "mqtt/types/TypesBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace mqtt {
+namespace mqtt::types {
 
-    Receiver::Receiver() {
-    }
+    class String : public mqtt::types::TypesBase {
+    public:
+        String();
+        String(const String&) = default;
 
-} // namespace mqtt
+        String& operator=(const String&) = default;
+
+        ~String();
+    };
+
+} // namespace mqtt::types
+
+#endif // MQTT_TYPES_STRING_H

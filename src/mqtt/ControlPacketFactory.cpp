@@ -16,15 +16,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#include "mqtt/ControlPacketFactory.h"
+
+#include "mqtt/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
+
+#include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt {
 
-    Receiver::Receiver() {
+    ControlPacketFactory::ControlPacketFactory(mqtt::SocketContext* socketContext)
+        : socketContext(socketContext) {
+    }
+
+    std::size_t ControlPacketFactory::construct() {
+        std::size_t consumed = 0;
+
+        char buf[12];
+
+        consumed = socketContext->readFromPeer(buf, 12);
+
+        VLOG(0) << "Received: " << consumed << " - " << std::string(buf, consumed);
+
+        return consumed;
+    }
+
+    bool ControlPacketFactory::complete() {
+        return completed;
+    }
+
+    ControlPacket* ControlPacketFactory::get() {
+        return nullptr;
     }
 
 } // namespace mqtt

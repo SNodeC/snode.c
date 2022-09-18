@@ -16,15 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#ifndef APPS_MQTT_SERVER_SOCKETCONTEXTFACTORY_H
+#define APPS_MQTT_SERVER_SOCKETCONTEXTFACTORY_H
+
+#include "core/socket/SocketContext.h"
+#include "core/socket/SocketContextFactory.h"
+
+namespace core::socket {
+    class SocketConnection;
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace mqtt {
+namespace apps::mqtt::server {
 
-    Receiver::Receiver() {
-    }
+    class SocketContextFactory : public core::socket::SocketContextFactory {
+    private:
+        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
+    };
 
-} // namespace mqtt
+} // namespace apps::mqtt::server
+
+#endif // APPS_MQTT_SERVER_SOCKETCONTEXTFACTORY_H

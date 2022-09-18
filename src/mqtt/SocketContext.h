@@ -16,7 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#ifndef MQTT_SOCKETCONTEXT_H
+#define MQTT_SOCKETCONTEXT_H
+
+#include "core/socket/SocketContext.h" // IWYU pragma: export
+#include "mqtt/ControlPacketFactory.h"
+
+namespace core::socket {
+    class SocketConnection;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,7 +32,18 @@
 
 namespace mqtt {
 
-    Receiver::Receiver() {
-    }
+    class SocketContext : public core::socket::SocketContext {
+    public:
+        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+
+        virtual void onControlPackageReceived(mqtt::ControlPacket* controlPacket) = 0;
+
+    private:
+        virtual std::size_t onReceiveFromPeer() final;
+
+        ControlPacketFactory controlPacketFactory;
+    };
 
 } // namespace mqtt
+
+#endif // MQTT_SOCKETCONTEXT_H

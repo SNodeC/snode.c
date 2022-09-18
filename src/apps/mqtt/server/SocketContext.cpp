@@ -16,15 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#include "apps/mqtt/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace mqtt {
+namespace apps::mqtt::server {
 
-    Receiver::Receiver() {
+    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
+        : ::mqtt::SocketContext(socketConnection) {
     }
 
-} // namespace mqtt
+    void SocketContext::onControlPackageReceived([[maybe_unused]] ::mqtt::ControlPacket* controlPacket) {
+        VLOG(0) << "ControlPacket received";
+    }
+
+} // namespace apps::mqtt::server

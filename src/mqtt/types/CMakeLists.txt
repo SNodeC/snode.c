@@ -1,0 +1,34 @@
+cmake_minimum_required(VERSION 3.0)
+
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+set(MQTT_TYPES_CPP
+    Binary.cpp
+    Int_1.cpp
+    Int_2.cpp
+    Int_4.cpp
+    Int_V.cpp
+    String.cpp
+    StringPair.cpp
+    TypesBase.cpp
+)
+set(MQTT_TYPES_H
+    Binary.cpp
+    Int_1.h
+    Int_2.h
+    Int_4.h
+    Int_V.h
+    String.h
+    StringPair.h
+    TypesBase.h
+)
+
+add_library(mqtt-types STATIC ${MQTT_TYPES_CPP} ${MQTT_TYPES_H})
+add_library(snodec::mqtt-types ALIAS mqtt-types)
+
+target_include_directories(
+    mqtt-types
+    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+           "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
+)

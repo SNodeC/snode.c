@@ -16,15 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/Receiver.h"
+#include "apps/mqtt/server/SocketContextFactory.h"
+
+#include "apps/mqtt/server/SocketContext.h"
+#include "core/socket/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace mqtt {
+namespace apps::mqtt::server {
 
-    Receiver::Receiver() {
+    core::socket::SocketContext* SocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
+        return new apps::mqtt::server::SocketContext(socketConnection);
     }
 
-} // namespace mqtt
+} // namespace apps::mqtt::server
