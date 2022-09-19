@@ -27,20 +27,14 @@
 namespace core {
 
     Descriptor::~Descriptor() {
-        if (autoClose) {
-            close();
+        if (autoClose && fd >= 0) {
+            core::system::close(fd);
+            fd = -1;
         }
     }
 
     int Descriptor::open(int fd) {
         return this->fd = fd;
-    }
-
-    void Descriptor::close() {
-        if (fd >= 0) {
-            core::system::close(fd);
-            fd = -1;
-        }
     }
 
     int Descriptor::getFd() const {
