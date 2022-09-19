@@ -40,7 +40,6 @@ namespace core {
         void dontClose();
 
     private:
-        void close();
         int fd = -1;
         bool autoClose = true;
     };
