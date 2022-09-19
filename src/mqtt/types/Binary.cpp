@@ -18,16 +18,64 @@
 
 #include "Binary.h"
 
+#include "mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
+
+#include <iomanip>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::types {
 
-    Binary::Binary() {
+    Binary::Binary(mqtt::SocketContext* socketContext)
+        : mqtt::types::TypesBase(socketContext)
+        , length(socketContext) {
+        state = 1;
     }
 
     Binary::~Binary() {
+    }
+
+    std::size_t Binary::construct() {
+        std::size_t consumed = 0;
+
+        switch (state) {
+            case 1:
+                consumed = length.construct();
+                if (length.isCompleted()) {
+                    VLOG(0) << "Int_V completed: " << length.getValue();
+                    state++;
+                    needed = stillNeeded = length.getValue();
+                    data.resize(stillNeeded, '\0');
+                } else if (length.isError()) {
+                    consumed = 0;
+                }
+                break;
+            case 2:
+                VLOG(0) << "+++++++++++++++++++++ " << stillNeeded;
+                consumed = socketContext->readFromPeer(data.data() + needed - stillNeeded, stillNeeded);
+                VLOG(0) << "+++++++++++++++++++++";
+                stillNeeded -= consumed;
+                if (stillNeeded == 0) {
+                    VLOG(0) << "Binary completed: " << data.data();
+                    int b = 1;
+                    for (char val : data) {
+                        VLOG(0) << std::setfill(' ') << std::setw(3) << b++ << ". " << std::setfill(' ') << std::setw(3) << val << " - "
+                                << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(val);
+                    }
+                    completed = true;
+                }
+                break;
+        }
+
+        return consumed;
+    }
+
+    std::vector<char> Binary::getValue() {
+        return data;
     }
 
 } // namespace mqtt::types

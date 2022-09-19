@@ -29,12 +29,14 @@ namespace mqtt::types {
 
     class StringPair : public mqtt::types::TypesBase {
     public:
-        StringPair();
+        explicit StringPair(mqtt::SocketContext* socketContext);
         StringPair(const StringPair&) = default;
 
         StringPair& operator=(const StringPair&) = default;
 
-        ~StringPair();
+        ~StringPair() override;
+
+        std::size_t construct() override;
     };
 
 } // namespace mqtt::types

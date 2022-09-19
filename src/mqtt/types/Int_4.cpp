@@ -24,10 +24,15 @@
 
 namespace mqtt::types {
 
-    Int_4::Int_4() {
+    Int_4::Int_4(SocketContext* socketContext)
+        : mqtt::types::TypesBase(socketContext) {
     }
 
     Int_4::~Int_4() {
+    }
+
+    std::size_t Int_4::construct() {
+        return 0;
     }
 
 } // namespace mqtt::types

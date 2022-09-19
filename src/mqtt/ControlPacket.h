@@ -19,7 +19,14 @@
 #ifndef MQTT_CONTROLPACKET_H
 #define MQTT_CONTROLPACKET_H
 
+namespace mqtt {
+    class SocketContext;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstdint>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -27,7 +34,17 @@ namespace mqtt {
 
     class ControlPacket {
     public:
-        ControlPacket();
+        ControlPacket(mqtt::SocketContext* socketContext, uint8_t type, uint8_t reserved, std::vector<char>& data);
+
+        uint8_t type();
+        uint8_t reserved();
+
+    protected:
+        mqtt::SocketContext* socketContext;
+
+        uint8_t _type;
+        uint8_t _reserved;
+        std::vector<char> data;
     };
 
 } // namespace mqtt

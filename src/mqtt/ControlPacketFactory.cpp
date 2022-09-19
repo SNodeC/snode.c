@@ -19,11 +19,13 @@
 #include "mqtt/ControlPacketFactory.h"
 
 #include "mqtt/SocketContext.h"
+#include "mqtt/types/Int_V.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 
+#include <iomanip>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -31,23 +33,40 @@
 namespace mqtt {
 
     ControlPacketFactory::ControlPacketFactory(mqtt::SocketContext* socketContext)
-        : socketContext(socketContext) {
+        : socketContext(socketContext)
+        , type(socketContext)
+        , data(socketContext) {
+        state = 1;
     }
 
     std::size_t ControlPacketFactory::construct() {
         std::size_t consumed = 0;
 
-        char buf[12];
-
-        consumed = socketContext->readFromPeer(buf, 12);
-
-        VLOG(0) << "Received: " << consumed << " - " << std::string(buf, consumed);
+        switch (state) {
+            case 1:
+                consumed = type.construct();
+                if (type.isCompleted()) {
+                    state++;
+                }
+                break;
+            case 2:
+                consumed = data.construct();
+                if (data.isCompleted()) {
+                    state++;
+                    VLOG(0) << "Completed -------------------";
+                }
+                break;
+        }
 
         return consumed;
     }
 
     bool ControlPacketFactory::complete() {
         return completed;
+    }
+
+    bool ControlPacketFactory::isError() {
+        return error;
     }
 
     ControlPacket* ControlPacketFactory::get() {

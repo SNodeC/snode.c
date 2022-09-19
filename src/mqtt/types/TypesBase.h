@@ -19,7 +19,13 @@
 #ifndef MQTT_TYPES_TYPESBASE_H
 #define MQTT_TYPES_TYPESBASE_H
 
+namespace mqtt {
+    class SocketContext;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -27,12 +33,22 @@ namespace mqtt::types {
 
     class TypesBase {
     public:
-        TypesBase();
+        TypesBase(mqtt::SocketContext* socketContext);
         TypesBase(const TypesBase&) = default;
 
         TypesBase& operator=(const TypesBase&) = default;
 
-        ~TypesBase();
+        virtual ~TypesBase();
+
+        virtual std::size_t construct() = 0;
+
+        bool isCompleted();
+        bool isError();
+
+    protected:
+        mqtt::SocketContext* socketContext;
+        bool completed = false;
+        bool error = false;
     };
 
 } // namespace mqtt::types

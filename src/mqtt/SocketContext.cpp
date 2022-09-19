@@ -20,6 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt {
@@ -30,9 +32,14 @@ namespace mqtt {
     }
 
     std::size_t SocketContext::onReceiveFromPeer() {
+        VLOG(0) << "SocketContext: onReceiveFromPeer";
+
         std::size_t consumed = controlPacketFactory.construct();
 
-        if (controlPacketFactory.complete()) {
+        if (controlPacketFactory.isError()) {
+            VLOG(0) << "SocketContext: Error during ControlPacket construction";
+            close();
+        } else if (controlPacketFactory.complete()) {
             onControlPackageReceived(controlPacketFactory.get());
         }
 

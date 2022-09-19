@@ -23,18 +23,30 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+#include <cstdint>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::types {
 
     class Int_1 : public mqtt::types::TypesBase {
     public:
-        Int_1();
+        explicit Int_1(mqtt::SocketContext* socketContext);
         Int_1(const Int_1&) = default;
 
         Int_1& operator=(const Int_1&) = default;
 
-        ~Int_1();
+        ~Int_1() override;
+
+        std::size_t construct() override;
+
+        uint8_t getValue();
+
+    private:
+        std::size_t needed = 1;
+        std::size_t stillNeeded = 1;
+        char buffer[1];
     };
 
 } // namespace mqtt::types

@@ -19,9 +19,13 @@
 #ifndef MQTT_TYPES_BINARY_H
 #define MQTT_TYPES_BINARY_H
 
+#include "mqtt/types/Int_V.h"
 #include "mqtt/types/TypesBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstdint>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -29,12 +33,24 @@ namespace mqtt::types {
 
     class Binary : public mqtt::types::TypesBase {
     public:
-        Binary();
+        explicit Binary(mqtt::SocketContext* socketContext);
         Binary(const Binary&) = default;
 
         Binary& operator=(const Binary&) = default;
 
-        ~Binary();
+        ~Binary() override;
+
+        std::size_t construct() override;
+
+        std::vector<char> getValue();
+
+    private:
+        uint8_t state = 0;
+        std::size_t needed = 0;
+        std::size_t stillNeeded = 0;
+
+        mqtt::types::Int_V length;
+        std::vector<char> data;
     };
 
 } // namespace mqtt::types

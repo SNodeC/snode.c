@@ -26,6 +26,8 @@ set(MQTT_TYPES_H
 add_library(mqtt-types STATIC ${MQTT_TYPES_CPP} ${MQTT_TYPES_H})
 add_library(snodec::mqtt-types ALIAS mqtt-types)
 
+set_property(TARGET mqtt-types PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(
     mqtt-types
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"

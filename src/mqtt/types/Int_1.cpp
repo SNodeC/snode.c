@@ -18,16 +18,41 @@
 
 #include "Int_1.h"
 
+#include "mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
+
+#include <iomanip>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::types {
 
-    Int_1::Int_1() {
+    Int_1::Int_1(SocketContext* socketContext)
+        : mqtt::types::TypesBase(socketContext) {
     }
 
     Int_1::~Int_1() {
+    }
+
+    std::size_t Int_1::construct() {
+        VLOG(0) << "Read Int_1";
+        std::size_t consumed = socketContext->readFromPeer(buffer, stillNeeded);
+
+        stillNeeded -= consumed;
+
+        if (stillNeeded == 0) {
+            completed = true;
+            VLOG(0) << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<uint64_t>(*buffer) << std::dec;
+        }
+
+        return consumed;
+    }
+
+    uint8_t Int_1::getValue() {
+        return static_cast<uint8_t>(*buffer);
     }
 
 } // namespace mqtt::types

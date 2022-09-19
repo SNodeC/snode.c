@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 add_subdirectory(types)
+add_subdirectory(packets)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -34,7 +35,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(mqtt PUBLIC snodec::core-socket PRIVATE snodec::mqtt-types)
+target_link_libraries(mqtt PUBLIC snodec::core-socket PRIVATE snodec::mqtt-types snodec::mqtt-packets)
 
 install(
     TARGETS mqtt

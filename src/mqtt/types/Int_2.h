@@ -29,12 +29,14 @@ namespace mqtt::types {
 
     class Int_2 : public mqtt::types::TypesBase {
     public:
-        Int_2();
+        explicit Int_2(mqtt::SocketContext* socketContext);
         Int_2(const Int_2&) = default;
 
         Int_2& operator=(const Int_2&) = default;
 
-        ~Int_2();
+        ~Int_2() override;
+
+        std::size_t construct() override;
     };
 
 } // namespace mqtt::types

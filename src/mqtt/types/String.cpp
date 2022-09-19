@@ -24,10 +24,15 @@
 
 namespace mqtt::types {
 
-    String::String() {
+    String::String(SocketContext* socketContext)
+        : mqtt::types::TypesBase(socketContext) {
     }
 
     String::~String() {
+    }
+
+    std::size_t String::construct() {
+        return 0;
     }
 
 } // namespace mqtt::types

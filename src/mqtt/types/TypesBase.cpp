@@ -18,16 +18,27 @@
 
 #include "mqtt/types/TypesBase.h"
 
+#include "mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::types {
 
-    TypesBase::TypesBase() {
+    TypesBase::TypesBase(SocketContext* socketContext)
+        : socketContext(socketContext) {
     }
 
     TypesBase::~TypesBase() {
+    }
+
+    bool TypesBase::isCompleted() {
+        return completed;
+    }
+
+    bool TypesBase::isError() {
+        return error;
     }
 
 } // namespace mqtt::types

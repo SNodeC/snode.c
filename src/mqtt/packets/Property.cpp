@@ -16,29 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_TYPES_STRING_H
-#define MQTT_TYPES_STRING_H
-
-#include "mqtt/types/TypesBase.h"
+#include "mqtt/packets/Property.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace mqtt::types {
+namespace mqtt::packets {
 
-    class String : public mqtt::types::TypesBase {
-    public:
-        explicit String(mqtt::SocketContext* socketContext);
-        String(const String&) = default;
+    Property::Property() {
+    }
 
-        String& operator=(const String&) = default;
+    Property::~Property() {
+    }
 
-        ~String() override;
-
-        std::size_t construct() override;
-    };
-
-} // namespace mqtt::types
-
-#endif // MQTT_TYPES_STRING_H
+} // namespace mqtt::packets

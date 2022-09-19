@@ -18,16 +18,56 @@
 
 #include "Int_V.h"
 
+#include "mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
+
+#include <iomanip>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::types {
 
-    Int_V::Int_V() {
+    Int_V::Int_V(SocketContext* socketContext)
+        : mqtt::types::TypesBase(socketContext) {
     }
 
     Int_V::~Int_V() {
+    }
+
+    std::size_t Int_V::construct() {
+        std::size_t consumed = 0;
+        std::size_t ret = 0;
+
+        VLOG(0) << "Read Int_V";
+        do {
+            char byte;
+            ret = socketContext->readFromPeer(&byte, 1);
+
+            VLOG(0) << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<uint64_t>(byte) << std::dec;
+
+            if (ret > 0) {
+                value += static_cast<uint64_t>((byte & 0x7F) * multiplier);
+                consumed += ret;
+                if (multiplier > 0x80 * 0x80 * 0x80) {
+                    error = true;
+                } else {
+                    multiplier *= 0x80;
+                    if ((byte & 0x80) == 0) {
+                        VLOG(0) << "Completed: " << std::hex << "0x" << std::setfill('0') << std::setw(2) << value << std::dec;
+                        completed = true;
+                    }
+                }
+            }
+        } while (ret > 0 && !completed && !error);
+
+        return consumed;
+    }
+
+    std::uint64_t Int_V::getValue() {
+        return value;
     }
 
 } // namespace mqtt::types

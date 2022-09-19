@@ -20,6 +20,9 @@
 #define MQTT_CONTROLPACKETFACTORY_H
 
 #include "mqtt/ControlPacket.h" // IWYU pragma: export
+#include "mqtt/types/Binary.h"
+#include "mqtt/types/Int_1.h"
+#include "mqtt/types/TypesBase.h"
 
 namespace mqtt {
     class SocketContext;
@@ -28,6 +31,9 @@ namespace mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <cstdint>
+#include <map>
+#include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -39,16 +45,19 @@ namespace mqtt {
 
         std::size_t construct();
         bool complete();
+        bool isError();
         ControlPacket* get();
 
-    protected:
-        //    Int1_t type;
-        //    IntV_t remainingLength;
+    private:
+        mqtt::SocketContext* socketContext;
 
     private:
-        [[maybe_unused]] mqtt::SocketContext* socketContext;
-
         bool completed = false;
+        bool error = false;
+        uint8_t state = 0;
+
+        mqtt::types::Int_1 type;
+        mqtt::types::Binary data;
     };
 
 } // namespace mqtt

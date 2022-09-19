@@ -24,7 +24,19 @@
 
 namespace mqtt {
 
-    ControlPacket::ControlPacket() {
+    ControlPacket::ControlPacket(SocketContext* socketContext, uint8_t type, uint8_t reserved, std::vector<char>& data)
+        : socketContext(socketContext)
+        , _type(type)
+        , _reserved(reserved)
+        , data(std::move(data)) {
+    }
+
+    uint8_t ControlPacket::type() {
+        return _type;
+    }
+
+    uint8_t ControlPacket::reserved() {
+        return _reserved;
     }
 
 } // namespace mqtt

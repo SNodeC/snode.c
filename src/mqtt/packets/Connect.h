@@ -16,29 +16,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_TYPES_STRING_H
-#define MQTT_TYPES_STRING_H
+#ifndef MQTT_PACKETS_CONNECT_H
+#define MQTT_PACKETS_CONNECT_H
 
-#include "mqtt/types/TypesBase.h"
+#include "mqtt/ControlPacket.h"
+#include "mqtt/packets/Property.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
+#include <string>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace mqtt::types {
+namespace mqtt::packets {
 
-    class String : public mqtt::types::TypesBase {
+    class Connect : public ControlPacket {
     public:
-        explicit String(mqtt::SocketContext* socketContext);
-        String(const String&) = default;
+        Connect(SocketContext* socketContext, uint8_t type, uint8_t flags, std::vector<char>& data);
+        Connect(const Connect&) = default;
 
-        String& operator=(const String&) = default;
+        Connect& operator=(const Connect&) = default;
 
-        ~String() override;
+        ~Connect();
 
-        std::size_t construct() override;
+        void parse();
+
+        std::string protocol();
+        uint8_t version();
+        uint8_t flags();
+        uint16_t keepAlive();
+        uint8_t propertyLength();
+        std::list<mqtt::packets::Property*> properties;
+        uint8_t expiryIntervalIdentifier();
+        uint64_t expiryInterval();
     };
 
-} // namespace mqtt::types
+} // namespace mqtt::packets
 
-#endif // MQTT_TYPES_STRING_H
+#endif // MQTT_PACKETS_CONNECT_H
