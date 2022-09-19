@@ -132,7 +132,7 @@ namespace utils {
                     pollfd.fd = pidfd;
                     pollfd.events = POLLIN;
 
-                    int ready = poll(&pollfd, 1, 3);
+                    int ready = poll(&pollfd, 1, 5000);
                     if (ready == -1) {
                         PLOG(ERROR) << "Poll";
                         close(pidfd);
