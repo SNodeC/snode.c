@@ -55,16 +55,14 @@ namespace mqtt::types {
                 }
                 break;
             case 2:
-                VLOG(0) << "+++++++++++++++++++++ " << stillNeeded;
                 consumed = socketContext->readFromPeer(data.data() + needed - stillNeeded, stillNeeded);
-                VLOG(0) << "+++++++++++++++++++++";
                 stillNeeded -= consumed;
                 if (stillNeeded == 0) {
                     VLOG(0) << "Binary completed: " << data.data();
                     int b = 1;
                     for (char val : data) {
                         VLOG(0) << std::setfill(' ') << std::setw(3) << b++ << ". " << std::setfill(' ') << std::setw(3) << val << " - "
-                                << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(val);
+                                << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(val) << std::dec;
                     }
                     completed = true;
                 }

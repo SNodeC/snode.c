@@ -53,7 +53,6 @@ namespace mqtt {
                 consumed = data.construct();
                 if (data.isCompleted()) {
                     state++;
-                    VLOG(0) << "Completed -------------------";
                 }
                 break;
         }
