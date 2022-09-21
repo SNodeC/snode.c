@@ -53,8 +53,8 @@ namespace mqtt::types {
 
     private:
         uint8_t state = 0;
-        std::size_t needed = 0;
-        std::size_t stillNeeded = 0;
+        uint64_t needed = 0;
+        uint64_t stillNeeded = 0;
 
         mqtt::types::Int_V length;
         std::vector<char> data;

@@ -29,6 +29,12 @@ set(MQTT_H
 add_library(mqtt SHARED ${MQTT_CPP} ${MQTT_H})
 add_library(snodec::mqtt ALIAS mqtt)
 
+target_link_libraries(
+    mqtt
+    PUBLIC snodec::core-socket
+    PRIVATE snodec::mqtt-types snodec::mqtt-packets
+)
+
 target_include_directories(
     mqtt
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -37,7 +43,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(mqtt PUBLIC snodec::core-socket PRIVATE snodec::mqtt-types snodec::mqtt-packets)
+set_target_properties(mqtt PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt)
 
 install(
     TARGETS mqtt

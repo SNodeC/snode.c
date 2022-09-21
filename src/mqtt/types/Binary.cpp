@@ -43,13 +43,13 @@ namespace mqtt::types {
                 if (length.isCompleted()) {
                     state++;
                     needed = stillNeeded = length.getValue();
-                    data.resize(stillNeeded, '\0');
+                    data.resize(static_cast<std::vector<char>::size_type>(stillNeeded), '\0');
                 } else if (length.isError()) {
                     error = 0;
                 }
                 break;
             case 1:
-                consumed = socketContext->readFromPeer(data.data() + needed - stillNeeded, stillNeeded);
+                consumed = socketContext->readFromPeer(data.data() + needed - stillNeeded, static_cast<std::size_t>(stillNeeded));
                 stillNeeded -= consumed;
                 completed = stillNeeded == 0;
                 break;

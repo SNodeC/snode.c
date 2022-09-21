@@ -2,16 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_PACKETS_CPP
-    Connect.cpp
-    Publish.cpp
-    Subscribe.cpp
-)
-set(MQTT_PACKETS_H
-    Connect.h
-    Publish.h
-    Subscribe.h
-)
+set(MQTT_PACKETS_CPP Connect.cpp Publish.cpp Subscribe.cpp)
+set(MQTT_PACKETS_H Connect.h Publish.h Subscribe.h)
 
 add_library(mqtt-packets STATIC ${MQTT_PACKETS_CPP} ${MQTT_PACKETS_H})
 add_library(snodec::mqtt-packets ALIAS mqtt-packets)
