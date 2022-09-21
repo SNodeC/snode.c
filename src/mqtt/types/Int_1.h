@@ -43,6 +43,8 @@ namespace mqtt::types {
 
         uint8_t getValue();
 
+        void reset() override;
+
     private:
         std::size_t needed = 1;
         std::size_t stillNeeded = 1;

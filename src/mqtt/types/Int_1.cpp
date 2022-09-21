@@ -38,14 +38,13 @@ namespace mqtt::types {
     }
 
     std::size_t Int_1::construct() {
-        VLOG(0) << "Read Int_1";
         std::size_t consumed = socketContext->readFromPeer(buffer, stillNeeded);
 
         stillNeeded -= consumed;
 
         if (stillNeeded == 0) {
+            //            VLOG(0) << "Int_1 completed: " << static_cast<uint16_t>(getValue());
             completed = true;
-            VLOG(0) << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<uint64_t>(*buffer) << std::dec;
         }
 
         return consumed;
@@ -53,6 +52,13 @@ namespace mqtt::types {
 
     uint8_t Int_1::getValue() {
         return static_cast<uint8_t>(*buffer);
+    }
+
+    void Int_1::reset() {
+        needed = 1;
+        stillNeeded = 1;
+
+        mqtt::types::TypesBase::reset();
     }
 
 } // namespace mqtt::types

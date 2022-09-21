@@ -46,6 +46,8 @@ namespace mqtt::types {
         bool isError();
 
     protected:
+        virtual void reset();
+
         mqtt::SocketContext* socketContext;
         bool completed = false;
         bool error = false;

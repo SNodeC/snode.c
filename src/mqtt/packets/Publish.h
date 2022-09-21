@@ -16,25 +16,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_PACKETS_PROPERTY_H
-#define MQTT_PACKETS_PROPERTY_H
+#ifndef MQTT_PACKETS_PUBLISH_H
+#define MQTT_PACKETS_PUBLISH_H
+
+#include "mqtt/ControlPacket.h"
+#include "mqtt/ControlPacketFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstdint>
+#include <list>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::packets {
 
-    class Property {
+    class Publish : public ControlPacket {
     public:
-        Property();
-        Property(const Property&) = default;
+        explicit Publish(mqtt::ControlPacketFactory& controlPacketFactory);
+        Publish(const Publish&) = default;
 
-        Property& operator=(const Property&) = default;
+        Publish& operator=(const Publish&) = default;
 
-        ~Property();
+        ~Publish();
+
+        bool getDup() const;
+        uint8_t getQoSLevel() const;
+        uint16_t getPacketIdentifier() const;
+        const std::string& getName() const;
+        const std::string& getMessage() const;
+
+    private:
+        bool dup = false;
+        uint8_t qoSLevel = 0;
+        bool retain = false;
+        uint16_t packetIdentifier = 0;
+        std::string name;
+        std::string message;
     };
 
 } // namespace mqtt::packets
 
-#endif // MQTT_PACKETS_PROPERTY_H
+#endif // MQTT_PACKETS_PUBLISH_H

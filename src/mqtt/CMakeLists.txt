@@ -9,6 +9,7 @@ set(MQTT_CPP
     ControlPacket.cpp
     ControlPacketFactory.cpp
     SocketContext.cpp
+    Topic.cpp
     Receiver.cpp
     UTF8StringEncoder.cpp
     UTF8StringDecoder.cpp
@@ -18,6 +19,7 @@ set(MQTT_H
     ControlPacket.h
     ControlPacketFactory.h
     SocketContext.h
+    Topic.h
     Receiver.h
     UTF8StringEncoder.h
     UTF8StringDecoder.h

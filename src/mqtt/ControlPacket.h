@@ -21,7 +21,8 @@
 
 namespace mqtt {
     class SocketContext;
-}
+    class ControlPacketFactory;
+} // namespace mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,14 +35,12 @@ namespace mqtt {
 
     class ControlPacket {
     public:
-        ControlPacket(mqtt::SocketContext* socketContext, uint8_t type, uint8_t reserved, std::vector<char>& data);
+        explicit ControlPacket(mqtt::ControlPacketFactory& controlPacketFactory);
 
-        uint8_t type();
-        uint8_t reserved();
+        uint8_t type() const;
+        uint8_t reserved() const;
 
     protected:
-        mqtt::SocketContext* socketContext;
-
         uint8_t _type;
         uint8_t _reserved;
         std::vector<char> data;

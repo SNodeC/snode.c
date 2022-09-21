@@ -42,6 +42,8 @@ namespace mqtt::types {
         std::size_t construct() override;
         std::uint64_t getValue();
 
+        void reset() override;
+
     private:
         std::size_t multiplier = 1;
         std::uint64_t value = 0;

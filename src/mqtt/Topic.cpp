@@ -16,22 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/server/SocketContext.h"
+#include "Topic.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace mqtt {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
-        : ::mqtt::SocketContext(socketConnection) {
+    Topic::Topic(const std::string& name, uint8_t requestedQos)
+        : name(name)
+        , requestedQos(requestedQos) {
     }
 
-    void SocketContext::onControlPackageReceived([[maybe_unused]] std::vector<char>& controlPacket) {
-        VLOG(0) << "ControlPacket received";
+    Topic::~Topic() {
     }
 
-} // namespace apps::mqtt::server
+    const std::string& Topic::getName() const {
+        return name;
+    }
+
+    uint8_t Topic::getRequestedQos() const {
+        return requestedQos;
+    }
+
+} // namespace mqtt

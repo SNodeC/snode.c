@@ -18,24 +18,25 @@
 
 #include "mqtt/ControlPacket.h"
 
+#include "mqtt/ControlPacketFactory.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt {
 
-    ControlPacket::ControlPacket(SocketContext* socketContext, uint8_t type, uint8_t reserved, std::vector<char>& data)
-        : socketContext(socketContext)
-        , _type(type)
-        , _reserved(reserved)
-        , data(std::move(data)) {
+    ControlPacket::ControlPacket(ControlPacketFactory& controlPacketFactory)
+        : _type(controlPacketFactory.packetType())
+        , _reserved(controlPacketFactory.packetFlags())
+        , data(std::move(controlPacketFactory.packet())) {
     }
 
-    uint8_t ControlPacket::type() {
+    uint8_t ControlPacket::type() const {
         return _type;
     }
 
-    uint8_t ControlPacket::reserved() {
+    uint8_t ControlPacket::reserved() const {
         return _reserved;
     }
 

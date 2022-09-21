@@ -40,7 +40,7 @@ namespace apps::mqtt::server {
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
     private:
-        void onControlPackageReceived(::mqtt::ControlPacket* controlPacket) override;
+        void onControlPackageReceived(std::vector<char>& controlPacket) override;
     };
 
 } // namespace apps::mqtt::server

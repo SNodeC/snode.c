@@ -26,13 +26,13 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-using SocketServer = net::in::stream::legacy::SocketServer<apps::mqtt::server::SocketContextFactory>;
-using SocketConnection = SocketServer::SocketConnection;
+using MQTTServer = net::in::stream::legacy::SocketServer<apps::mqtt::server::SocketContextFactory>;
+using SocketConnection = MQTTServer::SocketConnection;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    SocketServer mqttServer(
+    MQTTServer mqttServer(
         "server",
         []([[maybe_unused]] SocketConnection* socketConnection) -> void { // OnConnect
             VLOG(0) << "OnConnect";
@@ -44,7 +44,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
             VLOG(0) << "OnDisconnected";
         });
 
-    mqttServer.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {
+    mqttServer.listen([](const MQTTServer::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";
         } else if (errnum > 0) {

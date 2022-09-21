@@ -32,8 +32,8 @@ namespace mqtt {
 
 #include <cstddef>
 #include <cstdint>
-#include <map>
 #include <string>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -46,7 +46,11 @@ namespace mqtt {
         std::size_t construct();
         bool complete();
         bool isError();
-        ControlPacket* get();
+        std::vector<char>& packet();
+        uint8_t packetType();
+        uint8_t packetFlags();
+
+        void reset();
 
     private:
         mqtt::SocketContext* socketContext;
@@ -56,7 +60,7 @@ namespace mqtt {
         bool error = false;
         uint8_t state = 0;
 
-        mqtt::types::Int_1 type;
+        mqtt::types::Int_1 typeFlags;
         mqtt::types::Binary data;
     };
 

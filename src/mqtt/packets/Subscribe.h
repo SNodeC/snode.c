@@ -16,22 +16,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/server/SocketContext.h"
+#ifndef MQTT_PACKETS_SUBSCRIBE_H
+#define MQTT_PACKETS_SUBSCRIBE_H
+
+#include "mqtt/ControlPacket.h"
+#include "mqtt/ControlPacketFactory.h"
+#include "mqtt/Topic.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include <cstdint>
+#include <list>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace mqtt::packets {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
-        : ::mqtt::SocketContext(socketConnection) {
-    }
+    class Subscribe : public ControlPacket {
+    public:
+        explicit Subscribe(mqtt::ControlPacketFactory& controlPacketFactory);
+        Subscribe(const Subscribe&) = default;
 
-    void SocketContext::onControlPackageReceived([[maybe_unused]] std::vector<char>& controlPacket) {
-        VLOG(0) << "ControlPacket received";
-    }
+        Subscribe& operator=(const Subscribe&) = default;
 
-} // namespace apps::mqtt::server
+        ~Subscribe();
+
+        uint16_t getPacketIdentifier() const;
+        const std::list<mqtt::Topic>& getTopics() const;
+
+    private:
+        uint16_t packetIdentifier;
+
+        std::list<Topic> topics;
+    };
+
+} // namespace mqtt::packets
+
+#endif // MQTT_PACKETS_SUBSCRIBE_H

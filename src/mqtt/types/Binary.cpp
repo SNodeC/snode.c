@@ -33,7 +33,6 @@ namespace mqtt::types {
     Binary::Binary(mqtt::SocketContext* socketContext)
         : mqtt::types::TypesBase(socketContext)
         , length(socketContext) {
-        state = 1;
     }
 
     Binary::~Binary() {
@@ -43,27 +42,29 @@ namespace mqtt::types {
         std::size_t consumed = 0;
 
         switch (state) {
-            case 1:
+            case 0:
                 consumed = length.construct();
                 if (length.isCompleted()) {
-                    VLOG(0) << "Int_V completed: " << length.getValue();
                     state++;
                     needed = stillNeeded = length.getValue();
                     data.resize(stillNeeded, '\0');
+                    //                    VLOG(0) << "Remaining Length: " << length.getValue();
                 } else if (length.isError()) {
-                    consumed = 0;
+                    error = 0;
                 }
                 break;
-            case 2:
+            case 1:
                 consumed = socketContext->readFromPeer(data.data() + needed - stillNeeded, stillNeeded);
                 stillNeeded -= consumed;
                 if (stillNeeded == 0) {
-                    VLOG(0) << "Binary completed: " << data.data();
-                    int b = 1;
-                    for (char val : data) {
-                        VLOG(0) << std::setfill(' ') << std::setw(3) << b++ << ". " << std::setfill(' ') << std::setw(3) << val << " - "
-                                << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(val) << std::dec;
-                    }
+                    //                    VLOG(0) << "Binary completed: " << data.data();
+                    //                    int b = 1;
+                    //                    for (char val : data) {
+                    //                        VLOG(0) << std::setfill(' ') << std::setw(3) << b++ << ". " << std::setfill(' ') <<
+                    //                        std::setw(3) << val << " - "
+                    //                                << "0x" << std::hex << std::setfill('0') << std::setw(2) <<
+                    //                                static_cast<uint16_t>(val) << std::dec;
+                    //                    }
                     completed = true;
                 }
                 break;
@@ -72,8 +73,18 @@ namespace mqtt::types {
         return consumed;
     }
 
-    std::vector<char> Binary::getValue() {
+    std::vector<char>& Binary::getValue() {
         return data;
+    }
+
+    void Binary::reset() {
+        state = 0;
+        needed = 0;
+        stillNeeded = 0;
+        length.reset();
+        data.clear();
+
+        mqtt::types::TypesBase::reset();
     }
 
 } // namespace mqtt::types

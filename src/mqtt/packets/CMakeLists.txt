@@ -4,11 +4,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(MQTT_PACKETS_CPP
     Connect.cpp
-    Property.cpp
+    Publish.cpp
+    Subscribe.cpp
 )
 set(MQTT_PACKETS_H
     Connect.h
-    Property.cpp
+    Publish.h
+    Subscribe.h
 )
 
 add_library(mqtt-packets STATIC ${MQTT_PACKETS_CPP} ${MQTT_PACKETS_H})

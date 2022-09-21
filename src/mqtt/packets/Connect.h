@@ -20,11 +20,10 @@
 #define MQTT_PACKETS_CONNECT_H
 
 #include "mqtt/ControlPacket.h"
-#include "mqtt/packets/Property.h"
+#include "mqtt/ControlPacketFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -33,23 +32,21 @@ namespace mqtt::packets {
 
     class Connect : public ControlPacket {
     public:
-        Connect(SocketContext* socketContext, uint8_t type, uint8_t flags, std::vector<char>& data);
+        explicit Connect(mqtt::ControlPacketFactory& controlPacketFactory);
         Connect(const Connect&) = default;
 
         Connect& operator=(const Connect&) = default;
 
         ~Connect();
 
-        void parse();
-
-        std::string protocol();
-        uint8_t version();
-        uint8_t flags();
-        uint16_t keepAlive();
-        uint8_t propertyLength();
-        std::list<mqtt::packets::Property*> properties;
-        uint8_t expiryIntervalIdentifier();
-        uint64_t expiryInterval();
+        std::string protocol() const;
+        uint8_t version() const;
+        uint8_t flags() const;
+        uint16_t keepAlive() const;
+        //        uint8_t propertyLength() const;
+        //        std::vector<char> properties() const;
+        //        uint8_t payloadLength() const;
+        //        std::vector<char> payload() const;
     };
 
 } // namespace mqtt::packets

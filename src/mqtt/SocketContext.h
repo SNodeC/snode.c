@@ -21,12 +21,17 @@
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "mqtt/ControlPacketFactory.h"
+#include "mqtt/packets/Connect.h"
+#include "mqtt/packets/Publish.h"
+#include "mqtt/packets/Subscribe.h"
 
 namespace core::socket {
     class SocketConnection;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <list>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -36,10 +41,37 @@ namespace mqtt {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
-        virtual void onControlPackageReceived(mqtt::ControlPacket* controlPacket) = 0;
+    protected:
+        virtual void onControlPackageReceived(std::vector<char>& controlPacket) = 0;
+
+        virtual void onConnect(const mqtt::packets::Connect& connect);
+        virtual void onPublish(const mqtt::packets::Publish& publish);
+        virtual void onSubscribe(const mqtt::packets::Subscribe& subscribe);
+
+        // virtual void onConnack(const mqtt::packets::Connack& connack);
+        // virtual void onPublish(const mqtt::packets::Publish& publish);
+        // virtual void onPuback(const mqtt::packets::Puback& puback);
+        // virtual void onPubrec(const mqtt::packets::Pubrec& pubrec);
+        // virtual void onPubrel(const mqtt::packets::Pubrel& pubrel);
+        // virtual void onPubcomp(const mqtt::packets::Pubcomp& pubcomp);
+        // virtual void onSubscribe(const mqtt::packets::Subscribe& subscribe);
+        // virtual void onSuback(const mqtt::packets::Suback& suback);
+        // virtual void onUnsubscribe(const mqtt::packets::Unsubscribe& unsubscribe);
+        // virtual void onUnsuback(const mqtt::packets::Unsuback& unsuback);
+        // virtual void onPingreq(const mqtt::packets::Pingreq& pingreq);
+        // virtual void onPingresp(const mqtt::packets::Pingresp& pingresp);
+        // virtual void onDisconnect(const mqtt::packets::Disconnect& disconnect);
+        // virtual void onAuth(const mqtt::packets::Auth& auth);
+
+        void sendConnack();
+        void sendPuback(uint16_t packetIdentifier);
+        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes);
 
     private:
         virtual std::size_t onReceiveFromPeer() final;
+
+        void printData(std::vector<char>& data);
+        void send(std::vector<char>& data);
 
         ControlPacketFactory controlPacketFactory;
     };

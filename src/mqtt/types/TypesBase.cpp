@@ -41,4 +41,9 @@ namespace mqtt::types {
         return error;
     }
 
+    void TypesBase::reset() {
+        completed = false;
+        error = false;
+    }
+
 } // namespace mqtt::types

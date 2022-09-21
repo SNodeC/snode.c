@@ -16,18 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/packets/Property.h"
+#ifndef MQTT_TOPIC_H
+#define MQTT_TOPIC_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
+#include <string>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace mqtt::packets {
+namespace mqtt {
 
-    Property::Property() {
-    }
+    class Topic {
+    public:
+        Topic(const std::string& name, uint8_t requestedQos);
+        Topic(const Topic&) = default;
 
-    Property::~Property() {
-    }
+        Topic& operator=(const Topic&) = default;
 
-} // namespace mqtt::packets
+        ~Topic();
+
+        const std::string& getName() const;
+        uint8_t getRequestedQos() const;
+
+    private:
+        std::string name;
+        uint8_t requestedQos;
+    };
+
+} // namespace mqtt
+
+#endif // MQTT_TOPIC_H

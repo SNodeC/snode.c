@@ -41,12 +41,12 @@ namespace mqtt::types {
         std::size_t consumed = 0;
         std::size_t ret = 0;
 
-        VLOG(0) << "Read Int_V";
+        //        VLOG(0) << "Read Int_V";
         do {
             char byte;
             ret = socketContext->readFromPeer(&byte, 1);
 
-            VLOG(0) << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<uint64_t>(byte) << std::dec;
+            //            VLOG(0) << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<uint64_t>(byte) << std::dec;
 
             if (ret > 0) {
                 value += static_cast<uint64_t>((byte & 0x7F) * multiplier);
@@ -56,7 +56,9 @@ namespace mqtt::types {
                 } else {
                     multiplier *= 0x80;
                     if ((byte & 0x80) == 0) {
-                        VLOG(0) << "Completed: " << std::hex << "0x" << std::setfill('0') << std::setw(2) << value << std::dec;
+                        VLOG(0) << "Int_V completed: " << getValue();
+                        //                        VLOG(0) << "Completed: " << std::hex << "0x" << std::setfill('0') << std::setw(2) << value
+                        //                        << std::dec;
                         completed = true;
                     }
                 }
@@ -68,6 +70,13 @@ namespace mqtt::types {
 
     std::uint64_t Int_V::getValue() {
         return value;
+    }
+
+    void Int_V::reset() {
+        multiplier = 1;
+        value = 0;
+
+        mqtt::types::TypesBase::reset();
     }
 
 } // namespace mqtt::types

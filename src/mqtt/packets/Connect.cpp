@@ -24,41 +24,42 @@
 
 namespace mqtt::packets {
 
-    Connect::Connect(SocketContext* socketContext, uint8_t type, uint8_t reserved, std::vector<char>& data)
-        : mqtt::ControlPacket(socketContext, type, reserved, data) {
+    Connect::Connect(ControlPacketFactory& controlPacketFactory)
+        : mqtt::ControlPacket(controlPacketFactory) {
     }
 
     Connect::~Connect() {
     }
 
-    std::string Connect::protocol() {
-        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(data.data() + 0));
+    std::string Connect::protocol() const {
+        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 0)));
 
         return std::string(data.data() + 2, protocolLength);
     }
 
-    uint8_t Connect::version() {
+    uint8_t Connect::version() const {
         return static_cast<uint8_t>(*(data.data() + 6));
     }
 
-    uint8_t Connect::flags() {
+    uint8_t Connect::flags() const {
         return static_cast<uint8_t>(*(data.data() + 7));
     }
 
-    uint16_t Connect::keepAlive() {
-        return be16toh(*reinterpret_cast<uint16_t*>(data.data() + 8));
+    uint16_t Connect::keepAlive() const {
+        return be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 8)));
     }
+    /*
+        uint8_t Connect::propertyLength() const {
+        }
 
-    uint8_t Connect::propertyLength() {
-        return static_cast<uint8_t>(*(data.data() + 10));
-    }
+        std::vector<char> Connect::properties() const {
+        }
 
-    uint8_t Connect::expiryIntervalIdentifier() {
-        return static_cast<uint8_t>(*(data.data() + 11));
-    }
+        uint8_t Connect::payloadLength() const {
+        }
 
-    uint64_t Connect::expiryInterval() {
-        return be64toh(*reinterpret_cast<uint64_t*>(data.data() + 12));
-    }
+        std::vector<char> Connect::payload() const {
+        }
+    */
 
 } // namespace mqtt::packets
