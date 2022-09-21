@@ -25,11 +25,9 @@ namespace core::socket {
     class SocketConnection;
 } // namespace core::socket
 
-namespace mqtt {
-    class ControlPacket;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

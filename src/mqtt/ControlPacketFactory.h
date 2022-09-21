@@ -19,10 +19,8 @@
 #ifndef MQTT_CONTROLPACKETFACTORY_H
 #define MQTT_CONTROLPACKETFACTORY_H
 
-#include "mqtt/ControlPacket.h" // IWYU pragma: export
 #include "mqtt/types/Binary.h"
 #include "mqtt/types/Int_1.h"
-#include "mqtt/types/TypesBase.h"
 
 namespace mqtt {
     class SocketContext;
@@ -32,7 +30,6 @@ namespace mqtt {
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -44,11 +41,12 @@ namespace mqtt {
         explicit ControlPacketFactory(mqtt::SocketContext* socketContext);
 
         std::size_t construct();
-        bool complete();
+        bool isComplete();
         bool isError();
-        std::vector<char>& packet();
-        uint8_t packetType();
-        uint8_t packetFlags();
+        std::vector<char>& getPacket();
+        uint8_t getPacketType();
+        uint8_t getPacketFlags();
+        uint64_t getRemainingLength();
 
         void reset();
 

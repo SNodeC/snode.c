@@ -16,9 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Publish.h"
+#include "mqtt/packets/Publish.h"
+
+#include "mqtt/ControlPacketFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <endian.h>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -26,9 +31,9 @@ namespace mqtt::packets {
 
     Publish::Publish(ControlPacketFactory& controlPacketFactory)
         : mqtt::ControlPacket(controlPacketFactory) {
-        dup = (controlPacketFactory.packetFlags() & 0x04) != 0;
-        qoSLevel = static_cast<uint8_t>((controlPacketFactory.packetFlags() & 0x03) >> 1);
-        retain = (controlPacketFactory.packetFlags() & 0x01) != 0;
+        dup = (controlPacketFactory.getPacketFlags() & 0x04) != 0;
+        qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x03) >> 1);
+        retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
 
         uint32_t pointer = 0;
         uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));

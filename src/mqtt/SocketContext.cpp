@@ -18,11 +18,19 @@
 
 #include "mqtt/SocketContext.h"
 
+#include "mqtt/Topic.h"
+#include "mqtt/packets/Connect.h"
+#include "mqtt/packets/Publish.h"
+#include "mqtt/packets/Subscribe.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 
+#include <cstdint>
+#include <endian.h>
 #include <iomanip>
+#include <iostream>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -36,8 +44,9 @@ namespace mqtt {
     void SocketContext::onConnect(const packets::Connect& connect) {
         VLOG(0) << "CONNECT";
         VLOG(0) << "=======";
-        VLOG(0) << "Type: " << static_cast<uint16_t>(connect.type());
-        VLOG(0) << "Reserver: " << static_cast<uint16_t>(connect.reserved());
+        VLOG(0) << "Type: " << static_cast<uint16_t>(connect.getType());
+        VLOG(0) << "Reserved: " << static_cast<uint16_t>(connect.getReserved());
+        VLOG(0) << "RemainingLength: " << connect.getRemainingLength();
         VLOG(0) << "Flags: " << static_cast<uint16_t>(connect.flags());
         VLOG(0) << "Protocol: " << connect.protocol();
         VLOG(0) << "Version: " << static_cast<uint16_t>(connect.version());
@@ -48,11 +57,14 @@ namespace mqtt {
     void SocketContext::onPublish(const packets::Publish& publish) {
         VLOG(0) << "PUBLISH";
         VLOG(0) << "=======";
-        VLOG(0) << "Type: " << static_cast<uint16_t>(publish.type());
-        VLOG(0) << "Reserver: " << static_cast<uint16_t>(publish.reserved());
+        VLOG(0) << "Type: " << static_cast<uint16_t>(publish.getType());
+        VLOG(0) << "Reserved: " << static_cast<uint16_t>(publish.getReserved());
+        VLOG(0) << "RemainingLength: " << publish.getRemainingLength();
         VLOG(0) << "Topic: " << publish.getName();
         VLOG(0) << "Message: " << publish.getMessage();
         VLOG(0) << "PacketIdentifier: " << publish.getPacketIdentifier();
+
+        //        sendPublishToAll(publish.getData());
 
         sendPuback(publish.getPacketIdentifier());
     }
@@ -60,8 +72,9 @@ namespace mqtt {
     void SocketContext::onSubscribe(const mqtt::packets::Subscribe& subscribe) {
         VLOG(0) << "SUBSCRIBE";
         VLOG(0) << "=========";
-        VLOG(0) << "Type: " << static_cast<uint16_t>(subscribe.type());
-        VLOG(0) << "Reserver: " << static_cast<uint16_t>(subscribe.reserved());
+        VLOG(0) << "Type: " << static_cast<uint16_t>(subscribe.getType());
+        VLOG(0) << "Reserved: " << static_cast<uint16_t>(subscribe.getReserved());
+        VLOG(0) << "RemainingLength: " << subscribe.getRemainingLength();
         VLOG(0) << "PacketIdentifier: " << subscribe.getPacketIdentifier();
 
         std::list<uint8_t> returnCodes;
@@ -108,8 +121,6 @@ namespace mqtt {
     void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
         VLOG(0) << "Send SUBACK";
         VLOG(0) << "===========";
-
-        VLOG(0) << "&&&&&&&&&&: " << packetIdentifier;
 
         std::vector<char> data;
 
@@ -178,11 +189,12 @@ namespace mqtt {
         if (controlPacketFactory.isError()) {
             VLOG(0) << "SocketContext: Error during ControlPacket construction";
             close();
-        } else if (controlPacketFactory.complete()) {
-            VLOG(0) << "PacketType: " << static_cast<uint16_t>(controlPacketFactory.packetType());
+        } else if (controlPacketFactory.isComplete()) {
             VLOG(0) << "======================================================";
-            printData(controlPacketFactory.packet());
-            switch (controlPacketFactory.packetType()) {
+            VLOG(0) << "PacketType: " << static_cast<uint16_t>(controlPacketFactory.getPacketType());
+            VLOG(0) << "RemainingLength: " << static_cast<uint16_t>(controlPacketFactory.getRemainingLength());
+            printData(controlPacketFactory.getPacket());
+            switch (controlPacketFactory.getPacketType()) {
                 case 0x01:
                     onConnect(mqtt::packets::Connect(controlPacketFactory));
                     break;
@@ -233,7 +245,7 @@ namespace mqtt {
                     break;
             }
 
-            onControlPackageReceived(controlPacketFactory.packet());
+            onControlPackageReceived(controlPacketFactory.getPacket());
 
             controlPacketFactory.reset();
         }
@@ -242,9 +254,17 @@ namespace mqtt {
     }
 
     void SocketContext::printData(std::vector<char>& data) {
-        std::cout << "                                | ";
+        std::cout << "                                Data: ";
+        unsigned long i = 0;
         for (char ch : data) {
-            std::cout << std::hex << std::setfill('0') << std::setw(2) << "0x" << static_cast<uint16_t>(static_cast<uint8_t>(ch)) << " | ";
+            if (i != 0 && i % 8 == 0 && i + 1 != data.size()) {
+                std::cout << std::endl;
+                std::cout << "                                      ";
+                // "| ";
+            }
+            ++i;
+            std::cout << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
+                      << " "; // << " | ";
         }
         std::cout << std::endl;
     }

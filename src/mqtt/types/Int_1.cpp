@@ -22,10 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
-#include <iomanip>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::types {
@@ -41,11 +37,7 @@ namespace mqtt::types {
         std::size_t consumed = socketContext->readFromPeer(buffer, stillNeeded);
 
         stillNeeded -= consumed;
-
-        if (stillNeeded == 0) {
-            //            VLOG(0) << "Int_1 completed: " << static_cast<uint16_t>(getValue());
-            completed = true;
-        }
+        completed = stillNeeded == 0;
 
         return consumed;
     }

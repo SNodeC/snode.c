@@ -22,8 +22,13 @@
 #include "mqtt/types/Int_V.h"
 #include "mqtt/types/TypesBase.h"
 
+namespace mqtt {
+    class SocketContext;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 

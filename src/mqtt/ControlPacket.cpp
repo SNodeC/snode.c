@@ -22,22 +22,32 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <utility>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt {
 
     ControlPacket::ControlPacket(ControlPacketFactory& controlPacketFactory)
-        : _type(controlPacketFactory.packetType())
-        , _reserved(controlPacketFactory.packetFlags())
-        , data(std::move(controlPacketFactory.packet())) {
+        : type(controlPacketFactory.getPacketType())
+        , reserved(controlPacketFactory.getPacketFlags())
+        , data(std::move(controlPacketFactory.getPacket())) {
     }
 
-    uint8_t ControlPacket::type() const {
-        return _type;
+    uint8_t ControlPacket::getType() const {
+        return type;
     }
 
-    uint8_t ControlPacket::reserved() const {
-        return _reserved;
+    uint8_t ControlPacket::getReserved() const {
+        return reserved;
+    }
+
+    uint64_t ControlPacket::getRemainingLength() const {
+        return data.size();
+    }
+
+    const std::vector<char>& ControlPacket::getData() const {
+        return data;
     }
 
 } // namespace mqtt

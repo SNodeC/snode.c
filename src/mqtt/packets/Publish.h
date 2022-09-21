@@ -20,12 +20,15 @@
 #define MQTT_PACKETS_PUBLISH_H
 
 #include "mqtt/ControlPacket.h"
-#include "mqtt/ControlPacketFactory.h"
+
+namespace mqtt {
+    class ControlPacketFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <list>
+#include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

@@ -18,15 +18,7 @@
 
 #include "mqtt/ControlPacketFactory.h"
 
-#include "mqtt/SocketContext.h"
-#include "mqtt/types/Int_V.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
-
-#include <iomanip>
-#include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -45,9 +37,6 @@ namespace mqtt {
             case 0:
                 consumed = typeFlags.construct();
                 if (typeFlags.isCompleted()) {
-                    //                    VLOG(0) << std::hex << "0x" << std::setfill('0') << std::setw(2) <<
-                    //                    static_cast<uint16_t>(typeFlags.getValue())
-                    //                            << std::dec;
                     state++;
                 } else {
                     error = data.isError();
@@ -67,7 +56,7 @@ namespace mqtt {
         return consumed;
     }
 
-    bool ControlPacketFactory::complete() {
+    bool ControlPacketFactory::isComplete() {
         return completed;
     }
 
@@ -75,16 +64,20 @@ namespace mqtt {
         return error;
     }
 
-    std::vector<char>& ControlPacketFactory::packet() {
+    std::vector<char>& ControlPacketFactory::getPacket() {
         return data.getValue();
     }
 
-    uint8_t ControlPacketFactory::packetType() {
+    uint8_t ControlPacketFactory::getPacketType() {
         return static_cast<uint8_t>(typeFlags.getValue() >> 0x04);
     }
 
-    uint8_t ControlPacketFactory::packetFlags() {
+    uint8_t ControlPacketFactory::getPacketFlags() {
         return static_cast<uint8_t>(typeFlags.getValue() & 0x0F);
+    }
+
+    uint64_t ControlPacketFactory::getRemainingLength() {
+        return data.getValue().size();
     }
 
     void ControlPacketFactory::reset() {

@@ -22,10 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
-#include <iomanip>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::types {
@@ -55,12 +51,7 @@ namespace mqtt::types {
                     error = true;
                 } else {
                     multiplier *= 0x80;
-                    if ((byte & 0x80) == 0) {
-                        VLOG(0) << "Int_V completed: " << getValue();
-                        //                        VLOG(0) << "Completed: " << std::hex << "0x" << std::setfill('0') << std::setw(2) << value
-                        //                        << std::dec;
-                        completed = true;
-                    }
+                    completed = (byte & 0x80) == 0;
                 }
             }
         } while (ret > 0 && !completed && !error);

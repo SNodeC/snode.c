@@ -21,17 +21,22 @@
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "mqtt/ControlPacketFactory.h"
-#include "mqtt/packets/Connect.h"
-#include "mqtt/packets/Publish.h"
-#include "mqtt/packets/Subscribe.h"
 
 namespace core::socket {
     class SocketConnection;
 }
 
+namespace mqtt::packets {
+    class Connect;
+    class Publish;
+    class Subscribe;
+} // namespace mqtt::packets
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <list>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

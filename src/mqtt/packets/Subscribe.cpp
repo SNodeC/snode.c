@@ -16,11 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Subscribe.h"
+#include "mqtt/packets/Subscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include <endian.h>
+#include <string>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -31,9 +33,6 @@ namespace mqtt::packets {
         uint32_t pointer = 0;
         packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
 
-        VLOG(0) << "####################: " << packetIdentifier;
-        VLOG(0) << "#########: " << static_cast<uint16_t>(*(data.data() + pointer));
-        VLOG(0) << "#########: " << static_cast<uint16_t>(*(data.data() + pointer + 1));
         pointer += 2;
 
         while (data.size() > pointer) {

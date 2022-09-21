@@ -22,10 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
-#include <iomanip>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::types {
@@ -48,7 +44,6 @@ namespace mqtt::types {
                     state++;
                     needed = stillNeeded = length.getValue();
                     data.resize(stillNeeded, '\0');
-                    //                    VLOG(0) << "Remaining Length: " << length.getValue();
                 } else if (length.isError()) {
                     error = 0;
                 }
@@ -56,17 +51,7 @@ namespace mqtt::types {
             case 1:
                 consumed = socketContext->readFromPeer(data.data() + needed - stillNeeded, stillNeeded);
                 stillNeeded -= consumed;
-                if (stillNeeded == 0) {
-                    //                    VLOG(0) << "Binary completed: " << data.data();
-                    //                    int b = 1;
-                    //                    for (char val : data) {
-                    //                        VLOG(0) << std::setfill(' ') << std::setw(3) << b++ << ". " << std::setfill(' ') <<
-                    //                        std::setw(3) << val << " - "
-                    //                                << "0x" << std::hex << std::setfill('0') << std::setw(2) <<
-                    //                                static_cast<uint16_t>(val) << std::dec;
-                    //                    }
-                    completed = true;
-                }
+                completed = stillNeeded == 0;
                 break;
         }
 

@@ -20,8 +20,11 @@
 #define MQTT_PACKETS_SUBSCRIBE_H
 
 #include "mqtt/ControlPacket.h"
-#include "mqtt/ControlPacketFactory.h"
 #include "mqtt/Topic.h"
+
+namespace mqtt {
+    class ControlPacketFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

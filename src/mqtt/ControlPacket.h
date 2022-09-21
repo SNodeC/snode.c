@@ -20,7 +20,6 @@
 #define MQTT_CONTROLPACKET_H
 
 namespace mqtt {
-    class SocketContext;
     class ControlPacketFactory;
 } // namespace mqtt
 
@@ -37,12 +36,14 @@ namespace mqtt {
     public:
         explicit ControlPacket(mqtt::ControlPacketFactory& controlPacketFactory);
 
-        uint8_t type() const;
-        uint8_t reserved() const;
+        uint8_t getType() const;
+        uint8_t getReserved() const;
+        uint64_t getRemainingLength() const;
+        const std::vector<char>& getData() const;
 
     protected:
-        uint8_t _type;
-        uint8_t _reserved;
+        uint8_t type;
+        uint8_t reserved;
         std::vector<char> data;
     };
 
