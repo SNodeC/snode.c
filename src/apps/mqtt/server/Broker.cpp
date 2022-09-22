@@ -50,15 +50,34 @@ namespace apps::mqtt::server {
         for (apps::mqtt::server::SocketContext* socketContext : socketContexts) {
             socketContext->sendPublish(packetIdentifier, topic, message);
         }
+
+        if (topics[topic].empty()) {
+            topics.erase(topic);
+        }
     }
 
     void Broker::unsubscribe(const std::string& topic, SocketContext* socketContext) {
         topics[topic].remove(socketContext);
+
+        if (topics[topic].empty()) {
+            topics.erase(topic); // Remove empty topics
+        }
     }
 
     void Broker::unsubscribeAll(SocketContext* socketContext) {
-        for (auto it = topics.begin(); it != topics.end(); ++it) {
+        auto it = topics.begin();
+
+        while (it != topics.end()) {
             it->second.remove(socketContext);
+
+            if (it->second.empty()) { // Remove empty topics
+                auto tmpIt = it;
+                ++tmpIt;
+                topics.erase(it);
+                it = tmpIt;
+            } else {
+                ++it;
+            }
         }
     }
 
