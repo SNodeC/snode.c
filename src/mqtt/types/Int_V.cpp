@@ -37,22 +37,19 @@ namespace mqtt::types {
         std::size_t consumed = 0;
         std::size_t ret = 0;
 
-        //        VLOG(0) << "Read Int_V";
         do {
             char byte;
             ret = socketContext->readFromPeer(&byte, 1);
 
-            //            VLOG(0) << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<uint64_t>(byte) << std::dec;
-
             if (ret > 0) {
                 value += static_cast<uint64_t>((byte & 0x7F) * multiplier);
-                consumed += ret;
                 if (multiplier > 0x80 * 0x80 * 0x80) {
                     error = true;
                 } else {
                     multiplier *= 0x80;
                     completed = (byte & 0x80) == 0;
                 }
+                consumed += ret;
             }
         } while (ret > 0 && !completed && !error);
 

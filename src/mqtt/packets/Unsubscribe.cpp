@@ -16,9 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/packets/Publish.h"
-
-#include "mqtt/ControlPacketFactory.h"
+#include "Unsubscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,49 +27,33 @@
 
 namespace mqtt::packets {
 
-    Publish::Publish(ControlPacketFactory& controlPacketFactory)
+    Unsubscribe::Unsubscribe(ControlPacketFactory& controlPacketFactory)
         : mqtt::ControlPacket(controlPacketFactory) {
-        dup = (controlPacketFactory.getPacketFlags() & 0x08) != 0;
-        qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
-        retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
-
         uint32_t pointer = 0;
 
-        uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
         pointer += 2;
 
-        name = std::string(data.data() + pointer, strLen);
-        pointer += strLen;
-
-        if (qoSLevel != 0 && data.size() > pointer) {
-            packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+        while (data.size() > pointer) {
+            uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
             pointer += 2;
+
+            std::string name = std::string(data.data() + pointer, strLen);
+            pointer += strLen;
+
+            topics.push_back(name);
         }
-
-        message = std::string(data.data() + pointer, data.size() - pointer);
     }
 
-    Publish::~Publish() {
+    Unsubscribe::~Unsubscribe() {
     }
 
-    bool Publish::getDup() const {
-        return dup;
-    }
-
-    uint8_t Publish::getQoSLevel() const {
-        return qoSLevel;
-    }
-
-    uint16_t Publish::getPacketIdentifier() const {
+    uint16_t Unsubscribe::getPacketIdentifier() const {
         return packetIdentifier;
     }
 
-    const std::string& Publish::getName() const {
-        return name;
-    }
-
-    const std::string& Publish::getMessage() const {
-        return message;
+    const std::list<std::string>& Unsubscribe::getTopics() const {
+        return topics;
     }
 
 } // namespace mqtt::packets

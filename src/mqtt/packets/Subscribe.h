@@ -20,7 +20,7 @@
 #define MQTT_PACKETS_SUBSCRIBE_H
 
 #include "mqtt/ControlPacket.h"
-#include "mqtt/Topic.h"
+#include "mqtt/Topic.h" // IWYU pragma: export
 
 namespace mqtt {
     class ControlPacketFactory;
@@ -28,8 +28,8 @@ namespace mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-#include <list>
+#include <cstdint> // IWYU pragma: export
+#include <list>    // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

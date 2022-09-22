@@ -38,6 +38,18 @@ namespace apps::mqtt::server {
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
     private:
+        virtual void onConnect(const ::mqtt::packets::Connect& connect) override;
+        virtual void onConnack(const ::mqtt::packets::Connack& connack) override;
+        virtual void onPublish(const ::mqtt::packets::Publish& publish) override;
+        virtual void onPuback(const ::mqtt::packets::Puback& puback) override;
+        virtual void onSubscribe(const ::mqtt::packets::Subscribe& subscribe) override;
+        virtual void onSuback(const ::mqtt::packets::Suback& suback) override;
+        virtual void onUnsubscribe(const ::mqtt::packets::Unsubscribe& unsubscribe) override;
+        virtual void onUnsuback(const ::mqtt::packets::Unsuback& unsuback) override;
+        virtual void onPingreq(const ::mqtt::packets::Pingreq& pingreq) override;
+        virtual void onPingresp(const ::mqtt::packets::Pingresp& pingresp) override;
+        virtual void onDisconnect(const ::mqtt::packets::Disconnect& disconnect) override;
+
         void onControlPackageReceived(std::vector<char>& controlPacket) override;
     };
 

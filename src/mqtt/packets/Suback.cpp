@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/packets/Connect.h"
+#include "Suback.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,29 +27,27 @@
 
 namespace mqtt::packets {
 
-    Connect::Connect(ControlPacketFactory& controlPacketFactory)
+    Suback::Suback(ControlPacketFactory& controlPacketFactory)
         : mqtt::ControlPacket(controlPacketFactory) {
+        uint32_t pointer = 0;
+
+        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+        pointer += 2;
+
+        for (; pointer < this->getRemainingLength(); ++pointer) {
+            returnCodes.push_back(static_cast<uint8_t>(*(data.data() + pointer)));
+        }
     }
 
-    Connect::~Connect() {
+    Suback::~Suback() {
     }
 
-    std::string Connect::protocol() const {
-        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 0)));
-
-        return std::string(data.data() + 2, protocolLength);
+    uint16_t Suback::getPacketIdentifier() const {
+        return packetIdentifier;
     }
 
-    uint8_t Connect::version() const {
-        return static_cast<uint8_t>(*(data.data() + 6));
-    }
-
-    uint8_t Connect::flags() const {
-        return static_cast<uint8_t>(*(data.data() + 7));
-    }
-
-    uint16_t Connect::keepAlive() const {
-        return be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 8)));
+    const std::list<uint8_t>& Suback::getReturnCodes() const {
+        return returnCodes;
     }
 
 } // namespace mqtt::packets

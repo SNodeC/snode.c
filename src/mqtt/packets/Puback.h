@@ -16,40 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/packets/Connect.h"
+#ifndef MQTT_PACKETS_PUBASK_H
+#define MQTT_PACKETS_PUBASK_H
+
+#include "mqtt/ControlPacket.h"
+
+namespace mqtt {
+    class ControlPacketFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <endian.h>
-#include <vector>
+#include <cstdint> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::packets {
 
-    Connect::Connect(ControlPacketFactory& controlPacketFactory)
-        : mqtt::ControlPacket(controlPacketFactory) {
-    }
+    class Puback : public mqtt::ControlPacket {
+    public:
+        explicit Puback(mqtt::ControlPacketFactory& controlPacketFactory);
+        Puback(const Puback&) = default;
 
-    Connect::~Connect() {
-    }
+        Puback& operator=(const Puback&) = default;
 
-    std::string Connect::protocol() const {
-        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 0)));
+        ~Puback();
 
-        return std::string(data.data() + 2, protocolLength);
-    }
+        uint16_t getPacketIdentifier() const;
 
-    uint8_t Connect::version() const {
-        return static_cast<uint8_t>(*(data.data() + 6));
-    }
-
-    uint8_t Connect::flags() const {
-        return static_cast<uint8_t>(*(data.data() + 7));
-    }
-
-    uint16_t Connect::keepAlive() const {
-        return be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 8)));
-    }
+    private:
+        uint16_t packetIdentifier;
+    };
 
 } // namespace mqtt::packets
+
+#endif // MQTT_PACKETS_PUBASK_H

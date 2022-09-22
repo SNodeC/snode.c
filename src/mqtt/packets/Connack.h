@@ -16,40 +16,41 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/packets/Connect.h"
+#ifndef MQTT_PACKETS_CONNACK_H
+#define MQTT_PACKETS_CONNACK_H
+
+#include "mqtt/ControlPacket.h"
+
+namespace mqtt {
+    class ControlPacketFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <endian.h>
-#include <vector>
+#include <cstdint> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::packets {
 
-    Connect::Connect(ControlPacketFactory& controlPacketFactory)
-        : mqtt::ControlPacket(controlPacketFactory) {
-    }
+    class Connack : public mqtt::ControlPacket {
+    public:
+        explicit Connack(mqtt::ControlPacketFactory& controlPacketFactory);
+        Connack(const Connack&) = default;
 
-    Connect::~Connect() {
-    }
+        Connack& operator=(const Connack&) = default;
 
-    std::string Connect::protocol() const {
-        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 0)));
+        ~Connack();
 
-        return std::string(data.data() + 2, protocolLength);
-    }
+        uint8_t getFlags() const;
 
-    uint8_t Connect::version() const {
-        return static_cast<uint8_t>(*(data.data() + 6));
-    }
+        uint8_t getReason() const;
 
-    uint8_t Connect::flags() const {
-        return static_cast<uint8_t>(*(data.data() + 7));
-    }
-
-    uint16_t Connect::keepAlive() const {
-        return be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 8)));
-    }
+    private:
+        uint8_t flags = 0;
+        uint8_t reason = 0;
+    };
 
 } // namespace mqtt::packets
+
+#endif // MQTT_PACKETS_CONNACK_H

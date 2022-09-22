@@ -16,40 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt/packets/Connect.h"
+#include "Disconnect.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <endian.h>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace mqtt::packets {
 
-    Connect::Connect(ControlPacketFactory& controlPacketFactory)
+    Disconnect::Disconnect(ControlPacketFactory& controlPacketFactory)
         : mqtt::ControlPacket(controlPacketFactory) {
     }
 
-    Connect::~Connect() {
-    }
-
-    std::string Connect::protocol() const {
-        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 0)));
-
-        return std::string(data.data() + 2, protocolLength);
-    }
-
-    uint8_t Connect::version() const {
-        return static_cast<uint8_t>(*(data.data() + 6));
-    }
-
-    uint8_t Connect::flags() const {
-        return static_cast<uint8_t>(*(data.data() + 7));
-    }
-
-    uint16_t Connect::keepAlive() const {
-        return be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 8)));
+    Disconnect::~Disconnect() {
     }
 
 } // namespace mqtt::packets

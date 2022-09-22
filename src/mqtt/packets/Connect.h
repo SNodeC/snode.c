@@ -27,8 +27,8 @@ namespace mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-#include <string>
+#include <cstdint> // IWYU pragma: export
+#include <string>  // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -47,10 +47,6 @@ namespace mqtt::packets {
         uint8_t version() const;
         uint8_t flags() const;
         uint16_t keepAlive() const;
-        //        uint8_t propertyLength() const;
-        //        std::vector<char> properties() const;
-        //        uint8_t payloadLength() const;
-        //        std::vector<char> payload() const;
     };
 
 } // namespace mqtt::packets

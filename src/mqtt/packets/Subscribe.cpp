@@ -31,8 +31,8 @@ namespace mqtt::packets {
     Subscribe::Subscribe(ControlPacketFactory& controlPacketFactory)
         : mqtt::ControlPacket(controlPacketFactory) {
         uint32_t pointer = 0;
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
 
+        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
         pointer += 2;
 
         while (data.size() > pointer) {
