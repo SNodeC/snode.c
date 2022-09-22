@@ -19,8 +19,7 @@
 #ifndef NET_IN_STREAM_SOCKET_H
 #define NET_IN_STREAM_SOCKET_H
 
-#include "net/Socket.h"           // IWYU pragma: export
-#include "net/in/SocketAddress.h" // IWYU pragma: export
+#include "net/in/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,9 +27,15 @@
 
 namespace net::in::stream {
 
-    class Socket : public net::Socket<net::in::SocketAddress> {
-    protected:
-        int create(int flags) override;
+    class Socket : public net::in::Socket {
+    private:
+        using Super = net::in::Socket;
+
+    public:
+        using Super::Super;
+        using Super::operator=;
+
+        Socket();
     };
 
 } // namespace net::in::stream

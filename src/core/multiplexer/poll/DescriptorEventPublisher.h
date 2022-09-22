@@ -31,17 +31,18 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::poll {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
+    public:
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
-    public:
         DescriptorEventPublisher(const std::string& name, core::poll::PollFdsManager& pollFds, short events, short revents);
 
     private:

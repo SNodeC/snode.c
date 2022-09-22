@@ -34,18 +34,18 @@
 
 namespace core::socket::stream {
 
-    template <typename ServerSocketT, template <typename ServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public ServerSocketT {
-        SocketServer() = delete;
-
+    template <typename SocketServerT, template <typename ServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
+    class SocketServer : public SocketServerT {
     private:
-        using Super = ServerSocketT;
+        using Super = SocketServerT;
         using SocketAcceptor = SocketAcceptorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
     public:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+
+        SocketServer() = delete;
 
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
@@ -67,16 +67,11 @@ namespace core::socket::stream {
             : SocketServer("", onConnect, onConnected, onDisconnect, options) {
         }
 
-        SocketServer(const SocketServer&) = default;
-
-        ~SocketServer() override = default;
-
         using Super::listen;
 
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
             if (Super::config->isLocalInitialized()) {
                 SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
-
                 socketAcceptor->listen(Super::config, onError);
             } else {
                 LOG(ERROR) << "Parameterless listen on anonymous server instance";
@@ -99,13 +94,14 @@ namespace core::socket::stream {
             return socketContextFactory;
         }
 
-    protected:
+    private:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;
         std::function<void(SocketConnection*)> _onConnected;
         std::function<void(SocketConnection*)> _onDisconnect;
 
+    protected:
         std::map<std::string, std::any> options;
     };
 

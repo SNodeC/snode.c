@@ -31,9 +31,34 @@
 namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
-    SubProtocol<SocketContextUpgradeT>::SubProtocol(const std::string& name)
-        : socketContextUpgrade(nullptr) {
-        this->name = name;
+    SubProtocol<SocketContextUpgradeT>::SubProtocol(const std::string& name, int pingInterval, int maxFlyingPings)
+        : name(name)
+        , socketContextUpgrade(nullptr) {
+        if (pingInterval > 0) {
+            pingTimer = core::timer::Timer::intervalTimer(
+                [this, maxFlyingPings](const std::function<void()>& stop) -> void {
+                    if (flyingPings < maxFlyingPings) {
+                        LOG(INFO) << "Ping sent";
+                        sendPing();
+                        flyingPings++;
+                    } else {
+                        LOG(WARNING) << "MaxFlyingPings exceeded - closing";
+                        sendClose();
+                        stop();
+                    }
+                },
+                pingInterval);
+        }
+    }
+
+    template <typename SocketContextUpgradeT>
+    SubProtocol<SocketContextUpgradeT>::~SubProtocol() {
+        pingTimer.cancel();
+    }
+
+    template <typename SocketContextUpgradeT>
+    void SubProtocol<SocketContextUpgradeT>::setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade) {
+        this->socketContextUpgrade = socketContextUpgrade;
     }
 
     template <typename SocketContextUpgradeT>
@@ -77,7 +102,7 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendPing(char* reason, std::size_t reasonLength) {
+    void SubProtocol<SocketContextUpgradeT>::sendPing(const char* reason, std::size_t reasonLength) {
         socketContextUpgrade->sendPing(reason, reasonLength);
     }
 
@@ -87,13 +112,14 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgradeT>
-    const std::string& SubProtocol<SocketContextUpgradeT>::getName() {
-        return name;
+    void SubProtocol<SocketContextUpgradeT>::onPongReceived() {
+        LOG(INFO) << "Pong received";
+        flyingPings = 0;
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade) {
-        this->socketContextUpgrade = socketContextUpgrade;
+    const std::string& SubProtocol<SocketContextUpgradeT>::getName() {
+        return name;
     }
 
 } // namespace web::websocket

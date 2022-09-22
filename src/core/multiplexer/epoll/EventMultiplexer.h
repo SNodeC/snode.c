@@ -1,4 +1,4 @@
-﻿/*
+/*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
@@ -21,10 +21,6 @@
 
 #include "core/EventMultiplexer.h"
 
-namespace utils {
-    class Timeval;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/epoll.h"
@@ -34,10 +30,11 @@ namespace utils {
 namespace core::epoll {
 
     class EventMultiplexer : public core::EventMultiplexer {
+    public:
         EventMultiplexer(const EventMultiplexer&) = delete;
+
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
-    public:
         EventMultiplexer();
         ~EventMultiplexer() override = default;
 
@@ -48,7 +45,7 @@ namespace core::epoll {
         int epfd;
 
         int epfds[3];
-        epoll_event ePollEvents[3];
+        epoll_event ePollEvents[3]{};
     };
 
 } // namespace core::epoll

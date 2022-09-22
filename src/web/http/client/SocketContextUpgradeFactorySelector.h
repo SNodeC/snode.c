@@ -26,7 +26,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,11 +40,6 @@ namespace web::http::client {
 
         using Super::load;
         using Super::select;
-
-    protected:
-        ~SocketContextUpgradeFactorySelector() override = default;
-
-        SocketContextUpgradeFactory* load(const std::string& upgradeContextName) override;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();

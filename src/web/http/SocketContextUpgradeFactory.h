@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "core/socket/SocketContextFactory.h" // IWYU pragma: export
+#include "core/socket/SocketContextFactory.h"
 
 namespace core::socket {
     class SocketContext;
@@ -29,7 +29,7 @@ namespace core::socket {
 namespace web::http {
     template <typename RequestT, typename ResponseT>
     class SocketContextUpgrade;
-}
+} // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,7 +46,7 @@ namespace web::http {
         using Response = ResponseT;
 
     protected:
-        SocketContextUpgradeFactory();
+        SocketContextUpgradeFactory() = default;
         ~SocketContextUpgradeFactory() override = default;
 
     public:
@@ -64,8 +64,8 @@ namespace web::http {
         std::size_t refCount = 0;
 
     private:
-        Request* request;
-        Response* response;
+        Request* request = nullptr;
+        Response* response = nullptr;
 
         virtual SocketContextUpgrade<Request, Response>*
         create(core::socket::SocketConnection* socketConnection, Request* request, Response* response) = 0;

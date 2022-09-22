@@ -30,12 +30,13 @@
 namespace core::pipe {
 
     class PipeSink : public core::eventreceiver::ReadEventReceiver {
+    public:
         PipeSink(const PipeSink&) = delete;
+
         PipeSink& operator=(const PipeSink&) = delete;
 
-    public:
         explicit PipeSink(int fd);
-        ~PipeSink();
+        ~PipeSink() override;
 
         void setOnData(const std::function<void(const char* junk, std::size_t junkLen)>& onData);
         void setOnEof(const std::function<void()>& onEof);
@@ -44,7 +45,6 @@ namespace core::pipe {
     private:
         void terminate() override;
 
-    protected:
         void readEvent() override;
         void unobservedEvent() override;
 

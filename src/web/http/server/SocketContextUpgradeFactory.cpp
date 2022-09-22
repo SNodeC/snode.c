@@ -18,7 +18,7 @@
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
 
-#include "web/http/SocketContextUpgradeFactory.hpp"
+#include "web/http/SocketContextUpgradeFactory.hpp" // IWYU pragma: keep
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,6 +43,4 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-namespace web::http {
-    template class web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>;
-}
+template class web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>;

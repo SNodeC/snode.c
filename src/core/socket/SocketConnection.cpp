@@ -29,10 +29,6 @@
 
 namespace core::socket {
 
-    SocketConnection::SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory)
-        : socketContext(socketContextFactory->create(this)) {
-    }
-
     SocketConnection::~SocketConnection() {
         delete socketContext;
     }
@@ -45,20 +41,6 @@ namespace core::socket {
         socketContext->onDisconnected();
     }
 
-    std::size_t SocketConnection::onReceiveFromPeer() {
-        std::size_t ret = socketContext->onReceiveFromPeer();
-
-        if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            onDisconnected();
-            delete socketContext;
-            socketContext = newSocketContext;
-            newSocketContext = nullptr;
-            onConnected();
-        }
-
-        return ret;
-    }
-
     void SocketConnection::onWriteError(int errnum) {
         socketContext->onWriteError(errnum);
     }
@@ -69,6 +51,10 @@ namespace core::socket {
 
     core::socket::SocketContext* SocketConnection::getSocketContext() {
         return socketContext;
+    }
+
+    core::socket::SocketContext* SocketConnection::setSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+        return socketContext = socketContextFactory->create(this);
     }
 
     core::socket::SocketContext* SocketConnection::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {

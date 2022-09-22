@@ -1,7 +1,7 @@
 #include "KeyboardReader.h"
 
 #include <iostream>
-#include <stdexcept> // for invalid_argument
+#include <stdexcept>
 #include <string>
 #include <unistd.h>
 

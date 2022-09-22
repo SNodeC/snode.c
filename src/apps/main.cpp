@@ -25,8 +25,9 @@
 
 #include <fcntl.h>
 #include <iostream>
-#include <stdio.h>  // for perror
-#include <string.h> // for strerror
+#include <stdio.h>
+#include <string.h>
+#include <typeinfo>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -87,23 +88,23 @@ public:
     }
 };
 
+int timerApp();
+
 int timerApp() {
     [[maybe_unused]] const Timer tick = Timer::intervalTimer(
-        [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+        []() -> void {
             static int i = 0;
-            std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+            std::cout << "Tick: " << i++ << std::endl;
         },
-        0.5,
-        "Tick");
+        0.5);
 
     Timer tack = Timer::intervalTimer(
-        [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+        [](const std::function<void()>& stop) -> void {
             static int i = 0;
-            std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+            std::cout << "Tack: " << i++ << std::endl;
             stop();
         },
-        1.1,
-        "Tack");
+        1.1);
 
     bool canceled = false;
 
@@ -122,9 +123,9 @@ int timerApp() {
             std::cout << "RCookie: " << req.cookie("test") << std::endl;
 
             //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
-            std::cout << "RHeader: " << req.header("Accept") << std::endl;
+            std::cout << "RHeader: " << req.get("Accept") << std::endl;
 
-            std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
+            std::cout << "If-Modified: " << req.get("If-Modified-Since") << std::endl;
 
             std::cout << "RQuery: " << req.query("Hallo") << std::endl;
 
@@ -151,7 +152,7 @@ int timerApp() {
     app.get("/search/", [&](express::Request& req, express::Response& res) -> void {
         //                  res.set({{"Content-Length", "7"}});
 
-        std::string host = req.header("Host");
+        std::string host = req.get("Host");
 
         //                std::cout << "Host: " << host << std::endl;
 
@@ -192,8 +193,58 @@ int timerApp() {
     return express::WebApp::start();
 }
 
+class Test {
+public:
+    void filter(const std::function<void(int)>& function) {
+        this->function = function;
+    }
+
+    void callIt() {
+        function(3);
+    }
+
+private:
+    std::function<void(int)> function;
+};
+
+void g() {
+}
+
+void g(const std::function<void(express::Request&, express::Response&)>& arg) {
+    VLOG(0) << "Arg type 1: " << typeid(arg).name();
+}
+
+void g(const std::function<void(express::Request&, express::Response&, express::Next&& next)>& arg) {
+    VLOG(0) << "Arg type 2: " << typeid(arg).name();
+}
+
+template <typename... Ts>
+void g(const std::function<void(express::Request&, express::Response&)>& arg, Ts... args) {
+    VLOG(0) << "Rec Arg type 1: " << typeid(arg).name();
+
+    g(args...);
+}
+
+template <typename... Ts>
+void g(const std::function<void(express::Request&, express::Response&, express::Next&& next)>& arg, Ts... args) {
+    VLOG(0) << "Rec Arg type 2: " << typeid(arg).name();
+
+    g(args...);
+}
+
 int main(int argc, char** argv) {
     express::WebApp::init(argc, argv);
+
+    g(
+        []([[maybe_unused]] express::Request& req, [[maybe_unused]] express::Response& res, [[maybe_unused]] express::Next&& next) -> void {
+            VLOG(0) << "hihih";
+        },
+        []([[maybe_unused]] express::Request& req, [[maybe_unused]] express::Response& res) -> void {
+            VLOG(0) << "hihih";
+        },
+        []([[maybe_unused]] express::Request& req, [[maybe_unused]] express::Response& res) -> void {
+            VLOG(0) << "hihih";
+        });
 
     File test;
     FileReader test1;
@@ -204,11 +255,6 @@ int main(int argc, char** argv) {
     std::cout << "FileReader: " << test1.rflags << " : " << O_RDONLY << std::endl;
     std::cout << "FileWriter: " << test2.rflags << " : " << O_WRONLY << std::endl;
     std::cout << "FileIO: " << test3.rflags << " : " << O_RDWR << std::endl;
-    /*
-        express::legacy::in::WebApp::SocketAddress sa("185.156.72.27");
-
-        VLOG(0) << "SocketAddress: " << sa.address() << " : " << sa.host() << " : " << sa.toString();
-        */
 
     return timerApp();
 }

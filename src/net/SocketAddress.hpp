@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h" // IWYU pragma: export
-
 #include <cstring>
 #include <string>
 
@@ -29,45 +27,47 @@
 
 namespace net {
 
-    template <typename SockAddrT>
-    SocketAddress<SockAddrT>::SocketAddress()
-        : sockAddr{} {
+    template <typename SockAddr>
+    SocketAddress<SockAddr>::SocketAddress(socklen_t sockAddrLen)
+        : sockAddr{}
+        , sockAddrLen(sockAddrLen) {
+        std::memset(&sockAddr, 0, sizeof(sockAddr));
     }
 
-    template <typename SockAddrT>
-    SocketAddress<SockAddrT>::SocketAddress(const SocketAddress& socketAddress) {
-        *this = socketAddress;
+    template <typename SockAddr>
+    SocketAddress<SockAddr>::SocketAddress(const SocketAddress& socketAddress)
+        : sockAddr(socketAddress.sockAddr)
+        , sockAddrLen(socketAddress.sockAddrLen) {
     }
 
-    template <typename SockAddrT>
-    SocketAddress<SockAddrT>::SocketAddress(const SockAddr& sockAddr) {
-        this->sockAddr = sockAddr;
-    }
-
-    template <typename SockAddrT>
-    SocketAddress<SockAddrT>& SocketAddress<SockAddrT>::operator=(const SocketAddress& socketAddress) {
+    template <typename SockAddr>
+    SocketAddress<SockAddr>& SocketAddress<SockAddr>::operator=(const SocketAddress& socketAddress) {
         if (this != &socketAddress) {
             this->sockAddr = socketAddress.sockAddr;
+            this->sockAddrLen = socketAddress.sockAddrLen;
         }
 
         return *this;
     }
 
-    template <typename SockAddrT>
-    SocketAddress<SockAddrT>& SocketAddress<SockAddrT>::operator=(const SockAddr& sockAddr) {
-        this->sockAddr = sockAddr;
-
-        return *this;
+    template <typename SockAddr>
+    sockaddr& SocketAddress<SockAddr>::getSockAddr() {
+        return reinterpret_cast<sockaddr&>(sockAddr);
     }
 
-    template <typename SockAddrT>
-    const sockaddr& SocketAddress<SockAddrT>::getSockAddr() const {
+    template <typename SockAddr>
+    const sockaddr& SocketAddress<SockAddr>::getSockAddr() const {
         return reinterpret_cast<const sockaddr&>(sockAddr);
     }
 
-    template <typename SockAddrT>
-    socklen_t SocketAddress<SockAddrT>::getSockAddrLen() const {
-        return sizeof(SockAddr);
+    template <typename SockAddr>
+    socklen_t& SocketAddress<SockAddr>::getSockAddrLen() {
+        return sockAddrLen;
+    }
+
+    template <typename SockAddr>
+    const socklen_t& SocketAddress<SockAddr>::getSockAddrLen() const {
+        return sockAddrLen;
     }
 
 } // namespace net

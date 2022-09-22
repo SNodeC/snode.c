@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/snode.c/web")
+
 set(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
 
 set(HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR lib/snode.c/web/http)
@@ -9,6 +11,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LIBMAGIC libmagic)
+
+add_compile_options(-Wno-undefined-func-template)
 
 set(HTTP_CPP MimeTypes.cpp Parser.cpp StatusCodes.cpp http_utils.cpp)
 
@@ -74,9 +78,7 @@ install(
 install(
     TARGETS http
     EXPORT snodec_http_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/web
 )
 
 install(

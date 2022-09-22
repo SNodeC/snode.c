@@ -22,10 +22,10 @@
 
 #include "log/Logger.h"
 
-#include <endian.h> // for be16toh, be32toh, be64toh, htobe32
-#include <iomanip>  // for operator<<, setfill, setw
-#include <memory>   // for allocator
-#include <sstream>  // for stringstream, basic_ostream, operator<<, bas..
+#include <endian.h>
+#include <iomanip>
+#include <memory>
+#include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -163,7 +163,7 @@ namespace web::websocket {
             char keyAsBytes[4];
         };
 
-        MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(generator)};
+        MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 
         if (masking) {
             sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));

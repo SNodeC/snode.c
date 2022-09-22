@@ -20,28 +20,25 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 
 #include "core/socket/stream/SocketConnector.h"
-#include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/stream/tls/ssl_utils.h"
 
-#include <cstddef>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
 
-    template <typename ClientSocketT>
-    class SocketConnector : protected core::socket::stream::SocketConnector<ClientSocketT, core::socket::stream::tls::SocketConnection> {
+    template <typename SocketClientT>
+    class SocketConnector : protected core::socket::stream::SocketConnector<SocketClientT, core::socket::stream::tls::SocketConnection> {
     private:
-        using Super = core::socket::stream::SocketConnector<ClientSocketT, core::socket::stream::tls::SocketConnection>;
-
+        using Super = core::socket::stream::SocketConnector<SocketClientT, core::socket::stream::tls::SocketConnection>;
+        using SocketClient = SocketClientT;
         using SocketAddress = typename Super::SocketAddress;
+        using Config = typename Super::Config;
 
     public:
-        using Config = typename Super::Config;
-        using ClientSocket = ClientSocketT;
         using SocketConnection = typename Super::SocketConnection;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
@@ -60,12 +57,12 @@ namespace core::socket::stream::tls {
                           ssl_set_sni(ssl, this->options);
 
                           socketConnection->doSSLHandshake(
-                              [onConnected, socketConnection](void) -> void { // onSuccess
+                              [onConnected, socketConnection]() -> void { // onSuccess
                                   LOG(INFO) << "SSL/TLS initial handshake success";
                                   onConnected(socketConnection);
                                   socketConnection->onConnected();
                               },
-                              [this](void) -> void { // onTimeout
+                              [this]() -> void { // onTimeout
                                   LOG(WARNING) << "SSL/TLS initial handshake timed out";
                                   this->onError(this->config->getRemoteAddress(), ETIMEDOUT);
                               },
@@ -83,8 +80,8 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
-                  options) {
-            ctx = ssl_ctx_new(options, false);
+                  options)
+            , ctx(ssl_ctx_new(options, false)) {
         }
 
         ~SocketConnector() override {
@@ -101,7 +98,7 @@ namespace core::socket::stream::tls {
             }
         }
 
-    protected:
+    private:
         SSL_CTX* ctx = nullptr;
     };
 

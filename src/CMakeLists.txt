@@ -8,11 +8,12 @@ include(iwyu)
 include(instrumentation)
 include(rpath-use-always)
 
+set(IO_Multiplexers "epoll;poll;select")
+list(SUBLIST IO_Multiplexers 0 1 IO_DefaultMultiplexer)
 set(IO_Multiplexer
-    "epoll"
+    ${IO_DefaultMultiplexer}
     CACHE STRING "I/O-Multiplexer to use"
 )
-set(IO_Multiplexers "epoll;poll;select")
 set_property(CACHE IO_Multiplexer PROPERTY STRINGS ${IO_Multiplexers})
 message(STATUS "I/O-Multiplexer selected: '${IO_Multiplexer}'")
 
@@ -27,6 +28,30 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(ADDITIONAL_OPTIONS
+        -Weverything
+        -Wno-c++98-compat
+        -Wno-c++98-compat-pedantic
+        -Wno-documentation-unknown-command
+        -Wno-exit-time-destructors
+        -Wno-global-constructors
+        -Wno-padded
+        -Wno-reserved-identifier
+        -Wno-shadow
+        -Wno-shadow-field
+        -Wno-used-but-marked-unused
+        -Wno-weak-vtables
+        -Wno-weak-template-vtables
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    # using Intel C++
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # using Visual Studio C++
+endif()
+
 add_compile_options(
     -Werror
     -Wall
@@ -34,18 +59,15 @@ add_compile_options(
     -Wno-psabi # needed for RaspberryPi
     -Wconversion
     -Wpedantic
+    -Wconversion
+    -Wuninitialized
+    -Wunreachable-code
+    -Wfloat-equal
     -pedantic-errors
     -fexec-charset=UTF-8
-    # -Weverything -Wno-c++17-compat -Wno-c++98-compat
-    # -Wno-c++98-compat-pedantic -Wno-reserved-identifier
-    # -Wno-shadow-field-in-constructor -Wno-padded -Wno-shadow
-    # -Wno-global-constructors -Wno-shadow-field -Wno-weak-vtables
-    # -Wno-weak-template-vtables -Wno-exit-time-destructors
-    # -Wno-missing-prototypes -Wno-undefined-func-template # has to be
-    # investigated why -Wno-documentation-unknown-command -Wno-double-promotion
-    # -Wno-covered-switch-default -Wno-used-but-marked-unused -fsanitize=address
-    # -fno-omit-frame-pointer
+    ${ADDITIONAL_OPTIONS}
 )
+
 # set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
 # link_libraries(asan) link_libraries(ubsan)
 

@@ -26,6 +26,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <exception>
 #include <netinet/in.h>
 #include <string>
 
@@ -33,9 +34,19 @@
 
 namespace net::in6 {
 
-    class SocketAddress : public net::SocketAddress<struct sockaddr_in6> {
+    class bad_hostname : public std::exception {
     public:
-        using net::SocketAddress<struct sockaddr_in6>::SocketAddress;
+        explicit bad_hostname(const std::string& hostName);
+
+        const char* what() const noexcept override;
+
+    private:
+        std::string message;
+    };
+
+    class SocketAddress : public net::SocketAddress<sockaddr_in6> {
+    public:
+        using net::SocketAddress<sockaddr_in6>::SocketAddress;
 
         SocketAddress();
         explicit SocketAddress(const std::string& ipOrHostname);

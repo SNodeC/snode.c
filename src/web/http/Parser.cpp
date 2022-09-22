@@ -23,8 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cctype> // for isblank
-#include <tuple>  // for tie, tuple
+#include <cctype>
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

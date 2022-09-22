@@ -16,15 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DescriptorEventPublisher.h"
+#include "core/multiplexer/poll/DescriptorEventPublisher.h"
 
-#include "EventMultiplexer.h"
-#include "core/DescriptorEventReceiver.h"
+#include "core/multiplexer/poll/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <unordered_map> // for unordered_map, _Map_base<>::mapped_type
-#include <utility>       // for tuple_element<>::type
+#include <unordered_map>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,7 +59,7 @@ namespace core::poll {
 
         const std::unordered_map<int, PollFdsManager::PollFdIndex>& pollFdsIndices = pollFds.getPollFdIndices();
 
-        for (auto& [fd, eventReceivers] : observedEventReceivers) { // cppcheck-suppress unassignedVariable
+        for (auto& [fd, eventReceivers] : observedEventReceivers) {
             pollfd& pollFd = pollfds[pollFdsIndices.find(fd)->second.index];
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & revents) != 0) {

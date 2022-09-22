@@ -18,14 +18,13 @@
 
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
-#include "web/http/SocketContextUpgrade.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <tuple> // for tie, tuple
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,11 +32,11 @@ namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
         : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>() {
-        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR);
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR);
 
-#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR)
+#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR)
 
-        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR);
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR);
 
 #endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR)
     }
@@ -48,16 +47,11 @@ namespace web::http::server {
         return &socketContextUpgradeFactorySelector;
     }
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return load(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::SERVER);
-    }
-
     /* do not remove */
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        std::string upgradeContextNames = req.header("upgrade");
+        std::string upgradeContextNames = req.get("upgrade");
 
         if (!upgradeContextNames.empty()) {
             std::string upgradeContextName;
@@ -68,7 +62,7 @@ namespace web::http::server {
 
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName);
+            socketContextUpgradeFactory = select(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::SERVER);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res);
@@ -80,6 +74,4 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-namespace web::http {
-    template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;
-}
+template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;

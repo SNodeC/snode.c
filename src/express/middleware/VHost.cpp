@@ -21,7 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
-#include <memory> // for shared_ptr, __shared_ptr_access
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,10 +30,10 @@ namespace express::middleware {
     VHost::VHost(const std::string& host)
         : host(host) {
         use([&host = this->host] MIDDLEWARE(req, res, next) {
-            if (req.header("Host") == host) {
+            if (req.get("Host") == host) {
                 next();
             } else {
-                next("route");
+                next("router");
             }
         });
     }

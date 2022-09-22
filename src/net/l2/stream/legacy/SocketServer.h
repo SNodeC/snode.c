@@ -19,9 +19,9 @@
 #ifndef NET_L2_STREAM_LEGACY_SOCKETSERVER_H
 #define NET_L2_STREAM_LEGACY_SOCKETSERVER_H
 
-#include "core/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
-#include "net/l2/stream/ServerSocket.h"             // IWYU pragma: export
-#include "net/l2/stream/legacy/config/ConfigSocketServer.h"
+#include "core/socket/stream/legacy/SocketServer.h"         // IWYU pragma: export
+#include "net/l2/stream/SocketServer.h"                     // IWYU pragma: export
+#include "net/l2/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace net::l2::stream::legacy {
 
     template <typename SocketContextFactoryT>
     using SocketServer =
-        core::socket::stream::legacy::SocketServer<net::l2::stream::ServerSocket<net::l2::stream::legacy::config::ConfigSocketServer>,
+        core::socket::stream::legacy::SocketServer<net::l2::stream::SocketServer<net::l2::stream::legacy::config::ConfigSocketServer>,
                                                    SocketContextFactoryT>;
 
 } // namespace net::l2::stream::legacy

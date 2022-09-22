@@ -19,45 +19,41 @@
 #ifndef NET_SOCKET_H
 #define NET_SOCKET_H
 
-#include "core/Descriptor.h"
+#include "core/socket/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/socket.h" // IWYU pragma: export
 
-#include <functional>
+#include <functional> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
     template <typename SocketAddressT>
-    class Socket : virtual public core::Descriptor {
+    class Socket : public core::socket::Socket {
+    private:
+        using Super = core::socket::Socket;
+
     public:
+        using Super::Super;
+        using Super::operator=;
         using SocketAddress = SocketAddressT;
 
-        Socket() = default;
-
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
-
-    protected:
-        virtual ~Socket() = default;
-
-        virtual int create(int flags) = 0;
-
     public:
-        void open(const std::function<void(int)>& onError, int flags = 0);
+        int bind(const SocketAddress& bindAddress);
 
-        void bind(const SocketAddress& localAddress, const std::function<void(int)>& onError);
+        int getSockname(SocketAddress& socketAddress);
+        int getPeername(SocketAddress& socketAddress);
 
-        enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
-
-        void shutdown(shutdown how);
+        ssize_t sendFd(SocketAddress&& destAddress, int sendfd);
+        ssize_t sendFd(SocketAddress& destAddress, int sendfd);
+        ssize_t recvFd(int* recvfd);
 
         const SocketAddress& getBindAddress() const;
 
-    protected:
+    private:
         SocketAddress bindAddress{};
     };
 

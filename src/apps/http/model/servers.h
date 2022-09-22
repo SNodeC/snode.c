@@ -1,3 +1,21 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef APPS_HTTP_MODEL_SERVERS_H
 #define APPS_HTTP_MODEL_SERVERS_H
 
@@ -13,13 +31,17 @@
 #include "express/Router.h"
 #include "express/middleware/StaticMiddleware.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
+
 #if (STREAM_TYPE == TLS) // tls
-#include <cstddef>       // for size_t
+#include <cstddef>
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #endif
 
-#include "log/Logger.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 express::Router getRouter(const std::string& rootPath) {
     express::Router router;

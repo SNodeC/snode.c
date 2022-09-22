@@ -30,12 +30,11 @@ namespace core::socket {
 namespace web::http {
     template <typename RequestT, typename ResponseT>
     class SocketContextUpgradeFactory;
-}
+} // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "utils/Timeval.h"
 
 #include <cstdint>
 #include <string>
@@ -51,6 +50,11 @@ namespace web::websocket {
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
+    public:
+        SocketContextUpgrade() = delete;
+        SocketContextUpgrade(const SocketContextUpgrade&) = delete;
+        SocketContextUpgrade& operator=(const SocketContextUpgrade&) = delete;
+
     private:
         using Super = web::http::SocketContextUpgrade<RequestT, ResponseT>;
 
@@ -76,10 +80,6 @@ namespace web::websocket {
             , Transmitter(role == Role::CLIENT)
             , subProtocol(subProtocol) {
         }
-
-        SocketContextUpgrade() = delete;
-        SocketContextUpgrade(const SocketContextUpgrade&) = delete;
-        SocketContextUpgrade& operator=(const SocketContextUpgrade&) = delete;
 
         ~SocketContextUpgrade() override = default;
 
@@ -109,23 +109,18 @@ namespace web::websocket {
         }
 
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) {
-            char* closePayload = const_cast<char*>(reason);
-            std::size_t closePayloadLength = reasonLength;
+            std::size_t closePayloadLength = reasonLength + 2;
+            char* closePayload = new char[closePayloadLength];
 
-            if (statusCode != 0) {
-                closePayload = new char[reasonLength + 2];
-                *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode);
-                closePayloadLength += 2;
-                if (reasonLength > 0) {
-                    memcpy(closePayload + 2, reason, reasonLength);
-                }
+            *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode);
+
+            if (reasonLength > 0) {
+                memcpy(closePayload + 2, reason, reasonLength);
             }
 
             sendClose(closePayload, closePayloadLength);
 
-            if (statusCode != 0) {
-                delete[] closePayload;
-            }
+            delete[] closePayload;
 
             setTimeout(CLOSE_SOCKET_TIMEOUT);
 
@@ -136,12 +131,11 @@ namespace web::websocket {
         void sendClose(const char* message, std::size_t messageLength) {
             sendMessage(8, message, messageLength);
             shutdownWrite();
-            //            close();
         }
 
         /* WSReceiver */
         void onMessageStart(int opCode) override {
-            opCodeReceived = opCode;
+            receivedOpCode = opCode;
 
             switch (opCode) {
                 case OpCode::CLOSE:
@@ -157,7 +151,7 @@ namespace web::websocket {
         }
 
         void onMessageData(const char* junk, uint64_t junkLen) override {
-            switch (opCodeReceived) {
+            switch (receivedOpCode) {
                 case OpCode::CLOSE:
                     [[fallthrough]];
                 case OpCode::PING:
@@ -179,13 +173,13 @@ namespace web::websocket {
         }
 
         void onMessageEnd() override {
-            switch (opCodeReceived) {
+            switch (receivedOpCode) {
                 case OpCode::CLOSE:
                     if (closeSent) { // active close
                         closeSent = false;
-                        VLOG(0) << "Close confirmed from peer";
+                        LOG(INFO) << "Close confirmed from peer";
                     } else { // passive close
-                        VLOG(0) << "Close request received - replying with close";
+                        LOG(INFO) << "Close request received - replying with close";
                         sendClose(pongCloseData.data(), pongCloseData.length());
                         pongCloseData.clear();
                     }
@@ -253,7 +247,7 @@ namespace web::websocket {
 
         void sendFrameData(const char* frame, uint64_t frameLength) override {
             if (!closeSent) {
-                std::size_t frameOffset = 0;
+                uint64_t frameOffset = 0;
 
                 do {
                     std::size_t sendJunkLen =
@@ -275,7 +269,7 @@ namespace web::websocket {
     private:
         bool closeSent = false;
 
-        int opCodeReceived = 0;
+        int receivedOpCode = 0;
 
         std::string pongCloseData;
 

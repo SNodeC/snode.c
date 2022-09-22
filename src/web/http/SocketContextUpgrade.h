@@ -24,7 +24,7 @@
 
 namespace core::socket {
     class SocketConnection;
-}
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -53,6 +53,7 @@ namespace web::http {
             socketContextUpgradeFactory->decRefCount();
         }
 
+    private:
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
     };
 

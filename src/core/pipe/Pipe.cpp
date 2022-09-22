@@ -18,14 +18,14 @@
 
 #include "core/pipe/Pipe.h"
 
-#include "core/pipe/PipeSink.h"   // for PipeSink
-#include "core/pipe/PipeSource.h" // for PipeSource
+#include "core/pipe/PipeSink.h"
+#include "core/pipe/PipeSource.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/unistd.h"
+
 #include <cerrno>
-#include <fcntl.h>  /* Obtain O_* constant definitions */
-#include <unistd.h> // for pipe2
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,7 +33,7 @@ namespace core::pipe {
 
     Pipe::Pipe(const std::function<void(PipeSource& pipeSource, PipeSink& pipsSink)>& onSuccess,
                const std::function<void(int err)>& onError) {
-        int ret = pipe2(pipeFd, O_NONBLOCK);
+        int ret = core::system::pipe2(pipeFd, O_NONBLOCK);
 
         if (ret == 0) {
             onSuccess(*(new PipeSource(pipeFd[1])), *(new PipeSink(pipeFd[0])));

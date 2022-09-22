@@ -18,16 +18,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h" // for Writer, Storage, VLOG
+#include "log/Logger.h"
 #include "web/http/CookieOptions.h"
-#include "web/http/client/ResponseParser.h" // for HTTPResponseParser, ResponseCookie
-#include "web/http/server/RequestParser.h"  // for RequestParser
+#include "web/http/client/ResponseParser.h"
+#include "web/http/server/RequestParser.h"
 
-#include <functional>  // for function
-#include <map>         // for map
-#include <string>      // for allocator, string, operator+, char_t...
-#include <type_traits> // for add_const<>::type
-#include <utility>     // for pair, tuple_element<>::type
+#include <functional>
+#include <map>
+#include <string>
+#include <type_traits>
+
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

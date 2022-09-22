@@ -22,7 +22,6 @@
 namespace core {
     class Event;
     class DescriptorEventReceiver;
-
 } // namespace core
 
 namespace utils {
@@ -40,12 +39,14 @@ namespace utils {
 namespace core {
 
     class DescriptorEventPublisher {
+    public:
+        DescriptorEventPublisher() = delete;
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     protected:
-        DescriptorEventPublisher() = delete;
-        DescriptorEventPublisher(const std::string& name);
+        DescriptorEventPublisher(std::string name);
 
     public:
         virtual ~DescriptorEventPublisher() = default;
@@ -59,7 +60,7 @@ namespace core {
 
         virtual int publishActiveEvents() = 0;
         void checkTimedOutEvents(const utils::Timeval& currentTime);
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        void releaseDisabledEvents(const utils::Timeval& currentTime);
 
         int getObservedEventReceiverCount() const;
         int getMaxFd() const;
@@ -76,9 +77,11 @@ namespace core {
         virtual void muxOn(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxOff(DescriptorEventReceiver* descriptorEventReceiver) = 0;
 
+        unsigned long eventCounter = 0;
+
         std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceivers;
 
-        unsigned long eventCounter = 0;
+    private:
         bool observedEventReceiversDirty = false;
 
         std::string name;

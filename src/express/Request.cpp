@@ -22,23 +22,25 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility> // for pair
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {
 
-    std::string& Request::param(const std::string& id) {
-        return params[id];
+    const std::string& Request::param(const std::string& id, const std::string& fallBack) {
+        return params.contains(id) ? params[id] : fallBack;
     }
 
-    void Request::extend() {
+    Request& Request::extend() {
         originalUrl = url;
         url = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
         path = httputils::str_split_last(url, '/').first;
         if (path.empty()) {
-            path = "/";
+            path = std::string("/");
         }
+
+        return *this;
     }
 
 } // namespace express

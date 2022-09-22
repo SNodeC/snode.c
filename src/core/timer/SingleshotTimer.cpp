@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SingleshotTimer.h"
+#include "core/timer/SingleshotTimer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,17 +24,13 @@
 
 namespace core::timer {
 
-    SingleshotTimer::SingleshotTimer(const std::function<void(const void*)>& dispatcher,
-                                     const utils::Timeval& timeout,
-                                     const void* arg,
-                                     const std::string& name)
+    SingleshotTimer::SingleshotTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout, const std::string& name)
         : TimerEventReceiver(name, timeout)
-        , dispatcher(dispatcher)
-        , arg(arg) {
+        , dispatcher(dispatcher) {
     }
 
     void SingleshotTimer::dispatchEvent() {
-        dispatcher(arg);
+        dispatcher();
         cancel();
     }
 

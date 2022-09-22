@@ -18,7 +18,7 @@
 
 #include "core/socket/SocketContext.h"
 
-#include "core/socket/SocketConnection.h" // IWYU pragma: keep
+#include "core/socket/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -52,6 +52,10 @@ namespace core::socket {
         socketConnection->setTimeout(timeout);
     }
 
+    Socket& SocketContext::getSocket() {
+        return socketConnection->getSocket();
+    }
+
     void SocketContext::onConnected() {
         PLOG(INFO) << "Protocol connected";
     }
@@ -65,7 +69,6 @@ namespace core::socket {
     }
 
     void SocketContext::shutdownWrite(bool forceClose) {
-        VLOG(0) << "ShutdownWrite: forceClose = " << forceClose;
         socketConnection->shutdownWrite(forceClose);
     }
 

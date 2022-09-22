@@ -19,37 +19,24 @@
 #ifndef NET_L2_STREAM_SERVERSOCKET_H
 #define NET_L2_STREAM_SERVERSOCKET_H
 
-#include "net/ServerSocket.h"     // IWYU pragma: export
 #include "net/l2/stream/Socket.h" // IWYU pragma: export
+#include "net/stream/ServerSocket.h"
+
+// IWYU pragma: no_include "net/stream/ServerSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint> // IWYU pragma: export
-#include <functional>
-#include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream {
 
-    template <typename ConfigT>
-    class ServerSocket : public net::ServerSocket<ConfigT, net::l2::stream::Socket> {
-        using Super = net::ServerSocket<ConfigT, net::l2::stream::Socket>;
-
-    protected:
-        explicit ServerSocket(const std::string& name);
+    class ServerSocket : public net::stream::ServerSocket<net::l2::stream::Socket> {
+    private:
+        using Super = net::stream::ServerSocket<net::l2::stream::Socket>;
 
     public:
-        using Super::listen;
-
-        void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
-
-        void listen(const std::string& address, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
-
-        void listen(const std::string& address,
-                    uint16_t psm,
-                    int backlog,
-                    const std::function<void(const SocketAddress& SocketAddress, int)>& onError);
+        using Super::Super;
+        using Super::operator=;
     };
 
 } // namespace net::l2::stream

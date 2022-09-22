@@ -19,14 +19,8 @@
 #ifndef CORE_SELECT_EVENTDISPATCHER_H
 #define CORE_SELECT_EVENTDISPATCHER_H
 
-#include "DescriptorEventPublisher.h" // IWYU pragma: export
 #include "core/EventMultiplexer.h"
-
-// IWYU pragma: no_include "core/multiplexer/select/DescriptorEventPublisher.h"
-
-namespace utils {
-    class Timeval;
-}
+#include "core/multiplexer/select/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,10 +29,11 @@ namespace utils {
 namespace core::select {
 
     class EventMultiplexer : public core::EventMultiplexer {
+    public:
         EventMultiplexer(const EventMultiplexer&) = delete;
+
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
-    public:
         EventMultiplexer();
         ~EventMultiplexer() override = default;
 

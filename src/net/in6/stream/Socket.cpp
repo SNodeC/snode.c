@@ -18,20 +18,16 @@
 
 #include "net/in6/stream/Socket.h"
 
-#include "net/Socket.hpp" // IWYU pragma: keep
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <netinet/in.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::stream {
 
-    int Socket::create(int flags) {
-        return core::system::socket(PF_INET6, SOCK_STREAM | flags, 0);
+    Socket::Socket()
+        : Super(SOCK_STREAM, IPPROTO_TCP) {
     }
 
 } // namespace net::in6::stream
-
-namespace net {
-    template class Socket<net::in6::SocketAddress>;
-}

@@ -16,13 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EventMultiplexer.h"
+#include "core/multiplexer/epoll/EventMultiplexer.h"
 
-#include "DescriptorEventPublisher.h"
+#include "core/multiplexer/epoll/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "utils/Timeval.h" // for Timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,22 +33,22 @@ core::EventMultiplexer& EventMultiplexer() {
 namespace core::epoll {
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::epoll::DescriptorEventPublisher("READ", epfds[DISP_TYPE::RD], EPOLLIN),
-                                 new core::epoll::DescriptorEventPublisher("WRITE", epfds[DISP_TYPE::WR], EPOLLOUT),
-                                 new core::epoll::DescriptorEventPublisher("EXCEPT", epfds[DISP_TYPE::EX], EPOLLPRI)) {
-        epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
-
-        epoll_event event;
+        : core::EventMultiplexer(
+              new core::epoll::DescriptorEventPublisher("READ", epfds[core::DescriptorEventReceiver::DISP_TYPE::RD], EPOLLIN),
+              new core::epoll::DescriptorEventPublisher("WRITE", epfds[core::DescriptorEventReceiver::DISP_TYPE::WR], EPOLLOUT),
+              new core::epoll::DescriptorEventPublisher("EXCEPT", epfds[core::DescriptorEventReceiver::DISP_TYPE::EX], EPOLLPRI))
+        , epfd(core::system::epoll_create1(EPOLL_CLOEXEC)) {
+        epoll_event event{};
         event.events = EPOLLIN;
 
-        event.data.ptr = descriptorEventPublishers[DISP_TYPE::RD];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::RD], &event);
+        event.data.ptr = descriptorEventPublishers[core::DescriptorEventReceiver::DISP_TYPE::RD];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::DescriptorEventReceiver::DISP_TYPE::RD], &event);
 
-        event.data.ptr = descriptorEventPublishers[WR];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::WR], &event);
+        event.data.ptr = descriptorEventPublishers[core::DescriptorEventReceiver::DISP_TYPE::WR];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::DescriptorEventReceiver::DISP_TYPE::WR], &event);
 
-        event.data.ptr = descriptorEventPublishers[EX];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[DISP_TYPE::EX], &event);
+        event.data.ptr = descriptorEventPublishers[core::DescriptorEventReceiver::DISP_TYPE::EX];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::DescriptorEventReceiver::DISP_TYPE::EX], &event);
     }
 
     int EventMultiplexer::multiplex(utils::Timeval& tickTimeout) {

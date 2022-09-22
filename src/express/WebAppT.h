@@ -28,7 +28,7 @@
 #include <any> // IWYU pragma: export
 #include <functional>
 #include <map>
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -73,10 +73,9 @@ namespace express {
                       VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
                   },
-                  [route = this->route](express::Request& req,
-                                        express::Response& res) -> void { // onRequestReady
-                      req.extend();
-                      route->dispatch(req, res);
+                  [rootRoute = this->rootRoute](Request& req,
+                                                Response& res) -> void { // onRequestReady
+                      rootRoute->dispatch(Controller(req, res));
                   },
                   [](SocketConnection* socketConnection) -> void { // onDisconnect
                       VLOG(0) << "OnDisconnect:";

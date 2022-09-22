@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TimerEventReceiver.h"
+#include "core/TimerEventReceiver.h"
 
-#include "EventLoop.h"
-#include "EventMultiplexer.h"
-#include "Timer.h"
-#include "TimerEventPublisher.h"
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
+#include "core/Timer.h"
+#include "core/TimerEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,7 +66,7 @@ namespace core {
         timerEventPublisher.remove(this);
     }
 
-    void TimerEventReceiver::event(const utils::Timeval& currentTime) {
+    void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
         LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
 
         dispatchEvent();

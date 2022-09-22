@@ -53,10 +53,10 @@ namespace core::socket::stream::tls {
                         int tmpErrno = errno;
                         LOG(INFO) << "SSL/TLS start renegotiation on write";
                         doSSLHandshake(
-                            [](void) -> void {
+                            []() -> void {
                                 LOG(INFO) << "SSL/TLS renegotiation on write success";
                             },
-                            [](void) -> void {
+                            []() -> void {
                                 LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
                             },
                             [](int ssl_err) -> void {

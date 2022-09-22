@@ -20,23 +20,29 @@
 
 #include "core/system/dlfcn.h"
 
+#include <cerrno>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::system {
 
     void* dlopen(const char* filename, int flags) {
+        errno = 0;
         return ::dlopen(filename, flags);
     }
 
     int dlclose(void* handle) {
+        errno = 0;
         return ::dlclose(handle);
     }
 
     void* dlsym(void* handle, const char* symbol) {
+        errno = 0;
         return ::dlsym(handle, symbol);
     }
 
-    char* dlerror(void) {
+    char* dlerror() {
+        errno = 0;
         return ::dlerror();
     }
 

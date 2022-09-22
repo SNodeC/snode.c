@@ -22,14 +22,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <iterator> // for advance, distance
-#include <utility>  // for pair
+#include <iterator>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
 
-    const std::string& Request::header(const std::string& key, int i) const {
+    const std::string& Request::get(const std::string& key, int i) const {
         std::string tmpKey = key;
         httputils::to_lower(tmpKey);
 
@@ -40,12 +40,12 @@ namespace web::http::server {
             if (std::distance(range.first, range.second) >= i) {
                 std::advance(range.first, i);
                 return (*(range.first)).second;
-            } else {
-                return nullstr;
             }
-        } else {
+
             return nullstr;
         }
+
+        return nullstr;
     }
 
     const std::string& Request::cookie(const std::string& key) const {
@@ -53,9 +53,9 @@ namespace web::http::server {
 
         if (it != cookies.end()) {
             return it->second;
-        } else {
-            return nullstr;
         }
+
+        return nullstr;
     }
 
     const std::string& Request::query(const std::string& key) const {
@@ -63,9 +63,9 @@ namespace web::http::server {
 
         if (it != queries.end()) {
             return it->second;
-        } else {
-            return nullstr;
         }
+
+        return nullstr;
     }
 
     void Request::reset() {

@@ -51,7 +51,7 @@ namespace web::http {
             return value;
         }
 
-    protected:
+    private:
         std::string value;
         std::map<std::string, std::string> options;
     };

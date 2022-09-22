@@ -16,8 +16,6 @@ set(CORE_CPP
     eventreceiver/AcceptEventReceiver.cpp
     eventreceiver/ConnectEventReceiver.cpp
     eventreceiver/ExceptionalConditionEventReceiver.cpp
-    eventreceiver/InitAcceptEventReceiver.cpp
-    eventreceiver/InitConnectEventReceiver.cpp
     eventreceiver/ReadEventReceiver.cpp
     eventreceiver/WriteEventReceiver.cpp
     file/File.cpp
@@ -61,8 +59,6 @@ set(CORE_H
     eventreceiver/AcceptEventReceiver.h
     eventreceiver/ConnectEventReceiver.h
     eventreceiver/ExceptionalConditionEventReceiver.h
-    eventreceiver/InitAcceptEventReceiver.h
-    eventreceiver/InitConnectEventReceiver.h
     eventreceiver/ReadEventReceiver.h
     eventreceiver/WriteEventReceiver.h
     file/File.h
@@ -97,6 +93,10 @@ set(CORE_H
     timer/Timer.h
 )
 
+set_source_files_properties(
+    EventLoop.cpp PROPERTIES COMPILE_FLAGS "-Wno-disabled-macro-expansion"
+)
+
 add_library(core SHARED ${CORE_CPP} ${CORE_H})
 add_library(snodec::core ALIAS core)
 
@@ -117,8 +117,6 @@ install(
     TARGETS core
     EXPORT snodec_core_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core
 )
 
 install(
@@ -136,9 +134,8 @@ install(
     PATTERN "timer/IntervalTimerStopable.h" EXCLUDE
     PATTERN "timer/SingleshoTimer.h" EXCLUDE
     PATTERN "cmake" EXCLUDE
-    PATTERN "socket/stream/tls" EXCLUDE
-    PATTERN "socket/stream/legacy" EXCLUDE
     PATTERN "multiplexer" EXCLUDE
+    PATTERN "socket" EXCLUDE
 )
 
 install(
@@ -149,6 +146,4 @@ install(
 )
 
 add_subdirectory(multiplexer)
-
-add_subdirectory(socket/stream/legacy)
-add_subdirectory(socket/stream/tls)
+add_subdirectory(socket)

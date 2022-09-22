@@ -21,7 +21,7 @@
 
 namespace core {
     class EventReceiver;
-}
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@ namespace core {
 
 namespace utils {
     class Timeval;
-}
+} // namespace utils
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -44,7 +44,7 @@ namespace core {
         void publish();
         void unPublish();
 
-        const std::string& getName();
+        const std::string& getName() const;
 
     private:
         void dispatch(const utils::Timeval& currentTime);

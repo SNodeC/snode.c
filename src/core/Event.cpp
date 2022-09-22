@@ -16,15 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Event.h"
+#include "core/Event.h"
 
-#include "EventLoop.h"
-#include "EventMultiplexer.h"
-#include "EventReceiver.h"
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -53,13 +50,13 @@ namespace core {
         }
     }
 
-    const std::string& Event::getName() {
+    const std::string& Event::getName() const {
         return name;
     }
 
     void Event::dispatch(const utils::Timeval& currentTime) {
         published = false;
-        eventReceiver->event(currentTime);
+        eventReceiver->onEvent(currentTime);
     }
 
 } // namespace core

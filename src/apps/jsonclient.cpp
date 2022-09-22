@@ -20,14 +20,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/SNodeC.h"               // for SNodeC
-#include "log/Logger.h"                // for Writer, Storage
-#include "web/http/client/Request.h"   // for Request
-#include "web/http/client/Response.h"  // for Response
-#include "web/http/legacy/in/Client.h" // for Client, Client<>...
+#include "core/SNodeC.h"
+#include "log/Logger.h"
+#include "web/http/client/Request.h"
+#include "web/http/client/Response.h"
+#include "web/http/legacy/in/Client.h"
 
-#include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>:...
+#include <type_traits>
+
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -98,19 +99,23 @@ int main(int argc, char* argv[]) {
                            socketConnection->getLocalAddress().toString();
         });
 
-    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int err) -> void {
-        if (err != 0) {
-            PLOG(ERROR) << "OnError: " << err;
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "jsonclient.c connecting to" << socketAddress.toString();
+            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }
     });
 
-    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int err) -> void {
-        if (err != 0) {
-            PLOG(ERROR) << "OnError: " << err;
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "jsonclient.c connecting to " << socketAddress.toString();
+            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
         }
     });
 

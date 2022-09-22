@@ -19,26 +19,26 @@
 #ifndef NET_TIMER_SINGLESHOTTIMER_H
 #define NET_TIMER_SINGLESHOTTIMER_H
 
-#include "core/TimerEventReceiver.h" // IWYU pragma: export
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string> // for allocator, string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
 
     class SingleshotTimer : public core::TimerEventReceiver {
+    public:
         SingleshotTimer(const SingleshotTimer&) = delete;
 
         SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 
     private:
-        SingleshotTimer(const std::function<void(const void*)>& dispatcher,
+        SingleshotTimer(const std::function<void()>& dispatcher,
                         const utils::Timeval& timeout,
-                        const void* arg,
                         const std::string& name = "SingleshotTimer");
 
         ~SingleshotTimer() override = default;
@@ -46,9 +46,7 @@ namespace core::timer {
         void dispatchEvent() final;
         void unobservedEvent() override;
 
-        std::function<void(const void*)> dispatcher;
-
-        const void* arg;
+        std::function<void()> dispatcher;
 
         friend class Timer;
     };

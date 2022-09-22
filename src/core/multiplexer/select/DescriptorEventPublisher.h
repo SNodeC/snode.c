@@ -29,7 +29,7 @@ namespace core {
 
 #include "core/system/select.h"
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,16 +45,17 @@ namespace core::select {
         void zero();
         fd_set& get();
 
-    protected:
-        fd_set registered;
-        fd_set active;
+    private:
+        fd_set registered{};
+        fd_set active{};
     };
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
+    public:
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
-    public:
         explicit DescriptorEventPublisher(const std::string& name, FdSet& fdSet);
 
     private:

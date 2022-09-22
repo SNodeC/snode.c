@@ -4,9 +4,9 @@
 #include "core/pipe/PipeSource.h"
 #include "log/Logger.h"
 
-#include <cstddef>    // for size_t
-#include <functional> // for function
-#include <string>     // for allocator, string
+#include <cstddef>
+#include <functional>
+#include <string>
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);

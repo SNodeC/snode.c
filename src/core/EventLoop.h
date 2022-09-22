@@ -19,7 +19,7 @@
 #ifndef CORE_EVENTLOOP_H
 #define CORE_EVENTLOOP_H
 
-#include "TickStatus.h"
+#include "core/TickStatus.h"
 
 namespace core {
     class EventMultiplexer;
@@ -34,12 +34,13 @@ namespace core {
 namespace core {
 
     class EventLoop {
-    private:
-        EventLoop();
-
+    public:
         EventLoop(const EventLoop& eventLoop) = delete;
+
         EventLoop& operator=(const EventLoop& eventLoop) = delete;
 
+    private:
+        EventLoop();
         ~EventLoop() = default;
 
     public:

@@ -20,6 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,8 +39,6 @@ namespace core::socket::stream {
         : protected core::socket::SocketConnection
         , protected SocketReaderT<SocketT>
         , protected SocketWriterT<SocketT> {
-        SocketConnection() = delete;
-
     protected:
         using Super = core::socket::SocketConnection;
 
@@ -49,7 +48,12 @@ namespace core::socket::stream {
 
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+    public:
+        SocketConnection() = delete;
+
+    protected:
+        SocketConnection(int fd,
+                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void()>& onConnect,
@@ -59,8 +63,7 @@ namespace core::socket::stream {
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
                          const utils::Timeval& terminateTimeout)
-            : Super(socketContextFactory)
-            , SocketReader(
+            : SocketReader(
                   [this](int errnum) -> void {
                       onReadError(errnum);
                   },
@@ -77,6 +80,14 @@ namespace core::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
+            SocketConnection::Descriptor::open(fd);
+
+            setSocketContext(socketContextFactory.get());
+
+            SocketReader::enable(fd);
+            SocketWriter::enable(fd);
+            SocketWriter::suspend();
+
             onConnect();
         }
 
@@ -127,8 +138,8 @@ namespace core::socket::stream {
             return localAddress;
         }
 
-        int getDescriptor() const override {
-            return SocketConnection::getFd();
+        Socket& getSocket() override {
+            return *this;
         }
 
         std::size_t readFromPeer(char* junk, std::size_t junkLen) final {
@@ -156,17 +167,20 @@ namespace core::socket::stream {
         }
 
     private:
-        void readEvent() final {
-            std::size_t availble = SocketReader::doRead();
-            std::size_t consumed = onReceiveFromPeer();
+        void onReceiveFromPeer(std::size_t available) final {
+            std::size_t consumed = socketContext->onReceiveFromPeer();
 
-            if (availble != 0 && consumed == 0) {
+            if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+                onDisconnected();
+                delete socketContext;
+                socketContext = newSocketContext;
+                newSocketContext = nullptr;
+                onConnected();
+            }
+
+            if (available != 0 && consumed == 0) {
                 close();
             }
-        }
-
-        void writeEvent() final {
-            SocketWriter::doWrite();
         }
 
         void unobservedEvent() final {
@@ -176,15 +190,7 @@ namespace core::socket::stream {
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
 
-        core::socket::SocketContext* newSocketContext = nullptr;
-
         std::function<void()> onDisconnect;
-
-        template <typename ServerSocket, template <typename Socket> class SocketConnection>
-        friend class SocketAcceptor;
-
-        template <typename ClientSocket, template <typename Socket> class SocketConnection>
-        friend class SocketConnector;
     };
 
 } // namespace core::socket::stream

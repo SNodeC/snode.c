@@ -16,20 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EventMultiplexer.h"
+#include "core/EventMultiplexer.h"
 
-#include "DescriptorEventPublisher.h"
-#include "DescriptorEventReceiver.h"
-#include "DynamicLoader.h"
-#include "Event.h" // for Event
-#include "TimerEventPublisher.h"
+#include "core/DescriptorEventPublisher.h"
+#include "core/DynamicLoader.h"
+#include "core/Event.h"
+#include "core/TimerEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm> // for min, max
-#include <cerrno>    // for EINTR, errno
+#include <algorithm>
+#include <cerrno>
 #include <numeric>
-#include <utility> // for swap
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -49,7 +48,7 @@ namespace core {
         delete timerEventPublisher;
     }
 
-    DescriptorEventPublisher& EventMultiplexer::getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE dispType) {
+    DescriptorEventPublisher& EventMultiplexer::getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType) {
         return *descriptorEventPublishers[dispType];
     }
 
@@ -91,9 +90,7 @@ namespace core {
         publishActiveEvents(currentTime);
         executeEventQueue(currentTime);
         checkTimedOutEvents(currentTime);
-        unobserveDisabledEvents(currentTime);
-
-        DynamicLoader::execDlCloseDeleyed();
+        releaseExpiredResources(currentTime);
 
         if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
             utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
@@ -121,8 +118,8 @@ namespace core {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         if (eventQueue.empty()) {
-            for (DescriptorEventPublisher* const eventMultiplexer : descriptorEventPublishers) {
-                nextTimeout = std::min(eventMultiplexer->getNextTimeout(currentTime), nextTimeout);
+            for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+                nextTimeout = std::min(descriptorEventPublisher->getNextTimeout(currentTime), nextTimeout);
             }
             nextTimeout = std::min(timerEventPublisher->getNextTimeout(currentTime), nextTimeout);
             nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextTimeout is negative
@@ -144,11 +141,12 @@ namespace core {
         publishActiveEvents();
     }
 
-    void EventMultiplexer::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+    void EventMultiplexer::releaseExpiredResources(const utils::Timeval& currentTime) {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->unobserveDisabledEvents(currentTime);
+            descriptorEventPublisher->releaseDisabledEvents(currentTime);
         }
         timerEventPublisher->unobserveDisableEvents();
+        DynamicLoader::execDlCloseDeleyed();
     }
 
     void EventMultiplexer::executeEventQueue(const utils::Timeval& currentTime) {
@@ -156,8 +154,13 @@ namespace core {
     }
 
     EventMultiplexer::EventQueue::EventQueue()
-        : executeQueue(new std::list<Event*>()) // cppcheck-suppress [noCopyConstructor, noOperatorEq]
+        : executeQueue(new std::list<Event*>())
         , publishQueue(new std::list<Event*>()) {
+        sigemptyset(&newSet);
+        sigaddset(&newSet, SIGPIPE);
+        sigaddset(&newSet, SIGINT);
+        sigaddset(&newSet, SIGTERM);
+        sigaddset(&newSet, SIGALRM);
     }
 
     EventMultiplexer::EventQueue::~EventQueue() {
@@ -176,9 +179,13 @@ namespace core {
     void EventMultiplexer::EventQueue::execute(const utils::Timeval& currentTime) {
         std::swap(executeQueue, publishQueue);
 
+        sigprocmask(SIG_BLOCK, &newSet, &oldSet);
+
         for (Event* event : *executeQueue) {
             event->dispatch(currentTime);
         }
+
+        sigprocmask(SIG_SETMASK, &oldSet, &newSet);
 
         executeQueue->clear();
     }

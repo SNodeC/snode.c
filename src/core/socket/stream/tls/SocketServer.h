@@ -19,8 +19,8 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETSERVER_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETSERVER_H
 
-#include "core/socket/stream/SocketServer.h"       // IWYU pragma: export
-#include "core/socket/stream/tls/SocketAcceptor.h" // IWYU pragma: export
+#include "core/socket/stream/SocketServer.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketAcceptor.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,11 +30,11 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename ServerSocketT, typename SocketContextFactoryT>
+    template <typename SocketServerT, typename SocketContextFactoryT>
     class SocketServer
-        : public core::socket::stream::SocketServer<ServerSocketT, core::socket::stream::tls::SocketAcceptor, SocketContextFactoryT> {
+        : public core::socket::stream::SocketServer<SocketServerT, core::socket::stream::tls::SocketAcceptor, SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketServer<ServerSocketT, core::socket::stream::tls::SocketAcceptor, SocketContextFactoryT>;
+        using Super = core::socket::stream::SocketServer<SocketServerT, core::socket::stream::tls::SocketAcceptor, SocketContextFactoryT>;
         using Super::Super;
 
     public:
@@ -47,11 +47,14 @@ namespace core::socket::stream::tls {
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
             : Super(name, onConnect, onConnected, onDisconnect, options)
-            , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [this](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-                freeSniCerts(sniSslCtxs);
+            , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
+                for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
+                    ssl_ctx_free(sniSslCtx);
+                }
+                delete sniSslCtxs;
             }) {
             Super::options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
-            Super::options.insert({{"FORCE_SNI", &forceSni}});
+            Super::options.insert({{"FORCE_SNI", false}});
         }
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
@@ -61,20 +64,16 @@ namespace core::socket::stream::tls {
             : SocketServer("", onConnect, onConnected, onDisconnect, options) {
         }
 
-    private:
-        void addSniCtx(const std::string& domain, SSL_CTX* sslCtx) {
+    public:
+        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& sniCert) {
+            SSL_CTX* sslCtx = ssl_ctx_new(sniCert, true);
+
             if (sslCtx != nullptr) {
-                sniSslCtxs->insert({{domain, sslCtx}});
+                sniSslCtxs->insert_or_assign(domain, sslCtx);
                 VLOG(2) << "SSL_CTX for domain '" << domain << "' installed";
             } else {
                 VLOG(2) << "Can not create SSL_CTX for SNI '" << domain << "'";
             }
-        }
-
-    public:
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& sniCert) {
-            SSL_CTX* sslCtx = ssl_ctx_new(sniCert, true);
-            addSniCtx(domain, sslCtx);
         }
 
         void addSniCerts(const std::map<std::string, std::map<std::string, std::any>>& sniCerts) {
@@ -83,20 +82,11 @@ namespace core::socket::stream::tls {
             }
         }
 
-        void setForceSni() {
-            forceSni = true;
-        }
-
-    private:
-        void freeSniCerts(std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-            for (const auto& [domain, sniSslCtx] : *sniSslCtxs) { // cppcheck-suppress unusedVariable
-                ssl_ctx_free(sniSslCtx);
-            }
-            delete sniSslCtxs;
+        void forceSni(bool forceSni = true) {
+            Super::options.insert_or_assign("FORCE_SNI", forceSni);
         }
 
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
-        bool forceSni = false;
     };
 
 } // namespace core::socket::stream::tls

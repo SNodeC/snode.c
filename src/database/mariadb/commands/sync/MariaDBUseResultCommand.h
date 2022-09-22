@@ -25,10 +25,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <mysql.h>
 #include <string>
-
-// IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -39,11 +36,11 @@ namespace database::mariadb::commands::sync {
         MariaDBUseResultCommand(const std::function<void(MYSQL_RES*)>& onUseResult,
                                 const std::function<void(const std::string&, unsigned int)>& onError);
 
+    private:
         int commandStart() override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
 
-    protected:
         MYSQL_RES* result = nullptr;
 
         const std::function<void(MYSQL_RES*)> onUseResult;

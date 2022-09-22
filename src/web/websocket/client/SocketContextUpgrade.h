@@ -19,24 +19,26 @@
 #ifndef WEB_WEBSOCKET_CLIENT_SOCKETCONTEXT_H
 #define WEB_WEBSOCKET_CLIENT_SOCKETCONTEXT_H
 
-#include "web/websocket/SocketContextUpgrade.h" // IWYU pragma: export
+#include "web/websocket/SocketContextUpgrade.h"
 
 namespace core::socket {
     class SocketConnection;
 } // namespace core::socket
 
-namespace web::http::client {
-    class Request;
-    class Response;
-} // namespace web::http::client
+namespace web {
+    namespace http::client {
+        class Request;
+        class Response;
+    } // namespace http::client
 
-namespace web::websocket::client {
-    class SubProtocol;
-} // namespace web::websocket::client
+    namespace websocket::client {
+        class SubProtocol;
+    } // namespace websocket::client
+} // namespace web
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

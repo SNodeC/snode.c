@@ -32,8 +32,6 @@ namespace database::mariadb {
 
 #include <deque>
 
-// IWYU pragma: no_include "mysql.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb {
@@ -48,10 +46,10 @@ namespace database::mariadb {
 
         MariaDBCommandSequence& operator=(MariaDBCommandSequence&& mariaDBCommandSequence) = default;
 
+    private:
         MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) final;
         void execute_sync(MariaDBCommandSync* mariaDBCommand) final;
 
-    private:
         std::deque<MariaDBCommand*>& sequence();
 
         MariaDBCommand* nextCommand();
@@ -61,6 +59,8 @@ namespace database::mariadb {
         std::deque<MariaDBCommand*> commandSequence;
 
         friend class MariaDBConnection;
+        friend class MariaDBClient;
+        friend class MariaDBClientASyncAPI;
     };
 
 } // namespace database::mariadb

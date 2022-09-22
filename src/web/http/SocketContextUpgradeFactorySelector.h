@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/SocketContextUpgrade.h"
+#include "web/http/SocketContextUpgrade.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,12 +31,6 @@
 
 namespace web::http {
 
-    template <typename SocketContextUpgradeFactory>
-    struct SocketContextPlugin {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory; // cppcheck-suppress unusedStructMember
-        void* handle = nullptr;                                   // cppcheck-suppress unusedStructMember
-    };
-
     template <typename SocketContextUpgradeFactoryT>
     class SocketContextUpgradeFactorySelector {
     public:
@@ -45,8 +39,16 @@ namespace web::http {
         using Response = typename SocketContextUpgradeFactory::Response;
 
     protected:
+        using SocketContextUpgrade = web::http::SocketContextUpgrade<Request, Response>;
+
         SocketContextUpgradeFactorySelector() = default;
         virtual ~SocketContextUpgradeFactorySelector() = default;
+
+    private:
+        using SocketContextPlugin = struct SocketContextPlugin {
+            SocketContextUpgradeFactory* socketContextUpgradeFactory;
+            void* handle = nullptr;
+        };
 
     public:
         virtual SocketContextUpgradeFactory* select(Request& req, Response& res) = 0;
@@ -60,21 +62,19 @@ namespace web::http {
         void unload(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
-        SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
+        SocketContextUpgradeFactory* select(const std::string& upgradeContextName, typename SocketContextUpgrade::Role role);
 
         void addSocketContextUpgradeSearchPath(const std::string& searchPath);
 
-        virtual SocketContextUpgradeFactory* load(const std::string& upgradeContextName) = 0;
-        SocketContextUpgradeFactory* load(const std::string& upgradeContextName,
-                                          typename web::http::SocketContextUpgrade<Request, Response>::Role role);
+        SocketContextUpgradeFactory* load(const std::string& upgradeContextName, typename SocketContextUpgrade::Role role);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
-        std::map<std::string, SocketContextPlugin<SocketContextUpgradeFactory>> socketContextUpgradePlugins;
+    private:
+        std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
 
-    private:
         bool onlyLinked = false;
     };
 

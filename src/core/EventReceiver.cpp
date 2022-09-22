@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EventReceiver.h"
+#include "core/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,19 +25,19 @@
 namespace core {
 
     EventReceiver::EventReceiver(const std::string& name)
-        : _event(this, name) {
+        : event(this, name) {
     }
 
     void EventReceiver::publish() {
-        _event.publish();
+        event.publish();
     }
 
     void EventReceiver::unPublish() {
-        _event.unPublish();
+        event.unPublish();
     }
 
-    const std::string& EventReceiver::getName() {
-        return _event.getName();
+    const std::string& EventReceiver::getName() const {
+        return event.getName();
     }
 
 } // namespace core

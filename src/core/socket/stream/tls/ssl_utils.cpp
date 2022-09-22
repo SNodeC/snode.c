@@ -22,17 +22,21 @@
 
 #include "log/Logger.h"
 
-#include <cerrno>  // for errno
-#include <cstdlib> // for free
+#include <cerrno>
+#include <cstdint>
+#include <cstdlib>
 #include <cstring>
-#include <openssl/err.h> // for ERR_peek_error
+#include <openssl/asn1.h>
+#include <openssl/err.h>
+#include <openssl/obj_mac.h>
 #include <openssl/opensslv.h>
-#include <openssl/ssl.h>  // IWYU pragma: keep
-#include <openssl/x509.h> // for X509_NAME_oneline, X509_STORE_CTX_get_current_cert, X509_STORE_CTX_get_error, X509_STORE_CTX_get_error_depth, X509_get_subject_name, X509_verify_cert_error_string, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN
+#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/x509.h>
+#include <openssl/x509v3.h>
 #include <string>
-#include <utility> // for tuple_element<>::type
 
 // IWYU pragma: no_include <openssl/ssl3.h>
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -50,9 +54,9 @@ namespace core::socket::stream::tls {
         return static_cast<int>(::strlen(buf));
     }
 
-    static int verify_callback(int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {
+    static int verify_callback(int preverify_ok, X509_STORE_CTX* ctx) {
         char buf[256];
-        X509* err_cert;
+        X509* err_cert = nullptr;
         int err = 0;
         int depth = 0;
 
@@ -63,9 +67,9 @@ namespace core::socket::stream::tls {
         X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
 
         if (!preverify_ok) {
-            LOG(INFO) << "verify_error:num=" << err << ":" << X509_verify_cert_error_string(err) << ":depth=" << depth << ":" << buf;
+            LOG(INFO) << "verify_error:num=" << err << ": " << X509_verify_cert_error_string(err) << ":depth=" << depth << ": " << buf;
         } else {
-            LOG(INFO) << "depth=" << depth << ":" << buf;
+            LOG(TRACE) << "depth=" << depth << ": " << buf;
         }
 
         /*
@@ -83,6 +87,12 @@ namespace core::socket::stream::tls {
     }
 
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        using ssl_option_t = uint64_t;
+#else
+        using ssl_option_t = uint32_t;
+#endif
+
         static int sslSessionCtxId = 1;
 
         std::string certChain;
@@ -91,8 +101,10 @@ namespace core::socket::stream::tls {
         std::string caFile;
         std::string caDir;
         bool useDefaultCaDir = false;
+        std::string cipherList;
+        ssl_option_t sslOptions = 0;
 
-        for (const auto& [name, value] : options) { // cppcheck-suppress unassignedVariable
+        for (const auto& [name, value] : options) {
             if (name == "CertChain") {
                 certChain = std::any_cast<const char*>(value);
             } else if (name == "CertChainKey") {
@@ -105,6 +117,10 @@ namespace core::socket::stream::tls {
                 caDir = std::any_cast<const char*>(value);
             } else if (name == "UseDefaultCaDir") {
                 useDefaultCaDir = std::any_cast<bool>(value);
+            } else if (name == "CipherList") {
+                cipherList = std::any_cast<const char*>(value);
+            } else if (name == "SslOptions") {
+                sslOptions = std::any_cast<ssl_option_t>(value);
             }
         }
 
@@ -153,15 +169,21 @@ namespace core::socket::stream::tls {
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
-                            errno = EINVAL;
                             ssl_log_error("Can not load private key");
                             sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
-                            errno = EINVAL;
                             ssl_log_error("Private key not consistent with CA files");
                             sslErr = true;
                         }
                     }
+                }
+            }
+            if (!sslErr) {
+                if (sslOptions != 0) {
+                    SSL_CTX_set_options(ctx, sslOptions);
+                }
+                if (!cipherList.empty()) {
+                    SSL_CTX_set_cipher_list(ctx, cipherList.c_str());
                 }
             }
             if (sslErr) {
@@ -212,7 +234,7 @@ namespace core::socket::stream::tls {
     void ssl_log_error(const std::string& message) {
         PLOG(ERROR) << message;
 
-        unsigned long errorCode;
+        unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(ERROR) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
@@ -221,7 +243,7 @@ namespace core::socket::stream::tls {
     void ssl_log_warning(const std::string& message) {
         LOG(WARNING) << message;
 
-        unsigned long errorCode;
+        unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(WARNING) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
@@ -230,10 +252,95 @@ namespace core::socket::stream::tls {
     void ssl_log_info(const std::string& message) {
         PLOG(INFO) << message;
 
-        unsigned long errorCode;
+        unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(INFO) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
+    }
+
+    std::set<std::string> ssl_get_sans(SSL_CTX* sslCtx) {
+        std::set<std::string> sans;
+
+        if (sslCtx != nullptr) {
+            X509* x509 = SSL_CTX_get0_certificate(sslCtx);
+            if (x509 != nullptr) {
+                GENERAL_NAMES* subjectAltNames =
+                    static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(x509, NID_subject_alt_name, nullptr, nullptr));
+
+                int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+
+                for (int32_t i = 0; i < altNameCount; ++i) {
+                    GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
+                    if (generalName->type == GEN_DNS || generalName->type == GEN_URI || generalName->type == GEN_EMAIL) {
+                        std::string subjectAltName =
+                            std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
+                                        static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
+                        VLOG(2) << "SSL_CTX for domain '" << subjectAltName << "' installed";
+                        sans.insert(subjectAltName);
+                    }
+                }
+                sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
+            } else {
+                VLOG(2) << "\tClient certificate: no certificate";
+            }
+        }
+
+        return sans;
+    }
+
+    // From: https://www.bit-hive.com/documents/openssl-tutorial/
+    std::string ssl_get_servername_from_client_hello(SSL* ssl) {
+        const unsigned char* ext;
+        size_t ext_len;
+        size_t p = 0;
+        size_t server_name_list_len;
+        size_t server_name_len;
+
+        if (!SSL_client_hello_get0_ext(ssl, TLSEXT_TYPE_server_name, &ext, &ext_len)) {
+            return "";
+        }
+
+        /* length (2 bytes) + type (1) + length (2) + server name (1+) */
+        if (ext_len < 6) {
+            return "";
+        }
+
+        /* Fetch Server Name list length */
+        server_name_list_len = static_cast<size_t>((ext[p] << 8) + ext[p + 1]);
+        p += 2;
+        if (p + server_name_list_len != ext_len) {
+            return "";
+        }
+
+        /* Fetch Server Name Type */
+        if (ext[p] != TLSEXT_NAMETYPE_host_name) {
+            return "";
+        }
+        p++;
+
+        /* Fetch Server Name Length */
+        server_name_len = static_cast<size_t>((ext[p] << 8) + ext[p + 1]);
+        p += 2;
+        if (p + server_name_len != ext_len) {
+            return "";
+        }
+
+        /* ext_len >= 6 && p == 5 */
+
+        /* Finally fetch Server Name */
+
+        return std::string(reinterpret_cast<const char*>(ext + p), ext_len - p);
+    }
+
+    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) {
+        SSL_CTX* newSslCtx = SSL_set_SSL_CTX(ssl, sslCtx);
+        SSL_clear_options(ssl, 0xFFFFFFFFL);
+        SSL_set_options(ssl, SSL_CTX_get_options(sslCtx));
+        SSL_set_verify(ssl, SSL_CTX_get_verify_mode(sslCtx), SSL_CTX_get_verify_callback(sslCtx));
+        SSL_set_verify_depth(ssl, SSL_CTX_get_verify_depth(sslCtx));
+        SSL_set_mode(ssl, SSL_CTX_get_mode(sslCtx));
+
+        return newSslCtx;
     }
 
 } // namespace core::socket::stream::tls

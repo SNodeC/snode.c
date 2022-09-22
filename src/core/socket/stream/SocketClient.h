@@ -34,24 +34,23 @@
 
 namespace core::socket::stream {
 
-    template <typename ClientSocketT, template <typename ClientSocket> class SocketConnectorT, typename SocketContextFactoryT>
-    class SocketClient : public ClientSocketT {
+    template <typename SocketClientT, template <typename ClientSocket> class SocketConnectorT, typename SocketContextFactoryT>
+    class SocketClient : public SocketClientT {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
         !include core/socket/stream/pu/SocketClient.pu
         @enduml
         */
-
-        SocketClient() = delete;
-
     private:
-        using Super = ClientSocketT;
+        using Super = SocketClientT;
         using SocketConnector = SocketConnectorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
     public:
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+
+        SocketClient() = delete;
 
         SocketClient(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
@@ -72,10 +71,6 @@ namespace core::socket::stream {
                      const std::map<std::string, std::any>& options = {{}})
             : SocketClient("", onConnect, onConnected, onDisconnect, options) {
         }
-
-        SocketClient(const SocketClient&) = default;
-
-        ~SocketClient() override = default;
 
         using Super::connect;
 
@@ -106,13 +101,14 @@ namespace core::socket::stream {
             return socketContextFactory;
         }
 
-    protected:
+    private:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(SocketConnection*)> _onConnect;
         std::function<void(SocketConnection*)> _onConnected;
         std::function<void(SocketConnection*)> _onDisconnect;
 
+    protected:
         std::map<std::string, std::any> options;
     };
 

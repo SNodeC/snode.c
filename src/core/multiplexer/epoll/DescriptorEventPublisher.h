@@ -27,10 +27,10 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/epoll.h" // IWYU pragma: export
+#include "core/system/epoll.h"
 
 #include <cstdint>
-#include <string> // for string
+#include <string>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -38,7 +38,9 @@ namespace core {
 namespace core::epoll {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
+    public:
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
     private:
@@ -65,7 +67,7 @@ namespace core::epoll {
             uint32_t events;
 
             std::vector<epoll_event> ePollEvents;
-            uint32_t interestCount;
+            std::vector<epoll_event>::size_type interestCount = 0;
         };
 
     public:

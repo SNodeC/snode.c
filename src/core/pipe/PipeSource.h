@@ -24,7 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string> // for string
+#include <string>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,12 +32,13 @@
 namespace core::pipe {
 
     class PipeSource : public core::eventreceiver::WriteEventReceiver {
+    public:
         PipeSource(const PipeSource&) = delete;
+
         PipeSource& operator=(const PipeSource&) = delete;
 
-    public:
         explicit PipeSource(int fd);
-        ~PipeSource();
+        ~PipeSource() override;
 
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& data);
@@ -52,7 +53,6 @@ namespace core::pipe {
     private:
         void terminate() override;
 
-    protected:
         std::function<void(int errnum)> onError;
 
         std::vector<char> writeBuffer;

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IntervalTimerStopable.h"
+#include "core/timer/IntervalTimerStopable.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,17 +24,15 @@
 
 namespace core::timer {
 
-    IntervalTimerStopable::IntervalTimerStopable(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
+    IntervalTimerStopable::IntervalTimerStopable(const std::function<void(const std::function<void()>&)>& dispatcher,
                                                  const utils::Timeval& timeout,
-                                                 const void* arg,
                                                  const std::string& name)
         : core::TimerEventReceiver(name, timeout)
-        , dispatcher(dispatcher)
-        , arg(arg) {
+        , dispatcher(dispatcher) {
     }
 
     void IntervalTimerStopable::dispatchEvent() {
-        dispatcher(arg, [this]() -> void {
+        dispatcher([this]() -> void {
             cancel();
         });
         update();

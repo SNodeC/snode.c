@@ -30,8 +30,6 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::config {
@@ -48,9 +46,9 @@ namespace net::un::config {
         void required();
         void sunPathRequired();
 
+    private:
         CLI::Option* sunPathOpt = nullptr;
 
-    private:
         void updateFromCommandLine() override;
 
         std::string sunPath{};

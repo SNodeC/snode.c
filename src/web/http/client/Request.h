@@ -27,7 +27,7 @@ namespace web::http {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
+#include <cstddef>
 #include <map>
 #include <string>
 
@@ -38,6 +38,8 @@ namespace web::http::client {
     class Request {
     protected:
         explicit Request(web::http::SocketContext* clientContext);
+
+        virtual ~Request() = default;
 
     public:
         std::string method = "GET";

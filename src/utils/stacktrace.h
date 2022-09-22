@@ -21,13 +21,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace stacktrace {
 
     void stacktrace(std::size_t trace_cnt_max = 32);
-}
+} // namespace stacktrace
 
 #endif // UTILS_STACKTRACE_H

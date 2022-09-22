@@ -19,15 +19,7 @@
 #ifndef CORE_POLL_EVENTDISPATCHER_H
 #define CORE_POLL_EVENTDISPATCHER_H
 
-#include "core/EventMultiplexer.h"
-
-namespace core {
-    class DescriptorEventReceiver;
-}
-
-namespace utils {
-    class Timeval;
-}
+#include "core/EventMultiplexer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,13 +35,10 @@ namespace core::poll {
     class PollFdsManager {
     public:
         struct PollFdIndex {
-            using pollfds_size_type = std::vector<pollfd>::size_type;
-
-            pollfds_size_type index; // cppcheck-suppress unusedStructMember
-            short events;            // cppcheck-suppress unusedStructMember
+            std::vector<pollfd>::size_type index;
+            short events; // cppcheck-suppress unusedStructMember
         };
 
-        using pollfds_size_type = std::vector<pollfd>::size_type;
         explicit PollFdsManager();
 
         void muxAdd(core::DescriptorEventReceiver* eventReceiver, short event);
@@ -72,10 +61,11 @@ namespace core::poll {
     };
 
     class EventMultiplexer : public core::EventMultiplexer {
+    public:
         EventMultiplexer(const EventMultiplexer&) = delete;
+
         EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
-    public:
         EventMultiplexer();
         ~EventMultiplexer() override = default;
 

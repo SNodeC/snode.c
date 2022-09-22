@@ -24,7 +24,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility> // for pair, tuple_element<>::type
+#include <utility>
+
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -159,7 +161,7 @@ namespace web::http::client {
 
         headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
-        for (const auto& [field, value] : headers) { // cppcheck-suppress unassignedVariable
+        for (const auto& [field, value] : headers) {
             enqueue(field + ":" + value + "\r\n");
         }
 
@@ -167,7 +169,7 @@ namespace web::http::client {
             enqueue("Content-Length: " + std::to_string(contentLength) + "\r\n");
         }
 
-        for (const auto& [name, value] : cookies) { // cppcheck-suppress unassignedVariable
+        for (const auto& [name, value] : cookies) {
             enqueue("Cookie:" + name + "=" + value + "\r\n");
         }
 

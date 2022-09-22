@@ -18,10 +18,12 @@ extern "C" {
         printf("[%s] %s\n", is_enter ? "+" : "-", info.dli_sname);
     }
 
+    void __attribute__((no_instrument_function)) __cyg_profile_func_enter(void* this_fn, [[maybe_unused]] void* call_site);
     void __attribute__((no_instrument_function)) __cyg_profile_func_enter(void* this_fn, [[maybe_unused]] void* call_site) {
         _print_pretty(this_fn, true, spaces++);
     }
 
+    void __attribute__((no_instrument_function)) __cyg_profile_func_exit(void* this_fn, [[maybe_unused]] void* call_site);
     void __attribute__((no_instrument_function)) __cyg_profile_func_exit(void* this_fn, [[maybe_unused]] void* call_site) {
         _print_pretty(this_fn, false, --spaces);
     }

@@ -32,14 +32,13 @@ namespace CLI {
 namespace utils {
 
     class Config {
-    private:
+    public:
         Config() = delete;
         Config(const Config&) = delete;
         ~Config() = delete;
 
         Config& operator=(const Config&) = delete;
 
-    public:
         static int init(int argc, char* argv[]);
         static void prepare();
         static void terminate();
@@ -55,13 +54,13 @@ namespace utils {
         static char** argv;
         static CLI::App app;
         static std::string name;
-        static bool _daemonize;
+        static bool startDaemon;
+        static bool stopDaemon;
         static std::string outputConfigFile;
-        static bool _dumpConfig;
-        static bool _kill;
-        static bool _forceLogFile;
-        static bool _showConfig;
-        static std::string _logFile;
+        static bool dumpConfig;
+        static bool forceLogFile;
+        static bool showConfig;
+        static std::string logFile;
         static std::string defaultConfDir;
         static std::string defaultLogDir;
         static std::string defaultPidDir;

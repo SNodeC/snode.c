@@ -22,44 +22,31 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h"
+
 #include <cstring>
-#include <exception>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un {
 
-    class bad_sunpath : public std::exception {
-    public:
-        explicit bad_sunpath(const std::string& sunPath) {
-            message = "Bad sun-path \"" + sunPath + "\"";
-        }
-
-        const char* what() const noexcept override {
-            return message.c_str();
-        }
-
-    protected:
-        static std::string message;
-    };
-
-    std::string bad_sunpath::message;
-
-    SocketAddress::SocketAddress() {
-        std::memset(&sockAddr, 0, sizeof(sockAddr));
-
+    SocketAddress::SocketAddress()
+        : Super(offsetof(sockaddr_un, sun_path)) {
         sockAddr.sun_family = AF_UNIX;
+        *sockAddr.sun_path = 0;
     }
 
     SocketAddress::SocketAddress(const std::string& sunPath)
         : SocketAddress() {
         setSunPath(sunPath);
+        sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
     }
 
     void SocketAddress::setSunPath(const std::string& sunPath) {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
             std::size_t len = sizeof(sockAddr.sun_path) - 1 < sunPath.size() + 1 ? sizeof(sockAddr.sun_path) - 1 : sunPath.size() + 1;
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
+            sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
         } else {
             throw bad_sunpath(sunPath);
         }
@@ -73,8 +60,14 @@ namespace net::un {
         return address();
     }
 
+    bad_sunpath::bad_sunpath(const std::string& sunPath) {
+        message = "Bad sun-path \"" + sunPath + "\"";
+    }
+
+    const char* bad_sunpath::what() const noexcept {
+        return message.c_str();
+    }
+
 } // namespace net::un
 
-namespace net {
-    template class SocketAddress<struct sockaddr_un>;
-}
+template class net::SocketAddress<sockaddr_un>;

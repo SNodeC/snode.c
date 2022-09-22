@@ -19,8 +19,7 @@
 #ifndef NET_IN6_STREAM_SOCKET_H
 #define NET_IN6_STREAM_SOCKET_H
 
-#include "net/Socket.h"            // IWYU pragma: export
-#include "net/in6/SocketAddress.h" // IWYU pragma: export
+#include "net/in6/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,9 +27,15 @@
 
 namespace net::in6::stream {
 
-    class Socket : public net::Socket<net::in6::SocketAddress> {
-    protected:
-        int create(int flags) override;
+    class Socket : public net::in6::Socket {
+    private:
+        using Super = net::in6::Socket;
+
+    public:
+        using Super::Super;
+        using Super::operator=;
+
+        Socket();
     };
 
 } // namespace net::in6::stream

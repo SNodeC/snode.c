@@ -21,18 +21,18 @@
 
 #include "web/websocket/SubProtocolFactorySelector.h" // IWYU pragma: export
 
-namespace web::websocket::server {
-    class SubProtocol;
-}
-
 namespace web::websocket {
     template <typename SubProtocolT>
     class SubProtocolFactory;
-}
+
+    namespace server {
+        class SubProtocol;
+    } // namespace server
+} // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,6 +40,11 @@ namespace web::websocket::server {
 
     class SubProtocolFactorySelector
         : public web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>> {
+    public:
+        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
+
+        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
+
     private:
         using Super = web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>>;
 
@@ -53,10 +58,6 @@ namespace web::websocket::server {
 
     private:
         SubProtocolFactorySelector();
-
-        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
-
-        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
     };
 
 } // namespace web::websocket::server

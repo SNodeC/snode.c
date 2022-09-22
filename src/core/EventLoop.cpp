@@ -16,19 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/EventLoop.h" // for EventLoop
+#include "core/EventLoop.h"
 
-#include "DynamicLoader.h"
-#include "EventMultiplexer.h"
+#include "core/DynamicLoader.h"
+#include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/signal.h"
-#include "log/Logger.h" // for Logger
+#include "log/Logger.h"
 #include "utils/Config.h"
 
-#include <cstdlib> // for exit
-#include <string>  // for string, to_string
+#include <cstdlib>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -85,9 +85,7 @@ namespace core {
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
         tickCounter++;
 
-        TickStatus tickStatus = eventMultiplexer.tick(tickTimeOut);
-
-        return tickStatus;
+        return eventMultiplexer.tick(tickTimeOut);
     }
 
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
@@ -113,19 +111,32 @@ namespace core {
 
         utils::Config::prepare();
 
-        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
-        sighandler_t oldSigQuitHandler = core::system::signal(SIGQUIT, EventLoop::stoponsig);
-        sighandler_t oldSigHubHandler = core::system::signal(SIGHUP, EventLoop::stoponsig);
-        sighandler_t oldSigIntHandler = core::system::signal(SIGINT, EventLoop::stoponsig);
-        sighandler_t oldSigTermHandler = core::system::signal(SIGTERM, EventLoop::stoponsig);
-        sighandler_t oldSigAbrtHandler = core::system::signal(SIGABRT, EventLoop::stoponsig);
+        struct sigaction sact {};
+        sigemptyset(&sact.sa_mask);
+        sact.sa_flags = 0;
+
+        sact.sa_handler = SIG_IGN;
+
+        struct sigaction oldPipeAct {};
+        sigaction(SIGPIPE, &sact, &oldPipeAct);
+
+        sact.sa_handler = EventLoop::stoponsig;
+
+        struct sigaction oldIntAct {};
+        sigaction(SIGINT, &sact, &oldIntAct);
+
+        struct sigaction oldTermAct {};
+        sigaction(SIGTERM, &sact, &oldTermAct);
+
+        struct sigaction oldAlarmAct {};
+        sigaction(SIGALRM, &sact, &oldAlarmAct);
 
         if (!running) {
             running = true;
-
             stopped = false;
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
+
             while (tickStatus == TickStatus::SUCCESS && !stopped) {
                 tickStatus = EventLoop::instance()._tick(timeOut);
             }
@@ -145,12 +156,10 @@ namespace core {
             running = false;
         }
 
-        core::system::signal(SIGPIPE, oldSigPipeHandler);
-        core::system::signal(SIGQUIT, oldSigQuitHandler);
-        core::system::signal(SIGHUP, oldSigHubHandler);
-        core::system::signal(SIGINT, oldSigIntHandler);
-        core::system::signal(SIGTERM, oldSigTermHandler);
-        core::system::signal(SIGABRT, oldSigAbrtHandler);
+        sigaction(SIGPIPE, &oldPipeAct, nullptr);
+        sigaction(SIGINT, &oldIntAct, nullptr);
+        sigaction(SIGTERM, &oldTermAct, nullptr);
+        sigaction(SIGALRM, &oldAlarmAct, nullptr);
 
         free();
 
@@ -167,7 +176,7 @@ namespace core {
     }
 
     void EventLoop::free() {
-        core::TickStatus tickStatus;
+        core::TickStatus tickStatus{};
 
         do {
             EventLoop::instance().eventMultiplexer.stop();
@@ -183,7 +192,7 @@ namespace core {
 
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
-        stopped = true;
+        stop();
     }
 
 } // namespace core

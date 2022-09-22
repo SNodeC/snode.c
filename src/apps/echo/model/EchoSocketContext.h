@@ -19,8 +19,8 @@
 #ifndef APPS_MODEL_ECHOSOCKETCONTEXT_H
 #define APPS_MODEL_ECHOSOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h"        // for SocketP...
-#include "core/socket/SocketContextFactory.h" // for SocketP...
+#include "core/socket/SocketContext.h"
+#include "core/socket/SocketContextFactory.h"
 
 namespace core::socket {
     class SocketConnection;

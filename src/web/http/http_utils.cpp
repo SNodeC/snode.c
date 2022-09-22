@@ -27,7 +27,7 @@
 #include <iomanip> // std::setw
 #include <sstream>
 #include <sys/stat.h>
-// IWYU pragma: no_include <bits/struct_stat.h>  // for st_mtime
+// IWYU pragma: no_include <bits/struct_stat.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -38,7 +38,7 @@ namespace httputils {
     }
 
     std::string url_decode(const std::string& text) {
-        int h;
+        int h = 0;
 
         std::string escaped;
 
@@ -140,7 +140,7 @@ namespace httputils {
             tm = core::system::gmtime(&time);
         }
 
-        strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", tm);
+        (void) strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", tm);
 
         return std::string(buf);
     }
@@ -160,7 +160,7 @@ namespace httputils {
         struct stat attrib {};
         stat(filePath.c_str(), &attrib); // TODO: to core::system
 
-        strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime))); // TODO: to core::system
+        (void) strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime))); // TODO: to core::system
 
         return std::string(buf);
     }

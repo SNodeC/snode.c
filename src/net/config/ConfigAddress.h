@@ -27,14 +27,12 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include <string>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddress : virtual protected ConfigBase {
+    class ConfigAddress : virtual public ConfigBase {
         using SocketAddress = SocketAddressT;
 
     public:
@@ -49,6 +47,7 @@ namespace net::config {
         void require(CLI::Option* opt);
         void require(CLI::Option* opt1, CLI::Option* opt2);
 
+    protected:
         CLI::App* addressSc = nullptr;
         SocketAddress address;
 

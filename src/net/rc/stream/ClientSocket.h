@@ -19,41 +19,24 @@
 #ifndef NET_RC_STREAM_CLIENTSOCKET_H
 #define NET_RC_STREAM_CLIENTSOCKET_H
 
-#include "net/ClientSocket.h"     // IWYU pragma: export
 #include "net/rc/stream/Socket.h" // IWYU pragma: export
+#include "net/stream/ClientSocket.h"
+
+// IWYU pragma: no_include "net/stream/ClientSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint> // IWYU pragma: export
-#include <functional>
-#include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::stream {
 
-    template <typename ConfigT>
-    class ClientSocket : public net::ClientSocket<ConfigT, net::rc::stream::Socket> {
-        using Super = net::ClientSocket<ConfigT, net::rc::stream::Socket>;
-
-    protected:
-        explicit ClientSocket(const std::string& name);
+    class ClientSocket : public net::stream::ClientSocket<net::rc::stream::Socket> {
+    private:
+        using Super = net::stream::ClientSocket<net::rc::stream::Socket>;
 
     public:
-        using Super::connect;
-
-        void connect(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError);
-
-        void connect(const std::string& address,
-                     uint8_t channel,
-                     const std::string& localAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError);
-
-        void connect(const std::string& address,
-                     uint8_t channel,
-                     const std::string& localAddress,
-                     uint8_t bindChannel,
-                     const std::function<void(const SocketAddress&, int)>& onError);
+        using Super::Super;
+        using Super::operator=;
     };
 
 } // namespace net::rc::stream

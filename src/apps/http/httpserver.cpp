@@ -26,7 +26,7 @@
 
 using namespace express;
 
-int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
+int main(int argc, char* argv[]) {
     logger::Logger::setVerboseLevel(2);
 
     WebApp::init(argc, argv);
@@ -36,7 +36,8 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 #elif (STREAM_TYPE == TLS)
     std::map<std::string, std::any> options{{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}};
     std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
+        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}},
+        {"www.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;
@@ -44,21 +45,23 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
 
 #if (STREAM_TYPE == TLS)
     webApp.addSniCerts(sniCerts);
+    webApp.forceSni();
 #endif
 
-#define USECONFIGUREDLISTEN
-#ifdef USECONFIGUREDLISTEN
-
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(FATAL) << "listen";
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
             VLOG(0) << "snode.c listening on " << socketAddress.toString();
         }
-    }); // cppcheck-suppress syntaxError
+    });
 
-#else
+    return WebApp::start();
+}
 
+/*
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)
     webApp.listen(8080, 5, [](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
@@ -91,9 +94,6 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
         }
 
 #ifdef NET_TYPE
-    }); // cppcheck-suppress syntaxError
+    });
 #endif
-
-#endif
-    return WebApp::start();
-}
+*/

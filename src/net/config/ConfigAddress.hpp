@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGADDRESS_HPP
 #define NET_CONFIG_CONFIGADDRESS_HPP
 
-#include "ConfigAddress.h" // IWYU pragma: export
+#include "net/config/ConfigAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -16,13 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Timer.h"
+#include "core/Timer.h"
 
-#include "TimerEventReceiver.h"
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -34,16 +32,22 @@ namespace core {
         timerEventReceiver->enable();
     }
 
-    Timer::Timer(Timer&& timer) {
-        timerEventReceiver = std::move(timer.timerEventReceiver);
-        timerEventReceiver->setTimer(this);
+    Timer::Timer(Timer&& timer) noexcept
+        : timerEventReceiver(timer.timerEventReceiver) {
         timer.timerEventReceiver = nullptr;
+
+        if (timerEventReceiver != nullptr) {
+            timerEventReceiver->setTimer(this);
+        }
     }
 
-    Timer& Timer::operator=(Timer&& timer) {
-        timerEventReceiver = std::move(timer.timerEventReceiver);
-        timerEventReceiver->setTimer(this);
+    Timer& Timer::operator=(Timer&& timer) noexcept {
+        timerEventReceiver = timer.timerEventReceiver;
         timer.timerEventReceiver = nullptr;
+
+        if (timerEventReceiver != nullptr) {
+            timerEventReceiver->setTimer(this);
+        }
 
         return *this;
     }

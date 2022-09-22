@@ -35,8 +35,9 @@ namespace web::websocket::client {
 
 #endif // !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR)
 
-        if (getenv("DL_WSCLIENT_SUBPROTOCOL_PATH") != nullptr) {
-            Super::addSubProtocolSearchPath(getenv("DL_WSCLIENT_SUBPROTOCOL_PATH"));
+        char* envDlWsClientSubprotocolPath = getenv("DL_WSCLIENT_SUBPROTOCOL_PATH");
+        if (envDlWsClientSubprotocolPath != nullptr) {
+            Super::addSubProtocolSearchPath(envDlWsClientSubprotocolPath);
         }
     }
 
@@ -47,7 +48,7 @@ namespace web::websocket::client {
     }
 
     void SubProtocolFactorySelector::link(const std::string& subProtocolName, void* (*getSubProtocolFactory)()) {
-        SubProtocolFactorySelector::instance()->linkSubProtocolFactory(subProtocolName, getSubProtocolFactory);
+        SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
     }
 
     void SubProtocolFactorySelector::addSubProtocolSearchPath(const std::string& searchPath) {

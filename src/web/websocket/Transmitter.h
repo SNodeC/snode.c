@@ -59,8 +59,8 @@ namespace web::websocket {
         virtual void sendFrameData(uint64_t data) = 0;
         virtual void sendFrameData(const char* frame, uint64_t frameLength) = 0;
 
-        std::default_random_engine generator;
-        std::uniform_int_distribution<uint32_t> distribution{1, UINT32_MAX};
+        std::random_device randomDevice;
+        std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
 
         bool masking = false;
     };

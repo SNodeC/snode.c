@@ -19,20 +19,14 @@
 #ifndef EXPRESS_DISPATCHER_MIDDLEWAREDISPATCHER_H
 #define EXPRESS_DISPATCHER_MIDDLEWAREDISPATCHER_H
 
-#include "express/dispatcher/Dispatcher.h"
+#include "express/Dispatcher.h"
 
 namespace express {
-
+    struct MountPoint;
     class Request;
     class Response;
-
-    namespace dispatcher {
-
-        struct MountPoint;
-        struct State;
-
-    } // namespace dispatcher
-
+    class Controller;
+    class Next;
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -44,14 +38,15 @@ namespace express {
 
 namespace express::dispatcher {
 
-    class MiddlewareDispatcher : public Dispatcher {
+    class MiddlewareDispatcher : public express::Dispatcher {
     public:
-        explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, State& state)>& lambda);
+        explicit MiddlewareDispatcher(
+            const std::function<void(express::Request& req, express::Response& res, express::Next& next)>& lambda);
 
     private:
-        bool dispatch(State& state, const std::string& parentMountPath, const MountPoint& mountPoint) override;
+        bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
-        const std::function<void(Request& req, Response& res, State& state)> lambda;
+        const std::function<void(express::Request& req, express::Response& res, express::Next& next)> lambda;
     };
 
 } // namespace express::dispatcher

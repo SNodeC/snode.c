@@ -20,15 +20,13 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
-#include "core/eventreceiver/InitConnectEventReceiver.h"
+#include "core/socket/stream/SocketConnectionFactory.h"
 
 namespace core::socket {
     class SocketContextFactory;
-}
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "core/system/socket.h"
 
 #include <any>
 #include <functional>
@@ -40,25 +38,26 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ClientSocketT, template <typename SocketT> class SocketConnectionT>
+    template <typename SocketClientT, template <typename SocketT> class SocketConnectionT>
     class SocketConnector
-        : protected ClientSocketT::Socket
-        , protected core::eventreceiver::InitConnectEventReceiver
+        : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
-        SocketConnector() = delete;
-        SocketConnector(const SocketConnector&) = delete;
-        SocketConnector& operator=(const SocketConnector&) = delete;
-
     private:
-        using ClientSocket = ClientSocketT;
-        using Socket = typename ClientSocket::Socket;
+        using SocketClient = SocketClientT;
+        using PrimarySocket = typename SocketClient::Socket;
 
     protected:
-        using SocketConnection = SocketConnectionT<Socket>;
+        using SocketConnection = SocketConnectionT<PrimarySocket>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<SocketClient, SocketConnection>;
 
     public:
-        using Config = typename ClientSocket::Config;
-        using SocketAddress = typename ClientSocket::SocketAddress;
+        using Config = typename SocketClient::Config;
+        using SocketAddress = typename SocketClient::SocketAddress;
+
+        SocketConnector() = delete;
+        SocketConnector(const SocketConnector&) = delete;
+
+        SocketConnector& operator=(const SocketConnector&) = delete;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
@@ -67,14 +66,15 @@ namespace core::socket::stream {
                         const std::map<std::string, std::any>& options)
             : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
             , core::eventreceiver::ConnectEventReceiver("SocketConnector")
-            , socketContextFactory(socketContextFactory)
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect)
+            , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
             , options(options) {
         }
 
-        ~SocketConnector() override = default;
+        ~SocketConnector() override {
+            if (socket != nullptr) {
+                delete socket;
+            }
+        }
 
         void connect(const std::shared_ptr<Config>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
             this->config = clientConfig;
@@ -85,86 +85,42 @@ namespace core::socket::stream {
 
     private:
         void initConnectEvent() override {
-            Socket::open(
-                [this](int errnum) -> void {
-                    if (errnum > 0) {
-                        onError(config->getRemoteAddress(), errnum);
-                        destruct();
-                    } else {
-                        Socket::bind(config->getLocalAddress(), [this](int errnum) -> void {
-                            if (errnum > 0) {
-                                onError(config->getRemoteAddress(), errnum);
-                                destruct();
-                            } else {
-                                int ret = core::system::connect(Socket::getFd(),
-                                                                &config->getRemoteAddress().getSockAddr(),
-                                                                config->getRemoteAddress().getSockAddrLen());
-
-                                if (ret == 0 || errno == EINPROGRESS) {
-                                    enable(Socket::getFd());
-                                    onError(config->getRemoteAddress(), 0);
-                                } else {
-                                    onError(config->getRemoteAddress(), errno);
-                                    destruct();
-                                }
-                            }
-                        });
-                    }
-                },
-                SOCK_NONBLOCK);
+            socket = new PrimarySocket();
+            if (socket->open(PrimarySocket::Flags::NONBLOCK) < 0) {
+                onError(config->getRemoteAddress(), errno);
+                destruct();
+            } else if (socket->bind(config->getLocalAddress()) < 0) {
+                onError(config->getRemoteAddress(), errno);
+                destruct();
+            } else if (socket->connect(config->getRemoteAddress()) < 0 && !socket->connectInProgress(errno)) {
+                onError(config->getRemoteAddress(), errno);
+                destruct();
+            } else {
+                enable(socket->getFd());
+            }
         }
 
         void connectEvent() override {
             int cErrno = -1;
-            socklen_t cErrnoLen = sizeof(cErrno);
 
-            int err = core::system::getsockopt(SocketConnector::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
-
-            if (err == 0) {
-                errno = cErrno;
-                if (errno != EINPROGRESS) {
-                    if (errno == 0) {
+            if ((cErrno = socket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
+                if (!socket->connectInProgress(cErrno)) {
+                    if (cErrno == 0) {
                         disable();
-
-                        typename SocketAddress::SockAddr localAddress{};
-                        socklen_t localAddressLength = sizeof(localAddress);
-
-                        typename SocketAddress::SockAddr remoteAddress{};
-                        socklen_t remoteAddressLength = sizeof(remoteAddress);
-
-                        if (core::system::getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) ==
-                                0 &&
-                            core::system::getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
-                                0) {
-                            SocketConnection* socketConnection = new SocketConnection(SocketConnector::getFd(),
-                                                                                      socketContextFactory,
-                                                                                      SocketAddress(localAddress),
-                                                                                      SocketAddress(remoteAddress),
-                                                                                      onConnect,
-                                                                                      onDisconnect,
-                                                                                      config->getReadTimeout(),
-                                                                                      config->getWriteTimeout(),
-                                                                                      config->getReadBlockSize(),
-                                                                                      config->getWriteBlockSize(),
-                                                                                      config->getTerminateTimeout());
-
-                            onConnected(socketConnection);
-
-                            Socket::dontClose(true);
-                        } else {
-                            onError(config->getRemoteAddress(), errno);
-                            disable();
-                        }
-                    } else {
+                        socketConnectionFactory.create(*socket, config);
+                        errno = errno == 0 ? cErrno : errno;
                         onError(config->getRemoteAddress(), errno);
+                    } else {
                         disable();
+                        errno = errno == 0 ? cErrno : errno;
+                        onError(config->getRemoteAddress(), errno);
                     }
                 } else {
                     // Do nothing: connect() still in progress
                 }
             } else {
-                onError(config->getRemoteAddress(), errno);
                 disable();
+                onError(config->getRemoteAddress(), cErrno);
             }
         }
 
@@ -180,12 +136,9 @@ namespace core::socket::stream {
             destruct();
         }
 
-        std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
+        PrimarySocket* socket = nullptr;
 
-        std::function<void(SocketConnection*)> onConnect;
-        std::function<void(SocketConnection*)> onDestruct;
-        std::function<void(SocketConnection*)> onConnected;
-        std::function<void(SocketConnection*)> onDisconnect;
+        SocketConnectionFactory socketConnectionFactory;
 
     protected:
         std::function<void(const SocketAddress& socketAddress, int err)> onError;

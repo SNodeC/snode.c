@@ -18,7 +18,8 @@
 
 #include "web/websocket/client/SubProtocol.h"
 
-#include "web/websocket/SubProtocol.hpp" // IWYU pragma: keep
+#include "web/websocket/SubProtocol.hpp"               // IWYU pragma: keep
+#include "web/websocket/client/SocketContextUpgrade.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,8 +27,4 @@
 
 namespace web::websocket::client {} // namespace web::websocket::client
 
-namespace web::websocket {
-
-    template class SubProtocol<web::websocket::client::SocketContextUpgrade>;
-
-} // namespace web::websocket
+template class web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>;

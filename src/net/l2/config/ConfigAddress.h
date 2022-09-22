@@ -31,7 +31,6 @@ namespace CLI {
 } // namespace CLI
 
 #include <cstdint>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -49,10 +48,10 @@ namespace net::l2::config {
         void required();
         void psmRequired();
 
+    private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* psmOpt = nullptr;
 
-    private:
         void updateFromCommandLine() override;
 
         std::string host{};

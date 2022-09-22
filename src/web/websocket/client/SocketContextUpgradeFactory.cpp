@@ -18,8 +18,8 @@
 
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
 
-#include "web/http/client/Request.h"  // for Request
-#include "web/http/client/Response.h" // for Response
+#include "web/http/client/Request.h"
+#include "web/http/client/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

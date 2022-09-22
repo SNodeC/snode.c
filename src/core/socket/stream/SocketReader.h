@@ -26,7 +26,7 @@
 #include "log/Logger.h"
 
 #include <cerrno>
-#include <cstddef> // for std::size_t
+#include <cstddef>
 #include <functional>
 #include <sys/types.h>
 #include <vector>
@@ -39,6 +39,7 @@ namespace core::socket::stream {
     class SocketReader
         : public core::eventreceiver::ReadEventReceiver
         , virtual public SocketT {
+    public:
         SocketReader() = delete;
 
     protected:
@@ -53,31 +54,21 @@ namespace core::socket::stream {
             , terminateTimeout(terminateTimeout) {
             setBlockSize(blockSize);
             setTimeout(timeout);
-            enable(Socket::getFd());
         }
 
         ~SocketReader() override = default;
 
     private:
+        virtual void onReceiveFromPeer(std::size_t available) = 0;
+
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
-        void readEvent() override = 0;
+        void readEvent() final {
+            std::size_t available = doRead();
 
-    protected:
-        void setBlockSize(std::size_t readBlockSize) {
-            readBuffer.resize(readBlockSize);
-            this->blockSize = readBlockSize;
-        }
-
-        std::size_t readFromPeer(char* junk, std::size_t junkLen) {
-            std::size_t maxReturn = std::min(junkLen, size);
-
-            std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, junk);
-
-            cursor += maxReturn;
-            size -= maxReturn;
-
-            return maxReturn;
+            if (available > 0) {
+                onReceiveFromPeer(available);
+            }
         }
 
         std::size_t doRead() {
@@ -111,9 +102,26 @@ namespace core::socket::stream {
             return size;
         }
 
+    protected:
+        void setBlockSize(std::size_t readBlockSize) {
+            readBuffer.resize(readBlockSize);
+            this->blockSize = readBlockSize;
+        }
+
+        std::size_t readFromPeer(char* junk, std::size_t junkLen) {
+            std::size_t maxReturn = std::min(junkLen, size);
+
+            std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, junk);
+
+            cursor += maxReturn;
+            size -= maxReturn;
+
+            return maxReturn;
+        }
+
         void shutdown() {
             if (!shutdownTriggered) {
-                Socket::shutdown(Socket::shutdown::RD);
+                Socket::shutdown(Socket::SHUT::RD);
                 shutdownTriggered = true;
             }
         }
@@ -133,7 +141,7 @@ namespace core::socket::stream {
         std::function<void(int)> onError;
 
         std::vector<char> readBuffer;
-        std::size_t blockSize;
+        std::size_t blockSize = 0;
 
         std::size_t size = 0;
         std::size_t cursor = 0;

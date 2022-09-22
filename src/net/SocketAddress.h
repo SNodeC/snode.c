@@ -21,7 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h" // IWYU pragma: export
+#include "core/system/socket.h"
 
 #include <string>
 
@@ -34,27 +34,26 @@ namespace net {
     public:
         using SockAddr = SockAddrT;
 
-        SocketAddress();
+        SocketAddress(socklen_t sockAddrLen = sizeof(SockAddr));
 
         SocketAddress(const SocketAddress& socketAddress);
-
-        explicit SocketAddress(const SockAddr& sockAddr);
 
         virtual ~SocketAddress() = default;
 
         SocketAddress& operator=(const SocketAddress& socketAddress);
 
-        SocketAddress& operator=(const SockAddr& sockAddr);
-
+        sockaddr& getSockAddr();
         const sockaddr& getSockAddr() const;
 
-        socklen_t getSockAddrLen() const;
+        socklen_t& getSockAddrLen();
+        const socklen_t& getSockAddrLen() const;
 
         virtual std::string address() const = 0;
         virtual std::string toString() const = 0;
 
     protected:
         SockAddr sockAddr;
+        socklen_t sockAddrLen;
     };
 
 } // namespace net

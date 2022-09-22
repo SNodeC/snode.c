@@ -19,15 +19,14 @@
 #ifndef CORE_SOCKET_SOCKETCONTEXT_H
 #define CORE_SOCKET_SOCKETCONTEXT_H
 
-// IWYU pragma: no_include "core/socket/SocketConnection.h"
-
 namespace utils {
     class Timeval;
-}
+} // namespace utils
 
 namespace core::socket {
-    class SocketConnection;     // IWYU pragma: keep
-    class SocketContextFactory; // IWYU pragma: keep
+    class Socket;
+    class SocketConnection;
+    class SocketContextFactory;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,10 +42,11 @@ namespace core::socket {
     protected:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
+    public:
         virtual ~SocketContext() = default;
 
-    public:
         void setTimeout(const utils::Timeval& timeout);
+        Socket& getSocket();
 
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
@@ -64,8 +64,10 @@ namespace core::socket {
         virtual void onConnected();
         virtual void onDisconnected();
 
+    public:
         virtual std::size_t onReceiveFromPeer() = 0;
 
+    private:
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
 

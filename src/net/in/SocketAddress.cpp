@@ -24,32 +24,14 @@
 
 #include "core/system/netdb.h"
 
+#include <cerrno>
 #include <cstring>
-#include <exception>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in {
 
-    class bad_hostname : public std::exception {
-    public:
-        explicit bad_hostname(const std::string& hostName) {
-            message = "Bad hostname \"" + hostName + "\"";
-        }
-
-        const char* what() const noexcept override {
-            return message.c_str();
-        }
-
-    protected:
-        static std::string message;
-    };
-
-    std::string bad_hostname::message;
-
     SocketAddress::SocketAddress() {
-        memset(&sockAddr, 0, sizeof(sockAddr));
-
         sockAddr.sin_family = AF_INET;
         sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
         sockAddr.sin_port = 0;
@@ -73,8 +55,8 @@ namespace net::in {
 
     void SocketAddress::setHost(const std::string& ipOrHostname) {
         struct addrinfo hints {};
-        struct addrinfo* res;
-        struct addrinfo* resalloc;
+        struct addrinfo* res = nullptr;
+        struct addrinfo* resalloc = nullptr;
 
         memset(&hints, 0, sizeof(hints));
 
@@ -113,24 +95,37 @@ namespace net::in {
     }
 
     std::string SocketAddress::host() const {
+        int tmpErrno = errno;
+
         char host[NI_MAXHOST];
-        int ret =
-            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, NI_NAMEREQD);
+        int ret = core::system::getnameinfo(
+            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
+
+        errno = tmpErrno;
 
         return ret == EAI_NONAME ? address() : ret >= 0 ? host : gai_strerror(ret);
     }
 
     std::string SocketAddress::address() const {
+        int tmpErrno = errno;
+
         char ip[NI_MAXHOST];
-        int ret =
-            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
+        int ret = core::system::getnameinfo(
+            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+
+        errno = tmpErrno;
 
         return ret >= 0 ? ip : gai_strerror(ret);
     }
 
     std::string SocketAddress::serv() const {
+        int tmpErrno = errno;
+
         char serv[NI_MAXSERV];
-        int ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
+        int ret =
+            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, 0);
+
+        errno = tmpErrno;
 
         return ret >= 0 ? serv : gai_strerror(ret);
     }
@@ -139,8 +134,14 @@ namespace net::in {
         return host() + ":" + std::to_string(port());
     }
 
+    bad_hostname::bad_hostname(const std::string& hostName) {
+        message = "Bad hostname \"" + hostName + "\"";
+    }
+
+    const char* bad_hostname::what() const noexcept {
+        return message.c_str();
+    }
+
 } // namespace net::in
 
-namespace net {
-    template class SocketAddress<struct sockaddr_in>;
-}
+template class net::SocketAddress<sockaddr_in>;

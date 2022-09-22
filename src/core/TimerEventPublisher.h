@@ -21,7 +21,7 @@
 
 namespace core {
     class TimerEventReceiver;
-}
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

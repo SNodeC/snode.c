@@ -21,11 +21,11 @@
 
 namespace web::websocket::server {
     class SubProtocol;
-}
+} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
+#include <cstddef>
 #include <functional>
 #include <map>
 #include <set>
@@ -36,13 +36,14 @@ namespace web::websocket::server {
 namespace web::websocket::server {
 
     class GroupsManager {
-    private:
+    public:
         GroupsManager() = default;
         GroupsManager(const GroupsManager&) = delete;
 
-        ~GroupsManager();
-
         GroupsManager& operator=(const GroupsManager&) = delete;
+
+    private:
+        ~GroupsManager();
 
     public:
         static GroupsManager* instance();
@@ -69,6 +70,7 @@ namespace web::websocket::server {
 
         static GroupsManager* groupsManager;
 
+    private:
         std::map<std::string, std::set<SubProtocol*>> groups;
     };
 

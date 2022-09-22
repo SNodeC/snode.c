@@ -19,8 +19,8 @@
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
 #include "web/http/http_utils.h"
-#include "web/http/server/Request.h"  // for Request
-#include "web/http/server/Response.h" // for Response
+#include "web/http/server/Request.h"
+#include "web/http/server/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -41,8 +41,8 @@ namespace web::websocket::server {
                                                               web::http::server::Response* response) {
         SocketContextUpgrade* socketContext = nullptr;
 
-        if (request->header("Sec-WebSocket-Version") == "13") {
-            std::string subProtocolNames = request->header("sec-websocket-protocol");
+        if (request->get("Sec-WebSocket-Version") == "13") {
+            std::string subProtocolNames = request->get("sec-websocket-protocol");
             std::string subProtocolName;
 
             do {
@@ -56,7 +56,7 @@ namespace web::websocket::server {
                 response->set("Upgrade", "websocket");
                 response->set("Connection", "Upgrade");
                 response->set("Sec-WebSocket-Protocol", subProtocolName);
-                response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
+                response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->get("sec-websocket-key")));
 
                 response->status(101).end(); // Switch Protocol
             } else {

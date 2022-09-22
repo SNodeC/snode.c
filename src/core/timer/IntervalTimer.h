@@ -19,36 +19,32 @@
 #ifndef NET_TIMER_INTERVALTIMER_H
 #define NET_TIMER_INTERVALTIMER_H
 
-#include "core/TimerEventReceiver.h" // IWYU pragma: export
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string> // for allocator, string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
 
     class IntervalTimer : public core::TimerEventReceiver {
+    public:
         IntervalTimer(const IntervalTimer&) = delete;
 
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
     private:
-        IntervalTimer(const std::function<void(const void*)>& dispatcher,
-                      const utils::Timeval& timeout,
-                      const void* arg,
-                      const std::string& name = "IntervalTimer");
+        IntervalTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout, const std::string& name = "IntervalTimer");
 
         ~IntervalTimer() override = default;
 
         void dispatchEvent() final;
         void unobservedEvent() override;
 
-        std::function<void(const void*)> dispatcher = nullptr;
-
-        const void* arg;
+        std::function<void()> dispatcher = nullptr;
 
         friend class Timer;
     };

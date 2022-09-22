@@ -33,7 +33,9 @@
 namespace express::middleware {
 
     class JsonMiddleware : public Router {
+    public:
         JsonMiddleware(const JsonMiddleware&) = delete;
+
         JsonMiddleware& operator=(const JsonMiddleware&) = delete;
 
     protected:

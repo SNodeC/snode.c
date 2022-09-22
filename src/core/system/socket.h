@@ -25,7 +25,7 @@
 
 #include <cstddef>
 #include <sys/socket.h>
-#include <sys/types.h> // for ssize_t
+#include <sys/types.h>
 
 // IWYU pragma: end_exports
 
@@ -34,16 +34,17 @@
 namespace core::system {
 
     // #include <sys/socket.h>
-    int getsockname(int sockfd, struct sockaddr* addr, socklen_t* addrlen);
-    int getpeername(int sockfd, struct sockaddr* addr, socklen_t* addrlen);
+    int getsockname(int sockfd, sockaddr* addr, socklen_t* addrlen);
+    int getpeername(int sockfd, sockaddr* addr, socklen_t* addrlen);
     int shutdown(int sockfd, int how);
 
     // #include <sys/types.h>, #include <sys/socket.h>
     int socket(int domain, int type, int protocol);
-    int bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
+    int bind(int sockfd, const sockaddr* addr, socklen_t addrlen);
     int listen(int sockfd, int backlog);
-    int accept4(int sockfd, struct sockaddr* addr, socklen_t* addrlen, int flags);
-    int connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
+    int accept(int sockfd, sockaddr* addr, socklen_t* addrlen);
+    int accept4(int sockfd, sockaddr* addr, socklen_t* addrlen, int flags);
+    int connect(int sockfd, const sockaddr* addr, socklen_t addrlen);
     ssize_t recv(int sockfd, void* buf, std::size_t len, int flags);
     ssize_t send(int sockfd, const void* buf, std::size_t len, int flags);
     int getsockopt(int sockfd, int level, int optname, void* optval, socklen_t* optlen);

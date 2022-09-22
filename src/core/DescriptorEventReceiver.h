@@ -19,19 +19,17 @@
 #ifndef CORE_DESCRIPTOREVENTRECEIVER_H
 #define CORE_DESCRIPTOREVENTRECEIVER_H
 
+#include "core/EventReceiver.h" // IWYU pragma: export
+
 namespace core {
     class DescriptorEventPublisher;
 } // namespace core
-
-#include "EventReceiver.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "core/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h" // IWYU pragma: export
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -39,6 +37,7 @@ namespace core {
 
     class Observer {
     public:
+        Observer() = default;
         virtual ~Observer() = default;
 
         bool isObserved() {
@@ -64,12 +63,13 @@ namespace core {
     };
 
     class DescriptorEventReceiver
-        : virtual public Observer
+        : virtual protected Observer
         , public EventReceiver {
+    public:
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
+
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
-    public:
         class TIMEOUT {
         public:
             static const utils::Timeval DEFAULT;
@@ -77,16 +77,13 @@ namespace core {
             static const utils::Timeval MAX;
         };
 
+        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
+
+        DescriptorEventReceiver(const std::string& name,
+                                core::DescriptorEventReceiver::DISP_TYPE dispType,
+                                const utils::Timeval& timeout = TIMEOUT::DISABLE);
+
         int getRegisteredFd();
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
-
-        bool isEnabled() const;
-        bool isSuspended() const;
-
-    protected:
-        explicit DescriptorEventReceiver(const std::string& name,
-                                         DescriptorEventPublisher& descriptorEventPublisher,
-                                         const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
         void enable(int fd);
         void disable();
@@ -94,13 +91,18 @@ namespace core {
         void suspend();
         void resume();
 
+        bool isEnabled() const;
+        bool isSuspended() const;
+
         void setTimeout(const utils::Timeval& timeout);
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+
         void checkTimeout(const utils::Timeval& currentTime);
 
         virtual void terminate();
 
     private:
-        void event(const utils::Timeval& currentTime) final;
+        void onEvent(const utils::Timeval& currentTime) final;
         void triggered(const utils::Timeval& currentTime);
         void setEnabled(const utils::Timeval& currentTime);
         void setDisabled();

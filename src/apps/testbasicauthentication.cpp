@@ -34,6 +34,7 @@ Router getRouter() {
     Router router;
 
     router.use(middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password"));
+    router.use(middleware::StaticMiddleware(SERVERROOT));
 
     return router;
 }
@@ -48,8 +49,10 @@ int main(int argc, char* argv[]) {
 
         Router& router = middleware::VHost("localhost:8080");
 
-        router.use(middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password")
-                       .use(middleware::StaticMiddleware(SERVERROOT)));
+        Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
+        ba.use(middleware::StaticMiddleware(SERVERROOT));
+
+        router.use(ba);
         legacyApp.use(router);
 
         router = middleware::VHost("atlas.home.vchrist.at:8080");
@@ -62,9 +65,11 @@ int main(int argc, char* argv[]) {
             res.status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int err) -> void {
-            if (err != 0) {
-                PLOG(FATAL) << "listen on port 8080";
+        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int errnum) -> void {
+            if (errnum < 0) {
+                PLOG(ERROR) << "OnError";
+            } else if (errnum > 0) {
+                PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
                 VLOG(0) << "snode.c listening on " << socketAddress.toString();
             }
@@ -73,11 +78,16 @@ int main(int argc, char* argv[]) {
         {
             express::tls::in6::WebApp tlsApp("tls", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
-            tlsApp.use(middleware::VHost("localhost:8088").use(getRouter().use(middleware::StaticMiddleware(SERVERROOT))));
+            Router& vh = middleware::VHost("localhost:8088");
+            vh.use(getRouter());
+            tlsApp.use(vh);
 
-            tlsApp.use(middleware::VHost("atlas.home.vchrist.at:8088").get("/", [] APPLICATION(req, res) {
+            vh = middleware::VHost("atlas.home.vchrist.at:8088");
+            vh.get("/", [] APPLICATION(req, res) {
                 res.send("Hello! I am VHOST atlas.home.vchrist.at.");
-            }));
+            });
+
+            tlsApp.use(vh);
 
             tlsApp.use([] APPLICATION(req, res) {
                 res.status(404).send("The requested resource is not found.");
@@ -101,9 +111,11 @@ int main(int argc, char* argv[]) {
                                socketConnection->getRemoteAddress().toString();
             });
 
-            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int err) -> void {
-                if (err != 0) {
-                    PLOG(FATAL) << "listen on port 8088";
+            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int errnum) -> void {
+                if (errnum < 0) {
+                    PLOG(ERROR) << "OnError";
+                } else if (errnum > 0) {
+                    PLOG(ERROR) << "OnError: " << socketAddress.toString();
                 } else {
                     VLOG(0) << "snode.c listening on " << socketAddress.toString();
                 }

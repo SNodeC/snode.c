@@ -18,7 +18,6 @@
 
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
-#include "web/http/SocketContextUpgrade.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/client/Response.h" // IWYU pragma: keep
 #include "web/http/http_utils.h"
@@ -31,13 +30,13 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
         : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>() {
-        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_INSTALL_LIBDIR);
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR);
 
-#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR)
+#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR)
 
-        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR);
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR);
 
-#endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR)
+#endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR)
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
@@ -46,15 +45,9 @@ namespace web::http::client {
         return &socketContextUpgradeFactorySelector;
     }
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return load(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::CLIENT);
-    }
-
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        socketContextUpgradeFactory = select(upgradeContextName);
+        SocketContextUpgradeFactory* socketContextUpgradeFactory =
+            select(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::CLIENT);
 
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->prepare(req); // Fill in the missing header fields into the request object
@@ -71,7 +64,7 @@ namespace web::http::client {
         if (!upgradeContextName.empty()) {
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName);
+            socketContextUpgradeFactory = select(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::CLIENT);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->web::http::SocketContextUpgradeFactory<Request, Response>::prepare(
@@ -84,6 +77,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-namespace web::http {
-    template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory>;
-}
+template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory>;

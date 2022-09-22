@@ -16,26 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
-#define WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 
-#include "core/timer/Timer.h"
 #include "web/websocket/server/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
-#include <cstdint> // for uint16_t
-#include <string>  // for allocator, string
+#include <cstddef>
+#include <cstdint>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::subprotocol::echo::server {
+namespace apps::websocket::subprotocol::echo::server {
 
     class Echo : public web::websocket::server::SubProtocol {
     public:
         explicit Echo(const std::string& name);
-        ~Echo() override;
+        ~Echo() override = default;
 
     private:
         void onConnected() override;
@@ -43,16 +42,11 @@ namespace web::websocket::subprotocol::echo::server {
         void onMessageData(const char* junk, std::size_t junkLen) override;
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
-        void onPongReceived() override;
         void onDisconnected() override;
 
         std::string data;
-
-        int flyingPings = 0;
-
-        core::timer::Timer pingTimer;
     };
 
-} // namespace web::websocket::subprotocol::echo::server
+} // namespace apps::websocket::subprotocol::echo::server
 
-#endif // WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#endif // APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H

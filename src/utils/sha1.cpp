@@ -255,7 +255,7 @@ static std::string transform_to_binary(const std::string& string) {
     for (std::size_t i = 0, j = 0; i < string.size(); i += 2, j += 1) {
         hex_byte[0] = string.at(i);
         hex_byte[1] = string.at(i + 1);
-        char* end_ptr;
+        char* end_ptr = nullptr;
         buf += static_cast<char>(strtoul(hex_byte, &end_ptr, 16));
     }
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Descriptor.h"
+#include "core/Descriptor.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,44 +26,23 @@
 
 namespace core {
 
-    Descriptor::Descriptor(int fd, enum Descriptor::FLAGS flags)
-        : flags(flags)
-        , fd(fd) {
-    }
-
     Descriptor::~Descriptor() {
-        close();
+        if (autoClose && fd >= 0) {
+            core::system::close(fd);
+            fd = -1;
+        }
     }
 
-    void Descriptor::attachFd(int fd) {
-        this->fd = fd;
+    int Descriptor::open(int fd) {
+        return this->fd = fd;
     }
 
     int Descriptor::getFd() const {
         return fd;
     }
 
-    void Descriptor::dontClose(bool dontClose) {
-        this->flags = dontClose ? FLAGS::dontClose : FLAGS::none;
-    }
-
-    bool Descriptor::dontClose() const {
-        return (flags & FLAGS::dontClose) == FLAGS::dontClose;
-    }
-
-    void Descriptor::close() {
-        if (fd >= 0 && !dontClose()) {
-            core::system::close(fd);
-            fd = -1;
-        }
-    }
-
-    enum Descriptor::FLAGS operator|(const enum Descriptor::FLAGS& f1, const enum Descriptor::FLAGS& f2) {
-        return static_cast<enum Descriptor::FLAGS>(static_cast<unsigned short>(f1) | static_cast<unsigned short>(f2));
-    }
-
-    enum Descriptor::FLAGS operator&(const enum Descriptor::FLAGS& f1, const enum Descriptor::FLAGS& f2) {
-        return static_cast<enum Descriptor::FLAGS>(static_cast<unsigned short>(f1) & static_cast<unsigned short>(f2));
+    void Descriptor::dontClose() {
+        autoClose = false;
     }
 
 } // namespace core

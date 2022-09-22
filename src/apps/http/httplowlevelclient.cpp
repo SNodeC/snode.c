@@ -18,25 +18,26 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                            // for CLIENTCERTF
-#include "core/SNodeC.h"                       // for SNodeC
-#include "core/socket/SocketContext.h"         // for SocketProtocol
-#include "core/socket/SocketContextFactory.h"  // for SocketProtocolF...
-#include "log/Logger.h"                        // for Writer, Storage
-#include "net/in/stream/legacy/SocketClient.h" // for SocketC...
-#include "net/in/stream/tls/SocketClient.h"    // for SocketC...
-#include "web/http/client/ResponseParser.h"    // for ResponseParser
+#include "config.h"
+#include "core/SNodeC.h"
+#include "core/socket/SocketContext.h"
+#include "core/socket/SocketContextFactory.h"
+#include "log/Logger.h"
+#include "net/in/stream/legacy/SocketClient.h"
+#include "net/in/stream/tls/SocketClient.h"
+#include "web/http/client/ResponseParser.h"
 
-#include <openssl/asn1.h>    // for ASN1_STRING_get...
-#include <openssl/crypto.h>  // for OPENSSL_free
-#include <openssl/obj_mac.h> // for NID_subject_alt...
+#include <openssl/asn1.h>
+#include <openssl/crypto.h>
+#include <openssl/obj_mac.h>
 #include <openssl/opensslv.h>
-#include <openssl/ssl.h>    // IWYU pragma: keep
-#include <openssl/x509.h>   // for X509_NAME_oneline
-#include <openssl/x509v3.h> // for GENERAL_NAME
-#include <type_traits>      // for add_const<>::type
-#include <utility>          // for tuple_element<>...
+#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/x509.h>
+#include <openssl/x509v3.h>
+#include <type_traits>
+#include <utility> // IWYU pragma: keep
 
+// IWYU pragma: no_include <bits/utility.h>
 // IWYU pragma: no_include <openssl/ssl3.h>
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -158,11 +159,11 @@ namespace tls {
 
                     VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
-                    char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
+                    char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
                     VLOG(0) << "        Subject: " + std::string(str);
                     OPENSSL_free(str);
 
-                    str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
+                    str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
                     VLOG(0) << "        Issuer: " + std::string(str);
                     OPENSSL_free(str);
 
@@ -278,11 +279,13 @@ int main(int argc, char* argv[]) {
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
         legacyClient.connect(legacyRemoteAddress,
-                             [](const tls::SocketAddress& socketAddress, int err) -> void { // example.com:81 simulate connnect timeout
-                                 if (err) {
-                                     PLOG(ERROR) << "Connect: " << std::to_string(err);
+                             [](const tls::SocketAddress& socketAddress, int errnum) -> void { // example.com:81 simulate connnect timeout
+                                 if (errnum < 0) {
+                                     PLOG(ERROR) << "OnError";
+                                 } else if (errnum > 0) {
+                                     PLOG(ERROR) << "OnError: " << socketAddress.toString();
                                  } else {
-                                     VLOG(0) << "Connecting to " << socketAddress.toString();
+                                     VLOG(0) << "snode.c connecting to " << socketAddress.toString();
                                  }
                              });
 
@@ -290,11 +293,13 @@ int main(int argc, char* argv[]) {
 
         tls::SocketClient tlsClient = tls::getClient();
 
-        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
+        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int errnum) -> void {
+            if (errnum < 0) {
+                PLOG(ERROR) << "OnError";
+            } else if (errnum > 0) {
+                PLOG(ERROR) << "OnError: " << socketAddress.toString();
             } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
+                VLOG(0) << "snode.c connecting to " << socketAddress.toString();
             }
         });
     }

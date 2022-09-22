@@ -20,16 +20,16 @@
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
-#include "core/eventreceiver/InitAcceptEventReceiver.h"
+#include "core/socket/stream/SocketConnectionFactory.h"
+#include "net/config/ConfigCluster.h"
+#include "net/un/dgram/Socket.h"
 
 namespace core::socket {
     class SocketContextFactory;
-}
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h"
-#include "core/system/unistd.h"
 #include "log/Logger.h"
 
 #include <any>
@@ -42,31 +42,34 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename ServerSocketT, template <typename SocketT> class SocketConnectionT>
+    template <typename SocketServerT, template <typename SocketT> class SocketConnectionT>
     class SocketAcceptor
-        : protected ServerSocketT::Socket
-        , protected core::eventreceiver::InitAcceptEventReceiver
+        : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
-        SocketAcceptor() = delete;
-        SocketAcceptor(const SocketAcceptor&) = delete;
-        SocketAcceptor& operator=(const SocketAcceptor&) = delete;
-
     private:
-        using ServerSocket = ServerSocketT;
-        using Socket = typename ServerSocket::Socket;
+        using SocketServer = SocketServerT;
+        using PrimarySocket = typename SocketServer::Socket;
+        using SecondarySocket = net::un::dgram::Socket;
 
     protected:
-        using SocketConnection = SocketConnectionT<Socket>;
+        using SocketConnection = SocketConnectionT<PrimarySocket>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<SocketServer, SocketConnection>;
 
     public:
-        using Config = typename ServerSocket::Config;
-        using SocketAddress = typename Socket::SocketAddress;
+        using Config = typename SocketServer::Config;
+        using SocketAddress = typename PrimarySocket::SocketAddress;
 
         /** Sequence diagramm of res.upgrade(req).
         @startuml
         !include core/socket/stream/pu/SocketAcceptor.pu!0
         @enduml
         */
+
+        SocketAcceptor() = delete;
+        SocketAcceptor(const SocketAcceptor&) = delete;
+
+        SocketAcceptor& operator=(const SocketAcceptor&) = delete;
+
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
@@ -74,14 +77,18 @@ namespace core::socket::stream {
                        const std::map<std::string, std::any>& options)
             : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
             , core::eventreceiver::AcceptEventReceiver("SocketAcceptor")
-            , socketContextFactory(socketContextFactory)
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect)
+            , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
             , options(options) {
         }
 
-        ~SocketAcceptor() override = default;
+        ~SocketAcceptor() override {
+            if (secondarySocket != nullptr) {
+                delete secondarySocket;
+            }
+            if (primarySocket != nullptr) {
+                delete primarySocket;
+            }
+        }
 
         void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
             this->config = config;
@@ -92,94 +99,99 @@ namespace core::socket::stream {
 
     private:
         void initAcceptEvent() override {
-            Socket::open(
-                [this](int errnum) -> void {
-                    if (errnum > 0) {
-                        onError(config->getLocalAddress(), errnum);
+            if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE ||
+                config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
+                VLOG(0) << "Mode: STANDALONE or PRIMARY";
+
+                primarySocket = new PrimarySocket();
+                if (primarySocket->open(PrimarySocket::Flags::NONBLOCK) < 0) {
+                    onError(config->getLocalAddress(), errno);
+                    destruct();
+#if !defined(NDEBUG)
+                } else if (primarySocket->reuseAddress() < 0) {
+                    onError(config->getLocalAddress(), errno);
+                    destruct();
+#endif // !defined(NDEBUG)
+                } else if (primarySocket->bind(config->getLocalAddress()) < 0) {
+                    onError(config->getLocalAddress(), errno);
+                    destruct();
+                } else if (primarySocket->listen(config->getBacklog()) < 0) {
+                    onError(config->getLocalAddress(), errno);
+                    destruct();
+                } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
+                    VLOG(0) << "    Cluster: PRIMARY";
+                    secondarySocket = new SecondarySocket();
+                    if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
+                        onError(config->getLocalAddress(), errno);
+                        destruct();
+                    } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/primary")) < 0) {
+                        onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
-#if !defined(NDEBUG)
-                        reuseAddress([this](int errnum) -> void {
-                            if (errnum != 0) {
-                                onError(config->getLocalAddress(), errnum);
-                                destruct();
-                            } else {
-#endif
-                                Socket::bind(config->getLocalAddress(), [this](int errnum) -> void {
-                                    if (errnum > 0) {
-                                        onError(config->getLocalAddress(), errnum);
-                                        destruct();
-                                    } else {
-                                        int ret = core::system::listen(Socket::getFd(), config->getBacklog());
-
-                                        if (ret == 0) {
-                                            enable(Socket::getFd());
-                                            onError(config->getLocalAddress(), 0);
-                                        } else {
-                                            onError(config->getLocalAddress(), errno);
-                                            destruct();
-                                        }
-                                    }
-                                });
-#if !defined(NDEBUG)
-                            }
-                        });
-#endif
+                        onError(config->getLocalAddress(), 0);
+                        enable(primarySocket->getFd());
                     }
-                },
-                SOCK_NONBLOCK);
-        }
-
-        void reuseAddress(const std::function<void(int)>& onError) {
-            int sockopt = 1;
-
-            if (core::system::setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
-                onError(errno);
-            } else {
-                onError(0);
+                } else {
+                    VLOG(0) << "    Cluster: NONE";
+                    onError(config->getLocalAddress(), 0);
+                    enable(primarySocket->getFd());
+                }
+            } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
+                       config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
+                VLOG(0) << "    Mode: SECONDARY or PROXY";
+                secondarySocket = new SecondarySocket();
+                if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
+                    onError(config->getLocalAddress(), errno);
+                    destruct();
+                } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/secondary")) < 0) {
+                    onError(config->getLocalAddress(), errno);
+                    destruct();
+                } else {
+                    onError(config->getLocalAddress(), errno);
+                    enable(secondarySocket->getFd());
+                }
             }
         }
 
         void acceptEvent() override {
-            typename SocketAddress::SockAddr remoteAddress{};
-            socklen_t remoteAddressLength = sizeof(remoteAddress);
+            if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE ||
+                config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
+                PrimarySocket socket;
 
-            int fd = -1;
+                int acceptsPerTick = config->getAcceptsPerTick();
 
-            int acceptsPerTick = config->getAcceptsPerTick();
-
-            do {
-                fd = core::system::accept4(
-                    Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
-
-                if (fd >= 0) {
-                    typename SocketAddress::SockAddr localAddress{};
-                    socklen_t addressLength = sizeof(localAddress);
-
-                    if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                        SocketConnection* socketConnection = new SocketConnection(fd,
-                                                                                  socketContextFactory,
-                                                                                  SocketAddress(localAddress),
-                                                                                  SocketAddress(remoteAddress),
-                                                                                  onConnect,
-                                                                                  onDisconnect,
-                                                                                  config->getReadTimeout(),
-                                                                                  config->getWriteTimeout(),
-                                                                                  config->getReadBlockSize(),
-                                                                                  config->getWriteBlockSize(),
-                                                                                  config->getTerminateTimeout());
-
-                        onConnected(socketConnection);
-                    } else {
-                        PLOG(ERROR) << "getsockname";
-                        core::system::shutdown(fd, SHUT_RDWR);
-                        core::system::close(fd);
+                do {
+                    SocketAddress remoteAddress{};
+                    socket = primarySocket->accept4(remoteAddress, SOCK_NONBLOCK);
+                    if (socket.isValid()) {
+                        if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE) {
+                            socketConnectionFactory.create(socket, config);
+                        } else {
+                            // Send descriptor to SECONDARY
+                            VLOG(0) << "Sending to secondary";
+                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary"), socket.getFd());
+                            SecondarySocket::SocketAddress address;
+                        }
+                    } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
+                        PLOG(ERROR) << "accept";
                     }
-                }
-            } while (fd >= 0 && --acceptsPerTick > 0);
+                } while (--acceptsPerTick > 0 && socket.isValid());
+            } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
+                       config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
+                // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
+                int fd = -1;
 
-            if (fd < 0 && errno != EINTR && errno != EAGAIN) {
-                PLOG(ERROR) << "accept";
+                if (secondarySocket->recvFd(&fd) >= 0) {
+                    PrimarySocket socket(fd);
+
+                    if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY) {
+                        socketConnectionFactory.create(socket, config);
+                    } else { // PROXY
+                        // Send to SECONDARY (TERTIARY)
+                    }
+                } else {
+                    PLOG(ERROR) << "read_fd";
+                }
             }
         }
 
@@ -191,19 +203,24 @@ namespace core::socket::stream {
         std::shared_ptr<Config> config = nullptr;
 
     private:
+        int reuseAddress() {
+            int sockopt = 1;
+
+            return primarySocket->setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
+        }
+
         void unobservedEvent() override {
             destruct();
         }
 
-        std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
+        PrimarySocket* primarySocket = nullptr;
+        SecondarySocket* secondarySocket = nullptr;
 
-        std::function<void(SocketConnection*)> onConnect;
-        std::function<void(SocketConnection*)> onDestruct;
-        std::function<void(SocketConnection*)> onConnected;
-        std::function<void(SocketConnection*)> onDisconnect;
-        std::function<void(const SocketAddress&, int)> onError = nullptr;
+        SocketConnectionFactory socketConnectionFactory;
 
     protected:
+        std::function<void(const SocketAddress&, int)> onError = nullptr;
+
         std::map<std::string, std::any> options;
     };
 

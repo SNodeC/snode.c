@@ -16,9 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DescriptorEventReceiver.h"
+#include "core/DescriptorEventReceiver.h"
 
-#include "DescriptorEventPublisher.h"
+#include "core/DescriptorEventPublisher.h"
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,11 +36,9 @@ namespace core {
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {-1, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::MAX = {LONG_MAX, 0};
 
-    DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name,
-                                                     DescriptorEventPublisher& descriptorEventPublisher,
-                                                     const utils::Timeval& timeout)
+    DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name, DISP_TYPE dispType, const utils::Timeval& timeout)
         : EventReceiver(name)
-        , descriptorEventPublisher(descriptorEventPublisher)
+        , descriptorEventPublisher(core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(dispType))
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
@@ -139,10 +139,10 @@ namespace core {
     }
 
     utils::Timeval DescriptorEventReceiver::getTimeout(const utils::Timeval& currentTime) const {
-        return (maxInactivity >= 0) ? maxInactivity - (currentTime - lastTriggered) : TIMEOUT::MAX;
+        return maxInactivity >= 0 ? currentTime > lastTriggered ? maxInactivity - (currentTime - lastTriggered) : 0 : TIMEOUT::MAX;
     }
 
-    void DescriptorEventReceiver::event(const utils::Timeval& currentTime) {
+    void DescriptorEventReceiver::onEvent(const utils::Timeval& currentTime) {
         eventCounter++;
         triggered(currentTime);
 

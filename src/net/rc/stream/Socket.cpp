@@ -18,22 +18,16 @@
 
 #include "net/rc/stream/Socket.h"
 
-#include "net/Socket.hpp" // IWYU pragma: keep
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
+#include <bluetooth/bluetooth.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::stream {
 
-    int Socket::create(int flags) {
-        return core::system::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
+    Socket::Socket()
+        : Super(SOCK_STREAM, BTPROTO_RFCOMM) {
     }
 
 } // namespace net::rc::stream
-
-namespace net {
-    template class Socket<net::rc::SocketAddress>;
-}

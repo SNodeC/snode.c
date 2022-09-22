@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TimerEventPublisher.h"
+#include "core/TimerEventPublisher.h"
 
-#include "TimerEventReceiver.h"
+#include "core/TimerEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

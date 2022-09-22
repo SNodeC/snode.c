@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 
-#include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/tls/SocketReader.h"
 #include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
@@ -62,8 +62,8 @@ namespace core::socket::stream::tls {
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
                          const utils::Timeval& terminateTimeout)
-            : Super::Descriptor(fd)
-            , Super(
+            : Super(
+                  fd,
                   socketContextFactory,
                   localAddress,
                   remoteAddress,
@@ -129,11 +129,11 @@ namespace core::socket::stream::tls {
 
             TLSHandshake::doHandshake(
                 ssl,
-                [onSuccess, this](void) -> void { // onSuccess
+                [onSuccess, this]() -> void { // onSuccess
                     SocketReader::publish();
                     onSuccess();
                 },
-                [onTimeout, this](void) -> void { // onTimeout
+                [onTimeout, this]() -> void { // onTimeout
                     SocketConnection::close();
                     onTimeout();
                 },
@@ -163,7 +163,7 @@ namespace core::socket::stream::tls {
 
             TLSShutdown::doShutdown(
                 ssl,
-                [onSuccess, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onSuccess
+                [onSuccess, this, resumeSocketReader, resumeSocketWriter]() -> void { // onSuccess
                     if (resumeSocketReader) {
                         SocketReader::resume();
                     }
@@ -172,7 +172,7 @@ namespace core::socket::stream::tls {
                     }
                     onSuccess();
                 },
-                [onTimeout, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onTimeout
+                [onTimeout, this, resumeSocketReader, resumeSocketWriter]() -> void { // onTimeout
                     if (resumeSocketReader) {
                         SocketReader::resume();
                     }

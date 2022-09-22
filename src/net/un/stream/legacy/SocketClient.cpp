@@ -16,13 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ClientSocket.hpp" // IWYU pragma: keep
-#include "net/un/stream/ClientSocket.hpp"
-#include "net/un/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: keep
+#include "net/un/stream/legacy/SocketClient.h"
+
+#include "net/un/stream/SocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-template class net::un::stream::ClientSocket<net::un::stream::legacy::config::ConfigSocketClient>;
-template class net::ClientSocket<net::un::stream::legacy::config::ConfigSocketClient, net::un::stream::Socket>;
+template class net::un::stream::SocketClient<net::un::stream::legacy::config::ConfigSocketClient>;
+template class net::stream::SocketClient<net::un::stream::ClientSocket, net::un::stream::legacy::config::ConfigSocketClient>;
+template class net::SocketConfig<net::un::stream::legacy::config::ConfigSocketClient>;

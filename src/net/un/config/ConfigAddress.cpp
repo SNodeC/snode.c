@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ConfigAddress.h"
+#include "net/un/config/ConfigAddress.h"
 
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
@@ -25,7 +25,7 @@
 
 #include "utils/CLI11.hpp"
 
-#include <string>
+#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -36,9 +36,9 @@ namespace net::un::config {
         if (!net::config::ConfigBase::getName().empty()) {
             sunPathOpt = ConfigAddressType::addressSc->add_option("--path", sunPath, "Unix domain socket");
             sunPathOpt->type_name("[sun-path]");
-            sunPathOpt->default_val(std::string('\0' + net::config::ConfigBase::getName()));
+            sunPathOpt->default_val(std::string('\0' + net::config::ConfigBase::getName() + "_" + std::to_string(getpid())));
+            ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigBase::getName() + "_" + std::to_string(getpid())));
         }
-        ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigBase::getName()));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

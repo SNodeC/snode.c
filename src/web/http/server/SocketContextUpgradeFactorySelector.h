@@ -32,11 +32,6 @@
 
 namespace web::http::server {
 
-    struct SocketContextPlugin {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory;
-        void* handle = nullptr;
-    };
-
     class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory> {
     private:
         using Super = web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>;
@@ -45,11 +40,6 @@ namespace web::http::server {
 
         using Super::load;
         using Super::select;
-
-    protected:
-        ~SocketContextUpgradeFactorySelector() override = default;
-
-        SocketContextUpgradeFactory* load(const std::string& upgradeContextName) override;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();

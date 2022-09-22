@@ -19,15 +19,18 @@
 #ifndef WEB_WEBSOCKET_SERVER_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SERVER_SUBSPROTOCOL_H
 
-#include "web/websocket/SubProtocol.h"                 // IWYU pragma: export
-#include "web/websocket/server/SocketContextUpgrade.h" // IWYU pragma: keep
+#include "web/websocket/SubProtocol.h"
 
 // IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
 
+namespace web::websocket::server {
+    class SocketContextUpgrade;
+} // namespace web::websocket::server
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>    // IWYU pragma: keep
-#include <functional> // for function
+#include <cstddef>
+#include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -39,7 +42,7 @@ namespace web::websocket::server {
         using Super = web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
 
     protected:
-        explicit SubProtocol(const std::string& name);
+        explicit SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
 
     public:
         ~SubProtocol() override;
@@ -52,7 +55,6 @@ namespace web::websocket::server {
         using Super::sendMessageStart;
 
         using Super::sendClose;
-        using Super::sendPing;
 
         void subscribe(const std::string& channel);
 
