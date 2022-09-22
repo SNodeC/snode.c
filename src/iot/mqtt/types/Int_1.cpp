@@ -34,7 +34,7 @@ namespace iot::mqtt::types {
     }
 
     std::size_t Int_1::construct() {
-        std::size_t consumed = socketContext->readFromPeer(buffer, stillNeeded);
+        std::size_t consumed = socketContext->readFromPeer(buffer + needed - stillNeeded, static_cast<std::size_t>(stillNeeded));
 
         stillNeeded -= consumed;
         completed = stillNeeded == 0;

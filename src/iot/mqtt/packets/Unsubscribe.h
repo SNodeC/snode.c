@@ -33,6 +33,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_UNSUBSCRIBE 0x0A
+
 namespace iot::mqtt::packets {
 
     class Unsubscribe : public iot::mqtt::ControlPacket {

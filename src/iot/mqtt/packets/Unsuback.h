@@ -31,6 +31,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_UNSUBACK 0x0B
+
 namespace iot::mqtt::packets {
 
     class Unsuback : public iot::mqtt::ControlPacket {

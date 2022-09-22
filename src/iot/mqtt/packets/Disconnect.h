@@ -29,6 +29,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_DISCONNECT 0x0E
+
 namespace iot::mqtt::packets {
 
     class Disconnect : public mqtt::ControlPacket {

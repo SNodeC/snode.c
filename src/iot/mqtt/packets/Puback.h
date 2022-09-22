@@ -31,6 +31,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_PUBACK 0x04
+
 namespace iot::mqtt::packets {
 
     class Puback : public iot::mqtt::ControlPacket {

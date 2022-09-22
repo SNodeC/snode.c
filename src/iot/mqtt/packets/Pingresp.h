@@ -29,6 +29,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_PINGRESP 0x0D
+
 namespace iot::mqtt::packets {
 
     class Pingresp : public iot::mqtt::ControlPacket {

@@ -32,6 +32,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_SUBACK 0x09
+
 namespace iot::mqtt::packets {
 
     class Suback : public iot::mqtt::ControlPacket {

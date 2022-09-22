@@ -18,6 +18,8 @@
 
 #include "iot/mqtt/types/Int_2.h"
 
+#include "iot/mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -32,7 +34,23 @@ namespace iot::mqtt::types {
     }
 
     std::size_t Int_2::construct() {
-        return 0;
+        std::size_t consumed = socketContext->readFromPeer(buffer + needed - stillNeeded, static_cast<std::size_t>(stillNeeded));
+
+        stillNeeded -= consumed;
+        completed = stillNeeded == 0;
+
+        return consumed;
+    }
+
+    uint16_t Int_2::getValue() {
+        return static_cast<uint16_t>(*buffer);
+    }
+
+    void Int_2::reset() {
+        needed = 2;
+        stillNeeded = 2;
+
+        mqtt::types::TypesBase::reset();
     }
 
 } // namespace iot::mqtt::types

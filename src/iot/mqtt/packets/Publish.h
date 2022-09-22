@@ -32,6 +32,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_PUBLISH 0x03
+
 namespace iot::mqtt::packets {
 
     class Publish : public iot::mqtt::ControlPacket {

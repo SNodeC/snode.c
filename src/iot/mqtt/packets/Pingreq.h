@@ -29,6 +29,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_PINGREQ 0x0C
+
 namespace iot::mqtt::packets {
 
     class Pingreq : public iot::mqtt::ControlPacket {

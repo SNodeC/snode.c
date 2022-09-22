@@ -28,6 +28,7 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <cstdint>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -43,6 +44,15 @@ namespace iot::mqtt::types {
         ~Int_2() override;
 
         std::size_t construct() override;
+
+        uint16_t getValue();
+
+        void reset() override;
+
+    private:
+        std::size_t needed = 2;
+        std::size_t stillNeeded = 2;
+        char buffer[2];
     };
 
 } // namespace iot::mqtt::types

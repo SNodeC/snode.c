@@ -32,6 +32,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_CONNECT 0x01
+
 namespace iot::mqtt::packets {
 
     class Connect : public iot::mqtt::ControlPacket {

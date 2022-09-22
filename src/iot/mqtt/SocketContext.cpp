@@ -194,7 +194,7 @@ namespace iot::mqtt {
 
         // Fill Packet
         std::vector<char> packet;
-        packet.push_back(0x10); // Connect Type: 0x01, Flags: 0x00
+        packet.push_back(MQTT_CONNECT << 4); // Connect Type: 0x01, Flags: 0x00
 
         uint64_t remainingLength = data.size();
         do {
@@ -223,7 +223,7 @@ namespace iot::mqtt {
         // data.push_back(0x00); // (only in V5) Connack Property Length: 0x00 - no properties
 
         std::vector<char> packet;
-        packet.push_back(0x20); // Connack Type: 0x02, Flags: 0x00
+        packet.push_back(MQTT_CONNACK << 4); // Connack Type: 0x02, Flags: 0x00
 
         uint64_t remainingLength = data.size();
         do {
@@ -268,7 +268,7 @@ namespace iot::mqtt {
 
         // Fill Packet
         std::vector<char> packet;
-        packet.push_back(0x30 | (dup ? 0x04 : 0x00) | (qos ? (qos << 1) & 0x03 : 0x00) |
+        packet.push_back(MQTT_PUBLISH << 4 | (dup ? 0x04 : 0x00) | (qos ? (qos << 1) & 0x03 : 0x00) |
                          (retain ? 0x01 : 0x00)); // Publish Type: 0x03, Flags: 0x00 (DUP(1), QoS(2), RETAIN(1))
 
         uint64_t remainingLength = data.size();
@@ -297,7 +297,7 @@ namespace iot::mqtt {
         data.push_back(static_cast<char>(packetIdentifierBE >> 0x08));
 
         std::vector<char> packet;
-        packet.push_back(0x40); // Puback Type: 0x04
+        packet.push_back(MQTT_PUBACK); // Puback Type: 0x04
 
         uint64_t remainingLength = data.size();
         do {
@@ -338,7 +338,7 @@ namespace iot::mqtt {
         }
 
         std::vector<char> packet;
-        packet.push_back(static_cast<char>(0x80 | 0x02)); // Subscribe Type: 0x08, Reserved: 0x02
+        packet.push_back(static_cast<char>(MQTT_SUBSCRIBE << 4 | 0x02)); // Subscribe Type: 0x08, Reserved: 0x02
 
         uint64_t remainingLength = data.size();
         do {
@@ -370,7 +370,7 @@ namespace iot::mqtt {
         }
 
         std::vector<char> packet;
-        packet.push_back(static_cast<char>(0x90)); // Suback Type: 0x09
+        packet.push_back(static_cast<char>(MQTT_SUBACK << 4)); // Suback Type: 0x09
 
         uint64_t remainingLength = data.size();
         do {
@@ -410,7 +410,7 @@ namespace iot::mqtt {
         }
 
         std::vector<char> packet;
-        packet.push_back(static_cast<char>(0xA0 | 0x02)); // Unsubscribe Type: 0x0A, Reserved: 0x02
+        packet.push_back(static_cast<char>(MQTT_UNSUBSCRIBE << 4 | 0x02)); // Unsubscribe Type: 0x0A, Reserved: 0x02
 
         uint64_t remainingLength = data.size();
         do {
@@ -438,7 +438,7 @@ namespace iot::mqtt {
         data.push_back(static_cast<char>(packetIdentifierBE >> 0x08));
 
         std::vector<char> packet;
-        packet.push_back(static_cast<char>(0xB0)); // Unsuback Type: 0x0B
+        packet.push_back(static_cast<char>(MQTT_UNSUBACK << 4)); // Unsuback Type: 0x0B
 
         uint64_t remainingLength = data.size();
         do {
@@ -462,7 +462,7 @@ namespace iot::mqtt {
         std::vector<char> data;
 
         std::vector<char> packet;
-        packet.push_back(static_cast<char>(0xC0)); // Pingreq Type: 0x0C
+        packet.push_back(static_cast<char>(MQTT_PINGREQ << 4)); // Pingreq Type: 0x0C
 
         uint64_t remainingLength = data.size();
         do {
@@ -486,7 +486,7 @@ namespace iot::mqtt {
         std::vector<char> data;
 
         std::vector<char> packet;
-        packet.push_back(static_cast<char>(0xD0)); // Pingresp Type: 0x0D
+        packet.push_back(static_cast<char>(MQTT_PINGRESP << 4)); // Pingresp Type: 0x0D
 
         uint64_t remainingLength = data.size();
         do {
@@ -530,53 +530,54 @@ namespace iot::mqtt {
             VLOG(0) << "RemainingLength: " << static_cast<uint16_t>(controlPacketFactory.getRemainingLength());
             printData(controlPacketFactory.getPacket());
             switch (controlPacketFactory.getPacketType()) {
-                case 0x01:
+                case MQTT_CONNECT:
                     onConnect(mqtt::packets::Connect(controlPacketFactory));
                     break;
-                case 0x02:
+                case MQTT_CONNACK:
                     onConnack(mqtt::packets::Connack(controlPacketFactory));
                     break;
-                case 0x03:
+                case MQTT_PUBLISH:
                     onPublish(mqtt::packets::Publish(controlPacketFactory));
                     break;
-                case 0x04:
+                case MQTT_PUBACK:
                     onPuback(mqtt::packets::Puback(controlPacketFactory));
                     break;
-                case 0x05:
-                    // onPubrec(Pubrec(controlPacketFactory.get()));
+                    // case MQTT_PUBREC:
+                    //     onPubrec(Pubrec(controlPacketFactory.get()));
                     break;
-                case 0x06:
-                    // onPubrel(Pubrel(controlPacketFactory.get()));
+                    // case MQTT_PUBREL:
+                    //     onPubrel(Pubrel(controlPacketFactory.get()));
                     break;
-                case 0x07:
-                    // onPubcomp(Pubcomp(controlPacketFactory.get()));
+                    // case MQTT_PUBCOMP:
+                    //     onPubcomp(Pubcomp(controlPacketFactory.get()));
                     break;
-                case 0x08:
+                case MQTT_SUBSCRIBE:
                     onSubscribe(mqtt::packets::Subscribe(controlPacketFactory));
                     break;
-                case 0x09:
+                case MQTT_SUBACK:
                     onSuback(mqtt::packets::Suback(controlPacketFactory));
                     break;
-                case 0x0A:
+                case MQTT_UNSUBSCRIBE:
                     onUnsubscribe(mqtt::packets::Unsubscribe(controlPacketFactory));
                     break;
-                case 0x0B:
+                case MQTT_UNSUBACK:
                     onUnsuback(mqtt::packets::Unsuback(controlPacketFactory));
                     break;
-                case 0x0C:
+                case MQTT_PINGREQ:
                     onPingreq(mqtt::packets::Pingreq(controlPacketFactory));
                     break;
-                case 0x0D:
+                case MQTT_PINGRESP:
                     onPingresp(mqtt::packets::Pingresp(controlPacketFactory));
                     break;
-                case 0x0E:
+                case MQTT_DISCONNECT:
                     onDisconnect(mqtt::packets::Disconnect(controlPacketFactory));
                     break;
-                case 0x0F:
-                    // onAuth(Auth(controlPacketFactory.get()));
+                    // case MQTT_AUTH:
+                    //     onAuth(Auth(controlPacketFactory.get()));
                     break;
                 default:
                     // onUnknown(Unknown(controlPacketFactory.get()));
+                    close();
                     break;
             }
 

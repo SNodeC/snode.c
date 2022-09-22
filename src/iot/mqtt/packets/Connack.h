@@ -31,6 +31,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_CONNACK 0x02
+
 namespace iot::mqtt::packets {
 
     class Connack : public iot::mqtt::ControlPacket {

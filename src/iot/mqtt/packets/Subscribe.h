@@ -33,6 +33,8 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_SUBSCRIBE 0x08
+
 namespace iot::mqtt::packets {
 
     class Subscribe : public ControlPacket {
