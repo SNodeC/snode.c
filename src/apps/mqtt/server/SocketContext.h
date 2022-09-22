@@ -19,7 +19,7 @@
 #ifndef APPS_MQTT_SERVER_SOCKETCONTEXT_H
 #define APPS_MQTT_SERVER_SOCKETCONTEXT_H
 
-#include "mqtt/SocketContext.h"
+#include "iot/mqtt/SocketContext.h"
 
 namespace core::socket {
     class SocketConnection;
@@ -33,22 +33,23 @@ namespace core::socket {
 
 namespace apps::mqtt::server {
 
-    class SocketContext : public ::mqtt::SocketContext {
+    class SocketContext : public iot::mqtt::SocketContext {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        ~SocketContext() override;
 
     private:
-        virtual void onConnect(const ::mqtt::packets::Connect& connect) override;
-        virtual void onConnack(const ::mqtt::packets::Connack& connack) override;
-        virtual void onPublish(const ::mqtt::packets::Publish& publish) override;
-        virtual void onPuback(const ::mqtt::packets::Puback& puback) override;
-        virtual void onSubscribe(const ::mqtt::packets::Subscribe& subscribe) override;
-        virtual void onSuback(const ::mqtt::packets::Suback& suback) override;
-        virtual void onUnsubscribe(const ::mqtt::packets::Unsubscribe& unsubscribe) override;
-        virtual void onUnsuback(const ::mqtt::packets::Unsuback& unsuback) override;
-        virtual void onPingreq(const ::mqtt::packets::Pingreq& pingreq) override;
-        virtual void onPingresp(const ::mqtt::packets::Pingresp& pingresp) override;
-        virtual void onDisconnect(const ::mqtt::packets::Disconnect& disconnect) override;
+        void onConnect(const iot::mqtt::packets::Connect& connect) override;
+        void onConnack(const iot::mqtt::packets::Connack& connack) override;
+        void onPublish(const iot::mqtt::packets::Publish& publish) override;
+        void onPuback(const iot::mqtt::packets::Puback& puback) override;
+        void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) override;
+        void onSuback(const iot::mqtt::packets::Suback& suback) override;
+        void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) override;
+        void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) override;
+        void onPingreq(const iot::mqtt::packets::Pingreq& pingreq) override;
+        void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) override;
+        void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) override;
 
         void onControlPackageReceived(std::vector<char>& controlPacket) override;
     };

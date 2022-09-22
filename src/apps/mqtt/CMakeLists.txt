@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(MQTTSERVER_CPP mqttserver.cpp server/SocketContext.cpp
+set(MQTTSERVER_CPP mqttserver.cpp server/Broker.cpp server/SocketContext.cpp
                    server/SocketContextFactory.cpp
 )
-set(MQTTSERVER_H server/SocketContext.h server/SocketContextFactory.h)
+set(MQTTSERVER_H server/Broker.h server/SocketContext.h
+                 server/SocketContextFactory.h
+)
 
 add_executable(mqttserver ${MQTTSERVER_CPP} ${MQTTSERVER_H})
 
