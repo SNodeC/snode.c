@@ -45,8 +45,8 @@ namespace iot::mqtt::types {
                     needed = stillNeeded = length.getValue();
                     data.resize(static_cast<std::vector<char>::size_type>(stillNeeded), '\0');
                     completed = stillNeeded == 0;
-                } else if (length.isError()) {
-                    error = 0;
+                } else {
+                    error = length.isError();
                 }
                 break;
             case 1:

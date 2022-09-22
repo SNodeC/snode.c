@@ -39,7 +39,7 @@ namespace iot::mqtt {
                 if (typeFlags.isCompleted()) {
                     state++;
                 } else {
-                    error = data.isError();
+                    error = typeFlags.isError();
                 }
                 break;
             case 1:
