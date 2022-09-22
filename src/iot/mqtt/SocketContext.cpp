@@ -144,6 +144,8 @@ namespace iot::mqtt {
         VLOG(0) << "Type: " << static_cast<uint16_t>(pingreq.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(pingreq.getReserved());
         VLOG(0) << "RemainingLength: " << pingreq.getRemainingLength();
+
+        sendPingresp();
     }
 
     void SocketContext::onPingresp(const mqtt::packets::Pingresp& pingresp) {
@@ -159,6 +161,8 @@ namespace iot::mqtt {
         VLOG(0) << "Type: " << static_cast<uint16_t>(disconnect.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(disconnect.getReserved());
         VLOG(0) << "RemainingLength: " << disconnect.getRemainingLength();
+
+        close();
     }
 
     void SocketContext::sendConnect() {

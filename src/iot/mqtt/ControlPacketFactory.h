@@ -56,7 +56,7 @@ namespace iot::mqtt {
     private:
         bool completed = false;
         bool error = false;
-        uint8_t state = 0;
+        int state = 0;
 
         iot::mqtt::types::Int_1 typeFlags;
         iot::mqtt::types::Binary data;

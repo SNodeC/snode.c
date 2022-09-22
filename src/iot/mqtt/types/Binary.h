@@ -52,7 +52,7 @@ namespace iot::mqtt::types {
         void reset() override;
 
     private:
-        uint8_t state = 0;
+        int state = 0;
         uint64_t needed = 0;
         uint64_t stillNeeded = 0;
 

@@ -81,11 +81,12 @@ namespace iot::mqtt {
     }
 
     void ControlPacketFactory::reset() {
-        state = 0;
-        typeFlags.reset();
-        data.reset();
         completed = false;
         error = false;
+        state = 0;
+
+        typeFlags.reset();
+        data.reset();
     }
 
 } // namespace iot::mqtt
