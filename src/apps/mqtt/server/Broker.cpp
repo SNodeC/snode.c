@@ -47,11 +47,11 @@ namespace apps::mqtt::server {
     void Broker::publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message) {
         std::list<apps::mqtt::server::SocketContext*> socketContexts = topics[topic];
 
-        for (apps::mqtt::server::SocketContext* socketContext : socketContexts) {
-            socketContext->sendPublish(packetIdentifier, topic, message);
-        }
-
-        if (topics[topic].empty()) {
+        if (!topics[topic].empty()) {
+            for (apps::mqtt::server::SocketContext* socketContext : socketContexts) {
+                socketContext->sendPublish(packetIdentifier, topic, message);
+            }
+        } else {
             topics.erase(topic);
         }
     }
