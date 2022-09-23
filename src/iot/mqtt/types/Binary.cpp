@@ -27,7 +27,7 @@
 namespace iot::mqtt::types {
 
     Binary::Binary(iot::mqtt::SocketContext* socketContext)
-        : iot::mqtt::types::TypesBase(socketContext)
+        : iot::mqtt::types::TypeBase(socketContext)
         , length(socketContext) {
     }
 
@@ -70,7 +70,7 @@ namespace iot::mqtt::types {
         length.reset();
         data.clear();
 
-        iot::mqtt::types::TypesBase::reset();
+        iot::mqtt::types::TypeBase::reset();
     }
 
 } // namespace iot::mqtt::types

@@ -10,7 +10,7 @@ set(MQTT_TYPES_CPP
     Int_V.cpp
     String.cpp
     StringPair.cpp
-    TypesBase.cpp
+    TypeBase.cpp
 )
 set(MQTT_TYPES_H
     Binary.cpp
@@ -20,7 +20,7 @@ set(MQTT_TYPES_H
     Int_V.h
     String.h
     StringPair.h
-    TypesBase.h
+    TypeBase.h
 )
 
 add_library(mqtt-types STATIC ${MQTT_TYPES_CPP} ${MQTT_TYPES_H})

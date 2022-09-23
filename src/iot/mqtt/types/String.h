@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_TYPES_STRING_H
 #define IOT_MQTT_TYPES_STRING_H
 
-#include "iot/mqtt/types/TypesBase.h"
+#include "iot/mqtt/types/TypeBase.h"
 
 namespace iot::mqtt {
     class SocketContext;
@@ -33,7 +33,7 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::types {
 
-    class String : public iot::mqtt::types::TypesBase {
+    class String : public iot::mqtt::types::TypeBase {
     public:
         explicit String(iot::mqtt::SocketContext* socketContext);
         String(const String&) = default;

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/types/TypesBase.h"
+#include "iot/mqtt/types/TypeBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,22 +24,22 @@
 
 namespace iot::mqtt::types {
 
-    TypesBase::TypesBase(iot::mqtt::SocketContext* socketContext)
+    TypeBase::TypeBase(iot::mqtt::SocketContext* socketContext)
         : socketContext(socketContext) {
     }
 
-    TypesBase::~TypesBase() {
+    TypeBase::~TypeBase() {
     }
 
-    bool TypesBase::isCompleted() {
+    bool TypeBase::isCompleted() {
         return completed;
     }
 
-    bool TypesBase::isError() {
+    bool TypeBase::isError() {
         return error;
     }
 
-    void TypesBase::reset() {
+    void TypeBase::reset() {
         completed = false;
         error = false;
     }

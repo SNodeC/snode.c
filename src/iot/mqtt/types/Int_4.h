@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_TYPES_INT_4_H
 #define IOT_MQTT_TYPES_INT_4_H
 
-#include "iot/mqtt/types/TypesBase.h"
+#include "iot/mqtt/types/TypeBase.h"
 
 namespace iot::mqtt {
     class SocketContext;
@@ -34,7 +34,7 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::types {
 
-    class Int_4 : public iot::mqtt::types::TypesBase {
+    class Int_4 : public iot::mqtt::types::TypeBase {
     public:
         explicit Int_4(mqtt::SocketContext* socketContext);
         Int_4(const Int_4&) = default;

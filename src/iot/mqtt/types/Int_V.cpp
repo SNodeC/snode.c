@@ -27,7 +27,7 @@
 namespace iot::mqtt::types {
 
     Int_V::Int_V(SocketContext* socketContext)
-        : mqtt::types::TypesBase(socketContext) {
+        : mqtt::types::TypeBase(socketContext) {
     }
 
     Int_V::~Int_V() {
@@ -64,7 +64,7 @@ namespace iot::mqtt::types {
         multiplier = 1;
         value = 0;
 
-        mqtt::types::TypesBase::reset();
+        mqtt::types::TypeBase::reset();
     }
 
 } // namespace iot::mqtt::types

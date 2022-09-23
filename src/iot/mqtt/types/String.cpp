@@ -25,7 +25,7 @@
 namespace iot::mqtt::types {
 
     String::String(iot::mqtt::SocketContext* socketContext)
-        : mqtt::types::TypesBase(socketContext) {
+        : mqtt::types::TypeBase(socketContext) {
     }
 
     String::~String() {

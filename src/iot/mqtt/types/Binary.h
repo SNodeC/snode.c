@@ -20,7 +20,7 @@
 #define MQTT_TYPES_BINARY_H
 
 #include "iot/mqtt/types/Int_V.h"
-#include "iot/mqtt/types/TypesBase.h"
+#include "iot/mqtt/types/TypeBase.h"
 
 namespace iot::mqtt {
     class SocketContext;
@@ -36,7 +36,7 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::types {
 
-    class Binary : public iot::mqtt::types::TypesBase {
+    class Binary : public iot::mqtt::types::TypeBase {
     public:
         explicit Binary(iot::mqtt::SocketContext* socketContext);
         Binary(const Binary&) = default;

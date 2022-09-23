@@ -27,7 +27,7 @@
 namespace iot::mqtt::types {
 
     Int_1::Int_1(iot::mqtt::SocketContext* socketContext)
-        : mqtt::types::TypesBase(socketContext) {
+        : mqtt::types::TypeBase(socketContext) {
     }
 
     Int_1::~Int_1() {
@@ -50,7 +50,7 @@ namespace iot::mqtt::types {
         needed = 1;
         stillNeeded = 1;
 
-        mqtt::types::TypesBase::reset();
+        mqtt::types::TypeBase::reset();
     }
 
 } // namespace iot::mqtt::types
