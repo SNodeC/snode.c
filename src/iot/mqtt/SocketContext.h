@@ -80,7 +80,7 @@ namespace iot::mqtt {
         void sendPingresp();
         void sendDisconnect();
 
-    protected:
+    private:
         virtual void onConnect(const iot::mqtt::packets::Connect& connect) = 0;
         virtual void onConnack(const iot::mqtt::packets::Connack& connack) = 0;
         virtual void onPublish(const iot::mqtt::packets::Publish& publish) = 0;
@@ -96,7 +96,6 @@ namespace iot::mqtt {
         virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) = 0;
         virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) = 0;
 
-    private:
         virtual std::size_t onReceiveFromPeer() final;
 
         void send(iot::mqtt::ControlPacket&& controlPacket) const;

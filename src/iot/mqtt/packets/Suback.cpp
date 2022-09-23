@@ -48,7 +48,7 @@ namespace iot::mqtt::packets {
         pointer += 2;
 
         for (; pointer < this->getRemainingLength(); ++pointer) {
-            returnCodes.push_back(static_cast<uint8_t>(*(data.data() + pointer)));
+            returnCodes.push_back(*reinterpret_cast<uint8_t*>((data.data() + pointer)));
         }
     }
 
