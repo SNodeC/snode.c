@@ -29,27 +29,69 @@ namespace iot::mqtt::packets {
 
     Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        uint32_t pointer = 0;
+
+        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
+        pointer += 2;
+
+        protocol = std::string(data.data() + pointer, protocolLength);
+        pointer += protocolLength;
+
+        version = static_cast<uint8_t>(*(data.data() + pointer));
+        pointer += 1;
+
+        flags = static_cast<uint8_t>(*(data.data() + pointer));
+        pointer += 1;
+
+        keepAlive = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
+    }
+
+    Connect::Connect(std::string clientId, std::string protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
+        : iot::mqtt::ControlPacket(MQTT_CONNECT, 0)
+        , protocol(protocol)
+        , version(version)
+        , flags(flags)
+        , keepAlive(keepAlive)
+        , clientId(clientId) {
+        std::string::size_type protocolLen = this->protocol.size();
+        data.push_back(static_cast<char>(protocolLen >> 8 & 0xFF));
+        data.push_back(static_cast<char>(protocolLen & 0XFF));
+        data.insert(data.end(), this->protocol.begin(), this->protocol.end());
+
+        data.push_back(static_cast<char>(this->version)); // Protocol Level (4)
+        data.push_back(static_cast<char>(this->flags));   // Connect Flags (Clean Session)
+
+        data.push_back(static_cast<char>(this->keepAlive >> 0x08 & 0xFF)); // Keep Alive MSB (60Sec)
+        data.push_back(static_cast<char>(this->keepAlive & 0xFF));         // Keep Alive LSB
+
+        // Payload
+        std::string::size_type clientIdLen = this->clientId.size();
+        data.push_back(static_cast<char>(clientIdLen >> 8 & 0xFF)); // Client ID Length MSB (2)
+        data.push_back(static_cast<char>(clientIdLen & 0xFF));      // Client ID Length LSB
+        data.insert(data.end(), this->clientId.begin(), this->clientId.end());
     }
 
     Connect::~Connect() {
     }
 
-    std::string Connect::protocol() const {
-        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 0)));
-
-        return std::string(data.data() + 2, protocolLength);
+    std::string Connect::getProtocol() const {
+        return protocol;
     }
 
-    uint8_t Connect::version() const {
-        return static_cast<uint8_t>(*(data.data() + 6));
+    uint8_t Connect::getVersion() const {
+        return version;
     }
 
-    uint8_t Connect::flags() const {
-        return static_cast<uint8_t>(*(data.data() + 7));
+    uint8_t Connect::getFlags() const {
+        return flags;
     }
 
-    uint16_t Connect::keepAlive() const {
-        return be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + 8)));
+    uint16_t Connect::getKeepAlive() const {
+        return keepAlive;
+    }
+
+    const std::string& Connect::getClientId() const {
+        return clientId;
     }
 
 } // namespace iot::mqtt::packets

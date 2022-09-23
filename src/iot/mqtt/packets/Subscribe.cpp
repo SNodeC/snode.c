@@ -22,6 +22,7 @@
 
 #include <endian.h>
 #include <string>
+#include <utility>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -46,6 +47,23 @@ namespace iot::mqtt::packets {
             pointer += 1;
 
             topics.push_back(mqtt::Topic(name, requestedQos));
+        }
+    }
+
+    Subscribe::Subscribe(uint16_t packetIdentifier, const std::list<Topic>& topics)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02)
+        , packetIdentifier(packetIdentifier)
+        , topics(std::move(topics)) {
+        data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
+        data.push_back(static_cast<char>(this->packetIdentifier & 0x08));
+
+        for (const iot::mqtt::Topic& topic : this->topics) {
+            uint16_t topicLen = static_cast<uint16_t>(topic.getName().size());
+            data.push_back(static_cast<char>(topicLen >> 0x08 & 0xFF));
+            data.push_back(static_cast<char>(topicLen & 0x08));
+
+            data.insert(data.end(), topic.getName().begin(), topic.getName().end());
+            data.push_back(static_cast<char>(topic.getRequestedQos())); // Topic QoS
         }
     }
 

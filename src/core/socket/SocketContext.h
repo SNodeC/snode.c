@@ -48,8 +48,8 @@ namespace core::socket {
         void setTimeout(const utils::Timeval& timeout);
         Socket& getSocket();
 
-        void sendToPeer(const char* junk, std::size_t junkLen);
-        void sendToPeer(const std::string& data);
+        void sendToPeer(const char* junk, std::size_t junkLen) const;
+        void sendToPeer(const std::string& data) const;
         std::size_t readFromPeer(char* junk, std::size_t junklen);
 
         void shutdownRead();

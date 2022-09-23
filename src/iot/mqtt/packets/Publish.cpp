@@ -40,7 +40,7 @@ namespace iot::mqtt::packets {
         uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
         pointer += 2;
 
-        name = std::string(data.data() + pointer, strLen);
+        topic = std::string(data.data() + pointer, strLen);
         pointer += strLen;
 
         if (qoSLevel != 0 && data.size() > pointer) {
@@ -49,6 +49,28 @@ namespace iot::mqtt::packets {
         }
 
         message = std::string(data.data() + pointer, data.size() - pointer);
+    }
+
+    Publish::Publish(
+        uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
+        : iot::mqtt::ControlPacket(MQTT_PUBLISH, 0)
+        , packetIdentifier(packetIdentifier)
+        , topic(topic)
+        , message(message)
+        , dup(dup)
+        , qoSLevel(qoSLevel)
+        , retain(retain) {
+        uint16_t topicLen = static_cast<uint16_t>(this->topic.size());
+        data.push_back(static_cast<char>(topicLen >> 0x08 & 0xFF));
+        data.push_back(static_cast<char>(topicLen & 0xFF));
+        data.insert(data.end(), this->topic.begin(), this->topic.end());
+
+        if (qoSLevel > 0) {
+            data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
+            data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
+        }
+
+        data.insert(data.end(), this->message.begin(), this->message.end());
     }
 
     Publish::~Publish() {
@@ -66,12 +88,16 @@ namespace iot::mqtt::packets {
         return packetIdentifier;
     }
 
-    const std::string& Publish::getName() const {
-        return name;
+    const std::string& Publish::getTopic() const {
+        return topic;
     }
 
     const std::string& Publish::getMessage() const {
         return message;
+    }
+
+    bool Publish::getRetain() const {
+        return retain;
     }
 
 } // namespace iot::mqtt::packets

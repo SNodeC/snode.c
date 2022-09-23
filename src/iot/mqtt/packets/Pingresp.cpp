@@ -28,6 +28,10 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(controlPacketFactory) {
     }
 
+    Pingresp::Pingresp()
+        : iot::mqtt::ControlPacket(MQTT_PINGRESP, 0) {
+    }
+
     Pingresp::~Pingresp() {
     }
 

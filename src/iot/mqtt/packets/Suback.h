@@ -39,6 +39,7 @@ namespace iot::mqtt::packets {
     class Suback : public iot::mqtt::ControlPacket {
     public:
         explicit Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
         Suback(const Suback&) = default;
 
         Suback& operator=(const Suback&) = default;

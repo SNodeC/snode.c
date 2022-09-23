@@ -34,21 +34,39 @@ namespace iot::mqtt {
 
 #define MQTT_CONNECT 0x01
 
+#define MQTT_CONNECT_ACCEPT 0
+#define MQTT_CONNECT_UNACEPTABLEVERSION 1;
+#define MQTT_CONNECT_IDENTIFIERREJECTED 2;
+#define MQTT_CONNECT_SERVERUNAVAILABLE 3;
+#define MQTT_CONNECT_BADUSERNAMEORPASSWORD 4;
+#define MQTT_CONNECT_NOTAUTHORIZED 5;
+
 namespace iot::mqtt::packets {
 
     class Connect : public iot::mqtt::ControlPacket {
     public:
         explicit Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Connect(
+            std::string clientId, std::string protocol = "MQTT", uint8_t version = 4, uint8_t flags = 0, uint16_t keepAlive = 0x003C);
         Connect(const Connect&) = default;
 
         Connect& operator=(const Connect&) = default;
 
         ~Connect();
 
-        std::string protocol() const;
-        uint8_t version() const;
-        uint8_t flags() const;
-        uint16_t keepAlive() const;
+        std::string getProtocol() const;
+        uint8_t getVersion() const;
+        uint8_t getFlags() const;
+        uint16_t getKeepAlive() const;
+
+        const std::string& getClientId() const;
+
+    private:
+        std::string protocol;
+        uint8_t version = 0;
+        uint8_t flags = 0;
+        uint16_t keepAlive = 0;
+        std::string clientId;
     };
 
 } // namespace iot::mqtt::packets

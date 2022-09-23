@@ -36,6 +36,7 @@ namespace iot::mqtt::packets {
     class Pingreq : public iot::mqtt::ControlPacket {
     public:
         explicit Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        Pingreq();
         Pingreq(const Pingreq&) = default;
 
         Pingreq& operator=(const Pingreq&) = default;

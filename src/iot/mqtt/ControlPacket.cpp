@@ -28,6 +28,11 @@
 
 namespace iot::mqtt {
 
+    ControlPacket::ControlPacket(uint8_t type, uint8_t reserved)
+        : type(type)
+        , reserved(reserved) {
+    }
+
     ControlPacket::ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : type(controlPacketFactory.getPacketType())
         , reserved(controlPacketFactory.getPacketFlags())
@@ -46,8 +51,26 @@ namespace iot::mqtt {
         return data.size();
     }
 
-    const std::vector<char>& ControlPacket::getData() const {
-        return data;
+    std::vector<char>& ControlPacket::getPacket() {
+        if (!constructed) {
+            packet.push_back(static_cast<char>(type << 0x04 | (reserved & 0x0F)));
+
+            uint64_t remainingLength = data.size();
+            do {
+                uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
+                remainingLength /= 0x80;
+                if (remainingLength > 0) {
+                    encodedByte |= 0x80;
+                }
+                packet.push_back(static_cast<char>(encodedByte));
+            } while (remainingLength > 0);
+
+            packet.insert(packet.end(), data.begin(), data.end());
+
+            constructed = true;
+        }
+
+        return packet;
     }
 
 } // namespace iot::mqtt

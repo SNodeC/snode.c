@@ -18,12 +18,13 @@
 
 #include "iot/mqtt/SocketContext.h"
 
+#include "iot/mqtt/ControlPacket.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 
 #include <cstdint>
-#include <endian.h>
 #include <iomanip>
 #include <iostream>
 
@@ -42,9 +43,9 @@ namespace iot::mqtt {
         VLOG(0) << "Type: " << static_cast<uint16_t>(connect.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(connect.getReserved());
         VLOG(0) << "RemainingLength: " << connect.getRemainingLength();
-        VLOG(0) << "Flags: " << static_cast<uint16_t>(connect.flags());
-        VLOG(0) << "Protocol: " << connect.protocol();
-        VLOG(0) << "Version: " << static_cast<uint16_t>(connect.version());
+        VLOG(0) << "Flags: " << static_cast<uint16_t>(connect.getFlags());
+        VLOG(0) << "Protocol: " << connect.getProtocol();
+        VLOG(0) << "Version: " << static_cast<uint16_t>(connect.getVersion());
 
         sendConnack();
     }
@@ -65,11 +66,9 @@ namespace iot::mqtt {
         VLOG(0) << "Type: " << static_cast<uint16_t>(publish.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(publish.getReserved());
         VLOG(0) << "RemainingLength: " << publish.getRemainingLength();
-        VLOG(0) << "Topic: " << publish.getName();
+        VLOG(0) << "Topic: " << publish.getTopic();
         VLOG(0) << "Message: " << publish.getMessage();
         VLOG(0) << "PacketIdentifier: " << publish.getPacketIdentifier();
-
-        //        sendPublishToAll(publish.getData());
 
         sendPuback(publish.getPacketIdentifier());
     }
@@ -99,8 +98,6 @@ namespace iot::mqtt {
         }
 
         sendSuback(subscribe.getPacketIdentifier(), returnCodes);
-
-        sendPublish(subscribe.getPacketIdentifier(), "hihi/hoho", "hallo");
     }
 
     void SocketContext::onSuback(const mqtt::packets::Suback& suback) {
@@ -127,6 +124,8 @@ namespace iot::mqtt {
         for (const std::string& topic : unsubscribe.getTopics()) {
             VLOG(0) << "  Topic: " << topic;
         }
+
+        sendUnsuback(unsubscribe.getPacketIdentifier());
     }
 
     void SocketContext::onUnsuback(const mqtt::packets::Unsuback& unsuback) {
@@ -169,338 +168,78 @@ namespace iot::mqtt {
         VLOG(0) << "Send CONNECT";
         VLOG(0) << "============";
 
-        std::vector<char> data;
-
-        data.push_back(0x00);
-        data.push_back(0x04);
-        data.push_back('M');
-        data.push_back('Q');
-        data.push_back('T');
-        data.push_back('T');
-
-        data.push_back(0x04); // Protocol Level (4)
-
-        data.push_back(0x02); // Connect Flags (Clean Session)
-
-        data.push_back(0x00); // Keep Alive MSB (60Sec)
-        data.push_back(0x3C); // Keep Alive LSB
-
-        // Payload
-        data.push_back(0x00); // Client ID Length MSB (2)
-        data.push_back(0x02); // Client ID Length LSB
-
-        data.push_back('C');
-        data.push_back('L');
-
-        // Fill Packet
-        std::vector<char> packet;
-        packet.push_back(MQTT_CONNECT << 4); // Connect Type: 0x01, Flags: 0x00
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(mqtt::packets::Connect("ClientId"));
     }
 
     void SocketContext::sendConnack() {
-        // Data: 0x20 0x03 0x00 0x00 0x00
         VLOG(0) << "Send CONNACK";
         VLOG(0) << "============";
 
-        std::vector<char> data;
-
-        data.push_back(0x00); // Connack Flags: 0x00 - LSB is session present
-        data.push_back(0x00); // Connack Reason: 0x00 = Success
-        // data.push_back(0x00); // (only in V5) Connack Property Length: 0x00 - no properties
-
-        std::vector<char> packet;
-        packet.push_back(MQTT_CONNACK << 4); // Connack Type: 0x02, Flags: 0x00
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(mqtt::packets::Connack(MQTT_CONNECT_ACCEPT));
     }
 
     void SocketContext::sendPublish(
-        uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qos, bool retain) {
+        uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {
         VLOG(0) << "Send PUBLISH";
         VLOG(0) << "============";
 
-        std::vector<char> data;
-
-        uint16_t topicLen = static_cast<uint16_t>(topic.size());
-        uint16_t topicLenBE = htobe16(topicLen);
-        data.push_back(static_cast<char>(topicLenBE & 0xFF));
-        data.push_back(static_cast<char>(topicLenBE >> 0x08));
-
-        for (char ch : topic) {
-            data.push_back(ch);
-        }
-
-        if (qos > 0) {
-            uint16_t packetIdentifierBE = htobe16(packetIdentifier);
-            data.push_back(static_cast<char>(packetIdentifierBE & 0xFF));
-            data.push_back(static_cast<char>(packetIdentifierBE >> 0x08));
-        }
-
-        for (char ch : message) {
-            data.push_back(ch);
-        }
-
-        // Fill Packet
-        std::vector<char> packet;
-        packet.push_back(MQTT_PUBLISH << 4 | (dup ? 0x04 : 0x00) | (qos ? (qos << 1) & 0x03 : 0x00) |
-                         (retain ? 0x01 : 0x00)); // Publish Type: 0x03, Flags: 0x00 (DUP(1), QoS(2), RETAIN(1))
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(iot::mqtt::packets::Publish(packetIdentifier, topic, message, dup, qoSLevel, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) {
         VLOG(0) << "Send PUBACK";
         VLOG(0) << "===========";
 
-        std::vector<char> data;
-
-        uint16_t packetIdentifierBE = htobe16(packetIdentifier);
-        data.push_back(static_cast<char>(packetIdentifierBE & 0xFF));
-        data.push_back(static_cast<char>(packetIdentifierBE >> 0x08));
-
-        std::vector<char> packet;
-        packet.push_back(MQTT_PUBACK); // Puback Type: 0x04
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(iot::mqtt::packets::Puback(packetIdentifier));
     }
 
-    void SocketContext::sendSubscribe(uint16_t packetIdentifier, std::list<std::string>& topics, uint8_t qos) {
+    void SocketContext::sendSubscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics) {
         VLOG(0) << "Send SUBSCRIBE";
         VLOG(0) << "==============";
 
-        std::vector<char> data;
-
-        uint16_t packetIdentifierBE = htobe16(packetIdentifier);
-        data.push_back(static_cast<char>(packetIdentifierBE & 0xFF));
-        data.push_back(static_cast<char>(packetIdentifierBE >> 0x08));
-
-        for (std::string& topic : topics) {
-            uint16_t topicLen = static_cast<uint16_t>(topic.size());
-
-            uint16_t topicLenBE = htobe16(topicLen);
-            data.push_back(static_cast<char>(topicLenBE & 0xFF));
-            data.push_back(static_cast<char>(topicLenBE >> 0x08));
-
-            for (char ch : topic) {
-                data.push_back(ch);
-            }
-            data.push_back(static_cast<char>(qos)); // Topic QoS
-        }
-
-        std::vector<char> packet;
-        packet.push_back(static_cast<char>(MQTT_SUBSCRIBE << 4 | 0x02)); // Subscribe Type: 0x08, Reserved: 0x02
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(iot::mqtt::packets::Subscribe(packetIdentifier, topics));
     }
 
     void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
         VLOG(0) << "Send SUBACK";
         VLOG(0) << "===========";
 
-        std::vector<char> data;
-
-        uint16_t packetIdentifierBE = htobe16(packetIdentifier);
-        data.push_back(static_cast<char>(packetIdentifierBE & 0xFF));
-        data.push_back(static_cast<char>(packetIdentifierBE >> 0x08));
-
-        for (uint8_t returnCode : returnCodes) {
-            data.push_back(static_cast<char>(returnCode));
-        }
-
-        std::vector<char> packet;
-        packet.push_back(static_cast<char>(MQTT_SUBACK << 4)); // Suback Type: 0x09
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
     }
 
     void SocketContext::sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics) {
         VLOG(0) << "Send UNSUBSCRIBE";
         VLOG(0) << "================";
 
-        std::vector<char> data;
-
-        uint16_t packetIdentifierBE = htobe16(packetIdentifier);
-        data.push_back(static_cast<char>(packetIdentifierBE & 0xFF));
-        data.push_back(static_cast<char>(packetIdentifierBE >> 0x08));
-
-        for (std::string& topic : topics) {
-            uint16_t topicLen = static_cast<uint16_t>(topic.size());
-
-            uint16_t topicLenBE = htobe16(topicLen);
-            data.push_back(static_cast<char>(topicLenBE & 0xFF));
-            data.push_back(static_cast<char>(topicLenBE >> 0x08));
-
-            for (char ch : topic) {
-                data.push_back(ch);
-            }
-        }
-
-        std::vector<char> packet;
-        packet.push_back(static_cast<char>(MQTT_UNSUBSCRIBE << 4 | 0x02)); // Unsubscribe Type: 0x0A, Reserved: 0x02
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(iot::mqtt::packets::Unsubscribe(packetIdentifier, topics));
     }
 
     void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
         VLOG(0) << "Send UNSUBACK";
         VLOG(0) << "=============";
 
-        std::vector<char> data;
-
-        uint16_t packetIdentifierBE = htobe16(packetIdentifier);
-        data.push_back(static_cast<char>(packetIdentifierBE & 0xFF));
-        data.push_back(static_cast<char>(packetIdentifierBE >> 0x08));
-
-        std::vector<char> packet;
-        packet.push_back(static_cast<char>(MQTT_UNSUBACK << 4)); // Unsuback Type: 0x0B
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(iot::mqtt::packets::Unsuback(packetIdentifier));
     }
 
     void SocketContext::sendPingreq() {
         VLOG(0) << "Send Pingreq";
         VLOG(0) << "============";
 
-        std::vector<char> data;
-
-        std::vector<char> packet;
-        packet.push_back(static_cast<char>(MQTT_PINGREQ << 4)); // Pingreq Type: 0x0C
-
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(iot::mqtt::packets::Pingreq());
     }
 
     void SocketContext::sendPingresp() {
         VLOG(0) << "Send Pingresp";
         VLOG(0) << "=============";
 
-        std::vector<char> data;
+        send(iot::mqtt::packets::Pingresp());
+    }
 
-        std::vector<char> packet;
-        packet.push_back(static_cast<char>(MQTT_PINGRESP << 4)); // Pingresp Type: 0x0D
+    void SocketContext::sendDisconnect() {
+        VLOG(0) << "Send Disconnect";
+        VLOG(0) << "===============";
 
-        uint64_t remainingLength = data.size();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.begin(), data.end());
-
-        send(packet);
+        send(iot::mqtt::packets::Disconnect());
     }
 
     /*
@@ -576,7 +315,6 @@ namespace iot::mqtt {
                     //     onAuth(Auth(controlPacketFactory.get()));
                     break;
                 default:
-                    // onUnknown(Unknown(controlPacketFactory.get()));
                     close();
                     break;
             }
@@ -589,7 +327,20 @@ namespace iot::mqtt {
         return consumed;
     }
 
-    void SocketContext::printData(std::vector<char>& data) {
+    void SocketContext::send(ControlPacket&& controlPacket) {
+        send(controlPacket.getPacket());
+    }
+
+    void SocketContext::send(ControlPacket& controlPacket) {
+        send(controlPacket.getPacket());
+    }
+
+    void SocketContext::send(const std::vector<char>& data) const {
+        printData(data);
+        sendToPeer(data.data(), data.size());
+    }
+
+    void SocketContext::printData(const std::vector<char>& data) const {
         std::cout << "                                Data: ";
         unsigned long i = 0;
         for (char ch : data) {
@@ -603,11 +354,6 @@ namespace iot::mqtt {
                       << " "; // << " | ";
         }
         std::cout << std::endl;
-    }
-
-    void SocketContext::send(std::vector<char>& data) {
-        printData(data);
-        sendToPeer(data.data(), data.size());
     }
 
 } // namespace iot::mqtt

@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <endian.h>
+#include <utility>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -36,6 +37,18 @@ namespace iot::mqtt::packets {
 
         for (; pointer < this->getRemainingLength(); ++pointer) {
             returnCodes.push_back(static_cast<uint8_t>(*(data.data() + pointer)));
+        }
+    }
+
+    Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
+        : iot::mqtt::ControlPacket(MQTT_SUBACK, 0)
+        , packetIdentifier(packetIdentifier)
+        , returnCodes(std::move(returnCodes)) {
+        data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
+        data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
+
+        for (uint8_t returnCode : this->returnCodes) {
+            data.push_back(static_cast<char>(returnCode));
         }
     }
 

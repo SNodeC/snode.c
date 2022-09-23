@@ -38,6 +38,10 @@ namespace core::socket {
     class SocketConnection;
 }
 
+namespace iot::mqtt {
+    class ControlPacket;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
@@ -59,15 +63,16 @@ namespace iot::mqtt {
                          const std::string& topic,
                          const std::string& message,
                          bool dup = false,
-                         uint8_t qos = 0,
+                         uint8_t qoSLevel = 0,
                          bool retain = false);
         void sendPuback(uint16_t packetIdentifier);
-        void sendSubscribe(uint16_t packetIdentifier, std::list<std::string>& topics, uint8_t qos = 0);
+        void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics);
         void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes);
         void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
         void sendUnsuback(uint16_t packetIdentifier);
         void sendPingreq();
         void sendPingresp();
+        void sendDisconnect();
 
     protected:
         virtual void onControlPackageReceived(std::vector<char>& controlPacket) = 0;
@@ -102,8 +107,10 @@ namespace iot::mqtt {
     private:
         virtual std::size_t onReceiveFromPeer() final;
 
-        void printData(std::vector<char>& data);
-        void send(std::vector<char>& data);
+        void send(iot::mqtt::ControlPacket&& controlPacket);
+        void send(iot::mqtt::ControlPacket& controlPacket);
+        void send(const std::vector<char>& data) const;
+        void printData(const std::vector<char>& data) const;
 
         iot::mqtt::ControlPacketFactory controlPacketFactory;
     };

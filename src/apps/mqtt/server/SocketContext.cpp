@@ -46,10 +46,11 @@ namespace apps::mqtt::server {
         VLOG(0) << "Type: " << static_cast<uint16_t>(connect.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(connect.getReserved());
         VLOG(0) << "RemainingLength: " << connect.getRemainingLength();
-        VLOG(0) << "Flags: " << static_cast<uint16_t>(connect.flags());
-        VLOG(0) << "Protocol: " << connect.protocol();
-        VLOG(0) << "Version: " << static_cast<uint16_t>(connect.version());
+        VLOG(0) << "Flags: " << static_cast<uint16_t>(connect.getFlags());
+        VLOG(0) << "Protocol: " << connect.getProtocol();
+        VLOG(0) << "Version: " << static_cast<uint16_t>(connect.getVersion());
 
+        VLOG(0) << "*************************";
         sendConnack();
     }
 
@@ -69,15 +70,13 @@ namespace apps::mqtt::server {
         VLOG(0) << "Type: " << static_cast<uint16_t>(publish.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(publish.getReserved());
         VLOG(0) << "RemainingLength: " << publish.getRemainingLength();
-        VLOG(0) << "Topic: " << publish.getName();
+        VLOG(0) << "Topic: " << publish.getTopic();
         VLOG(0) << "Message: " << publish.getMessage();
         VLOG(0) << "PacketIdentifier: " << publish.getPacketIdentifier();
 
-        //        sendPublishToAll(publish.getData());
-
         sendPuback(publish.getPacketIdentifier());
 
-        apps::mqtt::server::Broker::instance().publish(publish.getPacketIdentifier(), publish.getName(), publish.getMessage());
+        apps::mqtt::server::Broker::instance().publish(publish.getPacketIdentifier(), publish.getTopic(), publish.getMessage());
     }
 
     void SocketContext::onPuback(const iot::mqtt::packets::Puback& puback) {
@@ -107,8 +106,6 @@ namespace apps::mqtt::server {
         }
 
         sendSuback(subscribe.getPacketIdentifier(), returnCodes);
-
-        //        sendPublish(subscribe.getPacketIdentifier(), "hihi/hoho", "hallo");
     }
 
     void SocketContext::onSuback(const iot::mqtt::packets::Suback& suback) {
@@ -134,7 +131,11 @@ namespace apps::mqtt::server {
 
         for (const std::string& topic : unsubscribe.getTopics()) {
             VLOG(0) << "  Topic: " << topic;
+
+            apps::mqtt::server::Broker::instance().unsubscribe(topic, this);
         }
+
+        sendUnsuback(unsubscribe.getPacketIdentifier());
     }
 
     void SocketContext::onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) {

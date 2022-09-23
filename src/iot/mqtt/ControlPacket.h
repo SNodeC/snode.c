@@ -34,17 +34,22 @@ namespace iot::mqtt {
 
     class ControlPacket {
     public:
+        ControlPacket(uint8_t type, uint8_t reserved);
         explicit ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
         uint8_t getType() const;
         uint8_t getReserved() const;
         uint64_t getRemainingLength() const;
-        const std::vector<char>& getData() const;
+        std::vector<char>& getPacket();
 
     protected:
         uint8_t type;
         uint8_t reserved;
         std::vector<char> data;
+        std::vector<char> packet;
+
+    private:
+        bool constructed = false;
     };
 
 } // namespace iot::mqtt

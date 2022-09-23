@@ -38,6 +38,7 @@ namespace iot::mqtt::packets {
     class Unsuback : public iot::mqtt::ControlPacket {
     public:
         explicit Unsuback(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Unsuback(const uint16_t packetIdentifier);
         Unsuback(const Unsuback&) = default;
 
         Unsuback& operator=(const Unsuback&) = default;

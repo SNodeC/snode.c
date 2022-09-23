@@ -34,6 +34,13 @@ namespace iot::mqtt::packets {
         packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
     }
 
+    Unsuback::Unsuback(const uint16_t packetIdentifier)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, 0)
+        , packetIdentifier(packetIdentifier) {
+        data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
+        data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
+    }
+
     Unsuback::~Unsuback() {
     }
 
