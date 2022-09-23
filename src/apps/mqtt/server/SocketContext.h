@@ -27,8 +27,6 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace apps::mqtt::server {
@@ -50,8 +48,6 @@ namespace apps::mqtt::server {
         void onPingreq(const iot::mqtt::packets::Pingreq& pingreq) override;
         void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) override;
         void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) override;
-
-        void onControlPackageReceived(std::vector<char>& controlPacket) override;
     };
 
 } // namespace apps::mqtt::server

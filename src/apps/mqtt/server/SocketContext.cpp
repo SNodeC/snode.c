@@ -33,11 +33,7 @@ namespace apps::mqtt::server {
     }
 
     SocketContext::~SocketContext() {
-        apps::mqtt::server::Broker::instance().unsubscribeAll(this);
-    }
-
-    void SocketContext::onControlPackageReceived([[maybe_unused]] std::vector<char>& controlPacket) {
-        VLOG(0) << "ControlPacket received";
+        apps::mqtt::server::Broker::instance().unsubscribeFromAll(this);
     }
 
     void SocketContext::onConnect(const iot::mqtt::packets::Connect& connect) {
@@ -50,7 +46,6 @@ namespace apps::mqtt::server {
         VLOG(0) << "Protocol: " << connect.getProtocol();
         VLOG(0) << "Version: " << static_cast<uint16_t>(connect.getVersion());
 
-        VLOG(0) << "*************************";
         sendConnack();
     }
 

@@ -46,7 +46,7 @@ namespace apps::mqtt::server {
         void subscribe(const std::string& topic, apps::mqtt::server::SocketContext* socketContext);
         void publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message);
         void unsubscribe(const std::string& topic, apps::mqtt::server::SocketContext* socketContext);
-        void unsubscribeAll(apps::mqtt::server::SocketContext* socketContext);
+        void unsubscribeFromAll(apps::mqtt::server::SocketContext* socketContext);
 
     private:
         std::map<std::string, std::list<apps::mqtt::server::SocketContext*>> topics;

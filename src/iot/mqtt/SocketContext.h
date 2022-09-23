@@ -75,34 +75,22 @@ namespace iot::mqtt {
         void sendDisconnect();
 
     protected:
-        virtual void onControlPackageReceived(std::vector<char>& controlPacket) = 0;
+        virtual void onConnect(const iot::mqtt::packets::Connect& connect) = 0;
+        virtual void onConnack(const iot::mqtt::packets::Connack& connack) = 0;
+        virtual void onPublish(const iot::mqtt::packets::Publish& publish) = 0;
+        virtual void onPuback(const iot::mqtt::packets::Puback& puback) = 0;
+        virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) = 0;
+        virtual void onSuback(const iot::mqtt::packets::Suback& suback) = 0;
+        virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) = 0;
+        virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) = 0;
+        virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq) = 0;
+        virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) = 0;
+        virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) = 0;
 
-        virtual void onConnect(const iot::mqtt::packets::Connect& connect);
-        virtual void onConnack(const iot::mqtt::packets::Connack& connack);
-        virtual void onPublish(const iot::mqtt::packets::Publish& publish);
-        virtual void onPuback(const iot::mqtt::packets::Puback& puback);
-        virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe);
-        virtual void onSuback(const iot::mqtt::packets::Suback& suback);
-        virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe);
-        virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback);
-        virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq);
-        virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp);
-        virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect);
-
-        //
-        //
-        //
-        // virtual void onPubrec(const mqtt::packets::Pubrec& pubrec);
-        // virtual void onPubrel(const mqtt::packets::Pubrel& pubrel);
-        // virtual void onPubcomp(const mqtt::packets::Pubcomp& pubcomp);
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        // virtual void onAuth(const mqtt::packets::Auth& auth);
+        // virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
+        // virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
+        // virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
+        // virtual void onAuth(const iot::mqtt::packets::Auth& auth);
 
     private:
         virtual std::size_t onReceiveFromPeer() final;

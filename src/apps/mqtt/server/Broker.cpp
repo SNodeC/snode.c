@@ -64,7 +64,7 @@ namespace apps::mqtt::server {
         }
     }
 
-    void Broker::unsubscribeAll(SocketContext* socketContext) {
+    void Broker::unsubscribeFromAll(SocketContext* socketContext) {
         auto it = topics.begin();
 
         while (it != topics.end()) {
