@@ -34,7 +34,7 @@ namespace iot::mqtt {
 
     class ControlPacket {
     public:
-        ControlPacket(uint8_t type, uint8_t reserved);
+        explicit ControlPacket(uint8_t type, uint8_t reserved = 0);
         explicit ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
         uint8_t getType() const;

@@ -25,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Disconnect::Disconnect()
-        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, 0) {
+        : iot::mqtt::ControlPacket(MQTT_DISCONNECT) {
     }
 
     Disconnect::Disconnect(iot::mqtt::ControlPacketFactory& controlPacketFactory)

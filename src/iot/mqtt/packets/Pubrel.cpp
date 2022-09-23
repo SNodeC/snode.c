@@ -28,7 +28,7 @@
 namespace iot::mqtt::packets {
 
     Pubrel::Pubrel(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL, 0)
+        : iot::mqtt::ControlPacket(MQTT_PUBREL)
         , packetIdentifier(packetIdentifier) {
         data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
         data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));

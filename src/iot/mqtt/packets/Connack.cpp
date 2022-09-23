@@ -27,7 +27,7 @@
 namespace iot::mqtt::packets {
 
     Connack::Connack(uint8_t reason, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, 0)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK)
         , flags(flags)
         , reason(reason) {
         data.push_back(static_cast<char>(this->flags));  // Connack Flags: 0x00 - LSB is session present

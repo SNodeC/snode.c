@@ -28,7 +28,7 @@
 namespace iot::mqtt::packets {
 
     Connect::Connect(std::string clientId, std::string protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
-        : iot::mqtt::ControlPacket(MQTT_CONNECT, 0)
+        : iot::mqtt::ControlPacket(MQTT_CONNECT)
         , protocol(protocol)
         , version(version)
         , flags(flags)

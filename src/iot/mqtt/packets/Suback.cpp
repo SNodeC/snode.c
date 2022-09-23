@@ -29,7 +29,7 @@
 namespace iot::mqtt::packets {
 
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK, 0)
+        : iot::mqtt::ControlPacket(MQTT_SUBACK)
         , packetIdentifier(packetIdentifier)
         , returnCodes(std::move(returnCodes)) {
         data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));

@@ -25,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Pingreq::Pingreq()
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ, 0) {
+        : iot::mqtt::ControlPacket(MQTT_PINGREQ) {
     }
 
     Pingreq::Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory)

@@ -28,7 +28,7 @@
 namespace iot::mqtt::packets {
 
     Puback::Puback(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBACK, 0)
+        : iot::mqtt::ControlPacket(MQTT_PUBACK)
         , packetIdentifier(packetIdentifier) {
         data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
         data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
