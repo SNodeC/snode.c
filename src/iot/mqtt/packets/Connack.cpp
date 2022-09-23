@@ -36,7 +36,7 @@ namespace iot::mqtt::packets {
 
     Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
+        std::vector<char>::size_type pointer = 0;
 
         flags = *reinterpret_cast<uint8_t*>(data.data() + pointer);
         pointer += 1;

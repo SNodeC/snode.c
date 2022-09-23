@@ -57,7 +57,7 @@ namespace iot::mqtt::packets {
         qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
         retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
 
-        uint32_t pointer = 0;
+        std::vector<char>::size_type pointer = 0;
 
         uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
         pointer += 2;

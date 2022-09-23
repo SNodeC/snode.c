@@ -48,7 +48,7 @@ namespace iot::mqtt::packets {
 
     Subscribe::Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
+        std::vector<char>::size_type pointer = 0;
 
         packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
         pointer += 2;

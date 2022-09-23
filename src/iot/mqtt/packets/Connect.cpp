@@ -54,7 +54,7 @@ namespace iot::mqtt::packets {
 
     Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
+        std::vector<char>::size_type pointer = 0;
 
         uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
         pointer += 2;
