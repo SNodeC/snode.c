@@ -35,13 +35,8 @@ namespace iot::mqtt::packets {
 
     class Pingresp : public iot::mqtt::ControlPacket {
     public:
-        explicit Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory);
         Pingresp();
-        Pingresp(const Pingresp&) = default;
-
-        Pingresp& operator=(const Pingresp&) = default;
-
-        ~Pingresp();
+        explicit Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory);
     };
 
 } // namespace iot::mqtt::packets

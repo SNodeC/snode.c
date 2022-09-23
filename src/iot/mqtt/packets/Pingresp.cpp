@@ -24,15 +24,12 @@
 
 namespace iot::mqtt::packets {
 
-    Pingresp::Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-    }
-
     Pingresp::Pingresp()
         : iot::mqtt::ControlPacket(MQTT_PINGRESP, 0) {
     }
 
-    Pingresp::~Pingresp() {
+    Pingresp::Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
     }
 
 } // namespace iot::mqtt::packets

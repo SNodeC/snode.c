@@ -28,24 +28,6 @@
 
 namespace iot::mqtt::packets {
 
-    Unsubscribe::Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
-
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-        pointer += 2;
-
-        while (data.size() > pointer) {
-            uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-            pointer += 2;
-
-            std::string name = std::string(data.data() + pointer, strLen);
-            pointer += strLen;
-
-            topics.push_back(name);
-        }
-    }
-
     Unsubscribe::Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics)
         : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
@@ -63,7 +45,22 @@ namespace iot::mqtt::packets {
         }
     }
 
-    Unsubscribe::~Unsubscribe() {
+    Unsubscribe::Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
+        uint32_t pointer = 0;
+
+        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+        pointer += 2;
+
+        while (data.size() > pointer) {
+            uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+            pointer += 2;
+
+            std::string name = std::string(data.data() + pointer, strLen);
+            pointer += strLen;
+
+            topics.push_back(name);
+        }
     }
 
     uint16_t Unsubscribe::getPacketIdentifier() const {

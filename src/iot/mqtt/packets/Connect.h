@@ -45,14 +45,9 @@ namespace iot::mqtt::packets {
 
     class Connect : public iot::mqtt::ControlPacket {
     public:
-        explicit Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory);
         explicit Connect(
             std::string clientId, std::string protocol = "MQTT", uint8_t version = 4, uint8_t flags = 0, uint16_t keepAlive = 0x003C);
-        Connect(const Connect&) = default;
-
-        Connect& operator=(const Connect&) = default;
-
-        ~Connect();
+        explicit Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
         std::string getProtocol() const;
         uint8_t getVersion() const;

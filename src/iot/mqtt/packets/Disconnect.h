@@ -35,16 +35,8 @@ namespace iot::mqtt::packets {
 
     class Disconnect : public mqtt::ControlPacket {
     public:
+        Disconnect();
         explicit Disconnect(mqtt::ControlPacketFactory& controlPacketFactory);
-        Disconnect()
-            : iot::mqtt::ControlPacket(MQTT_DISCONNECT, 0) {
-        }
-
-        Disconnect(const Disconnect&) = default;
-
-        Disconnect& operator=(const Disconnect&) = default;
-
-        ~Disconnect();
     };
 
 } // namespace iot::mqtt::packets

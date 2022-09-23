@@ -27,25 +27,6 @@
 
 namespace iot::mqtt::packets {
 
-    Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
-
-        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
-        pointer += 2;
-
-        protocol = std::string(data.data() + pointer, protocolLength);
-        pointer += protocolLength;
-
-        version = static_cast<uint8_t>(*(data.data() + pointer));
-        pointer += 1;
-
-        flags = static_cast<uint8_t>(*(data.data() + pointer));
-        pointer += 1;
-
-        keepAlive = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
-    }
-
     Connect::Connect(std::string clientId, std::string protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
         : iot::mqtt::ControlPacket(MQTT_CONNECT, 0)
         , protocol(protocol)
@@ -71,7 +52,23 @@ namespace iot::mqtt::packets {
         data.insert(data.end(), this->clientId.begin(), this->clientId.end());
     }
 
-    Connect::~Connect() {
+    Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
+        uint32_t pointer = 0;
+
+        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
+        pointer += 2;
+
+        protocol = std::string(data.data() + pointer, protocolLength);
+        pointer += protocolLength;
+
+        version = static_cast<uint8_t>(*(data.data() + pointer));
+        pointer += 1;
+
+        flags = static_cast<uint8_t>(*(data.data() + pointer));
+        pointer += 1;
+
+        keepAlive = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
     }
 
     std::string Connect::getProtocol() const {

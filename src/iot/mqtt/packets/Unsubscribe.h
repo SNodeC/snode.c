@@ -39,13 +39,8 @@ namespace iot::mqtt::packets {
 
     class Unsubscribe : public iot::mqtt::ControlPacket {
     public:
-        explicit Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
         Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics);
-        Unsubscribe(const Unsubscribe&) = default;
-
-        Unsubscribe& operator=(const Unsubscribe&) = default;
-
-        ~Unsubscribe();
+        explicit Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
         uint16_t getPacketIdentifier() const;
 

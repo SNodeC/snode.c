@@ -26,16 +26,6 @@
 
 namespace iot::mqtt::packets {
 
-    Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
-
-        flags = *reinterpret_cast<uint8_t*>(data.data() + pointer);
-        pointer += 1;
-
-        reason = *reinterpret_cast<uint8_t*>(data.data() + pointer);
-    }
-
     Connack::Connack(uint8_t reason, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNACK, 0)
         , flags(flags)
@@ -44,7 +34,14 @@ namespace iot::mqtt::packets {
         data.push_back(static_cast<char>(this->reason)); // Connack Reason: 0x00 = Success
     }
 
-    Connack::~Connack() {
+    Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
+        uint32_t pointer = 0;
+
+        flags = *reinterpret_cast<uint8_t*>(data.data() + pointer);
+        pointer += 1;
+
+        reason = *reinterpret_cast<uint8_t*>(data.data() + pointer);
     }
 
     uint8_t Connack::getFlags() const {

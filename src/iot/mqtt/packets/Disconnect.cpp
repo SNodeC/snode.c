@@ -24,11 +24,12 @@
 
 namespace iot::mqtt::packets {
 
-    Disconnect::Disconnect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Disconnect::Disconnect()
+        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, 0) {
     }
 
-    Disconnect::~Disconnect() {
+    Disconnect::Disconnect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
     }
 
 } // namespace iot::mqtt::packets

@@ -38,18 +38,13 @@ namespace iot::mqtt::packets {
 
     class Publish : public iot::mqtt::ControlPacket {
     public:
-        explicit Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory);
         Publish(uint16_t packetIdentifier,
                 const std::string& topic,
                 const std::string& message,
                 bool dup = false,
                 uint8_t qoSLevel = 0,
                 bool retain = false);
-        Publish(const Publish&) = default;
-
-        Publish& operator=(const Publish&) = default;
-
-        ~Publish();
+        explicit Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
         bool getDup() const;
         uint8_t getQoSLevel() const;

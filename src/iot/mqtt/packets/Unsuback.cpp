@@ -27,13 +27,6 @@
 
 namespace iot::mqtt::packets {
 
-    Unsuback::Unsuback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
-
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-    }
-
     Unsuback::Unsuback(const uint16_t packetIdentifier)
         : iot::mqtt::ControlPacket(MQTT_UNSUBACK, 0)
         , packetIdentifier(packetIdentifier) {
@@ -41,7 +34,11 @@ namespace iot::mqtt::packets {
         data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
     }
 
-    Unsuback::~Unsuback() {
+    Unsuback::Unsuback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
+        uint32_t pointer = 0;
+
+        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {

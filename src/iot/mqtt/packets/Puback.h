@@ -37,14 +37,8 @@ namespace iot::mqtt::packets {
 
     class Puback : public iot::mqtt::ControlPacket {
     public:
-        explicit Puback(iot::mqtt::ControlPacketFactory& controlPacketFactory);
         explicit Puback(uint16_t packetIdentifier);
-
-        Puback(const Puback&) = default;
-
-        Puback& operator=(const Puback&) = default;
-
-        ~Puback();
+        explicit Puback(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
         uint16_t getPacketIdentifier() const;
 

@@ -24,15 +24,12 @@
 
 namespace iot::mqtt::packets {
 
-    Pingreq::Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-    }
-
     Pingreq::Pingreq()
         : iot::mqtt::ControlPacket(MQTT_PINGREQ, 0) {
     }
 
-    Pingreq::~Pingreq() {
+    Pingreq::Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
     }
 
 } // namespace iot::mqtt::packets

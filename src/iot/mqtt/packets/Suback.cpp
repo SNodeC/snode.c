@@ -28,18 +28,6 @@
 
 namespace iot::mqtt::packets {
 
-    Suback::Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
-
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-        pointer += 2;
-
-        for (; pointer < this->getRemainingLength(); ++pointer) {
-            returnCodes.push_back(static_cast<uint8_t>(*(data.data() + pointer)));
-        }
-    }
-
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
         : iot::mqtt::ControlPacket(MQTT_SUBACK, 0)
         , packetIdentifier(packetIdentifier)
@@ -52,7 +40,16 @@ namespace iot::mqtt::packets {
         }
     }
 
-    Suback::~Suback() {
+    Suback::Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
+        uint32_t pointer = 0;
+
+        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+        pointer += 2;
+
+        for (; pointer < this->getRemainingLength(); ++pointer) {
+            returnCodes.push_back(static_cast<uint8_t>(*(data.data() + pointer)));
+        }
     }
 
     uint16_t Suback::getPacketIdentifier() const {

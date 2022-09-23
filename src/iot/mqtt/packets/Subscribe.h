@@ -39,14 +39,8 @@ namespace iot::mqtt::packets {
 
     class Subscribe : public ControlPacket {
     public:
-        explicit Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
         Subscribe(uint16_t packetIdentifier, const std::list<iot::mqtt::Topic>& topics);
-
-        Subscribe(const Subscribe&) = default;
-
-        Subscribe& operator=(const Subscribe&) = default;
-
-        ~Subscribe();
+        explicit Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
         uint16_t getPacketIdentifier() const;
         const std::list<iot::mqtt::Topic>& getTopics() const;

@@ -29,28 +29,6 @@
 
 namespace iot::mqtt::packets {
 
-    Publish::Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        dup = (controlPacketFactory.getPacketFlags() & 0x08) != 0;
-        qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
-        retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
-
-        uint32_t pointer = 0;
-
-        uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-        pointer += 2;
-
-        topic = std::string(data.data() + pointer, strLen);
-        pointer += strLen;
-
-        if (qoSLevel != 0 && data.size() > pointer) {
-            packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-            pointer += 2;
-        }
-
-        message = std::string(data.data() + pointer, data.size() - pointer);
-    }
-
     Publish::Publish(
         uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
         : iot::mqtt::ControlPacket(MQTT_PUBLISH, 0)
@@ -73,7 +51,26 @@ namespace iot::mqtt::packets {
         data.insert(data.end(), this->message.begin(), this->message.end());
     }
 
-    Publish::~Publish() {
+    Publish::Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt::ControlPacket(controlPacketFactory) {
+        dup = (controlPacketFactory.getPacketFlags() & 0x08) != 0;
+        qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
+        retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
+
+        uint32_t pointer = 0;
+
+        uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+        pointer += 2;
+
+        topic = std::string(data.data() + pointer, strLen);
+        pointer += strLen;
+
+        if (qoSLevel != 0 && data.size() > pointer) {
+            packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+            pointer += 2;
+        }
+
+        message = std::string(data.data() + pointer, data.size() - pointer);
     }
 
     bool Publish::getDup() const {
