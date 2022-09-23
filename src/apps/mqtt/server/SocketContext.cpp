@@ -83,6 +83,33 @@ namespace apps::mqtt::server {
         VLOG(0) << "PacketIdentifier: " << puback.getPacketIdentifier();
     }
 
+    void SocketContext::onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
+        VLOG(0) << "PUBREC";
+        VLOG(0) << "======";
+        VLOG(0) << "Type: " << static_cast<uint16_t>(pubrec.getType());
+        VLOG(0) << "Reserved: " << static_cast<uint16_t>(pubrec.getReserved());
+        VLOG(0) << "RemainingLength: " << pubrec.getRemainingLength();
+        VLOG(0) << "PacketIdentifier: " << pubrec.getPacketIdentifier();
+    }
+
+    void SocketContext::onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
+        VLOG(0) << "PUBREL";
+        VLOG(0) << "======";
+        VLOG(0) << "Type: " << static_cast<uint16_t>(pubrel.getType());
+        VLOG(0) << "Reserved: " << static_cast<uint16_t>(pubrel.getReserved());
+        VLOG(0) << "RemainingLength: " << pubrel.getRemainingLength();
+        VLOG(0) << "PacketIdentifier: " << pubrel.getPacketIdentifier();
+    }
+
+    void SocketContext::onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
+        VLOG(0) << "PUBCOMP";
+        VLOG(0) << "=======";
+        VLOG(0) << "Type: " << static_cast<uint16_t>(pubcomp.getType());
+        VLOG(0) << "Reserved: " << static_cast<uint16_t>(pubcomp.getReserved());
+        VLOG(0) << "RemainingLength: " << pubcomp.getRemainingLength();
+        VLOG(0) << "PacketIdentifier: " << pubcomp.getPacketIdentifier();
+    }
+
     void SocketContext::onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) {
         VLOG(0) << "SUBSCRIBE";
         VLOG(0) << "=========";
@@ -94,10 +121,10 @@ namespace apps::mqtt::server {
         std::list<uint8_t> returnCodes;
 
         for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-            VLOG(0) << "Topic: " << topic.getName() << ", requestedQos: " << static_cast<uint16_t>(topic.getRequestedQos());
-            returnCodes.push_back(0x00); // QoS = 0; Success
-
+            VLOG(0) << "  Topic: " << topic.getName() << ", requestedQos: " << static_cast<uint16_t>(topic.getRequestedQos());
             apps::mqtt::server::Broker::instance().subscribe(topic.getName(), this);
+
+            returnCodes.push_back(0x00); // QoS = 0; Success
         }
 
         sendSuback(subscribe.getPacketIdentifier(), returnCodes);
@@ -126,7 +153,6 @@ namespace apps::mqtt::server {
 
         for (const std::string& topic : unsubscribe.getTopics()) {
             VLOG(0) << "  Topic: " << topic;
-
             apps::mqtt::server::Broker::instance().unsubscribe(topic, this);
         }
 

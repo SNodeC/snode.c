@@ -35,7 +35,7 @@ namespace iot::mqtt::packets {
         , keepAlive(keepAlive)
         , clientId(clientId) {
         std::string::size_type protocolLen = this->protocol.size();
-        data.push_back(static_cast<char>(protocolLen >> 8 & 0xFF));
+        data.push_back(static_cast<char>(protocolLen >> 0x08 & 0xFF));
         data.push_back(static_cast<char>(protocolLen & 0XFF));
         data.insert(data.end(), this->protocol.begin(), this->protocol.end());
 
@@ -47,8 +47,8 @@ namespace iot::mqtt::packets {
 
         // Payload
         std::string::size_type clientIdLen = this->clientId.size();
-        data.push_back(static_cast<char>(clientIdLen >> 8 & 0xFF)); // Client ID Length MSB (2)
-        data.push_back(static_cast<char>(clientIdLen & 0xFF));      // Client ID Length LSB
+        data.push_back(static_cast<char>(clientIdLen >> 0x08 & 0xFF)); // Client ID Length MSB (2)
+        data.push_back(static_cast<char>(clientIdLen & 0xFF));         // Client ID Length LSB
         data.insert(data.end(), this->clientId.begin(), this->clientId.end());
     }
 

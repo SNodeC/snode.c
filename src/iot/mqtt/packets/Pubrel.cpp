@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Puback.h"
+#include "iot/mqtt/packets/Pubrel.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,21 +27,19 @@
 
 namespace iot::mqtt::packets {
 
-    Puback::Puback(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBACK, 0)
+    Pubrel::Pubrel(uint16_t packetIdentifier)
+        : iot::mqtt::ControlPacket(MQTT_PUBREL, 0)
         , packetIdentifier(packetIdentifier) {
         data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
         data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
     }
 
-    Puback::Puback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+    Pubrel::Pubrel(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        uint32_t pointer = 0;
-
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
+        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data()));
     }
 
-    uint16_t Puback::getPacketIdentifier() const {
+    uint16_t Pubrel::getPacketIdentifier() const {
         return packetIdentifier;
     }
 

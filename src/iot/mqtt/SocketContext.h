@@ -28,7 +28,10 @@
 #include "iot/mqtt/packets/Pingreq.h"     // IWYU pragma: export
 #include "iot/mqtt/packets/Pingresp.h"    // IWYU pragma: export
 #include "iot/mqtt/packets/Puback.h"      // IWYU pragma: export
+#include "iot/mqtt/packets/Pubcomp.h"     // IWYU pragma: export
 #include "iot/mqtt/packets/Publish.h"     // IWYU pragma: export
+#include "iot/mqtt/packets/Pubrec.h"      // IWYU pragma: export
+#include "iot/mqtt/packets/Pubrel.h"      // IWYU pragma: export
 #include "iot/mqtt/packets/Suback.h"      // IWYU pragma: export
 #include "iot/mqtt/packets/Subscribe.h"   // IWYU pragma: export
 #include "iot/mqtt/packets/Unsuback.h"    // IWYU pragma: export
@@ -66,6 +69,9 @@ namespace iot::mqtt {
                          uint8_t qoSLevel = 0,
                          bool retain = false);
         void sendPuback(uint16_t packetIdentifier);
+        void sendPubrec(uint16_t packetIdentifier);
+        void sendPubrel(uint16_t packetIdentifier);
+        void sendPubcomp(uint16_t packetIdentifier);
         void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics);
         void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes);
         void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
@@ -79,6 +85,9 @@ namespace iot::mqtt {
         virtual void onConnack(const iot::mqtt::packets::Connack& connack) = 0;
         virtual void onPublish(const iot::mqtt::packets::Publish& publish) = 0;
         virtual void onPuback(const iot::mqtt::packets::Puback& puback) = 0;
+        virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec) = 0;
+        virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel) = 0;
+        virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) = 0;
         virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) = 0;
         virtual void onSuback(const iot::mqtt::packets::Suback& suback) = 0;
         virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) = 0;
@@ -86,11 +95,6 @@ namespace iot::mqtt {
         virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq) = 0;
         virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) = 0;
         virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) = 0;
-
-        // virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
-        // virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
-        // virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
-        // virtual void onAuth(const iot::mqtt::packets::Auth& auth);
 
     private:
         virtual std::size_t onReceiveFromPeer() final;

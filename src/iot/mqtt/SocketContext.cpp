@@ -66,6 +66,27 @@ namespace iot::mqtt {
         send(iot::mqtt::packets::Puback(packetIdentifier));
     }
 
+    void SocketContext::sendPubrec(uint16_t packetIdentifier) {
+        VLOG(0) << "Send PUBREC";
+        VLOG(0) << "===========";
+
+        send(iot::mqtt::packets::Pubrec(packetIdentifier));
+    }
+
+    void SocketContext::sendPubrel(uint16_t packetIdentifier) {
+        VLOG(0) << "Send PUBREL";
+        VLOG(0) << "===========";
+
+        send(iot::mqtt::packets::Pubrel(packetIdentifier));
+    }
+
+    void SocketContext::sendPubcomp(uint16_t packetIdentifier) {
+        VLOG(0) << "Send PUBCOMP";
+        VLOG(0) << "============";
+
+        send(iot::mqtt::packets::Pubcomp(packetIdentifier));
+    }
+
     void SocketContext::sendSubscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics) {
         VLOG(0) << "Send SUBSCRIBE";
         VLOG(0) << "==============";
@@ -116,15 +137,6 @@ namespace iot::mqtt {
     }
 
     /*
-        void SocketContext::onPubrec(const mqtt::packets::Pubrec& pubrec) {
-        }
-
-        void SocketContext::onPubrel(const mqtt::packets::Pubrel& pubrel) {
-        }
-
-        void SocketContext::onPubcomp(const mqtt::packets::Pubcomp& pubcomp) {
-        }
-
         void SocketContext::onAuth(const mqtt::packets::Auth& auth){
 
         }
@@ -143,49 +155,46 @@ namespace iot::mqtt {
             printData(controlPacketFactory.getPacket());
             switch (controlPacketFactory.getPacketType()) {
                 case MQTT_CONNECT:
-                    onConnect(mqtt::packets::Connect(controlPacketFactory));
+                    onConnect(iot::mqtt::packets::Connect(controlPacketFactory));
                     break;
                 case MQTT_CONNACK:
-                    onConnack(mqtt::packets::Connack(controlPacketFactory));
+                    onConnack(iot::mqtt::packets::Connack(controlPacketFactory));
                     break;
                 case MQTT_PUBLISH:
-                    onPublish(mqtt::packets::Publish(controlPacketFactory));
+                    onPublish(iot::mqtt::packets::Publish(controlPacketFactory));
                     break;
                 case MQTT_PUBACK:
-                    onPuback(mqtt::packets::Puback(controlPacketFactory));
+                    onPuback(iot::mqtt::packets::Puback(controlPacketFactory));
                     break;
-                    // case MQTT_PUBREC:
-                    //     onPubrec(Pubrec(controlPacketFactory.get()));
+                case MQTT_PUBREC:
+                    onPubrec(iot::mqtt::packets::Pubrec(controlPacketFactory));
                     break;
-                    // case MQTT_PUBREL:
-                    //     onPubrel(Pubrel(controlPacketFactory.get()));
+                case MQTT_PUBREL:
+                    onPubrel(iot::mqtt::packets::Pubrel(controlPacketFactory));
                     break;
-                    // case MQTT_PUBCOMP:
-                    //     onPubcomp(Pubcomp(controlPacketFactory.get()));
+                case MQTT_PUBCOMP:
+                    onPubcomp(iot::mqtt::packets::Pubcomp(controlPacketFactory));
                     break;
                 case MQTT_SUBSCRIBE:
-                    onSubscribe(mqtt::packets::Subscribe(controlPacketFactory));
+                    onSubscribe(iot::mqtt::packets::Subscribe(controlPacketFactory));
                     break;
                 case MQTT_SUBACK:
-                    onSuback(mqtt::packets::Suback(controlPacketFactory));
+                    onSuback(iot::mqtt::packets::Suback(controlPacketFactory));
                     break;
                 case MQTT_UNSUBSCRIBE:
-                    onUnsubscribe(mqtt::packets::Unsubscribe(controlPacketFactory));
+                    onUnsubscribe(iot::mqtt::packets::Unsubscribe(controlPacketFactory));
                     break;
                 case MQTT_UNSUBACK:
-                    onUnsuback(mqtt::packets::Unsuback(controlPacketFactory));
+                    onUnsuback(iot::mqtt::packets::Unsuback(controlPacketFactory));
                     break;
                 case MQTT_PINGREQ:
-                    onPingreq(mqtt::packets::Pingreq(controlPacketFactory));
+                    onPingreq(iot::mqtt::packets::Pingreq(controlPacketFactory));
                     break;
                 case MQTT_PINGRESP:
-                    onPingresp(mqtt::packets::Pingresp(controlPacketFactory));
+                    onPingresp(iot::mqtt::packets::Pingresp(controlPacketFactory));
                     break;
                 case MQTT_DISCONNECT:
-                    onDisconnect(mqtt::packets::Disconnect(controlPacketFactory));
-                    break;
-                    // case MQTT_AUTH:
-                    //     onAuth(Auth(controlPacketFactory.get()));
+                    onDisconnect(iot::mqtt::packets::Disconnect(controlPacketFactory));
                     break;
                 default:
                     close();

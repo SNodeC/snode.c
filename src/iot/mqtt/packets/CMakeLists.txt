@@ -10,6 +10,9 @@ set(MQTT_PACKETS_CPP
     Pingresp.cpp
     Publish.cpp
     Puback.cpp
+    Pubcomp.cpp
+    Pubrec.cpp
+    Pubrel.cpp
     Subscribe.cpp
     Suback.cpp
     Unsubscribe.cpp
@@ -23,6 +26,9 @@ set(MQTT_PACKETS_H
     Pingresp.h
     Publish.h
     Puback.h
+    Pubcomp.h
+    Pubrec.h
+    Pubrel.h
     Subscribe.h
     Suback.h
     Unsubscribe.h

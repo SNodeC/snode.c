@@ -41,6 +41,9 @@ namespace apps::mqtt::server {
         void onConnack(const iot::mqtt::packets::Connack& connack) override;
         void onPublish(const iot::mqtt::packets::Publish& publish) override;
         void onPuback(const iot::mqtt::packets::Puback& puback) override;
+        void onPubrec(const iot::mqtt::packets::Pubrec& pubrec) override;
+        void onPubrel(const iot::mqtt::packets::Pubrel& pubrel) override;
+        void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) override;
         void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) override;
         void onSuback(const iot::mqtt::packets::Suback& suback) override;
         void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) override;
