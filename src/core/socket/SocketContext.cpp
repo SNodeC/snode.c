@@ -40,7 +40,7 @@ namespace core::socket {
         sendToPeer(data.data(), data.length());
     }
 
-    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
+    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) const {
         return socketConnection->readFromPeer(junk, junklen);
     }
 

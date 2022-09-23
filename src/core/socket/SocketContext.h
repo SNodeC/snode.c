@@ -50,7 +50,7 @@ namespace core::socket {
 
         void sendToPeer(const char* junk, std::size_t junkLen) const;
         void sendToPeer(const std::string& data) const;
-        std::size_t readFromPeer(char* junk, std::size_t junklen);
+        std::size_t readFromPeer(char* junk, std::size_t junklen) const;
 
         void shutdownRead();
         void shutdownWrite(bool forceClose = false);
