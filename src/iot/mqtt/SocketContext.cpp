@@ -327,11 +327,11 @@ namespace iot::mqtt {
         return consumed;
     }
 
-    void SocketContext::send(ControlPacket&& controlPacket) {
+    void SocketContext::send(ControlPacket&& controlPacket) const {
         send(controlPacket.getPacket());
     }
 
-    void SocketContext::send(ControlPacket& controlPacket) {
+    void SocketContext::send(ControlPacket& controlPacket) const {
         send(controlPacket.getPacket());
     }
 

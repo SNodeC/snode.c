@@ -107,8 +107,8 @@ namespace iot::mqtt {
     private:
         virtual std::size_t onReceiveFromPeer() final;
 
-        void send(iot::mqtt::ControlPacket&& controlPacket);
-        void send(iot::mqtt::ControlPacket& controlPacket);
+        void send(iot::mqtt::ControlPacket&& controlPacket) const;
+        void send(iot::mqtt::ControlPacket& controlPacket) const;
         void send(const std::vector<char>& data) const;
         void printData(const std::vector<char>& data) const;
 

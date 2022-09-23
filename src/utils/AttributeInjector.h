@@ -67,7 +67,7 @@ namespace utils {
     class SingleAttributeInjector {
     public:
         template <InjectableAttribute Attribute>
-        constexpr bool setAttribute(const Attribute& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(const Attribute& attribute, bool overwrite = false) {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
@@ -80,7 +80,7 @@ namespace utils {
         }
 
         template <InjectableAttribute Attribute>
-        constexpr bool setAttribute(const Attribute&& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(const Attribute&& attribute, bool overwrite = false) {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
@@ -114,14 +114,14 @@ namespace utils {
         }
 
     private:
-        mutable std::shared_ptr<void> attribute{nullptr};
-        mutable std::string attributeType;
+        std::shared_ptr<void> attribute{nullptr};
+        std::string attributeType;
     };
 
     class MultibleAttributeInjector {
     public:
         template <InjectableAttribute Attribute, fixed_string key = "">
-        constexpr bool setAttribute(const Attribute& attribute, const std::string& subKey = "", bool overwrite = false) const {
+        constexpr bool setAttribute(const Attribute& attribute, const std::string& subKey = "", bool overwrite = false) {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {
@@ -134,7 +134,7 @@ namespace utils {
         }
 
         template <InjectableAttribute Attribute, fixed_string key = "">
-        constexpr bool setAttribute(const Attribute&& attribute, const std::string& subKey = "", bool overwrite = false) const {
+        constexpr bool setAttribute(const Attribute&& attribute, const std::string& subKey = "", bool overwrite = false) {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {
@@ -147,7 +147,7 @@ namespace utils {
         }
 
         template <InjectableAttribute Attribute, fixed_string key = "">
-        constexpr bool delAttribute(const std::string& subKey = "") const {
+        constexpr bool delAttribute(const std::string& subKey = "") {
             bool deleted = attributes.erase(typeid(Attribute).name() + std::string(key) + subKey) > 0;
 
             return deleted;
@@ -195,7 +195,7 @@ namespace utils {
         }
 
     private:
-        mutable std::map<std::string, std::shared_ptr<void>> attributes;
+        std::map<std::string, std::shared_ptr<void>> attributes;
     };
 
 } // namespace utils
