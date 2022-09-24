@@ -225,8 +225,7 @@ namespace iot::mqtt::types {
         uint16_t stringLen = static_cast<uint16_t>(string.length());
         putInt16(stringLen);
 
-        data.insert(data.end(), string.begin(), string.end());
-        length += stringLen;
+        putStringRaw(string);
     }
 
     void Binary::putStringRaw(const std::string& string) {

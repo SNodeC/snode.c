@@ -57,7 +57,6 @@ namespace iot::mqtt {
 
         iot::mqtt::types::Int_1 typeFlags;
         iot::mqtt::types::Int_V remainingLength;
-
         iot::mqtt::types::Binary data;
     };
 

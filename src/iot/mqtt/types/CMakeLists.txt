@@ -5,21 +5,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(MQTT_TYPES_CPP
     Binary.cpp
     Int_1.cpp
-    Int_2.cpp
-    Int_4.cpp
     Int_V.cpp
-    String.cpp
-    StringPair.cpp
     TypeBase.cpp
 )
 set(MQTT_TYPES_H
     Binary.h
     Int_1.h
-    Int_2.h
-    Int_4.h
     Int_V.h
-    String.h
-    StringPair.h
     TypeBase.h
 )
 

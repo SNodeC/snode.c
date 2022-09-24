@@ -37,7 +37,7 @@ namespace iot::mqtt::packets {
 
         for (const iot::mqtt::Topic& topic : this->topics) {
             data.putString(topic.getName());
-            data.putInt8(topic.getRequestedQos());
+            data.putInt8(topic.getRequestedQoS());
         }
     }
 
@@ -48,10 +48,10 @@ namespace iot::mqtt::packets {
         std::string name = "";
         do {
             name = data.getString();
-            uint8_t requestedQos = data.getInt8();
+            uint8_t requestedQoS = data.getInt8();
 
             if (name.length() > 0) {
-                topics.push_back(iot::mqtt::Topic(name, requestedQos));
+                topics.push_back(iot::mqtt::Topic(name, requestedQoS));
             }
         } while (name.length() > 0);
 
