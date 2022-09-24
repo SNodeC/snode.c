@@ -48,9 +48,11 @@ namespace iot::mqtt::packets {
         keepAlive = getInt16();
 
         // Payload
-        clientId = getString();
-
-        error = isError();
+        if (!isError()) {
+            clientId = getString();
+        } else {
+            error = true;
+        }
     }
 
     std::string Connect::getProtocol() const {

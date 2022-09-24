@@ -73,7 +73,7 @@ namespace iot::mqtt::types {
         std::vector<char>::size_type length = 0;
         std::vector<char>::size_type needed = 0;
 
-        std::vector<char> data;
+        std::vector<char> binary;
     };
 
 } // namespace iot::mqtt::types

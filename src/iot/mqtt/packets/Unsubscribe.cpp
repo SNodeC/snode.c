@@ -30,7 +30,7 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
-        putInt16(packetIdentifier);
+        putInt16(this->packetIdentifier);
 
         for (std::string& topic : this->topics) {
             putString(topic);

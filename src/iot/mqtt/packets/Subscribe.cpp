@@ -51,9 +51,11 @@ namespace iot::mqtt::packets {
             if (name.length() > 0) {
                 topics.push_back(iot::mqtt::Topic(name, requestedQoS));
             }
-        } while (name.length() > 0);
+        } while (!name.empty());
 
-        error = topics.empty();
+        if (!isError()) {
+            error = topics.empty();
+        }
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {
