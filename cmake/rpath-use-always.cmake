@@ -6,7 +6,7 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 set(CMAKE_INSTALL_RPATH
-    "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/snode.c/web"
+    "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/snode.c/web;${CMAKE_INSTALL_PREFIX}/lib/snode.c/mqtt"
 )
 
 # add the automatically determined parts of the RPATH which point to directories

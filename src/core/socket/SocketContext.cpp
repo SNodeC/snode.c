@@ -32,15 +32,15 @@ namespace core::socket {
         : socketConnection(socketConnection) {
     }
 
-    void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) {
+    void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) const {
         socketConnection->sendToPeer(junk, junkLen);
     }
 
-    void SocketContext::sendToPeer(const std::string& data) {
+    void SocketContext::sendToPeer(const std::string& data) const {
         sendToPeer(data.data(), data.length());
     }
 
-    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
+    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) const {
         return socketConnection->readFromPeer(junk, junklen);
     }
 

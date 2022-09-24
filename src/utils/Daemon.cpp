@@ -138,7 +138,7 @@ namespace utils {
                         close(pidfd);
                         exit(EXIT_FAILURE);
                     } else if (ready == 0) {
-                        PLOG(WARNING) << "Daemon not responding - killing";
+                        LOG(WARNING) << "Daemon not responding - killing";
                         ::kill(pid, SIGKILL);
                         erasePidFile(pidFileName);
                     } else {

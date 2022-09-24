@@ -7,4 +7,4 @@
 *.txt.user
 /doc/xml/
 /README.md
-*.json
+/.vscode/
