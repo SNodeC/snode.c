@@ -19,11 +19,9 @@
 #include "iot/mqtt/packets/Publish.h"
 
 #include "iot/mqtt/ControlPacketFactory.h"
+#include "iot/mqtt/types/Binary.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <endian.h>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -38,17 +36,13 @@ namespace iot::mqtt::packets {
         , dup(dup)
         , qoSLevel(qoSLevel)
         , retain(retain) {
-        uint16_t topicLen = static_cast<uint16_t>(this->topic.size());
-        data.push_back(static_cast<char>(topicLen >> 0x08 & 0xFF));
-        data.push_back(static_cast<char>(topicLen & 0xFF));
-        data.insert(data.end(), this->topic.begin(), this->topic.end());
+        data.putString(this->topic);
 
-        if (qoSLevel > 0) {
-            data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
-            data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
+        if (this->qoSLevel > 0) {
+            data.putInt16(this->packetIdentifier);
         }
 
-        data.insert(data.end(), this->message.begin(), this->message.end());
+        data.putStringRaw(this->message);
     }
 
     Publish::Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory)
@@ -57,20 +51,15 @@ namespace iot::mqtt::packets {
         qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
         retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
 
-        std::vector<char>::size_type pointer = 0;
+        topic = data.getString();
 
-        uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-        pointer += 2;
-
-        topic = std::string(data.data() + pointer, strLen);
-        pointer += strLen;
-
-        if (qoSLevel != 0 && data.size() > pointer) {
-            packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-            pointer += 2;
+        if (qoSLevel != 0) {
+            packetIdentifier = data.getInt16();
         }
 
-        message = std::string(data.data() + pointer, data.size() - pointer);
+        message = data.getStringRaw();
+
+        error = data.isError();
     }
 
     bool Publish::getDup() const {

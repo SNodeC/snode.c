@@ -18,11 +18,11 @@
 
 #include "iot/mqtt/packets/Unsubscribe.h"
 
+#include "iot/mqtt/types/Binary.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <endian.h>
 #include <utility>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -32,35 +32,27 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
-        data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
-        data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
+        data.putInt16(packetIdentifier);
 
         for (std::string& topic : this->topics) {
-            uint16_t topicLen = static_cast<uint16_t>(topic.size());
-
-            data.push_back(static_cast<char>(topicLen >> 0x08 & 0xFF));
-            data.push_back(static_cast<char>(topicLen & 0xFF));
-
-            data.insert(data.end(), topic.begin(), topic.end());
+            data.putString(topic);
         }
     }
 
     Unsubscribe::Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        std::vector<char>::size_type pointer = 0;
+        packetIdentifier = data.getInt16();
 
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-        pointer += 2;
+        std::string name = "";
+        do {
+            name = data.getString();
 
-        while (data.size() > pointer) {
-            uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-            pointer += 2;
+            if (name.length() > 0) {
+                topics.push_back(name);
+            }
+        } while (name.length() > 0);
 
-            std::string name = std::string(data.data() + pointer, strLen);
-            pointer += strLen;
-
-            topics.push_back(name);
-        }
+        error = topics.empty();
     }
 
     uint16_t Unsubscribe::getPacketIdentifier() const {

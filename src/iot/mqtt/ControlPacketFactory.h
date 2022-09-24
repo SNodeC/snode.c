@@ -21,6 +21,7 @@
 
 #include "iot/mqtt/types/Binary.h"
 #include "iot/mqtt/types/Int_1.h"
+#include "iot/mqtt/types/Int_V.h"
 
 namespace iot::mqtt {
     class SocketContext;
@@ -30,7 +31,6 @@ namespace iot::mqtt {
 
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -43,7 +43,7 @@ namespace iot::mqtt {
         std::size_t construct();
         bool isComplete();
         bool isError();
-        std::vector<char>& getPacket();
+        iot::mqtt::types::Binary& getPacket();
         uint8_t getPacketType();
         uint8_t getPacketFlags();
         uint64_t getRemainingLength();
@@ -51,14 +51,13 @@ namespace iot::mqtt {
         void reset();
 
     private:
-        iot::mqtt::SocketContext* socketContext;
-
-    private:
         bool completed = false;
         bool error = false;
         int state = 0;
 
         iot::mqtt::types::Int_1 typeFlags;
+        iot::mqtt::types::Int_V remainingLength;
+
         iot::mqtt::types::Binary data;
     };
 

@@ -18,6 +18,8 @@
 
 #include "iot/mqtt/types/TypeBase.h"
 
+#include "iot/mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -37,6 +39,18 @@ namespace iot::mqtt::types {
 
     bool TypeBase::isError() {
         return error;
+    }
+
+    std::size_t TypeBase::read(char* buf, std::size_t count) {
+        std::size_t ret = 0;
+
+        if (socketContext != nullptr) {
+            ret = socketContext->readFromPeer(buf, count);
+        } else {
+            error = true;
+        }
+
+        return ret;
     }
 
     void TypeBase::reset() {

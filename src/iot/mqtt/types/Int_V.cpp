@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/types/Int_V.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -27,7 +25,7 @@
 namespace iot::mqtt::types {
 
     Int_V::Int_V(SocketContext* socketContext)
-        : mqtt::types::TypeBase(socketContext) {
+        : iot::mqtt::types::TypeBase(socketContext) {
     }
 
     Int_V::~Int_V() {
@@ -39,10 +37,10 @@ namespace iot::mqtt::types {
 
         do {
             char byte;
-            ret = socketContext->readFromPeer(&byte, 1);
+            ret = read(&byte, 1);
 
             if (ret > 0) {
-                value += static_cast<uint64_t>((byte & 0x7F) * multiplier);
+                value += static_cast<uint32_t>((byte & 0x7F) * multiplier);
                 if (multiplier > 0x80 * 0x80 * 0x80) {
                     error = true;
                 } else {
@@ -56,7 +54,7 @@ namespace iot::mqtt::types {
         return consumed;
     }
 
-    std::uint64_t Int_V::getValue() {
+    std::uint32_t Int_V::getValue() {
         return value;
     }
 
@@ -64,7 +62,7 @@ namespace iot::mqtt::types {
         multiplier = 1;
         value = 0;
 
-        mqtt::types::TypeBase::reset();
+        iot::mqtt::types::TypeBase::reset();
     }
 
 } // namespace iot::mqtt::types

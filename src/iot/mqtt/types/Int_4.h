@@ -36,7 +36,7 @@ namespace iot::mqtt::types {
 
     class Int_4 : public iot::mqtt::types::TypeBase {
     public:
-        explicit Int_4(mqtt::SocketContext* socketContext);
+        explicit Int_4(iot::mqtt::SocketContext* socketContext = nullptr);
         Int_4(const Int_4&) = default;
 
         Int_4& operator=(const Int_4&) = default;
@@ -45,7 +45,7 @@ namespace iot::mqtt::types {
 
         std::size_t construct() override;
 
-        uint64_t getValue();
+        uint32_t getValue();
 
         void reset() override;
 

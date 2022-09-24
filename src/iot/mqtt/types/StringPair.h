@@ -35,7 +35,7 @@ namespace iot::mqtt::types {
 
     class StringPair : public iot::mqtt::types::TypeBase {
     public:
-        explicit StringPair(iot::mqtt::SocketContext* socketContext);
+        explicit StringPair(iot::mqtt::SocketContext* socketContext = nullptr);
         StringPair(const StringPair&) = default;
 
         StringPair& operator=(const StringPair&) = default;

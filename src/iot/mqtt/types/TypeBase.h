@@ -46,9 +46,11 @@ namespace iot::mqtt::types {
         bool isError();
 
     protected:
+        std::size_t read(char* buf, std::size_t count);
         virtual void reset();
 
         iot::mqtt::SocketContext* socketContext;
+
         bool completed = false;
         bool error = false;
     };

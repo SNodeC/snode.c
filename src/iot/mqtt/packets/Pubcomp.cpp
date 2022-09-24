@@ -18,10 +18,9 @@
 
 #include "iot/mqtt/packets/Pubcomp.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "iot/mqtt/types/Binary.h"
 
-#include <endian.h>
-#include <vector>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -30,13 +29,14 @@ namespace iot::mqtt::packets {
     Pubcomp::Pubcomp(uint16_t packetIdentifier)
         : iot::mqtt::ControlPacket(MQTT_PUBCOMP)
         , packetIdentifier(packetIdentifier) {
-        data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
-        data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
+        data.putInt16(this->packetIdentifier);
     }
 
     Pubcomp::Pubcomp(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data()));
+        packetIdentifier = data.getInt16();
+
+        error = data.isError();
     }
 
     uint16_t Pubcomp::getPacketIdentifier() const {

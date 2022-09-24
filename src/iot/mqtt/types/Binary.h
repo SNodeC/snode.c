@@ -19,8 +19,9 @@
 #ifndef MQTT_TYPES_BINARY_H
 #define MQTT_TYPES_BINARY_H
 
-#include "iot/mqtt/types/Int_V.h"
 #include "iot/mqtt/types/TypeBase.h"
+
+#include <string>
 
 namespace iot::mqtt {
     class SocketContext;
@@ -30,6 +31,7 @@ namespace iot::mqtt {
 
 #include <cstddef>
 #include <cstdint>
+#include <list>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -38,25 +40,44 @@ namespace iot::mqtt::types {
 
     class Binary : public iot::mqtt::types::TypeBase {
     public:
-        explicit Binary(iot::mqtt::SocketContext* socketContext);
+        explicit Binary(iot::mqtt::SocketContext* socketContext = nullptr);
         Binary(const Binary&) = default;
 
         Binary& operator=(const Binary&) = default;
 
         ~Binary() override;
 
+        void setLength(std::vector<char>::size_type length);
+        std::vector<char>::size_type getLength() const;
+
         std::size_t construct() override;
 
         std::vector<char>& getValue();
 
+        uint8_t getInt8();
+        uint16_t getInt16();
+        uint32_t getInt32();
+        uint64_t getInt64();
+        uint32_t getIntV();
+        std::string getString();
+        std::string getStringRaw();
+        std::list<uint8_t> getUint8ListRaw();
+
+        void putInt8(uint8_t value);
+        void putInt16(uint16_t value);
+        void putInt32(uint32_t value);
+        void putInt64(uint64_t value);
+        void putIntV(uint32_t value);
+        void putString(const std::string& string);
+        void putStringRaw(const std::string& string);
+
         void reset() override;
 
     private:
-        int state = 0;
-        uint64_t needed = 0;
-        uint64_t stillNeeded = 0;
+        std::vector<char>::size_type pointer = 0;
+        std::vector<char>::size_type length = 0;
+        std::vector<char>::size_type needed = 0;
 
-        iot::mqtt::types::Int_V length;
         std::vector<char> data;
     };
 

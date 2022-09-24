@@ -18,9 +18,9 @@
 
 #include "iot/mqtt/packets/Connack.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "iot/mqtt/types/Binary.h"
 
-#include <vector>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -30,18 +30,16 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_CONNACK)
         , flags(flags)
         , reason(reason) {
-        data.push_back(static_cast<char>(this->flags));  // Connack Flags: 0x00 - LSB is session present
-        data.push_back(static_cast<char>(this->reason)); // Connack Reason: 0x00 = Success
+        data.putInt8(this->flags);
+        data.putInt8(this->reason);
     }
 
     Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        std::vector<char>::size_type pointer = 0;
+        flags = data.getInt8();
+        reason = data.getInt8();
 
-        flags = *reinterpret_cast<uint8_t*>(data.data() + pointer);
-        pointer += 1;
-
-        reason = *reinterpret_cast<uint8_t*>(data.data() + pointer);
+        error = data.isError();
     }
 
     uint8_t Connack::getFlags() const {

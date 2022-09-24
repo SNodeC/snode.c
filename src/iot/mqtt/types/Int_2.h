@@ -36,7 +36,7 @@ namespace iot::mqtt::types {
 
     class Int_2 : public iot::mqtt::types::TypeBase {
     public:
-        explicit Int_2(iot::mqtt::SocketContext* socketContext);
+        explicit Int_2(iot::mqtt::SocketContext* socketContext = nullptr);
         Int_2(const Int_2&) = default;
 
         Int_2& operator=(const Int_2&) = default;

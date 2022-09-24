@@ -18,12 +18,12 @@
 
 #include "iot/mqtt/packets/Subscribe.h"
 
+#include "iot/mqtt/types/Binary.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <endian.h>
 #include <string>
 #include <utility>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -33,38 +33,29 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
-        data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
-        data.push_back(static_cast<char>(this->packetIdentifier & 0x08));
+        data.putInt16(this->packetIdentifier);
 
         for (const iot::mqtt::Topic& topic : this->topics) {
-            uint16_t topicLen = static_cast<uint16_t>(topic.getName().size());
-            data.push_back(static_cast<char>(topicLen >> 0x08 & 0xFF));
-            data.push_back(static_cast<char>(topicLen & 0x08));
-
-            data.insert(data.end(), topic.getName().begin(), topic.getName().end());
-            data.push_back(static_cast<char>(topic.getRequestedQos())); // Topic QoS
+            data.putString(topic.getName());
+            data.putInt8(topic.getRequestedQos());
         }
     }
 
     Subscribe::Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        std::vector<char>::size_type pointer = 0;
+        packetIdentifier = data.getInt16();
 
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-        pointer += 2;
+        std::string name = "";
+        do {
+            name = data.getString();
+            uint8_t requestedQos = data.getInt8();
 
-        while (data.size() > pointer) {
-            uint16_t strLen = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-            pointer += 2;
+            if (name.length() > 0) {
+                topics.push_back(iot::mqtt::Topic(name, requestedQos));
+            }
+        } while (name.length() > 0);
 
-            std::string name = std::string(data.data() + pointer, strLen);
-            pointer += strLen;
-
-            uint8_t requestedQos = *reinterpret_cast<uint8_t*>(data.data() + pointer);
-            pointer += 1;
-
-            topics.push_back(mqtt::Topic(name, requestedQos));
-        }
+        error = topics.empty();
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {

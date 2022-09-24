@@ -19,6 +19,8 @@
 #ifndef IOT_MQTT_CONTROLPACKET_H
 #define IOT_MQTT_CONTROLPACKET_H
 
+#include "iot/mqtt/types/Binary.h"
+
 namespace iot::mqtt {
     class ControlPacketFactory;
 } // namespace iot::mqtt
@@ -40,16 +42,17 @@ namespace iot::mqtt {
         uint8_t getType() const;
         uint8_t getReserved() const;
         uint64_t getRemainingLength() const;
-        std::vector<char>& getPacket();
+        std::vector<char> getPacket();
 
-    protected:
-        uint8_t type;
-        uint8_t reserved;
-        std::vector<char> data;
-        std::vector<char> packet;
+        bool isError() const;
 
     private:
-        bool constructed = false;
+        uint8_t type;
+        uint8_t reserved;
+
+    protected:
+        iot::mqtt::types::Binary data;
+        bool error = false;
     };
 
 } // namespace iot::mqtt

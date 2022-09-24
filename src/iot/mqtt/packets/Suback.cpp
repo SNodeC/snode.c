@@ -18,11 +18,11 @@
 
 #include "iot/mqtt/packets/Suback.h"
 
+#include "iot/mqtt/types/Binary.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <endian.h>
 #include <utility>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -32,24 +32,19 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBACK)
         , packetIdentifier(packetIdentifier)
         , returnCodes(std::move(returnCodes)) {
-        data.push_back(static_cast<char>(this->packetIdentifier >> 0x08 & 0xFF));
-        data.push_back(static_cast<char>(this->packetIdentifier & 0xFF));
+        data.putInt16(this->packetIdentifier);
 
         for (uint8_t returnCode : this->returnCodes) {
-            data.push_back(static_cast<char>(returnCode));
+            data.putInt8(returnCode);
         }
     }
 
     Suback::Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        std::vector<char>::size_type pointer = 0;
+        packetIdentifier = data.getInt16();
+        returnCodes = data.getUint8ListRaw();
 
-        packetIdentifier = be16toh(*reinterpret_cast<uint16_t*>(data.data() + pointer));
-        pointer += 2;
-
-        for (; pointer < this->getRemainingLength(); ++pointer) {
-            returnCodes.push_back(*reinterpret_cast<uint8_t*>((data.data() + pointer)));
-        }
+        error = data.isError();
     }
 
     uint16_t Suback::getPacketIdentifier() const {

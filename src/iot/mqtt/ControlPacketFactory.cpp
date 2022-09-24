@@ -20,13 +20,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <vector>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt {
 
     ControlPacketFactory::ControlPacketFactory(iot::mqtt::SocketContext* socketContext)
-        : socketContext(socketContext)
-        , typeFlags(socketContext)
+        : typeFlags(socketContext)
+        , remainingLength(socketContext)
         , data(socketContext) {
     }
 
@@ -34,7 +36,7 @@ namespace iot::mqtt {
         std::size_t consumed = 0;
 
         switch (state) {
-            case 0:
+            case 0: // Type - Flags
                 consumed = typeFlags.construct();
                 if (typeFlags.isCompleted()) {
                     state++;
@@ -42,11 +44,21 @@ namespace iot::mqtt {
                     error = typeFlags.isError();
                 }
                 break;
-            case 1:
+            case 1: // Remaining length
+                consumed = remainingLength.construct();
+                if (remainingLength.isCompleted()) {
+                    data.setLength(remainingLength.getValue());
+                    completed = remainingLength.getValue() == 0;
+                    state++;
+                } else {
+                    error = remainingLength.isError();
+                }
+                break;
+            case 2: // Var-Header + Payload
                 consumed = data.construct();
                 if (data.isCompleted()) {
-                    state++;
                     completed = true;
+                    state++;
                 } else {
                     error = data.isError();
                 }
@@ -64,8 +76,8 @@ namespace iot::mqtt {
         return error;
     }
 
-    std::vector<char>& ControlPacketFactory::getPacket() {
-        return data.getValue();
+    iot::mqtt::types::Binary& ControlPacketFactory::getPacket() {
+        return data;
     }
 
     uint8_t ControlPacketFactory::getPacketType() {
@@ -86,6 +98,7 @@ namespace iot::mqtt {
         state = 0;
 
         typeFlags.reset();
+        remainingLength.reset();
         data.reset();
     }
 

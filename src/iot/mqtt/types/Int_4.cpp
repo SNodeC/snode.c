@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/types/Int_4.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -27,14 +25,14 @@
 namespace iot::mqtt::types {
 
     Int_4::Int_4(iot::mqtt::SocketContext* socketContext)
-        : mqtt::types::TypeBase(socketContext) {
+        : iot::mqtt::types::TypeBase(socketContext) {
     }
 
     Int_4::~Int_4() {
     }
 
     std::size_t Int_4::construct() {
-        std::size_t consumed = socketContext->readFromPeer(buffer + needed - stillNeeded, static_cast<std::size_t>(stillNeeded));
+        std::size_t consumed = read(buffer + needed - stillNeeded, static_cast<std::size_t>(stillNeeded));
 
         stillNeeded -= consumed;
         completed = stillNeeded == 0;
@@ -42,15 +40,15 @@ namespace iot::mqtt::types {
         return consumed;
     }
 
-    uint64_t Int_4::getValue() {
-        return static_cast<uint16_t>(*buffer);
+    uint32_t Int_4::getValue() {
+        return *reinterpret_cast<uint32_t*>(buffer);
     }
 
     void Int_4::reset() {
         needed = 4;
         stillNeeded = 4;
 
-        mqtt::types::TypeBase::reset();
+        iot::mqtt::types::TypeBase::reset();
     }
 
 } // namespace iot::mqtt::types

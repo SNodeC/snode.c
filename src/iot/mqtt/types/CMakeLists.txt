@@ -13,7 +13,7 @@ set(MQTT_TYPES_CPP
     TypeBase.cpp
 )
 set(MQTT_TYPES_H
-    Binary.cpp
+    Binary.h
     Int_1.h
     Int_2.h
     Int_4.h

@@ -100,7 +100,7 @@ namespace iot::mqtt {
 
         void send(iot::mqtt::ControlPacket&& controlPacket) const;
         void send(iot::mqtt::ControlPacket& controlPacket) const;
-        void send(const std::vector<char>& data) const;
+        void send(std::vector<char>&& data) const;
         void printData(const std::vector<char>& data) const;
 
         iot::mqtt::ControlPacketFactory controlPacketFactory;

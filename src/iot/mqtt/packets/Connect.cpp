@@ -18,10 +18,9 @@
 
 #include "iot/mqtt/packets/Connect.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "iot/mqtt/types/Binary.h"
 
-#include <endian.h>
-#include <vector>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -34,41 +33,22 @@ namespace iot::mqtt::packets {
         , flags(flags)
         , keepAlive(keepAlive)
         , clientId(clientId) {
-        std::string::size_type protocolLen = this->protocol.size();
-        data.push_back(static_cast<char>(protocolLen >> 0x08 & 0xFF));
-        data.push_back(static_cast<char>(protocolLen & 0XFF));
-        data.insert(data.end(), this->protocol.begin(), this->protocol.end());
-
-        data.push_back(static_cast<char>(this->version)); // Protocol Level (4)
-        data.push_back(static_cast<char>(this->flags));   // Connect Flags (Clean Session)
-
-        data.push_back(static_cast<char>(this->keepAlive >> 0x08 & 0xFF)); // Keep Alive MSB (60Sec)
-        data.push_back(static_cast<char>(this->keepAlive & 0xFF));         // Keep Alive LSB
+        data.putString(this->protocol);
+        data.putInt8(this->version);
+        data.putInt8(this->flags);
+        data.putInt16(this->keepAlive);
 
         // Payload
-        std::string::size_type clientIdLen = this->clientId.size();
-        data.push_back(static_cast<char>(clientIdLen >> 0x08 & 0xFF)); // Client ID Length MSB (2)
-        data.push_back(static_cast<char>(clientIdLen & 0xFF));         // Client ID Length LSB
-        data.insert(data.end(), this->clientId.begin(), this->clientId.end());
+        data.putString(this->clientId);
     }
 
     Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        std::vector<char>::size_type pointer = 0;
+        protocol = data.getString();
+        version = data.getInt8();
+        flags = data.getInt8();
 
-        uint16_t protocolLength = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
-        pointer += 2;
-
-        protocol = std::string(data.data() + pointer, protocolLength);
-        pointer += protocolLength;
-
-        version = *reinterpret_cast<uint8_t*>(data.data() + pointer);
-        pointer += 1;
-
-        flags = *reinterpret_cast<uint8_t*>(data.data() + pointer);
-        pointer += 1;
-
-        keepAlive = be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(data.data() + pointer)));
+        error = data.isError();
     }
 
     std::string Connect::getProtocol() const {

@@ -39,6 +39,7 @@ namespace apps::mqtt::server {
     void SocketContext::onConnect(const iot::mqtt::packets::Connect& connect) {
         VLOG(0) << "CONNECT";
         VLOG(0) << "=======";
+        VLOG(0) << "Error: " << connect.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(connect.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(connect.getReserved());
         VLOG(0) << "RemainingLength: " << connect.getRemainingLength();
@@ -52,6 +53,7 @@ namespace apps::mqtt::server {
     void SocketContext::onConnack(const iot::mqtt::packets::Connack& connack) {
         VLOG(0) << "CONNACK";
         VLOG(0) << "=======";
+        VLOG(0) << "Error: " << connack.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(connack.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(connack.getReserved());
         VLOG(0) << "RemainingLength: " << connack.getRemainingLength();
@@ -62,6 +64,7 @@ namespace apps::mqtt::server {
     void SocketContext::onPublish(const iot::mqtt::packets::Publish& publish) {
         VLOG(0) << "PUBLISH";
         VLOG(0) << "=======";
+        VLOG(0) << "Error: " << publish.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(publish.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(publish.getReserved());
         VLOG(0) << "RemainingLength: " << publish.getRemainingLength();
@@ -77,6 +80,7 @@ namespace apps::mqtt::server {
     void SocketContext::onPuback(const iot::mqtt::packets::Puback& puback) {
         VLOG(0) << "PUBACK";
         VLOG(0) << "======";
+        VLOG(0) << "Error: " << puback.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(puback.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(puback.getReserved());
         VLOG(0) << "RemainingLength: " << puback.getRemainingLength();
@@ -86,6 +90,7 @@ namespace apps::mqtt::server {
     void SocketContext::onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
         VLOG(0) << "PUBREC";
         VLOG(0) << "======";
+        VLOG(0) << "Error: " << pubrec.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(pubrec.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(pubrec.getReserved());
         VLOG(0) << "RemainingLength: " << pubrec.getRemainingLength();
@@ -95,6 +100,7 @@ namespace apps::mqtt::server {
     void SocketContext::onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
         VLOG(0) << "PUBREL";
         VLOG(0) << "======";
+        VLOG(0) << "Error: " << pubrel.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(pubrel.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(pubrel.getReserved());
         VLOG(0) << "RemainingLength: " << pubrel.getRemainingLength();
@@ -104,6 +110,7 @@ namespace apps::mqtt::server {
     void SocketContext::onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
         VLOG(0) << "PUBCOMP";
         VLOG(0) << "=======";
+        VLOG(0) << "Error: " << pubcomp.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(pubcomp.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(pubcomp.getReserved());
         VLOG(0) << "RemainingLength: " << pubcomp.getRemainingLength();
@@ -113,6 +120,7 @@ namespace apps::mqtt::server {
     void SocketContext::onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) {
         VLOG(0) << "SUBSCRIBE";
         VLOG(0) << "=========";
+        VLOG(0) << "Error: " << subscribe.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(subscribe.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(subscribe.getReserved());
         VLOG(0) << "RemainingLength: " << subscribe.getRemainingLength();
@@ -133,6 +141,7 @@ namespace apps::mqtt::server {
     void SocketContext::onSuback(const iot::mqtt::packets::Suback& suback) {
         VLOG(0) << "SUBACK";
         VLOG(0) << "======";
+        VLOG(0) << "Error: " << suback.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(suback.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(suback.getReserved());
         VLOG(0) << "RemainingLength: " << suback.getRemainingLength();
@@ -146,6 +155,7 @@ namespace apps::mqtt::server {
     void SocketContext::onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) {
         VLOG(0) << "UNSUBSCRIBE";
         VLOG(0) << "===========";
+        VLOG(0) << "Error: " << unsubscribe.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(unsubscribe.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(unsubscribe.getReserved());
         VLOG(0) << "RemainingLength: " << unsubscribe.getRemainingLength();
@@ -162,6 +172,7 @@ namespace apps::mqtt::server {
     void SocketContext::onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) {
         VLOG(0) << "UNSUBACK";
         VLOG(0) << "========";
+        VLOG(0) << "Error: " << unsuback.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(unsuback.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(unsuback.getReserved());
         VLOG(0) << "RemainingLength: " << unsuback.getRemainingLength();
@@ -171,6 +182,7 @@ namespace apps::mqtt::server {
     void SocketContext::onPingreq(const iot::mqtt::packets::Pingreq& pingreq) {
         VLOG(0) << "PINGREQ";
         VLOG(0) << "=======";
+        VLOG(0) << "Error: " << pingreq.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(pingreq.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(pingreq.getReserved());
         VLOG(0) << "RemainingLength: " << pingreq.getRemainingLength();
@@ -181,6 +193,7 @@ namespace apps::mqtt::server {
     void SocketContext::onPingresp(const iot::mqtt::packets::Pingresp& pingresp) {
         VLOG(0) << "PINGRESP";
         VLOG(0) << "========";
+        VLOG(0) << "Error: " << pingresp.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(pingresp.getType());
         VLOG(0) << "RemainingLength: " << pingresp.getRemainingLength();
     }
@@ -188,6 +201,7 @@ namespace apps::mqtt::server {
     void SocketContext::onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) {
         VLOG(0) << "DISCONNECT";
         VLOG(0) << "==========";
+        VLOG(0) << "Error: " << disconnect.isError();
         VLOG(0) << "Type: " << static_cast<uint16_t>(disconnect.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(disconnect.getReserved());
         VLOG(0) << "RemainingLength: " << disconnect.getRemainingLength();

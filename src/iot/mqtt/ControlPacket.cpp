@@ -48,29 +48,31 @@ namespace iot::mqtt {
     }
 
     uint64_t ControlPacket::getRemainingLength() const {
-        return data.size();
+        return data.getLength();
     }
 
-    std::vector<char>& ControlPacket::getPacket() {
-        if (!constructed) {
-            packet.push_back(static_cast<char>(type << 0x04 | (reserved & 0x0F)));
+    std::vector<char> ControlPacket::getPacket() {
+        std::vector<char> packet;
 
-            uint64_t remainingLength = data.size();
-            do {
-                uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-                remainingLength /= 0x80;
-                if (remainingLength > 0) {
-                    encodedByte |= 0x80;
-                }
-                packet.push_back(static_cast<char>(encodedByte));
-            } while (remainingLength > 0);
+        packet.push_back(static_cast<char>(type << 0x04 | (reserved & 0x0F)));
 
-            packet.insert(packet.end(), data.begin(), data.end());
+        uint64_t remainingLength = data.getLength();
+        do {
+            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
+            remainingLength /= 0x80;
+            if (remainingLength > 0) {
+                encodedByte |= 0x80;
+            }
+            packet.push_back(static_cast<char>(encodedByte));
+        } while (remainingLength > 0);
 
-            constructed = true;
-        }
+        packet.insert(packet.end(), data.getValue().begin(), data.getValue().end());
 
         return packet;
+    }
+
+    bool ControlPacket::isError() const {
+        return error;
     }
 
 } // namespace iot::mqtt
