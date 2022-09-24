@@ -65,8 +65,9 @@ namespace iot::mqtt {
         void putInt32(uint32_t value);
         void putInt64(uint64_t value);
         void putIntV(uint32_t value);
-        void putString(const std::string& string);
-        void putStringRaw(const std::string& string);
+        void putString(const std::string& value);
+        void putStringRaw(const std::string& value);
+        void putUint8ListRaw(const std::list<uint8_t>& value);
 
         bool isError();
 

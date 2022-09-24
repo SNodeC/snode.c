@@ -131,12 +131,16 @@ namespace iot::mqtt {
         data.putIntV(value);
     }
 
-    void ControlPacket::putString(const std::string& string) {
-        data.putString(string);
+    void ControlPacket::putString(const std::string& value) {
+        data.putString(value);
     }
 
-    void ControlPacket::putStringRaw(const std::string& string) {
-        data.putStringRaw(string);
+    void ControlPacket::putStringRaw(const std::string& value) {
+        data.putStringRaw(value);
+    }
+
+    void ControlPacket::putUint8ListRaw(const std::list<uint8_t>& value) {
+        data.putUint8ListRaw(value);
     }
 
     bool ControlPacket::isError() {

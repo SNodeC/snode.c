@@ -26,10 +26,15 @@ namespace iot::mqtt::packets {
 
     Disconnect::Disconnect()
         : iot::mqtt::ControlPacket(MQTT_DISCONNECT) {
+        // no V-Header
+        // no Payload
     }
 
     Disconnect::Disconnect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // no V-Header
+        // no Payload
+
         error = isError();
     }
 

@@ -31,6 +31,7 @@ namespace iot::mqtt::packets {
         , flags(flags)
         , keepAlive(keepAlive)
         , clientId(clientId) {
+        // V-Header
         putString(this->protocol);
         putInt8(this->version);
         putInt8(this->flags);
@@ -42,6 +43,7 @@ namespace iot::mqtt::packets {
 
     Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // V-Header
         protocol = getString();
         version = getInt8();
         flags = getInt8();

@@ -30,16 +30,19 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBACK)
         , packetIdentifier(packetIdentifier)
         , returnCodes(std::move(returnCodes)) {
+        // V-Header
         putInt16(this->packetIdentifier);
 
-        for (uint8_t returnCode : this->returnCodes) {
-            putInt8(returnCode);
-        }
+        // Payload
+        putUint8ListRaw(returnCodes);
     }
 
     Suback::Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // V-Header
         packetIdentifier = getInt16();
+
+        // Payload
         returnCodes = getUint8ListRaw();
 
         error = isError();

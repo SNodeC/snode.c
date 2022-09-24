@@ -65,6 +65,7 @@ namespace iot::mqtt::types {
         void putIntV(uint32_t value);
         void putString(const std::string& string);
         void putStringRaw(const std::string& string);
+        void putUint8ListRaw(const std::list<uint8_t>& values);
 
         void reset() override;
 

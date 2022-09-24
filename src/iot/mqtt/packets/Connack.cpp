@@ -28,14 +28,20 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_CONNACK)
         , flags(flags)
         , reason(reason) {
+        // V-Header
         putInt8(this->flags);
         putInt8(this->reason);
+
+        // no Payload
     }
 
     Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // V-Header
         flags = getInt8();
         reason = getInt8();
+
+        // no Payload
 
         error = isError();
     }

@@ -31,8 +31,10 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
+        // V-Header
         putInt16(this->packetIdentifier);
 
+        // Payload
         for (const iot::mqtt::Topic& topic : this->topics) {
             putString(topic.getName());
             putInt8(topic.getRequestedQoS());
@@ -41,8 +43,10 @@ namespace iot::mqtt::packets {
 
     Subscribe::Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // V-Header
         packetIdentifier = getInt16();
 
+        // Payload
         std::string name = "";
         do {
             name = getString();

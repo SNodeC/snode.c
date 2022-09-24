@@ -30,8 +30,10 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
+        // V-Header
         putInt16(this->packetIdentifier);
 
+        // Payload
         for (std::string& topic : this->topics) {
             putString(topic);
         }
@@ -39,8 +41,10 @@ namespace iot::mqtt::packets {
 
     Unsubscribe::Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // V-Header
         packetIdentifier = getInt16();
 
+        // Payload
         std::string name = "";
         do {
             name = getString();

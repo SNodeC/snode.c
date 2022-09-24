@@ -230,6 +230,12 @@ namespace iot::mqtt::types {
         length += string.length();
     }
 
+    void Binary::putUint8ListRaw(const std::list<uint8_t> &values) {
+        for (uint8_t value : values) {
+            putInt8(value);
+        }
+    }
+
     void Binary::reset() {
         pointer = 0;
         length = 0;

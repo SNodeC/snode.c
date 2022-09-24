@@ -26,10 +26,15 @@ namespace iot::mqtt::packets {
 
     Pingresp::Pingresp()
         : iot::mqtt::ControlPacket(MQTT_PINGRESP) {
+        // no V-Header
+        // no Payload
     }
 
     Pingresp::Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // no V-Header
+        // no Payload
+
         error = isError();
     }
 

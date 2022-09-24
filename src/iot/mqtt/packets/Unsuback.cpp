@@ -27,12 +27,18 @@ namespace iot::mqtt::packets {
     Unsuback::Unsuback(const uint16_t packetIdentifier)
         : iot::mqtt::ControlPacket(MQTT_UNSUBACK)
         , packetIdentifier(packetIdentifier) {
+        // V-Header
         putInt16(this->packetIdentifier);
+
+        // no Payload
     }
 
     Unsuback::Unsuback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // V-Header
         packetIdentifier = getInt16();
+
+        // no Payload
 
         error = isError();
     }

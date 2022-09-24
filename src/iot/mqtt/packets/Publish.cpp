@@ -35,12 +35,14 @@ namespace iot::mqtt::packets {
         , dup(dup)
         , qoSLevel(qoSLevel)
         , retain(retain) {
+        // V-Header
         putString(this->topic);
 
         if (this->qoSLevel > 0) {
             putInt16(this->packetIdentifier);
         }
 
+        // Payload
         putStringRaw(this->message);
     }
 
@@ -50,12 +52,14 @@ namespace iot::mqtt::packets {
         qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
         retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
 
+        // V-Header
         topic = getString();
 
         if (qoSLevel != 0) {
             packetIdentifier = getInt16();
         }
 
+        // Payload
         message = getStringRaw();
 
         error = isError();

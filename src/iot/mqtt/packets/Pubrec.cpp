@@ -27,12 +27,18 @@ namespace iot::mqtt::packets {
     Pubrec::Pubrec(uint16_t packetIdentifier)
         : iot::mqtt::ControlPacket(MQTT_PUBREC)
         , packetIdentifier(packetIdentifier) {
+        // V-Header
         putInt16(this->packetIdentifier);
+
+        // no Payload
     }
 
     Pubrec::Pubrec(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
+        // V-Header
         packetIdentifier = getInt16();
+
+        // no Payload
 
         error = isError();
     }
