@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef APPS_MQTT_SERVER_BROKER_H
-#define APPS_MQTT_SERVER_BROKER_H
+#ifndef APPS_MQTT_SERVER_SUBSCRIBERTREE_H
+#define APPS_MQTT_SERVER_SUBSCRIBERTREE_H
 
 namespace apps::mqtt::server {
     class SocketContext;
@@ -25,34 +25,29 @@ namespace apps::mqtt::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
 #include <list>
 #include <map>
 #include <string>
-#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace apps::mqtt::server {
 
-    class Broker {
-    private:
-        Broker();
-
+    class SubscriberTree {
     public:
-        static Broker& instance();
+        SubscriberTree() = default;
 
-        ~Broker();
-
-        void subscribe(const std::string& topic, apps::mqtt::server::SocketContext* socketContext);
-        void publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message);
-        void unsubscribe(const std::string& topic, apps::mqtt::server::SocketContext* socketContext);
-        void unsubscribeFromAll(apps::mqtt::server::SocketContext* socketContext);
+        void subscribe(const std::string& fullName, apps::mqtt::server::SocketContext* socketContext);
 
     private:
-        std::map<std::string, std::list<apps::mqtt::server::SocketContext*>> topics;
+        void subscribe(const std::string& fullName, std::string remainingTopicName, apps::mqtt::server::SocketContext* socketContext);
+
+        std::string fullName = "";
+        std::list<apps::mqtt::server::SocketContext*> subscribers;
+
+        std::map<std::string, SubscriberTree> subscriberTree;
     };
 
 } // namespace apps::mqtt::server
 
-#endif // APPS_MQTT_SERVER_BROKER_H
+#endif // APPS_MQTT_SERVER_SUBSCRIBERTREE_H

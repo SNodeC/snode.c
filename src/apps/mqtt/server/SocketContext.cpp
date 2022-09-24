@@ -129,7 +129,7 @@ namespace apps::mqtt::server {
         std::list<uint8_t> returnCodes;
 
         for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-            VLOG(0) << "  Topic: " << topic.getName() << ", requestedQos: " << static_cast<uint16_t>(topic.getRequestedQos());
+            VLOG(0) << "  Topic: " << topic.getName() << ", requestedQoS: " << static_cast<uint16_t>(topic.getRequestedQoS());
             apps::mqtt::server::Broker::instance().subscribe(topic.getName(), this);
 
             returnCodes.push_back(0x00); // QoS = 0; Success

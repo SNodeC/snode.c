@@ -20,6 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "apps/mqtt/server/Broker.h"
 #include "core/SNodeC.h"
 #include "log/Logger.h"
 #include "net/in/stream/legacy/SocketServer.h"
