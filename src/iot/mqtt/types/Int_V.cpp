@@ -28,9 +28,6 @@ namespace iot::mqtt::types {
         : iot::mqtt::types::TypeBase(socketContext) {
     }
 
-    Int_V::~Int_V() {
-    }
-
     std::size_t Int_V::construct() {
         std::size_t consumed = 0;
         std::size_t ret = 0;
@@ -54,7 +51,7 @@ namespace iot::mqtt::types {
         return consumed;
     }
 
-    std::uint32_t Int_V::getValue() {
+    uint32_t Int_V::getValue() {
         return value;
     }
 

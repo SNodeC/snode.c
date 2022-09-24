@@ -29,7 +29,6 @@ namespace apps::mqtt::server {
 #include <list>
 #include <map>
 #include <string>
-#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

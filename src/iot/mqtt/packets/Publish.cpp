@@ -19,7 +19,6 @@
 #include "iot/mqtt/packets/Publish.h"
 
 #include "iot/mqtt/ControlPacketFactory.h"
-#include "iot/mqtt/types/Binary.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,13 +35,13 @@ namespace iot::mqtt::packets {
         , dup(dup)
         , qoSLevel(qoSLevel)
         , retain(retain) {
-        data.putString(this->topic);
+        putString(this->topic);
 
         if (this->qoSLevel > 0) {
-            data.putInt16(this->packetIdentifier);
+            putInt16(this->packetIdentifier);
         }
 
-        data.putStringRaw(this->message);
+        putStringRaw(this->message);
     }
 
     Publish::Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory)
@@ -51,15 +50,15 @@ namespace iot::mqtt::packets {
         qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
         retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
 
-        topic = data.getString();
+        topic = getString();
 
         if (qoSLevel != 0) {
-            packetIdentifier = data.getInt16();
+            packetIdentifier = getInt16();
         }
 
-        message = data.getStringRaw();
+        message = getStringRaw();
 
-        error = data.isError();
+        error = isError();
     }
 
     bool Publish::getDup() const {

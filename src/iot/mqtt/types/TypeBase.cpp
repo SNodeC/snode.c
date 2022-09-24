@@ -30,9 +30,6 @@ namespace iot::mqtt::types {
         : socketContext(socketContext) {
     }
 
-    TypeBase::~TypeBase() {
-    }
-
     bool TypeBase::isCompleted() {
         return completed;
     }

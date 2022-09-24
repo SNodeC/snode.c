@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Subscribe.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -33,22 +31,22 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
-        data.putInt16(this->packetIdentifier);
+        putInt16(this->packetIdentifier);
 
         for (const iot::mqtt::Topic& topic : this->topics) {
-            data.putString(topic.getName());
-            data.putInt8(topic.getRequestedQoS());
+            putString(topic.getName());
+            putInt8(topic.getRequestedQoS());
         }
     }
 
     Subscribe::Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        packetIdentifier = data.getInt16();
+        packetIdentifier = getInt16();
 
         std::string name = "";
         do {
-            name = data.getString();
-            uint8_t requestedQoS = data.getInt8();
+            name = getString();
+            uint8_t requestedQoS = getInt8();
 
             if (name.length() > 0) {
                 topics.push_back(iot::mqtt::Topic(name, requestedQoS));

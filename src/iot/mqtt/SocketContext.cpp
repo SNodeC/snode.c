@@ -38,11 +38,11 @@ namespace iot::mqtt {
         , controlPacketFactory(this) {
     }
 
-    void SocketContext::sendConnect() {
+    void SocketContext::sendConnect(const std::string& clientId) {
         LOG(TRACE) << "Send CONNECT";
         LOG(TRACE) << "============";
 
-        send(mqtt::packets::Connect("ClientId"));
+        send(mqtt::packets::Connect(clientId));
     }
 
     void SocketContext::sendConnack() {

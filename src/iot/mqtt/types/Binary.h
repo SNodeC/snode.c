@@ -41,11 +41,6 @@ namespace iot::mqtt::types {
     class Binary : public iot::mqtt::types::TypeBase {
     public:
         explicit Binary(iot::mqtt::SocketContext* socketContext = nullptr);
-        Binary(const Binary&) = default;
-
-        Binary& operator=(const Binary&) = default;
-
-        ~Binary() override;
 
         void setLength(std::vector<char>::size_type length);
         std::vector<char>::size_type getLength() const;

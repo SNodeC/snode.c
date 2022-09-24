@@ -41,7 +41,7 @@ namespace apps::mqtt::server {
         traverse(0);
     }
 
-    void TopicTree::publish(const std::string &fullTopicName, std::string remainingTopicName, const std::string& value) {
+    void TopicTree::publish(const std::string& fullTopicName, std::string remainingTopicName, const std::string& value) {
         if (remainingTopicName.empty()) {
             this->fullName = fullTopicName;
             this->value = value;

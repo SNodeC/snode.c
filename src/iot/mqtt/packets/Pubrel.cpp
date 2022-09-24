@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Pubrel.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -29,14 +27,14 @@ namespace iot::mqtt::packets {
     Pubrel::Pubrel(uint16_t packetIdentifier)
         : iot::mqtt::ControlPacket(MQTT_PUBREL)
         , packetIdentifier(packetIdentifier) {
-        data.putInt16(this->packetIdentifier);
+        putInt16(this->packetIdentifier);
     }
 
     Pubrel::Pubrel(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        packetIdentifier = data.getInt16();
+        packetIdentifier = getInt16();
 
-        error = data.isError();
+        error = isError();
     }
 
     uint16_t Pubrel::getPacketIdentifier() const {

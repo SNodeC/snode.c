@@ -2,18 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_TYPES_CPP
-    Binary.cpp
-    Int_1.cpp
-    Int_V.cpp
-    TypeBase.cpp
-)
-set(MQTT_TYPES_H
-    Binary.h
-    Int_1.h
-    Int_V.h
-    TypeBase.h
-)
+set(MQTT_TYPES_CPP Binary.cpp Int_1.cpp Int_V.cpp TypeBase.cpp)
+set(MQTT_TYPES_H Binary.h Int_1.h Int_V.h TypeBase.h)
 
 add_library(mqtt-types STATIC ${MQTT_TYPES_CPP} ${MQTT_TYPES_H})
 add_library(snodec::mqtt-types ALIAS mqtt-types)

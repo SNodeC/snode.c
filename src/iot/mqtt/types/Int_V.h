@@ -37,14 +37,10 @@ namespace iot::mqtt::types {
     class Int_V : public iot::mqtt::types::TypeBase {
     public:
         explicit Int_V(iot::mqtt::SocketContext* socketContext = nullptr);
-        Int_V(const Int_V&) = default;
-
-        Int_V& operator=(const Int_V&) = default;
-
-        ~Int_V() override;
 
         std::size_t construct() override;
-        std::uint32_t getValue();
+
+        uint32_t getValue();
 
         void reset() override;
 

@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Unsubscribe.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <utility>
@@ -32,20 +30,20 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
-        data.putInt16(packetIdentifier);
+        putInt16(packetIdentifier);
 
         for (std::string& topic : this->topics) {
-            data.putString(topic);
+            putString(topic);
         }
     }
 
     Unsubscribe::Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        packetIdentifier = data.getInt16();
+        packetIdentifier = getInt16();
 
         std::string name = "";
         do {
-            name = data.getString();
+            name = getString();
 
             if (name.length() > 0) {
                 topics.push_back(name);

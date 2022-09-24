@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Connect.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -33,22 +31,26 @@ namespace iot::mqtt::packets {
         , flags(flags)
         , keepAlive(keepAlive)
         , clientId(clientId) {
-        data.putString(this->protocol);
-        data.putInt8(this->version);
-        data.putInt8(this->flags);
-        data.putInt16(this->keepAlive);
+        putString(this->protocol);
+        putInt8(this->version);
+        putInt8(this->flags);
+        putInt16(this->keepAlive);
 
         // Payload
-        data.putString(this->clientId);
+        putString(this->clientId);
     }
 
     Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        protocol = data.getString();
-        version = data.getInt8();
-        flags = data.getInt8();
+        protocol = getString();
+        version = getInt8();
+        flags = getInt8();
+        keepAlive = getInt16();
 
-        error = data.isError();
+        // Payload
+        clientId = getString();
+
+        error = isError();
     }
 
     std::string Connect::getProtocol() const {

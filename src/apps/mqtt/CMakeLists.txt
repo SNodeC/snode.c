@@ -17,7 +17,11 @@ set_target_properties(mqttserver PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(TARGETS mqttserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(topictreetest topictreetest.cpp server/TopicTree.cpp server/SubscriberTree.cpp server/TopicTree.h server/SubscriberTree.h)
+add_executable(
+    topictreetest
+    topictreetest.cpp server/TopicTree.cpp server/SubscriberTree.cpp
+    server/TopicTree.h server/SubscriberTree.h
+)
 
 target_include_directories(topictreetest PUBLIC ${PROJECT_SOURCE_DIR})
 
@@ -26,4 +30,3 @@ target_link_libraries(topictreetest PUBLIC snodec::logger)
 set_target_properties(topictreetest PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(TARGETS topictreetest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-

@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Pingresp.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -32,7 +30,7 @@ namespace iot::mqtt::packets {
 
     Pingresp::Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        error = data.isError();
+        error = isError();
     }
 
 } // namespace iot::mqtt::packets

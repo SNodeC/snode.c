@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Connack.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -30,16 +28,16 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_CONNACK)
         , flags(flags)
         , reason(reason) {
-        data.putInt8(this->flags);
-        data.putInt8(this->reason);
+        putInt8(this->flags);
+        putInt8(this->reason);
     }
 
     Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        flags = data.getInt8();
-        reason = data.getInt8();
+        flags = getInt8();
+        reason = getInt8();
 
-        error = data.isError();
+        error = isError();
     }
 
     uint8_t Connack::getFlags() const {

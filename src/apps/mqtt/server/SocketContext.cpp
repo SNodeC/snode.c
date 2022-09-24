@@ -46,6 +46,8 @@ namespace apps::mqtt::server {
         VLOG(0) << "Flags: " << static_cast<uint16_t>(connect.getFlags());
         VLOG(0) << "Protocol: " << connect.getProtocol();
         VLOG(0) << "Version: " << static_cast<uint16_t>(connect.getVersion());
+        VLOG(0) << "KeepAlive: " << connect.getKeepAlive();
+        VLOG(0) << "ClientID: " << connect.getClientId();
 
         sendConnack();
     }

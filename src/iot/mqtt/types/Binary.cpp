@@ -30,9 +30,6 @@ namespace iot::mqtt::types {
         : iot::mqtt::types::TypeBase(socketContext) {
     }
 
-    Binary::~Binary() {
-    }
-
     void Binary::setLength(std::vector<char>::size_type length) {
         this->length = this->needed = static_cast<std::vector<char>::size_type>(length);
 
