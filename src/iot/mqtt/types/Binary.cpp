@@ -247,8 +247,6 @@ namespace iot::mqtt::types {
         for (uint8_t value : values) {
             putInt8(value);
         }
-
-        length += values.size();
     }
 
     void Binary::reset() {
