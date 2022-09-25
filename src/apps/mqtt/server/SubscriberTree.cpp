@@ -33,8 +33,8 @@ namespace apps::mqtt::server {
 
     uint16_t SubscriberTree::packetIdentifier = 0;
 
-    void SubscriberTree::subscribe(const std::string& fullName, SocketContext* socketContext) {
-        subscribe(fullName, fullName, socketContext);
+    void SubscriberTree::subscribe(const std::string& fullTopicName, SocketContext* socketContext) {
+        subscribe(fullTopicName, fullTopicName, socketContext);
     }
 
     void SubscriberTree::publish(const std::string& fullTopicName, const std::string& message) {
@@ -58,6 +58,22 @@ namespace apps::mqtt::server {
 
             if (subscriberTree.contains(topicName)) {
                 subscriberTree.find(topicName)->second.unsubscribe(remainingTopicName, socketContext);
+            }
+        }
+    }
+
+    void SubscriberTree::subscribe(const std::string& fullTopicName, std::string remainingTopicName, SocketContext* socketContext) {
+        if (remainingTopicName.empty()) {
+            this->fullName = fullTopicName;
+            subscribers.push_back(socketContext);
+        } else {
+            std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
+            remainingTopicName.erase(0, topicName.size() + 1);
+
+            if (subscriberTree.contains(topicName)) {
+                subscriberTree.find(topicName)->second.subscribe(fullTopicName, remainingTopicName, socketContext);
+            } else {
+                subscriberTree.insert({topicName, SubscriberTree()}).first->second.subscribe(fullTopicName, remainingTopicName, socketContext);
             }
         }
     }
@@ -89,22 +105,6 @@ namespace apps::mqtt::server {
                     ++apps::mqtt::server::SubscriberTree::packetIdentifier;
                     subscriber->sendPublish(packetIdentifier, fullTopicName, message);
                 }
-            }
-        }
-    }
-
-    void SubscriberTree::subscribe(const std::string& fullName, std::string remainingTopicName, SocketContext* socketContext) {
-        if (remainingTopicName.empty()) {
-            this->fullName = fullName;
-            subscribers.push_back(socketContext);
-        } else {
-            std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
-            remainingTopicName.erase(0, topicName.size() + 1);
-
-            if (subscriberTree.contains(topicName)) {
-                subscriberTree.find(topicName)->second.subscribe(fullName, remainingTopicName, socketContext);
-            } else {
-                subscriberTree.insert({topicName, SubscriberTree()}).first->second.subscribe(fullName, remainingTopicName, socketContext);
             }
         }
     }
