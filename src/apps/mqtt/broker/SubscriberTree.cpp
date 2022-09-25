@@ -31,8 +31,6 @@
 
 namespace apps::mqtt::broker {
 
-    uint16_t SubscriberTree::packetIdentifier = 0;
-
     void SubscriberTree::subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext) {
         subscribe(fullTopicName, fullTopicName, socketContext);
     }
@@ -42,7 +40,7 @@ namespace apps::mqtt::broker {
     }
 
     void SubscriberTree::unsubscribe(apps::mqtt::broker::SocketContext* socketContext) {
-        subscribers.remove(socketContext);
+        subscribers.erase(socketContext);
 
         for (auto& subscriberTreeEntry : subscriberTree) {
             subscriberTreeEntry.second.unsubscribe(socketContext);
@@ -51,7 +49,7 @@ namespace apps::mqtt::broker {
 
     void SubscriberTree::unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext) {
         if (remainingTopicName.empty()) {
-            subscribers.remove(socketContext);
+            subscribers.erase(socketContext);
         } else {
             std::string topicName = remainingTopicName.substr(0, fullName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
@@ -67,7 +65,7 @@ namespace apps::mqtt::broker {
                                    apps::mqtt::broker::SocketContext* socketContext) {
         if (remainingTopicName.empty()) {
             this->fullName = fullTopicName;
-            subscribers.push_back(socketContext);
+            subscribers.insert(socketContext);
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
@@ -85,8 +83,7 @@ namespace apps::mqtt::broker {
         if (remainingTopicName.empty()) {
             for (apps::mqtt::broker::SocketContext* subscriber : subscribers) {
                 LOG(TRACE) << "Send Publish: " << fullName << " - " << fullTopicName << " - " << message;
-                ++apps::mqtt::broker::SubscriberTree::packetIdentifier;
-                subscriber->sendPublish(packetIdentifier, fullTopicName, message);
+                subscriber->sendPublish(fullTopicName, message);
             }
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
@@ -101,8 +98,7 @@ namespace apps::mqtt::broker {
 
                 for (apps::mqtt::broker::SocketContext* subscriber : foundSubscription.subscribers) {
                     LOG(TRACE) << "Send Publish: " << foundSubscription.fullName << " - " << fullTopicName << " - " << message;
-                    ++apps::mqtt::broker::SubscriberTree::packetIdentifier;
-                    subscriber->sendPublish(packetIdentifier, fullTopicName, message);
+                    subscriber->sendPublish(fullTopicName, message);
                 }
             }
         }

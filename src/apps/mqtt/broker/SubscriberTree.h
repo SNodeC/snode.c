@@ -25,9 +25,8 @@ namespace apps::mqtt::broker {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-#include <list>
 #include <map>
+#include <set>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -51,11 +50,10 @@ namespace apps::mqtt::broker {
 
         void publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message);
 
-        std::list<apps::mqtt::broker::SocketContext*> subscribers;
+        std::set<apps::mqtt::broker::SocketContext*> subscribers;
         std::map<std::string, SubscriberTree> subscriberTree;
 
         std::string fullName = "";
-        static uint16_t packetIdentifier;
     };
 
 } // namespace apps::mqtt::broker
