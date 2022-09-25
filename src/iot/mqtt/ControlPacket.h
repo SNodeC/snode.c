@@ -28,6 +28,8 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <list>
+#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -46,12 +48,36 @@ namespace iot::mqtt {
 
         bool isError() const;
 
+    protected:
+        std::vector<char>& getValue();
+
+        uint8_t getInt8();
+        uint16_t getInt16();
+        uint32_t getInt32();
+        uint64_t getInt64();
+        uint32_t getIntV();
+        std::string getString();
+        std::string getStringRaw();
+        std::list<uint8_t> getUint8ListRaw();
+
+        void putInt8(uint8_t value);
+        void putInt16(uint16_t value);
+        void putInt32(uint32_t value);
+        void putInt64(uint64_t value);
+        void putIntV(uint32_t value);
+        void putString(const std::string& value);
+        void putStringRaw(const std::string& value);
+        void putUint8ListRaw(const std::list<uint8_t>& value);
+
+        bool isError();
+
     private:
         uint8_t type;
         uint8_t reserved;
 
-    protected:
         iot::mqtt::types::Binary data;
+
+    protected:
         bool error = false;
     };
 

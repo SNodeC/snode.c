@@ -28,9 +28,6 @@ namespace iot::mqtt::types {
         : iot::mqtt::types::TypeBase(socketContext) {
     }
 
-    Int_1::~Int_1() {
-    }
-
     std::size_t Int_1::construct() {
         std::size_t consumed = read(buffer + needed - stillNeeded, static_cast<std::size_t>(stillNeeded));
 

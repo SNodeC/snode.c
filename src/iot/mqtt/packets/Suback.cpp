@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Suback.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <utility>
@@ -32,19 +30,22 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBACK)
         , packetIdentifier(packetIdentifier)
         , returnCodes(std::move(returnCodes)) {
-        data.putInt16(this->packetIdentifier);
+        // V-Header
+        putInt16(this->packetIdentifier);
 
-        for (uint8_t returnCode : this->returnCodes) {
-            data.putInt8(returnCode);
-        }
+        // Payload
+        putUint8ListRaw(returnCodes);
     }
 
     Suback::Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        packetIdentifier = data.getInt16();
-        returnCodes = data.getUint8ListRaw();
+        // V-Header
+        packetIdentifier = getInt16();
 
-        error = data.isError();
+        // Payload
+        returnCodes = getUint8ListRaw();
+
+        error = isError();
     }
 
     uint16_t Suback::getPacketIdentifier() const {

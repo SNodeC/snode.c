@@ -75,4 +75,76 @@ namespace iot::mqtt {
         return error;
     }
 
+    std::vector<char>& ControlPacket::getValue() {
+        return data.getValue();
+    }
+
+    uint8_t ControlPacket::getInt8() {
+        return data.getInt8();
+    }
+
+    uint16_t ControlPacket::getInt16() {
+        return data.getInt16();
+    }
+
+    uint32_t ControlPacket::getInt32() {
+        return data.getInt32();
+    }
+
+    uint64_t ControlPacket::getInt64() {
+        return data.getInt64();
+    }
+
+    uint32_t ControlPacket::getIntV() {
+        return data.getIntV();
+    }
+
+    std::string ControlPacket::getString() {
+        return data.getString();
+    }
+
+    std::string ControlPacket::getStringRaw() {
+        return data.getStringRaw();
+    }
+
+    std::list<uint8_t> ControlPacket::getUint8ListRaw() {
+        return data.getUint8ListRaw();
+    }
+
+    void ControlPacket::putInt8(uint8_t value) {
+        data.putInt8(value);
+    }
+
+    void ControlPacket::putInt16(uint16_t value) {
+        data.putInt16(value);
+    }
+
+    void ControlPacket::putInt32(uint32_t value) {
+        data.putInt32(value);
+    }
+
+    void ControlPacket::putInt64(uint64_t value) {
+        data.putInt64(value);
+    }
+
+    void ControlPacket::putIntV(uint32_t value) {
+        data.putIntV(value);
+    }
+
+    void ControlPacket::putString(const std::string& value) {
+        data.putString(value);
+    }
+
+    void ControlPacket::putStringRaw(const std::string& value) {
+        data.putStringRaw(value);
+    }
+
+    void ControlPacket::putUint8ListRaw(const std::list<uint8_t>& value) {
+        data.putUint8ListRaw(value);
+    }
+
+    bool ControlPacket::isError() {
+        return data.isError();
+    }
+
 } // namespace iot::mqtt

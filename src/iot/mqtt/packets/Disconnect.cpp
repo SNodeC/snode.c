@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Disconnect.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -28,11 +26,16 @@ namespace iot::mqtt::packets {
 
     Disconnect::Disconnect()
         : iot::mqtt::ControlPacket(MQTT_DISCONNECT) {
+        // no V-Header
+        // no Payload
     }
 
     Disconnect::Disconnect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        error = data.isError();
+        // no V-Header
+        // no Payload
+
+        error = isError();
     }
 
 } // namespace iot::mqtt::packets

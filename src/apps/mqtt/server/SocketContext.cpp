@@ -43,9 +43,11 @@ namespace apps::mqtt::server {
         VLOG(0) << "Type: " << static_cast<uint16_t>(connect.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(connect.getReserved());
         VLOG(0) << "RemainingLength: " << connect.getRemainingLength();
-        VLOG(0) << "Flags: " << static_cast<uint16_t>(connect.getFlags());
         VLOG(0) << "Protocol: " << connect.getProtocol();
         VLOG(0) << "Version: " << static_cast<uint16_t>(connect.getVersion());
+        VLOG(0) << "ConnectFlags: " << static_cast<uint16_t>(connect.getFlags());
+        VLOG(0) << "KeepAlive: " << connect.getKeepAlive();
+        VLOG(0) << "ClientID: " << connect.getClientId();
 
         sendConnack();
     }
@@ -188,6 +190,7 @@ namespace apps::mqtt::server {
         VLOG(0) << "RemainingLength: " << pingreq.getRemainingLength();
 
         sendPingresp();
+        sendPingreq();
     }
 
     void SocketContext::onPingresp(const iot::mqtt::packets::Pingresp& pingresp) {

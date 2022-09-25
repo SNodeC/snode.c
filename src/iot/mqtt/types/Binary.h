@@ -41,11 +41,6 @@ namespace iot::mqtt::types {
     class Binary : public iot::mqtt::types::TypeBase {
     public:
         explicit Binary(iot::mqtt::SocketContext* socketContext = nullptr);
-        Binary(const Binary&) = default;
-
-        Binary& operator=(const Binary&) = default;
-
-        ~Binary() override;
 
         void setLength(std::vector<char>::size_type length);
         std::vector<char>::size_type getLength() const;
@@ -70,6 +65,7 @@ namespace iot::mqtt::types {
         void putIntV(uint32_t value);
         void putString(const std::string& string);
         void putStringRaw(const std::string& string);
+        void putUint8ListRaw(const std::list<uint8_t>& values);
 
         void reset() override;
 
@@ -78,7 +74,7 @@ namespace iot::mqtt::types {
         std::vector<char>::size_type length = 0;
         std::vector<char>::size_type needed = 0;
 
-        std::vector<char> data;
+        std::vector<char> binary;
     };
 
 } // namespace iot::mqtt::types

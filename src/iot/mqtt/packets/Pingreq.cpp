@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Pingreq.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -28,11 +26,16 @@ namespace iot::mqtt::packets {
 
     Pingreq::Pingreq()
         : iot::mqtt::ControlPacket(MQTT_PINGREQ) {
+        // no V-Header
+        // no Payload
     }
 
     Pingreq::Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        error = data.isError();
+        // no V-Header
+        // no Payload
+
+        error = isError();
     }
 
 } // namespace iot::mqtt::packets

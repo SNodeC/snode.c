@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Unsuback.h"
 
-#include "iot/mqtt/types/Binary.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -29,14 +27,20 @@ namespace iot::mqtt::packets {
     Unsuback::Unsuback(const uint16_t packetIdentifier)
         : iot::mqtt::ControlPacket(MQTT_UNSUBACK)
         , packetIdentifier(packetIdentifier) {
-        data.putInt16(this->packetIdentifier);
+        // V-Header
+        putInt16(this->packetIdentifier);
+
+        // no Payload
     }
 
     Unsuback::Unsuback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
         : iot::mqtt::ControlPacket(controlPacketFactory) {
-        packetIdentifier = data.getInt16();
+        // V-Header
+        packetIdentifier = getInt16();
 
-        error = data.isError();
+        // no Payload
+
+        error = isError();
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {
