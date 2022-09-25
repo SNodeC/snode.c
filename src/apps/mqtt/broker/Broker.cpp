@@ -16,16 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/server/Broker.h"
+#include "apps/mqtt/broker/Broker.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
     Broker::Broker()
-        : topicTree(apps::mqtt::server::TopicTree("", "")) {
+        : topicTree(apps::mqtt::broker::TopicTree("", "")) {
     }
 
     Broker& Broker::instance() {
@@ -36,7 +36,7 @@ namespace apps::mqtt::server {
     Broker::~Broker() {
     }
 
-    void Broker::subscribe(const std::string& topic, SocketContext* socketContext) {
+    void Broker::subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext) {
         subscriberTree.subscribe(topic, socketContext);
     }
 
@@ -44,12 +44,12 @@ namespace apps::mqtt::server {
         subscriberTree.publish(topic, message);
     }
 
-    void Broker::unsubscribe(const std::string& topic, SocketContext* socketContext) {
+    void Broker::unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext) {
         subscriberTree.unsubscribe(topic, socketContext);
     }
 
-    void Broker::unsubscribeFromAll(SocketContext* socketContext) {
+    void Broker::unsubscribeFromAll(apps::mqtt::broker::SocketContext* socketContext) {
         subscriberTree.unsubscribe(socketContext);
     }
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker

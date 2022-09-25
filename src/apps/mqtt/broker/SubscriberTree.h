@@ -19,7 +19,7 @@
 #ifndef APPS_MQTT_SERVER_SUBSCRIBERTREE_H
 #define APPS_MQTT_SERVER_SUBSCRIBERTREE_H
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
     class SocketContext;
 }
 
@@ -32,32 +32,32 @@ namespace apps::mqtt::server {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
     class SubscriberTree {
     public:
         SubscriberTree() = default;
 
-        void subscribe(const std::string& fullTopicName, apps::mqtt::server::SocketContext* socketContext);
+        void subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext);
 
         void publish(const std::string& fullTopicName, const std::string& message);
 
-        void unsubscribe(apps::mqtt::server::SocketContext* socketContext);
+        void unsubscribe(apps::mqtt::broker::SocketContext* socketContext);
 
-        void unsubscribe(std::string remainingTopicName, apps::mqtt::server::SocketContext* socketContext);
+        void unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext);
 
     private:
-        void subscribe(const std::string& fullTopicName, std::string remainingTopicName, apps::mqtt::server::SocketContext* socketContext);
+        void subscribe(const std::string& fullTopicName, std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext);
 
         void publish(const std::string& fullTopicName, std::string remainingTopicName, const std::string& message);
 
-        std::list<apps::mqtt::server::SocketContext*> subscribers;
+        std::list<apps::mqtt::broker::SocketContext*> subscribers;
         std::map<std::string, SubscriberTree> subscriberTree;
 
         std::string fullName = "";
         static uint16_t packetIdentifier;
     };
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker
 
 #endif // APPS_MQTT_SERVER_SUBSCRIBERTREE_H

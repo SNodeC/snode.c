@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/server/TopicTree.h"
+#include "apps/mqtt/broker/TopicTree.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
     TopicTree::TopicTree(const std::string& fullTopicName, const std::string& value)
         : fullName(fullTopicName)
@@ -68,4 +68,4 @@ namespace apps::mqtt::server {
         }
     }
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker

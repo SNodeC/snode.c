@@ -19,10 +19,10 @@
 #ifndef APPS_MQTT_SERVER_BROKER_H
 #define APPS_MQTT_SERVER_BROKER_H
 
-#include "apps/mqtt/server/SubscriberTree.h"
-#include "apps/mqtt/server/TopicTree.h"
+#include "apps/mqtt/broker/SubscriberTree.h"
+#include "apps/mqtt/broker/TopicTree.h"
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
     class SocketContext;
 }
 
@@ -33,7 +33,7 @@ namespace apps::mqtt::server {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
     class Broker {
     private:
@@ -44,16 +44,16 @@ namespace apps::mqtt::server {
 
         ~Broker();
 
-        void subscribe(const std::string& topic, apps::mqtt::server::SocketContext* socketContext);
+        void subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext);
         void publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message);
-        void unsubscribe(const std::string& topic, apps::mqtt::server::SocketContext* socketContext);
-        void unsubscribeFromAll(apps::mqtt::server::SocketContext* socketContext);
+        void unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext);
+        void unsubscribeFromAll(apps::mqtt::broker::SocketContext* socketContext);
 
     private:
-        apps::mqtt::server::SubscriberTree subscriberTree;
-        apps::mqtt::server::TopicTree topicTree;
+        apps::mqtt::broker::SubscriberTree subscriberTree;
+        apps::mqtt::broker::TopicTree topicTree;
     };
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker
 
 #endif // APPS_MQTT_SERVER_BROKER_H

@@ -29,7 +29,7 @@ namespace core::socket {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
     class SocketContext : public iot::mqtt::SocketContext {
     public:
@@ -53,6 +53,6 @@ namespace apps::mqtt::server {
         void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) override;
     };
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker
 
 #endif // APPS_MQTT_SOCKETCONTEXT_H

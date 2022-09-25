@@ -26,7 +26,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
     class TopicTree {
     public:
@@ -47,6 +47,6 @@ namespace apps::mqtt::server {
         std::map<std::string, TopicTree> topicTree;
     };
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker
 
 #endif // APPS_MQTT_SERVER_TOPICTREE_H

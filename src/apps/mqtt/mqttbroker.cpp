@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/server/SocketContextFactory.h" // IWYU pragma: keep
+#include "apps/mqtt/broker/SocketContextFactory.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-using MQTTServer = net::in::stream::legacy::SocketServer<apps::mqtt::server::SocketContextFactory>;
+using MQTTServer = net::in::stream::legacy::SocketServer<apps::mqtt::broker::SocketContextFactory>;
 using SocketConnection = MQTTServer::SocketConnection;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {

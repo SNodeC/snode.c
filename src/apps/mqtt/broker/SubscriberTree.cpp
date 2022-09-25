@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/server/SubscriberTree.h"
+#include "apps/mqtt/broker/SubscriberTree.h"
 
-#include "apps/mqtt/server/SocketContext.h"
+#include "apps/mqtt/broker/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,11 +29,11 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
     uint16_t SubscriberTree::packetIdentifier = 0;
 
-    void SubscriberTree::subscribe(const std::string& fullTopicName, SocketContext* socketContext) {
+    void SubscriberTree::subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext) {
         subscribe(fullTopicName, fullTopicName, socketContext);
     }
 
@@ -41,7 +41,7 @@ namespace apps::mqtt::server {
         publish(fullTopicName, fullTopicName, message);
     }
 
-    void SubscriberTree::unsubscribe(SocketContext* socketContext) {
+    void SubscriberTree::unsubscribe(apps::mqtt::broker::SocketContext* socketContext) {
         subscribers.remove(socketContext);
 
         for (auto& subscriberTreeEntry : subscriberTree) {
@@ -49,7 +49,7 @@ namespace apps::mqtt::server {
         }
     }
 
-    void SubscriberTree::unsubscribe(std::string remainingTopicName, SocketContext* socketContext) {
+    void SubscriberTree::unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext) {
         if (fullName.empty()) {
             subscribers.remove(socketContext);
         } else {
@@ -62,7 +62,9 @@ namespace apps::mqtt::server {
         }
     }
 
-    void SubscriberTree::subscribe(const std::string& fullTopicName, std::string remainingTopicName, SocketContext* socketContext) {
+    void SubscriberTree::subscribe(const std::string& fullTopicName,
+                                   std::string remainingTopicName,
+                                   apps::mqtt::broker::SocketContext* socketContext) {
         if (remainingTopicName.empty()) {
             this->fullName = fullTopicName;
             subscribers.push_back(socketContext);
@@ -73,16 +75,17 @@ namespace apps::mqtt::server {
             if (subscriberTree.contains(topicName)) {
                 subscriberTree.find(topicName)->second.subscribe(fullTopicName, remainingTopicName, socketContext);
             } else {
-                subscriberTree.insert({topicName, SubscriberTree()}).first->second.subscribe(fullTopicName, remainingTopicName, socketContext);
+                subscriberTree.insert({topicName, SubscriberTree()})
+                    .first->second.subscribe(fullTopicName, remainingTopicName, socketContext);
             }
         }
     }
 
     void SubscriberTree::publish(const std::string& fullTopicName, std::string remainingTopicName, const std::string& message) {
         if (remainingTopicName.empty()) {
-            for (SocketContext* subscriber : subscribers) {
+            for (apps::mqtt::broker::SocketContext* subscriber : subscribers) {
                 LOG(TRACE) << "Send Publish: " << fullName << " - " << fullTopicName << " - " << message;
-                ++apps::mqtt::server::SubscriberTree::packetIdentifier;
+                ++apps::mqtt::broker::SubscriberTree::packetIdentifier;
                 subscriber->sendPublish(packetIdentifier, fullTopicName, message);
             }
         } else {
@@ -100,13 +103,13 @@ namespace apps::mqtt::server {
             if (subscriberTree.contains("#")) {
                 const SubscriberTree& foundSubscriptions = subscriberTree.find("#")->second;
 
-                for (SocketContext* subscriber : foundSubscriptions.subscribers) {
+                for (apps::mqtt::broker::SocketContext* subscriber : foundSubscriptions.subscribers) {
                     LOG(TRACE) << "Send Publish: " << foundSubscriptions.fullName << " - " << fullTopicName << " - " << message;
-                    ++apps::mqtt::server::SubscriberTree::packetIdentifier;
+                    ++apps::mqtt::broker::SubscriberTree::packetIdentifier;
                     subscriber->sendPublish(packetIdentifier, fullTopicName, message);
                 }
             }
         }
     }
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker
