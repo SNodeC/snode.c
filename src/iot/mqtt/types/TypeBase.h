@@ -35,7 +35,11 @@ namespace iot::mqtt::types {
     public:
         TypeBase(iot::mqtt::SocketContext* socketContext);
 
-        TypeBase(const TypeBase&) = default;
+        TypeBase(const TypeBase&) = delete;
+        TypeBase(TypeBase&&) = default;
+
+        TypeBase& operator=(const TypeBase&) = delete;
+        TypeBase& operator=(TypeBase&&) = delete;
 
         virtual ~TypeBase() = default;
 
