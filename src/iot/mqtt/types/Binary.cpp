@@ -59,6 +59,7 @@ namespace iot::mqtt::types {
 
         if (!error && pointer + sizeof(uint8_t) < length + 1) {
             ret = *reinterpret_cast<uint8_t*>(binary.data() + pointer);
+
             pointer += sizeof(uint8_t);
         } else {
             error = true;
@@ -72,6 +73,7 @@ namespace iot::mqtt::types {
 
         if (!error && pointer + sizeof(uint16_t) < length + 1) {
             ret = be16toh(*reinterpret_cast<uint16_t*>(binary.data() + pointer));
+
             pointer += sizeof(uint16_t);
         } else {
             error = true;
@@ -85,6 +87,7 @@ namespace iot::mqtt::types {
 
         if (!error && pointer + sizeof(uint32_t) < length + 1) {
             ret = be32toh(*reinterpret_cast<uint32_t*>(binary.data() + pointer));
+
             pointer += sizeof(uint32_t);
         } else {
             error = true;
@@ -98,6 +101,7 @@ namespace iot::mqtt::types {
 
         if (!error && pointer + sizeof(uint64_t) < length + 1) {
             ret = be64toh(*reinterpret_cast<uint64_t*>(binary.data() + pointer));
+
             pointer += sizeof(uint64_t);
         } else {
             error = true;
@@ -113,15 +117,16 @@ namespace iot::mqtt::types {
         do {
             if (!error && pointer + sizeof(uint8_t) < length + 1) {
                 uint8_t byte = *reinterpret_cast<uint8_t*>(binary.data() + pointer);
-                pointer += sizeof(uint8_t);
-
                 value += (byte & 0x7F) * multiplier;
+
                 if (multiplier > 0x80 * 0x80 * 0x80) {
                     error = true;
                 } else {
                     multiplier *= 0x80;
                     completed = (byte & 0x80) == 0;
                 }
+
+                pointer += sizeof(uint8_t);
             } else {
                 error = true;
             }
@@ -138,6 +143,7 @@ namespace iot::mqtt::types {
 
             if (pointer + stringLen < length + 1) {
                 string = std::string(binary.data() + pointer, stringLen);
+
                 pointer += stringLen;
             } else {
                 error = true;
@@ -178,12 +184,14 @@ namespace iot::mqtt::types {
 
     void Binary::putInt8(uint8_t value) {
         binary.push_back(static_cast<char>(value));
+
         length += sizeof(uint8_t);
     }
 
     void Binary::putInt16(uint16_t value) {
         binary.push_back(static_cast<char>(value >> 0x08 & 0xFF));
         binary.push_back(static_cast<char>(value & 0xFF));
+
         length += sizeof(uint16_t);
     }
 
@@ -192,6 +200,7 @@ namespace iot::mqtt::types {
         binary.push_back(static_cast<char>(value >> 0x10 & 0xFF));
         binary.push_back(static_cast<char>(value >> 0x08 & 0xFF));
         binary.push_back(static_cast<char>(value & 0xFF));
+
         length += sizeof(uint32_t);
     }
 
@@ -204,16 +213,19 @@ namespace iot::mqtt::types {
         binary.push_back(static_cast<char>(value >> 0x10 & 0xFF));
         binary.push_back(static_cast<char>(value >> 0x08 & 0xFF));
         binary.push_back(static_cast<char>(value & 0xFF));
+
         length += sizeof(uint64_t);
     }
 
     void Binary::putIntV(uint32_t value) {
         do {
             uint8_t encodedByte = static_cast<uint8_t>(value % 0x80);
+
             value /= 0x80;
             if (value > 0) {
                 encodedByte |= 0x80;
             }
+
             putInt8(encodedByte);
         } while (value > 0);
     }
@@ -227,13 +239,16 @@ namespace iot::mqtt::types {
 
     void Binary::putStringRaw(const std::string& string) {
         binary.insert(binary.end(), string.begin(), string.end());
+
         length += string.length();
     }
 
-    void Binary::putUint8ListRaw(const std::list<uint8_t> &values) {
+    void Binary::putUint8ListRaw(const std::list<uint8_t>& values) {
         for (uint8_t value : values) {
             putInt8(value);
         }
+
+        length += values.size();
     }
 
     void Binary::reset() {
