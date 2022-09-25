@@ -50,7 +50,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         } else if (errnum > 0) {
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "mqttserver listening on " << socketAddress.toString();
+            VLOG(0) << "mqttbroker listening on " << socketAddress.toString();
         }
     });
 

@@ -76,7 +76,7 @@ namespace apps::mqtt::broker {
 
         sendPuback(publish.getPacketIdentifier());
 
-        apps::mqtt::broker::Broker::instance().publish(publish.getPacketIdentifier(), publish.getTopic(), publish.getMessage());
+        apps::mqtt::broker::Broker::instance().publish(publish.getTopic(), publish.getMessage());
     }
 
     void SocketContext::onPuback(const iot::mqtt::packets::Puback& puback) {

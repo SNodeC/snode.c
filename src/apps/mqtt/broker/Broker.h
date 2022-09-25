@@ -28,7 +28,6 @@ namespace apps::mqtt::broker {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -45,7 +44,7 @@ namespace apps::mqtt::broker {
         ~Broker();
 
         void subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext);
-        void publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message);
+        void publish(const std::string& topic, const std::string& message);
         void unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext);
         void unsubscribeFromAll(apps::mqtt::broker::SocketContext* socketContext);
 

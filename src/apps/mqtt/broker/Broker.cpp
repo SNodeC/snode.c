@@ -40,7 +40,7 @@ namespace apps::mqtt::broker {
         subscriberTree.subscribe(topic, socketContext);
     }
 
-    void Broker::publish([[maybe_unused]] uint16_t packetIdentifier, const std::string& topic, const std::string& message) {
+    void Broker::publish(const std::string& topic, const std::string& message) {
         subscriberTree.publish(topic, message);
     }
 
