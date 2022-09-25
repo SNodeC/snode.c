@@ -50,7 +50,7 @@ namespace apps::mqtt::broker {
     }
 
     void SubscriberTree::unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext) {
-        if (fullName.empty()) {
+        if (remainingTopicName.empty()) {
             subscribers.remove(socketContext);
         } else {
             std::string topicName = remainingTopicName.substr(0, fullName.find("/"));
