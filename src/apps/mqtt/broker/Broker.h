@@ -16,37 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef APPS_MQTT_SERVER_TOPICTREE_H
-#define APPS_MQTT_SERVER_TOPICTREE_H
+#ifndef APPS_MQTT_SERVER_BROKER_H
+#define APPS_MQTT_SERVER_BROKER_H
+
+#include "apps/mqtt/broker/SubscriberTree.h"
+#include "apps/mqtt/broker/TopicTree.h"
+
+namespace apps::mqtt::broker {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
-    class TopicTree {
+    class Broker {
+    private:
+        Broker();
+
     public:
-        TopicTree(const std::string& fullTopicName, const std::string& value);
+        static Broker& instance();
 
-        void publish(const std::string& fullTopicName, const std::string& value);
+        ~Broker();
 
-        void traverse();
+        void subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext);
+        void publish(const std::string& topic, const std::string& message);
+        void unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext);
+        void unsubscribeFromAll(apps::mqtt::broker::SocketContext* socketContext);
 
     private:
-        void publish(const std::string& fullTopicName, std::string remainingTopicName, const std::string& value);
-
-        void traverse(unsigned long level);
-
-        std::string fullName;
-        std::string value;
-
-        std::map<std::string, TopicTree> topicTree;
+        apps::mqtt::broker::SubscriberTree subscriberTree;
+        apps::mqtt::broker::TopicTree topicTree;
     };
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker
 
-#endif // APPS_MQTT_SERVER_TOPICTREE_H
+#endif // APPS_MQTT_SERVER_BROKER_H

@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/server/SocketContext.h"
+#include "apps/mqtt/broker/SocketContext.h"
 
-#include "apps/mqtt/server/Broker.h"
+#include "apps/mqtt/broker/Broker.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,14 +26,14 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::server {
+namespace apps::mqtt::broker {
 
     SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
         : iot::mqtt::SocketContext(socketConnection) {
     }
 
     SocketContext::~SocketContext() {
-        apps::mqtt::server::Broker::instance().unsubscribeFromAll(this);
+        apps::mqtt::broker::Broker::instance().unsubscribeFromAll(this);
     }
 
     void SocketContext::onConnect(const iot::mqtt::packets::Connect& connect) {
@@ -76,7 +76,7 @@ namespace apps::mqtt::server {
 
         sendPuback(publish.getPacketIdentifier());
 
-        apps::mqtt::server::Broker::instance().publish(publish.getPacketIdentifier(), publish.getTopic(), publish.getMessage());
+        apps::mqtt::broker::Broker::instance().publish(publish.getTopic(), publish.getMessage());
     }
 
     void SocketContext::onPuback(const iot::mqtt::packets::Puback& puback) {
@@ -132,7 +132,7 @@ namespace apps::mqtt::server {
 
         for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
             VLOG(0) << "  Topic: " << topic.getName() << ", requestedQoS: " << static_cast<uint16_t>(topic.getRequestedQoS());
-            apps::mqtt::server::Broker::instance().subscribe(topic.getName(), this);
+            apps::mqtt::broker::Broker::instance().subscribe(topic.getName(), this);
 
             returnCodes.push_back(0x00); // QoS = 0; Success
         }
@@ -165,7 +165,7 @@ namespace apps::mqtt::server {
 
         for (const std::string& topic : unsubscribe.getTopics()) {
             VLOG(0) << "  Topic: " << topic;
-            apps::mqtt::server::Broker::instance().unsubscribe(topic, this);
+            apps::mqtt::broker::Broker::instance().unsubscribe(topic, this);
         }
 
         sendUnsuback(unsubscribe.getPacketIdentifier());
@@ -190,7 +190,6 @@ namespace apps::mqtt::server {
         VLOG(0) << "RemainingLength: " << pingreq.getRemainingLength();
 
         sendPingresp();
-        sendPingreq();
     }
 
     void SocketContext::onPingresp(const iot::mqtt::packets::Pingresp& pingresp) {
@@ -212,4 +211,4 @@ namespace apps::mqtt::server {
         close();
     }
 
-} // namespace apps::mqtt::server
+} // namespace apps::mqtt::broker
