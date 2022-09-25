@@ -18,18 +18,14 @@
 
 #include "apps/mqtt/server/Broker.h"
 
-#include "apps/mqtt/server/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <list>
-#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace apps::mqtt::server {
 
-    Broker::Broker() {
+    Broker::Broker()
+        : topicTree(apps::mqtt::server::TopicTree("", "")) {
     }
 
     Broker& Broker::instance() {
@@ -41,44 +37,19 @@ namespace apps::mqtt::server {
     }
 
     void Broker::subscribe(const std::string& topic, SocketContext* socketContext) {
-        topics[topic].push_back(socketContext);
+        subscriberTree.subscribe(topic, socketContext);
     }
 
-    void Broker::publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message) {
-        std::list<apps::mqtt::server::SocketContext*> socketContexts = topics[topic];
-
-        if (!topics[topic].empty()) {
-            for (apps::mqtt::server::SocketContext* socketContext : socketContexts) {
-                socketContext->sendPublish(packetIdentifier, topic, message);
-            }
-        } else {
-            topics.erase(topic);
-        }
+    void Broker::publish([[maybe_unused]] uint16_t packetIdentifier, const std::string& topic, const std::string& message) {
+        subscriberTree.publish(topic, message);
     }
 
     void Broker::unsubscribe(const std::string& topic, SocketContext* socketContext) {
-        topics[topic].remove(socketContext);
-
-        if (topics[topic].empty()) {
-            topics.erase(topic); // Remove empty topics
-        }
+        subscriberTree.unsubscribe(topic, socketContext);
     }
 
     void Broker::unsubscribeFromAll(SocketContext* socketContext) {
-        auto it = topics.begin();
-
-        while (it != topics.end()) {
-            it->second.remove(socketContext);
-
-            if (it->second.empty()) { // Remove empty topics
-                auto tmpIt = it;
-                ++tmpIt;
-                topics.erase(it);
-                it = tmpIt;
-            } else {
-                ++it;
-            }
-        }
+        subscriberTree.unsubscribe(socketContext);
     }
 
 } // namespace apps::mqtt::server

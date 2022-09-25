@@ -44,7 +44,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     apps::mqtt::server::SubscriberTree subscriberTree;
 
     subscriberTree.subscribe("hihi/+/haha/+/hoho/#", nullptr);
-    subscriberTree.subscribe("hihi/hui/haha/+/hoho/#", nullptr);
+    subscriberTree.subscribe("hihi/hui/haha/hoho/#", nullptr);
+    subscriberTree.subscribe("hihi/hui/haha/huhu/hoho", nullptr);
+    subscriberTree.subscribe("hihi/hui/haha/huhu/hoho", nullptr);
+
+    subscriberTree.publish("hihi/hui/haha/huhu/hoho", "Nachricht");
+    subscriberTree.publish("hihi/hui/haha/hoho/hoho/ja", "Nachricht1");
+    subscriberTree.publish("hihi/hui/haha1/hoho/huri/ja", "Nachricht2");
 
     return 0;
 }

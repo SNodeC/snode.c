@@ -190,7 +190,6 @@ namespace apps::mqtt::server {
         VLOG(0) << "RemainingLength: " << pingreq.getRemainingLength();
 
         sendPingresp();
-        sendPingreq();
     }
 
     void SocketContext::onPingresp(const iot::mqtt::packets::Pingresp& pingresp) {

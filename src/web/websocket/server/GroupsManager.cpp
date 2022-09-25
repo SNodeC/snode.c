@@ -58,7 +58,7 @@ namespace web::websocket::server {
         if (groups.contains(subProtocol->group)) {
             groups[subProtocol->group].erase(subProtocol);
 
-            if (groups[subProtocol->group].size() == 0) {
+            if (groups[subProtocol->group].empty()) {
                 groups.erase(subProtocol->group);
                 if (groups.size() == 0) {
                     delete this;

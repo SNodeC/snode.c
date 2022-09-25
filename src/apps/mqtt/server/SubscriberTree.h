@@ -25,6 +25,7 @@ namespace apps::mqtt::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <list>
 #include <map>
 #include <string>
@@ -39,13 +40,23 @@ namespace apps::mqtt::server {
 
         void subscribe(const std::string& fullName, apps::mqtt::server::SocketContext* socketContext);
 
+        void publish(const std::string& fullTopicName, const std::string& message);
+
+        void unsubscribe(apps::mqtt::server::SocketContext* socketContext);
+
+        void unsubscribe(std::string remainingTopicName, apps::mqtt::server::SocketContext* socketContext);
+
     private:
+        void publish(const std::string& fullTopicName, std::string remainingTopicName, const std::string& message);
+
         void subscribe(const std::string& fullName, std::string remainingTopicName, apps::mqtt::server::SocketContext* socketContext);
 
         std::string fullName = "";
         std::list<apps::mqtt::server::SocketContext*> subscribers;
 
         std::map<std::string, SubscriberTree> subscriberTree;
+
+        static uint16_t packetIdentifier;
     };
 
 } // namespace apps::mqtt::server

@@ -19,6 +19,9 @@
 #ifndef APPS_MQTT_SERVER_BROKER_H
 #define APPS_MQTT_SERVER_BROKER_H
 
+#include "apps/mqtt/server/SubscriberTree.h"
+#include "apps/mqtt/server/TopicTree.h"
+
 namespace apps::mqtt::server {
     class SocketContext;
 }
@@ -26,8 +29,6 @@ namespace apps::mqtt::server {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <list>
-#include <map>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -49,7 +50,8 @@ namespace apps::mqtt::server {
         void unsubscribeFromAll(apps::mqtt::server::SocketContext* socketContext);
 
     private:
-        std::map<std::string, std::list<apps::mqtt::server::SocketContext*>> topics;
+        apps::mqtt::server::SubscriberTree subscriberTree;
+        apps::mqtt::server::TopicTree topicTree;
     };
 
 } // namespace apps::mqtt::server
