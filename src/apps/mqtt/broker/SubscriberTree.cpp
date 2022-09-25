@@ -62,8 +62,8 @@ namespace apps::mqtt::broker {
         }
     }
 
-    void SubscriberTree::subscribe(const std::string& fullTopicName,
-                                   std::string remainingTopicName,
+    void SubscriberTree::subscribe(std::string remainingTopicName,
+                                   const std::string& fullTopicName,
                                    apps::mqtt::broker::SocketContext* socketContext) {
         if (remainingTopicName.empty()) {
             this->fullName = fullTopicName;
@@ -73,15 +73,15 @@ namespace apps::mqtt::broker {
             remainingTopicName.erase(0, topicName.size() + 1);
 
             if (subscriberTree.contains(topicName)) {
-                subscriberTree.find(topicName)->second.subscribe(fullTopicName, remainingTopicName, socketContext);
+                subscriberTree.find(topicName)->second.subscribe(remainingTopicName, fullTopicName, socketContext);
             } else {
                 subscriberTree.insert({topicName, SubscriberTree()})
-                    .first->second.subscribe(fullTopicName, remainingTopicName, socketContext);
+                    .first->second.subscribe(remainingTopicName, fullTopicName, socketContext);
             }
         }
     }
 
-    void SubscriberTree::publish(const std::string& fullTopicName, std::string remainingTopicName, const std::string& message) {
+    void SubscriberTree::publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message) {
         if (remainingTopicName.empty()) {
             for (apps::mqtt::broker::SocketContext* subscriber : subscribers) {
                 LOG(TRACE) << "Send Publish: " << fullName << " - " << fullTopicName << " - " << message;
@@ -93,11 +93,11 @@ namespace apps::mqtt::broker {
             remainingTopicName.erase(0, topicName.size() + 1);
 
             if (subscriberTree.contains(topicName)) {
-                subscriberTree.find(topicName)->second.publish(fullTopicName, remainingTopicName, message);
+                subscriberTree.find(topicName)->second.publish(remainingTopicName, fullTopicName, message);
             }
 
             if (subscriberTree.contains("+")) {
-                subscriberTree.find("+")->second.publish(fullTopicName, remainingTopicName, message);
+                subscriberTree.find("+")->second.publish(remainingTopicName, fullTopicName, message);
             }
 
             if (subscriberTree.contains("#")) {
