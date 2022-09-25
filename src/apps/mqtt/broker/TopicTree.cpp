@@ -62,7 +62,7 @@ namespace apps::mqtt::broker {
             VLOG(0) << std::string(level * 4, ' ') << "FullName: " << fullName << " = " << value;
         }
 
-        for (auto topicTreeEntry : topicTree) {
+        for (auto& topicTreeEntry : topicTree) {
             VLOG(0) << std::string(level * 4 + 2, ' ') << "Name: " << topicTreeEntry.first;
             topicTreeEntry.second.traverse(level + 1);
         }

@@ -94,17 +94,13 @@ namespace apps::mqtt::broker {
 
             if (subscriberTree.contains(topicName)) {
                 subscriberTree.find(topicName)->second.publish(remainingTopicName, fullTopicName, message);
-            }
-
-            if (subscriberTree.contains("+")) {
+            } else if (subscriberTree.contains("+")) {
                 subscriberTree.find("+")->second.publish(remainingTopicName, fullTopicName, message);
-            }
+            } else if (subscriberTree.contains("#")) {
+                const SubscriberTree& foundSubscription = subscriberTree.find("#")->second;
 
-            if (subscriberTree.contains("#")) {
-                const SubscriberTree& foundSubscriptions = subscriberTree.find("#")->second;
-
-                for (apps::mqtt::broker::SocketContext* subscriber : foundSubscriptions.subscribers) {
-                    LOG(TRACE) << "Send Publish: " << foundSubscriptions.fullName << " - " << fullTopicName << " - " << message;
+                for (apps::mqtt::broker::SocketContext* subscriber : foundSubscription.subscribers) {
+                    LOG(TRACE) << "Send Publish: " << foundSubscription.fullName << " - " << fullTopicName << " - " << message;
                     ++apps::mqtt::broker::SubscriberTree::packetIdentifier;
                     subscriber->sendPublish(packetIdentifier, fullTopicName, message);
                 }
