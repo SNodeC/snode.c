@@ -33,7 +33,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     MQTTServer mqttServer(
-        "server",
+        "legacy",
         []([[maybe_unused]] SocketConnection* socketConnection) -> void { // OnConnect
             VLOG(0) << "OnConnect";
         },
