@@ -54,7 +54,7 @@ namespace iot::mqtt {
     std::vector<char> ControlPacket::getPacket() {
         std::vector<char> packet;
 
-        packet.push_back(static_cast<char>(type << 0x04 | (reserved & 0x0F)));
+        packet.push_back(static_cast<char>((type << 0x04) | (reserved & 0x0F)));
 
         uint64_t remainingLength = data.getLength();
         do {

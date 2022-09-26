@@ -45,18 +45,18 @@ namespace iot::mqtt {
         send(mqtt::packets::Connect(clientId));
     }
 
-    void SocketContext::sendConnack() {
+    void SocketContext::sendConnack(uint8_t returnCode) {
         LOG(TRACE) << "Send CONNACK";
         LOG(TRACE) << "============";
 
-        send(mqtt::packets::Connack(MQTT_CONNECT_ACCEPT));
+        send(mqtt::packets::Connack(returnCode));
     }
 
     void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {
         LOG(TRACE) << "Send PUBLISH";
         LOG(TRACE) << "============";
 
-        send(iot::mqtt::packets::Publish(qoSLevel == 0 ? 0 : packetIdentifier++, topic, message, dup, qoSLevel, retain));
+        send(iot::mqtt::packets::Publish(qoSLevel == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoSLevel, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) {
@@ -91,7 +91,7 @@ namespace iot::mqtt {
         LOG(TRACE) << "Send SUBSCRIBE";
         LOG(TRACE) << "==============";
 
-        send(iot::mqtt::packets::Subscribe(packetIdentifier++, topics));
+        send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
@@ -105,7 +105,7 @@ namespace iot::mqtt {
         LOG(TRACE) << "Send UNSUBSCRIBE";
         LOG(TRACE) << "================";
 
-        send(iot::mqtt::packets::Unsubscribe(packetIdentifier++, topics));
+        send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendUnsuback(uint16_t packetIdentifier) {

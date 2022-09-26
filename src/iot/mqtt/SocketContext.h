@@ -61,7 +61,7 @@ namespace iot::mqtt {
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
         void sendConnect(const std::string& clientId);
-        void sendConnack();
+        void sendConnack(uint8_t returnCode);
         void sendPublish(const std::string& topic, const std::string& message, bool dup = false, uint8_t qoSLevel = 0, bool retain = false);
         void sendPuback(uint16_t packetIdentifier);
         void sendPubrec(uint16_t packetIdentifier);
@@ -100,7 +100,17 @@ namespace iot::mqtt {
 
         iot::mqtt::ControlPacketFactory controlPacketFactory;
 
-        uint16_t packetIdentifier = 0;
+        uint16_t getPacketIdentifier() {
+            ++_packetIdentifier;
+
+            if (_packetIdentifier == 0) {
+                ++_packetIdentifier;
+            }
+
+            return _packetIdentifier;
+        }
+
+        uint16_t _packetIdentifier = 0;
     };
 
 } // namespace iot::mqtt

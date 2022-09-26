@@ -33,6 +33,13 @@ namespace iot::mqtt {
 
 #define MQTT_CONNACK 0x02
 
+#define MQTT_CONNACK_ACCEPT 0
+#define MQTT_CONNACK_UNACEPTABLEVERSION 1
+#define MQTT_CONNACK_IDENTIFIERREJECTED 2
+#define MQTT_CONNACK_SERVERUNAVAILABLE 3
+#define MQTT_CONNACK_BADUSERNAMEORPASSWORD 4
+#define MQTT_CONNACK_NOTAUTHORIZED 5
+
 namespace iot::mqtt::packets {
 
     class Connack : public iot::mqtt::ControlPacket {

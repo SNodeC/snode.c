@@ -31,8 +31,8 @@
 
 namespace apps::mqtt::broker {
 
-    void SubscriberTree::subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext) {
-        subscribe(fullTopicName, fullTopicName, socketContext);
+    void SubscriberTree::subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
+        subscribe(fullTopicName, fullTopicName, socketContext, qoSLevel);
     }
 
     void SubscriberTree::publish(const std::string& fullTopicName, const std::string& message) {
@@ -62,28 +62,29 @@ namespace apps::mqtt::broker {
 
     void SubscriberTree::subscribe(std::string remainingTopicName,
                                    const std::string& fullTopicName,
-                                   apps::mqtt::broker::SocketContext* socketContext) {
+                                   apps::mqtt::broker::SocketContext* socketContext,
+                                   uint8_t qoSLevel) {
         if (remainingTopicName.empty()) {
             this->fullName = fullTopicName;
-            subscribers.insert(socketContext);
+            subscribers[socketContext] = qoSLevel;
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
 
             if (subscriberTree.contains(topicName)) {
-                subscriberTree.find(topicName)->second.subscribe(remainingTopicName, fullTopicName, socketContext);
+                subscriberTree.find(topicName)->second.subscribe(remainingTopicName, fullTopicName, socketContext, qoSLevel);
             } else {
                 subscriberTree.insert({topicName, SubscriberTree()})
-                    .first->second.subscribe(remainingTopicName, fullTopicName, socketContext);
+                    .first->second.subscribe(remainingTopicName, fullTopicName, socketContext, qoSLevel);
             }
         }
     }
 
     void SubscriberTree::publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message) {
         if (remainingTopicName.empty()) {
-            for (apps::mqtt::broker::SocketContext* subscriber : subscribers) {
-                LOG(TRACE) << "Send Publish: " << fullName << " - " << fullTopicName << " - " << message;
-                subscriber->sendPublish(fullTopicName, message);
+            for (auto& sub : subscribers) {
+                LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << sub.second;
+                sub.first->sendPublish(fullTopicName, message, 0, sub.second, 0);
             }
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
@@ -96,9 +97,9 @@ namespace apps::mqtt::broker {
             } else if (subscriberTree.contains("#")) {
                 const SubscriberTree& foundSubscription = subscriberTree.find("#")->second;
 
-                for (apps::mqtt::broker::SocketContext* subscriber : foundSubscription.subscribers) {
-                    LOG(TRACE) << "Send Publish: " << foundSubscription.fullName << " - " << fullTopicName << " - " << message;
-                    subscriber->sendPublish(fullTopicName, message);
+                for (auto& subscriber : foundSubscription.subscribers) {
+                    LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << subscriber.second;
+                    subscriber.first->sendPublish(fullTopicName, message, 0, subscriber.second, 0);
                 }
             }
         }

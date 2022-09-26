@@ -49,7 +49,7 @@ namespace apps::mqtt::broker {
         VLOG(0) << "KeepAlive: " << connect.getKeepAlive();
         VLOG(0) << "ClientID: " << connect.getClientId();
 
-        sendConnack();
+        sendConnack(connect.getVersion() <= 0x04 ? MQTT_CONNACK_ACCEPT : MQTT_CONNACK_UNACEPTABLEVERSION); // Version | 0x04 = 3.1.1
     }
 
     void SocketContext::onConnack(const iot::mqtt::packets::Connack& connack) {
@@ -70,11 +70,21 @@ namespace apps::mqtt::broker {
         VLOG(0) << "Type: " << static_cast<uint16_t>(publish.getType());
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(publish.getReserved());
         VLOG(0) << "RemainingLength: " << publish.getRemainingLength();
+        VLOG(0) << "DUP: " << publish.getDup();
+        VLOG(0) << "QoSLevel: " << static_cast<uint16_t>(publish.getQoSLevel());
+        VLOG(0) << "Retain: " << publish.getRetain();
         VLOG(0) << "Topic: " << publish.getTopic();
-        VLOG(0) << "Message: " << publish.getMessage();
         VLOG(0) << "PacketIdentifier: " << publish.getPacketIdentifier();
+        VLOG(0) << "Message: " << publish.getMessage();
 
-        sendPuback(publish.getPacketIdentifier());
+        switch (publish.getQoSLevel()) {
+            case 1:
+                sendPuback(publish.getPacketIdentifier());
+                break;
+            case 2:
+                sendPubrec(publish.getPacketIdentifier());
+                break;
+        }
 
         apps::mqtt::broker::Broker::instance().publish(publish.getTopic(), publish.getMessage());
     }
@@ -97,6 +107,8 @@ namespace apps::mqtt::broker {
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(pubrec.getReserved());
         VLOG(0) << "RemainingLength: " << pubrec.getRemainingLength();
         VLOG(0) << "PacketIdentifier: " << pubrec.getPacketIdentifier();
+
+        sendPubrel(pubrec.getPacketIdentifier());
     }
 
     void SocketContext::onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
@@ -107,6 +119,8 @@ namespace apps::mqtt::broker {
         VLOG(0) << "Reserved: " << static_cast<uint16_t>(pubrel.getReserved());
         VLOG(0) << "RemainingLength: " << pubrel.getRemainingLength();
         VLOG(0) << "PacketIdentifier: " << pubrel.getPacketIdentifier();
+
+        sendPubcomp(pubrel.getPacketIdentifier());
     }
 
     void SocketContext::onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
@@ -132,9 +146,9 @@ namespace apps::mqtt::broker {
 
         for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
             VLOG(0) << "  Topic: " << topic.getName() << ", requestedQoS: " << static_cast<uint16_t>(topic.getRequestedQoS());
-            apps::mqtt::broker::Broker::instance().subscribe(topic.getName(), this);
+            apps::mqtt::broker::Broker::instance().subscribe(topic.getName(), this, topic.getRequestedQoS());
 
-            returnCodes.push_back(0x00); // QoS = 0; Success
+            returnCodes.push_back(topic.getRequestedQoS() | 0x00 /* 0x80 */); // QoS + Success
         }
 
         sendSuback(subscribe.getPacketIdentifier(), returnCodes);
