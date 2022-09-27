@@ -36,18 +36,11 @@ namespace apps::mqtt::broker {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-// Means individual Broker for each different SocketServer type.
-// #define INDIVIDUAL_BROKER
-
 namespace apps::mqtt::broker {
 
     class SharedSocketContextFactory : public core::socket::SocketContextFactory {
     private:
         core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
-
-#if defined(INDIVIDUAL_BROKER)
-        std::shared_ptr<apps::mqtt::broker::Broker> broker;
-#endif
     };
 
 } // namespace apps::mqtt::broker
