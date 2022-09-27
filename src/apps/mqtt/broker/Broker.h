@@ -29,6 +29,7 @@ namespace apps::mqtt::broker {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <memory>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -37,12 +38,10 @@ namespace apps::mqtt::broker {
 
     class Broker {
     private:
+    public:
         Broker() = default;
 
-    public:
-        static Broker& instance();
-
-        ~Broker();
+        static std::shared_ptr<Broker> instance();
 
         void subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
         void publish(const std::string& topic, const std::string& message, bool retain);
@@ -52,6 +51,8 @@ namespace apps::mqtt::broker {
     private:
         apps::mqtt::broker::SubscribtionTree subscribtionTree;
         apps::mqtt::broker::RetainTree retainTree;
+
+        static std::shared_ptr<Broker> broker;
     };
 
 } // namespace apps::mqtt::broker

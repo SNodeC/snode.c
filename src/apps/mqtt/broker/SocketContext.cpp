@@ -28,13 +28,14 @@
 
 namespace apps::mqtt::broker {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
-        : iot::mqtt::SocketContext(socketConnection) {
+    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection, std::shared_ptr<Broker> broker)
+        : iot::mqtt::SocketContext(socketConnection)
+        , broker(broker) {
     }
 
     SocketContext::~SocketContext() {
         if (subscribtionCount > 0) {
-            apps::mqtt::broker::Broker::instance().unsubscribe(this);
+            broker->unsubscribe(this);
         }
     }
 
@@ -88,7 +89,7 @@ namespace apps::mqtt::broker {
                 break;
         }
 
-        apps::mqtt::broker::Broker::instance().publish(publish.getTopic(), publish.getMessage(), publish.getRetain());
+        broker->publish(publish.getTopic(), publish.getMessage(), publish.getRetain());
     }
 
     void SocketContext::onPuback(const iot::mqtt::packets::Puback& puback) {
@@ -148,7 +149,7 @@ namespace apps::mqtt::broker {
 
         for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
             VLOG(0) << "  Topic: " << topic.getName() << ", requestedQoS: " << static_cast<uint16_t>(topic.getRequestedQoS());
-            apps::mqtt::broker::Broker::instance().subscribe(topic.getName(), this, topic.getRequestedQoS());
+            broker->subscribe(topic.getName(), this, topic.getRequestedQoS());
 
             returnCodes.push_back(topic.getRequestedQoS() | 0x00 /* 0x80 */); // QoS + Success
         }
@@ -183,7 +184,7 @@ namespace apps::mqtt::broker {
 
         for (const std::string& topic : unsubscribe.getTopics()) {
             VLOG(0) << "  Topic: " << topic;
-            apps::mqtt::broker::Broker::instance().unsubscribe(topic, this);
+            broker->unsubscribe(topic, this);
         }
 
         sendUnsuback(unsubscribe.getPacketIdentifier());

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/SocketContextFactory.h"
+#include "apps/mqtt/broker/SharedSocketContextFactory.h"
 
 #include "apps/mqtt/broker/Broker.h"
 #include "apps/mqtt/broker/SocketContext.h"
@@ -28,12 +28,8 @@
 
 namespace apps::mqtt::broker {
 
-    SocketContextFactory::SocketContextFactory()
-        : broker(std::make_shared<apps::mqtt::broker::Broker>()) {
-    }
-
-    core::socket::SocketContext* SocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
-        return new apps::mqtt::broker::SocketContext(socketConnection, broker);
+    core::socket::SocketContext* SharedSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
+        return new apps::mqtt::broker::SocketContext(socketConnection, apps::mqtt::broker::Broker::instance());
     }
 
 } // namespace apps::mqtt::broker

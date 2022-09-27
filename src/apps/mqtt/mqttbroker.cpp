@@ -16,35 +16,95 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/SocketContextFactory.h" // IWYU pragma: keep
+#include "apps/mqtt/broker/SharedSocketContextFactory.h" // IWYU pragma: keep
+#include "apps/mqtt/broker/SocketContextFactory.h"       // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "config.h" // just for this example app
 #include "core/SNodeC.h"
 #include "log/Logger.h"
 #include "net/in/stream/legacy/SocketServer.h"
+#include "net/in/stream/tls/SocketServer.h"
+#include "net/un/stream/legacy/SocketServer.h"
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-using MQTTServer = net::in::stream::legacy::SocketServer<apps::mqtt::broker::SocketContextFactory>;
-using SocketConnection = MQTTServer::SocketConnection;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    MQTTServer mqttServer(
-        "legacy",
-        []([[maybe_unused]] SocketConnection* socketConnection) -> void { // OnConnect
+    using MQTTLegacyInServer = net::in::stream::legacy::SocketServer<apps::mqtt::broker::SharedSocketContextFactory>;
+    using LegacyInSocketConnection = MQTTLegacyInServer::SocketConnection;
+
+    MQTTLegacyInServer mqttLegacyInServer(
+        "legacyin",
+        []([[maybe_unused]] LegacyInSocketConnection* socketConnection) -> void { // OnConnect
             VLOG(0) << "OnConnect";
         },
-        []([[maybe_unused]] SocketConnection* socketConnection) -> void { // OnConnected
+        []([[maybe_unused]] LegacyInSocketConnection* socketConnection) -> void { // OnConnected
             VLOG(0) << "OnConnected";
         },
-        []([[maybe_unused]] SocketConnection* socketConnection) -> void { // OnDisconnected
+        []([[maybe_unused]] LegacyInSocketConnection* socketConnection) -> void { // OnDisconnected
             VLOG(0) << "OnDisconnected";
         });
 
-    mqttServer.listen([](const MQTTServer::SocketAddress& socketAddress, int errnum) -> void {
+    mqttLegacyInServer.listen([](const MQTTLegacyInServer::SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "mqttbroker listening on " << socketAddress.toString();
+        }
+    });
+
+    using MQTTTLSInServer = net::in::stream::tls::SocketServer<apps::mqtt::broker::SharedSocketContextFactory>;
+    using TLSInSocketConnection = MQTTTLSInServer::SocketConnection;
+
+    std::map<std::string, std::any> options{{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}};
+    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
+        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}},
+        {"www.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
+
+    MQTTTLSInServer mqttTLSInServer(
+        "tlsin",
+        []([[maybe_unused]] TLSInSocketConnection* socketConnection) -> void { // OnConnect
+            VLOG(0) << "OnConnect";
+        },
+        []([[maybe_unused]] TLSInSocketConnection* socketConnection) -> void { // OnConnected
+            VLOG(0) << "OnConnected";
+        },
+        []([[maybe_unused]] TLSInSocketConnection* socketConnection) -> void { // OnDisconnected
+            VLOG(0) << "OnDisconnected";
+        },
+        options);
+
+    mqttTLSInServer.listen([](const MQTTTLSInServer::SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "mqttbroker listening on " << socketAddress.toString();
+        }
+    });
+
+    using MQTTLegacyUnServer = net::un::stream::legacy::SocketServer<apps::mqtt::broker::SharedSocketContextFactory>;
+    using LegacyUnSocketConnection = MQTTLegacyUnServer::SocketConnection;
+
+    MQTTLegacyUnServer mqttLegacyUnServer(
+        "legacyun",
+        []([[maybe_unused]] LegacyUnSocketConnection* socketConnection) -> void { // OnConnect
+            VLOG(0) << "OnConnect";
+        },
+        []([[maybe_unused]] LegacyUnSocketConnection* socketConnection) -> void { // OnConnected
+            VLOG(0) << "OnConnected";
+        },
+        []([[maybe_unused]] LegacyUnSocketConnection* socketConnection) -> void { // OnDisconnected
+            VLOG(0) << "OnDisconnected";
+        });
+
+    mqttLegacyUnServer.listen([](const LegacyUnSocketConnection::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";
         } else if (errnum > 0) {

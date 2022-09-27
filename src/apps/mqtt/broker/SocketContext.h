@@ -25,7 +25,13 @@ namespace core::socket {
     class SocketConnection;
 } // namespace core::socket
 
+namespace apps::mqtt::broker {
+    class Broker;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <memory>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -33,7 +39,7 @@ namespace apps::mqtt::broker {
 
     class SocketContext : public iot::mqtt::SocketContext {
     public:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        explicit SocketContext(core::socket::SocketConnection* socketConnection, std::shared_ptr<apps::mqtt::broker::Broker> broker);
         ~SocketContext() override;
 
     private:
@@ -53,6 +59,8 @@ namespace apps::mqtt::broker {
         void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) override;
 
         uint64_t subscribtionCount = 0;
+
+        std::shared_ptr<apps::mqtt::broker::Broker> broker;
     };
 
 } // namespace apps::mqtt::broker

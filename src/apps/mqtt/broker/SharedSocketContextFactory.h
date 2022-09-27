@@ -16,24 +16,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/SocketContextFactory.h"
+#ifndef APPS_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H
+#define APPS_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H
 
-#include "apps/mqtt/broker/Broker.h"
-#include "apps/mqtt/broker/SocketContext.h"
 #include "core/socket/SocketContext.h"
+#include "core/socket/SocketContextFactory.h"
+
+namespace core::socket {
+    class SocketConnection;
+} // namespace core::socket
+
+namespace apps::mqtt::broker {
+    class Broker;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
+
+// Means individual Broker for each different SocketServer type.
+// #define INDIVIDUAL_BROKER
 
 namespace apps::mqtt::broker {
 
-    SocketContextFactory::SocketContextFactory()
-        : broker(std::make_shared<apps::mqtt::broker::Broker>()) {
-    }
+    class SharedSocketContextFactory : public core::socket::SocketContextFactory {
+    private:
+        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
 
-    core::socket::SocketContext* SocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
-        return new apps::mqtt::broker::SocketContext(socketConnection, broker);
-    }
+#if defined(INDIVIDUAL_BROKER)
+        std::shared_ptr<apps::mqtt::broker::Broker> broker;
+#endif
+    };
 
 } // namespace apps::mqtt::broker
+
+#endif // APPS_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H

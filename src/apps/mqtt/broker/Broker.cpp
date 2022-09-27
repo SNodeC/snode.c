@@ -24,12 +24,14 @@
 
 namespace apps::mqtt::broker {
 
-    Broker& Broker::instance() {
-        static Broker broker;
-        return broker;
-    }
+    std::shared_ptr<Broker> Broker::broker;
 
-    Broker::~Broker() {
+    std::shared_ptr<Broker> Broker::instance() {
+        if (!broker) {
+            broker = std::make_shared<Broker>();
+        }
+
+        return broker;
     }
 
     void Broker::subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
