@@ -53,7 +53,7 @@ namespace apps::mqtt::broker {
 
     void RetainTree::publish(std::string remainingTopicName, SocketContext* socketContext, uint8_t qoSLevel) {
         if (remainingTopicName.empty() && !message.empty()) {
-            LOG(TRACE) << "Send Publish (retained 1): " << fullTopicName << " - " << message << " - " << static_cast<uint16_t>(qoSLevel);
+            LOG(TRACE) << "Send Publish (retained): " << fullTopicName << " - " << message << " - " << static_cast<uint16_t>(qoSLevel);
             socketContext->sendPublish(fullTopicName, message, 0, qoSLevel, true);
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
@@ -72,7 +72,7 @@ namespace apps::mqtt::broker {
     }
 
     void RetainTree::publish(SocketContext* socketContext, uint8_t qoSLevel) {
-        LOG(TRACE) << "Send Publish (retained 2): " << fullTopicName << " - " << message << " - " << static_cast<uint16_t>(qoSLevel);
+        LOG(TRACE) << "Send Publish (retained): " << fullTopicName << " - " << message << " - " << static_cast<uint16_t>(qoSLevel);
         if (!message.empty()) {
             socketContext->sendPublish(fullTopicName, message, 0, qoSLevel, true);
         }

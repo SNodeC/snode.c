@@ -94,10 +94,10 @@ namespace apps::mqtt::broker {
             remainingTopicName.erase(0, topicName.size() + 1);
 
             if (subscribtions.contains(topicName)) {
-                subscribtions.find(topicName)->second.publish(remainingTopicName, fullTopicName, message);
+                subscribtions[topicName].publish(remainingTopicName, fullTopicName, message);
             }
             if (subscribtions.contains("+")) {
-                subscribtions.find("+")->second.publish(remainingTopicName, fullTopicName, message);
+                subscribtions["+"].publish(remainingTopicName, fullTopicName, message);
             }
             if (subscribtions.contains("#")) {
                 const SubscribtionTree& foundSubscription = subscribtions.find("#")->second;

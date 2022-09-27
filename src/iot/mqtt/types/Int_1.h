@@ -45,8 +45,8 @@ namespace iot::mqtt::types {
         void reset() override;
 
     private:
+        std::size_t length = 1;
         std::size_t needed = 1;
-        std::size_t stillNeeded = 1;
         char buffer[1];
     };
 

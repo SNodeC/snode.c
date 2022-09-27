@@ -38,7 +38,7 @@ namespace apps::mqtt::broker {
         retainTree.publish(topic, socketContext, qoSLevel);
     }
 
-    void Broker::publish(const std::string& topic, const std::string& message, [[maybe_unused]] bool retain) {
+    void Broker::publish(const std::string& topic, const std::string& message, bool retain) {
         subscribtionTree.publish(topic, message);
 
         if (retain) {
