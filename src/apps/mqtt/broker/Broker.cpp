@@ -33,13 +33,13 @@ namespace apps::mqtt::broker {
     }
 
     void Broker::subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
-        subscriberTree.subscribe(topic, socketContext, qoSLevel);
+        subscribtionTree.subscribe(topic, socketContext, qoSLevel);
 
         retainTree.publish(topic, socketContext, qoSLevel);
     }
 
     void Broker::publish(const std::string& topic, const std::string& message, [[maybe_unused]] bool retain) {
-        subscriberTree.publish(topic, message);
+        subscribtionTree.publish(topic, message);
 
         if (retain) {
             retainTree.retain(topic, message);
@@ -47,11 +47,11 @@ namespace apps::mqtt::broker {
     }
 
     void Broker::unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext) {
-        subscriberTree.unsubscribe(topic, socketContext);
+        subscribtionTree.unsubscribe(topic, socketContext);
     }
 
     void Broker::unsubscribe(apps::mqtt::broker::SocketContext* socketContext) {
-        subscriberTree.unsubscribe(socketContext);
+        subscribtionTree.unsubscribe(socketContext);
     }
 
 } // namespace apps::mqtt::broker

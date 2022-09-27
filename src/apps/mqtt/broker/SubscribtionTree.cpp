@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/SubscriberTree.h"
+#include "apps/mqtt/broker/SubscribtionTree.h"
 
 #include "apps/mqtt/broker/SocketContext.h"
 
@@ -31,15 +31,15 @@
 
 namespace apps::mqtt::broker {
 
-    void SubscriberTree::subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
+    void SubscribtionTree::subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
         subscribe(fullTopicName, fullTopicName, socketContext, qoSLevel);
     }
 
-    void SubscriberTree::publish(const std::string& fullTopicName, const std::string& message) {
+    void SubscribtionTree::publish(const std::string& fullTopicName, const std::string& message) {
         publish(fullTopicName, fullTopicName, message);
     }
 
-    bool SubscriberTree::unsubscribe(apps::mqtt::broker::SocketContext* socketContext) {
+    bool SubscribtionTree::unsubscribe(apps::mqtt::broker::SocketContext* socketContext) {
         subscribers.erase(socketContext);
 
         for (auto it = subscribtions.begin(); it != subscribtions.end();) {
@@ -53,7 +53,7 @@ namespace apps::mqtt::broker {
         return subscribers.empty() && subscribtions.empty();
     }
 
-    bool SubscriberTree::unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext) {
+    bool SubscribtionTree::unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext) {
         if (remainingTopicName.empty()) {
             subscribers.erase(socketContext);
         } else {
@@ -68,10 +68,10 @@ namespace apps::mqtt::broker {
         return subscribers.empty() && subscribtions.empty();
     }
 
-    void SubscriberTree::subscribe(std::string remainingTopicName,
-                                   const std::string& fullTopicName,
-                                   apps::mqtt::broker::SocketContext* socketContext,
-                                   uint8_t qoSLevel) {
+    void SubscribtionTree::subscribe(std::string remainingTopicName,
+                                     const std::string& fullTopicName,
+                                     apps::mqtt::broker::SocketContext* socketContext,
+                                     uint8_t qoSLevel) {
         if (remainingTopicName.empty()) {
             this->fullName = fullTopicName;
             subscribers[socketContext] = qoSLevel;
@@ -83,7 +83,7 @@ namespace apps::mqtt::broker {
         }
     }
 
-    void SubscriberTree::publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message) {
+    void SubscribtionTree::publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message) {
         if (remainingTopicName.empty()) {
             for (auto& subscriber : subscribers) {
                 LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << subscriber.second;
@@ -100,7 +100,7 @@ namespace apps::mqtt::broker {
                 subscribtions.find("+")->second.publish(remainingTopicName, fullTopicName, message);
             }
             if (subscribtions.contains("#")) {
-                const SubscriberTree& foundSubscription = subscribtions.find("#")->second;
+                const SubscribtionTree& foundSubscription = subscribtions.find("#")->second;
 
                 for (auto& subscriber : foundSubscription.subscribers) {
                     LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << subscriber.second;

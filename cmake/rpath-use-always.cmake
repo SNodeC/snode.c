@@ -6,7 +6,8 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 set(CMAKE_INSTALL_RPATH
-    "${CMAKE_INSTALL_PREFIX}/lib" CACHE INTERNAL ""
+    "${CMAKE_INSTALL_PREFIX}/lib"
+    CACHE INTERNAL ""
 )
 
 # add the automatically determined parts of the RPATH which point to directories

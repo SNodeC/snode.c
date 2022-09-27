@@ -20,7 +20,7 @@
 #define APPS_MQTT_SERVER_BROKER_H
 
 #include "apps/mqtt/broker/RetainTree.h"
-#include "apps/mqtt/broker/SubscriberTree.h"
+#include "apps/mqtt/broker/SubscribtionTree.h"
 
 namespace apps::mqtt::broker {
     class SocketContext;
@@ -50,7 +50,7 @@ namespace apps::mqtt::broker {
         void unsubscribe(apps::mqtt::broker::SocketContext* socketContext);
 
     private:
-        apps::mqtt::broker::SubscriberTree subscriberTree;
+        apps::mqtt::broker::SubscribtionTree subscribtionTree;
         apps::mqtt::broker::RetainTree retainTree;
     };
 

@@ -33,9 +33,9 @@ namespace apps::mqtt::broker {
 
 namespace apps::mqtt::broker {
 
-    class SubscriberTree {
+    class SubscribtionTree {
     public:
-        SubscriberTree() = default;
+        SubscribtionTree() = default;
 
         void subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
 
@@ -54,7 +54,7 @@ namespace apps::mqtt::broker {
         void publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message);
 
         std::map<apps::mqtt::broker::SocketContext*, uint8_t> subscribers;
-        std::map<std::string, SubscriberTree> subscribtions;
+        std::map<std::string, SubscribtionTree> subscribtions;
 
         std::string fullName = "";
     };
