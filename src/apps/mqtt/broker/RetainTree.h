@@ -42,7 +42,7 @@ namespace apps::mqtt::broker {
         void publish(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
 
     private:
-        void retain(const std::string& fullTopicName, std::string remainingTopicName, const std::string& value);
+        bool retain(const std::string& fullTopicName, std::string remainingTopicName, const std::string& value);
 
         void publish(apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
 

@@ -60,7 +60,7 @@ namespace apps::mqtt::broker {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
 
-            if (subscribtions.contains(topicName) && subscribtions.find(topicName)->second.unsubscribe(remainingTopicName, socketContext)) {
+            if (subscribtions.contains(topicName) && subscribtions[topicName].unsubscribe(remainingTopicName, socketContext)) {
                 subscribtions.erase(topicName);
             }
         }
@@ -79,12 +79,7 @@ namespace apps::mqtt::broker {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
 
-            if (subscribtions.contains(topicName)) {
-                subscribtions.find(topicName)->second.subscribe(remainingTopicName, fullTopicName, socketContext, qoSLevel);
-            } else {
-                subscribtions.insert({topicName, SubscriberTree()})
-                    .first->second.subscribe(remainingTopicName, fullTopicName, socketContext, qoSLevel);
-            }
+            subscribtions[topicName].subscribe(remainingTopicName, fullTopicName, socketContext, qoSLevel);
         }
     }
 

@@ -34,7 +34,7 @@ namespace apps::mqtt::broker {
         retain(fullTopicName, fullTopicName, value);
     }
 
-    void RetainTree::retain(const std::string& fullTopicName, std::string remainingTopicName, const std::string& value) {
+    bool RetainTree::retain(const std::string& fullTopicName, std::string remainingTopicName, const std::string& value) {
         if (remainingTopicName.empty()) {
             LOG(TRACE) << "Retaining: " << fullTopicName << " - " << value;
             this->fullName = fullTopicName;
@@ -43,18 +43,18 @@ namespace apps::mqtt::broker {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
 
-            if (topicTree.contains(topicName)) {
-                topicTree.find(topicName)->second.retain(fullTopicName, remainingTopicName, value);
-            } else {
-                topicTree.insert({topicName, RetainTree()}).first->second.retain(fullTopicName, remainingTopicName, value);
+            if (topicTree[topicName].retain(fullTopicName, remainingTopicName, value)) {
+                topicTree.erase(topicName);
             }
         }
+
+        return this->value.empty() && topicTree.empty();
     }
 
     void RetainTree::publish(std::string remainingTopicName, SocketContext* socketContext, uint8_t qoSLevel) {
         if (remainingTopicName.empty()) {
             LOG(TRACE) << "Send Publish (retained): " << fullName << " - " << value << " - " << static_cast<uint16_t>(qoSLevel);
-            socketContext->sendPublish(fullName, value, 0, qoSLevel, 0);
+            socketContext->sendPublish(fullName, value, 0, qoSLevel, true);
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
@@ -74,7 +74,7 @@ namespace apps::mqtt::broker {
     void RetainTree::publish(SocketContext* socketContext, uint8_t qoSLevel) {
         LOG(TRACE) << "Send Publish (retained): " << fullName << " - " << value << " - " << static_cast<uint16_t>(qoSLevel);
         if (!value.empty()) {
-            socketContext->sendPublish(fullName, value, 0, qoSLevel, 0);
+            socketContext->sendPublish(fullName, value, 0, qoSLevel, true);
         }
 
         for (auto& topicTreeEntry : topicTree) {
