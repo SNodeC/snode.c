@@ -51,6 +51,8 @@ namespace apps::mqtt::broker {
         void onPingreq(const iot::mqtt::packets::Pingreq& pingreq) override;
         void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) override;
         void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) override;
+
+        uint64_t subscribtionCount = 0;
     };
 
 } // namespace apps::mqtt::broker

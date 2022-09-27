@@ -33,7 +33,9 @@ namespace apps::mqtt::broker {
     }
 
     SocketContext::~SocketContext() {
-        apps::mqtt::broker::Broker::instance().unsubscribeFromAll(this);
+        if (subscribtionCount > 0) {
+            apps::mqtt::broker::Broker::instance().unsubscribeFromAll(this);
+        }
     }
 
     void SocketContext::onConnect(const iot::mqtt::packets::Connect& connect) {
@@ -152,6 +154,8 @@ namespace apps::mqtt::broker {
         }
 
         sendSuback(subscribe.getPacketIdentifier(), returnCodes);
+
+        subscribtionCount++;
     }
 
     void SocketContext::onSuback(const iot::mqtt::packets::Suback& suback) {
@@ -183,6 +187,8 @@ namespace apps::mqtt::broker {
         }
 
         sendUnsuback(unsubscribe.getPacketIdentifier());
+
+        subscribtionCount--;
     }
 
     void SocketContext::onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) {
