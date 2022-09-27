@@ -54,7 +54,7 @@ namespace apps::mqtt::broker {
         void publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message);
 
         std::map<apps::mqtt::broker::SocketContext*, uint8_t> subscribers;
-        std::map<std::string, SubscriberTree> subscriberTree;
+        std::map<std::string, SubscriberTree> subscribtions;
 
         std::string fullName = "";
     };

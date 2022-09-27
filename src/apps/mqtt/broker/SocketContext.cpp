@@ -34,7 +34,7 @@ namespace apps::mqtt::broker {
 
     SocketContext::~SocketContext() {
         if (subscribtionCount > 0) {
-            apps::mqtt::broker::Broker::instance().unsubscribeFromAll(this);
+            apps::mqtt::broker::Broker::instance().unsubscribe(this);
         }
     }
 

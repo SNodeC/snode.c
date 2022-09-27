@@ -47,7 +47,7 @@ namespace apps::mqtt::broker {
         void subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
         void publish(const std::string& topic, const std::string& message);
         void unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext);
-        void unsubscribeFromAll(apps::mqtt::broker::SocketContext* socketContext);
+        void unsubscribe(apps::mqtt::broker::SocketContext* socketContext);
 
     private:
         apps::mqtt::broker::SubscriberTree subscriberTree;

@@ -42,15 +42,15 @@ namespace apps::mqtt::broker {
     bool SubscriberTree::unsubscribe(apps::mqtt::broker::SocketContext* socketContext) {
         subscribers.erase(socketContext);
 
-        for (auto it = subscriberTree.begin(); it != subscriberTree.end();) {
+        for (auto it = subscribtions.begin(); it != subscribtions.end();) {
             if (it->second.unsubscribe(socketContext)) {
-                it = subscriberTree.erase(it);
+                it = subscribtions.erase(it);
             } else {
                 ++it;
             }
         }
 
-        return subscribers.empty() && subscriberTree.empty();
+        return subscribers.empty() && subscribtions.empty();
     }
 
     bool SubscriberTree::unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext) {
@@ -58,16 +58,15 @@ namespace apps::mqtt::broker {
 
         if (remainingTopicName.empty()) {
             subscribers.erase(socketContext);
-            empty = subscribers.empty() && subscriberTree.empty();
+            empty = subscribers.empty() && subscribtions.empty();
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
 
-            if (subscriberTree.contains(topicName) &&
-                subscriberTree.find(topicName)->second.unsubscribe(remainingTopicName, socketContext)) {
-                subscriberTree.erase(topicName);
+            if (subscribtions.contains(topicName) && subscribtions.find(topicName)->second.unsubscribe(remainingTopicName, socketContext)) {
+                subscribtions.erase(topicName);
             }
-            empty = subscribers.empty() && subscriberTree.empty();
+            empty = subscribers.empty() && subscribtions.empty();
         }
 
         return empty;
@@ -84,10 +83,10 @@ namespace apps::mqtt::broker {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
 
-            if (subscriberTree.contains(topicName)) {
-                subscriberTree.find(topicName)->second.subscribe(remainingTopicName, fullTopicName, socketContext, qoSLevel);
+            if (subscribtions.contains(topicName)) {
+                subscribtions.find(topicName)->second.subscribe(remainingTopicName, fullTopicName, socketContext, qoSLevel);
             } else {
-                subscriberTree.insert({topicName, SubscriberTree()})
+                subscribtions.insert({topicName, SubscriberTree()})
                     .first->second.subscribe(remainingTopicName, fullTopicName, socketContext, qoSLevel);
             }
         }
@@ -103,14 +102,14 @@ namespace apps::mqtt::broker {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
 
-            if (subscriberTree.contains(topicName)) {
-                subscriberTree.find(topicName)->second.publish(remainingTopicName, fullTopicName, message);
+            if (subscribtions.contains(topicName)) {
+                subscribtions.find(topicName)->second.publish(remainingTopicName, fullTopicName, message);
             }
-            if (subscriberTree.contains("+")) {
-                subscriberTree.find("+")->second.publish(remainingTopicName, fullTopicName, message);
+            if (subscribtions.contains("+")) {
+                subscribtions.find("+")->second.publish(remainingTopicName, fullTopicName, message);
             }
-            if (subscriberTree.contains("#")) {
-                const SubscriberTree& foundSubscription = subscriberTree.find("#")->second;
+            if (subscribtions.contains("#")) {
+                const SubscriberTree& foundSubscription = subscribtions.find("#")->second;
 
                 for (auto& subscriber : foundSubscription.subscribers) {
                     LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << subscriber.second;
