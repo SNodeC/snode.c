@@ -56,7 +56,7 @@ namespace apps::mqtt::broker {
         std::map<apps::mqtt::broker::SocketContext*, uint8_t> subscribers;
         std::map<std::string, SubscribtionTree> subscribtions;
 
-        std::string fullName = "";
+        std::string subscribedTopicName = "";
     };
 
 } // namespace apps::mqtt::broker

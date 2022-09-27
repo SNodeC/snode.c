@@ -46,8 +46,8 @@ namespace apps::mqtt::broker {
 
         void publish(apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
 
-        std::string fullName = "";
-        std::string value = "";
+        std::string fullTopicName = "";
+        std::string message = "";
 
         std::map<std::string, RetainTree> topicTree;
     };

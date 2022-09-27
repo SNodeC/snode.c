@@ -73,7 +73,7 @@ namespace apps::mqtt::broker {
                                      apps::mqtt::broker::SocketContext* socketContext,
                                      uint8_t qoSLevel) {
         if (remainingTopicName.empty()) {
-            this->fullName = fullTopicName;
+            subscribedTopicName = fullTopicName;
             subscribers[socketContext] = qoSLevel;
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
@@ -85,9 +85,9 @@ namespace apps::mqtt::broker {
 
     void SubscribtionTree::publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message) {
         if (remainingTopicName.empty()) {
-            for (auto& subscriber : subscribers) {
-                LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << subscriber.second;
-                subscriber.first->sendPublish(fullTopicName, message, 0, subscriber.second, 0);
+            for (auto& [subscriber, qoS] : subscribers) {
+                LOG(TRACE) << "Send Publich: " << subscribedTopicName << " - " << fullTopicName << " - " << message << " - " << qoS;
+                subscriber->sendPublish(fullTopicName, message, 0, qoS, 0);
             }
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
@@ -102,9 +102,9 @@ namespace apps::mqtt::broker {
             if (subscribtions.contains("#")) {
                 const SubscribtionTree& foundSubscription = subscribtions.find("#")->second;
 
-                for (auto& subscriber : foundSubscription.subscribers) {
-                    LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << subscriber.second;
-                    subscriber.first->sendPublish(fullTopicName, message, 0, subscriber.second, 0);
+                for (auto& [subscriber, qoS] : foundSubscription.subscribers) {
+                    LOG(TRACE) << "Send Publich: " << subscribedTopicName << " - " << fullTopicName << " - " << message << " - " << qoS;
+                    subscriber->sendPublish(fullTopicName, message, 0, qoS, 0);
                 }
             }
         }

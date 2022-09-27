@@ -30,31 +30,31 @@
 
 namespace apps::mqtt::broker {
 
-    void RetainTree::retain(const std::string& fullTopicName, const std::string& value) {
-        retain(fullTopicName, fullTopicName, value);
+    void RetainTree::retain(const std::string& fullTopicName, const std::string& message) {
+        retain(fullTopicName, fullTopicName, message);
     }
 
-    bool RetainTree::retain(const std::string& fullTopicName, std::string remainingTopicName, const std::string& value) {
+    bool RetainTree::retain(const std::string& fullTopicName, std::string remainingTopicName, const std::string& message) {
         if (remainingTopicName.empty()) {
-            LOG(TRACE) << "Retaining: " << fullTopicName << " - " << value;
-            this->fullName = fullTopicName;
-            this->value = value;
+            LOG(TRACE) << "Retaining: " << fullTopicName << " - " << message;
+            this->fullTopicName = fullTopicName;
+            this->message = message;
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
 
-            if (topicTree[topicName].retain(fullTopicName, remainingTopicName, value)) {
+            if (topicTree[topicName].retain(fullTopicName, remainingTopicName, message)) {
                 topicTree.erase(topicName);
             }
         }
 
-        return this->value.empty() && topicTree.empty();
+        return this->message.empty() && topicTree.empty();
     }
 
     void RetainTree::publish(std::string remainingTopicName, SocketContext* socketContext, uint8_t qoSLevel) {
-        if (remainingTopicName.empty()) {
-            LOG(TRACE) << "Send Publish (retained): " << fullName << " - " << value << " - " << static_cast<uint16_t>(qoSLevel);
-            socketContext->sendPublish(fullName, value, 0, qoSLevel, true);
+        if (remainingTopicName.empty() && !message.empty()) {
+            LOG(TRACE) << "Send Publish (retained 1): " << fullTopicName << " - " << message << " - " << static_cast<uint16_t>(qoSLevel);
+            socketContext->sendPublish(fullTopicName, message, 0, qoSLevel, true);
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));
             remainingTopicName.erase(0, topicName.size() + 1);
@@ -72,13 +72,13 @@ namespace apps::mqtt::broker {
     }
 
     void RetainTree::publish(SocketContext* socketContext, uint8_t qoSLevel) {
-        LOG(TRACE) << "Send Publish (retained): " << fullName << " - " << value << " - " << static_cast<uint16_t>(qoSLevel);
-        if (!value.empty()) {
-            socketContext->sendPublish(fullName, value, 0, qoSLevel, true);
+        LOG(TRACE) << "Send Publish (retained 2): " << fullTopicName << " - " << message << " - " << static_cast<uint16_t>(qoSLevel);
+        if (!message.empty()) {
+            socketContext->sendPublish(fullTopicName, message, 0, qoSLevel, true);
         }
 
-        for (auto& topicTreeEntry : topicTree) {
-            topicTreeEntry.second.publish(socketContext, qoSLevel);
+        for (auto& [topicName, topicTree] : topicTree) {
+            topicTree.publish(socketContext, qoSLevel);
         }
     }
 
