@@ -26,7 +26,7 @@
 
 namespace iot::mqtt::types {
 
-    Binary::Binary(iot::mqtt::SocketContext* socketContext)
+    Binary::Binary(core::socket::SocketContext* socketContext)
         : iot::mqtt::types::TypeBase(socketContext) {
     }
 

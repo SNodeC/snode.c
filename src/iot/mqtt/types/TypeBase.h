@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_TYPES_TYPESBASE_H
 #define IOT_MQTT_TYPES_TYPESBASE_H
 
-namespace iot::mqtt {
+namespace core::socket {
     class SocketContext;
 }
 
@@ -33,7 +33,7 @@ namespace iot::mqtt::types {
 
     class TypeBase {
     public:
-        TypeBase(iot::mqtt::SocketContext* socketContext);
+        TypeBase(core::socket::SocketContext* socketContext);
 
         TypeBase(const TypeBase&) = delete;
         TypeBase(TypeBase&&) = default;
@@ -52,7 +52,7 @@ namespace iot::mqtt::types {
         std::size_t read(char* buf, std::size_t count);
         virtual void reset();
 
-        iot::mqtt::SocketContext* socketContext;
+        core::socket::SocketContext* socketContext;
 
         bool completed = false;
         bool error = false;

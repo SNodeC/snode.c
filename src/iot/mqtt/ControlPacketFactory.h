@@ -23,7 +23,7 @@
 #include "iot/mqtt/types/Int_1.h"
 #include "iot/mqtt/types/Int_V.h"
 
-namespace iot::mqtt {
+namespace core::socket {
     class SocketContext;
 }
 
@@ -38,7 +38,7 @@ namespace iot::mqtt {
 
     class ControlPacketFactory {
     public:
-        explicit ControlPacketFactory(iot::mqtt::SocketContext* socketContext);
+        explicit ControlPacketFactory(core::socket::SocketContext* socketContext);
 
         std::size_t construct();
         bool isComplete();

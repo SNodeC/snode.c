@@ -24,7 +24,7 @@
 
 namespace iot::mqtt::types {
 
-    Int_V::Int_V(SocketContext* socketContext)
+    Int_V::Int_V(core::socket::SocketContext* socketContext)
         : iot::mqtt::types::TypeBase(socketContext) {
     }
 
