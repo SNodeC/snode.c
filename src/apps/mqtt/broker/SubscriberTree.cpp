@@ -90,9 +90,9 @@ namespace apps::mqtt::broker {
 
     void SubscriberTree::publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message) {
         if (remainingTopicName.empty()) {
-            for (auto& sub : subscribers) {
-                LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << sub.second;
-                sub.first->sendPublish(fullTopicName, message, 0, sub.second, 0);
+            for (auto& subscriber : subscribers) {
+                LOG(TRACE) << "Send Publich: " << fullName << " - " << fullTopicName << " - " << message << " - " << subscriber.second;
+                subscriber.first->sendPublish(fullTopicName, message, 0, subscriber.second, 0);
             }
         } else {
             std::string topicName = remainingTopicName.substr(0, remainingTopicName.find("/"));

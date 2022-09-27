@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.0)
 set(MQTTBROKER_CPP
     mqttbroker.cpp broker/Broker.cpp broker/SocketContext.cpp
     broker/SocketContextFactory.cpp broker/SubscriberTree.cpp
-    broker/TopicTree.cpp
+    broker/RetainTree.cpp
 )
 set(MQTTBROKER_H
     broker/Broker.h broker/SocketContext.h broker/SocketContextFactory.h
-    broker/SubscriberTree.h broker/TopicTree.h
+    broker/SubscriberTree.h broker/RetainTree.h
 )
 
 add_executable(mqttbroker ${MQTTBROKER_CPP} ${MQTTBROKER_H})

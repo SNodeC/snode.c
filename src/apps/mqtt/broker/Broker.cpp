@@ -24,10 +24,6 @@
 
 namespace apps::mqtt::broker {
 
-    Broker::Broker()
-        : topicTree(apps::mqtt::broker::TopicTree("", "")) {
-    }
-
     Broker& Broker::instance() {
         static Broker broker;
         return broker;
@@ -38,10 +34,16 @@ namespace apps::mqtt::broker {
 
     void Broker::subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
         subscriberTree.subscribe(topic, socketContext, qoSLevel);
+
+        retainTree.publish(topic, socketContext, qoSLevel);
     }
 
-    void Broker::publish(const std::string& topic, const std::string& message) {
+    void Broker::publish(const std::string& topic, const std::string& message, [[maybe_unused]] bool retain) {
         subscriberTree.publish(topic, message);
+
+        if (retain) {
+            retainTree.retain(topic, message);
+        }
     }
 
     void Broker::unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext) {
