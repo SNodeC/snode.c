@@ -28,7 +28,7 @@ namespace core::socket {
 
 namespace apps::mqtt::broker {
     class Broker;
-}
+} // namespace apps::mqtt::broker
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

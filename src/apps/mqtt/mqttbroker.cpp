@@ -79,6 +79,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         },
         options);
 
+    mqttTLSInServer.addSniCerts(sniCerts);
+
     mqttTLSInServer.listen([](const MQTTTLSInServer::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";

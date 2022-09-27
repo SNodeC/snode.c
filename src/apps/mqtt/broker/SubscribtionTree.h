@@ -21,7 +21,7 @@
 
 namespace apps::mqtt::broker {
     class SocketContext;
-}
+} // namespace apps::mqtt::broker
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
