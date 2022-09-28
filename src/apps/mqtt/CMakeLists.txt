@@ -7,10 +7,41 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 configure_file(config.h.in config.h @ONLY)
 
-
 if(NOT SNODEC_INTREE_BUILD)
-    find_package(snodec COMPONENTS net-in-stream-legacy net-in-stream-tls net-un-stream-legacy mqtt)
+    find_package(
+        snodec COMPONENTS net-in-stream-legacy net-in-stream-tls
+                          net-un-stream-legacy mqtt
+    )
 endif(NOT SNODEC_INTREE_BUILD)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(ADDITIONAL_OPTIONS
+        -Weverything -Wno-c++98-compat -Wno-exit-time-destructors
+        -Wno-global-constructors -Wno-padded -Wno-shadow
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    # using Intel C++
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # using Visual Studio C++
+endif()
+
+add_compile_options(
+    -Werror
+    -Wall
+    -Wextra
+    -Wno-psabi # needed for RaspberryPi
+    -Wconversion
+    -Wpedantic
+    -Wconversion
+    -Wuninitialized
+    -Wunreachable-code
+    -Wfloat-equal
+    -pedantic-errors
+    -fexec-charset=UTF-8
+    ${ADDITIONAL_OPTIONS}
+)
 
 set(MQTTBROKER_CPP
     mqttbroker.cpp
@@ -28,7 +59,9 @@ set(MQTTBROKER_H
 
 add_executable(mqttbroker ${MQTTBROKER_CPP} ${MQTTBROKER_H})
 
-target_include_directories(mqttbroker PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(
+    mqttbroker PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 target_link_libraries(
     mqttbroker PUBLIC snodec::mqtt snodec::net-in-stream-legacy
