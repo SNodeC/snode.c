@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/snode.c/web")
 
@@ -65,6 +65,12 @@ set_target_properties(
 )
 
 install(
+    TARGETS http
+    EXPORT snodec_http_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/web
+)
+
+install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/web/http
     FILES_MATCHING
@@ -73,12 +79,6 @@ install(
     PATTERN "cmake" EXCLUDE
     PATTERN "server" EXCLUDE
     PATTERN "client" EXCLUDE
-)
-
-install(
-    TARGETS http
-    EXPORT snodec_http_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/web
 )
 
 install(

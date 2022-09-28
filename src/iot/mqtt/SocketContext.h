@@ -61,20 +61,15 @@ namespace iot::mqtt {
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
         void sendConnect(const std::string& clientId);
-        void sendConnack();
-        void sendPublish(uint16_t packetIdentifier,
-                         const std::string& topic,
-                         const std::string& message,
-                         bool dup = false,
-                         uint8_t qoSLevel = 0,
-                         bool retain = false);
+        void sendConnack(uint8_t returnCode);
+        void sendPublish(const std::string& topic, const std::string& message, bool dup = false, uint8_t qoSLevel = 0, bool retain = false);
         void sendPuback(uint16_t packetIdentifier);
         void sendPubrec(uint16_t packetIdentifier);
         void sendPubrel(uint16_t packetIdentifier);
         void sendPubcomp(uint16_t packetIdentifier);
-        void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics);
+        void sendSubscribe(std::list<Topic>& topics);
         void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes);
-        void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
+        void sendUnsubscribe(std::list<std::string>& topics);
         void sendUnsuback(uint16_t packetIdentifier);
         void sendPingreq();
         void sendPingresp();
@@ -104,6 +99,18 @@ namespace iot::mqtt {
         void printData(const std::vector<char>& data) const;
 
         iot::mqtt::ControlPacketFactory controlPacketFactory;
+
+        uint16_t getPacketIdentifier() {
+            ++_packetIdentifier;
+
+            if (_packetIdentifier == 0) {
+                ++_packetIdentifier;
+            }
+
+            return _packetIdentifier;
+        }
+
+        uint16_t _packetIdentifier = 0;
     };
 
 } // namespace iot::mqtt

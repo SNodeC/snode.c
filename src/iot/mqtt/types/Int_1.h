@@ -21,7 +21,7 @@
 
 #include "iot/mqtt/types/TypeBase.h"
 
-namespace iot::mqtt {
+namespace core::socket {
     class SocketContext;
 }
 
@@ -36,7 +36,7 @@ namespace iot::mqtt::types {
 
     class Int_1 : public iot::mqtt::types::TypeBase {
     public:
-        explicit Int_1(iot::mqtt::SocketContext* socketContext = nullptr);
+        explicit Int_1(core::socket::SocketContext* socketContext = nullptr);
 
         std::size_t construct() override;
 
@@ -45,8 +45,8 @@ namespace iot::mqtt::types {
         void reset() override;
 
     private:
+        std::size_t length = 1;
         std::size_t needed = 1;
-        std::size_t stillNeeded = 1;
         char buffer[1];
     };
 

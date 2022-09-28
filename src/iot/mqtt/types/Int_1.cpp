@@ -24,15 +24,15 @@
 
 namespace iot::mqtt::types {
 
-    Int_1::Int_1(iot::mqtt::SocketContext* socketContext)
+    Int_1::Int_1(core::socket::SocketContext* socketContext)
         : iot::mqtt::types::TypeBase(socketContext) {
     }
 
     std::size_t Int_1::construct() {
-        std::size_t consumed = read(buffer + needed - stillNeeded, static_cast<std::size_t>(stillNeeded));
+        std::size_t consumed = read(buffer + length - needed, static_cast<std::size_t>(needed));
 
-        stillNeeded -= consumed;
-        completed = stillNeeded == 0;
+        needed -= consumed;
+        completed = needed == 0;
 
         return consumed;
     }
@@ -42,8 +42,8 @@ namespace iot::mqtt::types {
     }
 
     void Int_1::reset() {
+        length = 1;
         needed = 1;
-        stillNeeded = 1;
 
         iot::mqtt::types::TypeBase::reset();
     }

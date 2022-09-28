@@ -21,9 +21,7 @@
 
 #include "iot/mqtt/types/TypeBase.h"
 
-#include <string>
-
-namespace iot::mqtt {
+namespace core::socket {
     class SocketContext;
 }
 
@@ -32,6 +30,7 @@ namespace iot::mqtt {
 #include <cstddef>
 #include <cstdint>
 #include <list>
+#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -40,7 +39,7 @@ namespace iot::mqtt::types {
 
     class Binary : public iot::mqtt::types::TypeBase {
     public:
-        explicit Binary(iot::mqtt::SocketContext* socketContext = nullptr);
+        explicit Binary(core::socket::SocketContext* socketContext = nullptr);
 
         void setLength(std::vector<char>::size_type length);
         std::vector<char>::size_type getLength() const;

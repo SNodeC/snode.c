@@ -28,7 +28,7 @@ namespace iot::mqtt::packets {
 
     Publish::Publish(
         uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
-        : iot::mqtt::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | (qoSLevel ? (qoSLevel << 1) & 0x03 : 0x00) | (retain ? 0x01 : 0x00))
+        : iot::mqtt::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00))
         , packetIdentifier(packetIdentifier)
         , topic(topic)
         , message(message)

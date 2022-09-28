@@ -183,6 +183,14 @@ namespace core::socket::stream {
             }
         }
 
+        void readTimeout() final {
+            close();
+        }
+
+        void writeTimeout() final {
+            close();
+        }
+
         void unobservedEvent() final {
             delete this;
         }

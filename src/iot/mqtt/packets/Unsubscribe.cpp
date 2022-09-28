@@ -49,10 +49,10 @@ namespace iot::mqtt::packets {
         do {
             name = getString();
 
-            if (name.length() > 0) {
+            if (!name.empty()) {
                 topics.push_back(name);
             }
-        } while (name.length() > 0);
+        } while (!name.empty());
 
         error = topics.empty();
     }

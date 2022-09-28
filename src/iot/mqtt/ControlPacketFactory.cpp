@@ -26,7 +26,7 @@
 
 namespace iot::mqtt {
 
-    ControlPacketFactory::ControlPacketFactory(iot::mqtt::SocketContext* socketContext)
+    ControlPacketFactory::ControlPacketFactory(core::socket::SocketContext* socketContext)
         : typeFlags(socketContext)
         , remainingLength(socketContext)
         , data(socketContext) {

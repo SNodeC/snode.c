@@ -41,6 +41,12 @@ namespace iot::mqtt {
         explicit ControlPacket(uint8_t type, uint8_t reserved = 0);
         explicit ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
+        ControlPacket(const ControlPacket&) = delete;
+        ControlPacket(ControlPacket&&) = delete;
+
+        ControlPacket& operator=(const ControlPacket&) = delete;
+        ControlPacket& operator=(ControlPacket&&) = delete;
+
         uint8_t getType() const;
         uint8_t getReserved() const;
         uint64_t getRemainingLength() const;

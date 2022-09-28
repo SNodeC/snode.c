@@ -34,13 +34,6 @@ namespace iot::mqtt {
 
 #define MQTT_CONNECT 0x01
 
-#define MQTT_CONNECT_ACCEPT 0
-#define MQTT_CONNECT_UNACEPTABLEVERSION 1;
-#define MQTT_CONNECT_IDENTIFIERREJECTED 2;
-#define MQTT_CONNECT_SERVERUNAVAILABLE 3;
-#define MQTT_CONNECT_BADUSERNAMEORPASSWORD 4;
-#define MQTT_CONNECT_NOTAUTHORIZED 5;
-
 namespace iot::mqtt::packets {
 
     class Connect : public iot::mqtt::ControlPacket {

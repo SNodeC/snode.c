@@ -52,7 +52,7 @@ namespace iot::mqtt::packets {
             name = getString();
             uint8_t requestedQoS = getInt8();
 
-            if (name.length() > 0) {
+            if (!name.empty()) {
                 topics.push_back(iot::mqtt::Topic(name, requestedQoS));
             }
         } while (!name.empty());

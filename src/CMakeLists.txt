@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.18)
 
 project(snode.c-code)
+
+set(SNODEC_INTREE_BUILD "YES")
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)

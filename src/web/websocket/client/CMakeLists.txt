@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.18)
 
 get_target_property(
     HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR snodec::http-client

@@ -26,7 +26,7 @@
 
 namespace iot::mqtt::types {
 
-    Binary::Binary(iot::mqtt::SocketContext* socketContext)
+    Binary::Binary(core::socket::SocketContext* socketContext)
         : iot::mqtt::types::TypeBase(socketContext) {
     }
 
@@ -57,7 +57,7 @@ namespace iot::mqtt::types {
     uint8_t Binary::getInt8() {
         uint8_t ret = 0;
 
-        if (!error && pointer + sizeof(uint8_t) < length + 1) {
+        if (!error && pointer + sizeof(uint8_t) <= length) {
             ret = *reinterpret_cast<uint8_t*>(binary.data() + pointer);
 
             pointer += sizeof(uint8_t);
@@ -71,7 +71,7 @@ namespace iot::mqtt::types {
     uint16_t Binary::getInt16() {
         uint16_t ret = 0;
 
-        if (!error && pointer + sizeof(uint16_t) < length + 1) {
+        if (!error && pointer + sizeof(uint16_t) <= length) {
             ret = be16toh(*reinterpret_cast<uint16_t*>(binary.data() + pointer));
 
             pointer += sizeof(uint16_t);
@@ -85,7 +85,7 @@ namespace iot::mqtt::types {
     uint32_t Binary::getInt32() {
         uint32_t ret = 0;
 
-        if (!error && pointer + sizeof(uint32_t) < length + 1) {
+        if (!error && pointer + sizeof(uint32_t) <= length) {
             ret = be32toh(*reinterpret_cast<uint32_t*>(binary.data() + pointer));
 
             pointer += sizeof(uint32_t);
@@ -99,7 +99,7 @@ namespace iot::mqtt::types {
     uint64_t Binary::getInt64() {
         uint64_t ret = 0;
 
-        if (!error && pointer + sizeof(uint64_t) < length + 1) {
+        if (!error && pointer + sizeof(uint64_t) <= length) {
             ret = be64toh(*reinterpret_cast<uint64_t*>(binary.data() + pointer));
 
             pointer += sizeof(uint64_t);
@@ -115,7 +115,7 @@ namespace iot::mqtt::types {
         uint32_t multiplier = 1;
 
         do {
-            if (!error && pointer + sizeof(uint8_t) < length + 1) {
+            if (!error && pointer + sizeof(uint8_t) <= length) {
                 uint8_t byte = *reinterpret_cast<uint8_t*>(binary.data() + pointer);
                 value += (byte & 0x7F) * multiplier;
 
@@ -138,10 +138,10 @@ namespace iot::mqtt::types {
     std::string Binary::getString() {
         std::string string = "";
 
-        if (!error && pointer + sizeof(uint16_t) < length + 1) {
+        if (!error && pointer + sizeof(uint16_t) <= length) {
             uint16_t stringLen = getInt16();
 
-            if (pointer + stringLen < length + 1) {
+            if (pointer + stringLen <= length) {
                 string = std::string(binary.data() + pointer, stringLen);
 
                 pointer += stringLen;

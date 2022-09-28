@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.18)
 
 set(NET-L2-STREAM_CPP
     ClientSocket.cpp ServerSocket.cpp Socket.cpp config/ConfigSocketClient.cpp

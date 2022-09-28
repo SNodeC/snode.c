@@ -25,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Pubrel::Pubrel(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL)
+        : iot::mqtt::ControlPacket(MQTT_PUBREL, 0x02)
         , packetIdentifier(packetIdentifier) {
         // V-Header
         putInt16(this->packetIdentifier);

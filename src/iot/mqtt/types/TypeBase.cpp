@@ -26,7 +26,7 @@
 
 namespace iot::mqtt::types {
 
-    TypeBase::TypeBase(iot::mqtt::SocketContext* socketContext)
+    TypeBase::TypeBase(core::socket::SocketContext* socketContext)
         : socketContext(socketContext) {
     }
 
@@ -41,11 +41,7 @@ namespace iot::mqtt::types {
     std::size_t TypeBase::read(char* buf, std::size_t count) {
         std::size_t ret = 0;
 
-        if (socketContext != nullptr) {
-            ret = socketContext->readFromPeer(buf, count);
-        } else {
-            error = true;
-        }
+        ret = socketContext->readFromPeer(buf, count);
 
         return ret;
     }
