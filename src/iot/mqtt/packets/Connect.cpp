@@ -49,11 +49,32 @@ namespace iot::mqtt::packets {
         flags = getInt8();
         keepAlive = getInt16();
 
+        usernameFlag = (flags & 0x80) != 0;
+        passwordFlag = (flags & 0x40) != 0;
+        willRetain = (flags & 0x20) != 0;
+        willQoS = (flags & 0x18) >> 3;
+        willFlag = (flags & 0x04) != 0;
+        cleanSession = (flags & 0x02) != 0;
+        reserved = (flags & 0x01) != 0;
+
         // Payload
         if (!isError()) {
             clientId = getString();
         } else {
             error = true;
+        }
+
+        if (willFlag) {
+            willTopic = getString();
+            willMessage = getString();
+        }
+
+        if (usernameFlag) {
+            username = getString();
+        }
+
+        if (passwordFlag) {
+            password = getString();
         }
     }
 
@@ -75,6 +96,46 @@ namespace iot::mqtt::packets {
 
     const std::string& Connect::getClientId() const {
         return clientId;
+    }
+
+    bool Connect::getUsernameFlag() const {
+        return usernameFlag;
+    }
+
+    bool Connect::getPasswordFlag() const {
+        return passwordFlag;
+    }
+
+    bool Connect::getWillRetain() const {
+        return willRetain;
+    }
+
+    uint8_t Connect::getWillQoS() const {
+        return willQoS;
+    }
+
+    bool Connect::getWillFlag() const {
+        return willFlag;
+    }
+
+    bool Connect::getCleanSession() const {
+        return cleanSession;
+    }
+
+    const std::string& Connect::getWillTopic() const {
+        return willTopic;
+    }
+
+    const std::string& Connect::getWillMessage() const {
+        return willMessage;
+    }
+
+    const std::string& Connect::getUsername() const {
+        return username;
+    }
+
+    const std::string& Connect::getPassword() const {
+        return password;
     }
 
 } // namespace iot::mqtt::packets
