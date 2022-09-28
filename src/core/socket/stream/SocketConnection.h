@@ -184,23 +184,11 @@ namespace core::socket::stream {
         }
 
         void readTimeout() final {
-            if (SocketReader::isEnabled()) {
-                SocketReader::disable();
-            }
-
-            if (SocketWriter::isEnabled()) {
-                SocketWriter::disable();
-            }
+            close();
         }
 
         void writeTimeout() final {
-            if (SocketReader::isEnabled()) {
-                SocketReader::disable();
-            }
-
-            if (SocketWriter::isEnabled()) {
-                SocketWriter::disable();
-            }
+            close();
         }
 
         void unobservedEvent() final {

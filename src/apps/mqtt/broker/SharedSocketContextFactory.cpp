@@ -16,20 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/SharedSocketContextFactory.h"
+#include "broker/SharedSocketContextFactory.h"
 
-#include "apps/mqtt/broker/Broker.h"
-#include "apps/mqtt/broker/SocketContext.h"
+#include "broker/Broker.h"
+#include "broker/SocketContext.h"
 #include "core/socket/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
     core::socket::SocketContext* SharedSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
-        return new apps::mqtt::broker::SocketContext(socketConnection, apps::mqtt::broker::Broker::instance());
+        return new mqtt::broker::SocketContext(socketConnection, mqtt::broker::Broker::instance());
     }
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker

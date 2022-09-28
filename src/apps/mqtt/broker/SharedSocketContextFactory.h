@@ -30,13 +30,13 @@ namespace core::socket {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
     class SharedSocketContextFactory : public core::socket::SocketContextFactory {
     private:
         core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
     };
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker
 
 #endif // APPS_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H

@@ -19,10 +19,10 @@
 #ifndef APPS_MQTT_SERVER_BROKER_H
 #define APPS_MQTT_SERVER_BROKER_H
 
-#include "apps/mqtt/broker/RetainTree.h"
-#include "apps/mqtt/broker/SubscribtionTree.h"
+#include "broker/RetainTree.h"
+#include "broker/SubscribtionTree.h"
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
     class SocketContext;
 }
 
@@ -34,7 +34,7 @@ namespace apps::mqtt::broker {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
     class Broker {
     private:
@@ -43,18 +43,18 @@ namespace apps::mqtt::broker {
 
         static std::shared_ptr<Broker> instance();
 
-        void subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
+        void subscribe(const std::string& topic, mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
         void publish(const std::string& topic, const std::string& message, bool retain);
-        void unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext);
-        void unsubscribe(apps::mqtt::broker::SocketContext* socketContext);
+        void unsubscribe(const std::string& topic, mqtt::broker::SocketContext* socketContext);
+        void unsubscribe(mqtt::broker::SocketContext* socketContext);
 
     private:
-        apps::mqtt::broker::SubscribtionTree subscribtionTree;
-        apps::mqtt::broker::RetainTree retainTree;
+        mqtt::broker::SubscribtionTree subscribtionTree;
+        mqtt::broker::RetainTree retainTree;
 
         static std::shared_ptr<Broker> broker;
     };
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker
 
 #endif // APPS_MQTT_SERVER_BROKER_H

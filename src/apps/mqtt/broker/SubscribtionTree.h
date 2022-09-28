@@ -19,9 +19,9 @@
 #ifndef APPS_MQTT_SERVER_SUBSCRIBERTREE_H
 #define APPS_MQTT_SERVER_SUBSCRIBERTREE_H
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
     class SocketContext;
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,34 +31,34 @@ namespace apps::mqtt::broker {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
     class SubscribtionTree {
     public:
         SubscribtionTree() = default;
 
-        void subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
+        void subscribe(const std::string& fullTopicName, mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
 
         void publish(const std::string& fullTopicName, const std::string& message);
 
-        bool unsubscribe(apps::mqtt::broker::SocketContext* socketContext);
+        bool unsubscribe(mqtt::broker::SocketContext* socketContext);
 
-        bool unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext);
+        bool unsubscribe(std::string remainingTopicName, mqtt::broker::SocketContext* socketContext);
 
     private:
         void subscribe(std::string remainingTopicName,
                        const std::string& fullTopicName,
-                       apps::mqtt::broker::SocketContext* socketContext,
+                       mqtt::broker::SocketContext* socketContext,
                        uint8_t qoSLevel);
 
         void publish(std::string remainingTopicName, const std::string& fullTopicName, const std::string& message);
 
-        std::map<apps::mqtt::broker::SocketContext*, uint8_t> subscribers;
+        std::map<mqtt::broker::SocketContext*, uint8_t> subscribers;
         std::map<std::string, SubscribtionTree> subscribtions;
 
         std::string subscribedTopicName = "";
     };
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker
 
 #endif // APPS_MQTT_SERVER_SUBSCRIBERTREE_H

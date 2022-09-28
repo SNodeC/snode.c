@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/SocketContext.h"
+#include "broker/SocketContext.h"
 
-#include "apps/mqtt/broker/Broker.h"
+#include "broker/Broker.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
     SocketContext::SocketContext(core::socket::SocketConnection* socketConnection, std::shared_ptr<Broker> broker)
         : iot::mqtt::SocketContext(socketConnection)
@@ -232,4 +232,4 @@ namespace apps::mqtt::broker {
         close();
     }
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker

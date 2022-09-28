@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/Broker.h"
+#include "broker/Broker.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
     std::shared_ptr<Broker> Broker::broker;
 
@@ -34,7 +34,7 @@ namespace apps::mqtt::broker {
         return broker;
     }
 
-    void Broker::subscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
+    void Broker::subscribe(const std::string& topic, mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
         subscribtionTree.subscribe(topic, socketContext, qoSLevel);
 
         retainTree.publish(topic, socketContext, qoSLevel);
@@ -48,12 +48,12 @@ namespace apps::mqtt::broker {
         }
     }
 
-    void Broker::unsubscribe(const std::string& topic, apps::mqtt::broker::SocketContext* socketContext) {
+    void Broker::unsubscribe(const std::string& topic, mqtt::broker::SocketContext* socketContext) {
         subscribtionTree.unsubscribe(topic, socketContext);
     }
 
-    void Broker::unsubscribe(apps::mqtt::broker::SocketContext* socketContext) {
+    void Broker::unsubscribe(mqtt::broker::SocketContext* socketContext) {
         subscribtionTree.unsubscribe(socketContext);
     }
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/SharedSocketContextFactory.h" // IWYU pragma: keep
-#include "apps/mqtt/broker/SocketContextFactory.h"       // IWYU pragma: keep
+#include "broker/SharedSocketContextFactory.h" // IWYU pragma: keep
+#include "broker/SocketContextFactory.h"       // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,10 +30,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    using MQTTLegacyInServer = net::in::stream::legacy::SocketServer<apps::mqtt::broker::SharedSocketContextFactory>;
+    using MQTTLegacyInServer = net::in::stream::legacy::SocketServer<mqtt::broker::SharedSocketContextFactory>;
     using LegacyInSocketConnection = MQTTLegacyInServer::SocketConnection;
 
     MQTTLegacyInServer mqttLegacyInServer(
@@ -58,7 +58,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         }
     });
 
-    using MQTTTLSInServer = net::in::stream::tls::SocketServer<apps::mqtt::broker::SharedSocketContextFactory>;
+    using MQTTTLSInServer = net::in::stream::tls::SocketServer<mqtt::broker::SharedSocketContextFactory>;
     using TLSInSocketConnection = MQTTTLSInServer::SocketConnection;
 
     std::map<std::string, std::any> options{{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}};
@@ -91,7 +91,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         }
     });
 
-    using MQTTLegacyUnServer = net::un::stream::legacy::SocketServer<apps::mqtt::broker::SharedSocketContextFactory>;
+    using MQTTLegacyUnServer = net::un::stream::legacy::SocketServer<mqtt::broker::SharedSocketContextFactory>;
     using LegacyUnSocketConnection = MQTTLegacyUnServer::SocketConnection;
 
     MQTTLegacyUnServer mqttLegacyUnServer(

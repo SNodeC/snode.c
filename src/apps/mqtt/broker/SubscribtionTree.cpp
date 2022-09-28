@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/SubscribtionTree.h"
+#include "broker/SubscribtionTree.h"
 
-#include "apps/mqtt/broker/SocketContext.h"
+#include "broker/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,9 +29,9 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
-    void SubscribtionTree::subscribe(const std::string& fullTopicName, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
+    void SubscribtionTree::subscribe(const std::string& fullTopicName, mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel) {
         subscribe(fullTopicName, fullTopicName, socketContext, qoSLevel);
     }
 
@@ -39,7 +39,7 @@ namespace apps::mqtt::broker {
         publish(fullTopicName, fullTopicName, message);
     }
 
-    bool SubscribtionTree::unsubscribe(apps::mqtt::broker::SocketContext* socketContext) {
+    bool SubscribtionTree::unsubscribe(mqtt::broker::SocketContext* socketContext) {
         subscribers.erase(socketContext);
 
         for (auto it = subscribtions.begin(); it != subscribtions.end();) {
@@ -53,7 +53,7 @@ namespace apps::mqtt::broker {
         return subscribers.empty() && subscribtions.empty();
     }
 
-    bool SubscribtionTree::unsubscribe(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext) {
+    bool SubscribtionTree::unsubscribe(std::string remainingTopicName, mqtt::broker::SocketContext* socketContext) {
         if (remainingTopicName.empty()) {
             subscribers.erase(socketContext);
         } else {
@@ -70,7 +70,7 @@ namespace apps::mqtt::broker {
 
     void SubscribtionTree::subscribe(std::string remainingTopicName,
                                      const std::string& fullTopicName,
-                                     apps::mqtt::broker::SocketContext* socketContext,
+                                     mqtt::broker::SocketContext* socketContext,
                                      uint8_t qoSLevel) {
         if (remainingTopicName.empty()) {
             subscribedTopicName = fullTopicName;
@@ -110,4 +110,4 @@ namespace apps::mqtt::broker {
         }
     }
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker

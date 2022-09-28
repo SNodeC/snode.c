@@ -19,9 +19,9 @@
 #ifndef APPS_MQTT_SERVER_TOPICTREE_H
 #define APPS_MQTT_SERVER_TOPICTREE_H
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
     class SocketContext;
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace apps::mqtt::broker {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
     class RetainTree {
     public:
@@ -39,12 +39,12 @@ namespace apps::mqtt::broker {
 
         void retain(const std::string& fullTopicName, const std::string& value);
 
-        void publish(std::string remainingTopicName, apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
+        void publish(std::string remainingTopicName, mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
 
     private:
         bool retain(const std::string& fullTopicName, std::string remainingTopicName, const std::string& value);
 
-        void publish(apps::mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
+        void publish(mqtt::broker::SocketContext* socketContext, uint8_t qoSLevel);
 
         std::string fullTopicName = "";
         std::string message = "";
@@ -52,6 +52,6 @@ namespace apps::mqtt::broker {
         std::map<std::string, RetainTree> topicTree;
     };
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker
 
 #endif // APPS_MQTT_SERVER_TOPICTREE_H

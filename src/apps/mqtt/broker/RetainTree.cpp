@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "apps/mqtt/broker/RetainTree.h"
+#include "broker/RetainTree.h"
 
-#include "apps/mqtt/broker/SocketContext.h"
+#include "broker/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace apps::mqtt::broker {
+namespace mqtt::broker {
 
     void RetainTree::retain(const std::string& fullTopicName, const std::string& message) {
         retain(fullTopicName, fullTopicName, message);
@@ -82,4 +82,4 @@ namespace apps::mqtt::broker {
         }
     }
 
-} // namespace apps::mqtt::broker
+} // namespace mqtt::broker
