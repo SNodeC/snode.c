@@ -110,19 +110,23 @@ install(TARGETS testbasicauthentication
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-MACRO(SUBDIRLIST result curdir)
-  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-  SET(dirlist "")
-  FOREACH(child ${children})
-    IF(IS_DIRECTORY ${curdir}/${child})
-      LIST(APPEND dirlist ${child})
-    ENDIF()
-  ENDFOREACH()
-  SET(${result} ${dirlist})
-ENDMACRO()
+macro(subdirlist result curdir)
+    file(
+        GLOB children
+        RELATIVE ${curdir}
+        ${curdir}/*
+    )
+    set(dirlist "")
+    foreach(child ${children})
+        if(IS_DIRECTORY ${curdir}/${child})
+            list(APPEND dirlist ${child})
+        endif()
+    endforeach()
+    set(${result} ${dirlist})
+endmacro()
 
-SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR})
+subdirlist(subdirs ${CMAKE_CURRENT_SOURCE_DIR})
 
-FOREACH(subdir ${SUBDIRS})
-  ADD_SUBDIRECTORY(${subdir})
-ENDFOREACH()
+foreach(subdir ${subdirs})
+    add_subdirectory(${subdir})
+endforeach()
