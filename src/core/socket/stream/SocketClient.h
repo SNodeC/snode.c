@@ -62,7 +62,7 @@ namespace core::socket::stream {
             , _onConnect(onConnect)
             , _onConnected(onConnected)
             , _onDisconnect(onDisconnect)
-            , options(options) {
+            , _options(options) {
         }
 
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
@@ -77,7 +77,7 @@ namespace core::socket::stream {
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const override {
             if (Super::config->isRemoteInitialized()) {
                 SocketConnector* socketConnector =
-                    new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+                    new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, _options);
 
                 socketConnector->connect(Super::config, onError);
             } else {
@@ -109,7 +109,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> _onDisconnect;
 
     protected:
-        std::map<std::string, std::any> options;
+        std::map<std::string, std::any> _options;
     };
 
 } // namespace core::socket::stream
