@@ -30,7 +30,7 @@ namespace net {
     }
 
     template <typename Config>
-    const Config& SocketConfig<Config>::getConfig() {
+    Config& SocketConfig<Config>::getConfig() {
         return *config;
     }
 
