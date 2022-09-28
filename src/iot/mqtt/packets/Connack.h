@@ -44,7 +44,7 @@ namespace iot::mqtt::packets {
 
     class Connack : public iot::mqtt::ControlPacket {
     public:
-        explicit Connack(uint8_t reason, uint8_t flags = 0);
+        explicit Connack(uint8_t reason, uint8_t flags);
         explicit Connack(mqtt::ControlPacketFactory& controlPacketFactory);
 
         uint8_t getFlags() const;

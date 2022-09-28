@@ -53,8 +53,8 @@ namespace core::socket::stream::tls {
                 }
                 delete sniSslCtxs;
             }) {
-            Super::options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
-            Super::options.insert({{"FORCE_SNI", false}});
+            Super::_options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
+            Super::_options.insert({{"FORCE_SNI", false}});
         }
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
@@ -83,7 +83,7 @@ namespace core::socket::stream::tls {
         }
 
         void forceSni(bool forceSni = true) {
-            Super::options.insert_or_assign("FORCE_SNI", forceSni);
+            Super::_options.insert_or_assign("FORCE_SNI", forceSni);
         }
 
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;

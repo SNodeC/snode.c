@@ -57,7 +57,7 @@ namespace core::socket::stream {
             , _onConnect(onConnect)
             , _onConnected(onConnected)
             , _onDisconnect(onDisconnect)
-            , options(options) {
+            , _options(options) {
         }
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
@@ -71,7 +71,8 @@ namespace core::socket::stream {
 
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
             if (Super::config->isLocalInitialized()) {
-                SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+                SocketAcceptor* socketAcceptor =
+                    new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, _options);
                 socketAcceptor->listen(Super::config, onError);
             } else {
                 LOG(ERROR) << "Parameterless listen on anonymous server instance";
@@ -102,7 +103,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> _onDisconnect;
 
     protected:
-        std::map<std::string, std::any> options;
+        std::map<std::string, std::any> _options;
     };
 
 } // namespace core::socket::stream

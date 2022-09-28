@@ -36,7 +36,7 @@ namespace net {
         explicit SocketConfig(const std::string& name);
         SocketConfig(const SocketConfig&) = default;
 
-        const Config& getConfig();
+        Config& getConfig();
 
     protected:
         std::shared_ptr<Config> config;

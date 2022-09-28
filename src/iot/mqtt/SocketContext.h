@@ -61,7 +61,7 @@ namespace iot::mqtt {
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
         void sendConnect(const std::string& clientId);
-        void sendConnack(uint8_t returnCode);
+        void sendConnack(uint8_t returnCode, uint8_t flags);
         void sendPublish(const std::string& topic, const std::string& message, bool dup = false, uint8_t qoSLevel = 0, bool retain = false);
         void sendPuback(uint16_t packetIdentifier);
         void sendPubrec(uint16_t packetIdentifier);

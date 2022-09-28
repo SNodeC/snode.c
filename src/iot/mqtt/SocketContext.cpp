@@ -45,11 +45,11 @@ namespace iot::mqtt {
         send(mqtt::packets::Connect(clientId));
     }
 
-    void SocketContext::sendConnack(uint8_t returnCode) {
+    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
         LOG(TRACE) << "Send CONNACK";
         LOG(TRACE) << "============";
 
-        send(mqtt::packets::Connack(returnCode));
+        send(mqtt::packets::Connack(returnCode, flags));
     }
 
     void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {

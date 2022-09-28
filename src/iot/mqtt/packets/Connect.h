@@ -49,12 +49,37 @@ namespace iot::mqtt::packets {
 
         const std::string& getClientId() const;
 
+        bool getUsernameFlag() const;
+        bool getPasswordFlag() const;
+        bool getWillRetain() const;
+        uint8_t getWillQoS() const;
+        bool getWillFlag() const;
+        bool getCleanSession() const;
+
+        const std::string& getWillTopic() const;
+        const std::string& getWillMessage() const;
+        const std::string& getUsername() const;
+        const std::string& getPassword() const;
+
     private:
         std::string protocol;
         uint8_t version = 0;
         uint8_t flags = 0;
         uint16_t keepAlive = 0;
+
         std::string clientId;
+        std::string willTopic;
+        std::string willMessage;
+        std::string username;
+        std::string password;
+
+        bool usernameFlag = false;
+        bool passwordFlag = false;
+        bool willRetain = false;
+        uint8_t willQoS = 0;
+        bool willFlag = false;
+        bool cleanSession = false;
+        bool reserved = false;
     };
 
 } // namespace iot::mqtt::packets
