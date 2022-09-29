@@ -64,16 +64,16 @@ namespace iot::mqtt::packets {
             error = true;
         }
 
-        if (willFlag) {
+        if (!error && willFlag) {
             willTopic = getString();
             willMessage = getString();
         }
 
-        if (usernameFlag) {
+        if (!error && usernameFlag) {
             username = getString();
         }
 
-        if (passwordFlag) {
+        if (!error && passwordFlag) {
             password = getString();
         }
     }
