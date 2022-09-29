@@ -98,8 +98,6 @@ namespace iot::mqtt {
         void send(std::vector<char>&& data) const;
         void printData(const std::vector<char>& data) const;
 
-        iot::mqtt::ControlPacketFactory controlPacketFactory;
-
         uint16_t getPacketIdentifier() {
             ++_packetIdentifier;
 
@@ -109,6 +107,8 @@ namespace iot::mqtt {
 
             return _packetIdentifier;
         }
+
+        iot::mqtt::ControlPacketFactory controlPacketFactory;
 
         uint16_t _packetIdentifier = 0;
     };

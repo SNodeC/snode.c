@@ -34,6 +34,8 @@ namespace iot::mqtt {
 
 #define MQTT_CONNECT 0x01
 
+#define MQTT_VERSION_3_1_1 0x04
+
 namespace iot::mqtt::packets {
 
     class Connect : public iot::mqtt::ControlPacket {

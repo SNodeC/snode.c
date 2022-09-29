@@ -40,6 +40,9 @@ namespace iot::mqtt {
 #define MQTT_CONNACK_BADUSERNAMEORPASSWORD 4
 #define MQTT_CONNACK_NOTAUTHORIZED 5
 
+#define MQTT_SESSION_NEW 0x00
+#define MQTT_SESSION_PRESENT 0x01
+
 namespace iot::mqtt::packets {
 
     class Connack : public iot::mqtt::ControlPacket {
