@@ -45,16 +45,13 @@ namespace iot::mqtt::packets {
         packetIdentifier = getInt16();
 
         // Payload
-        std::string name = "";
-        do {
-            name = getString();
+        for (std::string name = getString(); !name.empty(); name = getString()) {
+            topics.push_back(name);
+        }
 
-            if (!name.empty()) {
-                topics.push_back(name);
-            }
-        } while (!name.empty());
-
-        error = topics.empty();
+        if (!isError()) {
+            error = topics.empty();
+        }
     }
 
     uint16_t Unsubscribe::getPacketIdentifier() const {

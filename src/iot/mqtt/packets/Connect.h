@@ -45,7 +45,7 @@ namespace iot::mqtt::packets {
         explicit Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
         std::string getProtocol() const;
-        uint8_t getVersion() const;
+        uint8_t getLevel() const;
         uint8_t getFlags() const;
         uint16_t getKeepAlive() const;
 
@@ -65,7 +65,7 @@ namespace iot::mqtt::packets {
 
     private:
         std::string protocol;
-        uint8_t version = 0;
+        uint8_t level = 0;
         uint8_t flags = 0;
         uint16_t keepAlive = 0;
 

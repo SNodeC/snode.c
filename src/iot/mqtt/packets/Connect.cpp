@@ -27,13 +27,13 @@ namespace iot::mqtt::packets {
     Connect::Connect(std::string clientId, std::string protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
         : iot::mqtt::ControlPacket(MQTT_CONNECT)
         , protocol(protocol)
-        , version(version)
+        , level(version)
         , flags(flags)
         , keepAlive(keepAlive)
         , clientId(clientId) {
         // V-Header
         putString(this->protocol);
-        putInt8(this->version);
+        putInt8(this->level);
         putInt8(this->flags);
         putInt16(this->keepAlive);
 
@@ -45,7 +45,7 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(controlPacketFactory) {
         // V-Header
         protocol = getString();
-        version = getInt8();
+        level = getInt8();
         flags = getInt8();
         keepAlive = getInt16();
 
@@ -82,8 +82,8 @@ namespace iot::mqtt::packets {
         return protocol;
     }
 
-    uint8_t Connect::getVersion() const {
-        return version;
+    uint8_t Connect::getLevel() const {
+        return level;
     }
 
     uint8_t Connect::getFlags() const {

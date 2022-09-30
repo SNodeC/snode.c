@@ -47,15 +47,10 @@ namespace iot::mqtt::packets {
         packetIdentifier = getInt16();
 
         // Payload
-        std::string name = "";
-        do {
-            name = getString();
+        for (std::string name = getString(); !name.empty(); name = getString()) {
             uint8_t requestedQoS = getInt8();
-
-            if (!name.empty()) {
-                topics.push_back(iot::mqtt::Topic(name, requestedQoS));
-            }
-        } while (!name.empty());
+            topics.push_back(iot::mqtt::Topic(name, requestedQoS));
+        }
 
         if (!isError()) {
             error = topics.empty();
