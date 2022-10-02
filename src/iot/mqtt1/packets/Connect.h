@@ -33,6 +33,7 @@ namespace iot::mqtt1 {
 #include <cstddef>
 #include <cstdint> // IWYU pragma: export
 #include <string>  // IWYU pragma: export
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -44,7 +45,8 @@ namespace iot::mqtt1::packets {
 
     class Connect : public iot::mqtt1::ControlPacket {
     public:
-        explicit Connect(uint8_t type, uint8_t reserved = 0);
+        explicit Connect(const std::string& clientId);
+        explicit Connect(uint32_t remainingLength, uint8_t reserved);
 
         std::string getProtocol() const;
         uint8_t getLevel() const;
@@ -66,6 +68,8 @@ namespace iot::mqtt1::packets {
         std::string getPassword() const;
 
     private:
+        std::vector<char> getPacket() const override;
+
         uint8_t flags = 0;
 
         bool usernameFlag = false;
@@ -88,6 +92,7 @@ namespace iot::mqtt1::packets {
         iot::mqtt1::types::String _password;
 
         std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
 
         int state = 0;
     };

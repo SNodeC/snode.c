@@ -16,36 +16,44 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_UNSUBACK_H
-#define IOT_MQTT_PACKETSNEW_UNSUBACK_H
+#ifndef IOT_MQTT1_PACKETSNEW_UNSUBACK_H
+#define IOT_MQTT1_PACKETSNEW_UNSUBACK_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt1/ControlPacket.h"
+#include "iot/mqtt1/types/UInt16.h"
 
-namespace iot::mqtt {
-    class ControlPacketFactory;
+namespace iot::mqtt1 {
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint> // IWYU pragma: export
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_UNSUBACK 0x0B
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    class Unsuback : public iot::mqtt::ControlPacket {
+    class Unsuback : public iot::mqtt1::ControlPacket {
     public:
         explicit Unsuback(const uint16_t packetIdentifier);
-        explicit Unsuback(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Unsuback(uint32_t remainingLength, uint8_t reserved);
 
         uint16_t getPacketIdentifier() const;
 
     private:
-        uint16_t packetIdentifier;
+        std::vector<char> getPacket() const override;
+
+        iot::mqtt1::types::UInt16 packetIdentifier;
+
+        std::size_t construct(SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt1::packets
 
-#endif // IOT_MQTT_PACKETSNEW_UNSUBACK_H
+#endif // IOT_MQTT1_PACKETSNEW_UNSUBACK_H

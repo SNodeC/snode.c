@@ -21,9 +21,18 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
+
+    template <typename ValueType>
+    TypeBase<ValueType>::TypeBase(std::size_t size) {
+        value.resize(size);
+        length = size;
+        needed = size;
+    }
 
     template <typename ValueType>
     std::size_t TypeBase<ValueType>::construct(core::socket::SocketContext* socketContext) {
@@ -45,18 +54,29 @@ namespace iot::mqtt1::types {
     }
 
     template <typename ValueType>
-    const std::vector<char>& iot::mqtt1::types::TypeBase<ValueType>::getValueAsVector() const {
+    std::vector<char> iot::mqtt1::types::TypeBase<ValueType>::getValueAsVector() const {
         return value;
     }
 
     template <typename ValueType>
-    bool TypeBase<ValueType>::isComplete() {
+    bool TypeBase<ValueType>::isComplete() const {
         return complete;
     }
 
     template <typename ValueType>
     bool TypeBase<ValueType>::isError() const {
         return error;
+    }
+
+    template <typename ValueType>
+    void TypeBase<ValueType>::reset(std::size_t size) {
+        value.resize(size);
+
+        length = size;
+        needed = size;
+        error = false;
+        complete = false;
+        state = 0;
     }
 
 } // namespace iot::mqtt1::types

@@ -16,28 +16,44 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT1_TYPES_UINT8_H
-#define IOT_MQTT1_TYPES_UINT8_H
+#ifndef IOT_MQTT1_CONTROLPACKETFACTORY_H
+#define IOT_MQTT1_CONTROLPACKETFACTORY_H
 
-#include "iot/mqtt1/types/TypeBase.h"
+#include "iot/mqtt1/types/StaticHeader.h"
 
-// IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
+namespace iot::mqtt1 {
+    class SocketContext;
+} // namespace iot::mqtt1
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint>
-#include <list>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt1::types {
+namespace iot::mqtt1 {
 
-    class UInt8List : public TypeBase<std::list<uint8_t>> {
+    class ControlPacketFactory {
     public:
-        void setValue(const std::list<uint8_t>& newValue) override;
-        std::list<uint8_t> getValue() const override;
+        explicit ControlPacketFactory();
+
+        std::size_t construct(iot::mqtt1::SocketContext* socketContext);
+        bool isComplete();
+        bool isError();
+        uint8_t getPacketType();
+        uint8_t getPacketFlags();
+        uint32_t getRemainingLength();
+
+        void reset();
+
+    private:
+        bool complete = false;
+        bool error = false;
+
+        iot::mqtt1::types::StaticHeader staticHeader;
     };
 
-} // namespace iot::mqtt1::types
+} // namespace iot::mqtt1
 
-#endif // IOT_MQTT1_TYPES_UINT8_H
+#endif // IOT_MQTT1_CONTROLPACKETFACTORY_H

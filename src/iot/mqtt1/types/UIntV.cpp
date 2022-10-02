@@ -26,6 +26,10 @@
 
 namespace iot::mqtt1::types {
 
+    UIntV::UIntV()
+        : TypeBase(0) {
+    }
+
     std::size_t UIntV::construct(core::socket::SocketContext* socketContext) {
         std::size_t consumed = 0;
         std::size_t ret = 0;
@@ -33,12 +37,14 @@ namespace iot::mqtt1::types {
         do {
             char byte;
             ret = socketContext->readFromPeer(&byte, 1);
-            count += ret;
-            error = count > sizeof(uint32_t);
+            consumed += ret;
 
-            if (!error) {
-                consumed += ret;
+            value.push_back(byte);
+            this->length++;
 
+            if (value.size() > sizeof(uint32_t)) {
+                error = true;
+            } else {
                 complete = (byte & 0x80) == 0;
             }
         } while (ret > 0 && !complete && !error);
@@ -48,6 +54,7 @@ namespace iot::mqtt1::types {
 
     void UIntV::setValue(const uint32_t& newValue) {
         uint32_t remainingValue = newValue;
+        value.resize(0);
 
         do {
             uint8_t encodedByte = static_cast<uint8_t>(remainingValue % 0x80);
@@ -57,7 +64,7 @@ namespace iot::mqtt1::types {
                 encodedByte |= 0x80;
             }
 
-            value.push_back(encodedByte);
+            value.push_back(static_cast<char>(encodedByte));
         } while (remainingValue > 0);
     }
 
@@ -66,10 +73,14 @@ namespace iot::mqtt1::types {
         uint32_t multiplicator = 1;
 
         for (std::size_t i = 0; i < value.size(); i++, multiplicator *= 0x80) {
-            uint32Value += static_cast<uint8_t>(value[i] & 0x7F) * multiplicator;
+            uint32Value += static_cast<uint8_t>(value[i] & 0xFF) * multiplicator;
         }
 
         return uint32Value;
+    }
+
+    void UIntV::reset([[maybe_unused]] std::size_t size) {
+        TypeBase::reset(0);
     }
 
     template class TypeBase<uint32_t>;

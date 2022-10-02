@@ -19,26 +19,36 @@
 #ifndef IOT_MQTT_PACKETSNEW_DISCONNECT_H
 #define IOT_MQTT_PACKETSNEW_DISCONNECT_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt1/ControlPacket.h"
 
-namespace iot::mqtt {
-    class ControlPacketFactory;
+namespace iot::mqtt1 {
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_DISCONNECT 0x0E
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    class Disconnect : public mqtt::ControlPacket {
+    class Disconnect : public iot::mqtt1::ControlPacket {
     public:
-        Disconnect();
-        explicit Disconnect(mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Disconnect();
+        explicit Disconnect(uint32_t remainingLength, uint8_t reserved);
+
+    private:
+        std::vector<char> getPacket() const override;
+
+        std::size_t construct(SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt1::packets
 
 #endif // IOT_MQTT_PACKETSNEW_DISCONNECT_H

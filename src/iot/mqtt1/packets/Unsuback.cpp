@@ -16,35 +16,49 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Unsuback.h"
+#include "iot/mqtt1/packets/Unsuback.h"
+
+#include "iot/mqtt1/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
     Unsuback::Unsuback(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBACK)
-        , packetIdentifier(packetIdentifier) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // no Payload
+        : iot::mqtt1::ControlPacket(MQTT_UNSUBACK, 0, 0) {
+        this->packetIdentifier.setValue(packetIdentifier);
     }
 
-    Unsuback::Unsuback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // no Payload
-
-        error = isError();
+    Unsuback::Unsuback(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_UNSUBACK, reserved, remainingLength) {
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {
-        return packetIdentifier;
+        return packetIdentifier.getValue();
     }
 
-} // namespace iot::mqtt::packets
+    std::vector<char> Unsuback::getPacket() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
+    std::size_t iot::mqtt1::packets::Unsuback::construct(SocketContext* socketContext) {
+        std::size_t consumed = packetIdentifier.construct(socketContext);
+
+        error = packetIdentifier.isError();
+        complete = packetIdentifier.isComplete();
+
+        return consumed;
+    }
+
+    void iot::mqtt1::packets::Unsuback::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onUnsuback(*this);
+    }
+
+} // namespace iot::mqtt1::packets

@@ -16,50 +16,92 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Unsubscribe.h"
+#include "iot/mqtt1/packets/Unsubscribe.h"
+
+#include "iot/mqtt1/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
-        , packetIdentifier(packetIdentifier)
-        , topics(std::move(topics)) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // Payload
-        for (std::string& topic : this->topics) {
-            putString(topic);
-        }
+    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
+        : iot::mqtt1::ControlPacket(MQTT_SUBSCRIBE, 0x02, 0) {
+        this->packetIdentifier.setValue(packetIdentifier);
+        this->topics = topics;
     }
 
-    Unsubscribe::Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // Payload
-        for (std::string name = getString(); !name.empty(); name = getString()) {
-            topics.push_back(name);
-        }
-
-        if (!isError()) {
-            error = topics.empty();
-        }
+    Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_SUBSCRIBE, 0x02 | reserved, remainingLength) {
     }
 
     uint16_t Unsubscribe::getPacketIdentifier() const {
-        return packetIdentifier;
+        return packetIdentifier.getValue();
     }
 
     const std::list<std::string>& Unsubscribe::getTopics() const {
         return topics;
     }
 
-} // namespace iot::mqtt::packets
+    std::vector<char> Unsubscribe::getPacket() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        for (const std::string& topic : topics) {
+            packet.insert(packet.end(), topic.begin(), topic.end());
+        }
+
+        return packet;
+    }
+
+    std::size_t Unsubscribe::construct(SocketContext* socketContext) {
+        std::size_t consumedTotal = 0;
+        std::size_t consumed = 0;
+
+        switch (state) {
+            case 0:
+                consumed = packetIdentifier.construct(socketContext);
+                consumedTotal += consumed;
+
+                if (consumed == 0 || (error = packetIdentifier.isError() || !packetIdentifier.isComplete())) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            case 1:
+                consumed = topic.construct(socketContext);
+                consumedTotal += consumed;
+
+                if ((consumed == 0) || (error = topic.isError() || !topic.isComplete())) {
+                    break;
+                }
+
+                topics.push_back(topic.getValue());
+                topic.reset();
+
+                if (getConsumed() + consumedTotal < this->getRemainingLength()) {
+                    state = 1;
+                    break;
+                } else if (getConsumed() + consumedTotal > this->getRemainingLength()) {
+                    error = true;
+                    break;
+                }
+                [[fallthrough]];
+            default:
+                complete = true;
+                break;
+        }
+
+        this->consumed = consumedTotal;
+
+        return consumedTotal;
+    }
+
+    void Unsubscribe::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+        socketContext->_onUnsubscribe(*this);
+    }
+
+} // namespace iot::mqtt1::packets

@@ -19,6 +19,8 @@
 #ifndef IOT_MQTT1_TYPES_TYPEBASE_H
 #define IOT_MQTT1_TYPES_TYPEBASE_H
 
+#include "core/socket/SocketContext.h" // IWYU pragma: export
+
 namespace core::socket {
     class SocketContext;
 }
@@ -39,7 +41,7 @@ namespace iot::mqtt1::types {
         using ValueType = ValueTypeT;
 
     public:
-        TypeBase() = default;
+        TypeBase(std::size_t size = sizeof(ValueType));
 
         virtual ~TypeBase() = default;
 
@@ -49,10 +51,13 @@ namespace iot::mqtt1::types {
 
         virtual void setValue(const ValueType& value) = 0;
         virtual ValueType getValue() const = 0;
-        const std::vector<char>& getValueAsVector() const;
 
-        bool isComplete();
+        virtual std::vector<char> getValueAsVector() const;
+        bool isComplete() const;
+
         bool isError() const;
+
+        virtual void reset(std::size_t size = sizeof(ValueType));
 
     protected:
         core::socket::SocketContext* socketContext;
@@ -64,6 +69,8 @@ namespace iot::mqtt1::types {
 
         bool complete = false;
         bool error = false;
+
+        int state = 0;
     };
 
 } // namespace iot::mqtt1::types

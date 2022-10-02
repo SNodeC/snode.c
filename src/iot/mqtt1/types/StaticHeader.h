@@ -45,6 +45,7 @@ namespace iot::mqtt1::types {
 
         std::size_t construct(iot::mqtt1::SocketContext* socketContext);
 
+        void setPacketType(uint8_t typeReserved);
         uint8_t getPacketType() const;
         uint8_t getReserved() const;
 
@@ -55,6 +56,8 @@ namespace iot::mqtt1::types {
         bool isError() const;
 
         std::vector<char> getPacket();
+
+        void reset();
 
     private:
         types::UInt8 _typeReserved;

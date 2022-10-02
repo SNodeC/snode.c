@@ -16,53 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Publish.h"
+#include "iot/mqtt1/packets/Publish.h"
 
-#include "iot/mqtt/ControlPacketFactory.h"
+#include "iot/mqtt1/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
     Publish::Publish(
         uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
-        : iot::mqtt::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00))
-        , packetIdentifier(packetIdentifier)
-        , topic(topic)
-        , message(message)
-        , dup(dup)
-        , qoSLevel(qoSLevel)
-        , retain(retain) {
-        // V-Header
-        putString(this->topic);
-
-        if (this->qoSLevel > 0) {
-            putInt16(this->packetIdentifier);
-        }
-
-        // Payload
-        putStringRaw(this->message);
+        : iot::mqtt1::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00), 0) {
+        this->packetIdentifier.setValue(packetIdentifier);
+        this->topic.setValue(topic);
+        this->message.setValue(message);
+        this->dup = dup;
+        this->qoSLevel = qoSLevel;
+        this->retain = retain;
     }
 
-    Publish::Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        dup = (controlPacketFactory.getPacketFlags() & 0x08) != 0;
-        qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
-        retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
-
-        // V-Header
-        topic = getString();
-
-        if (qoSLevel != 0) {
-            packetIdentifier = getInt16();
-        }
-
-        // Payload
-        message = getStringRaw();
-
-        error = isError();
+    Publish::Publish(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_PUBLISH, reserved, remainingLength) {
+        this->qoSLevel = reserved >> 1 & 0x03;
+        this->dup = (reserved & 0x04) != 0;
+        this->retain = (reserved & 0x01) != 0;
     }
 
     bool Publish::getDup() const {
@@ -74,19 +53,83 @@ namespace iot::mqtt::packets {
     }
 
     uint16_t Publish::getPacketIdentifier() const {
-        return packetIdentifier;
+        return packetIdentifier.getValue();
     }
 
-    const std::string& Publish::getTopic() const {
-        return topic;
+    std::string Publish::getTopic() const {
+        return topic.getValue();
     }
 
-    const std::string& Publish::getMessage() const {
-        return message;
+    std::string Publish::getMessage() const {
+        return message.getValue();
     }
 
     bool Publish::getRetain() const {
         return retain;
     }
 
-} // namespace iot::mqtt::packets
+    std::vector<char> Publish::getPacket() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = topic.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        if (qoSLevel > 0) {
+            tmpVector = packetIdentifier.getValueAsVector();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+
+        tmpVector = message.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
+    std::size_t Publish::construct(SocketContext* socketContext) {
+        std::size_t consumedTotal = 0;
+        std::size_t consumed = 0;
+
+        switch (state) {
+            case 0:
+                consumed = topic.construct(socketContext);
+                consumedTotal += consumed;
+
+                if ((consumed == 0) || (error = topic.isError() || !topic.isComplete())) {
+                    break;
+                }
+
+                state++;
+                [[fallthrough]];
+            case 1:
+                if (((getReserved() >> 1) & 0x03) > 0) {
+                    consumed = packetIdentifier.construct(socketContext);
+                    consumedTotal += consumed;
+
+                    if (consumed == 0 || (error = packetIdentifier.isError() || !packetIdentifier.isComplete())) {
+                        break;
+                    }
+                }
+                message.setSize(remainingLength - getConsumed() - consumedTotal);
+                state++;
+                [[fallthrough]];
+            case 2:
+                consumed = message.construct(socketContext);
+                consumedTotal += consumed;
+
+                if ((consumed == 0) || (error = message.isError() || !message.isComplete())) {
+                    break;
+                }
+                [[fallthrough]];
+            default:
+                complete = true;
+                break;
+        }
+
+        return consumedTotal;
+    }
+
+    void Publish::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+        socketContext->_onPublish(*this);
+    }
+
+} // namespace iot::mqtt1::packets

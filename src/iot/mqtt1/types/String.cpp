@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
@@ -33,17 +35,15 @@ namespace iot::mqtt1::types {
             case 0:
                 consumed = stringLength.construct(socketContext);
 
-                if (stringLength.isComplete()) {
-                    setSize(stringLength.getValue());
-                    state++;
-                } else {
+                if (consumed == 0 || (error = stringLength.isError() || !stringLength.isComplete())) {
                     break;
                 }
+
+                setSize(stringLength.getValue());
+                state++;
                 [[fallthrough]];
             case 1:
                 consumed += TypeBase::construct(socketContext);
-                break;
-            default:
                 break;
         }
 
@@ -58,6 +58,24 @@ namespace iot::mqtt1::types {
         return std::string(value.begin(), value.end());
     }
 
-    template class TypeBase<std::string>;
+    std::vector<char> String::getValueAsVector() const {
+        UInt16 stringLength;
+        stringLength.setValue(static_cast<uint16_t>(value.size()));
+        std::vector<char> tmpVector = stringLength.getValueAsVector();
+
+        std::vector<char> returnVector;
+        returnVector.insert(returnVector.end(), tmpVector.begin(), tmpVector.end());
+
+        returnVector.insert(returnVector.end(), value.begin(), value.end());
+
+        return returnVector;
+    }
+
+    void String::reset([[maybe_unused]] std::size_t size) {
+        stringLength.reset();
+        state = 0;
+    }
+
+    template class iot::mqtt1::types::TypeBase<std::string>;
 
 } // namespace iot::mqtt1::types

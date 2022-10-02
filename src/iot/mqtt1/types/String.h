@@ -22,13 +22,10 @@
 #include "iot/mqtt1/types/TypeBase.h"
 #include "iot/mqtt1/types/UInt16.h"
 
-namespace core::socket {
-    class SocketContext;
-}
+// IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -40,12 +37,15 @@ namespace iot::mqtt1::types {
         std::size_t construct(core::socket::SocketContext* socketContext) override;
 
         void setValue(const std::string& newValue) override;
+
         std::string getValue() const override;
+
+        std::vector<char> getValueAsVector() const override;
+
+        void reset(std::size_t size = sizeof(ValueType)) override;
 
     private:
         UInt16 stringLength;
-
-        int state = 0;
     };
 
 } // namespace iot::mqtt1::types

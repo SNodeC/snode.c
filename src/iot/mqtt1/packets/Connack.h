@@ -50,19 +50,21 @@ namespace iot::mqtt1::packets {
 
     class Connack : public iot::mqtt1::ControlPacket {
     public:
-        explicit Connack(uint8_t reason, uint8_t flags);
+        Connack(uint8_t returncode, uint8_t flags);
+        explicit Connack(uint32_t remainingLength, uint8_t reserved);
 
         uint8_t getFlags() const;
 
-        uint8_t getReason() const;
+        uint8_t getReturnCode() const;
 
     private:
         std::vector<char> getPacket() const override;
 
         iot::mqtt1::types::UInt8 _flags;
-        iot::mqtt1::types::UInt8 _reason;
+        iot::mqtt1::types::UInt8 _returnCode;
 
         std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
 
         int state = 0;
     };

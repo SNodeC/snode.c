@@ -11,14 +11,14 @@ add_subdirectory(types)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_CPP ControlPacket.cpp SocketContext.cpp Topic.cpp
-)
-set(MQTT_H ControlPacket.h SocketContext.h Topic.h)
+set(MQTT1_CPP ControlPacket.cpp ControlPacketFactory.cpp SocketContext.cpp Topic.cpp)
 
-add_library(mqtt1 SHARED ${MQTT_CPP} ${MQTT_H})
+set(MQTT1_H ControlPacket.h ControlPacketFactory.h SocketContext.h Topic.h)
+
+add_library(mqtt1 SHARED ${MQTT1_CPP} ${MQTT1_H})
 add_library(snodec::mqtt1 ALIAS mqtt1)
 
-target_link_libraries(mqtt1 PRIVATE snodec::mqtt1-types snodec::mqtt1-packets)
+target_link_libraries(mqtt1 PRIVATE snodec::mqtt1-packets)
 
 target_include_directories(
     mqtt1
@@ -28,11 +28,11 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(mqtt1 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt)
+set_target_properties(mqtt1 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt1)
 
 install(
     TARGETS mqtt1
-    EXPORT snodec_mqtt_Targets
+    EXPORT snodec_mqtt1_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt
 )
 
@@ -46,8 +46,8 @@ install(
 )
 
 install(
-    EXPORT snodec_mqtt_Targets
-    FILE snodec_mqtt_Targets.cmake
+    EXPORT snodec_mqtt1_Targets
+    FILE snodec_mqtt1_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

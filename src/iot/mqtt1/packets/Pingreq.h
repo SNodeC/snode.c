@@ -19,26 +19,36 @@
 #ifndef IOT_MQTT_PACKETSNEW_PINGREQ_H
 #define IOT_MQTT_PACKETSNEW_PINGREQ_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt1/ControlPacket.h"
 
-namespace iot::mqtt {
-    class ControlPacketFactory;
+namespace iot::mqtt1 {
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PINGREQ 0x0C
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    class Pingreq : public iot::mqtt::ControlPacket {
+    class Pingreq : public iot::mqtt1::ControlPacket {
     public:
-        Pingreq();
-        explicit Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Pingreq();
+        explicit Pingreq(uint32_t remainingLength, uint8_t reserved);
+
+    private:
+        std::vector<char> getPacket() const override;
+
+        std::size_t construct(SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt1::packets
 
 #endif // IOT_MQTT_PACKETSNEW_PINGREQ_H

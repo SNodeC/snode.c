@@ -21,13 +21,10 @@
 
 #include "iot/mqtt1/types/TypeBase.h"
 
-namespace core::socket {
-    class SocketContext;
-}
+// IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <cstdint>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -36,13 +33,14 @@ namespace iot::mqtt1::types {
 
     class UIntV : public TypeBase<uint32_t> {
     public:
+        UIntV();
+
         std::size_t construct(core::socket::SocketContext* socketContext) override;
 
-        void setValue(const uint32_t& value) override;
+        void setValue(const uint32_t& newValue) override;
         uint32_t getValue() const override;
 
-    private:
-        std::size_t count = 0;
+        void reset(std::size_t size = sizeof(ValueType)) override;
     };
 
 } // namespace iot::mqtt1::types

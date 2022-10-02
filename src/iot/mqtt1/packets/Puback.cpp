@@ -16,35 +16,49 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Puback.h"
+#include "iot/mqtt1/packets/Puback.h"
+
+#include "iot/mqtt1/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    Puback::Puback(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBACK)
-        , packetIdentifier(packetIdentifier) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // no Payload
+    Puback::Puback(const uint16_t packetIdentifier)
+        : iot::mqtt1::ControlPacket(MQTT_PUBACK, 0, 0) {
+        this->packetIdentifier.setValue(packetIdentifier);
     }
 
-    Puback::Puback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // no Payload
-
-        error = isError();
+    Puback::Puback(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_PUBACK, reserved, remainingLength) {
     }
 
     uint16_t Puback::getPacketIdentifier() const {
-        return packetIdentifier;
+        return packetIdentifier.getValue();
     }
 
-} // namespace iot::mqtt::packets
+    std::vector<char> Puback::getPacket() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
+    std::size_t Puback::construct(SocketContext* socketContext) {
+        std::size_t consumed = packetIdentifier.construct(socketContext);
+
+        error = packetIdentifier.isError();
+        complete = packetIdentifier.isComplete();
+
+        return consumed;
+    }
+
+    void Puback::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onPuback(*this);
+    }
+
+} // namespace iot::mqtt1::packets

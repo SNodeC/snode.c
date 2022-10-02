@@ -26,8 +26,13 @@
 
 namespace iot::mqtt1::packets {
 
-    Connect::Connect(uint8_t type, uint8_t reserved)
-        : iot::mqtt1::ControlPacket(type, reserved) {
+    Connect::Connect(const std::string& clientId)
+        : iot::mqtt1::ControlPacket(MQTT_CONNECT, 0, 0) {
+        _clientId.setValue(clientId);
+    }
+
+    Connect::Connect(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_CONNECT, reserved, remainingLength) {
     }
 
     std::string Connect::getProtocol() const {
@@ -90,6 +95,43 @@ namespace iot::mqtt1::packets {
         return _password.getValue();
     }
 
+    std::vector<char> Connect::getPacket() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = _protocol.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = _level.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = _flags.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = _keepAlive.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = _clientId.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        if (willFlag) {
+            tmpVector = _willTopic.getValueAsVector();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+            tmpVector = _willMessage.getValueAsVector();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+        if (usernameFlag) {
+            tmpVector = _username.getValueAsVector();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+        if (passwordFlag) {
+            tmpVector = _password.getValueAsVector();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+
+        return packet;
+    }
+
     std::size_t Connect::construct(SocketContext* socketContext) {
         std::size_t consumedTotal = 0;
         std::size_t consumed = 0;
@@ -100,126 +142,111 @@ namespace iot::mqtt1::packets {
                 consumed = _protocol.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _protocol.isError())) {
+                if (consumed == 0 || (error = _protocol.isError()) || !_protocol.isComplete()) {
                     break;
-                } else if (_protocol.isComplete()) {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             case 1:
                 consumed = _level.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _protocol.isError())) {
+                if (consumed == 0 || (error = _level.isError()) || !_level.isComplete()) {
                     break;
-                } else if (_level.isComplete()) {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             case 2:
                 consumed = _flags.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _protocol.isError())) {
+                if (consumed == 0 || (error = _flags.isError()) || !_flags.isComplete()) {
                     break;
-                } else if (_flags.isComplete()) {
-                    flags = _flags.getValue();
-
-                    reserved = (flags & 0x01) != 0;
-                    cleanSession = (flags & 0x02) != 0;
-                    willFlag = (flags & 0x04) != 0;
-                    willQoS = (flags & 0x18) >> 3;
-                    willRetain = (flags & 0x20) != 0;
-                    passwordFlag = (flags & 0x40) != 0;
-                    usernameFlag = (flags & 0x80) != 0;
-
-                    state++;
                 }
+
+                flags = _flags.getValue();
+
+                reserved = (flags & 0x01) != 0;
+                cleanSession = (flags & 0x02) != 0;
+                willFlag = (flags & 0x04) != 0;
+                willQoS = (flags & 0x18) >> 3;
+                willRetain = (flags & 0x20) != 0;
+                passwordFlag = (flags & 0x40) != 0;
+                usernameFlag = (flags & 0x80) != 0;
+                state++;
                 [[fallthrough]];
             case 3:
                 consumed = _keepAlive.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _protocol.isError())) {
+                if (consumed == 0 || (error = _keepAlive.isError()) || !_keepAlive.isComplete()) {
                     break;
-                } else if (_keepAlive.isComplete()) {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             // Payload
             case 4:
                 consumed = _clientId.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _protocol.isError())) {
+                if (consumed == 0 || (error = _clientId.isError()) || !_clientId.isComplete()) {
                     break;
-                } else if (_clientId.isComplete()) {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             case 5:
                 if (willFlag) {
                     consumed = _willTopic.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = _protocol.isError())) {
+                    if (consumed == 0 || (error = _willTopic.isError()) || !_willTopic.isComplete()) {
                         break;
-                    } else if (_willTopic.isComplete()) {
-                        state++;
                     }
-                } else {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             case 6:
                 if (willFlag) {
                     consumed = _willMessage.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = _protocol.isError())) {
+                    if (consumed == 0 || (error = _willMessage.isError()) || !_willMessage.isComplete()) {
                         break;
-                    } else if (_willMessage.isComplete()) {
-                        state++;
                     }
-                } else {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             case 7:
                 if (usernameFlag) {
                     consumed = _username.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = _protocol.isError())) {
+                    if (consumed == 0 || (error = _username.isError()) || !_username.isComplete()) {
                         break;
-                    } else if (_username.isComplete()) {
-                        state++;
                     }
-                } else {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             case 8:
                 if (passwordFlag) {
                     consumed = _password.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = _protocol.isError())) {
+                    if (consumed == 0 || (error = _password.isError()) || !_password.isComplete()) {
                         break;
-                    } else if (_password.isComplete()) {
-                        state++;
                     }
-                } else {
-                    state++;
                 }
                 [[fallthrough]];
             default:
-                socketContext->_onConnect(*this);
                 complete = true;
                 break;
         }
 
         return consumedTotal;
+    }
+
+    void Connect::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onConnect(*this);
     }
 
 } // namespace iot::mqtt1::packets

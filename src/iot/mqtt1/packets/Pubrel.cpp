@@ -16,35 +16,49 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Pubrel.h"
+#include "iot/mqtt1/packets/Pubrel.h"
+
+#include "iot/mqtt1/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    Pubrel::Pubrel(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL, 0x02)
-        , packetIdentifier(packetIdentifier) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // no Payload
+    Pubrel::Pubrel(const uint16_t packetIdentifier)
+        : iot::mqtt1::ControlPacket(MQTT_PUBREL, 0, 0) {
+        this->packetIdentifier.setValue(packetIdentifier);
     }
 
-    Pubrel::Pubrel(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // no Payload
-
-        error = isError();
+    Pubrel::Pubrel(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_PUBREL, reserved, remainingLength) {
     }
 
     uint16_t Pubrel::getPacketIdentifier() const {
-        return packetIdentifier;
+        return packetIdentifier.getValue();
     }
 
-} // namespace iot::mqtt::packets
+    std::vector<char> Pubrel::getPacket() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
+    std::size_t Pubrel::construct(SocketContext* socketContext) {
+        std::size_t consumed = packetIdentifier.construct(socketContext);
+
+        error = packetIdentifier.isError();
+        complete = packetIdentifier.isComplete();
+
+        return consumed;
+    }
+
+    void Pubrel::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onPubrel(*this);
+    }
+
+} // namespace iot::mqtt1::packets

@@ -21,6 +21,8 @@
 
 #include "iot/mqtt1/types/TypeBase.h"
 
+// IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -31,7 +33,7 @@ namespace iot::mqtt1::types {
 
     class StringRaw : public TypeBase<std::string> {
     public:
-        void setValue(const std::string& value) override;
+        void setValue(const std::string& newValue) override;
         std::string getValue() const override;
     };
 

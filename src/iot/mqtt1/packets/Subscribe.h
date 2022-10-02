@@ -19,38 +19,52 @@
 #ifndef IOT_MQTT_PACKETSNEW_SUBSCRIBE_H
 #define IOT_MQTT_PACKETSNEW_SUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/Topic.h" // IWYU pragma: export
+#include "iot/mqtt1/ControlPacket.h"
+#include "iot/mqtt1/Topic.h" // IWYU pragma: export
+#include "iot/mqtt1/types/String.h"
+#include "iot/mqtt1/types/UInt16.h"
+#include "iot/mqtt1/types/UInt8.h"
 
-namespace iot::mqtt {
-    class ControlPacketFactory;
+namespace iot::mqtt1 {
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint> // IWYU pragma: export
 #include <list>    // IWYU pragma: export
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_SUBSCRIBE 0x08
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    class Subscribe : public ControlPacket {
+    class Subscribe : public iot::mqtt1::ControlPacket {
     public:
-        Subscribe(uint16_t packetIdentifier, const std::list<iot::mqtt::Topic>& topics);
-        explicit Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt1::Topic>& topics);
+        explicit Subscribe(uint32_t remainingLength, uint8_t reserved);
 
         uint16_t getPacketIdentifier() const;
-        const std::list<iot::mqtt::Topic>& getTopics() const;
+        const std::list<iot::mqtt1::Topic>& getTopics() const;
 
     private:
-        uint16_t packetIdentifier;
+        std::vector<char> getPacket() const override;
 
-        std::list<iot::mqtt::Topic> topics;
+        iot::mqtt1::types::UInt16 packetIdentifier;
+        iot::mqtt1::types::String topic;
+        iot::mqtt1::types::UInt8 qoS;
+
+        std::list<iot::mqtt1::Topic> topics;
+
+        std::size_t construct(SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
+
+        int state = 0;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt1::packets
 
 #endif // IOT_MQTT_PACKETSNEW_SUBSCRIBE_H

@@ -22,32 +22,38 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::packets {
 
-    Connack::Connack(uint8_t reason, uint8_t flags)
-        : iot::mqtt1::ControlPacket(MQTT_CONNACK) {
-        // V-Header
+    Connack::Connack(uint8_t returncode, uint8_t flags)
+        : iot::mqtt1::ControlPacket(MQTT_CONNACK, 0, 0) {
+        _returnCode.setValue(returncode);
         _flags.setValue(flags);
-        _reason.setValue(reason);
+    }
 
-        // no Payload
+    Connack::Connack(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_CONNACK, reserved, remainingLength) {
     }
 
     uint8_t Connack::getFlags() const {
         return _flags.getValue();
     }
 
-    uint8_t Connack::getReason() const {
-        return _reason.getValue();
+    uint8_t Connack::getReturnCode() const {
+        return _returnCode.getValue();
     }
 
     std::vector<char> Connack::getPacket() const {
         std::vector<char> packet;
 
-        packet.insert(packet.end(), _flags.getValueAsVector().begin(), _flags.getValueAsVector().end());
-        packet.insert(packet.end(), _reason.getValueAsVector().begin(), _reason.getValueAsVector().end());
+        std::vector<char> tmpVector = _flags.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = _returnCode.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
     }
@@ -62,30 +68,29 @@ namespace iot::mqtt1::packets {
                 consumed = _flags.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _flags.isError())) {
+                if (consumed == 0 || (error = _flags.isError()) || !_flags.isComplete()) {
                     break;
-                } else if (_flags.isComplete()) {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             case 1:
-                consumed = _reason.construct(socketContext);
+                consumed = _returnCode.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _reason.isError())) {
+                if (consumed == 0 || (error = _returnCode.isError()) || !_returnCode.isComplete()) {
                     break;
-                } else if (_reason.isComplete()) {
-                    state++;
                 }
                 [[fallthrough]];
-
             default:
-                socketContext->_onConnack(*this);
                 complete = true;
                 break;
         }
 
         return consumedTotal;
+    }
+
+    void Connack::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onConnack(*this);
     }
 
 } // namespace iot::mqtt1::packets

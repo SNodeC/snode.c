@@ -16,26 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Pingresp.h"
+#include "iot/mqtt1/packets/Pingresp.h"
+
+#include "iot/mqtt1/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
     Pingresp::Pingresp()
-        : iot::mqtt::ControlPacket(MQTT_PINGRESP) {
-        // no V-Header
-        // no Payload
+        : iot::mqtt1::ControlPacket(MQTT_PINGRESP, 0, 0) {
     }
 
-    Pingresp::Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // no V-Header
-        // no Payload
-
-        error = isError();
+    Pingresp::Pingresp(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_PINGRESP, reserved, remainingLength) {
     }
 
-} // namespace iot::mqtt::packets
+    std::vector<char> Pingresp::getPacket() const {
+        return std::vector<char>();
+    }
+
+    std::size_t Pingresp::construct([[maybe_unused]] SocketContext* socketContext) {
+        complete = true;
+        return 0;
+    }
+
+    void Pingresp::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+        socketContext->_onPingresp(*this);
+    }
+
+} // namespace iot::mqtt1::packets

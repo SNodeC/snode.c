@@ -30,7 +30,7 @@ namespace iot::mqtt1::types {
     }
 
     StaticHeader::StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength) {
-        _typeReserved.setValue(packetType << 4 & reserved & 0x0F);
+        _typeReserved.setValue(static_cast<uint8_t>((packetType << 4) | (reserved & 0x0F)));
         _remainingLength.setValue(remainingLength);
     }
 
@@ -56,14 +56,21 @@ namespace iot::mqtt1::types {
                 consumed = _remainingLength.construct(socketContext);
                 consumedTotal += consumed;
 
+                if (consumed == 0 || (error = _remainingLength.isError())) {
+                    break;
+                }
+
                 complete = _remainingLength.isComplete();
                 error = _remainingLength.isError();
-                break;
-            default:
+
                 break;
         }
 
         return consumedTotal;
+    }
+
+    void StaticHeader::setPacketType(uint8_t typeReserved) {
+        _typeReserved.setValue(typeReserved);
     }
 
     uint8_t StaticHeader::getPacketType() const {
@@ -93,10 +100,23 @@ namespace iot::mqtt1::types {
     std::vector<char> StaticHeader::getPacket() {
         std::vector<char> packet;
 
-        packet.insert(packet.end(), _typeReserved.getValueAsVector().begin(), _typeReserved.getValueAsVector().end());
-        packet.insert(packet.begin(), _remainingLength.getValueAsVector().begin(), _remainingLength.getValueAsVector().end());
+        std::vector<char> tmpVector = _typeReserved.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = _remainingLength.getValueAsVector();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
+    }
+
+    void StaticHeader::reset() {
+        _typeReserved.reset();
+        _remainingLength.reset();
+
+        complete = false;
+        error = false;
+
+        state = 0;
     }
 
 } // namespace iot::mqtt1::types

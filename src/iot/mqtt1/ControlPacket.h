@@ -19,8 +19,6 @@
 #ifndef IOT_MQTT1_CONTROLPACKET_H
 #define IOT_MQTT1_CONTROLPACKET_H
 
-#include "iot/mqtt1/types/StaticHeader.h"
-
 namespace iot::mqtt1 {
     class SocketContext;
 }
@@ -37,12 +35,12 @@ namespace iot::mqtt1 {
 
     class ControlPacket {
     public:
-        ControlPacket() = default;
-        explicit ControlPacket(uint8_t type, uint8_t reserved = 0);
+        explicit ControlPacket(uint8_t type, uint8_t reserved, uint32_t remainingLength);
 
         virtual ~ControlPacket();
 
-        virtual std::size_t construct(iot::mqtt1::SocketContext* socketContext);
+        virtual std::size_t construct(iot::mqtt1::SocketContext* socketContext) = 0;
+        std::size_t _construct(iot::mqtt1::SocketContext* socketContext);
 
         uint8_t getType() const;
         uint8_t getReserved() const;
@@ -51,20 +49,26 @@ namespace iot::mqtt1 {
         bool isComplete() const;
         bool isError() const;
 
-        uint64_t getConsumed() const;
-
-        virtual std::vector<char> getPacket() const;
+        virtual std::vector<char> getPacket() const = 0;
 
     protected:
         bool complete = false;
         bool error = false;
 
-    private:
-        types::StaticHeader staticHeader;
+    public:
+        virtual void propagateEvent(SocketContext* socketContext) const = 0;
+        std::vector<char> getFullPacket() const;
         ControlPacket* currentPacket = nullptr;
 
+        uint8_t type = 0;
+        uint8_t reserved = 0;
+        uint32_t remainingLength = 0;
+
         int state = 0;
+
+    public:
         uint64_t consumed = 0;
+        uint64_t getConsumed() const;
     };
 
 } // namespace iot::mqtt1

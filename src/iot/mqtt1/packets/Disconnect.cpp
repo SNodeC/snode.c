@@ -16,26 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Disconnect.h"
+#include "iot/mqtt1/packets/Disconnect.h"
+
+#include "iot/mqtt1/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
     Disconnect::Disconnect()
-        : iot::mqtt::ControlPacket(MQTT_DISCONNECT) {
-        // no V-Header
-        // no Payload
+        : iot::mqtt1::ControlPacket(MQTT_DISCONNECT, 0, 0) {
     }
 
-    Disconnect::Disconnect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // no V-Header
-        // no Payload
-
-        error = isError();
+    Disconnect::Disconnect(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_DISCONNECT, reserved, remainingLength) {
     }
 
-} // namespace iot::mqtt::packets
+    std::vector<char> Disconnect::getPacket() const {
+        return std::vector<char>();
+    }
+
+    std::size_t Disconnect::construct([[maybe_unused]] SocketContext* socketContext) {
+        complete = true;
+        return 0;
+    }
+
+    void Disconnect::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onDisconnect(*this);
+    }
+
+} // namespace iot::mqtt1::packets

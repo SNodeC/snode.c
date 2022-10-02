@@ -21,6 +21,8 @@
 
 #include "iot/mqtt1/types/TypeBase.h"
 
+// IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
@@ -31,7 +33,7 @@ namespace iot::mqtt1::types {
 
     class UInt16 : public TypeBase<uint16_t> {
     public:
-        void setValue(const uint16_t& value) override;
+        void setValue(const uint16_t& newValue) override;
         uint16_t getValue() const override;
     };
 

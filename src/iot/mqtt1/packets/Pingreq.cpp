@@ -16,26 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Pingreq.h"
+#include "iot/mqtt1/packets/Pingreq.h"
+
+#include "iot/mqtt1/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
     Pingreq::Pingreq()
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ) {
-        // no V-Header
-        // no Payload
+        : iot::mqtt1::ControlPacket(MQTT_PINGREQ, 0, 0) {
     }
 
-    Pingreq::Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // no V-Header
-        // no Payload
-
-        error = isError();
+    Pingreq::Pingreq(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt1::ControlPacket(MQTT_PINGREQ, reserved, remainingLength) {
     }
 
-} // namespace iot::mqtt::packets
+    std::vector<char> Pingreq::getPacket() const {
+        return std::vector<char>();
+    }
+
+    std::size_t Pingreq::construct([[maybe_unused]] SocketContext* socketContext) {
+        complete = true;
+        return 0;
+    }
+
+    void Pingreq::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+        socketContext->_onPingreq(*this);
+    }
+
+} // namespace iot::mqtt1::packets

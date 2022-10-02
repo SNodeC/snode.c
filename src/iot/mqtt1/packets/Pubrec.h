@@ -19,33 +19,41 @@
 #ifndef IOT_MQTT_PACKETSNEW_PUBREC_H
 #define IOT_MQTT_PACKETSNEW_PUBREC_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt1/ControlPacket.h"
+#include "iot/mqtt1/types/UInt16.h"
 
-namespace iot::mqtt {
-    class ControlPacketFactory;
+namespace iot::mqtt1 {
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PUBREC 0x05
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    class Pubrec : public iot::mqtt::ControlPacket {
+    class Pubrec : public iot::mqtt1::ControlPacket {
     public:
-        explicit Pubrec(uint16_t packetIdentifier);
-        explicit Pubrec(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Pubrec(const uint16_t packetIdentifier);
+        explicit Pubrec(uint32_t remainingLength, uint8_t reserved);
 
         uint16_t getPacketIdentifier() const;
 
     private:
-        uint16_t packetIdentifier;
+        std::vector<char> getPacket() const override;
+
+        iot::mqtt1::types::UInt16 packetIdentifier;
+
+        std::size_t construct(SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt1::packets
 
 #endif // IOT_MQTT_PACKETSNEW_PUBREC_H
