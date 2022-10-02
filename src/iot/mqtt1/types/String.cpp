@@ -18,7 +18,7 @@
 
 #include "iot/mqtt1/types/String.h"
 
-#include "iot/mqtt1/types/TypeBase.hpp"
+#include "iot/mqtt1/types/TypeBase.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -48,6 +48,10 @@ namespace iot::mqtt1::types {
         }
 
         return consumed;
+    }
+
+    void String::setValue(const std::string& newValue) {
+        value = std::vector<char>(newValue.begin(), newValue.end());
     }
 
     std::string String::getValue() const {

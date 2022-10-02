@@ -31,6 +31,7 @@ namespace iot::mqtt1::types {
 
     class UInt16 : public TypeBase<uint16_t> {
     public:
+        void setValue(const uint16_t& value) override;
         uint16_t getValue() const override;
     };
 

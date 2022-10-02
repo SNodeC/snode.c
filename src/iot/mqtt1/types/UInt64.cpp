@@ -18,7 +18,7 @@
 
 #include "iot/mqtt1/types/UInt64.h"
 
-#include "iot/mqtt1/types/TypeBase.hpp"
+#include "iot/mqtt1/types/TypeBase.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,6 +27,10 @@
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
+
+    void UInt64::setValue(const uint64_t& newValue) {
+        *reinterpret_cast<uint64_t*>(value.data()) = htobe64(newValue);
+    }
 
     uint64_t UInt64::getValue() const {
         return be64toh(*reinterpret_cast<uint64_t*>(const_cast<char*>(value.data())));

@@ -20,7 +20,7 @@
 #include "iot/mqtt1/types/UIntV.h"
 
 namespace iot::mqtt1 {
-    class SocketContext;
+    class SocketContext; // IWYU pragma: keep
 }
 
 #ifndef IOT_MQTT1_STATICHEADER_H
@@ -29,28 +29,35 @@ namespace iot::mqtt1 {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <cstdint>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt1 {
+namespace iot::mqtt1::types {
 
     class StaticHeader {
     public:
         StaticHeader();
+        StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength = 0);
 
         ~StaticHeader();
 
         std::size_t construct(iot::mqtt1::SocketContext* socketContext);
 
         uint8_t getPacketType() const;
-        uint8_t getPacketFlags() const;
-        uint64_t getRemainingLength() const;
+        uint8_t getReserved() const;
+
+        void setRemainingLength(uint32_t remainingLength);
+        uint32_t getRemainingLength() const;
 
         bool isComplete() const;
         bool isError() const;
 
+        std::vector<char> getPacket();
+
     private:
-        types::UInt8 _typeFlags;
+        types::UInt8 _typeReserved;
         types::UIntV _remainingLength;
 
         bool complete = false;
@@ -59,6 +66,6 @@ namespace iot::mqtt1 {
         int state = 0;
     };
 
-} // namespace iot::mqtt1
+} // namespace iot::mqtt1::types
 
 #endif // IOT_MQTT1_STATICHEADER_H

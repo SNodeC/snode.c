@@ -18,11 +18,17 @@
 
 #include "iot/mqtt1/types/StringRaw.h"
 
+#include "iot/mqtt1/types/TypeBase.hpp" // IWYU pragma: keep
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
+
+    void StringRaw::setValue(const ValueType& newValue) {
+        value = std::vector<char>(newValue.begin(), newValue.end());
+    }
 
     std::string StringRaw::getValue() const {
         return std::string(value.begin(), value.end());

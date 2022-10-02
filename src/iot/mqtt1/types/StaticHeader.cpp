@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "StaticHeader.h"
+#include "iot/mqtt1/types/StaticHeader.h"
 
 #include "iot/mqtt1/SocketContext.h"
 
@@ -24,9 +24,14 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt1 {
+namespace iot::mqtt1::types {
 
     StaticHeader::StaticHeader() {
+    }
+
+    StaticHeader::StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength) {
+        _typeReserved.setValue(packetType << 4 & reserved & 0x0F);
+        _remainingLength.setValue(remainingLength);
     }
 
     StaticHeader::~StaticHeader() {
@@ -38,12 +43,12 @@ namespace iot::mqtt1 {
 
         switch (state) {
             case 0:
-                consumed = _typeFlags.construct(socketContext);
+                consumed = _typeReserved.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _typeFlags.isError())) {
+                if (consumed == 0 || (error = _typeReserved.isError())) {
                     break;
-                } else if (_typeFlags.isComplete()) {
+                } else if (_typeReserved.isComplete()) {
                     state++;
                 }
                 [[fallthrough]];
@@ -62,14 +67,18 @@ namespace iot::mqtt1 {
     }
 
     uint8_t StaticHeader::getPacketType() const {
-        return static_cast<uint8_t>(_typeFlags.getValue() >> 0x04);
+        return static_cast<uint8_t>(_typeReserved.getValue() >> 0x04);
     }
 
-    uint8_t StaticHeader::getPacketFlags() const {
-        return static_cast<uint8_t>(_typeFlags.getValue() & 0x0F);
+    uint8_t StaticHeader::getReserved() const {
+        return static_cast<uint8_t>(_typeReserved.getValue() & 0x0F);
     }
 
-    uint64_t StaticHeader::getRemainingLength() const {
+    void StaticHeader::setRemainingLength(uint32_t remainingLength) {
+        _remainingLength.setValue(remainingLength);
+    }
+
+    uint32_t StaticHeader::getRemainingLength() const {
         return _remainingLength.getValue();
     }
 
@@ -81,4 +90,13 @@ namespace iot::mqtt1 {
         return error;
     }
 
-} // namespace iot::mqtt1
+    std::vector<char> StaticHeader::getPacket() {
+        std::vector<char> packet;
+
+        packet.insert(packet.end(), _typeReserved.getValueAsVector().begin(), _typeReserved.getValueAsVector().end());
+        packet.insert(packet.begin(), _remainingLength.getValueAsVector().begin(), _remainingLength.getValueAsVector().end());
+
+        return packet;
+    }
+
+} // namespace iot::mqtt1::types

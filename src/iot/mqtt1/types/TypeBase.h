@@ -27,7 +27,7 @@ namespace core::socket {
 
 #include <cstddef>
 #include <cstdint>
-#include <vector>
+#include <vector> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -35,7 +35,7 @@ namespace iot::mqtt1::types {
 
     template <typename ValueTypeT>
     class TypeBase {
-    private:
+    protected:
         using ValueType = ValueTypeT;
 
     public:
@@ -47,7 +47,9 @@ namespace iot::mqtt1::types {
 
         void setSize(std::size_t size);
 
+        virtual void setValue(const ValueType& value) = 0;
         virtual ValueType getValue() const = 0;
+        const std::vector<char>& getValueAsVector() const;
 
         bool isComplete();
         bool isError() const;

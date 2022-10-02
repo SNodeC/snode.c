@@ -19,15 +19,18 @@
 #ifndef IOT_MQTT_PACKETSNEW_CONNACK_H
 #define IOT_MQTT_PACKETSNEW_CONNACK_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt1/ControlPacket.h"
+#include "iot/mqtt1/types/UInt8.h"
 
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+namespace iot::mqtt1 {
+    class SocketContext;
+} // namespace iot::mqtt1
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint> // IWYU pragma: export
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -43,22 +46,27 @@ namespace iot::mqtt {
 #define MQTT_SESSION_NEW 0x00
 #define MQTT_SESSION_PRESENT 0x01
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt1::packets {
 
-    class Connack : public iot::mqtt::ControlPacket {
+    class Connack : public iot::mqtt1::ControlPacket {
     public:
         explicit Connack(uint8_t reason, uint8_t flags);
-        explicit Connack(mqtt::ControlPacketFactory& controlPacketFactory);
 
         uint8_t getFlags() const;
 
         uint8_t getReason() const;
 
     private:
-        uint8_t flags = 0;
-        uint8_t reason = 0;
+        std::vector<char> getPacket() const override;
+
+        iot::mqtt1::types::UInt8 _flags;
+        iot::mqtt1::types::UInt8 _reason;
+
+        std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
+
+        int state = 0;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt1::packets
 
 #endif // IOT_MQTT_PACKETSNEW_CONNACK_H

@@ -31,6 +31,7 @@ namespace iot::mqtt1::types {
 
     class UInt32 : public TypeBase<uint32_t> {
     public:
+        void setValue(const uint32_t& value) override;
         uint32_t getValue() const override;
     };
 

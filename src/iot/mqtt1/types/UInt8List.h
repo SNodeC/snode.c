@@ -32,6 +32,7 @@ namespace iot::mqtt1::types {
 
     class UInt8List : public TypeBase<std::list<uint8_t>> {
     public:
+        void setValue(const std::list<uint8_t>& value) override;
         std::list<uint8_t> getValue() const override;
     };
 

@@ -25,11 +25,12 @@
 #include "iot/mqtt1/types/UInt8.h"
 
 namespace iot::mqtt1 {
-    class ControlPacketFactory;
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint> // IWYU pragma: export
 #include <string>  // IWYU pragma: export
 
@@ -44,15 +45,6 @@ namespace iot::mqtt1::packets {
     class Connect : public iot::mqtt1::ControlPacket {
     public:
         explicit Connect(uint8_t type, uint8_t reserved = 0);
-        explicit Connect(std::string clientId,
-                         std::string protocol = "MQTT",
-                         uint8_t version = 4,
-                         uint8_t flags = 0,
-                         uint16_t keepAlive = 0x003C,
-                         const std::string& willTopic = "",
-                         const std::string& willMessage = "",
-                         uint8_t willQoS = 0,
-                         bool willRetain = 0);
 
         std::string getProtocol() const;
         uint8_t getLevel() const;
@@ -75,7 +67,6 @@ namespace iot::mqtt1::packets {
 
     private:
         uint8_t flags = 0;
-        uint16_t keepAlive = 0;
 
         bool usernameFlag = false;
         bool passwordFlag = false;
@@ -96,7 +87,7 @@ namespace iot::mqtt1::packets {
         iot::mqtt1::types::String _username;
         iot::mqtt1::types::String _password;
 
-        std::size_t construct(iot::mqtt1::SocketContext* socketContext);
+        std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
 
         int state = 0;
     };

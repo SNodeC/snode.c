@@ -23,12 +23,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
 
     class UInt64 : public TypeBase<uint64_t> {
     public:
+        void setValue(const uint64_t& value) override;
         uint64_t getValue() const override;
     };
 

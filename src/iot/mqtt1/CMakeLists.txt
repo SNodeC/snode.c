@@ -11,10 +11,9 @@ add_subdirectory(types)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_CPP ControlPacket.cpp SocketContext.cpp StaticHeader.cpp
-             Topic.cpp
+set(MQTT_CPP ControlPacket.cpp SocketContext.cpp Topic.cpp
 )
-set(MQTT_H ControlPacket.h SocketContext.h StaticHeader.h Topic.h)
+set(MQTT_H ControlPacket.h SocketContext.h Topic.h)
 
 add_library(mqtt1 SHARED ${MQTT_CPP} ${MQTT_H})
 add_library(snodec::mqtt1 ALIAS mqtt1)

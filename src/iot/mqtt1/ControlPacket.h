@@ -19,15 +19,17 @@
 #ifndef IOT_MQTT1_CONTROLPACKET_H
 #define IOT_MQTT1_CONTROLPACKET_H
 
+#include "iot/mqtt1/types/StaticHeader.h"
+
 namespace iot::mqtt1 {
     class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint>
-#include <list>
-#include <string>
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -35,26 +37,34 @@ namespace iot::mqtt1 {
 
     class ControlPacket {
     public:
+        ControlPacket() = default;
         explicit ControlPacket(uint8_t type, uint8_t reserved = 0);
 
-        virtual ~ControlPacket() = default;
+        virtual ~ControlPacket();
 
-        virtual std::size_t construct(iot::mqtt1::SocketContext* socketContext) = 0;
+        virtual std::size_t construct(iot::mqtt1::SocketContext* socketContext);
 
         uint8_t getType() const;
-
         uint8_t getReserved() const;
+        uint32_t getRemainingLength() const;
 
         bool isComplete() const;
         bool isError() const;
+
+        uint64_t getConsumed() const;
+
+        virtual std::vector<char> getPacket() const;
 
     protected:
         bool complete = false;
         bool error = false;
 
     private:
-        uint8_t type = 0;
-        uint8_t reserved = 0;
+        types::StaticHeader staticHeader;
+        ControlPacket* currentPacket = nullptr;
+
+        int state = 0;
+        uint64_t consumed = 0;
     };
 
 } // namespace iot::mqtt1

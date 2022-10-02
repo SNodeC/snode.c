@@ -18,13 +18,17 @@
 
 #include "iot/mqtt1/types/UInt8List.h"
 
-#include "iot/mqtt1/types/TypeBase.hpp"
+#include "iot/mqtt1/types/TypeBase.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
+
+    void UInt8List::setValue(const std::list<uint8_t>& newValue) {
+        value = std::vector<char>(newValue.begin(), newValue.end());
+    }
 
     std::list<uint8_t> UInt8List::getValue() const {
         return std::list<uint8_t>(value.begin(), value.end());

@@ -22,36 +22,31 @@
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 //#include "iot/mqtt/ControlPacketFactory.h"
 //#include "iot/mqtt/Topic.h"               // IWYU pragma: export
-//#include "iot/mqtt/packets/Connack.h"     // IWYU pragma: export
+#include "iot/mqtt1/ControlPacket.h"
+#include "iot/mqtt1/packets/Connack.h" // IWYU pragma: export
 #include "iot/mqtt1/packets/Connect.h" // IWYU pragma: export
-//#include "iot/mqtt/packets/Disconnect.h"  // IWYU pragma: export
-//#include "iot/mqtt/packets/Pingreq.h"     // IWYU pragma: export
-//#include "iot/mqtt/packets/Pingresp.h"    // IWYU pragma: export
-//#include "iot/mqtt/packets/Puback.h"      // IWYU pragma: export
-//#include "iot/mqtt/packets/Pubcomp.h"     // IWYU pragma: export
-//#include "iot/mqtt/packets/Publish.h"     // IWYU pragma: export
-//#include "iot/mqtt/packets/Pubrec.h"      // IWYU pragma: export
-//#include "iot/mqtt/packets/Pubrel.h"      // IWYU pragma: export
-//#include "iot/mqtt/packets/Suback.h"      // IWYU pragma: export
-//#include "iot/mqtt/packets/Subscribe.h"   // IWYU pragma: export
-//#include "iot/mqtt/packets/Unsuback.h"    // IWYU pragma: export
-//#include "iot/mqtt/packets/Unsubscribe.h" // IWYU pragma: export
-
-#include "iot/mqtt1/StaticHeader.h"
+//#include "iot/mqtt1/packets/Disconnect.h"  // IWYU pragma: export
+//#include "iot/mqtt1/packets/Pingreq.h"     // IWYU pragma: export
+//#include "iot/mqtt1/packets/Pingresp.h"    // IWYU pragma: export
+//#include "iot/mqtt1/packets/Puback.h"      // IWYU pragma: export
+//#include "iot/mqtt1/packets/Pubcomp.h"     // IWYU pragma: export
+//#include "iot/mqtt1/packets/Publish.h"     // IWYU pragma: export
+//#include "iot/mqtt1/packets/Pubrec.h"      // IWYU pragma: export
+//#include "iot/mqtt1/packets/Pubrel.h"      // IWYU pragma: export
+//#include "iot/mqtt1/packets/Suback.h"      // IWYU pragma: export
+//#include "iot/mqtt1/packets/Subscribe.h"   // IWYU pragma: export
+//#include "iot/mqtt1/packets/Unsuback.h"    // IWYU pragma: export
+//#include "iot/mqtt1/packets/Unsubscribe.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
 }
 
-namespace iot::mqtt1 {
-    class ControlPacket;
-}
 #include "iot/mqtt1/Topic.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <list>
 #include <string>
 #include <vector>
 
@@ -68,13 +63,51 @@ namespace iot::mqtt1 {
     private:
         virtual std::size_t onReceiveFromPeer() final;
 
+        //    public:
+        void _onConnect(const iot::mqtt1::packets::Connect& connect);
+        void _onConnack(const iot::mqtt1::packets::Connack& connack);
+
+        //        void _onPublish(const iot::mqtt::packets::Publish& publish) = 0;
+        //        void _onPuback(const iot::mqtt::packets::Puback& puback) = 0;
+        //        void _onPubrec(const iot::mqtt::packets::Pubrec& pubrec) = 0;
+        //        void _onPubrel(const iot::mqtt::packets::Pubrel& pubrel) = 0;
+        //        void _onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) = 0;
+        //        void _onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) = 0;
+        //        void _onSuback(const iot::mqtt::packets::Suback& suback) = 0;
+        //        void _onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) = 0;
+        //        void _onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) = 0;
+        //        void _onPingreq(const iot::mqtt::packets::Pingreq& pingreq) = 0;
+        //        void _onPingresp(const iot::mqtt::packets::Pingresp& pingresp) = 0;
+        //        void _onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) = 0;
+
+    private:
+        virtual void onConnect(const iot::mqtt1::packets::Connect& connect) = 0;
+
+        void sendConnack(uint8_t returnCode, uint8_t flags);
+        //        virtual void onConnack(const iot::mqtt::packets::Connack& connack) = 0;
+        //        virtual void onPublish(const iot::mqtt::packets::Publish& publish) = 0;
+        //        virtual void onPuback(const iot::mqtt::packets::Puback& puback) = 0;
+        //        virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec) = 0;
+        //        virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel) = 0;
+        //        virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) = 0;
+        //        virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) = 0;
+        //        virtual void onSuback(const iot::mqtt::packets::Suback& suback) = 0;
+        //        virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) = 0;
+        //        virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) = 0;
+        //        virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq) = 0;
+        //        virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) = 0;
+        //        virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) = 0;
+
+        void send(iot::mqtt1::ControlPacket&& controlPacket) const;
+        void send(iot::mqtt1::ControlPacket& controlPacket) const;
+        void send(std::vector<char>&& data) const;
+
         void printData(const std::vector<char>& data) const;
 
-        int state = 0;
+        ControlPacket controlPacket;
 
-        StaticHeader staticHeader;
-
-        ControlPacket* currentPacket = nullptr;
+        friend class iot::mqtt1::packets::Connack;
+        friend class iot::mqtt1::packets::Connect;
     };
 
 } // namespace iot::mqtt1

@@ -31,6 +31,7 @@ namespace iot::mqtt1::types {
 
     class StringRaw : public TypeBase<std::string> {
     public:
+        void setValue(const std::string& value) override;
         std::string getValue() const override;
     };
 

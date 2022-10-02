@@ -18,11 +18,9 @@
 
 #include "iot/mqtt1/types/UIntV.h"
 
-#include "iot/mqtt1/types/TypeBase.hpp"
+#include "iot/mqtt1/types/TypeBase.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <endian.h>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -40,21 +38,35 @@ namespace iot::mqtt1::types {
 
             if (!error) {
                 consumed += ret;
-                complete = (byte & 0x80) == 0;
 
-                value.push_back(byte & 0x7F);
+                complete = (byte & 0x80) == 0;
             }
         } while (ret > 0 && !complete && !error);
 
         return consumed;
     }
 
+    void UIntV::setValue(const uint32_t& newValue) {
+        uint32_t remainingValue = newValue;
+
+        do {
+            uint8_t encodedByte = static_cast<uint8_t>(remainingValue % 0x80);
+
+            remainingValue /= 0x80;
+            if (remainingValue > 0) {
+                encodedByte |= 0x80;
+            }
+
+            value.push_back(encodedByte);
+        } while (remainingValue > 0);
+    }
+
     uint32_t UIntV::getValue() const {
         uint32_t uint32Value = 0;
         uint32_t multiplicator = 1;
 
-        for (std::size_t i = 0; i < count; i++, multiplicator *= 0x80) {
-            uint32Value += value[i] * multiplicator;
+        for (std::size_t i = 0; i < value.size(); i++, multiplicator *= 0x80) {
+            uint32Value += static_cast<uint8_t>(value[i] & 0x7F) * multiplicator;
         }
 
         return uint32Value;

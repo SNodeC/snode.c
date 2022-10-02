@@ -18,13 +18,17 @@
 
 #include "iot/mqtt1/types/UInt8.h"
 
-#include "iot/mqtt1/types/TypeBase.hpp"
+#include "iot/mqtt1/types/TypeBase.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
+
+    void UInt8::setValue(const uint8_t& newValue) {
+        *reinterpret_cast<uint8_t*>(value.data()) = newValue;
+    }
 
     uint8_t UInt8::getValue() const {
         return *reinterpret_cast<uint8_t*>(const_cast<char*>(value.data()));

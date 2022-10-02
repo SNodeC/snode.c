@@ -21,8 +21,13 @@
 
 #include "iot/mqtt1/types/TypeBase.h"
 
+namespace core::socket {
+    class SocketContext;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -33,6 +38,7 @@ namespace iot::mqtt1::types {
     public:
         std::size_t construct(core::socket::SocketContext* socketContext) override;
 
+        void setValue(const uint32_t& value) override;
         uint32_t getValue() const override;
 
     private:

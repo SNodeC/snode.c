@@ -18,7 +18,7 @@
 
 #include "iot/mqtt1/types/UInt16.h"
 
-#include "iot/mqtt1/types/TypeBase.hpp"
+#include "iot/mqtt1/types/TypeBase.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,6 +27,10 @@
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
+
+    void UInt16::setValue(const uint16_t& newValue) {
+        *reinterpret_cast<uint16_t*>(value.data()) = htobe16(newValue);
+    }
 
     uint16_t UInt16::getValue() const {
         return be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(value.data())));

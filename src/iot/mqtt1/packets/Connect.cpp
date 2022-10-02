@@ -30,18 +30,6 @@ namespace iot::mqtt1::packets {
         : iot::mqtt1::ControlPacket(type, reserved) {
     }
 
-    Connect::Connect([[maybe_unused]] std::string clientId,
-                     [[maybe_unused]] std::string protocol,
-                     [[maybe_unused]] uint8_t version,
-                     [[maybe_unused]] uint8_t flags,
-                     [[maybe_unused]] uint16_t keepAlive,
-                     [[maybe_unused]] const std::string& willTopic,
-                     [[maybe_unused]] const std::string& willMessage,
-                     [[maybe_unused]] uint8_t willQoS,
-                     [[maybe_unused]] bool willRetain)
-        : iot::mqtt1::ControlPacket(MQTT_CONNECT) {
-    }
-
     std::string Connect::getProtocol() const {
         return _protocol.getValue();
     }
@@ -226,7 +214,7 @@ namespace iot::mqtt1::packets {
                 }
                 [[fallthrough]];
             default:
-                //                socketContext->onConnectInternal(this);
+                socketContext->_onConnect(*this);
                 complete = true;
                 break;
         }

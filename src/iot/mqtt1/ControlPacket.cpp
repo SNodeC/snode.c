@@ -18,25 +18,83 @@
 
 #include "iot/mqtt1/ControlPacket.h"
 
+#include "iot/mqtt1/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility>
+#include "log/Logger.h"
+
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1 {
 
     ControlPacket::ControlPacket(uint8_t type, uint8_t reserved)
-        : type(type)
-        , reserved(reserved) {
+        : staticHeader(type, reserved) {
+    }
+
+    ControlPacket::~ControlPacket() {
+        if (currentPacket != nullptr) {
+            delete currentPacket;
+        }
+    }
+
+    std::size_t ControlPacket::construct(SocketContext* socketContext) {
+        std::size_t consumed = 0;
+
+        switch (state) {
+            case 0:
+                // read static header
+                consumed += staticHeader.construct(socketContext);
+                if (staticHeader.isError()) {
+                    socketContext->close();
+                }
+                if (staticHeader.isComplete()) {
+                    // Create concrete packet
+                    switch (staticHeader.getPacketType()) {
+                        case MQTT_CONNECT:
+                            currentPacket = new iot::mqtt1::packets::Connect(staticHeader.getPacketType(), staticHeader.getReserved());
+                            break;
+                    }
+
+                    state++;
+                }
+                [[fallthrough]];
+            case 1:
+                // read concretes packet variable header and payload
+                LOG(TRACE) << "======================================================";
+                LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(staticHeader.getPacketType());
+                LOG(TRACE) << "Reserved: " << static_cast<uint16_t>(staticHeader.getReserved());
+                LOG(TRACE) << "RemainingLength: " << static_cast<uint16_t>(staticHeader.getRemainingLength());
+
+                consumed += currentPacket->construct(socketContext);
+
+                if (currentPacket->isComplete()) {
+                    delete currentPacket;
+                    currentPacket = nullptr;
+                } else if (currentPacket->isError()) {
+                    socketContext->close();
+                }
+
+                break;
+        }
+
+        this->consumed += consumed;
+
+        return consumed;
     }
 
     uint8_t ControlPacket::getType() const {
-        return type;
+        return staticHeader.getPacketType();
     }
 
     uint8_t ControlPacket::getReserved() const {
-        return reserved;
+        return staticHeader.getReserved();
+    }
+
+    uint32_t ControlPacket::getRemainingLength() const {
+        return staticHeader.getRemainingLength();
     }
 
     bool ControlPacket::isComplete() const {
@@ -45,6 +103,23 @@ namespace iot::mqtt1 {
 
     bool ControlPacket::isError() const {
         return error;
+    }
+
+    uint64_t ControlPacket::getConsumed() const {
+        return consumed;
+    }
+
+    std::vector<char> ControlPacket::getPacket() const {
+        std::vector<char> packet = currentPacket->getPacket();
+
+        iot::mqtt1::types::StaticHeader staticHeader(currentPacket->getType(), currentPacket->getReserved());
+        staticHeader.setRemainingLength(static_cast<uint32_t>(packet.size()));
+
+        std::vector<char> packetStaticHeader = staticHeader.getPacket();
+
+        packetStaticHeader.insert(packetStaticHeader.end(), packet.begin(), packet.end());
+
+        return packetStaticHeader;
     }
 
 } // namespace iot::mqtt1

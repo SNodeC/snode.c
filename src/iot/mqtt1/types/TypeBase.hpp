@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/SocketContext.h"
+#include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt1/types/TypeBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,12 +36,17 @@ namespace iot::mqtt1::types {
         return consumed;
     }
 
-    template <typename ValueTypeT>
-    void TypeBase<ValueTypeT>::setSize(std::size_t size) {
+    template <typename ValueType>
+    void TypeBase<ValueType>::setSize(std::size_t size) {
         value.resize(size);
 
         length = size;
         needed = size;
+    }
+
+    template <typename ValueType>
+    const std::vector<char>& iot::mqtt1::types::TypeBase<ValueType>::getValueAsVector() const {
+        return value;
     }
 
     template <typename ValueType>

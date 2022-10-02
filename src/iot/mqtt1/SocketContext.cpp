@@ -37,50 +37,46 @@ namespace iot::mqtt1 {
     }
 
     SocketContext::~SocketContext() {
-        if (currentPacket != nullptr) {
-            delete currentPacket;
-        }
     }
 
     std::size_t SocketContext::onReceiveFromPeer() {
-        std::size_t consumed = 0;
+        return controlPacket.construct(this);
+    }
 
-        switch (state) {
-            case 0:
-                // read static header
-                consumed += staticHeader.construct(this);
-                if (staticHeader.isError()) {
-                    close();
-                }
-                if (staticHeader.isComplete()) {
-                    switch (staticHeader.getPacketType()) {
-                        case MQTT_CONNECT:
-                            currentPacket = new iot::mqtt1::packets::Connect(staticHeader.getPacketType(), staticHeader.getPacketFlags());
-                            break;
-                    }
-
-                    state++;
-                }
-                [[fallthrough]];
-            case 1:
-                LOG(TRACE) << "======================================================";
-                LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(staticHeader.getPacketType());
-                LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(staticHeader.getPacketFlags());
-                LOG(TRACE) << "RemainingLength: " << static_cast<uint16_t>(staticHeader.getRemainingLength());
-
-                consumed += currentPacket->construct(this);
-
-                if (currentPacket->isComplete()) {
-                    delete currentPacket;
-                    currentPacket = nullptr;
-                } else if (currentPacket->isError()) {
-                    close();
-                }
-
-                break;
+    void SocketContext::_onConnect(const packets::Connect& connect) {
+        if (controlPacket.getRemainingLength() == connect.getConsumed()) {
+            onConnect(connect);
+        } else {
+            close();
         }
+    }
 
-        return consumed;
+    void SocketContext::_onConnack(const iot::mqtt1::packets::Connack& connack) {
+        if (controlPacket.getRemainingLength() == connack.getConsumed()) {
+            _onConnack(connack);
+        } else {
+            close();
+        }
+    }
+
+    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
+        LOG(TRACE) << "Send CONNACK";
+        LOG(TRACE) << "============";
+
+        send(iot::mqtt1::packets::Connack(returnCode, flags));
+    }
+
+    void SocketContext::send(ControlPacket&& controlPacket) const {
+        send(controlPacket.getPacket());
+    }
+
+    void SocketContext::send(ControlPacket& controlPacket) const {
+        send(controlPacket.getPacket());
+    }
+
+    void SocketContext::send(std::vector<char>&& data) const {
+        printData(data);
+        sendToPeer(data.data(), data.size());
     }
 
     void SocketContext::printData(const std::vector<char>& data) const {

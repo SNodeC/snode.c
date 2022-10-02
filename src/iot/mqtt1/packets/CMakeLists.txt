@@ -4,7 +4,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(MQTT_PACKETS_CPP
     Connect.cpp
-#    Connack.cpp
+    Connack.cpp
 #    Disconnect.cpp
 #    Pingreq.cpp
 #    Pingresp.cpp
@@ -20,7 +20,7 @@ set(MQTT_PACKETS_CPP
 )
 set(MQTT_PACKETS_H
     Connect.h
-#    Connack.h
+    Connack.h
 #    Disconnect.h
 #    Pingreq.h
 #    Pingresp.h
