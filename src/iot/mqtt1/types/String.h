@@ -37,7 +37,6 @@ namespace iot::mqtt1::types {
         std::size_t construct(core::socket::SocketContext* socketContext) override;
 
         void setValue(const std::string& newValue) override;
-
         std::string getValue() const override;
 
         std::vector<char> getValueAsVector() const override;

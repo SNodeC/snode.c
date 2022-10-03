@@ -70,8 +70,6 @@ namespace iot::mqtt1::packets {
     private:
         std::vector<char> getPacket() const override;
 
-        uint8_t flags = 0;
-
         bool usernameFlag = false;
         bool passwordFlag = false;
         bool willRetain = false;
@@ -81,15 +79,15 @@ namespace iot::mqtt1::packets {
         bool reserved = false;
 
     private:
-        iot::mqtt1::types::String _protocol;
-        iot::mqtt1::types::UInt8 _level;
-        iot::mqtt1::types::UInt8 _flags;
-        iot::mqtt1::types::UInt16 _keepAlive;
-        iot::mqtt1::types::String _clientId;
-        iot::mqtt1::types::String _willTopic;
-        iot::mqtt1::types::String _willMessage;
-        iot::mqtt1::types::String _username;
-        iot::mqtt1::types::String _password;
+        iot::mqtt1::types::String protocol;
+        iot::mqtt1::types::UInt8 level;
+        iot::mqtt1::types::UInt8 flags;
+        iot::mqtt1::types::UInt16 keepAlive;
+        iot::mqtt1::types::String clientId;
+        iot::mqtt1::types::String willTopic;
+        iot::mqtt1::types::String willMessage;
+        iot::mqtt1::types::String username;
+        iot::mqtt1::types::String password;
 
         std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
         void propagateEvent(SocketContext* socketContext) const override;

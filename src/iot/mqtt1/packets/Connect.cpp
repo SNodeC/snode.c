@@ -28,7 +28,7 @@ namespace iot::mqtt1::packets {
 
     Connect::Connect(const std::string& clientId)
         : iot::mqtt1::ControlPacket(MQTT_CONNECT, 0, 0) {
-        _clientId.setValue(clientId);
+        this->clientId.setValue(clientId);
     }
 
     Connect::Connect(uint32_t remainingLength, uint8_t reserved)
@@ -36,23 +36,23 @@ namespace iot::mqtt1::packets {
     }
 
     std::string Connect::getProtocol() const {
-        return _protocol.getValue();
+        return protocol.getValue();
     }
 
     uint8_t Connect::getLevel() const {
-        return _level.getValue();
+        return level.getValue();
     }
 
     uint8_t Connect::getFlags() const {
-        return flags;
+        return flags.getValue();
     }
 
     uint16_t Connect::getKeepAlive() const {
-        return _keepAlive.getValue();
+        return keepAlive.getValue();
     }
 
     std::string Connect::getClientId() const {
-        return _clientId.getValue();
+        return clientId.getValue();
     }
 
     bool Connect::getUsernameFlag() const {
@@ -80,52 +80,52 @@ namespace iot::mqtt1::packets {
     }
 
     std::string Connect::getWillTopic() const {
-        return _willTopic.getValue();
+        return willTopic.getValue();
     }
 
     std::string Connect::getWillMessage() const {
-        return _willMessage.getValue();
+        return willMessage.getValue();
     }
 
     std::string Connect::getUsername() const {
-        return _username.getValue();
+        return username.getValue();
     }
 
     std::string Connect::getPassword() const {
-        return _password.getValue();
+        return password.getValue();
     }
 
     std::vector<char> Connect::getPacket() const {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = _protocol.getValueAsVector();
+        std::vector<char> tmpVector = protocol.getValueAsVector();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = _level.getValueAsVector();
+        tmpVector = level.getValueAsVector();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = _flags.getValueAsVector();
+        tmpVector = flags.getValueAsVector();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = _keepAlive.getValueAsVector();
+        tmpVector = keepAlive.getValueAsVector();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = _clientId.getValueAsVector();
+        tmpVector = clientId.getValueAsVector();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         if (willFlag) {
-            tmpVector = _willTopic.getValueAsVector();
+            tmpVector = willTopic.getValueAsVector();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-            tmpVector = _willMessage.getValueAsVector();
+            tmpVector = willMessage.getValueAsVector();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
         if (usernameFlag) {
-            tmpVector = _username.getValueAsVector();
+            tmpVector = username.getValueAsVector();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
         if (passwordFlag) {
-            tmpVector = _password.getValueAsVector();
+            tmpVector = password.getValueAsVector();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
 
@@ -139,68 +139,66 @@ namespace iot::mqtt1::packets {
         switch (state) {
             // V-Header
             case 0:
-                consumed = _protocol.construct(socketContext);
+                consumed = protocol.construct(socketContext);
                 consumedTotal += consumed;
 
-                if ((error = _protocol.isError()) || !_protocol.isComplete()) {
+                if ((error = protocol.isError()) || !protocol.isComplete()) {
                     break;
                 }
-                error = _protocol.getValue() != "MQTT";
+                error = protocol.getValue() != "MQTT";
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed = _level.construct(socketContext);
+                consumed = level.construct(socketContext);
                 consumedTotal += consumed;
 
-                if ((error = _level.isError()) || !_level.isComplete()) {
+                if ((error = level.isError()) || !level.isComplete()) {
                     break;
                 }
                 state++;
                 [[fallthrough]];
             case 2:
-                consumed = _flags.construct(socketContext);
+                consumed = flags.construct(socketContext);
                 consumedTotal += consumed;
 
-                if ((error = _flags.isError()) || !_flags.isComplete()) {
+                if ((error = flags.isError()) || !flags.isComplete()) {
                     break;
                 }
 
-                flags = _flags.getValue();
-
-                reserved = (flags & 0x01) != 0;
-                cleanSession = (flags & 0x02) != 0;
-                willFlag = (flags & 0x04) != 0;
-                willQoS = (flags & 0x18) >> 3;
-                willRetain = (flags & 0x20) != 0;
-                passwordFlag = (flags & 0x40) != 0;
-                usernameFlag = (flags & 0x80) != 0;
+                reserved = (flags.getValue() & 0x01) != 0;
+                cleanSession = (flags.getValue() & 0x02) != 0;
+                willFlag = (flags.getValue() & 0x04) != 0;
+                willQoS = (flags.getValue() & 0x18) >> 3;
+                willRetain = (flags.getValue() & 0x20) != 0;
+                passwordFlag = (flags.getValue() & 0x40) != 0;
+                usernameFlag = (flags.getValue() & 0x80) != 0;
                 state++;
                 [[fallthrough]];
             case 3:
-                consumed = _keepAlive.construct(socketContext);
+                consumed = keepAlive.construct(socketContext);
                 consumedTotal += consumed;
 
-                if ((error = _keepAlive.isError()) || !_keepAlive.isComplete()) {
+                if ((error = keepAlive.isError()) || !keepAlive.isComplete()) {
                     break;
                 }
                 state++;
                 [[fallthrough]];
             // Payload
             case 4:
-                consumed = _clientId.construct(socketContext);
+                consumed = clientId.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _clientId.isError()) || !_clientId.isComplete()) {
+                if ((error = clientId.isError()) || !clientId.isComplete()) {
                     break;
                 }
                 state++;
                 [[fallthrough]];
             case 5:
                 if (willFlag) {
-                    consumed = _willTopic.construct(socketContext);
+                    consumed = willTopic.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if ((error = _willTopic.isError()) || !_willTopic.isComplete()) {
+                    if ((error = willTopic.isError()) || !willTopic.isComplete()) {
                         break;
                     }
                 }
@@ -208,10 +206,10 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 6:
                 if (willFlag) {
-                    consumed = _willMessage.construct(socketContext);
+                    consumed = willMessage.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if ((error = _willMessage.isError()) || !_willMessage.isComplete()) {
+                    if ((error = willMessage.isError()) || !willMessage.isComplete()) {
                         break;
                     }
                 }
@@ -219,10 +217,10 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 7:
                 if (usernameFlag) {
-                    consumed = _username.construct(socketContext);
+                    consumed = username.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if ((error = _username.isError()) || !_username.isComplete()) {
+                    if ((error = username.isError()) || !username.isComplete()) {
                         break;
                     }
                 }
@@ -230,10 +228,10 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 8:
                 if (passwordFlag) {
-                    consumed = _password.construct(socketContext);
+                    consumed = password.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if ((error = _password.isError()) || !_password.isComplete()) {
+                    if ((error = password.isError()) || !password.isComplete()) {
                         break;
                     }
                 }

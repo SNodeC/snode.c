@@ -53,8 +53,8 @@ namespace iot::mqtt1::types {
         virtual ValueType getValue() const = 0;
 
         virtual std::vector<char> getValueAsVector() const;
-        bool isComplete() const;
 
+        bool isComplete() const;
         bool isError() const;
 
         virtual void reset(std::size_t size = sizeof(ValueType));
