@@ -46,19 +46,14 @@ namespace iot::mqtt1::types {
                 consumed = _typeReserved.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _typeReserved.isError())) {
+                if ((error = _typeReserved.isError()) || !_typeReserved.isComplete()) {
                     break;
-                } else if (_typeReserved.isComplete()) {
-                    state++;
                 }
+                state++;
                 [[fallthrough]];
             case 1:
                 consumed = _remainingLength.construct(socketContext);
                 consumedTotal += consumed;
-
-                if (consumed == 0 || (error = _remainingLength.isError())) {
-                    break;
-                }
 
                 complete = _remainingLength.isComplete();
                 error = _remainingLength.isError();

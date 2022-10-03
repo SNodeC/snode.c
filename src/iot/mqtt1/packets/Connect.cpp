@@ -142,7 +142,7 @@ namespace iot::mqtt1::packets {
                 consumed = _protocol.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _protocol.isError()) || !_protocol.isComplete()) {
+                if ((error = _protocol.isError()) || !_protocol.isComplete()) {
                     break;
                 }
                 error = _protocol.getValue() != "MQTT";
@@ -152,7 +152,7 @@ namespace iot::mqtt1::packets {
                 consumed = _level.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _level.isError()) || !_level.isComplete()) {
+                if ((error = _level.isError()) || !_level.isComplete()) {
                     break;
                 }
                 state++;
@@ -161,7 +161,7 @@ namespace iot::mqtt1::packets {
                 consumed = _flags.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _flags.isError()) || !_flags.isComplete()) {
+                if ((error = _flags.isError()) || !_flags.isComplete()) {
                     break;
                 }
 
@@ -180,7 +180,7 @@ namespace iot::mqtt1::packets {
                 consumed = _keepAlive.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = _keepAlive.isError()) || !_keepAlive.isComplete()) {
+                if ((error = _keepAlive.isError()) || !_keepAlive.isComplete()) {
                     break;
                 }
                 state++;
@@ -200,7 +200,7 @@ namespace iot::mqtt1::packets {
                     consumed = _willTopic.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = _willTopic.isError()) || !_willTopic.isComplete()) {
+                    if ((error = _willTopic.isError()) || !_willTopic.isComplete()) {
                         break;
                     }
                 }
@@ -211,7 +211,7 @@ namespace iot::mqtt1::packets {
                     consumed = _willMessage.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = _willMessage.isError()) || !_willMessage.isComplete()) {
+                    if ((error = _willMessage.isError()) || !_willMessage.isComplete()) {
                         break;
                     }
                 }
@@ -222,7 +222,7 @@ namespace iot::mqtt1::packets {
                     consumed = _username.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = _username.isError()) || !_username.isComplete()) {
+                    if ((error = _username.isError()) || !_username.isComplete()) {
                         break;
                     }
                 }
@@ -233,7 +233,7 @@ namespace iot::mqtt1::packets {
                     consumed = _password.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = _password.isError()) || !_password.isComplete()) {
+                    if ((error = _password.isError()) || !_password.isComplete()) {
                         break;
                     }
                 }

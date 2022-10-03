@@ -42,6 +42,8 @@ namespace iot::mqtt1::types {
         needed -= consumed;
         complete = needed == 0;
 
+        VLOG(0) << "Construct: consumed = " << consumed << ", needed = " << needed << ", length = " << length;
+
         return consumed;
     }
 

@@ -26,6 +26,10 @@
 
 namespace iot::mqtt1::types {
 
+    StringRaw::StringRaw()
+        : TypeBase(0) {
+    }
+
     void StringRaw::setValue(const ValueType& newValue) {
         value = std::vector<char>(newValue.begin(), newValue.end());
     }

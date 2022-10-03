@@ -94,7 +94,7 @@ namespace iot::mqtt1::packets {
                 consumed = topic.construct(socketContext);
                 consumedTotal += consumed;
 
-                if ((consumed == 0) || (error = topic.isError()) || !topic.isComplete()) {
+                if ((error = topic.isError()) || !topic.isComplete()) {
                     break;
                 }
 
@@ -105,10 +105,11 @@ namespace iot::mqtt1::packets {
                     consumed = packetIdentifier.construct(socketContext);
                     consumedTotal += consumed;
 
-                    if (consumed == 0 || (error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
+                    if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                         break;
                     }
                 }
+
                 message.setSize(static_cast<uint16_t>(remainingLength - getConsumed() - consumedTotal));
                 state++;
                 [[fallthrough]];
@@ -116,7 +117,7 @@ namespace iot::mqtt1::packets {
                 consumed = message.construct(socketContext);
                 consumedTotal += consumed;
 
-                if ((consumed == 0) || (error = message.isError()) || !message.isComplete()) {
+                if ((error = message.isError()) || !message.isComplete()) {
                     break;
                 }
                 [[fallthrough]];
