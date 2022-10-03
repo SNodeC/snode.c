@@ -48,73 +48,63 @@ namespace iot::mqtt1 {
 
         switch (state) {
             case 0:
-                consumed = controlPacketFactory.construct(this);
+                consumed = staticHeader.construct(this);
 
-                error = controlPacketFactory.isError();
-                complete = controlPacketFactory.isComplete();
-                if (error || !complete) {
+                if (!staticHeader.isComplete()) {
+                    break;
+                } else if (staticHeader.isError()) {
+                    close();
                     break;
                 }
 
-                switch (controlPacketFactory.getPacketType()) {
+                switch (staticHeader.getPacketType()) {
                     case MQTT_CONNECT:
-                        currentPacket = new iot::mqtt1::packets::Connect(controlPacketFactory.getRemainingLength(),
-                                                                         controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Connect(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_CONNACK:
-                        currentPacket = new iot::mqtt1::packets::Connack(controlPacketFactory.getRemainingLength(),
-                                                                         controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Connack(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_SUBSCRIBE:
-                        currentPacket = new iot::mqtt1::packets::Subscribe(controlPacketFactory.getRemainingLength(),
-                                                                           controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Subscribe(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_SUBACK:
-                        currentPacket = new iot::mqtt1::packets::Suback(controlPacketFactory.getRemainingLength(),
-                                                                        controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Suback(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_PUBLISH:
-                        currentPacket = new iot::mqtt1::packets::Publish(controlPacketFactory.getRemainingLength(),
-                                                                         controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Publish(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_PUBREC:
-                        currentPacket = new iot::mqtt1::packets::Pubrec(controlPacketFactory.getRemainingLength(),
-                                                                        controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Pubrec(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_PUBREL:
-                        currentPacket = new iot::mqtt1::packets::Pubrel(controlPacketFactory.getRemainingLength(),
-                                                                        controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Pubrel(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_UNSUBSCRIBE:
-                        currentPacket = new iot::mqtt1::packets::Unsubscribe(controlPacketFactory.getRemainingLength(),
-                                                                             controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Unsubscribe(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_UNSUBACK:
-                        currentPacket = new iot::mqtt1::packets::Unsuback(controlPacketFactory.getRemainingLength(),
-                                                                          controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Unsuback(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_PUBACK:
-                        currentPacket = new iot::mqtt1::packets::Puback(controlPacketFactory.getRemainingLength(),
-                                                                        controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Puback(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_PUBCOMP:
-                        currentPacket = new iot::mqtt1::packets::Pubcomp(controlPacketFactory.getRemainingLength(),
-                                                                         controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_DISCONNECT:
-                        currentPacket = new iot::mqtt1::packets::Disconnect(controlPacketFactory.getRemainingLength(),
-                                                                            controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                     case MQTT_PINGREQ:
-                        currentPacket = new iot::mqtt1::packets::Pingreq(controlPacketFactory.getRemainingLength(),
-                                                                         controlPacketFactory.getPacketFlags());
+                        currentPacket = new iot::mqtt1::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getReserved());
                         break;
                 }
 
                 LOG(TRACE) << "======================================================";
-                LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(controlPacketFactory.getPacketType());
-                LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(controlPacketFactory.getPacketFlags());
-                LOG(TRACE) << "RemainingLength: " << static_cast<uint16_t>(controlPacketFactory.getRemainingLength());
+                LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(staticHeader.getPacketType());
+                LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(staticHeader.getReserved());
+                LOG(TRACE) << "RemainingLength: " << static_cast<uint16_t>(staticHeader.getRemainingLength());
+
+                staticHeader.reset();
 
                 state++;
                 [[fallthrough]];
@@ -122,21 +112,15 @@ namespace iot::mqtt1 {
                 if (currentPacket != nullptr) {
                     consumed += currentPacket->_construct(this);
 
-                    error = currentPacket->isError();
-                    complete = currentPacket->isComplete();
-
-                    if (complete) {
+                    if (currentPacket->isComplete()) {
                         printData(currentPacket->getFullPacket());
                         currentPacket->propagateEvent(this);
 
                         delete currentPacket;
                         currentPacket = nullptr;
 
-                        controlPacketFactory.reset();
-
                         state = 0;
-                    }
-                    if (error) {
+                    } else if (currentPacket->isError()) {
                         delete currentPacket;
                         currentPacket = nullptr;
 
@@ -147,10 +131,6 @@ namespace iot::mqtt1 {
                 }
 
                 break;
-        }
-
-        if (error) {
-            close();
         }
 
         return consumed;

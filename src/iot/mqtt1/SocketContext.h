@@ -19,8 +19,7 @@
 #ifndef IOT_MQTT1_SOCKETCONTEXT_H
 #define IOT_MQTT1_SOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h" // IWYU pragma: export
-#include "iot/mqtt1/ControlPacketFactory.h"
+#include "core/socket/SocketContext.h"     // IWYU pragma: export
 #include "iot/mqtt1/packets/Connack.h"     // IWYU pragma: export
 #include "iot/mqtt1/packets/Connect.h"     // IWYU pragma: export
 #include "iot/mqtt1/packets/Disconnect.h"  // IWYU pragma: export
@@ -35,6 +34,7 @@
 #include "iot/mqtt1/packets/Subscribe.h"   // IWYU pragma: export
 #include "iot/mqtt1/packets/Unsuback.h"    // IWYU pragma: export
 #include "iot/mqtt1/packets/Unsubscribe.h" // IWYU pragma: export
+#include "iot/mqtt1/types/StaticHeader.h"
 
 namespace core::socket {
     class SocketConnection;
@@ -119,16 +119,16 @@ namespace iot::mqtt1 {
 
         static void printData(const std::vector<char>& data);
 
+        iot::mqtt1::types::StaticHeader staticHeader;
+
         uint16_t getPacketIdentifier();
 
         uint16_t packetIdentifier = 0;
 
-        ControlPacketFactory controlPacketFactory;
+        //        ControlPacketFactory controlPacketFactory;
 
         iot::mqtt1::ControlPacket* currentPacket = nullptr;
 
-        bool error = false;
-        bool complete = false;
         int state = 0;
 
         friend class iot::mqtt1::packets::Connack;
