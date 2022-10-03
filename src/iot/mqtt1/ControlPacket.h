@@ -39,16 +39,15 @@ namespace iot::mqtt1 {
 
         virtual ~ControlPacket();
 
-        virtual std::size_t deserialize(iot::mqtt1::SocketContext* socketContext) = 0;
-        std::size_t _construct(iot::mqtt1::SocketContext* socketContext);
+        std::size_t deserialize(iot::mqtt1::SocketContext* socketContext);
+        std::vector<char> serialize() const;
         virtual void propagateEvent(SocketContext* socketContext) const = 0;
 
     private:
-        virtual std::vector<char> getPacket() const = 0;
+        virtual std::size_t deserializeVP(iot::mqtt1::SocketContext* socketContext) = 0;
+        virtual std::vector<char> serializeVP() const = 0;
 
     public:
-        std::vector<char> serialize() const;
-
         uint8_t getType() const;
         uint8_t getReserved() const;
         uint32_t getRemainingLength() const;

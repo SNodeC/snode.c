@@ -35,11 +35,10 @@ namespace iot::mqtt1::types {
     class String : public TypeBase<std::string> {
     public:
         std::size_t deserialize(core::socket::SocketContext* socketContext) override;
+        std::vector<char> serialize() const override;
 
         void setValue(const std::string& newValue) override;
         std::string getValue() const override;
-
-        std::vector<char> getValueAsVector() const override;
 
         void reset(std::size_t size = sizeof(ValueType)) override;
 

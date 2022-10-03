@@ -41,7 +41,7 @@ namespace iot::mqtt1 {
         StaticHeader();
         StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength = 0);
 
-        std::size_t construct(iot::mqtt1::SocketContext* socketContext);
+        std::size_t deserialize(iot::mqtt1::SocketContext* socketContext);
 
         ~StaticHeader();
 

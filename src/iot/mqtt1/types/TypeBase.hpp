@@ -52,7 +52,7 @@ namespace iot::mqtt1::types {
     }
 
     template <typename ValueType>
-    std::vector<char> iot::mqtt1::types::TypeBase<ValueType>::getValueAsVector() const {
+    std::vector<char> iot::mqtt1::types::TypeBase<ValueType>::serialize() const {
         return value;
     }
 

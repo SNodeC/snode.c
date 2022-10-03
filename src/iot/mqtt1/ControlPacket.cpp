@@ -38,23 +38,24 @@ namespace iot::mqtt1 {
         }
     }
 
-    std::size_t ControlPacket::_construct(SocketContext* socketContext) {
-        std::size_t currentConsumed = deserialize(socketContext);
+    std::size_t ControlPacket::deserialize(SocketContext* socketContext) {
+        std::size_t currentConsumed = deserializeVP(socketContext);
         consumed += currentConsumed;
 
         return currentConsumed;
     }
 
     std::vector<char> ControlPacket::serialize() const {
-        std::vector<char> packet = getPacket();
+        std::vector<char> variablHeaderPayload = serializeVP();
 
         iot::mqtt1::StaticHeader staticHeader(getType(), getReserved());
-        staticHeader.setRemainingLength(static_cast<uint32_t>(packet.size()));
+        staticHeader.setRemainingLength(static_cast<uint32_t>(variablHeaderPayload.size()));
 
-        std::vector<char> packetStaticHeader = staticHeader.getPacket();
-        packetStaticHeader.insert(packetStaticHeader.end(), packet.begin(), packet.end());
+        std::vector<char> packet = staticHeader.getPacket();
 
-        return packetStaticHeader;
+        packet.insert(packet.end(), variablHeaderPayload.begin(), variablHeaderPayload.end());
+
+        return packet;
     }
 
     uint8_t ControlPacket::getType() const {

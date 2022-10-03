@@ -57,10 +57,10 @@ namespace iot::mqtt1::types {
         return std::string(value.begin(), value.end());
     }
 
-    std::vector<char> String::getValueAsVector() const {
+    std::vector<char> String::serialize() const {
         UInt16 stringLength;
         stringLength.setValue(static_cast<uint16_t>(value.size()));
-        std::vector<char> tmpVector = stringLength.getValueAsVector();
+        std::vector<char> tmpVector = stringLength.serialize();
 
         std::vector<char> returnVector;
         returnVector.insert(returnVector.end(), tmpVector.begin(), tmpVector.end());

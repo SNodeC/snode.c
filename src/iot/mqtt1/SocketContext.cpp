@@ -48,7 +48,7 @@ namespace iot::mqtt1 {
 
         switch (state) {
             case 0:
-                consumed = staticHeader.construct(this);
+                consumed = staticHeader.deserialize(this);
 
                 if (!staticHeader.isComplete()) {
                     break;
@@ -110,7 +110,7 @@ namespace iot::mqtt1 {
                 [[fallthrough]];
             case 1:
                 if (currentPacket != nullptr) {
-                    consumed += currentPacket->_construct(this);
+                    consumed += currentPacket->deserialize(this);
 
                     if (currentPacket->isComplete()) {
                         printData(currentPacket->serialize());

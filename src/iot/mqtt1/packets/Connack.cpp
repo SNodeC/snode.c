@@ -44,19 +44,19 @@ namespace iot::mqtt1::packets {
         return _returnCode.getValue();
     }
 
-    std::vector<char> Connack::getPacket() const {
+    std::vector<char> Connack::serializeVP() const {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = _flags.getValueAsVector();
+        std::vector<char> tmpVector = _flags.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = _returnCode.getValueAsVector();
+        tmpVector = _returnCode.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
     }
 
-    std::size_t Connack::deserialize(SocketContext* socketContext) {
+    std::size_t Connack::deserializeVP(SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {

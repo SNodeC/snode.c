@@ -34,11 +34,11 @@ namespace iot::mqtt1::packets {
         : iot::mqtt1::ControlPacket(MQTT_PINGRESP, reserved, remainingLength) {
     }
 
-    std::vector<char> Pingresp::getPacket() const {
+    std::vector<char> Pingresp::serializeVP() const {
         return std::vector<char>();
     }
 
-    std::size_t Pingresp::deserialize([[maybe_unused]] SocketContext* socketContext) {
+    std::size_t Pingresp::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
         complete = true;
         return 0;
     }

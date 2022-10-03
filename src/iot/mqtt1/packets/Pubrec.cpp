@@ -39,16 +39,16 @@ namespace iot::mqtt1::packets {
         return packetIdentifier.getValue();
     }
 
-    std::vector<char> Pubrec::getPacket() const {
+    std::vector<char> Pubrec::serializeVP() const {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = packetIdentifier.getValueAsVector();
+        std::vector<char> tmpVector = packetIdentifier.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
     }
 
-    std::size_t Pubrec::deserialize(SocketContext* socketContext) {
+    std::size_t Pubrec::deserializeVP(SocketContext* socketContext) {
         std::size_t consumed = packetIdentifier.deserialize(socketContext);
 
         error = packetIdentifier.isError();

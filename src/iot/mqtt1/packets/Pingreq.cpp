@@ -34,11 +34,11 @@ namespace iot::mqtt1::packets {
         : iot::mqtt1::ControlPacket(MQTT_PINGREQ, reserved, remainingLength) {
     }
 
-    std::vector<char> Pingreq::getPacket() const {
+    std::vector<char> Pingreq::serializeVP() const {
         return std::vector<char>();
     }
 
-    std::size_t Pingreq::deserialize([[maybe_unused]] SocketContext* socketContext) {
+    std::size_t Pingreq::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
         complete = true;
         return 0;
     }

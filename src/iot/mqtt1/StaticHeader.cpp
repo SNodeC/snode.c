@@ -37,7 +37,7 @@ namespace iot::mqtt1 {
     StaticHeader::~StaticHeader() {
     }
 
-    std::size_t StaticHeader::construct(iot::mqtt1::SocketContext* socketContext) {
+    std::size_t StaticHeader::deserialize(iot::mqtt1::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
@@ -92,10 +92,10 @@ namespace iot::mqtt1 {
     std::vector<char> StaticHeader::getPacket() {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = _typeReserved.getValueAsVector();
+        std::vector<char> tmpVector = _typeReserved.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = _remainingLength.getValueAsVector();
+        tmpVector = _remainingLength.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;

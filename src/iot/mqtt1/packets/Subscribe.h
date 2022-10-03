@@ -48,7 +48,8 @@ namespace iot::mqtt1::packets {
         explicit Subscribe(uint32_t remainingLength, uint8_t reserved);
 
     private:
-        std::size_t deserialize(SocketContext* socketContext) override;
+        std::size_t deserializeVP(SocketContext* socketContext) override;
+        std::vector<char> serializeVP() const override;
         void propagateEvent(SocketContext* socketContext) const override;
 
     public:
@@ -56,8 +57,6 @@ namespace iot::mqtt1::packets {
         const std::list<iot::mqtt1::Topic>& getTopics() const;
 
     private:
-        std::vector<char> getPacket() const override;
-
         iot::mqtt1::types::UInt16 packetIdentifier;
         iot::mqtt1::types::String topic;
         iot::mqtt1::types::UInt8 qoS;

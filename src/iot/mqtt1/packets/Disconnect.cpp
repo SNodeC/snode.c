@@ -34,11 +34,11 @@ namespace iot::mqtt1::packets {
         : iot::mqtt1::ControlPacket(MQTT_DISCONNECT, reserved, remainingLength) {
     }
 
-    std::vector<char> Disconnect::getPacket() const {
+    std::vector<char> Disconnect::serializeVP() const {
         return std::vector<char>();
     }
 
-    std::size_t Disconnect::deserialize([[maybe_unused]] SocketContext* socketContext) {
+    std::size_t Disconnect::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
         complete = true;
         return 0;
     }

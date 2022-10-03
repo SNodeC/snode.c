@@ -95,44 +95,44 @@ namespace iot::mqtt1::packets {
         return password.getValue();
     }
 
-    std::vector<char> Connect::getPacket() const {
+    std::vector<char> Connect::serializeVP() const {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = protocol.getValueAsVector();
+        std::vector<char> tmpVector = protocol.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = level.getValueAsVector();
+        tmpVector = level.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = flags.getValueAsVector();
+        tmpVector = flags.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = keepAlive.getValueAsVector();
+        tmpVector = keepAlive.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = clientId.getValueAsVector();
+        tmpVector = clientId.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         if (willFlag) {
-            tmpVector = willTopic.getValueAsVector();
+            tmpVector = willTopic.serialize();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-            tmpVector = willMessage.getValueAsVector();
+            tmpVector = willMessage.serialize();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
         if (usernameFlag) {
-            tmpVector = username.getValueAsVector();
+            tmpVector = username.serialize();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
         if (passwordFlag) {
-            tmpVector = password.getValueAsVector();
+            tmpVector = password.serialize();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
 
         return packet;
     }
 
-    std::size_t Connect::deserialize(SocketContext* socketContext) {
+    std::size_t Connect::deserializeVP(SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {

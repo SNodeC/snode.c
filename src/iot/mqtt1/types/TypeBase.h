@@ -42,13 +42,12 @@ namespace iot::mqtt1::types {
         virtual ~TypeBase() = default;
 
         virtual std::size_t deserialize(core::socket::SocketContext* socketContext);
+        virtual std::vector<char> serialize() const;
 
         void setSize(std::size_t size);
 
         virtual void setValue(const ValueType& value) = 0;
         virtual ValueType getValue() const = 0;
-
-        virtual std::vector<char> getValueAsVector() const;
 
         bool isComplete() const;
         bool isError() const;

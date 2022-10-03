@@ -44,15 +44,14 @@ namespace iot::mqtt1::packets {
         explicit Pubcomp(uint32_t remainingLength, uint8_t reserved);
 
     private:
-        std::size_t deserialize(SocketContext* socketContext) override;
+        std::size_t deserializeVP(SocketContext* socketContext) override;
+        std::vector<char> serializeVP() const override;
         void propagateEvent(SocketContext* socketContext) const override;
 
     public:
         uint16_t getPacketIdentifier() const;
 
     private:
-        std::vector<char> getPacket() const override;
-
         iot::mqtt1::types::UInt16 packetIdentifier;
     };
 

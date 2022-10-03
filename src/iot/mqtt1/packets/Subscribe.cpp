@@ -44,10 +44,10 @@ namespace iot::mqtt1::packets {
         return topics;
     }
 
-    std::vector<char> Subscribe::getPacket() const {
+    std::vector<char> Subscribe::serializeVP() const {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = packetIdentifier.getValueAsVector();
+        std::vector<char> tmpVector = packetIdentifier.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         for (const Topic& topic : topics) {
@@ -58,7 +58,7 @@ namespace iot::mqtt1::packets {
         return packet;
     }
 
-    std::size_t Subscribe::deserialize(SocketContext* socketContext) {
+    std::size_t Subscribe::deserializeVP(SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {

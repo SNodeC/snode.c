@@ -44,10 +44,10 @@ namespace iot::mqtt1::packets {
         return returnCodes;
     }
 
-    std::vector<char> Suback::getPacket() const {
+    std::vector<char> Suback::serializeVP() const {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = packetIdentifier.getValueAsVector();
+        std::vector<char> tmpVector = packetIdentifier.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         for (uint8_t returnCode : returnCodes) {
@@ -57,7 +57,7 @@ namespace iot::mqtt1::packets {
         return packet;
     }
 
-    std::size_t Suback::deserialize([[maybe_unused]] SocketContext* socketContext) {
+    std::size_t Suback::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
