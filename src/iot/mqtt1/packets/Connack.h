@@ -54,7 +54,7 @@ namespace iot::mqtt1::packets {
         explicit Connack(uint32_t remainingLength, uint8_t reserved);
 
     private:
-        std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
+        std::size_t deserialize(iot::mqtt1::SocketContext* socketContext) override;
         void propagateEvent(SocketContext* socketContext) const override;
 
     public:

@@ -113,7 +113,7 @@ namespace iot::mqtt1 {
                     consumed += currentPacket->_construct(this);
 
                     if (currentPacket->isComplete()) {
-                        printData(currentPacket->getFullPacket());
+                        printData(currentPacket->serialize());
                         currentPacket->propagateEvent(this);
 
                         delete currentPacket;
@@ -193,11 +193,11 @@ namespace iot::mqtt1 {
     }
 
     void SocketContext::send(ControlPacket&& controlPacket) const {
-        send(controlPacket.getFullPacket());
+        send(controlPacket.serialize());
     }
 
     void SocketContext::send(ControlPacket& controlPacket) const {
-        send(controlPacket.getFullPacket());
+        send(controlPacket.serialize());
     }
 
     void SocketContext::send(std::vector<char>&& data) const {

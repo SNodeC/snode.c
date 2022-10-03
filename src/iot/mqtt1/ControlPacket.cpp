@@ -39,13 +39,13 @@ namespace iot::mqtt1 {
     }
 
     std::size_t ControlPacket::_construct(SocketContext* socketContext) {
-        std::size_t currentConsumed = construct(socketContext);
+        std::size_t currentConsumed = deserialize(socketContext);
         consumed += currentConsumed;
 
         return currentConsumed;
     }
 
-    std::vector<char> ControlPacket::getFullPacket() const {
+    std::vector<char> ControlPacket::serialize() const {
         std::vector<char> packet = getPacket();
 
         iot::mqtt1::StaticHeader staticHeader(getType(), getReserved());

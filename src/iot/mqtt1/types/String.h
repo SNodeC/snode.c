@@ -34,7 +34,7 @@ namespace iot::mqtt1::types {
 
     class String : public TypeBase<std::string> {
     public:
-        std::size_t construct(core::socket::SocketContext* socketContext) override;
+        std::size_t deserialize(core::socket::SocketContext* socketContext) override;
 
         void setValue(const std::string& newValue) override;
         std::string getValue() const override;

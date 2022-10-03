@@ -41,7 +41,7 @@ namespace iot::mqtt1::types {
 
         virtual ~TypeBase() = default;
 
-        virtual std::size_t construct(core::socket::SocketContext* socketContext);
+        virtual std::size_t deserialize(core::socket::SocketContext* socketContext);
 
         void setSize(std::size_t size);
 

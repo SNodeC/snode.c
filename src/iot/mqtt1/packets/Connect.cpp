@@ -132,13 +132,13 @@ namespace iot::mqtt1::packets {
         return packet;
     }
 
-    std::size_t Connect::construct(SocketContext* socketContext) {
+    std::size_t Connect::deserialize(SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             // V-Header
             case 0:
-                consumed += protocol.construct(socketContext);
+                consumed += protocol.deserialize(socketContext);
 
                 if ((error = protocol.isError()) || !protocol.isComplete()) {
                     break;
@@ -150,7 +150,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += level.construct(socketContext);
+                consumed += level.deserialize(socketContext);
 
                 if ((error = level.isError()) || !level.isComplete()) {
                     break;
@@ -158,7 +158,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 2:
-                consumed += flags.construct(socketContext);
+                consumed += flags.deserialize(socketContext);
 
                 if ((error = flags.isError()) || !flags.isComplete()) {
                     break;
@@ -174,7 +174,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 3:
-                consumed += keepAlive.construct(socketContext);
+                consumed += keepAlive.deserialize(socketContext);
 
                 if ((error = keepAlive.isError()) || !keepAlive.isComplete()) {
                     break;
@@ -183,7 +183,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             // Payload
             case 4:
-                consumed += clientId.construct(socketContext);
+                consumed += clientId.deserialize(socketContext);
 
                 if ((error = clientId.isError()) || !clientId.isComplete()) {
                     break;
@@ -192,7 +192,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 5:
                 if (willFlag) {
-                    consumed += willTopic.construct(socketContext);
+                    consumed += willTopic.deserialize(socketContext);
 
                     if ((error = willTopic.isError()) || !willTopic.isComplete()) {
                         break;
@@ -202,7 +202,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 6:
                 if (willFlag) {
-                    consumed += willMessage.construct(socketContext);
+                    consumed += willMessage.deserialize(socketContext);
 
                     if ((error = willMessage.isError()) || !willMessage.isComplete()) {
                         break;
@@ -212,7 +212,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 7:
                 if (usernameFlag) {
-                    consumed += username.construct(socketContext);
+                    consumed += username.deserialize(socketContext);
 
                     if ((error = username.isError()) || !username.isComplete()) {
                         break;
@@ -222,7 +222,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 8:
                 if (passwordFlag) {
-                    consumed += password.construct(socketContext);
+                    consumed += password.deserialize(socketContext);
 
                     if ((error = password.isError()) || !password.isComplete()) {
                         break;

@@ -44,7 +44,7 @@ namespace iot::mqtt1::packets {
         explicit Unsuback(uint32_t remainingLength, uint8_t reserved);
 
     private:
-        std::size_t construct(SocketContext* socketContext) override;
+        std::size_t deserialize(SocketContext* socketContext) override;
         void propagateEvent(SocketContext* socketContext) const override;
 
     public:

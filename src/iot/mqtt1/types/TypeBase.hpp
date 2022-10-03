@@ -33,7 +33,7 @@ namespace iot::mqtt1::types {
     }
 
     template <typename ValueType>
-    std::size_t TypeBase<ValueType>::construct(core::socket::SocketContext* socketContext) {
+    std::size_t TypeBase<ValueType>::deserialize(core::socket::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         consumed = socketContext->readFromPeer(value.data() + length - needed, static_cast<std::size_t>(needed));

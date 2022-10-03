@@ -56,13 +56,13 @@ namespace iot::mqtt1::packets {
         return packet;
     }
 
-    std::size_t Connack::construct(SocketContext* socketContext) {
+    std::size_t Connack::deserialize(SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             // V-Header
             case 0:
-                consumed += _flags.construct(socketContext);
+                consumed += _flags.deserialize(socketContext);
 
                 if ((error = _flags.isError()) || !_flags.isComplete()) {
                     break;
@@ -70,7 +70,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += _returnCode.construct(socketContext);
+                consumed += _returnCode.deserialize(socketContext);
 
                 if ((error = _returnCode.isError()) || !_returnCode.isComplete()) {
                     break;

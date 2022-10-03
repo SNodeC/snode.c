@@ -35,7 +35,7 @@ namespace iot::mqtt1::types {
     public:
         UIntV();
 
-        std::size_t construct(core::socket::SocketContext* socketContext) override;
+        std::size_t deserialize(core::socket::SocketContext* socketContext) override;
 
         void setValue(const uint32_t& newValue) override;
         uint32_t getValue() const override;

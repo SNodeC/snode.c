@@ -48,8 +48,8 @@ namespace iot::mqtt1::packets {
         return packet;
     }
 
-    std::size_t Pubrel::construct(SocketContext* socketContext) {
-        std::size_t consumed = packetIdentifier.construct(socketContext);
+    std::size_t Pubrel::deserialize(SocketContext* socketContext) {
+        std::size_t consumed = packetIdentifier.deserialize(socketContext);
 
         error = packetIdentifier.isError();
         complete = packetIdentifier.isComplete();

@@ -30,7 +30,7 @@ namespace iot::mqtt1::types {
         : TypeBase(0) {
     }
 
-    std::size_t UIntV::construct(core::socket::SocketContext* socketContext) {
+    std::size_t UIntV::deserialize(core::socket::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         do {

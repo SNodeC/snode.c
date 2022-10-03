@@ -42,7 +42,7 @@ namespace iot::mqtt1 {
 
         switch (state) {
             case 0:
-                consumed += _typeReserved.construct(socketContext);
+                consumed += _typeReserved.deserialize(socketContext);
 
                 if ((error = _typeReserved.isError()) || !_typeReserved.isComplete()) {
                     break;
@@ -50,7 +50,7 @@ namespace iot::mqtt1 {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += _remainingLength.construct(socketContext);
+                consumed += _remainingLength.deserialize(socketContext);
 
                 complete = _remainingLength.isComplete();
                 error = _remainingLength.isError();

@@ -57,12 +57,12 @@ namespace iot::mqtt1::packets {
         return packet;
     }
 
-    std::size_t Unsubscribe::construct(SocketContext* socketContext) {
+    std::size_t Unsubscribe::deserialize(SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0:
-                consumed += packetIdentifier.construct(socketContext);
+                consumed += packetIdentifier.deserialize(socketContext);
 
                 if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                     break;
@@ -70,7 +70,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += topic.construct(socketContext);
+                consumed += topic.deserialize(socketContext);
 
                 if ((error = topic.isError()) || !topic.isComplete()) {
                     break;

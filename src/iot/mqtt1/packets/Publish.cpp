@@ -85,12 +85,12 @@ namespace iot::mqtt1::packets {
         return packet;
     }
 
-    std::size_t Publish::construct(SocketContext* socketContext) {
+    std::size_t Publish::deserialize(SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0:
-                consumed += topic.construct(socketContext);
+                consumed += topic.deserialize(socketContext);
 
                 if ((error = topic.isError()) || !topic.isComplete()) {
                     break;
@@ -100,7 +100,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 1:
                 if (((getReserved() >> 1) & 0x03) > 0) {
-                    consumed += packetIdentifier.construct(socketContext);
+                    consumed += packetIdentifier.deserialize(socketContext);
 
                     if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                         break;
@@ -111,7 +111,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 2:
-                consumed += message.construct(socketContext);
+                consumed += message.deserialize(socketContext);
 
                 if ((error = message.isError()) || !message.isComplete()) {
                     break;
