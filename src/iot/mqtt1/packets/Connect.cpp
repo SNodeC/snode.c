@@ -145,6 +145,7 @@ namespace iot::mqtt1::packets {
                 if (consumed == 0 || (error = _protocol.isError()) || !_protocol.isComplete()) {
                     break;
                 }
+                error = _protocol.getValue() != "MQTT";
                 state++;
                 [[fallthrough]];
             case 1:

@@ -35,7 +35,7 @@ namespace iot::mqtt1::types {
             case 0:
                 consumed = stringLength.construct(socketContext);
 
-                if (consumed == 0 || (error = stringLength.isError() || !stringLength.isComplete())) {
+                if (consumed == 0 || (error = stringLength.isError()) || !stringLength.isComplete()) {
                     break;
                 }
 

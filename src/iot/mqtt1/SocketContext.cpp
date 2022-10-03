@@ -54,6 +54,9 @@ namespace iot::mqtt1 {
                     break;
                 }
 
+                VLOG(0) << "----------     ... error = " << error;
+                VLOG(0) << "----------     ... complete = " << complete;
+
                 switch (controlPacketFactory.getPacketType()) {
                     case MQTT_CONNECT:
                         currentPacket = new iot::mqtt1::packets::Connect(controlPacketFactory.getRemainingLength(),

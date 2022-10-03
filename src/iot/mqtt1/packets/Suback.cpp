@@ -66,7 +66,7 @@ namespace iot::mqtt1::packets {
                 consumed = packetIdentifier.construct(socketContext);
                 consumedTotal += consumed;
 
-                if (consumed == 0 || (error = packetIdentifier.isError() || !packetIdentifier.isComplete())) {
+                if (consumed == 0 || (error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                     break;
                 }
                 state++;
@@ -74,7 +74,7 @@ namespace iot::mqtt1::packets {
             case 1:
                 consumed = returnCode.construct(socketContext);
 
-                if (consumed == 0 || (error = returnCode.isError() || !returnCode.isComplete())) {
+                if (consumed == 0 || (error = returnCode.isError()) || !returnCode.isComplete()) {
                     break;
                 }
                 returnCodes.push_back(returnCode.getValue());
