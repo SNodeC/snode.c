@@ -18,7 +18,7 @@
 
 #include "iot/mqtt1/ControlPacket.h"
 
-#include "iot/mqtt1/types/StaticHeader.h"
+#include "iot/mqtt1/StaticHeader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -45,6 +45,18 @@ namespace iot::mqtt1 {
         return currentConsumed;
     }
 
+    std::vector<char> ControlPacket::getFullPacket() const {
+        std::vector<char> packet = getPacket();
+
+        iot::mqtt1::StaticHeader staticHeader(getType(), getReserved());
+        staticHeader.setRemainingLength(static_cast<uint32_t>(packet.size()));
+
+        std::vector<char> packetStaticHeader = staticHeader.getPacket();
+        packetStaticHeader.insert(packetStaticHeader.end(), packet.begin(), packet.end());
+
+        return packetStaticHeader;
+    }
+
     uint8_t ControlPacket::getType() const {
         return type;
     }
@@ -67,18 +79,6 @@ namespace iot::mqtt1 {
 
     std::size_t ControlPacket::getConsumed() const {
         return consumed;
-    }
-
-    std::vector<char> ControlPacket::getFullPacket() const {
-        std::vector<char> packet = getPacket();
-
-        iot::mqtt1::types::StaticHeader staticHeader(getType(), getReserved());
-        staticHeader.setRemainingLength(static_cast<uint32_t>(packet.size()));
-
-        std::vector<char> packetStaticHeader = staticHeader.getPacket();
-        packetStaticHeader.insert(packetStaticHeader.end(), packet.begin(), packet.end());
-
-        return packetStaticHeader;
     }
 
 } // namespace iot::mqtt1

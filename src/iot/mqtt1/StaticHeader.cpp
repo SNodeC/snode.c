@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt1/types/StaticHeader.h"
+#include "iot/mqtt1/StaticHeader.h"
 
 #include "iot/mqtt1/SocketContext.h"
 
@@ -24,7 +24,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt1::types {
+namespace iot::mqtt1 {
 
     StaticHeader::StaticHeader() {
     }
@@ -111,4 +111,4 @@ namespace iot::mqtt1::types {
         state = 0;
     }
 
-} // namespace iot::mqtt1::types
+} // namespace iot::mqtt1

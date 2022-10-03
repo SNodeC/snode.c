@@ -34,7 +34,7 @@ namespace iot::mqtt1 {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt1::types {
+namespace iot::mqtt1 {
 
     class StaticHeader {
     public:
@@ -69,6 +69,6 @@ namespace iot::mqtt1::types {
         int state = 0;
     };
 
-} // namespace iot::mqtt1::types
+} // namespace iot::mqtt1
 
 #endif // IOT_MQTT1_STATICHEADER_H
