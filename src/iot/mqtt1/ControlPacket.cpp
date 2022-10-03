@@ -39,9 +39,10 @@ namespace iot::mqtt1 {
     }
 
     std::size_t ControlPacket::_construct(SocketContext* socketContext) {
-        consumed += construct(socketContext);
+        std::size_t currentConsumed = construct(socketContext);
+        consumed += currentConsumed;
 
-        return consumed;
+        return currentConsumed;
     }
 
     uint8_t ControlPacket::getType() const {

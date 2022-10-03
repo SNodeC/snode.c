@@ -76,6 +76,6 @@ namespace iot::mqtt1::types {
         state = 0;
     }
 
-    template class iot::mqtt1::types::TypeBase<std::string>;
+    template class TypeBase<std::string>;
 
 } // namespace iot::mqtt1::types

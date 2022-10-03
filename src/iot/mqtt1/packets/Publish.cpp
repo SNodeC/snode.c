@@ -109,7 +109,7 @@ namespace iot::mqtt1::packets {
                         break;
                     }
                 }
-                message.setSize(remainingLength - getConsumed() - consumedTotal);
+                message.setSize(static_cast<uint16_t>(remainingLength - getConsumed() - consumedTotal));
                 state++;
                 [[fallthrough]];
             case 2:
