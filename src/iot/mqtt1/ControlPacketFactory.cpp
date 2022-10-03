@@ -36,14 +36,6 @@ namespace iot::mqtt1 {
         return consumed;
     }
 
-    bool ControlPacketFactory::isComplete() {
-        return complete;
-    }
-
-    bool ControlPacketFactory::isError() {
-        return error;
-    }
-
     uint8_t ControlPacketFactory::getPacketType() {
         return staticHeader.getPacketType();
     }
@@ -54,6 +46,14 @@ namespace iot::mqtt1 {
 
     uint32_t ControlPacketFactory::getRemainingLength() {
         return staticHeader.getRemainingLength();
+    }
+
+    bool ControlPacketFactory::isComplete() {
+        return complete;
+    }
+
+    bool ControlPacketFactory::isError() {
+        return error;
     }
 
     void ControlPacketFactory::reset() {

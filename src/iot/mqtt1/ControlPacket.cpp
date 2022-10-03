@@ -65,6 +65,10 @@ namespace iot::mqtt1 {
         return error;
     }
 
+    std::size_t ControlPacket::getConsumed() const {
+        return consumed;
+    }
+
     std::vector<char> ControlPacket::getFullPacket() const {
         std::vector<char> packet = getPacket();
 
@@ -75,10 +79,6 @@ namespace iot::mqtt1 {
         packetStaticHeader.insert(packetStaticHeader.end(), packet.begin(), packet.end());
 
         return packetStaticHeader;
-    }
-
-    std::size_t ControlPacket::getConsumed() const {
-        return consumed;
     }
 
 } // namespace iot::mqtt1

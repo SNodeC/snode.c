@@ -156,104 +156,6 @@ namespace iot::mqtt1 {
         return consumed;
     }
 
-    void SocketContext::sendConnect(const std::string& clientId) {
-        LOG(TRACE) << "Send CONNECT";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt1::packets::Connect(clientId)); // Flags, Username, Will, ...
-    }
-
-    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
-        LOG(TRACE) << "Send CONNACK";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt1::packets::Connack(returnCode, flags));
-    }
-
-    void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {
-        LOG(TRACE) << "Send PUBLISH";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt1::packets::Publish(qoSLevel == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoSLevel, retain));
-    }
-
-    void SocketContext::sendPuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBACK";
-        LOG(TRACE) << "===========";
-
-        send(iot::mqtt1::packets::Puback(packetIdentifier));
-    }
-
-    void SocketContext::sendPubrec(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBREC";
-        LOG(TRACE) << "===========";
-
-        send(iot::mqtt1::packets::Pubrec(packetIdentifier));
-    }
-
-    void SocketContext::sendPubrel(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBREL";
-        LOG(TRACE) << "===========";
-
-        send(iot::mqtt1::packets::Pubrel(packetIdentifier));
-    }
-
-    void SocketContext::sendPubcomp(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBCOMP";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt1::packets::Pubcomp(packetIdentifier));
-    }
-
-    void SocketContext::sendSubscribe([[maybe_unused]] std::list<iot::mqtt1::Topic>& topics) {
-        LOG(TRACE) << "Send SUBSCRIBE";
-        LOG(TRACE) << "==============";
-
-        send(iot::mqtt1::packets::Subscribe(0, topics));
-    }
-
-    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
-        LOG(TRACE) << "Send SUBACK";
-        LOG(TRACE) << "===========";
-
-        send(iot::mqtt1::packets::Suback(packetIdentifier, returnCodes));
-    }
-
-    void SocketContext::sendUnsubscribe(std::list<std::string>& topics) {
-        LOG(TRACE) << "Send UNSUBSCRIBE";
-        LOG(TRACE) << "================";
-
-        send(iot::mqtt1::packets::Unsubscribe(getPacketIdentifier(), topics));
-    }
-
-    void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send UNSUBACK";
-        LOG(TRACE) << "=============";
-
-        send(iot::mqtt1::packets::Unsuback(packetIdentifier));
-    }
-
-    void SocketContext::sendPingreq() {
-        LOG(TRACE) << "Send Pingreq";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt1::packets::Pingreq());
-    }
-
-    void SocketContext::sendPingresp() {
-        LOG(TRACE) << "Send Pingresp";
-        LOG(TRACE) << "=============";
-
-        send(iot::mqtt1::packets::Pingresp());
-    }
-
-    void SocketContext::sendDisconnect() {
-        LOG(TRACE) << "Send Disconnect";
-        LOG(TRACE) << "===============";
-
-        send(iot::mqtt1::packets::Disconnect());
-    }
-
     void SocketContext::_onConnect(const packets::Connect& connect) {
         onConnect(connect);
     }
@@ -310,17 +212,115 @@ namespace iot::mqtt1 {
         onDisconnect(disconnect);
     }
 
-    void SocketContext::send([[maybe_unused]] ControlPacket&& controlPacket) const {
+    void SocketContext::send(ControlPacket&& controlPacket) const {
         send(controlPacket.getFullPacket());
     }
 
-    void SocketContext::send([[maybe_unused]] ControlPacket& controlPacket) const {
+    void SocketContext::send(ControlPacket& controlPacket) const {
         send(controlPacket.getFullPacket());
     }
 
     void SocketContext::send(std::vector<char>&& data) const {
         printData(data);
         sendToPeer(data.data(), data.size());
+    }
+
+    void SocketContext::sendConnect(const std::string& clientId) {
+        LOG(TRACE) << "Send CONNECT";
+        LOG(TRACE) << "============";
+
+        send(iot::mqtt1::packets::Connect(clientId)); // Flags, Username, Will, ...
+    }
+
+    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
+        LOG(TRACE) << "Send CONNACK";
+        LOG(TRACE) << "============";
+
+        send(iot::mqtt1::packets::Connack(returnCode, flags));
+    }
+
+    void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {
+        LOG(TRACE) << "Send PUBLISH";
+        LOG(TRACE) << "============";
+
+        send(iot::mqtt1::packets::Publish(qoSLevel == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoSLevel, retain));
+    }
+
+    void SocketContext::sendPuback(uint16_t packetIdentifier) {
+        LOG(TRACE) << "Send PUBACK";
+        LOG(TRACE) << "===========";
+
+        send(iot::mqtt1::packets::Puback(packetIdentifier));
+    }
+
+    void SocketContext::sendPubrec(uint16_t packetIdentifier) {
+        LOG(TRACE) << "Send PUBREC";
+        LOG(TRACE) << "===========";
+
+        send(iot::mqtt1::packets::Pubrec(packetIdentifier));
+    }
+
+    void SocketContext::sendPubrel(uint16_t packetIdentifier) {
+        LOG(TRACE) << "Send PUBREL";
+        LOG(TRACE) << "===========";
+
+        send(iot::mqtt1::packets::Pubrel(packetIdentifier));
+    }
+
+    void SocketContext::sendPubcomp(uint16_t packetIdentifier) {
+        LOG(TRACE) << "Send PUBCOMP";
+        LOG(TRACE) << "============";
+
+        send(iot::mqtt1::packets::Pubcomp(packetIdentifier));
+    }
+
+    void SocketContext::sendSubscribe(std::list<iot::mqtt1::Topic>& topics) {
+        LOG(TRACE) << "Send SUBSCRIBE";
+        LOG(TRACE) << "==============";
+
+        send(iot::mqtt1::packets::Subscribe(0, topics));
+    }
+
+    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
+        LOG(TRACE) << "Send SUBACK";
+        LOG(TRACE) << "===========";
+
+        send(iot::mqtt1::packets::Suback(packetIdentifier, returnCodes));
+    }
+
+    void SocketContext::sendUnsubscribe(std::list<std::string>& topics) {
+        LOG(TRACE) << "Send UNSUBSCRIBE";
+        LOG(TRACE) << "================";
+
+        send(iot::mqtt1::packets::Unsubscribe(getPacketIdentifier(), topics));
+    }
+
+    void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
+        LOG(TRACE) << "Send UNSUBACK";
+        LOG(TRACE) << "=============";
+
+        send(iot::mqtt1::packets::Unsuback(packetIdentifier));
+    }
+
+    void SocketContext::sendPingreq() {
+        LOG(TRACE) << "Send Pingreq";
+        LOG(TRACE) << "============";
+
+        send(iot::mqtt1::packets::Pingreq());
+    }
+
+    void SocketContext::sendPingresp() {
+        LOG(TRACE) << "Send Pingresp";
+        LOG(TRACE) << "=============";
+
+        send(iot::mqtt1::packets::Pingresp());
+    }
+
+    void SocketContext::sendDisconnect() {
+        LOG(TRACE) << "Send Disconnect";
+        LOG(TRACE) << "===============";
+
+        send(iot::mqtt1::packets::Disconnect());
     }
 
     void SocketContext::printData(const std::vector<char>& data) {

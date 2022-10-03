@@ -66,6 +66,21 @@ namespace iot::mqtt1 {
     private:
         virtual std::size_t onReceiveFromPeer() final;
 
+        virtual void onConnect(const iot::mqtt1::packets::Connect& connect) = 0;
+        virtual void onConnack(const iot::mqtt1::packets::Connack& connack) = 0;
+        virtual void onPublish(const iot::mqtt1::packets::Publish& publish) = 0;
+        virtual void onPuback(const iot::mqtt1::packets::Puback& puback) = 0;
+        virtual void onPubrec(const iot::mqtt1::packets::Pubrec& pubrec) = 0;
+        virtual void onPubrel(const iot::mqtt1::packets::Pubrel& pubrel) = 0;
+        virtual void onPubcomp(const iot::mqtt1::packets::Pubcomp& pubcomp) = 0;
+        virtual void onSubscribe(const iot::mqtt1::packets::Subscribe& subscribe) = 0;
+        virtual void onSuback(const iot::mqtt1::packets::Suback& suback) = 0;
+        virtual void onUnsubscribe(const iot::mqtt1::packets::Unsubscribe& unsubscribe) = 0;
+        virtual void onUnsuback(const iot::mqtt1::packets::Unsuback& unsuback) = 0;
+        virtual void onPingreq(const iot::mqtt1::packets::Pingreq& pingreq) = 0;
+        virtual void onPingresp(const iot::mqtt1::packets::Pingresp& pingresp) = 0;
+        virtual void onDisconnect(const iot::mqtt1::packets::Disconnect& disconnect) = 0;
+
         void _onConnect(const iot::mqtt1::packets::Connect& connect);
         void _onConnack(const iot::mqtt1::packets::Connack& connack);
         void _onPublish(const iot::mqtt1::packets::Publish& publish);
@@ -80,21 +95,6 @@ namespace iot::mqtt1 {
         void _onPingreq(const iot::mqtt1::packets::Pingreq& pingreq);
         void _onPingresp(const iot::mqtt1::packets::Pingresp& pingresp);
         void _onDisconnect(const iot::mqtt1::packets::Disconnect& disconnect);
-
-        virtual void onConnect(const iot::mqtt1::packets::Connect& connect) = 0;
-        virtual void onConnack(const iot::mqtt1::packets::Connack& connack) = 0;
-        virtual void onSubscribe(const iot::mqtt1::packets::Subscribe& subscribe) = 0;
-        virtual void onPublish(const iot::mqtt1::packets::Publish& publish) = 0;
-        virtual void onPuback(const iot::mqtt1::packets::Puback& puback) = 0;
-        virtual void onPubrec(const iot::mqtt1::packets::Pubrec& pubrec) = 0;
-        virtual void onPubrel(const iot::mqtt1::packets::Pubrel& pubrel) = 0;
-        virtual void onPubcomp(const iot::mqtt1::packets::Pubcomp& pubcomp) = 0;
-        virtual void onSuback(const iot::mqtt1::packets::Suback& suback) = 0;
-        virtual void onUnsubscribe(const iot::mqtt1::packets::Unsubscribe& unsubscribe) = 0;
-        virtual void onUnsuback(const iot::mqtt1::packets::Unsuback& unsuback) = 0;
-        virtual void onPingreq(const iot::mqtt1::packets::Pingreq& pingreq) = 0;
-        virtual void onPingresp(const iot::mqtt1::packets::Pingresp& pingresp) = 0;
-        virtual void onDisconnect(const iot::mqtt1::packets::Disconnect& disconnect) = 0;
 
     public:
         void sendConnect(const std::string& clientId);
@@ -112,13 +112,13 @@ namespace iot::mqtt1 {
         void sendPingresp();
         void sendDisconnect();
 
+    private:
         void send(iot::mqtt1::ControlPacket&& controlPacket) const;
         void send(iot::mqtt1::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
 
         static void printData(const std::vector<char>& data);
 
-    private:
         uint16_t getPacketIdentifier();
 
         uint16_t packetIdentifier = 0;
@@ -133,18 +133,18 @@ namespace iot::mqtt1 {
 
         friend class iot::mqtt1::packets::Connack;
         friend class iot::mqtt1::packets::Connect;
-        friend class iot::mqtt1::packets::Subscribe;
-        friend class iot::mqtt1::packets::Suback;
         friend class iot::mqtt1::packets::Publish;
-        friend class iot::mqtt1::packets::Unsubscribe;
-        friend class iot::mqtt1::packets::Unsuback;
         friend class iot::mqtt1::packets::Puback;
         friend class iot::mqtt1::packets::Pubrec;
         friend class iot::mqtt1::packets::Pubrel;
         friend class iot::mqtt1::packets::Pubcomp;
-        friend class iot::mqtt1::packets::Disconnect;
+        friend class iot::mqtt1::packets::Subscribe;
+        friend class iot::mqtt1::packets::Suback;
+        friend class iot::mqtt1::packets::Unsubscribe;
+        friend class iot::mqtt1::packets::Unsuback;
         friend class iot::mqtt1::packets::Pingreq;
         friend class iot::mqtt1::packets::Pingresp;
+        friend class iot::mqtt1::packets::Disconnect;
     };
 
 } // namespace iot::mqtt1
