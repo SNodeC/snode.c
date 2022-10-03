@@ -73,6 +73,8 @@ namespace iot::mqtt1::types {
 
     void String::reset([[maybe_unused]] std::size_t size) {
         stringLength.reset();
+        TypeBase::reset();
+
         state = 0;
     }
 
