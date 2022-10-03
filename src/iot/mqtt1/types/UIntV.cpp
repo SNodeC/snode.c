@@ -84,6 +84,4 @@ namespace iot::mqtt1::types {
         TypeBase::reset(0);
     }
 
-    //    template class TypeBase<uint32_t>;
-
 } // namespace iot::mqtt1::types
