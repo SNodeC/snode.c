@@ -18,7 +18,7 @@
 
 #include "iot/mqtt1/types/StringRaw.h"
 
-#include "iot/mqtt1/types/TypeBase.hpp" // IWYU pragma: keep
+#include "iot/mqtt1/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

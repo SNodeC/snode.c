@@ -21,10 +21,6 @@
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 
-namespace core::socket {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>

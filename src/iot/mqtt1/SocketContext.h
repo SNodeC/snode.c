@@ -16,12 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SOCKETCONTEXT_H
-#define IOT_MQTT_SOCKETCONTEXT_H
+#ifndef IOT_MQTT1_SOCKETCONTEXT_H
+#define IOT_MQTT1_SOCKETCONTEXT_H
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt1/ControlPacketFactory.h"
-//#include "iot/mqtt/Topic.h"               // IWYU pragma: export
 #include "iot/mqtt1/packets/Connack.h"     // IWYU pragma: export
 #include "iot/mqtt1/packets/Connect.h"     // IWYU pragma: export
 #include "iot/mqtt1/packets/Disconnect.h"  // IWYU pragma: export
@@ -69,7 +68,6 @@ namespace iot::mqtt1 {
 
         void _onConnect(const iot::mqtt1::packets::Connect& connect);
         void _onConnack(const iot::mqtt1::packets::Connack& connack);
-
         void _onPublish(const iot::mqtt1::packets::Publish& publish);
         void _onPuback(const iot::mqtt1::packets::Puback& puback);
         void _onPubrec(const iot::mqtt1::packets::Pubrec& pubrec);
@@ -118,7 +116,6 @@ namespace iot::mqtt1 {
         void send(iot::mqtt1::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
 
-    public:
         static void printData(const std::vector<char>& data);
 
     private:
@@ -152,4 +149,4 @@ namespace iot::mqtt1 {
 
 } // namespace iot::mqtt1
 
-#endif // IOT_MQTT_SOCKETCONTEXT_H
+#endif // IOT_MQTT1_SOCKETCONTEXT_H

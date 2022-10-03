@@ -19,7 +19,6 @@
 #include "iot/mqtt1/SocketContext.h"
 
 #include "iot/mqtt1/ControlPacket.h"
-#include "iot/mqtt1/packets/Connect.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

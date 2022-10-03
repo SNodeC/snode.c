@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/SocketContext.h" // IWYU pragma: export
+#include "core/socket/SocketContext.h"
 #include "iot/mqtt1/types/TypeBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
