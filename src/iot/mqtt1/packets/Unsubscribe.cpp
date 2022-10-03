@@ -95,8 +95,6 @@ namespace iot::mqtt1::packets {
                 break;
         }
 
-        this->consumed = consumedTotal;
-
         return consumedTotal;
     }
 
