@@ -41,9 +41,9 @@ namespace iot::mqtt1::types {
         StaticHeader();
         StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength = 0);
 
-        ~StaticHeader();
-
         std::size_t construct(iot::mqtt1::SocketContext* socketContext);
+
+        ~StaticHeader();
 
         void setPacketType(uint8_t typeReserved);
         uint8_t getPacketType() const;

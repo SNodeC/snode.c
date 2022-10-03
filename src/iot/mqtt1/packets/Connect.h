@@ -48,6 +48,11 @@ namespace iot::mqtt1::packets {
         explicit Connect(const std::string& clientId);
         explicit Connect(uint32_t remainingLength, uint8_t reserved);
 
+    private:
+        std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
+
+    public:
         std::string getProtocol() const;
         uint8_t getLevel() const;
         uint8_t getFlags() const;
@@ -70,15 +75,6 @@ namespace iot::mqtt1::packets {
     private:
         std::vector<char> getPacket() const override;
 
-        bool usernameFlag = false;
-        bool passwordFlag = false;
-        bool willRetain = false;
-        uint8_t willQoS = 0;
-        bool willFlag = false;
-        bool cleanSession = false;
-        bool reserved = false;
-
-    private:
         iot::mqtt1::types::String protocol;
         iot::mqtt1::types::UInt8 level;
         iot::mqtt1::types::UInt8 flags;
@@ -89,8 +85,13 @@ namespace iot::mqtt1::packets {
         iot::mqtt1::types::String username;
         iot::mqtt1::types::String password;
 
-        std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
-        void propagateEvent(SocketContext* socketContext) const override;
+        bool usernameFlag = false;
+        bool passwordFlag = false;
+        bool willRetain = false;
+        uint8_t willQoS = 0;
+        bool willFlag = false;
+        bool cleanSession = false;
+        bool reserved = false;
 
         int state = 0;
     };

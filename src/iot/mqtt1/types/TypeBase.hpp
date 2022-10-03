@@ -21,8 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
@@ -41,8 +39,6 @@ namespace iot::mqtt1::types {
         consumed = socketContext->readFromPeer(value.data() + length - needed, static_cast<std::size_t>(needed));
         needed -= consumed;
         complete = needed == 0;
-
-        VLOG(0) << "Construct: consumed = " << consumed << ", needed = " << needed << ", length = " << length;
 
         return consumed;
     }

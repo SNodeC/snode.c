@@ -39,11 +39,13 @@ namespace iot::mqtt1 {
         explicit ControlPacketFactory();
 
         std::size_t construct(iot::mqtt1::SocketContext* socketContext);
-        bool isComplete();
-        bool isError();
+
         uint8_t getPacketType();
         uint8_t getPacketFlags();
         uint32_t getRemainingLength();
+
+        bool isComplete();
+        bool isError();
 
         void reset();
 

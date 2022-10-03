@@ -38,13 +38,11 @@ namespace iot::mqtt1::types {
     }
 
     std::size_t StaticHeader::construct(iot::mqtt1::SocketContext* socketContext) {
-        std::size_t consumedTotal = 0;
         std::size_t consumed = 0;
 
         switch (state) {
             case 0:
-                consumed = _typeReserved.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += _typeReserved.construct(socketContext);
 
                 if ((error = _typeReserved.isError()) || !_typeReserved.isComplete()) {
                     break;
@@ -52,8 +50,7 @@ namespace iot::mqtt1::types {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed = _remainingLength.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += _remainingLength.construct(socketContext);
 
                 complete = _remainingLength.isComplete();
                 error = _remainingLength.isError();
@@ -61,7 +58,7 @@ namespace iot::mqtt1::types {
                 break;
         }
 
-        return consumedTotal;
+        return consumed;
     }
 
     void StaticHeader::setPacketType(uint8_t typeReserved) {

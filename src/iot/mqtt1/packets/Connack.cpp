@@ -57,14 +57,12 @@ namespace iot::mqtt1::packets {
     }
 
     std::size_t Connack::construct(SocketContext* socketContext) {
-        std::size_t consumedTotal = 0;
         std::size_t consumed = 0;
 
         switch (state) {
             // V-Header
             case 0:
-                consumed = _flags.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += _flags.construct(socketContext);
 
                 if ((error = _flags.isError()) || !_flags.isComplete()) {
                     break;
@@ -72,8 +70,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed = _returnCode.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += _returnCode.construct(socketContext);
 
                 if ((error = _returnCode.isError()) || !_returnCode.isComplete()) {
                     break;
@@ -84,7 +81,7 @@ namespace iot::mqtt1::packets {
                 break;
         }
 
-        return consumedTotal;
+        return consumed;
     }
 
     void Connack::propagateEvent(SocketContext* socketContext) const {

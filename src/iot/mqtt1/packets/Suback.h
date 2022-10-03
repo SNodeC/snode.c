@@ -45,8 +45,12 @@ namespace iot::mqtt1::packets {
         Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
         explicit Suback(uint32_t remainingLength, uint8_t reserved);
 
-        uint16_t getPacketIdentifier() const;
+    private:
+        std::size_t construct(SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
 
+    public:
+        uint16_t getPacketIdentifier() const;
         const std::list<uint8_t>& getReturnCodes() const;
 
     private:
@@ -55,9 +59,6 @@ namespace iot::mqtt1::packets {
         iot::mqtt1::types::UInt16 packetIdentifier;
         iot::mqtt1::types::UInt8 returnCode;
         std::list<uint8_t> returnCodes;
-
-        std::size_t construct(SocketContext* socketContext) override;
-        void propagateEvent(SocketContext* socketContext) const override;
 
         int state;
     };

@@ -47,6 +47,11 @@ namespace iot::mqtt1::packets {
         Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
         explicit Unsubscribe(uint32_t remainingLength, uint8_t reserved);
 
+    private:
+        std::size_t construct(SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
+
+    public:
         uint16_t getPacketIdentifier() const;
         const std::list<std::string>& getTopics() const;
 
@@ -57,9 +62,6 @@ namespace iot::mqtt1::packets {
         iot::mqtt1::types::String topic;
 
         std::list<std::string> topics;
-
-        std::size_t construct(SocketContext* socketContext) override;
-        void propagateEvent(SocketContext* socketContext) const override;
 
         int state = 0;
     };

@@ -133,24 +133,24 @@ namespace iot::mqtt1::packets {
     }
 
     std::size_t Connect::construct(SocketContext* socketContext) {
-        std::size_t consumedTotal = 0;
         std::size_t consumed = 0;
 
         switch (state) {
             // V-Header
             case 0:
-                consumed = protocol.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += protocol.construct(socketContext);
 
                 if ((error = protocol.isError()) || !protocol.isComplete()) {
                     break;
                 }
-                error = protocol.getValue() != "MQTT";
+
+                if ((error = (protocol.getValue() != "MQTT"))) {
+                    break;
+                }
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed = level.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += level.construct(socketContext);
 
                 if ((error = level.isError()) || !level.isComplete()) {
                     break;
@@ -158,8 +158,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 2:
-                consumed = flags.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += flags.construct(socketContext);
 
                 if ((error = flags.isError()) || !flags.isComplete()) {
                     break;
@@ -175,8 +174,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 3:
-                consumed = keepAlive.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += keepAlive.construct(socketContext);
 
                 if ((error = keepAlive.isError()) || !keepAlive.isComplete()) {
                     break;
@@ -185,8 +183,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             // Payload
             case 4:
-                consumed = clientId.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += clientId.construct(socketContext);
 
                 if ((error = clientId.isError()) || !clientId.isComplete()) {
                     break;
@@ -195,8 +192,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 5:
                 if (willFlag) {
-                    consumed = willTopic.construct(socketContext);
-                    consumedTotal += consumed;
+                    consumed += willTopic.construct(socketContext);
 
                     if ((error = willTopic.isError()) || !willTopic.isComplete()) {
                         break;
@@ -206,8 +202,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 6:
                 if (willFlag) {
-                    consumed = willMessage.construct(socketContext);
-                    consumedTotal += consumed;
+                    consumed += willMessage.construct(socketContext);
 
                     if ((error = willMessage.isError()) || !willMessage.isComplete()) {
                         break;
@@ -217,8 +212,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 7:
                 if (usernameFlag) {
-                    consumed = username.construct(socketContext);
-                    consumedTotal += consumed;
+                    consumed += username.construct(socketContext);
 
                     if ((error = username.isError()) || !username.isComplete()) {
                         break;
@@ -228,8 +222,7 @@ namespace iot::mqtt1::packets {
                 [[fallthrough]];
             case 8:
                 if (passwordFlag) {
-                    consumed = password.construct(socketContext);
-                    consumedTotal += consumed;
+                    consumed += password.construct(socketContext);
 
                     if ((error = password.isError()) || !password.isComplete()) {
                         break;
@@ -241,7 +234,7 @@ namespace iot::mqtt1::packets {
                 break;
         }
 
-        return consumedTotal;
+        return consumed;
     }
 
     void Connect::propagateEvent(SocketContext* socketContext) const {

@@ -51,6 +51,11 @@ namespace iot::mqtt1::packets {
                 bool retain = false);
         explicit Publish(uint32_t remainingLength, uint8_t reserved);
 
+    private:
+        std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
+
+    public:
         bool getDup() const;
         uint8_t getQoSLevel() const;
         uint16_t getPacketIdentifier() const;
@@ -71,9 +76,6 @@ namespace iot::mqtt1::packets {
         bool retain = false;
 
         int state = 0;
-
-        std::size_t construct(iot::mqtt1::SocketContext* socketContext) override;
-        void propagateEvent(SocketContext* socketContext) const override;
     };
 
 } // namespace iot::mqtt1::packets

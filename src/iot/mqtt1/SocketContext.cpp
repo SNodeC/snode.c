@@ -38,6 +38,10 @@ namespace iot::mqtt1 {
     }
 
     SocketContext::~SocketContext() {
+        if (currentPacket != nullptr) {
+            delete currentPacket;
+            currentPacket = nullptr;
+        }
     }
 
     std::size_t SocketContext::onReceiveFromPeer() {
@@ -45,17 +49,13 @@ namespace iot::mqtt1 {
 
         switch (state) {
             case 0:
-                VLOG(0) << "---------- Read StaticHeader";
                 consumed = controlPacketFactory.construct(this);
 
                 error = controlPacketFactory.isError();
                 complete = controlPacketFactory.isComplete();
-                if (consumed == 0 || error || !complete) {
+                if (error || !complete) {
                     break;
                 }
-
-                VLOG(0) << "----------     ... error = " << error;
-                VLOG(0) << "----------     ... complete = " << complete;
 
                 switch (controlPacketFactory.getPacketType()) {
                     case MQTT_CONNECT:
@@ -120,17 +120,14 @@ namespace iot::mqtt1 {
                 state++;
                 [[fallthrough]];
             case 1:
-                VLOG(0) << "---------- Read ConcretePacket";
                 if (currentPacket != nullptr) {
                     consumed += currentPacket->_construct(this);
 
                     error = currentPacket->isError();
                     complete = currentPacket->isComplete();
 
-                    VLOG(0) << "----------     ... error = " << error;
-                    VLOG(0) << "----------     ... complete = " << complete;
-
                     if (complete) {
+                        printData(currentPacket->getFullPacket());
                         currentPacket->propagateEvent(this);
 
                         delete currentPacket;
@@ -139,6 +136,12 @@ namespace iot::mqtt1 {
                         controlPacketFactory.reset();
 
                         state = 0;
+                    }
+                    if (error) {
+                        delete currentPacket;
+                        currentPacket = nullptr;
+
+                        close();
                     }
                 } else {
                     close();
@@ -337,6 +340,16 @@ namespace iot::mqtt1 {
         }
 
         LOG(TRACE) << ss.str();
+    }
+
+    uint16_t SocketContext::getPacketIdentifier() {
+        ++packetIdentifier;
+
+        if (packetIdentifier == 0) {
+            ++packetIdentifier;
+        }
+
+        return packetIdentifier;
     }
 
 } // namespace iot::mqtt1

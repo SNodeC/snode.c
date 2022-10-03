@@ -43,10 +43,11 @@ namespace iot::mqtt1::packets {
         explicit Pingreq(uint32_t remainingLength, uint8_t reserved);
 
     private:
-        std::vector<char> getPacket() const override;
-
         std::size_t construct(SocketContext* socketContext) override;
         void propagateEvent(SocketContext* socketContext) const override;
+
+    public:
+        std::vector<char> getPacket() const override;
     };
 
 } // namespace iot::mqtt1::packets

@@ -77,7 +77,7 @@ namespace iot::mqtt1 {
         return packetStaticHeader;
     }
 
-    uint64_t ControlPacket::getConsumed() const {
+    std::size_t ControlPacket::getConsumed() const {
         return consumed;
     }
 

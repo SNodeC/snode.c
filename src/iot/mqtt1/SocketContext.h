@@ -67,7 +67,6 @@ namespace iot::mqtt1 {
     private:
         virtual std::size_t onReceiveFromPeer() final;
 
-        //    public:
         void _onConnect(const iot::mqtt1::packets::Connect& connect);
         void _onConnack(const iot::mqtt1::packets::Connack& connack);
 
@@ -84,7 +83,6 @@ namespace iot::mqtt1 {
         void _onPingresp(const iot::mqtt1::packets::Pingresp& pingresp);
         void _onDisconnect(const iot::mqtt1::packets::Disconnect& disconnect);
 
-    private:
         virtual void onConnect(const iot::mqtt1::packets::Connect& connect) = 0;
         virtual void onConnack(const iot::mqtt1::packets::Connack& connack) = 0;
         virtual void onSubscribe(const iot::mqtt1::packets::Subscribe& subscribe) = 0;
@@ -123,22 +121,18 @@ namespace iot::mqtt1 {
     public:
         static void printData(const std::vector<char>& data);
 
-    protected:
-        uint16_t getPacketIdentifier() {
-            ++_packetIdentifier;
+    private:
+        uint16_t getPacketIdentifier();
 
-            if (_packetIdentifier == 0) {
-                ++_packetIdentifier;
-            }
-
-            return _packetIdentifier;
-        }
-
-        uint16_t _packetIdentifier = 0;
+        uint16_t packetIdentifier = 0;
 
         ControlPacketFactory controlPacketFactory;
 
         iot::mqtt1::ControlPacket* currentPacket = nullptr;
+
+        bool error = false;
+        bool complete = false;
+        int state = 0;
 
         friend class iot::mqtt1::packets::Connack;
         friend class iot::mqtt1::packets::Connect;
@@ -154,10 +148,6 @@ namespace iot::mqtt1 {
         friend class iot::mqtt1::packets::Disconnect;
         friend class iot::mqtt1::packets::Pingreq;
         friend class iot::mqtt1::packets::Pingresp;
-
-        bool error = false;
-        bool complete = false;
-        int state = 0;
     };
 
 } // namespace iot::mqtt1

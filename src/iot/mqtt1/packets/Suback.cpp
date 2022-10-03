@@ -58,13 +58,11 @@ namespace iot::mqtt1::packets {
     }
 
     std::size_t iot::mqtt1::packets::Suback::construct([[maybe_unused]] SocketContext* socketContext) {
-        std::size_t consumedTotal = 0;
-        std::size_t consumed;
+        std::size_t consumed = 0;
 
         switch (state) {
             case 0:
-                consumed = packetIdentifier.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += packetIdentifier.construct(socketContext);
 
                 if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                     break;
@@ -72,8 +70,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed = returnCode.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += returnCode.construct(socketContext);
 
                 if ((error = returnCode.isError()) || !returnCode.isComplete()) {
                     break;
@@ -81,10 +78,10 @@ namespace iot::mqtt1::packets {
                 returnCodes.push_back(returnCode.getValue());
                 returnCode.reset();
 
-                if (getConsumed() + consumedTotal < this->getRemainingLength()) {
+                if (getConsumed() + consumed < this->getRemainingLength()) {
                     state = 1;
                     break;
-                } else if (getConsumed() + consumedTotal > this->getRemainingLength()) {
+                } else if (getConsumed() + consumed > this->getRemainingLength()) {
                     error = true;
                     break;
                 }
@@ -94,7 +91,7 @@ namespace iot::mqtt1::packets {
                 break;
         }
 
-        return consumedTotal;
+        return consumed;
     }
 
     void iot::mqtt1::packets::Suback::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {

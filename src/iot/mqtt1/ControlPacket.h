@@ -41,6 +41,7 @@ namespace iot::mqtt1 {
 
         virtual std::size_t construct(iot::mqtt1::SocketContext* socketContext) = 0;
         std::size_t _construct(iot::mqtt1::SocketContext* socketContext);
+        virtual void propagateEvent(SocketContext* socketContext) const = 0;
 
         uint8_t getType() const;
         uint8_t getReserved() const;
@@ -49,26 +50,28 @@ namespace iot::mqtt1 {
         bool isComplete() const;
         bool isError() const;
 
+        std::size_t getConsumed() const;
+
+    private:
         virtual std::vector<char> getPacket() const = 0;
+
+    public:
+        std::vector<char> getFullPacket() const;
 
     protected:
         bool complete = false;
         bool error = false;
 
-    public:
-        virtual void propagateEvent(SocketContext* socketContext) const = 0;
-        std::vector<char> getFullPacket() const;
+    private:
         ControlPacket* currentPacket = nullptr;
 
         uint8_t type = 0;
         uint8_t reserved = 0;
         uint32_t remainingLength = 0;
 
-        int state = 0;
+        std::size_t consumed = 0;
 
-    public:
-        uint64_t consumed = 0;
-        uint64_t getConsumed() const;
+        int state = 0;
     };
 
 } // namespace iot::mqtt1

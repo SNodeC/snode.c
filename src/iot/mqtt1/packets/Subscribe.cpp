@@ -59,13 +59,11 @@ namespace iot::mqtt1::packets {
     }
 
     std::size_t Subscribe::construct(SocketContext* socketContext) {
-        std::size_t consumedTotal = 0;
         std::size_t consumed = 0;
 
         switch (state) {
             case 0:
-                consumed = packetIdentifier.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += packetIdentifier.construct(socketContext);
 
                 if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                     break;
@@ -73,8 +71,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed = topic.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += topic.construct(socketContext);
 
                 if ((error = topic.isError()) || !topic.isComplete()) {
                     break;
@@ -82,8 +79,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 2:
-                consumed = qoS.construct(socketContext);
-                consumedTotal += consumed;
+                consumed += qoS.construct(socketContext);
 
                 if ((error = qoS.isError()) || !qoS.isComplete()) {
                     break;
@@ -93,10 +89,10 @@ namespace iot::mqtt1::packets {
                 topic.reset();
                 qoS.reset();
 
-                if (getConsumed() + consumedTotal < this->getRemainingLength()) {
+                if (getConsumed() + consumed < this->getRemainingLength()) {
                     state = 1;
                     break;
-                } else if (getConsumed() + consumedTotal > this->getRemainingLength()) {
+                } else if (getConsumed() + consumed > this->getRemainingLength()) {
                     error = true;
                     break;
                 }
@@ -106,7 +102,7 @@ namespace iot::mqtt1::packets {
                 break;
         }
 
-        return consumedTotal;
+        return consumed;
     }
 
     void Subscribe::propagateEvent(SocketContext* socketContext) const {

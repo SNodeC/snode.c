@@ -43,15 +43,17 @@ namespace iot::mqtt1::packets {
         explicit Pubrec(const uint16_t packetIdentifier);
         explicit Pubrec(uint32_t remainingLength, uint8_t reserved);
 
+    private:
+        std::size_t construct(SocketContext* socketContext) override;
+        void propagateEvent(SocketContext* socketContext) const override;
+
+    public:
         uint16_t getPacketIdentifier() const;
 
     private:
         std::vector<char> getPacket() const override;
 
         iot::mqtt1::types::UInt16 packetIdentifier;
-
-        std::size_t construct(SocketContext* socketContext) override;
-        void propagateEvent(SocketContext* socketContext) const override;
     };
 
 } // namespace iot::mqtt1::packets

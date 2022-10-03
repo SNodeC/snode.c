@@ -31,13 +31,11 @@ namespace iot::mqtt1::types {
     }
 
     std::size_t UIntV::construct(core::socket::SocketContext* socketContext) {
-        std::size_t consumedTotal = 0;
         std::size_t consumed = 0;
 
         do {
             char byte;
             consumed = socketContext->readFromPeer(&byte, 1);
-            consumedTotal += consumed;
 
             if (consumed > 0) {
                 value.push_back(byte);
@@ -50,7 +48,7 @@ namespace iot::mqtt1::types {
             }
         } while (consumed > 0 && !complete && !error);
 
-        return consumedTotal;
+        return consumed;
     }
 
     void UIntV::setValue(const uint32_t& newValue) {
