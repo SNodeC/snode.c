@@ -28,7 +28,7 @@ namespace iot::mqtt1::packets {
 
     Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
         : iot::mqtt1::ControlPacket(MQTT_SUBSCRIBE, 0x02, 0) {
-        this->packetIdentifier.setValue(packetIdentifier);
+        this->packetIdentifier = packetIdentifier;
         this->topics = topics;
     }
 
@@ -38,7 +38,7 @@ namespace iot::mqtt1::packets {
     }
 
     uint16_t Unsubscribe::getPacketIdentifier() const {
-        return packetIdentifier.getValue();
+        return packetIdentifier;
     }
 
     const std::list<std::string>& Unsubscribe::getTopics() const {
@@ -74,7 +74,7 @@ namespace iot::mqtt1::packets {
                 consumed += topic.deserialize(socketContext);
 
                 if (!(error = topic.isError()) && topic.isComplete()) {
-                    topics.push_back(topic.getValue());
+                    topics.push_back(topic);
                     topic.reset();
 
                     if (getConsumed() + consumed < this->getRemainingLength()) {

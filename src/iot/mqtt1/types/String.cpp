@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt1::types {
@@ -38,7 +36,7 @@ namespace iot::mqtt1::types {
                 if ((error = stringLength.isError()) || !stringLength.isComplete()) {
                     break;
                 }
-                setSize(stringLength.getValue());
+                setSize(stringLength);
                 state++;
                 [[fallthrough]];
             case 1:
@@ -59,7 +57,7 @@ namespace iot::mqtt1::types {
 
     std::vector<char> String::serialize() const {
         UInt16 stringLength;
-        stringLength.setValue(static_cast<uint16_t>(value.size()));
+        stringLength = static_cast<uint16_t>(value.size());
         std::vector<char> tmpVector = stringLength.serialize();
 
         std::vector<char> returnVector;

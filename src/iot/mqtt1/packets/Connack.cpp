@@ -28,8 +28,8 @@ namespace iot::mqtt1::packets {
 
     Connack::Connack(uint8_t returncode, uint8_t flags)
         : iot::mqtt1::ControlPacket(MQTT_CONNACK, 0x00, 0) {
-        this->returnCode.setValue(returncode);
-        this->flags.setValue(flags);
+        this->returnCode = returncode;
+        this->flags = flags;
     }
 
     Connack::Connack(uint32_t remainingLength, uint8_t reserved)
@@ -38,11 +38,11 @@ namespace iot::mqtt1::packets {
     }
 
     uint8_t Connack::getFlags() const {
-        return flags.getValue();
+        return flags;
     }
 
     uint8_t Connack::getReturnCode() const {
-        return returnCode.getValue();
+        return returnCode;
     }
 
     std::vector<char> Connack::serializeVP() const {

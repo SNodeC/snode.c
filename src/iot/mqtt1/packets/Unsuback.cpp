@@ -28,7 +28,7 @@ namespace iot::mqtt1::packets {
 
     Unsuback::Unsuback(const uint16_t packetIdentifier)
         : iot::mqtt1::ControlPacket(MQTT_UNSUBACK, 0x00, 0) {
-        this->packetIdentifier.setValue(packetIdentifier);
+        this->packetIdentifier = packetIdentifier;
     }
 
     Unsuback::Unsuback(uint32_t remainingLength, uint8_t reserved)
@@ -37,7 +37,7 @@ namespace iot::mqtt1::packets {
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {
-        return packetIdentifier.getValue();
+        return packetIdentifier;
     }
 
     std::vector<char> Unsuback::serializeVP() const {

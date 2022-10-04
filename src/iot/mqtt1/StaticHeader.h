@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt1/types/UInt8.h"
-#include "iot/mqtt1/types/UIntV.h"
+#include "iot/mqtt1/types/UInt8.h" // IWYU pragma: export
+#include "iot/mqtt1/types/UIntV.h" // IWYU pragma: export
 
 namespace iot::mqtt1 {
     class SocketContext; // IWYU pragma: keep
@@ -27,10 +27,6 @@ namespace iot::mqtt1 {
 #define IOT_MQTT1_STATICHEADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstddef>
-#include <cstdint>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

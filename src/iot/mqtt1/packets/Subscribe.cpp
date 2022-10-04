@@ -28,7 +28,7 @@ namespace iot::mqtt1::packets {
 
     Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
         : iot::mqtt1::ControlPacket(MQTT_SUBSCRIBE, 0x02, 0) {
-        this->packetIdentifier.setValue(packetIdentifier);
+        this->packetIdentifier = packetIdentifier;
         this->topics = topics;
     }
 
@@ -38,7 +38,7 @@ namespace iot::mqtt1::packets {
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {
-        return packetIdentifier.getValue();
+        return packetIdentifier;
     }
 
     const std::list<iot::mqtt1::Topic>& Subscribe::getTopics() const {
@@ -83,11 +83,11 @@ namespace iot::mqtt1::packets {
                 consumed += qoS.deserialize(socketContext);
 
                 if (!(error = qoS.isError()) && qoS.isComplete()) {
-                    topics.push_back(Topic(topic.getValue(), qoS.getValue()));
+                    topics.push_back(Topic(topic, qoS));
                     topic.reset();
                     qoS.reset();
 
-                    if ((qoS.getValue() & 0xFC) != 0) {
+                    if ((qoS & 0xFC) != 0) {
                         error = true;
                     } else if (getConsumed() + consumed < this->getRemainingLength()) {
                         state = 1;

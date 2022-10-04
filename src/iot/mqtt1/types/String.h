@@ -19,14 +19,14 @@
 #ifndef IOT_MQTT1_TYPES_STRING_H
 #define IOT_MQTT1_TYPES_STRING_H
 
-#include "iot/mqtt1/types/TypeBase.h"
+#include "iot/mqtt1/types/TypeBase.h" // IWYU pragma: export
 #include "iot/mqtt1/types/UInt16.h"
 
 // IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include <string> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -34,12 +34,17 @@ namespace iot::mqtt1::types {
 
     class String : public TypeBase<std::string> {
     public:
+        using TypeBase::operator=;
+        using TypeBase::operator ValueType;
+
         std::size_t deserialize(core::socket::SocketContext* socketContext) override;
         std::vector<char> serialize() const override;
 
+    private:
         void setValue(const std::string& newValue) override;
         std::string getValue() const override;
 
+    public:
         void reset(std::size_t size = sizeof(ValueType)) override;
 
     private:

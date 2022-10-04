@@ -19,13 +19,13 @@
 #ifndef IOT_MQTT1_TYPES_UINT64_H
 #define IOT_MQTT1_TYPES_UINT64_H
 
-#include "iot/mqtt1/types/TypeBase.h"
+#include "iot/mqtt1/types/TypeBase.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
+#include <cstdint> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -33,6 +33,10 @@ namespace iot::mqtt1::types {
 
     class UInt64 : public TypeBase<uint64_t> {
     public:
+        using TypeBase::operator=;
+        using TypeBase::operator ValueType;
+
+    private:
         void setValue(const uint64_t& newValue) override;
         uint64_t getValue() const override;
     };

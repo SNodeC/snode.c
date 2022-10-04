@@ -30,8 +30,8 @@ namespace iot::mqtt1 {
     }
 
     StaticHeader::StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength) {
-        typeFlags.setValue(static_cast<uint8_t>((packetType << 4) | (reserved & 0x0F)));
-        this->remainingLength.setValue(remainingLength);
+        this->typeFlags = static_cast<uint8_t>((packetType << 4) | (reserved & 0x0F));
+        this->remainingLength = remainingLength;
     }
 
     StaticHeader::~StaticHeader() {
@@ -62,19 +62,19 @@ namespace iot::mqtt1 {
     }
 
     uint8_t StaticHeader::getPacketType() const {
-        return static_cast<uint8_t>(typeFlags.getValue() >> 0x04);
+        return static_cast<uint8_t>(typeFlags >> 0x04);
     }
 
     uint8_t StaticHeader::getFlags() const {
-        return static_cast<uint8_t>(typeFlags.getValue() & 0x0F);
+        return static_cast<uint8_t>(typeFlags & 0x0F);
     }
 
     void StaticHeader::setRemainingLength(uint32_t remainingLength) {
-        this->remainingLength.setValue(remainingLength);
+        this->remainingLength = remainingLength;
     }
 
     uint32_t StaticHeader::getRemainingLength() const {
-        return remainingLength.getValue();
+        return remainingLength;
     }
 
     bool StaticHeader::isComplete() const {

@@ -20,8 +20,8 @@
 #define IOT_MQTT1_PACKETSNEW_SUBACK_H
 
 #include "iot/mqtt1/ControlPacket.h"
-#include "iot/mqtt1/types/UInt16.h"
-#include "iot/mqtt1/types/UInt8.h"
+#include "iot/mqtt1/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt1/types/UInt8.h"  // IWYU pragma: export
 
 namespace iot::mqtt1 {
     class SocketContext;
@@ -29,10 +29,7 @@ namespace iot::mqtt1 {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint> // IWYU pragma: export
-#include <list>    // IWYU pragma: export
-#include <vector>
+#include <list> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

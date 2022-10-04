@@ -19,13 +19,13 @@
 #ifndef IOT_MQTT1_TYPES_STRINGRAW_H
 #define IOT_MQTT1_TYPES_STRINGRAW_H
 
-#include "iot/mqtt1/types/TypeBase.h"
+#include "iot/mqtt1/types/TypeBase.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include <string> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -33,8 +33,12 @@ namespace iot::mqtt1::types {
 
     class StringRaw : public TypeBase<std::string> {
     public:
+        using TypeBase::operator=;
+        using TypeBase::operator ValueType;
+
         StringRaw();
 
+    private:
         void setValue(const std::string& newValue) override;
         std::string getValue() const override;
     };

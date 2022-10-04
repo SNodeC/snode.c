@@ -23,9 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector> // IWYU pragma: export
+#include <cstddef> // IWYU pragma: export
+#include <vector>  // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -41,18 +40,24 @@ namespace iot::mqtt1::types {
 
         virtual ~TypeBase() = default;
 
+        ValueType operator=(const ValueType& value);
+        operator ValueType() const;
+        bool operator==(const ValueType& typeBase) const;
+        bool operator!=(const ValueType& typeBase) const;
+
         virtual std::size_t deserialize(core::socket::SocketContext* socketContext);
         virtual std::vector<char> serialize() const;
 
         void setSize(std::size_t size);
 
-        virtual void setValue(const ValueType& value) = 0;
-        virtual ValueType getValue() const = 0;
-
         bool isComplete() const;
         bool isError() const;
 
         virtual void reset(std::size_t size = sizeof(ValueType));
+
+    private:
+        virtual void setValue(const ValueType& value) = 0;
+        virtual ValueType getValue() const = 0;
 
     protected:
         core::socket::SocketContext* socketContext;

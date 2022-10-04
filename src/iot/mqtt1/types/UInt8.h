@@ -19,13 +19,13 @@
 #ifndef IOT_MQTT1_TYPES_UINT8_H
 #define IOT_MQTT1_TYPES_UINT8_H
 
-#include "iot/mqtt1/types/TypeBase.h"
+#include "iot/mqtt1/types/TypeBase.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
+#include <cstdint> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -33,6 +33,10 @@ namespace iot::mqtt1::types {
 
     class UInt8 : public TypeBase<uint8_t> {
     public:
+        using TypeBase::operator=;
+        using TypeBase::operator ValueType;
+
+    private:
         void setValue(const uint8_t& newValue) override;
         uint8_t getValue() const override;
     };

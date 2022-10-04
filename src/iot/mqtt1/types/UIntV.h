@@ -19,13 +19,13 @@
 #ifndef IOT_MQTT1_TYPES_UINTV_H
 #define IOT_MQTT1_TYPES_UINTV_H
 
-#include "iot/mqtt1/types/TypeBase.h"
+#include "iot/mqtt1/types/TypeBase.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "iot/mqtt1/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
+#include <cstdint> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -33,13 +33,18 @@ namespace iot::mqtt1::types {
 
     class UIntV : public TypeBase<uint32_t> {
     public:
+        using TypeBase::operator=;
+        using TypeBase::operator ValueType;
+
         UIntV();
 
         std::size_t deserialize(core::socket::SocketContext* socketContext) override;
 
+    private:
         void setValue(const uint32_t& newValue) override;
         uint32_t getValue() const override;
 
+    public:
         void reset(std::size_t size = sizeof(ValueType)) override;
     };
 

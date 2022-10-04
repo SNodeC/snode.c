@@ -20,20 +20,15 @@
 #define IOT_MQTT1_PACKETSNEW_PUBLISH_H
 
 #include "iot/mqtt1/ControlPacket.h"
-#include "iot/mqtt1/types/String.h"
-#include "iot/mqtt1/types/StringRaw.h"
-#include "iot/mqtt1/types/UInt16.h"
+#include "iot/mqtt1/types/String.h"    // IWYU pragma: export
+#include "iot/mqtt1/types/StringRaw.h" // IWYU pragma: export
+#include "iot/mqtt1/types/UInt16.h"    // IWYU pragma: export
 
 namespace iot::mqtt1 {
     class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstddef>
-#include <cstdint> // IWYU pragma: export
-#include <string>  // IWYU pragma: export
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

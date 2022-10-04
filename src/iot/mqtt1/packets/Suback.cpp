@@ -28,7 +28,7 @@ namespace iot::mqtt1::packets {
 
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
         : iot::mqtt1::ControlPacket(MQTT_SUBACK, 0x00, 0) {
-        this->packetIdentifier.setValue(packetIdentifier);
+        this->packetIdentifier = packetIdentifier;
         this->returnCodes = returnCodes;
     }
 
@@ -38,7 +38,7 @@ namespace iot::mqtt1::packets {
     }
 
     uint16_t Suback::getPacketIdentifier() const {
-        return packetIdentifier.getValue();
+        return packetIdentifier;
     }
 
     const std::list<uint8_t>& Suback::getReturnCodes() const {
@@ -74,7 +74,7 @@ namespace iot::mqtt1::packets {
                 consumed += returnCode.deserialize(socketContext);
 
                 if (!(error = returnCode.isError()) && returnCode.isComplete()) {
-                    returnCodes.push_back(returnCode.getValue());
+                    returnCodes.push_back(returnCode);
                     returnCode.reset();
 
                     if (getConsumed() + consumed < this->getRemainingLength()) {

@@ -28,7 +28,7 @@ namespace iot::mqtt1::packets {
 
     Connect::Connect(const std::string& clientId)
         : iot::mqtt1::ControlPacket(MQTT_CONNECT, 0x00, 0) {
-        this->clientId.setValue(clientId);
+        this->clientId = clientId;
     }
 
     Connect::Connect(uint32_t remainingLength, uint8_t reserved)
@@ -37,23 +37,23 @@ namespace iot::mqtt1::packets {
     }
 
     std::string Connect::getProtocol() const {
-        return protocol.getValue();
+        return protocol;
     }
 
     uint8_t Connect::getLevel() const {
-        return level.getValue();
+        return level;
     }
 
     uint8_t Connect::getConnectFlags() const {
-        return connectFlags.getValue();
+        return connectFlags;
     }
 
     uint16_t Connect::getKeepAlive() const {
-        return keepAlive.getValue();
+        return keepAlive;
     }
 
     std::string Connect::getClientId() const {
-        return clientId.getValue();
+        return clientId;
     }
 
     bool Connect::getUsernameFlag() const {
@@ -81,19 +81,19 @@ namespace iot::mqtt1::packets {
     }
 
     std::string Connect::getWillTopic() const {
-        return willTopic.getValue();
+        return willTopic;
     }
 
     std::string Connect::getWillMessage() const {
-        return willMessage.getValue();
+        return willMessage;
     }
 
     std::string Connect::getUsername() const {
-        return username.getValue();
+        return username;
     }
 
     std::string Connect::getPassword() const {
-        return password.getValue();
+        return password;
     }
 
     std::vector<char> Connect::serializeVP() const {
@@ -145,7 +145,7 @@ namespace iot::mqtt1::packets {
                     break;
                 }
 
-                if ((error = (protocol.getValue() != "MQTT"))) {
+                if ((error = (protocol != "MQTT"))) {
                     break;
                 }
                 state++;
@@ -165,13 +165,13 @@ namespace iot::mqtt1::packets {
                     break;
                 }
 
-                reserved = (connectFlags.getValue() & 0x01) != 0;
-                cleanSession = (connectFlags.getValue() & 0x02) != 0;
-                willFlag = (connectFlags.getValue() & 0x04) != 0;
-                willQoS = (connectFlags.getValue() & 0x18) >> 3;
-                willRetain = (connectFlags.getValue() & 0x20) != 0;
-                passwordFlag = (connectFlags.getValue() & 0x40) != 0;
-                usernameFlag = (connectFlags.getValue() & 0x80) != 0;
+                reserved = (connectFlags & 0x01) != 0;
+                cleanSession = (connectFlags & 0x02) != 0;
+                willFlag = (connectFlags & 0x04) != 0;
+                willQoS = (connectFlags & 0x18) >> 3;
+                willRetain = (connectFlags & 0x20) != 0;
+                passwordFlag = (connectFlags & 0x40) != 0;
+                usernameFlag = (connectFlags & 0x80) != 0;
                 state++;
                 [[fallthrough]];
             case 3:

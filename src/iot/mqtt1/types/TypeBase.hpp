@@ -31,6 +31,23 @@ namespace iot::mqtt1::types {
         length = size;
         needed = size;
     }
+    template <typename ValueType>
+    ValueType TypeBase<ValueType>::operator=(const ValueType& value) {
+        setValue(value);
+        return *this;
+    }
+    template <typename ValueType>
+    TypeBase<ValueType>::operator ValueType() const {
+        return getValue();
+    }
+    template <typename ValueType>
+    bool TypeBase<ValueType>::operator==(const ValueType& typeBase) const {
+        return this->getValue() == typeBase;
+    }
+    template <typename ValueType>
+    bool TypeBase<ValueType>::operator!=(const ValueType& typeBase) const {
+        return this->getValue() != typeBase;
+    }
 
     template <typename ValueType>
     std::size_t TypeBase<ValueType>::deserialize(core::socket::SocketContext* socketContext) {

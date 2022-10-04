@@ -28,7 +28,7 @@ namespace iot::mqtt1::packets {
 
     Pubrec::Pubrec(const uint16_t packetIdentifier)
         : iot::mqtt1::ControlPacket(MQTT_PUBREC, 0x00, 0) {
-        this->packetIdentifier.setValue(packetIdentifier);
+        this->packetIdentifier = packetIdentifier;
     }
 
     Pubrec::Pubrec(uint32_t remainingLength, uint8_t reserved)
@@ -37,7 +37,7 @@ namespace iot::mqtt1::packets {
     }
 
     uint16_t Pubrec::getPacketIdentifier() const {
-        return packetIdentifier.getValue();
+        return packetIdentifier;
     }
 
     std::vector<char> Pubrec::serializeVP() const {
