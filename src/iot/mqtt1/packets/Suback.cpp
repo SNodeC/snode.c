@@ -27,13 +27,14 @@
 namespace iot::mqtt1::packets {
 
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
-        : iot::mqtt1::ControlPacket(MQTT_SUBACK, 0, 0) {
+        : iot::mqtt1::ControlPacket(MQTT_SUBACK, 0x00, 0) {
         this->packetIdentifier.setValue(packetIdentifier);
         this->returnCodes = returnCodes;
     }
 
     Suback::Suback(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_SUBACK, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint16_t Suback::getPacketIdentifier() const {
@@ -72,22 +73,17 @@ namespace iot::mqtt1::packets {
             case 1:
                 consumed += returnCode.deserialize(socketContext);
 
-                if ((error = returnCode.isError()) || !returnCode.isComplete()) {
-                    break;
-                }
-                returnCodes.push_back(returnCode.getValue());
-                returnCode.reset();
+                if (!(error = returnCode.isError()) && returnCode.isComplete()) {
+                    returnCodes.push_back(returnCode.getValue());
+                    returnCode.reset();
 
-                if (getConsumed() + consumed < this->getRemainingLength()) {
-                    state = 1;
-                    break;
-                } else if (getConsumed() + consumed > this->getRemainingLength()) {
-                    error = true;
-                    break;
+                    if (getConsumed() + consumed < this->getRemainingLength()) {
+                        state = 1;
+                    } else {
+                        complete = true;
+                    }
                 }
-                [[fallthrough]];
-            default:
-                complete = true;
+
                 break;
         }
 

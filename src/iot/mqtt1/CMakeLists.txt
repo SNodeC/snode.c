@@ -22,8 +22,6 @@ target_link_libraries(mqtt1 PRIVATE snodec::mqtt1-packets)
 target_include_directories(
     mqtt1
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 

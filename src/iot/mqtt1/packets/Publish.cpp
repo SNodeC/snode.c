@@ -99,7 +99,7 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                if (((getReserved() >> 1) & 0x03) > 0) {
+                if (qoSLevel > 0) {
                     consumed += packetIdentifier.deserialize(socketContext);
 
                     if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
@@ -107,18 +107,19 @@ namespace iot::mqtt1::packets {
                     }
                 }
 
+                if (getRemainingLength() < getConsumed() + consumed) {
+                    error = true;
+                    break;
+                }
                 message.setSize(static_cast<uint16_t>(getRemainingLength() - getConsumed() - consumed));
                 state++;
                 [[fallthrough]];
             case 2:
                 consumed += message.deserialize(socketContext);
 
-                if ((error = message.isError()) || !message.isComplete()) {
-                    break;
-                }
-                [[fallthrough]];
-            default:
-                complete = true;
+                error = message.isError();
+                complete = message.isComplete();
+
                 break;
         }
 

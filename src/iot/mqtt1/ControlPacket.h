@@ -49,7 +49,7 @@ namespace iot::mqtt1 {
 
     public:
         uint8_t getType() const;
-        uint8_t getReserved() const;
+        uint8_t getFlags() const;
         uint32_t getRemainingLength() const;
 
         bool isComplete() const;
@@ -65,7 +65,7 @@ namespace iot::mqtt1 {
         ControlPacket* currentPacket = nullptr;
 
         uint8_t type = 0;
-        uint8_t reserved = 0;
+        uint8_t flags = 0;
         uint32_t remainingLength = 0;
 
         std::size_t consumed = 0;

@@ -63,8 +63,8 @@ namespace iot::mqtt1::packets {
         uint8_t getReturnCode() const;
 
     private:
-        iot::mqtt1::types::UInt8 _flags;
-        iot::mqtt1::types::UInt8 _returnCode;
+        iot::mqtt1::types::UInt8 flags;
+        iot::mqtt1::types::UInt8 returnCode;
 
         int state = 0;
     };

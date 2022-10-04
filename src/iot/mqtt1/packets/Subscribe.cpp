@@ -33,7 +33,8 @@ namespace iot::mqtt1::packets {
     }
 
     Subscribe::Subscribe(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt1::ControlPacket(MQTT_SUBSCRIBE, 0x02 | reserved, remainingLength) {
+        : iot::mqtt1::ControlPacket(MQTT_SUBSCRIBE, reserved, remainingLength) {
+        error = reserved != 0x02;
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {
@@ -81,24 +82,20 @@ namespace iot::mqtt1::packets {
             case 2:
                 consumed += qoS.deserialize(socketContext);
 
-                if ((error = qoS.isError()) || !qoS.isComplete()) {
-                    break;
+                if (!(error = qoS.isError()) && qoS.isComplete()) {
+                    topics.push_back(Topic(topic.getValue(), qoS.getValue()));
+                    topic.reset();
+                    qoS.reset();
+
+                    if ((qoS.getValue() & 0xFC) != 0) {
+                        error = true;
+                    } else if (getConsumed() + consumed < this->getRemainingLength()) {
+                        state = 1;
+                    } else {
+                        complete = true;
+                    }
                 }
 
-                topics.push_back(Topic(topic.getValue(), qoS.getValue()));
-                topic.reset();
-                qoS.reset();
-
-                if (getConsumed() + consumed < this->getRemainingLength()) {
-                    state = 1;
-                    break;
-                } else if (getConsumed() + consumed > this->getRemainingLength()) {
-                    error = true;
-                    break;
-                }
-                [[fallthrough]];
-            default:
-                complete = true;
                 break;
         }
 

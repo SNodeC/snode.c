@@ -27,12 +27,13 @@
 namespace iot::mqtt1::packets {
 
     Unsuback::Unsuback(const uint16_t packetIdentifier)
-        : iot::mqtt1::ControlPacket(MQTT_UNSUBACK, 0, 0) {
+        : iot::mqtt1::ControlPacket(MQTT_UNSUBACK, 0x00, 0) {
         this->packetIdentifier.setValue(packetIdentifier);
     }
 
     Unsuback::Unsuback(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_UNSUBACK, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {

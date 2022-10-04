@@ -27,12 +27,13 @@
 namespace iot::mqtt1::packets {
 
     Pubcomp::Pubcomp(const uint16_t packetIdentifier)
-        : iot::mqtt1::ControlPacket(MQTT_PUBCOMP, 0, 0) {
+        : iot::mqtt1::ControlPacket(MQTT_PUBCOMP, 0x00, 0) {
         this->packetIdentifier.setValue(packetIdentifier);
     }
 
     Pubcomp::Pubcomp(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_PUBCOMP, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint16_t Pubcomp::getPacketIdentifier() const {

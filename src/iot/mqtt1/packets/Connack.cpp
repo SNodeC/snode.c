@@ -27,30 +27,31 @@
 namespace iot::mqtt1::packets {
 
     Connack::Connack(uint8_t returncode, uint8_t flags)
-        : iot::mqtt1::ControlPacket(MQTT_CONNACK, 0, 0) {
-        _returnCode.setValue(returncode);
-        _flags.setValue(flags);
+        : iot::mqtt1::ControlPacket(MQTT_CONNACK, 0x00, 0) {
+        this->returnCode.setValue(returncode);
+        this->flags.setValue(flags);
     }
 
     Connack::Connack(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_CONNACK, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint8_t Connack::getFlags() const {
-        return _flags.getValue();
+        return flags.getValue();
     }
 
     uint8_t Connack::getReturnCode() const {
-        return _returnCode.getValue();
+        return returnCode.getValue();
     }
 
     std::vector<char> Connack::serializeVP() const {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = _flags.serialize();
+        std::vector<char> tmpVector = flags.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = _returnCode.serialize();
+        tmpVector = returnCode.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
@@ -62,22 +63,19 @@ namespace iot::mqtt1::packets {
         switch (state) {
             // V-Header
             case 0:
-                consumed += _flags.deserialize(socketContext);
+                consumed += flags.deserialize(socketContext);
 
-                if ((error = _flags.isError()) || !_flags.isComplete()) {
+                if ((error = flags.isError()) || !flags.isComplete()) {
                     break;
                 }
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += _returnCode.deserialize(socketContext);
+                consumed += returnCode.deserialize(socketContext);
 
-                if ((error = _returnCode.isError()) || !_returnCode.isComplete()) {
-                    break;
-                }
-                [[fallthrough]];
-            default:
-                complete = true;
+                error = returnCode.isError();
+                complete = returnCode.isComplete();
+
                 break;
         }
 

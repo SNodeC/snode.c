@@ -27,11 +27,12 @@
 namespace iot::mqtt1::packets {
 
     Pingreq::Pingreq()
-        : iot::mqtt1::ControlPacket(MQTT_PINGREQ, 0, 0) {
+        : iot::mqtt1::ControlPacket(MQTT_PINGREQ, 0x00, 0) {
     }
 
     Pingreq::Pingreq(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_PINGREQ, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     std::vector<char> Pingreq::serializeVP() const {

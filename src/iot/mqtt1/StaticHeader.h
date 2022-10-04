@@ -47,7 +47,7 @@ namespace iot::mqtt1 {
         std::vector<char> serialize();
 
         uint8_t getPacketType() const;
-        uint8_t getReserved() const;
+        uint8_t getFlags() const;
 
         void setRemainingLength(uint32_t remainingLength);
         uint32_t getRemainingLength() const;
@@ -58,8 +58,8 @@ namespace iot::mqtt1 {
         void reset();
 
     private:
-        types::UInt8 _typeReserved;
-        types::UIntV _remainingLength;
+        types::UInt8 typeFlags;
+        types::UIntV remainingLength;
 
         bool complete = false;
         bool error = false;

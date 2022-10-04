@@ -56,7 +56,7 @@ namespace iot::mqtt1::packets {
     public:
         std::string getProtocol() const;
         uint8_t getLevel() const;
-        uint8_t getFlags() const;
+        uint8_t getConnectFlags() const;
         uint16_t getKeepAlive() const;
 
         std::string getClientId() const;
@@ -76,7 +76,7 @@ namespace iot::mqtt1::packets {
     private:
         iot::mqtt1::types::String protocol;
         iot::mqtt1::types::UInt8 level;
-        iot::mqtt1::types::UInt8 flags;
+        iot::mqtt1::types::UInt8 connectFlags;
         iot::mqtt1::types::UInt16 keepAlive;
         iot::mqtt1::types::String clientId;
         iot::mqtt1::types::String willTopic;

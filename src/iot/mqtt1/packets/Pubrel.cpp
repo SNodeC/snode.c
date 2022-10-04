@@ -33,6 +33,7 @@ namespace iot::mqtt1::packets {
 
     Pubrel::Pubrel(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_PUBREL, reserved, remainingLength) {
+        error = reserved != 0x02;
     }
 
     uint16_t Pubrel::getPacketIdentifier() const {

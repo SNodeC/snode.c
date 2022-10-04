@@ -28,7 +28,7 @@ namespace iot::mqtt1 {
 
     ControlPacket::ControlPacket(uint8_t type, uint8_t reserved, uint32_t remainingLength)
         : type(type)
-        , reserved(reserved)
+        , flags(reserved)
         , remainingLength(remainingLength) {
     }
 
@@ -42,13 +42,20 @@ namespace iot::mqtt1 {
         std::size_t currentConsumed = deserializeVP(socketContext);
         consumed += currentConsumed;
 
+        if (complete && consumed != this->getRemainingLength()) {
+            error = true;
+        }
+        if (error) {
+            complete = false;
+        }
+
         return currentConsumed;
     }
 
     std::vector<char> ControlPacket::serialize() const {
         std::vector<char> variablHeaderPayload = serializeVP();
 
-        iot::mqtt1::StaticHeader staticHeader(getType(), getReserved());
+        iot::mqtt1::StaticHeader staticHeader(getType(), getFlags());
         staticHeader.setRemainingLength(static_cast<uint32_t>(variablHeaderPayload.size()));
 
         std::vector<char> packet = staticHeader.serialize();
@@ -62,8 +69,8 @@ namespace iot::mqtt1 {
         return type;
     }
 
-    uint8_t ControlPacket::getReserved() const {
-        return reserved;
+    uint8_t ControlPacket::getFlags() const {
+        return flags;
     }
 
     uint32_t ControlPacket::getRemainingLength() const {

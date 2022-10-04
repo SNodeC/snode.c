@@ -27,12 +27,13 @@
 namespace iot::mqtt1::packets {
 
     Pubrec::Pubrec(const uint16_t packetIdentifier)
-        : iot::mqtt1::ControlPacket(MQTT_PUBREC, 0, 0) {
+        : iot::mqtt1::ControlPacket(MQTT_PUBREC, 0x00, 0) {
         this->packetIdentifier.setValue(packetIdentifier);
     }
 
     Pubrec::Pubrec(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_PUBREC, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint16_t Pubrec::getPacketIdentifier() const {

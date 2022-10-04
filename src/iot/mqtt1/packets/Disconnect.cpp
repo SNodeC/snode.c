@@ -27,11 +27,12 @@
 namespace iot::mqtt1::packets {
 
     Disconnect::Disconnect()
-        : iot::mqtt1::ControlPacket(MQTT_DISCONNECT, 0, 0) {
+        : iot::mqtt1::ControlPacket(MQTT_DISCONNECT, 0x00, 0) {
     }
 
     Disconnect::Disconnect(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_DISCONNECT, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     std::vector<char> Disconnect::serializeVP() const {

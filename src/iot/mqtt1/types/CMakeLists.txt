@@ -33,8 +33,6 @@ set_property(TARGET mqtt1-types PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
     mqtt1-types
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
 )
 
 install(

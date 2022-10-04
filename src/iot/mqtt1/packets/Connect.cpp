@@ -27,12 +27,13 @@
 namespace iot::mqtt1::packets {
 
     Connect::Connect(const std::string& clientId)
-        : iot::mqtt1::ControlPacket(MQTT_CONNECT, 0, 0) {
+        : iot::mqtt1::ControlPacket(MQTT_CONNECT, 0x00, 0) {
         this->clientId.setValue(clientId);
     }
 
     Connect::Connect(uint32_t remainingLength, uint8_t reserved)
         : iot::mqtt1::ControlPacket(MQTT_CONNECT, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     std::string Connect::getProtocol() const {
@@ -43,8 +44,8 @@ namespace iot::mqtt1::packets {
         return level.getValue();
     }
 
-    uint8_t Connect::getFlags() const {
-        return flags.getValue();
+    uint8_t Connect::getConnectFlags() const {
+        return connectFlags.getValue();
     }
 
     uint16_t Connect::getKeepAlive() const {
@@ -104,7 +105,7 @@ namespace iot::mqtt1::packets {
         tmpVector = level.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        tmpVector = flags.serialize();
+        tmpVector = connectFlags.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         tmpVector = keepAlive.serialize();
@@ -158,19 +159,19 @@ namespace iot::mqtt1::packets {
                 state++;
                 [[fallthrough]];
             case 2:
-                consumed += flags.deserialize(socketContext);
+                consumed += connectFlags.deserialize(socketContext);
 
-                if ((error = flags.isError()) || !flags.isComplete()) {
+                if ((error = connectFlags.isError()) || !connectFlags.isComplete()) {
                     break;
                 }
 
-                reserved = (flags.getValue() & 0x01) != 0;
-                cleanSession = (flags.getValue() & 0x02) != 0;
-                willFlag = (flags.getValue() & 0x04) != 0;
-                willQoS = (flags.getValue() & 0x18) >> 3;
-                willRetain = (flags.getValue() & 0x20) != 0;
-                passwordFlag = (flags.getValue() & 0x40) != 0;
-                usernameFlag = (flags.getValue() & 0x80) != 0;
+                reserved = (connectFlags.getValue() & 0x01) != 0;
+                cleanSession = (connectFlags.getValue() & 0x02) != 0;
+                willFlag = (connectFlags.getValue() & 0x04) != 0;
+                willQoS = (connectFlags.getValue() & 0x18) >> 3;
+                willRetain = (connectFlags.getValue() & 0x20) != 0;
+                passwordFlag = (connectFlags.getValue() & 0x40) != 0;
+                usernameFlag = (connectFlags.getValue() & 0x80) != 0;
                 state++;
                 [[fallthrough]];
             case 3:
@@ -224,13 +225,12 @@ namespace iot::mqtt1::packets {
                 if (passwordFlag) {
                     consumed += password.deserialize(socketContext);
 
-                    if ((error = password.isError()) || !password.isComplete()) {
-                        break;
-                    }
+                    error = password.isError();
+                    complete = password.isComplete();
+                } else {
+                    complete = true;
                 }
-                [[fallthrough]];
-            default:
-                complete = true;
+
                 break;
         }
 
