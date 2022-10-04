@@ -41,11 +41,11 @@ namespace iot::mqtt1 {
         StaticHeader();
         StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength = 0);
 
-        std::size_t deserialize(iot::mqtt1::SocketContext* socketContext);
-
         ~StaticHeader();
 
-        void setPacketType(uint8_t typeReserved);
+        std::size_t deserialize(iot::mqtt1::SocketContext* socketContext);
+        std::vector<char> serialize();
+
         uint8_t getPacketType() const;
         uint8_t getReserved() const;
 
@@ -54,8 +54,6 @@ namespace iot::mqtt1 {
 
         bool isComplete() const;
         bool isError() const;
-
-        std::vector<char> getPacket();
 
         void reset();
 

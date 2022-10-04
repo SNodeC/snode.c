@@ -8,7 +8,6 @@ set(CMAKE_INSTALL_RPATH
 add_subdirectory(packets)
 add_subdirectory(types)
 
-
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(MQTT1_CPP ControlPacket.cpp SocketContext.cpp StaticHeader.cpp Topic.cpp)
@@ -38,11 +37,13 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/iot/mqtt
+    DESTINATION include/snode.c/iot/mqtt1
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "types" EXCLUDE
+    PATTERN "packets" EXCLUDE
 )
 
 install(

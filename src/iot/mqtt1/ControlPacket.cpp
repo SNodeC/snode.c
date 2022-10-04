@@ -51,7 +51,7 @@ namespace iot::mqtt1 {
         iot::mqtt1::StaticHeader staticHeader(getType(), getReserved());
         staticHeader.setRemainingLength(static_cast<uint32_t>(variablHeaderPayload.size()));
 
-        std::vector<char> packet = staticHeader.getPacket();
+        std::vector<char> packet = staticHeader.serialize();
 
         packet.insert(packet.end(), variablHeaderPayload.begin(), variablHeaderPayload.end());
 

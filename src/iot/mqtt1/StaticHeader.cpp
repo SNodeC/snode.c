@@ -61,10 +61,6 @@ namespace iot::mqtt1 {
         return consumed;
     }
 
-    void StaticHeader::setPacketType(uint8_t typeReserved) {
-        _typeReserved.setValue(typeReserved);
-    }
-
     uint8_t StaticHeader::getPacketType() const {
         return static_cast<uint8_t>(_typeReserved.getValue() >> 0x04);
     }
@@ -89,7 +85,7 @@ namespace iot::mqtt1 {
         return error;
     }
 
-    std::vector<char> StaticHeader::getPacket() {
+    std::vector<char> StaticHeader::serialize() {
         std::vector<char> packet;
 
         std::vector<char> tmpVector = _typeReserved.serialize();

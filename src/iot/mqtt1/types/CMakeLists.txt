@@ -2,8 +2,28 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT1_TYPES_CPP String.cpp StringRaw.cpp UInt16.cpp UInt32.cpp UInt64.cpp UInt8.cpp UInt8List.cpp UIntV.cpp)
-set(MQTT1_TYPES_H String.h StringRaw.h TypeBase.h TypeBase.hpp UInt16.h UInt32.h UInt64.h UInt8.h UInt8List.h UIntV.h)
+set(MQTT1_TYPES_CPP
+    String.cpp
+    StringRaw.cpp
+    UInt16.cpp
+    UInt32.cpp
+    UInt64.cpp
+    UInt8.cpp
+    UInt8List.cpp
+    UIntV.cpp
+)
+set(MQTT1_TYPES_H
+    String.h
+    StringRaw.h
+    TypeBase.h
+    TypeBase.hpp
+    UInt16.h
+    UInt32.h
+    UInt64.h
+    UInt8.h
+    UInt8List.h
+    UIntV.h
+)
 
 add_library(mqtt1-types STATIC ${MQTT1_TYPES_CPP} ${MQTT1_TYPES_H})
 add_library(snodec::mqtt1-types ALIAS mqtt1-types)
@@ -15,4 +35,13 @@ target_include_directories(
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION include/snode.c/iot/mqtt1/types
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+    PATTERN "cmake" EXCLUDE
 )

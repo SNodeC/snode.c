@@ -16,3 +16,12 @@ target_include_directories(
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
 )
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION include/snode.c/iot/mqtt/types
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+    PATTERN "cmake" EXCLUDE
+)

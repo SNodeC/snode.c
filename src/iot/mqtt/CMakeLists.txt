@@ -38,6 +38,8 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "types" EXCLUDE
+    PATTERN "packets" EXCLUDE
 )
 
 install(
