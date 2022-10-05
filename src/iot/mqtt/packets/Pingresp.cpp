@@ -18,6 +18,8 @@
 
 #include "iot/mqtt/packets/Pingresp.h"
 
+#include "iot/mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -25,17 +27,25 @@
 namespace iot::mqtt::packets {
 
     Pingresp::Pingresp()
-        : iot::mqtt::ControlPacket(MQTT_PINGRESP) {
-        // no V-Header
-        // no Payload
+        : iot::mqtt::ControlPacket(MQTT_PINGRESP, 0x00, 0) {
     }
 
-    Pingresp::Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // no V-Header
-        // no Payload
+    Pingresp::Pingresp(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt::ControlPacket(MQTT_PINGRESP, reserved, remainingLength) {
+        error = reserved != 0x00;
+    }
 
-        error = isError();
+    std::vector<char> Pingresp::serializeVP() const {
+        return std::vector<char>();
+    }
+
+    std::size_t Pingresp::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
+        complete = true;
+        return 0;
+    }
+
+    void Pingresp::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+        socketContext->_onPingresp(*this);
     }
 
 } // namespace iot::mqtt::packets

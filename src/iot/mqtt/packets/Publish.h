@@ -16,19 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTTFAST_PACKETS_PUBLISH_H
-#define IOT_MQTTFAST_PACKETS_PUBLISH_H
+#ifndef IOT_MQTT_PACKETSNEW_PUBLISH_H
+#define IOT_MQTT_PACKETSNEW_PUBLISH_H
 
 #include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt/types/String.h"    // IWYU pragma: export
+#include "iot/mqtt/types/StringRaw.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"    // IWYU pragma: export
 
 namespace iot::mqtt {
-    class ControlPacketFactory;
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint> // IWYU pragma: export
-#include <string>  // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -44,25 +44,34 @@ namespace iot::mqtt::packets {
                 bool dup = false,
                 uint8_t qoSLevel = 0,
                 bool retain = false);
-        explicit Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Publish(uint32_t remainingLength, uint8_t reserved);
 
+    private:
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        std::vector<char> serializeVP() const override;
+        void propagateEvent(SocketContext* socketContext) const override;
+
+    public:
         bool getDup() const;
         uint8_t getQoSLevel() const;
         uint16_t getPacketIdentifier() const;
-        const std::string& getTopic() const;
-        const std::string& getMessage() const;
+        std::string getTopic() const;
+        std::string getMessage() const;
 
         bool getRetain() const;
 
     private:
-        uint16_t packetIdentifier = 0;
-        std::string topic;
-        std::string message;
+        iot::mqtt::types::UInt16 packetIdentifier;
+        iot::mqtt::types::String topic;
+        iot::mqtt::types::StringRaw message;
+
         bool dup = false;
         uint8_t qoSLevel = 0;
         bool retain = false;
+
+        int state = 0;
     };
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTTFAST_PACKETS_PUBLISH_H
+#endif // IOT_MQTT_PACKETSNEW_PUBLISH_H

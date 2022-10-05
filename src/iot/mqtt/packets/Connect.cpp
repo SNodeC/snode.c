@@ -18,64 +18,22 @@
 
 #include "iot/mqtt/packets/Connect.h"
 
+#include "iot/mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Connect::Connect(std::string clientId, std::string protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
-        : iot::mqtt::ControlPacket(MQTT_CONNECT)
-        , protocol(protocol)
-        , level(version)
-        , flags(flags)
-        , keepAlive(keepAlive)
-        , clientId(clientId) {
-        // V-Header
-        putString(this->protocol);
-        putInt8(this->level);
-        putInt8(this->flags);
-        putInt16(this->keepAlive);
-
-        // Payload
-        putString(this->clientId);
+    Connect::Connect(const std::string& clientId)
+        : iot::mqtt::ControlPacket(MQTT_CONNECT, 0x00, 0) {
+        this->clientId = clientId;
     }
 
-    Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        protocol = getString();
-        level = getInt8();
-        flags = getInt8();
-        keepAlive = getInt16();
-
-        usernameFlag = (flags & 0x80) != 0;
-        passwordFlag = (flags & 0x40) != 0;
-        willRetain = (flags & 0x20) != 0;
-        willQoS = (flags & 0x18) >> 3;
-        willFlag = (flags & 0x04) != 0;
-        cleanSession = (flags & 0x02) != 0;
-        reserved = (flags & 0x01) != 0;
-
-        // Payload
-        if (!isError()) {
-            clientId = getString();
-        } else {
-            error = true;
-        }
-
-        if (!error && willFlag) {
-            willTopic = getString();
-            willMessage = getString();
-        }
-
-        if (!error && usernameFlag) {
-            username = getString();
-        }
-
-        if (!error && passwordFlag) {
-            password = getString();
-        }
+    Connect::Connect(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt::ControlPacket(MQTT_CONNECT, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     std::string Connect::getProtocol() const {
@@ -86,15 +44,15 @@ namespace iot::mqtt::packets {
         return level;
     }
 
-    uint8_t Connect::getFlags() const {
-        return flags;
+    uint8_t Connect::getConnectFlags() const {
+        return connectFlags;
     }
 
     uint16_t Connect::getKeepAlive() const {
         return keepAlive;
     }
 
-    const std::string& Connect::getClientId() const {
+    std::string Connect::getClientId() const {
         return clientId;
     }
 
@@ -122,20 +80,165 @@ namespace iot::mqtt::packets {
         return cleanSession;
     }
 
-    const std::string& Connect::getWillTopic() const {
+    std::string Connect::getWillTopic() const {
         return willTopic;
     }
 
-    const std::string& Connect::getWillMessage() const {
+    std::string Connect::getWillMessage() const {
         return willMessage;
     }
 
-    const std::string& Connect::getUsername() const {
+    std::string Connect::getUsername() const {
         return username;
     }
 
-    const std::string& Connect::getPassword() const {
+    std::string Connect::getPassword() const {
         return password;
+    }
+
+    std::vector<char> Connect::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = protocol.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = level.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = connectFlags.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = keepAlive.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = clientId.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        if (willFlag) {
+            tmpVector = willTopic.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+            tmpVector = willMessage.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+        if (usernameFlag) {
+            tmpVector = username.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+        if (passwordFlag) {
+            tmpVector = password.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+
+        return packet;
+    }
+
+    std::size_t Connect::deserializeVP(SocketContext* socketContext) {
+        std::size_t consumed = 0;
+
+        switch (state) {
+            // V-Header
+            case 0:
+                consumed += protocol.deserialize(socketContext);
+
+                if ((error = protocol.isError()) || !protocol.isComplete()) {
+                    break;
+                }
+
+                if ((error = (protocol != "MQTT"))) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            case 1:
+                consumed += level.deserialize(socketContext);
+
+                if ((error = level.isError()) || !level.isComplete()) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            case 2:
+                consumed += connectFlags.deserialize(socketContext);
+
+                if ((error = connectFlags.isError()) || !connectFlags.isComplete()) {
+                    break;
+                }
+
+                reserved = (connectFlags & 0x01) != 0;
+                cleanSession = (connectFlags & 0x02) != 0;
+                willFlag = (connectFlags & 0x04) != 0;
+                willQoS = (connectFlags & 0x18) >> 3;
+                willRetain = (connectFlags & 0x20) != 0;
+                passwordFlag = (connectFlags & 0x40) != 0;
+                usernameFlag = (connectFlags & 0x80) != 0;
+                state++;
+                [[fallthrough]];
+            case 3:
+                consumed += keepAlive.deserialize(socketContext);
+
+                if ((error = keepAlive.isError()) || !keepAlive.isComplete()) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            // Payload
+            case 4:
+                consumed += clientId.deserialize(socketContext);
+
+                if ((error = clientId.isError()) || !clientId.isComplete()) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            case 5:
+                if (willFlag) {
+                    consumed += willTopic.deserialize(socketContext);
+
+                    if ((error = willTopic.isError()) || !willTopic.isComplete()) {
+                        break;
+                    }
+                }
+                state++;
+                [[fallthrough]];
+            case 6:
+                if (willFlag) {
+                    consumed += willMessage.deserialize(socketContext);
+
+                    if ((error = willMessage.isError()) || !willMessage.isComplete()) {
+                        break;
+                    }
+                }
+                state++;
+                [[fallthrough]];
+            case 7:
+                if (usernameFlag) {
+                    consumed += username.deserialize(socketContext);
+
+                    if ((error = username.isError()) || !username.isComplete()) {
+                        break;
+                    }
+                }
+                state++;
+                [[fallthrough]];
+            case 8:
+                if (passwordFlag) {
+                    consumed += password.deserialize(socketContext);
+
+                    error = password.isError();
+                    complete = password.isComplete();
+                } else {
+                    complete = true;
+                }
+
+                break;
+        }
+
+        return consumed;
+    }
+
+    void Connect::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onConnect(*this);
     }
 
 } // namespace iot::mqtt::packets

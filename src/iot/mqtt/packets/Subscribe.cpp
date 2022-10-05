@@ -18,43 +18,23 @@
 
 #include "iot/mqtt/packets/Subscribe.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "iot/mqtt/SocketContext.h"
 
-#include <string>
-#include <utility>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Subscribe::Subscribe(uint16_t packetIdentifier, const std::list<Topic>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02)
-        , packetIdentifier(packetIdentifier)
-        , topics(std::move(topics)) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // Payload
-        for (const iot::mqtt::Topic& topic : this->topics) {
-            putString(topic.getName());
-            putInt8(topic.getRequestedQoS());
-        }
+    Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02, 0) {
+        this->packetIdentifier = packetIdentifier;
+        this->topics = topics;
     }
 
-    Subscribe::Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // Payload
-        for (std::string name = getString(); !name.empty(); name = getString()) {
-            uint8_t requestedQoS = getInt8();
-            topics.push_back(iot::mqtt::Topic(name, requestedQoS));
-        }
-
-        if (!isError()) {
-            error = topics.empty();
-        }
+    Subscribe::Subscribe(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, reserved, remainingLength) {
+        error = reserved != 0x02;
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {
@@ -63,6 +43,67 @@ namespace iot::mqtt::packets {
 
     const std::list<iot::mqtt::Topic>& Subscribe::getTopics() const {
         return topics;
+    }
+
+    std::vector<char> Subscribe::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        for (const Topic& topic : topics) {
+            packet.insert(packet.end(), topic.getName().begin(), topic.getName().end());
+            packet.push_back(static_cast<char>(topic.getRequestedQoS()));
+        }
+
+        return packet;
+    }
+
+    std::size_t Subscribe::deserializeVP(SocketContext* socketContext) {
+        std::size_t consumed = 0;
+
+        switch (state) {
+            case 0:
+                consumed += packetIdentifier.deserialize(socketContext);
+
+                if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            case 1:
+                consumed += topic.deserialize(socketContext);
+
+                if ((error = topic.isError()) || !topic.isComplete()) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            case 2:
+                consumed += qoS.deserialize(socketContext);
+
+                if (!(error = qoS.isError()) && qoS.isComplete()) {
+                    topics.push_back(Topic(topic, qoS));
+                    topic.reset();
+                    qoS.reset();
+
+                    if ((qoS & 0xFC) != 0) {
+                        error = true;
+                    } else if (getConsumed() + consumed < this->getRemainingLength()) {
+                        state = 1;
+                    } else {
+                        complete = true;
+                    }
+                }
+
+                break;
+        }
+
+        return consumed;
+    }
+
+    void Subscribe::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onSubscribe(*this);
     }
 
 } // namespace iot::mqtt::packets

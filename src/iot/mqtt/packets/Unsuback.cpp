@@ -18,6 +18,8 @@
 
 #include "iot/mqtt/packets/Unsuback.h"
 
+#include "iot/mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -25,26 +27,39 @@
 namespace iot::mqtt::packets {
 
     Unsuback::Unsuback(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBACK)
-        , packetIdentifier(packetIdentifier) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // no Payload
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, 0x00, 0) {
+        this->packetIdentifier = packetIdentifier;
     }
 
-    Unsuback::Unsuback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // no Payload
-
-        error = isError();
+    Unsuback::Unsuback(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {
         return packetIdentifier;
+    }
+
+    std::vector<char> Unsuback::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
+    std::size_t iot::mqtt::packets::Unsuback::deserializeVP(SocketContext* socketContext) {
+        std::size_t consumed = packetIdentifier.deserialize(socketContext);
+
+        error = packetIdentifier.isError();
+        complete = packetIdentifier.isComplete();
+
+        return consumed;
+    }
+
+    void iot::mqtt::packets::Unsuback::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onUnsuback(*this);
     }
 
 } // namespace iot::mqtt::packets

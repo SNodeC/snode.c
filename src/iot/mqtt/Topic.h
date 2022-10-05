@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTTFAST_TOPIC_H
-#define IOT_MQTTFAST_TOPIC_H
+#ifndef IOT_MQTT_TOPIC_H
+#define IOT_MQTT_TOPIC_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -47,4 +47,4 @@ namespace iot::mqtt {
 
 } // namespace iot::mqtt
 
-#endif // IOT_MQTTFAST_TOPIC_H
+#endif // IOT_MQTT_TOPIC_H

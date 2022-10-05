@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTTFAST_PACKETS_PINGRESP_H
-#define IOT_MQTTFAST_PACKETS_PINGRESP_H
+#ifndef IOT_MQTT_PACKETSNEW_PINGRESP_H
+#define IOT_MQTT_PACKETSNEW_PINGRESP_H
 
 #include "iot/mqtt/ControlPacket.h"
 
 namespace iot::mqtt {
-    class ControlPacketFactory;
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,10 +35,15 @@ namespace iot::mqtt::packets {
 
     class Pingresp : public iot::mqtt::ControlPacket {
     public:
-        Pingresp();
-        explicit Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Pingresp();
+        explicit Pingresp(uint32_t remainingLength, uint8_t reserved);
+
+    private:
+        std::size_t deserializeVP(SocketContext* socketContext) override;
+        std::vector<char> serializeVP() const override;
+        void propagateEvent(SocketContext* socketContext) const override;
     };
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTTFAST_PACKETS_PINGRESP_H
+#endif // IOT_MQTT_PACKETSNEW_PINGRESP_H

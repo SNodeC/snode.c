@@ -16,48 +16,60 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTTFAST_TYPES_TYPESBASE_H
-#define IOT_MQTTFAST_TYPES_TYPESBASE_H
+#ifndef IOT_MQTT_TYPES_TYPEBASE_H
+#define IOT_MQTT_TYPES_TYPEBASE_H
 
-namespace core::socket {
-    class SocketContext;
-}
+#include "core/socket/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
+#include <cstddef> // IWYU pragma: export
+#include <vector>  // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::types {
 
+    template <typename ValueTypeT>
     class TypeBase {
+    protected:
+        using ValueType = ValueTypeT;
+
     public:
-        TypeBase(core::socket::SocketContext* socketContext);
-
-        TypeBase(const TypeBase&) = delete;
-        TypeBase(TypeBase&&) = default;
-
-        TypeBase& operator=(const TypeBase&) = delete;
-        TypeBase& operator=(TypeBase&&) = delete;
+        explicit TypeBase(std::size_t size = sizeof(ValueType));
 
         virtual ~TypeBase() = default;
 
-        virtual std::size_t construct() = 0;
+        virtual ValueType operator=(const ValueType& value) = 0;
+        virtual operator ValueType() const = 0;
 
-        bool isCompleted();
-        bool isError();
+        virtual bool operator==(const ValueType& typeBase) const = 0;
+        virtual bool operator!=(const ValueType& typeBase) const = 0;
+
+        virtual std::size_t deserialize(core::socket::SocketContext* socketContext);
+        virtual std::vector<char> serialize() const;
+
+        void setSize(std::size_t size);
+
+        bool isComplete() const;
+        bool isError() const;
+
+        virtual void reset(std::size_t size = sizeof(ValueType));
 
     protected:
-        std::size_t read(char* buf, std::size_t count);
-        virtual void reset();
-
         core::socket::SocketContext* socketContext;
 
-        bool completed = false;
+        std::vector<char> value;
+
+        std::size_t length;
+        std::size_t needed;
+
+        bool complete = false;
         bool error = false;
+
+        int state = 0;
     };
 
 } // namespace iot::mqtt::types
 
-#endif // IOT_MQTTFAST_TYPES_TYPESBASE_H
+#endif // IOT_MQTT_TYPES_TYPEBASE_H

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
@@ -16,21 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTTFAST_CONTROLPACKET_H
-#define IOT_MQTTFAST_CONTROLPACKET_H
-
-#include "iot/mqtt/types/Binary.h"
+#ifndef IOT_MQTT_CONTROLPACKET_H
+#define IOT_MQTT_CONTROLPACKET_H
 
 namespace iot::mqtt {
-    class ControlPacketFactory;
-} // namespace iot::mqtt
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-#include <list>
-#include <string>
-#include <vector>
+#include <cstddef> // IWYU pragma: export
+#include <cstdint> // IWYU pragma: export
+#include <vector>  // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -38,55 +35,44 @@ namespace iot::mqtt {
 
     class ControlPacket {
     public:
-        explicit ControlPacket(uint8_t type, uint8_t reserved = 0);
-        explicit ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit ControlPacket(uint8_t type, uint8_t reserved, uint32_t remainingLength);
 
-        ControlPacket(const ControlPacket&) = delete;
-        ControlPacket(ControlPacket&&) = delete;
+        virtual ~ControlPacket();
 
-        ControlPacket& operator=(const ControlPacket&) = delete;
-        ControlPacket& operator=(ControlPacket&&) = delete;
-
-        uint8_t getType() const;
-        uint8_t getReserved() const;
-        uint64_t getRemainingLength() const;
-        std::vector<char> getPacket();
-
-        bool isError() const;
-
-    protected:
-        std::vector<char>& getValue();
-
-        uint8_t getInt8();
-        uint16_t getInt16();
-        uint32_t getInt32();
-        uint64_t getInt64();
-        uint32_t getIntV();
-        std::string getString();
-        std::string getStringRaw();
-        std::list<uint8_t> getUint8ListRaw();
-
-        void putInt8(uint8_t value);
-        void putInt16(uint16_t value);
-        void putInt32(uint32_t value);
-        void putInt64(uint64_t value);
-        void putIntV(uint32_t value);
-        void putString(const std::string& value);
-        void putStringRaw(const std::string& value);
-        void putUint8ListRaw(const std::list<uint8_t>& value);
-
-        bool isError();
+        std::size_t deserialize(iot::mqtt::SocketContext* socketContext);
+        std::vector<char> serialize() const;
+        virtual void propagateEvent(SocketContext* socketContext) const = 0;
 
     private:
-        uint8_t type;
-        uint8_t reserved;
+        virtual std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) = 0;
+        virtual std::vector<char> serializeVP() const = 0;
 
-        iot::mqtt::types::Binary data;
+    public:
+        uint8_t getType() const;
+        uint8_t getFlags() const;
+        uint32_t getRemainingLength() const;
+
+        bool isComplete() const;
+        bool isError() const;
+
+        std::size_t getConsumed() const;
 
     protected:
+        bool complete = false;
         bool error = false;
+
+    private:
+        ControlPacket* currentPacket = nullptr;
+
+        uint8_t type = 0;
+        uint8_t flags = 0;
+        uint32_t remainingLength = 0;
+
+        std::size_t consumed = 0;
+
+        int state = 0;
     };
 
 } // namespace iot::mqtt
 
-#endif // IOT_MQTTFAST_CONTROLPACKET_H
+#endif // IOT_MQTT_CONTROLPACKET_H

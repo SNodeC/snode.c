@@ -18,33 +18,48 @@
 
 #include "iot/mqtt/packets/Puback.h"
 
+#include "iot/mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Puback::Puback(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBACK)
-        , packetIdentifier(packetIdentifier) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // no Payload
+    Puback::Puback(const uint16_t packetIdentifier)
+        : iot::mqtt::ControlPacket(MQTT_PUBACK, 0x00, 0) {
+        this->packetIdentifier = packetIdentifier;
     }
 
-    Puback::Puback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // no Payload
-
-        error = isError();
+    Puback::Puback(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt::ControlPacket(MQTT_PUBACK, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint16_t Puback::getPacketIdentifier() const {
         return packetIdentifier;
+    }
+
+    std::vector<char> Puback::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
+    std::size_t Puback::deserializeVP(SocketContext* socketContext) {
+        std::size_t consumed = packetIdentifier.deserialize(socketContext);
+
+        error = packetIdentifier.isError();
+        complete = packetIdentifier.isComplete();
+
+        return consumed;
+    }
+
+    void Puback::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onPuback(*this);
     }
 
 } // namespace iot::mqtt::packets

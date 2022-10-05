@@ -18,33 +18,48 @@
 
 #include "iot/mqtt/packets/Pubrec.h"
 
+#include "iot/mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Pubrec::Pubrec(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREC)
-        , packetIdentifier(packetIdentifier) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // no Payload
+    Pubrec::Pubrec(const uint16_t packetIdentifier)
+        : iot::mqtt::ControlPacket(MQTT_PUBREC, 0x00, 0) {
+        this->packetIdentifier = packetIdentifier;
     }
 
-    Pubrec::Pubrec(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // no Payload
-
-        error = isError();
+    Pubrec::Pubrec(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt::ControlPacket(MQTT_PUBREC, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint16_t Pubrec::getPacketIdentifier() const {
         return packetIdentifier;
+    }
+
+    std::vector<char> Pubrec::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
+    std::size_t Pubrec::deserializeVP(SocketContext* socketContext) {
+        std::size_t consumed = packetIdentifier.deserialize(socketContext);
+
+        error = packetIdentifier.isError();
+        complete = packetIdentifier.isComplete();
+
+        return consumed;
+    }
+
+    void Pubrec::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onPubrec(*this);
     }
 
 } // namespace iot::mqtt::packets

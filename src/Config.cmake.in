@@ -95,7 +95,7 @@ set(_supported_components
     websocket-server
     websocket-client
     mqtt
-    mqtt1
+    mqtt
 )
 
 set(snodec_FOUND True)

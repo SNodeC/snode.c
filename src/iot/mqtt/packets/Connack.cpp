@@ -18,40 +18,72 @@
 
 #include "iot/mqtt/packets/Connack.h"
 
+#include "iot/mqtt/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Connack::Connack(uint8_t reason, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK)
-        , flags(flags)
-        , reason(reason) {
-        // V-Header
-        putInt8(this->flags);
-        putInt8(this->reason);
-
-        // no Payload
+    Connack::Connack(uint8_t returncode, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, 0x00, 0) {
+        this->returnCode = returncode;
+        this->flags = flags;
     }
 
-    Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        flags = getInt8();
-        reason = getInt8();
-
-        // no Payload
-
-        error = isError();
+    Connack::Connack(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint8_t Connack::getFlags() const {
         return flags;
     }
 
-    uint8_t Connack::getReason() const {
-        return reason;
+    uint8_t Connack::getReturnCode() const {
+        return returnCode;
+    }
+
+    std::vector<char> Connack::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = flags.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = returnCode.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
+    std::size_t Connack::deserializeVP(SocketContext* socketContext) {
+        std::size_t consumed = 0;
+
+        switch (state) {
+            // V-Header
+            case 0:
+                consumed += flags.deserialize(socketContext);
+
+                if ((error = flags.isError()) || !flags.isComplete()) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            case 1:
+                consumed += returnCode.deserialize(socketContext);
+
+                error = returnCode.isError();
+                complete = returnCode.isComplete();
+
+                break;
+        }
+
+        return consumed;
+    }
+
+    void Connack::propagateEvent(SocketContext* socketContext) const {
+        socketContext->_onConnack(*this);
     }
 
 } // namespace iot::mqtt::packets

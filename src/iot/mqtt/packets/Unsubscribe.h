@@ -16,20 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTTFAST_PACKETS_UNSUBSCRIBE_H
-#define IOT_MQTTFAST_PACKETS_UNSUBSCRIBE_H
+#ifndef IOT_MQTT_PACKETSNEW_UNSUBSCRIBE_H
+#define IOT_MQTT_PACKETSNEW_UNSUBSCRIBE_H
 
 #include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt/Topic.h"        // IWYU pragma: export
+#include "iot/mqtt/types/String.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 
 namespace iot::mqtt {
-    class ControlPacketFactory;
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // IWYU pragma: export
-#include <list>    // IWYU pragma: export
-#include <string>  // IWYU pragma: export
+#include <list> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -39,18 +40,27 @@ namespace iot::mqtt::packets {
 
     class Unsubscribe : public iot::mqtt::ControlPacket {
     public:
-        Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics);
-        explicit Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
+        explicit Unsubscribe(uint32_t remainingLength, uint8_t reserved);
 
+    private:
+        std::size_t deserializeVP(SocketContext* socketContext) override;
+        std::vector<char> serializeVP() const override;
+        void propagateEvent(SocketContext* socketContext) const override;
+
+    public:
         uint16_t getPacketIdentifier() const;
-
         const std::list<std::string>& getTopics() const;
 
     private:
-        uint16_t packetIdentifier;
+        iot::mqtt::types::UInt16 packetIdentifier;
+        iot::mqtt::types::String topic;
+
         std::list<std::string> topics;
+
+        int state = 0;
     };
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTTFAST_PACKETS_UNSUBSCRIBE_H
+#endif // IOT_MQTT_PACKETSNEW_UNSUBSCRIBE_H

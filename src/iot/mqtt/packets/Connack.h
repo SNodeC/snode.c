@@ -16,18 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTTFAST_PACKETS_CONNACK_H
-#define IOT_MQTTFAST_PACKETS_CONNACK_H
+#ifndef IOT_MQTT_PACKETSNEW_CONNACK_H
+#define IOT_MQTT_PACKETSNEW_CONNACK_H
 
 #include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
 
 namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+    class SocketContext;
+} // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -47,18 +46,25 @@ namespace iot::mqtt::packets {
 
     class Connack : public iot::mqtt::ControlPacket {
     public:
-        explicit Connack(uint8_t reason, uint8_t flags);
-        explicit Connack(mqtt::ControlPacketFactory& controlPacketFactory);
-
-        uint8_t getFlags() const;
-
-        uint8_t getReason() const;
+        Connack(uint8_t returncode, uint8_t flags);
+        explicit Connack(uint32_t remainingLength, uint8_t reserved);
 
     private:
-        uint8_t flags = 0;
-        uint8_t reason = 0;
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        std::vector<char> serializeVP() const override;
+        void propagateEvent(SocketContext* socketContext) const override;
+
+    public:
+        uint8_t getFlags() const;
+        uint8_t getReturnCode() const;
+
+    private:
+        iot::mqtt::types::UInt8 flags;
+        iot::mqtt::types::UInt8 returnCode;
+
+        int state = 0;
     };
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTTFAST_PACKETS_CONNACK_H
+#endif // IOT_MQTT_PACKETSNEW_CONNACK_H

@@ -18,34 +18,23 @@
 
 #include "iot/mqtt/packets/Suback.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "iot/mqtt/SocketContext.h"
 
-#include <utility>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK)
-        , packetIdentifier(packetIdentifier)
-        , returnCodes(std::move(returnCodes)) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // Payload
-        putUint8ListRaw(returnCodes);
+        : iot::mqtt::ControlPacket(MQTT_SUBACK, 0x00, 0) {
+        this->packetIdentifier = packetIdentifier;
+        this->returnCodes = returnCodes;
     }
 
-    Suback::Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
-
-        // Payload
-        returnCodes = getUint8ListRaw();
-
-        error = isError();
+    Suback::Suback(uint32_t remainingLength, uint8_t reserved)
+        : iot::mqtt::ControlPacket(MQTT_SUBACK, reserved, remainingLength) {
+        error = reserved != 0x00;
     }
 
     uint16_t Suback::getPacketIdentifier() const {
@@ -54,6 +43,55 @@ namespace iot::mqtt::packets {
 
     const std::list<uint8_t>& Suback::getReturnCodes() const {
         return returnCodes;
+    }
+
+    std::vector<char> Suback::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        for (uint8_t returnCode : returnCodes) {
+            packet.push_back(static_cast<char>(returnCode));
+        }
+
+        return packet;
+    }
+
+    std::size_t Suback::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
+        std::size_t consumed = 0;
+
+        switch (state) {
+            case 0:
+                consumed += packetIdentifier.deserialize(socketContext);
+
+                if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
+                    break;
+                }
+                state++;
+                [[fallthrough]];
+            case 1:
+                consumed += returnCode.deserialize(socketContext);
+
+                if (!(error = returnCode.isError()) && returnCode.isComplete()) {
+                    returnCodes.push_back(returnCode);
+                    returnCode.reset();
+
+                    if (getConsumed() + consumed < this->getRemainingLength()) {
+                        state = 1;
+                    } else {
+                        complete = true;
+                    }
+                }
+
+                break;
+        }
+
+        return consumed;
+    }
+
+    void Suback::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+        socketContext->_onSuback(*this);
     }
 
 } // namespace iot::mqtt::packets

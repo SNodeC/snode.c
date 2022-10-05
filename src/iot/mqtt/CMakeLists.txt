@@ -1,19 +1,23 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_subdirectory(types)
+set(CMAKE_INSTALL_RPATH
+    ${CMAKE_INSTALL_RPATH} "${CMAKE_INSTALL_PREFIX}/lib/snode.c/iot/mqtt"
+    CACHE INTERNAL ""
+)
+
 add_subdirectory(packets)
+add_subdirectory(types)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_CPP ControlPacket.cpp ControlPacketFactory.cpp SocketContext.cpp
-             Topic.cpp
-)
-set(MQTT_H ControlPacket.h ControlPacketFactory.h SocketContext.h Topic.h)
+set(mqtt_CPP ControlPacket.cpp SocketContext.cpp StaticHeader.cpp Topic.cpp)
 
-add_library(mqtt SHARED ${MQTT_CPP} ${MQTT_H})
+set(mqtt_H ControlPacket.h SocketContext.h StaticHeader.h Topic.h)
+
+add_library(mqtt SHARED ${mqtt_CPP} ${mqtt_H})
 add_library(snodec::mqtt ALIAS mqtt)
 
-target_link_libraries(mqtt PRIVATE snodec::mqtt-types snodec::mqtt-packets)
+target_link_libraries(mqtt PRIVATE snodec::mqtt-packets)
 
 target_include_directories(
     mqtt
