@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETS_PINGRESP_H
-#define IOT_MQTT_PACKETS_PINGRESP_H
+#ifndef IOT_MQTTFAST_PACKETS_PINGRESP_H
+#define IOT_MQTTFAST_PACKETS_PINGRESP_H
 
 #include "iot/mqtt/ControlPacket.h"
 
@@ -41,4 +41,4 @@ namespace iot::mqtt::packets {
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTT_PACKETS_PINGRESP_H
+#endif // IOT_MQTTFAST_PACKETS_PINGRESP_H

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETS_SUBACK_H
-#define IOT_MQTT_PACKETS_SUBACK_H
+#ifndef IOT_MQTTFAST_PACKETS_SUBACK_H
+#define IOT_MQTTFAST_PACKETS_SUBACK_H
 
 #include "iot/mqtt/ControlPacket.h"
 
@@ -52,4 +52,4 @@ namespace iot::mqtt::packets {
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTT_PACKETS_SUBACK_H
+#endif // IOT_MQTTFAST_PACKETS_SUBACK_H

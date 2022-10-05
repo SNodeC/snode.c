@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_CONTROLPACKETFACTORY_H
-#define IOT_MQTT_CONTROLPACKETFACTORY_H
+#ifndef IOT_MQTTFAST_CONTROLPACKETFACTORY_H
+#define IOT_MQTTFAST_CONTROLPACKETFACTORY_H
 
 #include "iot/mqtt/types/Binary.h"
 #include "iot/mqtt/types/Int_1.h"
@@ -62,4 +62,4 @@ namespace iot::mqtt {
 
 } // namespace iot::mqtt
 
-#endif // IOT_MQTT_CONTROLPACKETFACTORY_H
+#endif // IOT_MQTTFAST_CONTROLPACKETFACTORY_H

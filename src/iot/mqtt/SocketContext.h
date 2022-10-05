@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SOCKETCONTEXT_H
-#define IOT_MQTT_SOCKETCONTEXT_H
+#ifndef IOT_MQTTFAST_SOCKETCONTEXT_H
+#define IOT_MQTTFAST_SOCKETCONTEXT_H
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt/ControlPacketFactory.h"
@@ -115,4 +115,4 @@ namespace iot::mqtt {
 
 } // namespace iot::mqtt
 
-#endif // IOT_MQTT_SOCKETCONTEXT_H
+#endif // IOT_MQTTFAST_SOCKETCONTEXT_H

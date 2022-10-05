@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETS_CONNECT_H
-#define IOT_MQTT_PACKETS_CONNECT_H
+#ifndef IOT_MQTTFAST_PACKETS_CONNECT_H
+#define IOT_MQTTFAST_PACKETS_CONNECT_H
 
 #include "iot/mqtt/ControlPacket.h"
 
@@ -122,4 +122,4 @@ V5
 
  */
 
-#endif // IOT_MQTT_PACKETS_CONNECT_H
+#endif // IOT_MQTTFAST_PACKETS_CONNECT_H

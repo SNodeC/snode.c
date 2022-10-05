@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_TYPES_TYPESBASE_H
-#define IOT_MQTT_TYPES_TYPESBASE_H
+#ifndef IOT_MQTTFAST_TYPES_TYPESBASE_H
+#define IOT_MQTTFAST_TYPES_TYPESBASE_H
 
 namespace core::socket {
     class SocketContext;
@@ -60,4 +60,4 @@ namespace iot::mqtt::types {
 
 } // namespace iot::mqtt::types
 
-#endif // IOT_MQTT_TYPES_TYPESBASE_H
+#endif // IOT_MQTTFAST_TYPES_TYPESBASE_H

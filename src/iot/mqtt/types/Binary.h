@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_TYPES_BINARY_H
-#define MQTT_TYPES_BINARY_H
+#ifndef IOT_MQTTFAST_TYPES_BINARY_H
+#define IOT_MQTTFAST_TYPES_BINARY_H
 
 #include "iot/mqtt/types/TypeBase.h"
 
@@ -78,4 +78,4 @@ namespace iot::mqtt::types {
 
 } // namespace iot::mqtt::types
 
-#endif // MQTT_TYPES_BINARY_H
+#endif // IOT_MQTTFAST_TYPES_BINARY_H
