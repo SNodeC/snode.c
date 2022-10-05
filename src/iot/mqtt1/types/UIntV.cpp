@@ -51,7 +51,7 @@ namespace iot::mqtt1::types {
         return consumed;
     }
 
-    void UIntV::setValue(const uint32_t& newValue) {
+    uint32_t UIntV::operator=(const uint32_t& newValue) {
         uint32_t remainingValue = newValue;
         value.resize(0);
 
@@ -65,9 +65,11 @@ namespace iot::mqtt1::types {
 
             value.push_back(static_cast<char>(encodedByte));
         } while (remainingValue > 0);
+
+        return newValue;
     }
 
-    uint32_t UIntV::getValue() const {
+    UIntV::operator uint32_t() const {
         uint32_t uint32Value = 0;
         uint32_t multiplicator = 1;
 
@@ -76,6 +78,14 @@ namespace iot::mqtt1::types {
         }
 
         return uint32Value;
+    }
+
+    bool UIntV::operator==(const uint32_t& rhsValue) const {
+        return static_cast<uint32_t>(*this) == rhsValue;
+    }
+
+    bool UIntV::operator!=(const uint32_t& rhsValue) const {
+        return static_cast<uint32_t>(*this) != rhsValue;
     }
 
     void UIntV::reset([[maybe_unused]] std::size_t size) {

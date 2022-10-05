@@ -33,16 +33,15 @@ namespace iot::mqtt1::types {
 
     class UIntV : public TypeBase<uint32_t> {
     public:
-        using TypeBase::operator=;
-        using TypeBase::operator ValueType;
-
         UIntV();
 
         std::size_t deserialize(core::socket::SocketContext* socketContext) override;
 
-    private:
-        void setValue(const uint32_t& newValue) override;
-        uint32_t getValue() const override;
+        uint32_t operator=(const uint32_t& newValue) override;
+        operator uint32_t() const override;
+
+        bool operator==(const uint32_t& rhsValue) const override;
+        bool operator!=(const uint32_t& rhsValue) const override;
 
     public:
         void reset(std::size_t size = sizeof(ValueType)) override;

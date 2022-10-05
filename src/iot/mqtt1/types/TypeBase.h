@@ -36,14 +36,15 @@ namespace iot::mqtt1::types {
         using ValueType = ValueTypeT;
 
     public:
-        TypeBase(std::size_t size = sizeof(ValueType));
+        explicit TypeBase(std::size_t size = sizeof(ValueType));
 
         virtual ~TypeBase() = default;
 
-        ValueType operator=(const ValueType& value);
-        operator ValueType() const;
-        bool operator==(const ValueType& typeBase) const;
-        bool operator!=(const ValueType& typeBase) const;
+        virtual ValueType operator=(const ValueType& value) = 0;
+        virtual operator ValueType() const = 0;
+
+        virtual bool operator==(const ValueType& typeBase) const = 0;
+        virtual bool operator!=(const ValueType& typeBase) const = 0;
 
         virtual std::size_t deserialize(core::socket::SocketContext* socketContext);
         virtual std::vector<char> serialize() const;
@@ -54,10 +55,6 @@ namespace iot::mqtt1::types {
         bool isError() const;
 
         virtual void reset(std::size_t size = sizeof(ValueType));
-
-    private:
-        virtual void setValue(const ValueType& value) = 0;
-        virtual ValueType getValue() const = 0;
 
     protected:
         core::socket::SocketContext* socketContext;

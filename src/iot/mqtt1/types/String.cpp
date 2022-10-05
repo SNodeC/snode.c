@@ -26,6 +26,10 @@
 
 namespace iot::mqtt1::types {
 
+    String::String()
+        : TypeBase(0) {
+    }
+
     std::size_t String::deserialize(core::socket::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
@@ -47,14 +51,6 @@ namespace iot::mqtt1::types {
         return consumed;
     }
 
-    void String::setValue(const std::string& newValue) {
-        value = std::vector<char>(newValue.begin(), newValue.end());
-    }
-
-    std::string String::getValue() const {
-        return std::string(value.begin(), value.end());
-    }
-
     std::vector<char> String::serialize() const {
         UInt16 stringLength;
         stringLength = static_cast<uint16_t>(value.size());
@@ -68,9 +64,26 @@ namespace iot::mqtt1::types {
         return returnVector;
     }
 
+    std::string String::operator=(const std::string& newValue) {
+        value = std::vector<char>(newValue.begin(), newValue.end());
+        return *this;
+    }
+
+    String::operator std::string() const {
+        return std::string(value.begin(), value.end());
+    }
+
+    bool String::operator==(const std::string& rhsValue) const {
+        return static_cast<std::string>(*this) == rhsValue;
+    }
+
+    bool String::operator!=(const std::string& rhsValue) const {
+        return static_cast<std::string>(*this) != rhsValue;
+    }
+
     void String::reset([[maybe_unused]] std::size_t size) {
         stringLength.reset();
-        TypeBase::reset();
+        TypeBase::reset(0);
 
         state = 0;
     }

@@ -26,12 +26,21 @@
 
 namespace iot::mqtt1::types {
 
-    void UInt8List::setValue(const std::list<uint8_t>& newValue) {
+    std::list<uint8_t> UInt8List::operator=(const std::list<uint8_t>& newValue) {
         value = std::vector<char>(newValue.begin(), newValue.end());
+        return *this;
     }
 
-    std::list<uint8_t> UInt8List::getValue() const {
+    UInt8List::operator std::list<uint8_t>() const {
         return std::list<uint8_t>(value.begin(), value.end());
+    }
+
+    bool UInt8List::operator==(const std::list<uint8_t>& rhsValue) const {
+        return static_cast<std::list<uint8_t>>(*this) == rhsValue;
+    }
+
+    bool UInt8List::operator!=(const std::list<uint8_t>& rhsValue) const {
+        return static_cast<std::list<uint8_t>>(*this) != rhsValue;
     }
 
     template class TypeBase<std::list<uint8_t>>;

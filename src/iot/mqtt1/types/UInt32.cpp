@@ -28,12 +28,20 @@
 
 namespace iot::mqtt1::types {
 
-    void UInt32::setValue(const uint32_t& newValue) {
-        *reinterpret_cast<uint32_t*>(value.data()) = htobe32(newValue);
+    uint32_t UInt32::operator=(const uint32_t& newValue) {
+        return *reinterpret_cast<uint32_t*>(value.data()) = htobe32(newValue);
     }
 
-    uint32_t UInt32::getValue() const {
+    UInt32::operator uint32_t() const {
         return be32toh(*reinterpret_cast<uint32_t*>(const_cast<char*>(value.data())));
+    }
+
+    bool UInt32::operator==(const uint32_t& rhsValue) const {
+        return static_cast<uint32_t>(*this) == rhsValue;
+    }
+
+    bool UInt32::operator!=(const uint32_t& rhsValue) const {
+        return static_cast<uint32_t>(*this) != rhsValue;
     }
 
     template class TypeBase<uint32_t>;

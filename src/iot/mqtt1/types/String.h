@@ -34,17 +34,17 @@ namespace iot::mqtt1::types {
 
     class String : public TypeBase<std::string> {
     public:
-        using TypeBase::operator=;
-        using TypeBase::operator ValueType;
+        String();
 
         std::size_t deserialize(core::socket::SocketContext* socketContext) override;
         std::vector<char> serialize() const override;
 
-    private:
-        void setValue(const std::string& newValue) override;
-        std::string getValue() const override;
+        std::string operator=(const std::string& newValue) override;
+        operator std::string() const override;
 
-    public:
+        bool operator==(const std::string& rhsValue) const override;
+        bool operator!=(const std::string& rhsValue) const override;
+
         void reset(std::size_t size = sizeof(ValueType)) override;
 
     private:

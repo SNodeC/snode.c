@@ -30,12 +30,21 @@ namespace iot::mqtt1::types {
         : TypeBase(0) {
     }
 
-    void StringRaw::setValue(const ValueType& newValue) {
+    std::string StringRaw::operator=(const std::string& newValue) {
         value = std::vector<char>(newValue.begin(), newValue.end());
+        return *this;
     }
 
-    std::string StringRaw::getValue() const {
+    StringRaw::operator std::string() const {
         return std::string(value.begin(), value.end());
+    }
+
+    bool StringRaw::operator==(const std::string& rhsValue) const {
+        return static_cast<std::string>(*this) == rhsValue;
+    }
+
+    bool StringRaw::operator!=(const std::string& rhsValue) const {
+        return static_cast<std::string>(*this) != rhsValue;
     }
 
 } // namespace iot::mqtt1::types

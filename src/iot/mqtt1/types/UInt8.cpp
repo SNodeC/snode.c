@@ -26,12 +26,20 @@
 
 namespace iot::mqtt1::types {
 
-    void UInt8::setValue(const uint8_t& newValue) {
-        *reinterpret_cast<uint8_t*>(value.data()) = newValue;
+    uint8_t UInt8::operator=(const uint8_t& newValue) {
+        return *reinterpret_cast<uint8_t*>(value.data()) = newValue;
     }
 
-    uint8_t UInt8::getValue() const {
+    UInt8::operator uint8_t() const {
         return *reinterpret_cast<uint8_t*>(const_cast<char*>(value.data()));
+    }
+
+    bool UInt8::operator==(const uint8_t& rhsValue) const {
+        return static_cast<uint8_t>(*this) == rhsValue;
+    }
+
+    bool UInt8::operator!=(const uint8_t& rhsValue) const {
+        return static_cast<uint8_t>(*this) != rhsValue;
     }
 
     template class TypeBase<uint8_t>;
