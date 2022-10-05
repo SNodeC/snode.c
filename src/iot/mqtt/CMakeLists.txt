@@ -20,9 +20,8 @@ add_library(snodec::mqtt ALIAS mqtt)
 target_link_libraries(mqtt PRIVATE snodec::mqtt-packets)
 
 target_include_directories(
-    mqtt
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    mqtt PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(mqtt PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt)

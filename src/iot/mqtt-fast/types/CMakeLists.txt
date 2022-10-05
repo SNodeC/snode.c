@@ -11,8 +11,7 @@ add_library(snodec::mqtt-fast-types ALIAS mqtt-fast-types)
 set_property(TARGET mqtt-fast-types PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(
-    mqtt-fast-types
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    mqtt-fast-types PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
 install(

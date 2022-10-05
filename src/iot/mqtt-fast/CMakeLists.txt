@@ -6,22 +6,25 @@ add_subdirectory(packets)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(MQTT_FAST_CPP ControlPacket.cpp ControlPacketFactory.cpp SocketContext.cpp
-             Topic.cpp
+                  Topic.cpp
 )
 set(MQTT_FAST_H ControlPacket.h ControlPacketFactory.h SocketContext.h Topic.h)
 
 add_library(mqtt-fast SHARED ${MQTT_FAST_CPP} ${MQTT_FAST_H})
 add_library(snodec::mqtt-fast ALIAS mqtt-fast)
 
-target_link_libraries(mqtt PRIVATE snodec::mqtt-fast-types snodec::mqtt-fast-packets)
-
-target_include_directories(
-    mqtt-fast
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+target_link_libraries(
+    mqtt PRIVATE snodec::mqtt-fast-types snodec::mqtt-fast-packets
 )
 
-set_target_properties(mqtt-fast PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt-fast)
+target_include_directories(
+    mqtt-fast PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                     "$<INSTALL_INTERFACE:include/snode.c>"
+)
+
+set_target_properties(
+    mqtt-fast PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt-fast
+)
 
 install(
     TARGETS mqtt-fast

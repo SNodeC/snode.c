@@ -43,8 +43,7 @@ target_link_libraries(mqtt-packets PRIVATE snodec::mqtt-types)
 set_property(TARGET mqtt-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(
-    mqtt-packets
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    mqtt-packets PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
 install(
