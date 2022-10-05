@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_PUBREL_H
 #define IOT_MQTTFAST_PACKETS_PUBREL_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -33,12 +33,12 @@ namespace iot::mqtt {
 
 #define MQTT_PUBREL 0x06
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Pubrel : public iot::mqtt::ControlPacket {
+    class Pubrel : public iot::mqtt_fast::ControlPacket {
     public:
         explicit Pubrel(uint16_t packetIdentifier);
-        explicit Pubrel(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Pubrel(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         uint16_t getPacketIdentifier() const;
 
@@ -46,6 +46,6 @@ namespace iot::mqtt::packets {
         uint16_t packetIdentifier;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_PUBREL_H

@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_CONNECT_H
 #define IOT_MQTTFAST_PACKETS_CONNECT_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -36,13 +36,13 @@ namespace iot::mqtt {
 
 #define MQTT_VERSION_3_1_1 0x04
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Connect : public iot::mqtt::ControlPacket {
+    class Connect : public iot::mqtt_fast::ControlPacket {
     public:
         explicit Connect(
             std::string clientId, std::string protocol = "MQTT", uint8_t version = 4, uint8_t flags = 0, uint16_t keepAlive = 0x003C);
-        explicit Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Connect(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         std::string getProtocol() const;
         uint8_t getLevel() const;
@@ -84,7 +84,7 @@ namespace iot::mqtt::packets {
         bool reserved = false;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 /*
 

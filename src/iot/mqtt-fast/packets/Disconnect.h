@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_DISCONNECT_H
 #define IOT_MQTTFAST_PACKETS_DISCONNECT_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -31,14 +31,14 @@ namespace iot::mqtt {
 
 #define MQTT_DISCONNECT 0x0E
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Disconnect : public mqtt::ControlPacket {
+    class Disconnect : public iot::mqtt_fast::ControlPacket {
     public:
         Disconnect();
-        explicit Disconnect(mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Disconnect(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_DISCONNECT_H

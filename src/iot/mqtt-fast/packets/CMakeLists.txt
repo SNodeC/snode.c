@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_PACKETS_CPP
+set(MQTT_FAST_PACKETS_CPP
     Connect.cpp
     Connack.cpp
     Disconnect.cpp
@@ -18,7 +18,7 @@ set(MQTT_PACKETS_CPP
     Unsubscribe.cpp
     Unsuback.cpp
 )
-set(MQTT_PACKETS_H
+set(MQTT_FAST_PACKETS_H
     Connect.h
     Connack.h
     Disconnect.h
@@ -35,19 +35,19 @@ set(MQTT_PACKETS_H
     Unsuback.h
 )
 
-add_library(mqtt-packets STATIC ${MQTT_PACKETS_CPP} ${MQTT_PACKETS_H})
-add_library(snodec::mqtt-packets ALIAS mqtt-packets)
+add_library(mqtt-fast-packets STATIC ${MQTT_FAST_PACKETS_CPP} ${MQTT_FAST_PACKETS_H})
+add_library(snodec::mqtt-fast-packets ALIAS mqtt-fast-packets)
 
-set_property(TARGET mqtt-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET mqtt-fast-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(
-    mqtt-packets
+    mqtt-fast-packets
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/iot/mqtt/packets
+    DESTINATION include/snode.c/iot/mqtt-fast/packets
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"

@@ -5,33 +5,33 @@ add_subdirectory(packets)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_CPP ControlPacket.cpp ControlPacketFactory.cpp SocketContext.cpp
+set(MQTT_FAST_CPP ControlPacket.cpp ControlPacketFactory.cpp SocketContext.cpp
              Topic.cpp
 )
-set(MQTT_H ControlPacket.h ControlPacketFactory.h SocketContext.h Topic.h)
+set(MQTT_FAST_H ControlPacket.h ControlPacketFactory.h SocketContext.h Topic.h)
 
-add_library(mqtt SHARED ${MQTT_CPP} ${MQTT_H})
-add_library(snodec::mqtt ALIAS mqtt)
+add_library(mqtt-fast SHARED ${MQTT_FAST_CPP} ${MQTT_FAST_H})
+add_library(snodec::mqtt-fast ALIAS mqtt-fast)
 
-target_link_libraries(mqtt PRIVATE snodec::mqtt-types snodec::mqtt-packets)
+target_link_libraries(mqtt PRIVATE snodec::mqtt-fast-types snodec::mqtt-fast-packets)
 
 target_include_directories(
-    mqtt
+    mqtt-fast
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(mqtt PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt)
+set_target_properties(mqtt-fast PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt-fast)
 
 install(
-    TARGETS mqtt
-    EXPORT snodec_mqtt_Targets
+    TARGETS mqtt-fast
+    EXPORT snodec_mqtt-fast_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/iot/mqtt
+    DESTINATION include/snode.c/iot/mqtt-fast
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -41,8 +41,8 @@ install(
 )
 
 install(
-    EXPORT snodec_mqtt_Targets
-    FILE snodec_mqtt_Targets.cmake
+    EXPORT snodec_mqtt-fast_Targets
+    FILE snodec_mqtt-fast_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

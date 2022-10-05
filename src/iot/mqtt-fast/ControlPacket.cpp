@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-#include "iot/mqtt/ControlPacketFactory.h"
+#include "iot/mqtt-fast/ControlPacketFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,14 +26,14 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
 
     ControlPacket::ControlPacket(uint8_t type, uint8_t reserved)
         : type(type)
         , reserved(reserved) {
     }
 
-    ControlPacket::ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory)
+    ControlPacket::ControlPacket(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
         : type(controlPacketFactory.getPacketType())
         , reserved(controlPacketFactory.getPacketFlags())
         , data(std::move(controlPacketFactory.getPacket())) {
@@ -147,4 +147,4 @@ namespace iot::mqtt {
         return data.isError();
     }
 
-} // namespace iot::mqtt
+} // namespace iot::mqtt_fast

@@ -16,26 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Pingreq.h"
+#include "iot/mqtt-fast/packets/Pingreq.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Pingreq::Pingreq()
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ) {
+        : iot::mqtt_fast::ControlPacket(MQTT_PINGREQ) {
         // no V-Header
         // no Payload
     }
 
-    Pingreq::Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Pingreq::Pingreq(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         // no V-Header
         // no Payload
 
         error = isError();
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

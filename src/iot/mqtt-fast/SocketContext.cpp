@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/SocketContext.h"
+#include "iot/mqtt-fast/SocketContext.h"
 
-#include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/types/Binary.h"
+#include "iot/mqtt-fast/ControlPacket.h"
+#include "iot/mqtt-fast/types/Binary.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
 
     SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
         : core::socket::SocketContext(socketConnection)
@@ -42,98 +42,98 @@ namespace iot::mqtt {
         LOG(TRACE) << "Send CONNECT";
         LOG(TRACE) << "============";
 
-        send(mqtt::packets::Connect(clientId));
+        send(iot::mqtt_fast::packets::Connect(clientId));
     }
 
     void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
         LOG(TRACE) << "Send CONNACK";
         LOG(TRACE) << "============";
 
-        send(mqtt::packets::Connack(returnCode, flags));
+        send(iot::mqtt_fast::packets::Connack(returnCode, flags));
     }
 
     void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {
         LOG(TRACE) << "Send PUBLISH";
         LOG(TRACE) << "============";
 
-        send(iot::mqtt::packets::Publish(qoSLevel == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoSLevel, retain));
+        send(iot::mqtt_fast::packets::Publish(qoSLevel == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoSLevel, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) {
         LOG(TRACE) << "Send PUBACK";
         LOG(TRACE) << "===========";
 
-        send(iot::mqtt::packets::Puback(packetIdentifier));
+        send(iot::mqtt_fast::packets::Puback(packetIdentifier));
     }
 
     void SocketContext::sendPubrec(uint16_t packetIdentifier) {
         LOG(TRACE) << "Send PUBREC";
         LOG(TRACE) << "===========";
 
-        send(iot::mqtt::packets::Pubrec(packetIdentifier));
+        send(iot::mqtt_fast::packets::Pubrec(packetIdentifier));
     }
 
     void SocketContext::sendPubrel(uint16_t packetIdentifier) {
         LOG(TRACE) << "Send PUBREL";
         LOG(TRACE) << "===========";
 
-        send(iot::mqtt::packets::Pubrel(packetIdentifier));
+        send(iot::mqtt_fast::packets::Pubrel(packetIdentifier));
     }
 
     void SocketContext::sendPubcomp(uint16_t packetIdentifier) {
         LOG(TRACE) << "Send PUBCOMP";
         LOG(TRACE) << "============";
 
-        send(iot::mqtt::packets::Pubcomp(packetIdentifier));
+        send(iot::mqtt_fast::packets::Pubcomp(packetIdentifier));
     }
 
-    void SocketContext::sendSubscribe(std::list<iot::mqtt::Topic>& topics) {
+    void SocketContext::sendSubscribe(std::list<iot::mqtt_fast::Topic>& topics) {
         LOG(TRACE) << "Send SUBSCRIBE";
         LOG(TRACE) << "==============";
 
-        send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
+        send(iot::mqtt_fast::packets::Subscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
         LOG(TRACE) << "Send SUBACK";
         LOG(TRACE) << "===========";
 
-        send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
+        send(iot::mqtt_fast::packets::Suback(packetIdentifier, returnCodes));
     }
 
     void SocketContext::sendUnsubscribe(std::list<std::string>& topics) {
         LOG(TRACE) << "Send UNSUBSCRIBE";
         LOG(TRACE) << "================";
 
-        send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
+        send(iot::mqtt_fast::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
         LOG(TRACE) << "Send UNSUBACK";
         LOG(TRACE) << "=============";
 
-        send(iot::mqtt::packets::Unsuback(packetIdentifier));
+        send(iot::mqtt_fast::packets::Unsuback(packetIdentifier));
     }
 
     void SocketContext::sendPingreq() {
         LOG(TRACE) << "Send Pingreq";
         LOG(TRACE) << "============";
 
-        send(iot::mqtt::packets::Pingreq());
+        send(iot::mqtt_fast::packets::Pingreq());
     }
 
     void SocketContext::sendPingresp() {
         LOG(TRACE) << "Send Pingresp";
         LOG(TRACE) << "=============";
 
-        send(iot::mqtt::packets::Pingresp());
+        send(iot::mqtt_fast::packets::Pingresp());
     }
 
     void SocketContext::sendDisconnect() {
         LOG(TRACE) << "Send Disconnect";
         LOG(TRACE) << "===============";
 
-        send(iot::mqtt::packets::Disconnect());
+        send(iot::mqtt_fast::packets::Disconnect());
     }
 
     std::size_t SocketContext::onReceiveFromPeer() {
@@ -152,46 +152,46 @@ namespace iot::mqtt {
 
             switch (controlPacketFactory.getPacketType()) {
                 case MQTT_CONNECT:
-                    onConnect(iot::mqtt::packets::Connect(controlPacketFactory));
+                    onConnect(iot::mqtt_fast::packets::Connect(controlPacketFactory));
                     break;
                 case MQTT_CONNACK:
-                    onConnack(iot::mqtt::packets::Connack(controlPacketFactory));
+                    onConnack(iot::mqtt_fast::packets::Connack(controlPacketFactory));
                     break;
                 case MQTT_PUBLISH:
-                    onPublish(iot::mqtt::packets::Publish(controlPacketFactory));
+                    onPublish(iot::mqtt_fast::packets::Publish(controlPacketFactory));
                     break;
                 case MQTT_PUBACK:
-                    onPuback(iot::mqtt::packets::Puback(controlPacketFactory));
+                    onPuback(iot::mqtt_fast::packets::Puback(controlPacketFactory));
                     break;
                 case MQTT_PUBREC:
-                    onPubrec(iot::mqtt::packets::Pubrec(controlPacketFactory));
+                    onPubrec(iot::mqtt_fast::packets::Pubrec(controlPacketFactory));
                     break;
                 case MQTT_PUBREL:
-                    onPubrel(iot::mqtt::packets::Pubrel(controlPacketFactory));
+                    onPubrel(iot::mqtt_fast::packets::Pubrel(controlPacketFactory));
                     break;
                 case MQTT_PUBCOMP:
-                    onPubcomp(iot::mqtt::packets::Pubcomp(controlPacketFactory));
+                    onPubcomp(iot::mqtt_fast::packets::Pubcomp(controlPacketFactory));
                     break;
                 case MQTT_SUBSCRIBE:
-                    onSubscribe(iot::mqtt::packets::Subscribe(controlPacketFactory));
+                    onSubscribe(iot::mqtt_fast::packets::Subscribe(controlPacketFactory));
                     break;
                 case MQTT_SUBACK:
-                    onSuback(iot::mqtt::packets::Suback(controlPacketFactory));
+                    onSuback(iot::mqtt_fast::packets::Suback(controlPacketFactory));
                     break;
                 case MQTT_UNSUBSCRIBE:
-                    onUnsubscribe(iot::mqtt::packets::Unsubscribe(controlPacketFactory));
+                    onUnsubscribe(iot::mqtt_fast::packets::Unsubscribe(controlPacketFactory));
                     break;
                 case MQTT_UNSUBACK:
-                    onUnsuback(iot::mqtt::packets::Unsuback(controlPacketFactory));
+                    onUnsuback(iot::mqtt_fast::packets::Unsuback(controlPacketFactory));
                     break;
                 case MQTT_PINGREQ:
-                    onPingreq(iot::mqtt::packets::Pingreq(controlPacketFactory));
+                    onPingreq(iot::mqtt_fast::packets::Pingreq(controlPacketFactory));
                     break;
                 case MQTT_PINGRESP:
-                    onPingresp(iot::mqtt::packets::Pingresp(controlPacketFactory));
+                    onPingresp(iot::mqtt_fast::packets::Pingresp(controlPacketFactory));
                     break;
                 case MQTT_DISCONNECT:
-                    onDisconnect(iot::mqtt::packets::Disconnect(controlPacketFactory));
+                    onDisconnect(iot::mqtt_fast::packets::Disconnect(controlPacketFactory));
                     break;
                 default:
                     close();
@@ -235,4 +235,4 @@ namespace iot::mqtt {
         LOG(TRACE) << ss.str();
     }
 
-} // namespace iot::mqtt
+} // namespace iot::mqtt_fast

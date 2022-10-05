@@ -6,4 +6,4 @@ set(CMAKE_INSTALL_RPATH
 )
 
 add_subdirectory(mqtt)
-#add_subdirectory(mqtt-fast)
+add_subdirectory(mqtt-fast)

@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_CONTROLPACKETFACTORY_H
 #define IOT_MQTTFAST_CONTROLPACKETFACTORY_H
 
-#include "iot/mqtt/types/Binary.h"
-#include "iot/mqtt/types/Int_1.h"
-#include "iot/mqtt/types/Int_V.h"
+#include "iot/mqtt-fast/types/Binary.h"
+#include "iot/mqtt-fast/types/Int_1.h"
+#include "iot/mqtt-fast/types/Int_V.h"
 
 namespace core::socket {
     class SocketContext;
@@ -34,7 +34,7 @@ namespace core::socket {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
 
     class ControlPacketFactory {
     public:
@@ -43,7 +43,7 @@ namespace iot::mqtt {
         std::size_t construct();
         bool isComplete();
         bool isError();
-        iot::mqtt::types::Binary& getPacket();
+        iot::mqtt_fast::types::Binary& getPacket();
         uint8_t getPacketType();
         uint8_t getPacketFlags();
         uint64_t getRemainingLength();
@@ -55,11 +55,11 @@ namespace iot::mqtt {
         bool error = false;
         int state = 0;
 
-        iot::mqtt::types::Int_1 typeFlags;
-        iot::mqtt::types::Int_V remainingLength;
-        iot::mqtt::types::Binary data;
+        iot::mqtt_fast::types::Int_1 typeFlags;
+        iot::mqtt_fast::types::Int_V remainingLength;
+        iot::mqtt_fast::types::Binary data;
     };
 
-} // namespace iot::mqtt
+} // namespace iot::mqtt_fast
 
 #endif // IOT_MQTTFAST_CONTROLPACKETFACTORY_H

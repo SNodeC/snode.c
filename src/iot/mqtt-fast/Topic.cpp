@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/Topic.h"
+#include "iot/mqtt-fast/Topic.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
 
     Topic::Topic(const std::string& name, uint8_t requestedQoS)
         : name(name)
@@ -40,4 +40,4 @@ namespace iot::mqtt {
         return requestedQoS;
     }
 
-} // namespace iot::mqtt
+} // namespace iot::mqtt_fast

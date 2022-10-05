@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_SUBACK_H
 #define IOT_MQTTFAST_PACKETS_SUBACK_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -34,12 +34,12 @@ namespace iot::mqtt {
 
 #define MQTT_SUBACK 0x09
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Suback : public iot::mqtt::ControlPacket {
+    class Suback : public iot::mqtt_fast::ControlPacket {
     public:
         Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
-        explicit Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Suback(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         uint16_t getPacketIdentifier() const;
 
@@ -50,6 +50,6 @@ namespace iot::mqtt::packets {
         std::list<uint8_t> returnCodes;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_SUBACK_H

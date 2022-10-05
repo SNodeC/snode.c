@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Unsubscribe.h"
+#include "iot/mqtt-fast/packets/Unsubscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Unsubscribe::Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
+        : iot::mqtt_fast::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
         // V-Header
@@ -39,8 +39,8 @@ namespace iot::mqtt::packets {
         }
     }
 
-    Unsubscribe::Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Unsubscribe::Unsubscribe(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         // V-Header
         packetIdentifier = getInt16();
 
@@ -62,4 +62,4 @@ namespace iot::mqtt::packets {
         return topics;
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

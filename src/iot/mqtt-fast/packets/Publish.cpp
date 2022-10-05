@@ -16,19 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Publish.h"
+#include "iot/mqtt-fast/packets/Publish.h"
 
-#include "iot/mqtt/ControlPacketFactory.h"
+#include "iot/mqtt-fast/ControlPacketFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Publish::Publish(
         uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
-        : iot::mqtt::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00))
+        : iot::mqtt_fast::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00))
         , packetIdentifier(packetIdentifier)
         , topic(topic)
         , message(message)
@@ -46,8 +46,8 @@ namespace iot::mqtt::packets {
         putStringRaw(this->message);
     }
 
-    Publish::Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Publish::Publish(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         dup = (controlPacketFactory.getPacketFlags() & 0x08) != 0;
         qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
         retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
@@ -89,4 +89,4 @@ namespace iot::mqtt::packets {
         return retain;
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

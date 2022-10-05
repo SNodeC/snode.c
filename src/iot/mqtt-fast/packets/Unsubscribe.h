@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_UNSUBSCRIBE_H
 #define IOT_MQTTFAST_PACKETS_UNSUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -35,12 +35,12 @@ namespace iot::mqtt {
 
 #define MQTT_UNSUBSCRIBE 0x0A
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Unsubscribe : public iot::mqtt::ControlPacket {
+    class Unsubscribe : public iot::mqtt_fast::ControlPacket {
     public:
         Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics);
-        explicit Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Unsubscribe(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         uint16_t getPacketIdentifier() const;
 
@@ -51,6 +51,6 @@ namespace iot::mqtt::packets {
         std::list<std::string> topics;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_UNSUBSCRIBE_H

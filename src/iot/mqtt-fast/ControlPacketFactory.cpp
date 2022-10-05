@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/ControlPacketFactory.h"
+#include "iot/mqtt-fast/ControlPacketFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,7 +24,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
 
     ControlPacketFactory::ControlPacketFactory(core::socket::SocketContext* socketContext)
         : typeFlags(socketContext)
@@ -76,7 +76,7 @@ namespace iot::mqtt {
         return error;
     }
 
-    iot::mqtt::types::Binary& ControlPacketFactory::getPacket() {
+    iot::mqtt_fast::types::Binary& ControlPacketFactory::getPacket() {
         return data;
     }
 
@@ -102,4 +102,4 @@ namespace iot::mqtt {
         data.reset();
     }
 
-} // namespace iot::mqtt
+} // namespace iot::mqtt_fast

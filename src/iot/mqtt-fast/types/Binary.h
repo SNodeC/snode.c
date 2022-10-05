@@ -19,7 +19,7 @@
 #ifndef IOT_MQTTFAST_TYPES_BINARY_H
 #define IOT_MQTTFAST_TYPES_BINARY_H
 
-#include "iot/mqtt/types/TypeBase.h"
+#include "iot/mqtt-fast/types/TypeBase.h"
 
 namespace core::socket {
     class SocketContext;
@@ -35,9 +35,9 @@ namespace core::socket {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::types {
+namespace iot::mqtt_fast::types {
 
-    class Binary : public iot::mqtt::types::TypeBase {
+    class Binary : public iot::mqtt_fast::types::TypeBase {
     public:
         explicit Binary(core::socket::SocketContext* socketContext = nullptr);
 
@@ -76,6 +76,6 @@ namespace iot::mqtt::types {
         std::vector<char> binary;
     };
 
-} // namespace iot::mqtt::types
+} // namespace iot::mqtt_fast::types
 
 #endif // IOT_MQTTFAST_TYPES_BINARY_H

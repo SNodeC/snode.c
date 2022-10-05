@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_PINGREQ_H
 #define IOT_MQTTFAST_PACKETS_PINGREQ_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -31,14 +31,14 @@ namespace iot::mqtt {
 
 #define MQTT_PINGREQ 0x0C
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Pingreq : public iot::mqtt::ControlPacket {
+    class Pingreq : public iot::mqtt_fast::ControlPacket {
     public:
         Pingreq();
-        explicit Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Pingreq(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_PINGREQ_H

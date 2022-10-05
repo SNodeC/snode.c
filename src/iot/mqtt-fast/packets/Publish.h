@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_PUBLISH_H
 #define IOT_MQTTFAST_PACKETS_PUBLISH_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -34,9 +34,9 @@ namespace iot::mqtt {
 
 #define MQTT_PUBLISH 0x03
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Publish : public iot::mqtt::ControlPacket {
+    class Publish : public iot::mqtt_fast::ControlPacket {
     public:
         Publish(uint16_t packetIdentifier,
                 const std::string& topic,
@@ -44,7 +44,7 @@ namespace iot::mqtt::packets {
                 bool dup = false,
                 uint8_t qoSLevel = 0,
                 bool retain = false);
-        explicit Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Publish(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         bool getDup() const;
         uint8_t getQoSLevel() const;
@@ -63,6 +63,6 @@ namespace iot::mqtt::packets {
         bool retain = false;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_PUBLISH_H

@@ -16,16 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Connect.h"
+#include "iot/mqtt-fast/packets/Connect.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Connect::Connect(std::string clientId, std::string protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
-        : iot::mqtt::ControlPacket(MQTT_CONNECT)
+        : iot::mqtt_fast::ControlPacket(MQTT_CONNECT)
         , protocol(protocol)
         , level(version)
         , flags(flags)
@@ -41,8 +41,8 @@ namespace iot::mqtt::packets {
         putString(this->clientId);
     }
 
-    Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Connect::Connect(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         // V-Header
         protocol = getString();
         level = getInt8();
@@ -138,4 +138,4 @@ namespace iot::mqtt::packets {
         return password;
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

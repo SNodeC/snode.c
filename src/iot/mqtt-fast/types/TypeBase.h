@@ -29,7 +29,7 @@ namespace core::socket {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::types {
+namespace iot::mqtt_fast::types {
 
     class TypeBase {
     public:
@@ -58,6 +58,6 @@ namespace iot::mqtt::types {
         bool error = false;
     };
 
-} // namespace iot::mqtt::types
+} // namespace iot::mqtt_fast::types
 
 #endif // IOT_MQTTFAST_TYPES_TYPESBASE_H

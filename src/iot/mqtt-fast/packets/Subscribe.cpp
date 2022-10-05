@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Subscribe.h"
+#include "iot/mqtt-fast/packets/Subscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,31 +25,31 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Subscribe::Subscribe(uint16_t packetIdentifier, const std::list<Topic>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02)
+        : iot::mqtt_fast::ControlPacket(MQTT_SUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
         , topics(std::move(topics)) {
         // V-Header
         putInt16(this->packetIdentifier);
 
         // Payload
-        for (const iot::mqtt::Topic& topic : this->topics) {
+        for (const iot::mqtt_fast::Topic& topic : this->topics) {
             putString(topic.getName());
             putInt8(topic.getRequestedQoS());
         }
     }
 
-    Subscribe::Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Subscribe::Subscribe(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         // V-Header
         packetIdentifier = getInt16();
 
         // Payload
         for (std::string name = getString(); !name.empty(); name = getString()) {
             uint8_t requestedQoS = getInt8();
-            topics.push_back(iot::mqtt::Topic(name, requestedQoS));
+            topics.push_back(iot::mqtt_fast::Topic(name, requestedQoS));
         }
 
         if (!isError()) {
@@ -61,8 +61,8 @@ namespace iot::mqtt::packets {
         return packetIdentifier;
     }
 
-    const std::list<iot::mqtt::Topic>& Subscribe::getTopics() const {
+    const std::list<iot::mqtt_fast::Topic>& Subscribe::getTopics() const {
         return topics;
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

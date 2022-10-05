@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_PINGRESP_H
 #define IOT_MQTTFAST_PACKETS_PINGRESP_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -31,14 +31,14 @@ namespace iot::mqtt {
 
 #define MQTT_PINGRESP 0x0D
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Pingresp : public iot::mqtt::ControlPacket {
+    class Pingresp : public iot::mqtt_fast::ControlPacket {
     public:
         Pingresp();
-        explicit Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Pingresp(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_PINGRESP_H

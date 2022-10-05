@@ -16,16 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Puback.h"
+#include "iot/mqtt-fast/packets/Puback.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Puback::Puback(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBACK)
+        : iot::mqtt_fast::ControlPacket(MQTT_PUBACK)
         , packetIdentifier(packetIdentifier) {
         // V-Header
         putInt16(this->packetIdentifier);
@@ -33,8 +33,8 @@ namespace iot::mqtt::packets {
         // no Payload
     }
 
-    Puback::Puback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Puback::Puback(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         // V-Header
         packetIdentifier = getInt16();
 
@@ -47,4 +47,4 @@ namespace iot::mqtt::packets {
         return packetIdentifier;
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

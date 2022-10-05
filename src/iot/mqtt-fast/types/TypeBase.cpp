@@ -16,15 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/types/TypeBase.h"
+#include "iot/mqtt-fast/types/TypeBase.h"
 
-#include "iot/mqtt/SocketContext.h"
+#include "iot/mqtt-fast/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::types {
+namespace iot::mqtt_fast::types {
 
     TypeBase::TypeBase(core::socket::SocketContext* socketContext)
         : socketContext(socketContext) {
@@ -51,4 +51,4 @@ namespace iot::mqtt::types {
         error = false;
     }
 
-} // namespace iot::mqtt::types
+} // namespace iot::mqtt_fast::types

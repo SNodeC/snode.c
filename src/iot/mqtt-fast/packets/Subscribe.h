@@ -19,10 +19,10 @@
 #ifndef IOT_MQTTFAST_PACKETS_SUBSCRIBE_H
 #define IOT_MQTTFAST_PACKETS_SUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/Topic.h" // IWYU pragma: export
+#include "iot/mqtt-fast/ControlPacket.h"
+#include "iot/mqtt-fast/Topic.h" // IWYU pragma: export
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -35,22 +35,22 @@ namespace iot::mqtt {
 
 #define MQTT_SUBSCRIBE 0x08
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     class Subscribe : public ControlPacket {
     public:
-        Subscribe(uint16_t packetIdentifier, const std::list<iot::mqtt::Topic>& topics);
-        explicit Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        Subscribe(uint16_t packetIdentifier, const std::list<iot::mqtt_fast::Topic>& topics);
+        explicit Subscribe(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         uint16_t getPacketIdentifier() const;
-        const std::list<iot::mqtt::Topic>& getTopics() const;
+        const std::list<iot::mqtt_fast::Topic>& getTopics() const;
 
     private:
         uint16_t packetIdentifier;
 
-        std::list<iot::mqtt::Topic> topics;
+        std::list<iot::mqtt_fast::Topic> topics;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_SUBSCRIBE_H

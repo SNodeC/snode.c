@@ -16,16 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/types/Int_V.h"
+#include "iot/mqtt-fast/types/Int_V.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::types {
+namespace iot::mqtt_fast::types {
 
     Int_V::Int_V(core::socket::SocketContext* socketContext)
-        : iot::mqtt::types::TypeBase(socketContext) {
+        : iot::mqtt_fast::types::TypeBase(socketContext) {
     }
 
     std::size_t Int_V::construct() {
@@ -59,7 +59,7 @@ namespace iot::mqtt::types {
         multiplier = 1;
         value = 0;
 
-        iot::mqtt::types::TypeBase::reset();
+        iot::mqtt_fast::types::TypeBase::reset();
     }
 
-} // namespace iot::mqtt::types
+} // namespace iot::mqtt_fast::types

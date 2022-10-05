@@ -19,9 +19,9 @@
 #ifndef IOT_MQTTFAST_PACKETS_CONNACK_H
 #define IOT_MQTTFAST_PACKETS_CONNACK_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt-fast/ControlPacket.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
 }
 
@@ -43,12 +43,12 @@ namespace iot::mqtt {
 #define MQTT_SESSION_NEW 0x00
 #define MQTT_SESSION_PRESENT 0x01
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
-    class Connack : public iot::mqtt::ControlPacket {
+    class Connack : public iot::mqtt_fast::ControlPacket {
     public:
         explicit Connack(uint8_t reason, uint8_t flags);
-        explicit Connack(mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit Connack(mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         uint8_t getFlags() const;
 
@@ -59,6 +59,6 @@ namespace iot::mqtt::packets {
         uint8_t reason = 0;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets
 
 #endif // IOT_MQTTFAST_PACKETS_CONNACK_H

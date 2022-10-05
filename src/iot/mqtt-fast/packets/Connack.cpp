@@ -16,16 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Connack.h"
+#include "iot/mqtt-fast/packets/Connack.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Connack::Connack(uint8_t reason, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK)
+        : iot::mqtt_fast::ControlPacket(MQTT_CONNACK)
         , flags(flags)
         , reason(reason) {
         // V-Header
@@ -35,8 +35,8 @@ namespace iot::mqtt::packets {
         // no Payload
     }
 
-    Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Connack::Connack(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         // V-Header
         flags = getInt8();
         reason = getInt8();
@@ -54,4 +54,4 @@ namespace iot::mqtt::packets {
         return reason;
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

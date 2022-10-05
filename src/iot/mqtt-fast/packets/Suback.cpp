@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Suback.h"
+#include "iot/mqtt-fast/packets/Suback.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK)
+        : iot::mqtt_fast::ControlPacket(MQTT_SUBACK)
         , packetIdentifier(packetIdentifier)
         , returnCodes(std::move(returnCodes)) {
         // V-Header
@@ -37,8 +37,8 @@ namespace iot::mqtt::packets {
         putUint8ListRaw(returnCodes);
     }
 
-    Suback::Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Suback::Suback(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         // V-Header
         packetIdentifier = getInt16();
 
@@ -56,4 +56,4 @@ namespace iot::mqtt::packets {
         return returnCodes;
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

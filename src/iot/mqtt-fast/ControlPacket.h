@@ -19,11 +19,11 @@
 #ifndef IOT_MQTTFAST_CONTROLPACKET_H
 #define IOT_MQTTFAST_CONTROLPACKET_H
 
-#include "iot/mqtt/types/Binary.h"
+#include "iot/mqtt-fast/types/Binary.h"
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
     class ControlPacketFactory;
-} // namespace iot::mqtt
+} // namespace iot::mqtt_fast
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,12 +34,12 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
 
     class ControlPacket {
     public:
         explicit ControlPacket(uint8_t type, uint8_t reserved = 0);
-        explicit ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        explicit ControlPacket(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         ControlPacket(const ControlPacket&) = delete;
         ControlPacket(ControlPacket&&) = delete;
@@ -81,12 +81,12 @@ namespace iot::mqtt {
         uint8_t type;
         uint8_t reserved;
 
-        iot::mqtt::types::Binary data;
+        iot::mqtt_fast::types::Binary data;
 
     protected:
         bool error = false;
     };
 
-} // namespace iot::mqtt
+} // namespace iot::mqtt_fast
 
 #endif // IOT_MQTTFAST_CONTROLPACKET_H

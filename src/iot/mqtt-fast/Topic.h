@@ -26,7 +26,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {
+namespace iot::mqtt_fast {
 
     class Topic {
     public:
@@ -45,6 +45,6 @@ namespace iot::mqtt {
         uint8_t requestedQoS;
     };
 
-} // namespace iot::mqtt
+} // namespace iot::mqtt_fast
 
 #endif // IOT_MQTTFAST_TOPIC_H

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/types/Binary.h"
+#include "iot/mqtt-fast/types/Binary.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::types {
+namespace iot::mqtt_fast::types {
 
     Binary::Binary(core::socket::SocketContext* socketContext)
-        : iot::mqtt::types::TypeBase(socketContext) {
+        : iot::mqtt_fast::types::TypeBase(socketContext) {
     }
 
     void Binary::setLength(std::vector<char>::size_type length) {
@@ -255,7 +255,7 @@ namespace iot::mqtt::types {
         needed = 0;
         binary.clear();
 
-        iot::mqtt::types::TypeBase::reset();
+        iot::mqtt_fast::types::TypeBase::reset();
     }
 
-} // namespace iot::mqtt::types
+} // namespace iot::mqtt_fast::types

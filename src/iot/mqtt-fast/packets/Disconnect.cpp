@@ -16,26 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Disconnect.h"
+#include "iot/mqtt-fast/packets/Disconnect.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt_fast::packets {
 
     Disconnect::Disconnect()
-        : iot::mqtt::ControlPacket(MQTT_DISCONNECT) {
+        : iot::mqtt_fast::ControlPacket(MQTT_DISCONNECT) {
         // no V-Header
         // no Payload
     }
 
-    Disconnect::Disconnect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
+    Disconnect::Disconnect(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory)
+        : iot::mqtt_fast::ControlPacket(controlPacketFactory) {
         // no V-Header
         // no Payload
 
         error = isError();
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt_fast::packets

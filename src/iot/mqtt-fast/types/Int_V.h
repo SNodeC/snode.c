@@ -19,7 +19,7 @@
 #ifndef IOT_MQTTFAST_TYPES_INT_V_H
 #define IOT_MQTTFAST_TYPES_INT_V_H
 
-#include "iot/mqtt/types/TypeBase.h"
+#include "iot/mqtt-fast/types/TypeBase.h"
 
 namespace core::socket {
     class SocketContext;
@@ -32,9 +32,9 @@ namespace core::socket {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::types {
+namespace iot::mqtt_fast::types {
 
-    class Int_V : public iot::mqtt::types::TypeBase {
+    class Int_V : public iot::mqtt_fast::types::TypeBase {
     public:
         explicit Int_V(core::socket::SocketContext* socketContext = nullptr);
 
@@ -49,6 +49,6 @@ namespace iot::mqtt::types {
         std::uint32_t value = 0;
     };
 
-} // namespace iot::mqtt::types
+} // namespace iot::mqtt_fast::types
 
 #endif // IOT_MQTTFAST_TYPES_INT_V_H
