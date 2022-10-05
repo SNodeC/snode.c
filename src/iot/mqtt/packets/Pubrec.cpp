@@ -58,7 +58,7 @@ namespace iot::mqtt::packets {
         return consumed;
     }
 
-    void Pubrec::propagateEvent(SocketContext* socketContext) const {
+    void Pubrec::propagateEvent(SocketContext* socketContext) {
         socketContext->_onPubrec(*this);
     }
 

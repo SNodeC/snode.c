@@ -46,7 +46,7 @@ namespace iot::mqtt::packets {
     private:
         std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
         std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) const override;
+        void propagateEvent(SocketContext* socketContext) override;
 
     public:
         std::string getProtocol() const;
@@ -69,6 +69,8 @@ namespace iot::mqtt::packets {
         std::string getPassword() const;
 
     private:
+        void setClientId(const std::string& clientId);
+
         iot::mqtt::types::String protocol;
         iot::mqtt::types::UInt8 level;
         iot::mqtt::types::UInt8 connectFlags;
@@ -88,6 +90,8 @@ namespace iot::mqtt::packets {
         bool reserved = false;
 
         int state = 0;
+
+        friend class iot::mqtt::SocketContext;
     };
 
 } // namespace iot::mqtt::packets

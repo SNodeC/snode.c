@@ -90,7 +90,7 @@ namespace iot::mqtt::packets {
         return consumed;
     }
 
-    void Suback::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+    void Suback::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
         socketContext->_onSuback(*this);
     }
 

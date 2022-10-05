@@ -81,7 +81,7 @@ namespace iot::mqtt {
         virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) = 0;
         virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) = 0;
 
-        void _onConnect(const iot::mqtt::packets::Connect& connect);
+        void _onConnect(iot::mqtt::packets::Connect& connect);
         void _onConnack(const iot::mqtt::packets::Connack& connack);
         void _onPublish(const iot::mqtt::packets::Publish& publish);
         void _onPuback(const iot::mqtt::packets::Puback& puback);
@@ -117,12 +117,15 @@ namespace iot::mqtt {
         void send(iot::mqtt::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
 
+        std::string getRandomClientId();
+
+        uint16_t getPacketIdentifier();
+
         static void printData(const std::vector<char>& data);
 
         iot::mqtt::StaticHeader staticHeader;
         iot::mqtt::ControlPacket* currentPacket = nullptr;
 
-        uint16_t getPacketIdentifier();
         uint16_t packetIdentifier = 0;
 
         int state = 0;

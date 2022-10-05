@@ -44,7 +44,7 @@ namespace iot::mqtt::packets {
         return 0;
     }
 
-    void Pingreq::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+    void Pingreq::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
         socketContext->_onPingreq(*this);
     }
 

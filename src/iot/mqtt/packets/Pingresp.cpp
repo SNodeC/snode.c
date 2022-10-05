@@ -44,7 +44,7 @@ namespace iot::mqtt::packets {
         return 0;
     }
 
-    void Pingresp::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+    void Pingresp::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
         socketContext->_onPingresp(*this);
     }
 

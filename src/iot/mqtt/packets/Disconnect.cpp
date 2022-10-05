@@ -44,7 +44,7 @@ namespace iot::mqtt::packets {
         return 0;
     }
 
-    void Disconnect::propagateEvent(SocketContext* socketContext) const {
+    void Disconnect::propagateEvent(SocketContext* socketContext) {
         socketContext->_onDisconnect(*this);
     }
 

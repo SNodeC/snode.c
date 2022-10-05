@@ -90,7 +90,7 @@ namespace iot::mqtt::packets {
         return consumed;
     }
 
-    void Unsubscribe::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+    void Unsubscribe::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
         socketContext->_onUnsubscribe(*this);
     }
 

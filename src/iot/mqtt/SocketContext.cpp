@@ -24,9 +24,10 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
 #include <cstdint>
+#include <fstream>
 #include <iomanip>
-#include <iostream>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -143,16 +144,51 @@ namespace iot::mqtt {
         return consumed;
     }
 
-    void SocketContext::_onConnect(const packets::Connect& connect) {
-        onConnect(connect);
+    void SocketContext::_onConnect(packets::Connect& connect) {
+        if (connect.getLevel() != MQTT_VERSION_3_1_1) {
+            sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
+            shutdown();
+        } else if (connect.getProtocol() != "MQTT") {
+            close();
+        } else if (connect.getClientId().empty() && !connect.getCleanSession()) {
+            sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
+            shutdown();
+        } else {
+            if (connect.getClientId().empty()) {
+                connect.setClientId(getRandomClientId());
+            }
+
+            onConnect(connect);
+        }
     }
 
     void SocketContext::_onConnack(const packets::Connack& connack) {
         onConnack(connack);
+
+        if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
+            shutdown();
+        }
     }
 
     void SocketContext::_onPublish(const packets::Publish& publish) {
-        onPublish(publish);
+        if (publish.getQoSLevel() > 2) {
+            close();
+        } else {
+            onPublish(publish);
+
+            switch (publish.getQoSLevel()) {
+                case 1:
+                    sendPuback(publish.getPacketIdentifier());
+                    break;
+                case 2:
+                    sendPubrec(publish.getPacketIdentifier());
+                    break;
+                case 3:
+                    LOG(TRACE) << "Received publish with QoS-Level 3 ... closing";
+                    close();
+                    break;
+            }
+        }
     }
 
     void SocketContext::_onPuback(const packets::Puback& puback) {
@@ -161,10 +197,14 @@ namespace iot::mqtt {
 
     void SocketContext::_onPubrec(const packets::Pubrec& pubrec) {
         onPubrec(pubrec);
+
+        sendPubrel(pubrec.getPacketIdentifier());
     }
 
     void SocketContext::_onPubrel(const packets::Pubrel& pubrel) {
         onPubrel(pubrel);
+
+        sendPubcomp(pubrel.getPacketIdentifier());
     }
 
     void SocketContext::_onPubcomp(const packets::Pubcomp& pubcomp) {
@@ -172,7 +212,23 @@ namespace iot::mqtt {
     }
 
     void SocketContext::_onSubscribe(const packets::Subscribe& subscribe) {
-        onSubscribe(subscribe);
+        bool wrongQos = std::any_of(subscribe.getTopics().begin(), subscribe.getTopics().end(), [](const Topic& topic) {
+            return topic.getRequestedQoS() > 0x03;
+        });
+
+        if (wrongQos) {
+            close();
+        } else {
+            onSubscribe(subscribe);
+
+            std::list<uint8_t> returnCodes;
+
+            for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
+                returnCodes.push_back(topic.getRequestedQoS() | 0x00 /* 0x80 */); // QoS + Success
+            }
+
+            sendSuback(subscribe.getPacketIdentifier(), returnCodes);
+        }
     }
 
     void SocketContext::_onSuback(const packets::Suback& suback) {
@@ -181,6 +237,8 @@ namespace iot::mqtt {
 
     void SocketContext::_onUnsubscribe(const packets::Unsubscribe& unsubscribe) {
         onUnsubscribe(unsubscribe);
+
+        sendUnsuback(unsubscribe.getPacketIdentifier());
     }
 
     void SocketContext::_onUnsuback(const packets::Unsuback& unsuback) {
@@ -189,6 +247,8 @@ namespace iot::mqtt {
 
     void SocketContext::_onPingreq(const packets::Pingreq& pingreq) {
         onPingreq(pingreq);
+
+        sendPingresp();
     }
 
     void SocketContext::_onPingresp(const packets::Pingresp& pingresp) {
@@ -197,6 +257,8 @@ namespace iot::mqtt {
 
     void SocketContext::_onDisconnect(const packets::Disconnect& disconnect) {
         onDisconnect(disconnect);
+
+        shutdown();
     }
 
     void SocketContext::send(ControlPacket&& controlPacket) const {
@@ -224,6 +286,10 @@ namespace iot::mqtt {
         LOG(TRACE) << "============";
 
         send(iot::mqtt::packets::Connack(returnCode, flags));
+
+        if (returnCode != MQTT_CONNACK_ACCEPT) {
+            shutdown();
+        }
     }
 
     void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {
@@ -308,6 +374,30 @@ namespace iot::mqtt {
         LOG(TRACE) << "===============";
 
         send(iot::mqtt::packets::Disconnect());
+
+        shutdown();
+    }
+
+#define UUID_LEN 36
+
+    std::string SocketContext::getRandomClientId() {
+        char uuid[UUID_LEN];
+
+        std::ifstream file("/proc/sys/kernel/random/uuid");
+        file.getline(uuid, UUID_LEN);
+        file.close();
+
+        return std::string(uuid);
+    }
+
+    uint16_t SocketContext::getPacketIdentifier() {
+        ++packetIdentifier;
+
+        if (packetIdentifier == 0) {
+            ++packetIdentifier;
+        }
+
+        return packetIdentifier;
     }
 
     void SocketContext::printData(const std::vector<char>& data) {
@@ -326,16 +416,6 @@ namespace iot::mqtt {
         }
 
         LOG(TRACE) << ss.str();
-    }
-
-    uint16_t SocketContext::getPacketIdentifier() {
-        ++packetIdentifier;
-
-        if (packetIdentifier == 0) {
-            ++packetIdentifier;
-        }
-
-        return packetIdentifier;
     }
 
 } // namespace iot::mqtt

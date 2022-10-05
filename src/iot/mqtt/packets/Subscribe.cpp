@@ -102,7 +102,7 @@ namespace iot::mqtt::packets {
         return consumed;
     }
 
-    void Subscribe::propagateEvent(SocketContext* socketContext) const {
+    void Subscribe::propagateEvent(SocketContext* socketContext) {
         socketContext->_onSubscribe(*this);
     }
 

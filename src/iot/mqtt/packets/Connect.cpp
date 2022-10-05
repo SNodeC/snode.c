@@ -52,6 +52,10 @@ namespace iot::mqtt::packets {
         return keepAlive;
     }
 
+    void Connect::setClientId(const std::string& clientId) {
+        this->clientId = clientId;
+    }
+
     std::string Connect::getClientId() const {
         return clientId;
     }
@@ -144,10 +148,6 @@ namespace iot::mqtt::packets {
                 if ((error = protocol.isError()) || !protocol.isComplete()) {
                     break;
                 }
-
-                if ((error = (protocol != "MQTT"))) {
-                    break;
-                }
                 state++;
                 [[fallthrough]];
             case 1:
@@ -237,7 +237,7 @@ namespace iot::mqtt::packets {
         return consumed;
     }
 
-    void Connect::propagateEvent(SocketContext* socketContext) const {
+    void Connect::propagateEvent(SocketContext* socketContext) {
         socketContext->_onConnect(*this);
     }
 

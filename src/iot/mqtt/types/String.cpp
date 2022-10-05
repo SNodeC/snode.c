@@ -48,6 +48,15 @@ namespace iot::mqtt::types {
                 break;
         }
 
+        // MUST close
+        // Check for UTF-16 (U+D800 - U+DFFF) surrogates
+        // Check for U+0000 in string
+
+        // MAY close
+        // Check for U+0001 - U+001F
+        // Check for U+007F - U+009F
+        // Check for non-characters
+
         return consumed;
     }
 

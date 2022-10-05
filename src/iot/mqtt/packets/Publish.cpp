@@ -95,7 +95,6 @@ namespace iot::mqtt::packets {
                 if ((error = topic.isError()) || !topic.isComplete()) {
                     break;
                 }
-
                 state++;
                 [[fallthrough]];
             case 1:
@@ -126,7 +125,7 @@ namespace iot::mqtt::packets {
         return consumed;
     }
 
-    void Publish::propagateEvent([[maybe_unused]] SocketContext* socketContext) const {
+    void Publish::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
         socketContext->_onPublish(*this);
     }
 

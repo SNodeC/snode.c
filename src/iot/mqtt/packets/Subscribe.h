@@ -47,7 +47,7 @@ namespace iot::mqtt::packets {
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;
         std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) const override;
+        void propagateEvent(SocketContext* socketContext) override;
 
     public:
         uint16_t getPacketIdentifier() const;
