@@ -98,6 +98,9 @@ namespace iot::mqtt {
                     case MQTT_PINGREQ:
                         currentPacket = new iot::mqtt::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
                         break;
+                    default:
+                        currentPacket = nullptr;
+                        break;
                 }
 
                 LOG(TRACE) << "======================================================";
@@ -105,7 +108,12 @@ namespace iot::mqtt {
                 LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(staticHeader.getFlags());
                 LOG(TRACE) << "RemainingLength: " << static_cast<uint16_t>(staticHeader.getRemainingLength());
 
-                if (currentPacket->isError()) {
+                if (currentPacket == nullptr) {
+                    LOG(TRACE) << "Received wrong packet type ... closing connection";
+
+                    close();
+                    break;
+                } else if (currentPacket->isError()) {
                     LOG(TRACE) << "Received packet-flags have error ... closing connection";
 
                     close();
