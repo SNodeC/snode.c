@@ -38,8 +38,8 @@ namespace iot::mqtt::types {
         std::string operator=(const std::string& newValue) override;
         operator std::string() const override;
 
-        bool operator==(const std::string& rhsValue) const override;
-        bool operator!=(const std::string& rhsValue) const override;
+        bool operator==(const std::string& rhsValue) const;
+        bool operator!=(const std::string& rhsValue) const;
     };
 
 } // namespace iot::mqtt::types

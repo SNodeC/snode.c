@@ -42,6 +42,10 @@ namespace iot::mqtt::packets {
         this->qoSLevel = reserved >> 1 & 0x03;
         this->dup = (reserved & 0x04) != 0;
         this->retain = (reserved & 0x01) != 0;
+
+        if (this->qoSLevel > 2) {
+            // ERROR
+        }
     }
 
     bool Publish::getDup() const {
@@ -95,6 +99,7 @@ namespace iot::mqtt::packets {
                 if ((error = topic.isError()) || !topic.isComplete()) {
                     break;
                 }
+
                 state++;
                 [[fallthrough]];
             case 1:
@@ -103,14 +108,13 @@ namespace iot::mqtt::packets {
 
                     if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                         break;
+                    } else if (packetIdentifier == 0) {
+                        // ERROR
                     }
                 }
 
-                if (getRemainingLength() < getConsumed() + consumed) {
-                    error = true;
-                    break;
-                }
                 message.setSize(static_cast<uint16_t>(getRemainingLength() - getConsumed() - consumed));
+
                 state++;
                 [[fallthrough]];
             case 2:

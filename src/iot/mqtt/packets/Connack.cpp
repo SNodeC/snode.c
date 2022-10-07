@@ -68,6 +68,7 @@ namespace iot::mqtt::packets {
                 if ((error = flags.isError()) || !flags.isComplete()) {
                     break;
                 }
+
                 state++;
                 [[fallthrough]];
             case 1:
@@ -75,6 +76,9 @@ namespace iot::mqtt::packets {
 
                 error = returnCode.isError();
                 complete = returnCode.isComplete();
+
+                if (returnCode != MQTT_CONNACK_ACCEPT) {
+                }
 
                 break;
         }

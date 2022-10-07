@@ -36,14 +36,6 @@ namespace iot::mqtt::types {
         return be16toh(*reinterpret_cast<uint16_t*>(const_cast<char*>(value.data())));
     }
 
-    bool UInt16::operator==(const uint16_t& rhsValue) const {
-        return static_cast<uint16_t>(*this) == rhsValue;
-    }
-
-    bool UInt16::operator!=(const uint16_t& rhsValue) const {
-        return static_cast<uint16_t>(*this) != rhsValue;
-    }
-
     template class TypeBase<uint16_t>;
 
 } // namespace iot::mqtt::types

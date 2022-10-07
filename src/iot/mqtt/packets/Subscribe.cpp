@@ -68,7 +68,10 @@ namespace iot::mqtt::packets {
 
                 if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                     break;
+                } else if (packetIdentifier == 0) {
+                    // ERROR
                 }
+
                 state++;
                 [[fallthrough]];
             case 1:
@@ -77,6 +80,7 @@ namespace iot::mqtt::packets {
                 if ((error = topic.isError()) || !topic.isComplete()) {
                     break;
                 }
+
                 state++;
                 [[fallthrough]];
             case 2:

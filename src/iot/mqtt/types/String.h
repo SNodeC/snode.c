@@ -42,8 +42,8 @@ namespace iot::mqtt::types {
         std::string operator=(const std::string& newValue) override;
         operator std::string() const override;
 
-        bool operator==(const std::string& rhsValue) const override;
-        bool operator!=(const std::string& rhsValue) const override;
+        bool operator==(const std::string& rhsValue) const;
+        bool operator!=(const std::string& rhsValue) const;
 
         void reset(std::size_t size = sizeof(ValueType)) override;
 

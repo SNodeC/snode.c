@@ -36,14 +36,6 @@ namespace iot::mqtt::types {
         return be32toh(*reinterpret_cast<uint32_t*>(const_cast<char*>(value.data())));
     }
 
-    bool UInt32::operator==(const uint32_t& rhsValue) const {
-        return static_cast<uint32_t>(*this) == rhsValue;
-    }
-
-    bool UInt32::operator!=(const uint32_t& rhsValue) const {
-        return static_cast<uint32_t>(*this) != rhsValue;
-    }
-
     template class TypeBase<uint32_t>;
 
 } // namespace iot::mqtt::types

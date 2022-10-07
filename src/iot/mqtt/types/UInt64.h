@@ -35,9 +35,6 @@ namespace iot::mqtt::types {
     public:
         uint64_t operator=(const uint64_t& newValue) override;
         operator uint64_t() const override;
-
-        bool operator==(const uint64_t& rhsValue) const override;
-        bool operator!=(const uint64_t& rhsValue) const override;
     };
 
 } // namespace iot::mqtt::types

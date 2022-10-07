@@ -80,14 +80,6 @@ namespace iot::mqtt::types {
         return uint32Value;
     }
 
-    bool UIntV::operator==(const uint32_t& rhsValue) const {
-        return static_cast<uint32_t>(*this) == rhsValue;
-    }
-
-    bool UIntV::operator!=(const uint32_t& rhsValue) const {
-        return static_cast<uint32_t>(*this) != rhsValue;
-    }
-
     void UIntV::reset([[maybe_unused]] std::size_t size) {
         TypeBase::reset(0);
     }

@@ -40,9 +40,6 @@ namespace iot::mqtt::types {
         uint32_t operator=(const uint32_t& newValue) override;
         operator uint32_t() const override;
 
-        bool operator==(const uint32_t& rhsValue) const override;
-        bool operator!=(const uint32_t& rhsValue) const override;
-
     public:
         void reset(std::size_t size = sizeof(ValueType)) override;
     };

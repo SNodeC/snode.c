@@ -147,7 +147,10 @@ namespace iot::mqtt::packets {
 
                 if ((error = protocol.isError()) || !protocol.isComplete()) {
                     break;
+                } else if (protocol != "MQTT") {
+                    // ERROR
                 }
+
                 state++;
                 [[fallthrough]];
             case 1:
@@ -155,7 +158,10 @@ namespace iot::mqtt::packets {
 
                 if ((error = level.isError()) || !level.isComplete()) {
                     break;
+                } else if (level != MQTT_VERSION_3_1_1) {
+                    // ERROR
                 }
+
                 state++;
                 [[fallthrough]];
             case 2:
@@ -180,6 +186,7 @@ namespace iot::mqtt::packets {
                 if ((error = keepAlive.isError()) || !keepAlive.isComplete()) {
                     break;
                 }
+
                 state++;
                 [[fallthrough]];
             // Payload
@@ -188,7 +195,9 @@ namespace iot::mqtt::packets {
 
                 if ((error = clientId.isError()) || !clientId.isComplete()) {
                     break;
+                } else if (clientId == "" && !cleanSession) {
                 }
+
                 state++;
                 [[fallthrough]];
             case 5:
@@ -199,6 +208,7 @@ namespace iot::mqtt::packets {
                         break;
                     }
                 }
+
                 state++;
                 [[fallthrough]];
             case 6:
@@ -209,6 +219,7 @@ namespace iot::mqtt::packets {
                         break;
                     }
                 }
+
                 state++;
                 [[fallthrough]];
             case 7:
@@ -219,6 +230,7 @@ namespace iot::mqtt::packets {
                         break;
                     }
                 }
+
                 state++;
                 [[fallthrough]];
             case 8:
