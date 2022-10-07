@@ -40,10 +40,6 @@ namespace core::socket {
     class SocketConnection;
 }
 
-namespace iot::mqtt {
-    class ControlPacket;
-}
-
 #include "iot/mqtt/Topic.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -49,8 +49,11 @@ namespace iot::mqtt::packets {
     }
 
     std::size_t Pubcomp::deserializeVP(SocketContext* socketContext) {
+        // no Payload
         std::size_t consumed = packetIdentifier.deserialize(socketContext);
         complete = packetIdentifier.isComplete();
+
+        // no Payload
 
         return consumed;
     }

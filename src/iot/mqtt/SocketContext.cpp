@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/SocketContext.h"
 
-#include "iot/mqtt/ControlPacket.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -56,6 +54,13 @@ namespace iot::mqtt {
                     close();
                     break;
                 }
+
+                LOG(TRACE) << "======================================================";
+                LOG(TRACE) << "PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                           << static_cast<uint16_t>(staticHeader.getPacketType());
+                LOG(TRACE) << "PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                           << static_cast<uint16_t>(staticHeader.getFlags());
+                LOG(TRACE) << "RemainingLength: " << staticHeader.getRemainingLength();
 
                 switch (staticHeader.getPacketType()) {
                     case MQTT_CONNECT: // Server
@@ -106,11 +111,6 @@ namespace iot::mqtt {
                 }
 
                 staticHeader.reset();
-
-                LOG(TRACE) << "======================================================";
-                LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(staticHeader.getPacketType());
-                LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(staticHeader.getFlags());
-                LOG(TRACE) << "RemainingLength: " << staticHeader.getRemainingLength();
 
                 if (currentPacket == nullptr) {
                     LOG(TRACE) << "Received packet-type is unavailable ... closing connection";

@@ -39,6 +39,9 @@ namespace iot::mqtt::packets {
     }
 
     std::size_t Pingreq::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
+        // no V-Header
+        // no Payload
+
         complete = true;
         return 0;
     }

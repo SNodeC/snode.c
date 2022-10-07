@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_PACKETSNEW_DISCONNECT_H
 #define IOT_MQTT_PACKETSNEW_DISCONNECT_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;

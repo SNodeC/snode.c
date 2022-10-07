@@ -36,7 +36,6 @@ namespace iot::mqtt::types {
         switch (state) {
             case 0:
                 consumed = stringLength.deserialize(socketContext);
-
                 if (!stringLength.isComplete()) {
                     break;
                 }

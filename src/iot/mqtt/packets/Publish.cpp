@@ -91,7 +91,7 @@ namespace iot::mqtt::packets {
         std::size_t consumed = 0;
 
         switch (state) {
-            case 0:
+            case 0: // V-Header
                 consumed += topic.deserialize(socketContext);
                 if (!topic.isComplete()) {
                     break;
@@ -111,7 +111,7 @@ namespace iot::mqtt::packets {
 
                 state++;
                 [[fallthrough]];
-            case 2:
+            case 2: // Payload
                 consumed += message.deserialize(socketContext);
                 if (!message.isComplete()) {
                     break;

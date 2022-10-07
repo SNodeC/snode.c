@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_PACKETSNEW_PINGRESP_H
 #define IOT_MQTT_PACKETSNEW_PINGRESP_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;

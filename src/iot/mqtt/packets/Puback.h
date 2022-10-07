@@ -19,8 +19,8 @@
 #ifndef IOT_MQTT_PACKETSNEW_PUBASK_H
 #define IOT_MQTT_PACKETSNEW_PUBASK_H
 
-#include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
