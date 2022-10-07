@@ -53,7 +53,7 @@ namespace iot::mqtt::packets {
         std::size_t consumed = packetIdentifier.deserialize(socketContext);
 
         if (!(error = packetIdentifier.isError()) && (complete = packetIdentifier.isComplete()) && packetIdentifier == 0) {
-            // ERROR
+            socketContext->close();
         }
 
         return consumed;

@@ -68,7 +68,7 @@ namespace iot::mqtt::packets {
                 if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
                     break;
                 } else if (packetIdentifier == 0) {
-                    // ERROR
+                    socketContext->shutdown();
                 }
 
                 state++;
@@ -82,11 +82,11 @@ namespace iot::mqtt::packets {
 
                     if (getConsumed() + consumed < this->getRemainingLength()) {
                         state = 1;
-                    } else {
-                        complete = true;
+                        break;
                     }
                 }
 
+                complete = true;
                 break;
         }
 

@@ -77,9 +77,13 @@ namespace iot::mqtt::packets {
                 error = returnCode.isError();
                 complete = returnCode.isComplete();
 
-                if (returnCode != MQTT_CONNACK_ACCEPT) {
+                if ((error = returnCode.isError() || !returnCode.isComplete())) {
+                    break;
+                } else if (returnCode != MQTT_CONNACK_ACCEPT) {
+                    socketContext->shutdown();
                 }
 
+                complete = true;
                 break;
         }
 

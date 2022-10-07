@@ -156,19 +156,7 @@ namespace iot::mqtt {
     }
 
     void SocketContext::_onConnect(packets::Connect& connect) {
-        if (connect.getProtocol() != "MQTT") {
-            close();
-        } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
-            sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
-            shutdown();
-        } else if (connect.getClientId().empty() && !connect.getCleanSession()) {
-            sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
-            shutdown();
-        } else {
-            if (connect.getClientId().empty()) {
-                connect.setClientId(getRandomClientId());
-            }
-
+        if (!connect.isError()) {
             onConnect(connect);
         }
     }

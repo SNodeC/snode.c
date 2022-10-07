@@ -42,10 +42,7 @@ namespace iot::mqtt::types {
 
         virtual ValueType operator=(const ValueType& value) = 0;
         virtual operator ValueType() const = 0;
-        /*
-                virtual bool operator==(const ValueType& typeBase) const = 0;
-                virtual bool operator!=(const ValueType& typeBase) const = 0;
-        */
+
         virtual std::size_t deserialize(core::socket::SocketContext* socketContext);
         virtual std::vector<char> serialize() const;
 

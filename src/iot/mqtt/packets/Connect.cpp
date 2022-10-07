@@ -148,7 +148,8 @@ namespace iot::mqtt::packets {
                 if ((error = protocol.isError()) || !protocol.isComplete()) {
                     break;
                 } else if (protocol != "MQTT") {
-                    // ERROR
+                    socketContext->close();
+                    break;
                 }
 
                 state++;
@@ -159,7 +160,8 @@ namespace iot::mqtt::packets {
                 if ((error = level.isError()) || !level.isComplete()) {
                     break;
                 } else if (level != MQTT_VERSION_3_1_1) {
-                    // ERROR
+                    socketContext->sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
+                    socketContext->shutdown();
                 }
 
                 state++;
@@ -195,7 +197,13 @@ namespace iot::mqtt::packets {
 
                 if ((error = clientId.isError()) || !clientId.isComplete()) {
                     break;
-                } else if (clientId == "" && !cleanSession) {
+                } else if (clientId == "") {
+                    if (!cleanSession) {
+                        socketContext->sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
+                        break;
+                    } else {
+                        clientId = socketContext->getRandomClientId();
+                    }
                 }
 
                 state++;
@@ -237,12 +245,12 @@ namespace iot::mqtt::packets {
                 if (passwordFlag) {
                     consumed += password.deserialize(socketContext);
 
-                    error = password.isError();
-                    complete = password.isComplete();
-                } else {
-                    complete = true;
+                    if ((error = username.isError()) || !username.isComplete()) {
+                        break;
+                    }
                 }
 
+                complete = true;
                 break;
         }
 
