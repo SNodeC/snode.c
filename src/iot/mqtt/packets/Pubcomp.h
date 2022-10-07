@@ -31,13 +31,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PUBCOMP 0x07
+#define MQTT_PUBCOMP_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
     class Pubcomp : public iot::mqtt::ControlPacket {
     public:
         explicit Pubcomp(const uint16_t packetIdentifier);
-        explicit Pubcomp(uint32_t remainingLength, uint8_t reserved);
+        explicit Pubcomp(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

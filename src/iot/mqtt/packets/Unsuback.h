@@ -31,13 +31,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_UNSUBACK 0x0B
+#define MQTT_UNSUBACK_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
     class Unsuback : public iot::mqtt::ControlPacket {
     public:
         explicit Unsuback(const uint16_t packetIdentifier);
-        explicit Unsuback(uint32_t remainingLength, uint8_t reserved);
+        explicit Unsuback(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

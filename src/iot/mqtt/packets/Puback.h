@@ -31,13 +31,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PUBACK 0x04
+#define MQTT_PUBACK_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
     class Puback : public iot::mqtt::ControlPacket {
     public:
         explicit Puback(const uint16_t packetIdentifier);
-        explicit Puback(uint32_t remainingLength, uint8_t reserved);
+        explicit Puback(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

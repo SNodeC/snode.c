@@ -27,13 +27,12 @@
 namespace iot::mqtt::packets {
 
     Pubrel::Pubrel(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL, 0x02, 0) {
+        : iot::mqtt::ControlPacket(MQTT_PUBREL, MQTT_PUBREL_FLAGS) {
         this->packetIdentifier = packetIdentifier;
     }
 
-    Pubrel::Pubrel(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL, reserved, remainingLength) {
-        error = reserved != 0x02;
+    Pubrel::Pubrel(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_PUBREL, flags, remainingLength, MQTT_PUBREL_FLAGS) {
     }
 
     uint16_t Pubrel::getPacketIdentifier() const {
@@ -51,10 +50,7 @@ namespace iot::mqtt::packets {
 
     std::size_t Pubrel::deserializeVP(SocketContext* socketContext) {
         std::size_t consumed = packetIdentifier.deserialize(socketContext);
-
-        if (!(error = packetIdentifier.isError()) && (complete = packetIdentifier.isComplete()) && packetIdentifier == 0) {
-            socketContext->close();
-        }
+        complete = packetIdentifier.isComplete();
 
         return consumed;
     }

@@ -57,11 +57,11 @@ namespace core::socket {
     }
 
     void SocketContext::onConnected() {
-        PLOG(INFO) << "Protocol connected";
+        LOG(INFO) << "Protocol connected";
     }
 
     void SocketContext::onDisconnected() {
-        PLOG(INFO) << "Protocol disconnected";
+        LOG(INFO) << "Protocol disconnected";
     }
 
     void SocketContext::shutdownRead() {

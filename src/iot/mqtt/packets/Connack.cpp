@@ -27,14 +27,13 @@
 namespace iot::mqtt::packets {
 
     Connack::Connack(uint8_t returncode, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, 0x00, 0) {
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, MQTT_CONNACK_FLAGS) {
         this->returnCode = returncode;
         this->flags = flags;
     }
 
-    Connack::Connack(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, reserved, remainingLength) {
-        error = reserved != 0x00;
+    Connack::Connack(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags, remainingLength, MQTT_CONNACK_FLAGS) {
     }
 
     uint8_t Connack::getFlags() const {
@@ -43,6 +42,10 @@ namespace iot::mqtt::packets {
 
     uint8_t Connack::getReturnCode() const {
         return returnCode;
+    }
+
+    bool Connack::getSessionPresent() const {
+        return sessionPresent;
     }
 
     std::vector<char> Connack::serializeVP() const {
@@ -64,8 +67,7 @@ namespace iot::mqtt::packets {
             // V-Header
             case 0:
                 consumed += flags.deserialize(socketContext);
-
-                if ((error = flags.isError()) || !flags.isComplete()) {
+                if (!flags.isComplete()) {
                     break;
                 }
 
@@ -74,14 +76,11 @@ namespace iot::mqtt::packets {
             case 1:
                 consumed += returnCode.deserialize(socketContext);
 
-                error = returnCode.isError();
-                complete = returnCode.isComplete();
-
-                if ((error = returnCode.isError() || !returnCode.isComplete())) {
+                if (!returnCode.isComplete()) {
                     break;
-                } else if (returnCode != MQTT_CONNACK_ACCEPT) {
-                    socketContext->shutdown();
                 }
+
+                sessionPresent = returnCode & 0x01;
 
                 complete = true;
                 break;

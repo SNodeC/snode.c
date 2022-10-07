@@ -35,7 +35,8 @@ namespace iot::mqtt {
 
     class ControlPacket {
     public:
-        explicit ControlPacket(uint8_t type, uint8_t reserved, uint32_t remainingLength);
+        ControlPacket(uint8_t type, uint8_t flags);
+        ControlPacket(uint8_t type, uint8_t flags, uint32_t remainingLength, uint8_t mustFlags);
 
         virtual ~ControlPacket();
 

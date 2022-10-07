@@ -44,7 +44,7 @@ namespace iot::mqtt {
             case 0:
                 consumed += typeFlags.deserialize(socketContext);
 
-                if ((error = typeFlags.isError()) || !typeFlags.isComplete()) {
+                if (!typeFlags.isComplete()) {
                     break;
                 }
                 state++;

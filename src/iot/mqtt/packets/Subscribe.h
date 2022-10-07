@@ -36,13 +36,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_SUBSCRIBE 0x08
+#define MQTT_SUBSCRIBE_FLAGS 0x02
 
 namespace iot::mqtt::packets {
 
     class Subscribe : public iot::mqtt::ControlPacket {
     public:
         Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics);
-        explicit Subscribe(uint32_t remainingLength, uint8_t reserved);
+        explicit Subscribe(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

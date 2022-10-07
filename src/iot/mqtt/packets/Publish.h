@@ -33,6 +33,7 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PUBLISH 0x03
+// no value for MQTT_PUBLISH_FLAGS
 
 namespace iot::mqtt::packets {
 
@@ -44,7 +45,7 @@ namespace iot::mqtt::packets {
                 bool dup = false,
                 uint8_t qoSLevel = 0,
                 bool retain = false);
-        explicit Publish(uint32_t remainingLength, uint8_t reserved);
+        explicit Publish(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;

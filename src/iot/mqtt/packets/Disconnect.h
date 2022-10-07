@@ -30,13 +30,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_DISCONNECT 0x0E
+#define MQTT_DISCONNECT_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
     class Disconnect : public iot::mqtt::ControlPacket {
     public:
         explicit Disconnect();
-        explicit Disconnect(uint32_t remainingLength, uint8_t reserved);
+        explicit Disconnect(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

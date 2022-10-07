@@ -27,13 +27,12 @@
 namespace iot::mqtt::packets {
 
     Unsuback::Unsuback(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, 0x00, 0) {
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, MQTT_UNSUBACK_FLAGS) {
         this->packetIdentifier = packetIdentifier;
     }
 
-    Unsuback::Unsuback(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, reserved, remainingLength) {
-        error = reserved != 0x00;
+    Unsuback::Unsuback(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, flags, remainingLength, MQTT_UNSUBACK_FLAGS) {
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {
@@ -51,10 +50,7 @@ namespace iot::mqtt::packets {
 
     std::size_t iot::mqtt::packets::Unsuback::deserializeVP(SocketContext* socketContext) {
         std::size_t consumed = packetIdentifier.deserialize(socketContext);
-
-        if (!(error = packetIdentifier.isError()) && (complete = packetIdentifier.isComplete()) && packetIdentifier == 0) {
-            socketContext->shutdown();
-        }
+        complete = packetIdentifier.isComplete();
 
         return consumed;
     }

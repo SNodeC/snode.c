@@ -33,6 +33,7 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_CONNECT 0x01
+#define MQTT_CONNECT_FLAGS 0x00
 
 #define MQTT_VERSION_3_1_1 0x04
 
@@ -41,7 +42,7 @@ namespace iot::mqtt::packets {
     class Connect : public iot::mqtt::ControlPacket {
     public:
         explicit Connect(const std::string& clientId);
-        explicit Connect(uint32_t remainingLength, uint8_t reserved);
+        explicit Connect(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
@@ -68,9 +69,9 @@ namespace iot::mqtt::packets {
         std::string getUsername() const;
         std::string getPassword() const;
 
-    private:
         void setClientId(const std::string& clientId);
 
+    private:
         iot::mqtt::types::String protocol;
         iot::mqtt::types::UInt8 level;
         iot::mqtt::types::UInt8 connectFlags;
@@ -90,8 +91,6 @@ namespace iot::mqtt::packets {
         bool reserved = false;
 
         int state = 0;
-
-        friend class iot::mqtt::SocketContext;
     };
 
 } // namespace iot::mqtt::packets

@@ -35,13 +35,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_UNSUBSCRIBE 0x0A
+#define MQTT_UNSUBSCRIBE_FLAGS 0x02
 
 namespace iot::mqtt::packets {
 
     class Unsubscribe : public iot::mqtt::ControlPacket {
     public:
         Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
-        explicit Unsubscribe(uint32_t remainingLength, uint8_t reserved);
+        explicit Unsubscribe(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

@@ -27,12 +27,11 @@
 namespace iot::mqtt::packets {
 
     Pingresp::Pingresp()
-        : iot::mqtt::ControlPacket(MQTT_PINGRESP, 0x00, 0) {
+        : iot::mqtt::ControlPacket(MQTT_PINGRESP, MQTT_PINGRESP_FLAGS) {
     }
 
-    Pingresp::Pingresp(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt::ControlPacket(MQTT_PINGRESP, reserved, remainingLength) {
-        error = reserved != 0x00;
+    Pingresp::Pingresp(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_PINGRESP, flags, remainingLength, MQTT_PINGRESP_FLAGS) {
     }
 
     std::vector<char> Pingresp::serializeVP() const {

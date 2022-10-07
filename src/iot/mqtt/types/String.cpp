@@ -37,12 +37,10 @@ namespace iot::mqtt::types {
             case 0:
                 consumed = stringLength.deserialize(socketContext);
 
-                if ((error = stringLength.isError()) || !stringLength.isComplete()) {
-                    if (error) {
-                        socketContext->close();
-                    }
+                if (!stringLength.isComplete()) {
                     break;
                 }
+
                 setSize(stringLength);
                 state++;
                 [[fallthrough]];

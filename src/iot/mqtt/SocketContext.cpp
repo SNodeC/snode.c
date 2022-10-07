@@ -24,7 +24,6 @@
 
 #include "log/Logger.h"
 
-#include <algorithm>
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
@@ -106,6 +105,8 @@ namespace iot::mqtt {
                         break;
                 }
 
+                staticHeader.reset();
+
                 LOG(TRACE) << "======================================================";
                 LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(staticHeader.getPacketType());
                 LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(staticHeader.getFlags());
@@ -114,39 +115,38 @@ namespace iot::mqtt {
                 if (currentPacket == nullptr) {
                     LOG(TRACE) << "Received packet-type is unavailable ... closing connection";
 
-                    close();
+                    shutdown(true);
                     break;
                 } else if (currentPacket->isError()) {
-                    LOG(TRACE) << "Received packet-flags have error ... closing connection";
+                    LOG(TRACE) << "Static header has error ... closing connection";
 
-                    close();
+                    delete currentPacket;
+                    currentPacket = nullptr;
+
+                    shutdown(true);
                     break;
                 }
-
-                staticHeader.reset();
 
                 state++;
                 [[fallthrough]];
             case 1:
-                if (currentPacket != nullptr) {
-                    consumed += currentPacket->deserialize(this);
+                consumed += currentPacket->deserialize(this);
 
-                    if (currentPacket->isComplete()) {
-                        printData(currentPacket->serialize());
-                        currentPacket->propagateEvent(this);
+                if (currentPacket->isComplete()) {
+                    printData(currentPacket->serialize());
+                    currentPacket->propagateEvent(this);
 
-                        delete currentPacket;
-                        currentPacket = nullptr;
+                    delete currentPacket;
+                    currentPacket = nullptr;
 
-                        state = 0;
-                    } else if (currentPacket->isError()) {
-                        delete currentPacket;
-                        currentPacket = nullptr;
+                    state = 0;
+                } else if (currentPacket->isError()) {
+                    shutdown(true);
 
-                        close();
-                    }
-                } else {
-                    close();
+                    delete currentPacket;
+                    currentPacket = nullptr;
+
+                    state = 0;
                 }
 
                 break;
@@ -156,25 +156,39 @@ namespace iot::mqtt {
     }
 
     void SocketContext::_onConnect(packets::Connect& connect) {
-        if (!connect.isError()) {
+        if (connect.getProtocol() != "MQTT") {
+            shutdown(true);
+        } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
+            sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
+            shutdown(true);
+
+        } else if (connect.getClientId() == "" && !connect.getCleanSession()) {
+            sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
+            shutdown(true);
+
+        } else {
+            if (connect.getClientId().empty()) {
+                connect.setClientId(getRandomClientId());
+            }
+
             onConnect(connect);
         }
     }
 
     void SocketContext::_onConnack(const packets::Connack& connack) {
-        onConnack(connack);
-
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
-            shutdown();
+            shutdown(true);
+        } else {
+            onConnack(connack);
         }
     }
 
     void SocketContext::_onPublish(const packets::Publish& publish) {
         if (publish.getQoSLevel() > 2) {
-            close();
+            shutdown(true);
+        } else if (publish.getPacketIdentifier() == 0 && publish.getQoSLevel() > 0) {
+            shutdown(true);
         } else {
-            onPublish(publish);
-
             switch (publish.getQoSLevel()) {
                 case 1:
                     sendPuback(publish.getPacketIdentifier());
@@ -182,72 +196,97 @@ namespace iot::mqtt {
                 case 2:
                     sendPubrec(publish.getPacketIdentifier());
                     break;
-                case 3:
-                    LOG(TRACE) << "Received publish with QoS-Level 3 ... closing";
-                    close();
-                    break;
             }
+
+            onPublish(publish);
         }
     }
 
     void SocketContext::_onPuback(const packets::Puback& puback) {
-        onPuback(puback);
+        if (puback.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            onPuback(puback);
+        }
     }
 
     void SocketContext::_onPubrec(const packets::Pubrec& pubrec) {
-        onPubrec(pubrec);
+        if (pubrec.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            sendPubrel(pubrec.getPacketIdentifier());
 
-        sendPubrel(pubrec.getPacketIdentifier());
+            onPubrec(pubrec);
+        }
     }
 
     void SocketContext::_onPubrel(const packets::Pubrel& pubrel) {
-        onPubrel(pubrel);
+        if (pubrel.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            sendPubcomp(pubrel.getPacketIdentifier());
 
-        sendPubcomp(pubrel.getPacketIdentifier());
+            onPubrel(pubrel);
+        }
     }
 
     void SocketContext::_onPubcomp(const packets::Pubcomp& pubcomp) {
-        onPubcomp(pubcomp);
+        if (pubcomp.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            onPubcomp(pubcomp);
+        }
     }
 
     void SocketContext::_onSubscribe(const packets::Subscribe& subscribe) {
-        bool wrongQos = std::any_of(subscribe.getTopics().begin(), subscribe.getTopics().end(), [](const Topic& topic) {
-            return topic.getRequestedQoS() > 0x03;
-        });
-
-        if (wrongQos) {
-            close();
+        if (subscribe.getPacketIdentifier() == 0) {
+            shutdown(true);
         } else {
-            onSubscribe(subscribe);
+            onSubscribe(subscribe); // Shall only subscribe but not send retained messages
 
             std::list<uint8_t> returnCodes;
 
+            // Check QoS-Levels of subscribtions (topic.getRequestedQoS())
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
                 returnCodes.push_back(topic.getRequestedQoS() | 0x00 /* 0x80 */); // QoS + Success
             }
 
             sendSuback(subscribe.getPacketIdentifier(), returnCodes);
+
+            // Here we shall trigger sending of retained messages
         }
     }
 
     void SocketContext::_onSuback(const packets::Suback& suback) {
-        onSuback(suback);
+        if (suback.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            onSuback(suback);
+        }
     }
 
     void SocketContext::_onUnsubscribe(const packets::Unsubscribe& unsubscribe) {
-        onUnsubscribe(unsubscribe);
+        if (unsubscribe.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            sendUnsuback(unsubscribe.getPacketIdentifier());
 
-        sendUnsuback(unsubscribe.getPacketIdentifier());
+            onUnsubscribe(unsubscribe);
+        }
     }
 
     void SocketContext::_onUnsuback(const packets::Unsuback& unsuback) {
-        onUnsuback(unsuback);
+        if (unsuback.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            onUnsuback(unsuback);
+        }
     }
 
     void SocketContext::_onPingreq(const packets::Pingreq& pingreq) {
-        onPingreq(pingreq);
-
         sendPingresp();
+
+        onPingreq(pingreq);
     }
 
     void SocketContext::_onPingresp(const packets::Pingresp& pingresp) {
@@ -270,6 +309,7 @@ namespace iot::mqtt {
 
     void SocketContext::send(std::vector<char>&& data) const {
         printData(data);
+
         sendToPeer(data.data(), data.size());
     }
 

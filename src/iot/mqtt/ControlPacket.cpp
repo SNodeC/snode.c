@@ -26,10 +26,16 @@
 
 namespace iot::mqtt {
 
-    ControlPacket::ControlPacket(uint8_t type, uint8_t reserved, uint32_t remainingLength)
+    ControlPacket::ControlPacket(uint8_t type, uint8_t flags)
         : type(type)
-        , flags(reserved)
+        , flags(flags) {
+    }
+
+    ControlPacket::ControlPacket(uint8_t type, uint8_t flags, uint32_t remainingLength, uint8_t mustFlags)
+        : type(type)
+        , flags(flags)
         , remainingLength(remainingLength) {
+        error = flags != mustFlags;
     }
 
     ControlPacket::~ControlPacket() {
@@ -44,8 +50,6 @@ namespace iot::mqtt {
 
         if (complete && consumed != this->getRemainingLength()) {
             error = true;
-        }
-        if (error) {
             complete = false;
         }
 

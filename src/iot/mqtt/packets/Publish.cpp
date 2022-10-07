@@ -28,7 +28,7 @@ namespace iot::mqtt::packets {
 
     Publish::Publish(
         uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
-        : iot::mqtt::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00), 0) {
+        : iot::mqtt::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00)) {
         this->packetIdentifier = packetIdentifier;
         this->topic = topic;
         this->message = message;
@@ -37,11 +37,11 @@ namespace iot::mqtt::packets {
         this->retain = retain;
     }
 
-    Publish::Publish(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt::ControlPacket(MQTT_PUBLISH, reserved, remainingLength) {
-        this->qoSLevel = reserved >> 1 & 0x03;
-        this->dup = (reserved & 0x04) != 0;
-        this->retain = (reserved & 0x01) != 0;
+    Publish::Publish(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_PUBLISH, flags, remainingLength, flags) {
+        this->qoSLevel = flags >> 1 & 0x03;
+        this->dup = (flags & 0x04) != 0;
+        this->retain = (flags & 0x01) != 0;
 
         error = this->qoSLevel > 2;
     }
@@ -93,8 +93,7 @@ namespace iot::mqtt::packets {
         switch (state) {
             case 0:
                 consumed += topic.deserialize(socketContext);
-
-                if ((error = topic.isError()) || !topic.isComplete()) {
+                if (!topic.isComplete()) {
                     break;
                 }
 
@@ -103,11 +102,7 @@ namespace iot::mqtt::packets {
             case 1:
                 if (qoSLevel > 0) {
                     consumed += packetIdentifier.deserialize(socketContext);
-
-                    if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
-                        break;
-                    } else if (packetIdentifier == 0) {
-                        socketContext->close();
+                    if (!packetIdentifier.isComplete()) {
                         break;
                     }
                 }
@@ -118,8 +113,7 @@ namespace iot::mqtt::packets {
                 [[fallthrough]];
             case 2:
                 consumed += message.deserialize(socketContext);
-
-                if ((error = message.isError()) || !message.isComplete()) {
+                if (!message.isComplete()) {
                     break;
                 }
 

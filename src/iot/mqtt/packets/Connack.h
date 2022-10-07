@@ -31,6 +31,7 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_CONNACK 0x02
+#define MQTT_CONNACK_FLAGS 0x00
 
 #define MQTT_CONNACK_ACCEPT 0
 #define MQTT_CONNACK_UNACEPTABLEVERSION 1
@@ -47,7 +48,7 @@ namespace iot::mqtt::packets {
     class Connack : public iot::mqtt::ControlPacket {
     public:
         Connack(uint8_t returncode, uint8_t flags);
-        explicit Connack(uint32_t remainingLength, uint8_t reserved);
+        explicit Connack(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
@@ -58,9 +59,13 @@ namespace iot::mqtt::packets {
         uint8_t getFlags() const;
         uint8_t getReturnCode() const;
 
+        bool getSessionPresent() const;
+
     private:
         iot::mqtt::types::UInt8 flags;
         iot::mqtt::types::UInt8 returnCode;
+
+        bool sessionPresent = false;
 
         int state = 0;
     };

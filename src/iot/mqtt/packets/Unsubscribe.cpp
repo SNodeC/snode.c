@@ -27,14 +27,13 @@
 namespace iot::mqtt::packets {
 
     Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02, 0) {
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
         this->packetIdentifier = packetIdentifier;
         this->topics = topics;
     }
 
-    Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, reserved, remainingLength) {
-        error = reserved != 0x02;
+    Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, flags, remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
     }
 
     uint16_t Unsubscribe::getPacketIdentifier() const {
@@ -64,11 +63,8 @@ namespace iot::mqtt::packets {
         switch (state) {
             case 0:
                 consumed += packetIdentifier.deserialize(socketContext);
-
-                if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
+                if (!packetIdentifier.isComplete()) {
                     break;
-                } else if (packetIdentifier == 0) {
-                    socketContext->shutdown();
                 }
 
                 state++;
@@ -76,7 +72,9 @@ namespace iot::mqtt::packets {
             case 1:
                 consumed += topic.deserialize(socketContext);
 
-                if (!(error = topic.isError()) && topic.isComplete()) {
+                if (!topic.isComplete()) {
+                    break;
+                } else {
                     topics.push_back(topic);
                     topic.reset();
 

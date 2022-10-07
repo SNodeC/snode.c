@@ -27,14 +27,13 @@
 namespace iot::mqtt::packets {
 
     Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02, 0) {
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_SUBSCRIBE_FLAGS) {
         this->packetIdentifier = packetIdentifier;
         this->topics = topics;
     }
 
-    Subscribe::Subscribe(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, reserved, remainingLength) {
-        error = reserved != 0x02;
+    Subscribe::Subscribe(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, flags, remainingLength, MQTT_SUBSCRIBE_FLAGS) {
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {
@@ -66,10 +65,8 @@ namespace iot::mqtt::packets {
             case 0:
                 consumed += packetIdentifier.deserialize(socketContext);
 
-                if ((error = packetIdentifier.isError()) || !packetIdentifier.isComplete()) {
+                if (!packetIdentifier.isComplete()) {
                     break;
-                } else if (packetIdentifier == 0) {
-                    socketContext->shutdown();
                 }
 
                 state++;
@@ -77,7 +74,7 @@ namespace iot::mqtt::packets {
             case 1:
                 consumed += topic.deserialize(socketContext);
 
-                if ((error = topic.isError()) || !topic.isComplete()) {
+                if (!topic.isComplete()) {
                     break;
                 }
 
@@ -86,21 +83,18 @@ namespace iot::mqtt::packets {
             case 2:
                 consumed += qoS.deserialize(socketContext);
 
-                if (!(error = qoS.isError()) && qoS.isComplete()) {
+                if (qoS.isComplete()) {
                     topics.push_back(Topic(topic, qoS));
                     topic.reset();
                     qoS.reset();
 
-                    if ((qoS & 0xFC) != 0) {
-                        socketContext->shutdown();
-                        error = true;
-                    } else if (getConsumed() + consumed < this->getRemainingLength()) {
+                    if (getConsumed() + consumed < this->getRemainingLength()) {
                         state = 1;
-                    } else {
-                        complete = true;
+                        break;
                     }
                 }
 
+                complete = true;
                 break;
         }
 

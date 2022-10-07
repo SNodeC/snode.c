@@ -34,13 +34,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_SUBACK 0x09
+#define MQTT_SUBACK_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
     class Suback : public iot::mqtt::ControlPacket {
     public:
         Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
-        explicit Suback(uint32_t remainingLength, uint8_t reserved);
+        explicit Suback(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

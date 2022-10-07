@@ -30,13 +30,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PINGRESP 0x0D
+#define MQTT_PINGRESP_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
     class Pingresp : public iot::mqtt::ControlPacket {
     public:
         explicit Pingresp();
-        explicit Pingresp(uint32_t remainingLength, uint8_t reserved);
+        explicit Pingresp(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

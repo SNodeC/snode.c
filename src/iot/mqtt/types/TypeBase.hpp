@@ -62,18 +62,12 @@ namespace iot::mqtt::types {
     }
 
     template <typename ValueType>
-    bool TypeBase<ValueType>::isError() const {
-        return error;
-    }
-
-    template <typename ValueType>
     void TypeBase<ValueType>::reset(std::size_t size) {
         value.resize(size);
 
         length = size;
         needed = size;
 
-        error = false;
         complete = false;
 
         state = 0;

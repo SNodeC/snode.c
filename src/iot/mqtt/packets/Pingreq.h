@@ -30,13 +30,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PINGREQ 0x0C
+#define MQTT_PINGREQ_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
     class Pingreq : public iot::mqtt::ControlPacket {
     public:
         explicit Pingreq();
-        explicit Pingreq(uint32_t remainingLength, uint8_t reserved);
+        explicit Pingreq(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

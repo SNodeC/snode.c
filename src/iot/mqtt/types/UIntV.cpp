@@ -81,7 +81,13 @@ namespace iot::mqtt::types {
         return uint32Value;
     }
 
+    bool UIntV::isError() const {
+        return error;
+    }
+
     void UIntV::reset([[maybe_unused]] std::size_t size) {
+        error = false;
+
         TypeBase::reset(0);
     }
 

@@ -31,13 +31,14 @@ namespace iot::mqtt {
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PUBREC 0x05
+#define MQTT_PUBREC_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
     class Pubrec : public iot::mqtt::ControlPacket {
     public:
         explicit Pubrec(const uint16_t packetIdentifier);
-        explicit Pubrec(uint32_t remainingLength, uint8_t reserved);
+        explicit Pubrec(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;
