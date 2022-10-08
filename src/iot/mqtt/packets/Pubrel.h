@@ -37,13 +37,13 @@ namespace iot::mqtt::packets {
 
     class Pubrel : public iot::mqtt::ControlPacket {
     public:
-        explicit Pubrel(const uint16_t packetIdentifier);
-        explicit Pubrel(uint32_t remainingLength, uint8_t flags);
+        explicit Pubrel(const uint16_t packetIdentifier);         // Server & Client
+        explicit Pubrel(uint32_t remainingLength, uint8_t flags); // Server & Client
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override;
-        std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
+        std::size_t deserializeVP(SocketContext* socketContext) override; // Server & Client
+        std::vector<char> serializeVP() const override;                   // Server & Client
+        void propagateEvent(SocketContext* socketContext) override;       // Server & Client
 
     public:
         uint16_t getPacketIdentifier() const;

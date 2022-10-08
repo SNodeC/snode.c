@@ -40,13 +40,13 @@ namespace iot::mqtt::packets {
 
     class Suback : public iot::mqtt::ControlPacket {
     public:
-        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
-        explicit Suback(uint32_t remainingLength, uint8_t flags);
+        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes); // Server
+        explicit Suback(uint32_t remainingLength, uint8_t flags);                 // Client
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override;
-        std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
+        std::size_t deserializeVP(SocketContext* socketContext) override; // Client
+        std::vector<char> serializeVP() const override;                   // Server
+        void propagateEvent(SocketContext* socketContext) override;       // Client
 
     public:
         uint16_t getPacketIdentifier() const;

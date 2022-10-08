@@ -42,13 +42,13 @@ namespace iot::mqtt::packets {
 
     class Subscribe : public iot::mqtt::ControlPacket {
     public:
-        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics);
-        explicit Subscribe(uint32_t remainingLength, uint8_t flags);
+        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics); // Client
+        explicit Subscribe(uint32_t remainingLength, uint8_t flags);               // Server
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override;
-        std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
+        std::size_t deserializeVP(SocketContext* socketContext) override; // Server
+        std::vector<char> serializeVP() const override;                   // Client
+        void propagateEvent(SocketContext* socketContext) override;       // Server
 
     public:
         uint16_t getPacketIdentifier() const;

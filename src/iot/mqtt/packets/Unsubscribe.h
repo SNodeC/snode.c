@@ -41,13 +41,13 @@ namespace iot::mqtt::packets {
 
     class Unsubscribe : public iot::mqtt::ControlPacket {
     public:
-        Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
-        explicit Unsubscribe(uint32_t remainingLength, uint8_t flags);
+        Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics); // Client
+        explicit Unsubscribe(uint32_t remainingLength, uint8_t flags);          // Server
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override;
-        std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
+        std::size_t deserializeVP(SocketContext* socketContext) override; // Server
+        std::vector<char> serializeVP() const override;                   // Client
+        void propagateEvent(SocketContext* socketContext) override;       // Server
 
     public:
         uint16_t getPacketIdentifier() const;

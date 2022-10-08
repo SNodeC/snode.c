@@ -37,13 +37,13 @@ namespace iot::mqtt::packets {
 
     class Pubcomp : public iot::mqtt::ControlPacket {
     public:
-        explicit Pubcomp(const uint16_t packetIdentifier);
-        explicit Pubcomp(uint32_t remainingLength, uint8_t flags);
+        explicit Pubcomp(const uint16_t packetIdentifier);         // Server & Client
+        explicit Pubcomp(uint32_t remainingLength, uint8_t flags); // Server & Client
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override;
-        std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
+        std::size_t deserializeVP(SocketContext* socketContext) override; // Server & Client
+        std::vector<char> serializeVP() const override;                   // Server & Client
+        void propagateEvent(SocketContext* socketContext) override;       // Server & Client
 
     public:
         uint16_t getPacketIdentifier() const;

@@ -41,13 +41,13 @@ namespace iot::mqtt::packets {
 
     class Connect : public iot::mqtt::ControlPacket {
     public:
-        explicit Connect(const std::string& clientId);
-        explicit Connect(uint32_t remainingLength, uint8_t flags);
+        explicit Connect(const std::string& clientId);             // Client
+        explicit Connect(uint32_t remainingLength, uint8_t flags); // Server
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
-        std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Server
+        std::vector<char> serializeVP() const override;                              // Client
+        void propagateEvent(SocketContext* socketContext) override;                  // Server
 
     public:
         std::string getProtocol() const;

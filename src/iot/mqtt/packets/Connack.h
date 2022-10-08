@@ -47,13 +47,13 @@ namespace iot::mqtt::packets {
 
     class Connack : public iot::mqtt::ControlPacket {
     public:
-        Connack(uint8_t returncode, uint8_t flags);
-        explicit Connack(uint32_t remainingLength, uint8_t flags);
+        Connack(uint8_t returncode, uint8_t flags);                // Server
+        explicit Connack(uint32_t remainingLength, uint8_t flags); // Client
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
-        std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
+        std::vector<char> serializeVP() const override;                              // Server
+        void propagateEvent(SocketContext* socketContext) override;                  // Client
 
     public:
         uint8_t getFlags() const;
