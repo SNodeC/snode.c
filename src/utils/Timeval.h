@@ -34,7 +34,7 @@ namespace utils {
     class Timeval {
     public:
         Timeval() noexcept;
-        Timeval(const std::initializer_list<time_t>& initList) noexcept; // cppcheck-suppress noExplicitConstructor
+        Timeval(const std::initializer_list<time_t>& initList) noexcept;
         Timeval(const Timeval& timeVal) noexcept = default;
         Timeval(double time) noexcept;            // cppcheck-suppress noExplicitConstructor
         Timeval(const timeval& timeVal) noexcept; // cppcheck-suppress noExplicitConstructor
