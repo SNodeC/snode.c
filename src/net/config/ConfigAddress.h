@@ -35,9 +35,6 @@ namespace net::config {
     class ConfigAddress : virtual public ConfigBase {
         using SocketAddress = SocketAddressT;
 
-    public:
-        bool isInitialized() const;
-
     protected:
         ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription);
 
@@ -46,6 +43,9 @@ namespace net::config {
 
         void require(CLI::Option* opt);
         void require(CLI::Option* opt1, CLI::Option* opt2);
+
+    public:
+        bool isInitialized() const;
 
     protected:
         CLI::App* addressSc = nullptr;
