@@ -70,8 +70,6 @@ namespace iot::mqtt {
         uint32_t remainingLength = 0;
 
         std::size_t consumed = 0;
-
-        int state = 0;
     };
 
 } // namespace iot::mqtt

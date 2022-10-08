@@ -51,6 +51,8 @@ namespace iot::mqtt::types {
         UInt16 stringLength;
     };
 
+    extern template class TypeBase<std::string>;
+
 } // namespace iot::mqtt::types
 
 #endif // IOT_MQTT_TYPES_STRING_H

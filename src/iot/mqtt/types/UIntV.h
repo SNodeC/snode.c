@@ -48,6 +48,8 @@ namespace iot::mqtt::types {
         bool error = false;
     };
 
+    extern template class TypeBase<uint32_t>;
+
 } // namespace iot::mqtt::types
 
 #endif // IOT_MQTT_TYPES_UINTV_H

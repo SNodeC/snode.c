@@ -37,6 +37,8 @@ namespace iot::mqtt::types {
         operator uint8_t() const override;
     };
 
+    extern template class TypeBase<uint8_t>;
+
 } // namespace iot::mqtt::types
 
 #endif // IOT_MQTT_TYPES_UINT8_H

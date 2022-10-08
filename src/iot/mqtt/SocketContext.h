@@ -57,7 +57,7 @@ namespace iot::mqtt {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
-        virtual ~SocketContext();
+        virtual ~SocketContext() override;
 
     private:
         virtual std::size_t onReceiveFromPeer() final;
