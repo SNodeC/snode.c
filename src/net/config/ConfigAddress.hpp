@@ -34,6 +34,7 @@ namespace net::config {
         if (!getName().empty()) {
             addressSc = add_subcommand(addressOptionName, addressOptionDescription);
             addressSc->group("Option groups");
+            addressSc->required();
             needsRequired = true;
             initialized = true;
         }
@@ -61,6 +62,7 @@ namespace net::config {
         address = localAddress;
         initialized = true;
         needsRequired = false;
+        required(false);
     }
 
     template <typename SocketAddressT>

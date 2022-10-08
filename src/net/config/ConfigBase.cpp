@@ -53,6 +53,10 @@ namespace net::config {
         return baseSc->add_flag(name, description);
     }
 
+    void ConfigBase::required(bool req) {
+        baseSc->required(req);
+    }
+
     void ConfigBase::parse(bool forceError) const {
         utils::Config::parse(forceError);
     }

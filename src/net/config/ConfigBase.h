@@ -49,6 +49,8 @@ namespace net::config {
         CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
         CLI::Option* add_flag(const std::string& name, const std::string& description = "");
 
+        void required(bool req = true);
+
         void parse(bool forceError = false) const;
 
     private:
