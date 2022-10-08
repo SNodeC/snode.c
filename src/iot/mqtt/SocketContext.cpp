@@ -175,7 +175,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onConnack(const packets::Connack& connack) {
+    void SocketContext::_onConnack(packets::Connack& connack) {
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
             shutdown(true);
         } else {
@@ -183,7 +183,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onPublish(const packets::Publish& publish) {
+    void SocketContext::_onPublish(packets::Publish& publish) {
         if (publish.getQoSLevel() > 2) {
             shutdown(true);
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoSLevel() > 0) {
@@ -202,7 +202,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onPuback(const packets::Puback& puback) {
+    void SocketContext::_onPuback(packets::Puback& puback) {
         if (puback.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -210,7 +210,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onPubrec(const packets::Pubrec& pubrec) {
+    void SocketContext::_onPubrec(packets::Pubrec& pubrec) {
         if (pubrec.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -220,7 +220,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onPubrel(const packets::Pubrel& pubrel) {
+    void SocketContext::_onPubrel(packets::Pubrel& pubrel) {
         if (pubrel.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -230,7 +230,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onPubcomp(const packets::Pubcomp& pubcomp) {
+    void SocketContext::_onPubcomp(packets::Pubcomp& pubcomp) {
         if (pubcomp.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -238,7 +238,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onSubscribe(const packets::Subscribe& subscribe) {
+    void SocketContext::_onSubscribe(packets::Subscribe& subscribe) {
         if (subscribe.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -248,7 +248,7 @@ namespace iot::mqtt {
 
             // Check QoS-Levels of subscribtions (topic.getRequestedQoS())
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                returnCodes.push_back(topic.getRequestedQoS() | 0x00 /* 0x80 */); // QoS + Success
+                returnCodes.push_back(topic.getAcceptedQoS()); // QoS + Success
             }
 
             sendSuback(subscribe.getPacketIdentifier(), returnCodes);
@@ -257,7 +257,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onSuback(const packets::Suback& suback) {
+    void SocketContext::_onSuback(packets::Suback& suback) {
         if (suback.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -265,7 +265,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onUnsubscribe(const packets::Unsubscribe& unsubscribe) {
+    void SocketContext::_onUnsubscribe(packets::Unsubscribe& unsubscribe) {
         if (unsubscribe.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -275,7 +275,7 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onUnsuback(const packets::Unsuback& unsuback) {
+    void SocketContext::_onUnsuback(packets::Unsuback& unsuback) {
         if (unsuback.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -283,17 +283,17 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onPingreq(const packets::Pingreq& pingreq) {
+    void SocketContext::_onPingreq(packets::Pingreq& pingreq) {
         sendPingresp();
 
         onPingreq(pingreq);
     }
 
-    void SocketContext::_onPingresp(const packets::Pingresp& pingresp) {
+    void SocketContext::_onPingresp(packets::Pingresp& pingresp) {
         onPingresp(pingresp);
     }
 
-    void SocketContext::_onDisconnect(const packets::Disconnect& disconnect) {
+    void SocketContext::_onDisconnect(packets::Disconnect& disconnect) {
         onDisconnect(disconnect);
 
         shutdown();

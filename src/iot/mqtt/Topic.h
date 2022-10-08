@@ -40,9 +40,13 @@ namespace iot::mqtt {
         const std::string& getName() const;
         uint8_t getRequestedQoS() const;
 
+        void setAcceptedQoS(uint8_t qoS);
+        uint8_t getAcceptedQoS() const;
+
     private:
         std::string name;
         uint8_t requestedQoS;
+        uint8_t acceptedQoS;
     };
 
 } // namespace iot::mqtt

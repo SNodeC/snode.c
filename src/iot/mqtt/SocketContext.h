@@ -62,35 +62,35 @@ namespace iot::mqtt {
     private:
         virtual std::size_t onReceiveFromPeer() final;
 
-        virtual void onConnect(const iot::mqtt::packets::Connect& connect) = 0;             // Server
-        virtual void onConnack(const iot::mqtt::packets::Connack& connack) = 0;             // Client
-        virtual void onPublish(const iot::mqtt::packets::Publish& publish) = 0;             // Server & Client
-        virtual void onPuback(const iot::mqtt::packets::Puback& puback) = 0;                // Server & Client
-        virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec) = 0;                // Server & Client
-        virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel) = 0;                // Server & Client
-        virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) = 0;             // Server & Client
-        virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) = 0;       // Server
-        virtual void onSuback(const iot::mqtt::packets::Suback& suback) = 0;                // Client
-        virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) = 0; // Server
-        virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) = 0;          // Client
-        virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq) = 0;             // Server
-        virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) = 0;          // Client
-        virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) = 0;    // Server
+        virtual void onConnect(iot::mqtt::packets::Connect& connect) = 0;             // Server
+        virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0;             // Client
+        virtual void onPublish(iot::mqtt::packets::Publish& publish) = 0;             // Server & Client
+        virtual void onPuback(iot::mqtt::packets::Puback& puback) = 0;                // Server & Client
+        virtual void onPubrec(iot::mqtt::packets::Pubrec& pubrec) = 0;                // Server & Client
+        virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel) = 0;                // Server & Client
+        virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) = 0;             // Server & Client
+        virtual void onSubscribe(iot::mqtt::packets::Subscribe& subscribe) = 0;       // Server
+        virtual void onSuback(iot::mqtt::packets::Suback& suback) = 0;                // Client
+        virtual void onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe) = 0; // Server
+        virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback) = 0;          // Client
+        virtual void onPingreq(iot::mqtt::packets::Pingreq& pingreq) = 0;             // Server
+        virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0;          // Client
+        virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect) = 0;    // Server
 
-        void _onConnect(iot::mqtt::packets::Connect& connect);                   // Server
-        void _onConnack(const iot::mqtt::packets::Connack& connack);             // Client
-        void _onPublish(const iot::mqtt::packets::Publish& publish);             // Server & Client
-        void _onPuback(const iot::mqtt::packets::Puback& puback);                // Server & Client
-        void _onPubrec(const iot::mqtt::packets::Pubrec& pubrec);                // Server & Client
-        void _onPubrel(const iot::mqtt::packets::Pubrel& pubrel);                // Server & Client
-        void _onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);             // Server & Client
-        void _onSubscribe(const iot::mqtt::packets::Subscribe& subscribe);       // Server
-        void _onSuback(const iot::mqtt::packets::Suback& suback);                // Client
-        void _onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe); // Server
-        void _onUnsuback(const iot::mqtt::packets::Unsuback& unsuback);          // Client
-        void _onPingreq(const iot::mqtt::packets::Pingreq& pingreq);             // Server
-        void _onPingresp(const iot::mqtt::packets::Pingresp& pingresp);          // Client
-        void _onDisconnect(const iot::mqtt::packets::Disconnect& disconnect);    // Server
+        void _onConnect(iot::mqtt::packets::Connect& connect);             // Server
+        void _onConnack(iot::mqtt::packets::Connack& connack);             // Client
+        void _onPublish(iot::mqtt::packets::Publish& publish);             // Server & Client
+        void _onPuback(iot::mqtt::packets::Puback& puback);                // Server & Client
+        void _onPubrec(iot::mqtt::packets::Pubrec& pubrec);                // Server & Client
+        void _onPubrel(iot::mqtt::packets::Pubrel& pubrel);                // Server & Client
+        void _onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp);             // Server & Client
+        void _onSubscribe(iot::mqtt::packets::Subscribe& subscribe);       // Server
+        void _onSuback(iot::mqtt::packets::Suback& suback);                // Client
+        void _onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe); // Server
+        void _onUnsuback(iot::mqtt::packets::Unsuback& unsuback);          // Client
+        void _onPingreq(iot::mqtt::packets::Pingreq& pingreq);             // Server
+        void _onPingresp(iot::mqtt::packets::Pingresp& pingresp);          // Client
+        void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect);    // Server
 
     public:
         void sendConnect(const std::string& clientId);       // Client

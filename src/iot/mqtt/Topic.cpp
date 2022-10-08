@@ -40,4 +40,12 @@ namespace iot::mqtt {
         return requestedQoS;
     }
 
+    void Topic::setAcceptedQoS(uint8_t qoS) {
+        requestedQoS = qoS;
+    }
+
+    uint8_t Topic::getAcceptedQoS() const {
+        return acceptedQoS;
+    }
+
 } // namespace iot::mqtt

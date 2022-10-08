@@ -40,7 +40,7 @@ namespace iot::mqtt::packets {
         return packetIdentifier;
     }
 
-    const std::list<iot::mqtt::Topic>& Subscribe::getTopics() const {
+    std::list<Topic>& Subscribe::getTopics() {
         return topics;
     }
 
