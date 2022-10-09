@@ -19,11 +19,10 @@
 #ifndef IOT_MQTT_PACKETSNEW_UNSUBSCRIBE_H
 #define IOT_MQTT_PACKETSNEW_UNSUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
-#include "iot/mqtt/Topic.h"                 // IWYU pragma: export
-#include "iot/mqtt/types/String.h"          // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
+#include "iot/mqtt/Topic.h"               // IWYU pragma: export
+#include "iot/mqtt/types/String.h"        // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"        // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -40,29 +39,23 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Unsubscribe
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+    class Unsubscribe : public iot::mqtt::ControlPacketSender {
     public:
+        Unsubscribe() = default;
         Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics); // Client
-        explicit Unsubscribe(uint32_t remainingLength, uint8_t flags);          // Server
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Server
-        std::vector<char> serializeVP() const override;                   // Client
-        void propagateEvent(SocketContext* socketContext) override;       // Server
+        std::vector<char> serializeVP() const override; // Client
 
     public:
         uint16_t getPacketIdentifier() const;
         const std::list<std::string>& getTopics() const;
 
-    private:
+    protected:
         iot::mqtt::types::UInt16 packetIdentifier;
         iot::mqtt::types::String topic;
 
         std::list<std::string> topics;
-
-        int state = 0;
     };
 
 } // namespace iot::mqtt::packets

@@ -16,49 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Unsubscribe.h"
+#include "iot/mqtt/server/packets/Unsubscribe.h"
 
-#include "iot/mqtt/SocketContext.h"
+#include "iot/mqtt/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
-
-    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
-        this->packetIdentifier = packetIdentifier;
-        this->topics = topics;
-    }
+namespace iot::mqtt::server::packets {
 
     Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
     }
 
-    uint16_t Unsubscribe::getPacketIdentifier() const {
-        return packetIdentifier;
-    }
-
-    const std::list<std::string>& Unsubscribe::getTopics() const {
-        return topics;
-    }
-
-    std::vector<char> Unsubscribe::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        for (const std::string& topic : topics) {
-            packet.insert(packet.end(), topic.begin(), topic.end());
-        }
-
-        return packet;
-    }
-
-    std::size_t Unsubscribe::deserializeVP(SocketContext* socketContext) {
+    std::size_t Unsubscribe::deserializeVP(iot::mqtt::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
@@ -91,8 +64,8 @@ namespace iot::mqtt::packets {
         return consumed;
     }
 
-    void Unsubscribe::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
-        socketContext->_onUnsubscribe(*this);
+    void Unsubscribe::propagateEvent(iot::mqtt::SocketContext* socketContext) {
+        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onUnsubscribe(*this);
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::server::packets

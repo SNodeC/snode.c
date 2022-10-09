@@ -32,12 +32,12 @@
 #include "iot/mqtt/packets/Suback.h"         // IWYU pragma: export
 #include "iot/mqtt/packets/Subscribe.h"      // IWYU pragma: export
 #include "iot/mqtt/packets/Unsuback.h"       // IWYU pragma: export
-#include "iot/mqtt/packets/Unsubscribe.h"    // IWYU pragma: export
 */
-#include "iot/mqtt/server/packets/Connack.h"   // IWYU pragma: export
-#include "iot/mqtt/server/packets/Connect.h"   // IWYU pragma: export
-#include "iot/mqtt/server/packets/Suback.h"    // IWYU pragma: export
-#include "iot/mqtt/server/packets/Subscribe.h" // IWYU pragma: export
+#include "iot/mqtt/server/packets/Connack.h"     // IWYU pragma: export
+#include "iot/mqtt/server/packets/Connect.h"     // IWYU pragma: export
+#include "iot/mqtt/server/packets/Suback.h"      // IWYU pragma: export
+#include "iot/mqtt/server/packets/Subscribe.h"   // IWYU pragma: export
+#include "iot/mqtt/server/packets/Unsubscribe.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -68,17 +68,17 @@ namespace iot::mqtt::server {
         iot::mqtt::ControlPacketReceiver* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) final;
 
         virtual void onConnect(iot::mqtt::server::packets::Connect& connect) = 0;
-        virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) = 0; // Server
+        virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) = 0;       // Server
+        virtual void onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe) = 0; // Server
         /*
-                virtual void onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe) = 0; // Server
                 virtual void onPingreq(iot::mqtt::packets::Pingreq& pingreq) = 0;             // Server
                 virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect) = 0;    // Server
         */
 
         void _onConnect(iot::mqtt::server::packets::Connect& connect);
-        void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe); // Server
+        void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);       // Server
+        void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe); // Server
         /*
-                void _onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe); // Server
                 void _onPingreq(iot::mqtt::packets::Pingreq& pingreq);             // Server
                 void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect);    // Server
         */
@@ -100,7 +100,7 @@ namespace iot::mqtt::server {
         //        friend class iot::mqtt::packets::Pubcomp;
         friend class iot::mqtt::server::packets::Subscribe;
         //        friend class iot::mqtt::packets::Suback;
-        //        friend class iot::mqtt::packets::Unsubscribe;
+        friend class iot::mqtt::server::packets::Unsubscribe;
         //        friend class iot::mqtt::packets::Unsuback;
         //        friend class iot::mqtt::packets::Pingreq;
         //        friend class iot::mqtt::packets::Pingresp;

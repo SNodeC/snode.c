@@ -87,9 +87,6 @@ namespace iot::mqtt {
                         case MQTT_SUBACK: // Client
                             currentPacket = new iot::mqtt::packets::Suback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
-                        case MQTT_UNSUBSCRIBE: // Server
-                            currentPacket = new iot::mqtt::packets::Unsubscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
                         case MQTT_UNSUBACK: // Client
                             currentPacket = new iot::mqtt::packets::Unsuback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
@@ -222,16 +219,6 @@ namespace iot::mqtt {
             shutdown(true);
         } else {
             onSuback(suback);
-        }
-    }
-
-    void SocketContext::_onUnsubscribe(packets::Unsubscribe& unsubscribe) {
-        if (unsubscribe.getPacketIdentifier() == 0) {
-            shutdown(true);
-        } else {
-            sendUnsuback(unsubscribe.getPacketIdentifier());
-
-            onUnsubscribe(unsubscribe);
         }
     }
 

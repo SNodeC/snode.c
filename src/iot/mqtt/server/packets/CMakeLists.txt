@@ -10,7 +10,7 @@ set(MQTT_PACKETS_CPP
 #    Pingresp.cpp
     Subscribe.cpp
     Suback.cpp
-#    Unsubscribe.cpp
+    Unsubscribe.cpp
 #    Unsuback.cpp
 )
 set(MQTT_PACKETS_H
@@ -21,7 +21,7 @@ set(MQTT_PACKETS_H
 #    Pingresp.h
     Subscribe.h
     Suback.h
-#    Unsubscribe.h
+    Unsubscribe.h
 #    Unsuback.h
 )
 

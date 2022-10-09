@@ -32,11 +32,6 @@ namespace iot::mqtt::packets {
         this->topics = topics;
     }
 
-    Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
-    }
-
     uint16_t Unsubscribe::getPacketIdentifier() const {
         return packetIdentifier;
     }
@@ -56,43 +51,6 @@ namespace iot::mqtt::packets {
         }
 
         return packet;
-    }
-
-    std::size_t Unsubscribe::deserializeVP(SocketContext* socketContext) {
-        std::size_t consumed = 0;
-
-        switch (state) {
-            case 0: // V-Header
-                consumed += packetIdentifier.deserialize(socketContext);
-                if (!packetIdentifier.isComplete()) {
-                    break;
-                }
-
-                state++;
-                [[fallthrough]];
-            case 1: // Payload
-                consumed += topic.deserialize(socketContext);
-
-                if (!topic.isComplete()) {
-                    break;
-                } else {
-                    topics.push_back(topic);
-                    topic.reset();
-
-                    if (getConsumed() + consumed < this->getRemainingLength()) {
-                        break;
-                    }
-                }
-
-                complete = true;
-                break;
-        }
-
-        return consumed;
-    }
-
-    void Unsubscribe::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
-        socketContext->_onUnsubscribe(*this);
     }
 
 } // namespace iot::mqtt::packets
