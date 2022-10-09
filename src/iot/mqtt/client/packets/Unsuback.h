@@ -20,7 +20,7 @@
 #define IOT_MQTT_CLIENT_PACKETSNEW_UNSUBACK_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
-#include "iot/mqtt/packets/Unsuback.h"
+#include "iot/mqtt/packets/Unsuback.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;

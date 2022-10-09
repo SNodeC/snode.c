@@ -20,7 +20,7 @@
 #define IOT_MQTT_SERVER_PACKETSNEW_SUBACK_H
 
 #include "iot/mqtt/ControlPacketSender.h"
-#include "iot/mqtt/packets/Suback.h"
+#include "iot/mqtt/packets/Suback.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

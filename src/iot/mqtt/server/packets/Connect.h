@@ -20,7 +20,7 @@
 #define IOT_MQTT_SERVER_PACKETSNEW_CONNECT_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
-#include "iot/mqtt/packets/Connect.h"
+#include "iot/mqtt/packets/Connect.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;

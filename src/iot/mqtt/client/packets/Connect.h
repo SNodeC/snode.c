@@ -20,7 +20,7 @@
 #define IOT_MQTT_CLIENT_PACKETSNEW_CONNECT_H
 
 #include "iot/mqtt/ControlPacketSender.h"
-#include "iot/mqtt/packets/Connect.h"
+#include "iot/mqtt/packets/Connect.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

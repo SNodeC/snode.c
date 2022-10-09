@@ -20,7 +20,7 @@
 #define IOT_MQTT_CLIENT_PACKETSNEW_SUBACK_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
-#include "iot/mqtt/packets/Suback.h"
+#include "iot/mqtt/packets/Suback.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;

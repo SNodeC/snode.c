@@ -20,7 +20,7 @@
 #define IOT_MQTT_CLIENT_PACKETSNEW_CONNACK_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
-#include "iot/mqtt/packets/Connack.h"
+#include "iot/mqtt/packets/Connack.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;

@@ -20,21 +20,12 @@
 #define IOT_MQTT_SOCKETCONTEXT_H
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
-#include "iot/mqtt/StaticHeader.h"
-#include "iot/mqtt/packets/Connack.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Connect.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Disconnect.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/Pingreq.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"    // IWYU pragma: export
-#include "iot/mqtt/packets/Puback.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Pubcomp.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Publish.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrec.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrel.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Suback.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Subscribe.h"   // IWYU pragma: export
-#include "iot/mqtt/packets/Unsuback.h"    // IWYU pragma: export
-#include "iot/mqtt/packets/Unsubscribe.h" // IWYU pragma: export
+#include "iot/mqtt/StaticHeader.h"     // IWYU pragma: export
+#include "iot/mqtt/packets/Puback.h"   // IWYU pragma: export
+#include "iot/mqtt/packets/Pubcomp.h"  // IWYU pragma: export
+#include "iot/mqtt/packets/Publish.h"  // IWYU pragma: export
+#include "iot/mqtt/packets/Pubrec.h"   // IWYU pragma: export
+#include "iot/mqtt/packets/Pubrel.h"   // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -45,7 +36,6 @@ namespace core::socket {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <list>
 #include <string>
 #include <vector>
 

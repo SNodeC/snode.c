@@ -20,7 +20,7 @@
 #define IOT_MQTT_SERVER_PACKETSNEW_UNSUBSCRIBE_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
-#include "iot/mqtt/packets/Unsubscribe.h"
+#include "iot/mqtt/packets/Unsubscribe.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;

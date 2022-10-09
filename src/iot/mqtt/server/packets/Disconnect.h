@@ -20,7 +20,7 @@
 #define IOT_MQTT_SERVER_PACKETSNEW_DISCONNECT_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
-#include "iot/mqtt/packets/Disconnect.h"
+#include "iot/mqtt/packets/Disconnect.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;

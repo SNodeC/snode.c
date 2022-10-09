@@ -20,7 +20,7 @@
 #define IOT_MQTT_CLIENT_PACKETSNEW_DISCONNECT_H
 
 #include "iot/mqtt/ControlPacketSender.h"
-#include "iot/mqtt/packets/Disconnect.h"
+#include "iot/mqtt/packets/Disconnect.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

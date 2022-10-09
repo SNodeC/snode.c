@@ -20,6 +20,7 @@
 #define IOT_MQTT_SERVER_PACKETSNEW_PINGREQ_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/packets/Pingreq.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -31,7 +32,9 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::server::packets {
 
-    class Pingreq : public iot::mqtt::ControlPacketReceiver {
+    class Pingreq
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::packets::Pingreq {
     public:
         explicit Pingreq(uint32_t remainingLength, uint8_t flags);
 

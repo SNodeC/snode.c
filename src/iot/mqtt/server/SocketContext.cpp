@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/server/SocketContext.h"
 
-#include "iot/mqtt/StaticHeader.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
