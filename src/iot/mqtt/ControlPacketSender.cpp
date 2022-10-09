@@ -16,7 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/ControlPacket.h"
+#include "ControlPacketSender.h"
+
+#include "iot/mqtt/StaticHeader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,17 +26,17 @@
 
 namespace iot::mqtt {
 
-    ControlPacket::ControlPacket(uint8_t type, uint8_t flags)
-        : type(type)
-        , flags(flags) {
-    }
+    std::vector<char> ControlPacketSender::serialize() const {
+        std::vector<char> variablHeaderPayload = serializeVP();
 
-    uint8_t ControlPacket::getType() const {
-        return type;
-    }
+        iot::mqtt::StaticHeader staticHeader(getType(), getFlags());
+        staticHeader.setRemainingLength(static_cast<uint32_t>(variablHeaderPayload.size()));
 
-    uint8_t ControlPacket::getFlags() const {
-        return flags;
+        std::vector<char> packet = staticHeader.serialize();
+
+        packet.insert(packet.end(), variablHeaderPayload.begin(), variablHeaderPayload.end());
+
+        return packet;
     }
 
 } // namespace iot::mqtt

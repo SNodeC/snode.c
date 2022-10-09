@@ -38,7 +38,8 @@ namespace iot::mqtt::packets {
     }
 
     Publish::Publish(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_PUBLISH, flags, remainingLength, flags) {
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, flags) {
         this->qoSLevel = flags >> 1 & 0x03;
         this->dup = (flags & 0x04) != 0;
         this->retain = (flags & 0x01) != 0;

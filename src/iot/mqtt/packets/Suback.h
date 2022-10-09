@@ -19,9 +19,10 @@
 #ifndef IOT_MQTT_PACKETSNEW_SUBACK_H
 #define IOT_MQTT_PACKETSNEW_SUBACK_H
 
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
+#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -38,7 +39,9 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Suback : public iot::mqtt::ControlPacket {
+    class Suback
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::ControlPacketSender {
     public:
         Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes); // Server
         explicit Suback(uint32_t remainingLength, uint8_t flags);                 // Client

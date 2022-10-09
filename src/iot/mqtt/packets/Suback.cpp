@@ -32,8 +32,9 @@ namespace iot::mqtt::packets {
         this->returnCodes = returnCodes;
     }
 
-    Suback::Suback(uint32_t remainingLength, uint8_t reserved)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK, reserved, remainingLength, MQTT_SUBACK_FLAGS) {
+    Suback::Suback(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_SUBACK_FLAGS) {
     }
 
     uint16_t Suback::getPacketIdentifier() const {

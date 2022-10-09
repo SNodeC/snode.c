@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/ControlPacket.h"
+#include "ControlPacketReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,17 +24,37 @@
 
 namespace iot::mqtt {
 
-    ControlPacket::ControlPacket(uint8_t type, uint8_t flags)
-        : type(type)
-        , flags(flags) {
+    ControlPacketReceiver::ControlPacketReceiver(uint32_t remainingLength, uint8_t mustFlags)
+        : remainingLength(remainingLength) {
+        error = flags != mustFlags;
     }
 
-    uint8_t ControlPacket::getType() const {
-        return type;
+    std::size_t ControlPacketReceiver::deserialize(SocketContext* socketContext) {
+        std::size_t currentConsumed = deserializeVP(socketContext);
+        consumed += currentConsumed;
+
+        if (complete && consumed != this->getRemainingLength()) {
+            error = true;
+            complete = false;
+        }
+
+        return currentConsumed;
     }
 
-    uint8_t ControlPacket::getFlags() const {
-        return flags;
+    uint32_t ControlPacketReceiver::getRemainingLength() const {
+        return remainingLength;
+    }
+
+    bool ControlPacketReceiver::isComplete() const {
+        return complete;
+    }
+
+    bool ControlPacketReceiver::isError() const {
+        return error;
+    }
+
+    std::size_t ControlPacketReceiver::getConsumed() const {
+        return consumed;
     }
 
 } // namespace iot::mqtt

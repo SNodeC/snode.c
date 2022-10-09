@@ -33,7 +33,8 @@ namespace iot::mqtt::packets {
     }
 
     Connack::Connack(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags, remainingLength, MQTT_CONNACK_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_CONNACK_FLAGS) {
     }
 
     uint8_t Connack::getFlags() const {

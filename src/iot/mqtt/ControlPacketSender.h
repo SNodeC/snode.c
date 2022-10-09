@@ -16,7 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/ControlPacket.h"
+#ifndef IOT_MQTT_CONTROLPACKETSENDER_H
+#define IOT_MQTT_CONTROLPACKETSENDER_H
+
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,17 +27,16 @@
 
 namespace iot::mqtt {
 
-    ControlPacket::ControlPacket(uint8_t type, uint8_t flags)
-        : type(type)
-        , flags(flags) {
-    }
+    class ControlPacketSender : virtual public ControlPacket {
+    public:
+        ControlPacketSender() = default;
 
-    uint8_t ControlPacket::getType() const {
-        return type;
-    }
+        std::vector<char> serialize() const; // Send
 
-    uint8_t ControlPacket::getFlags() const {
-        return flags;
-    }
+    private:
+        virtual std::vector<char> serializeVP() const = 0;
+    };
 
 } // namespace iot::mqtt
+
+#endif // IOT_MQTT_CONTROLPACKETSENDER_H

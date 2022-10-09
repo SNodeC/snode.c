@@ -33,7 +33,8 @@ namespace iot::mqtt::packets {
     }
 
     Subscribe::Subscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, flags, remainingLength, MQTT_SUBSCRIBE_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_SUBSCRIBE_FLAGS) {
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {

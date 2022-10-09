@@ -32,7 +32,8 @@ namespace iot::mqtt::packets {
     }
 
     Pubrel::Pubrel(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL, flags, remainingLength, MQTT_PUBREL_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PUBREL_FLAGS) {
     }
 
     uint16_t Pubrel::getPacketIdentifier() const {

@@ -32,7 +32,8 @@ namespace iot::mqtt::packets {
     }
 
     Connect::Connect(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNECT, flags, remainingLength, MQTT_CONNECT_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_CONNECT_FLAGS) {
     }
 
     std::string Connect::getProtocol() const {

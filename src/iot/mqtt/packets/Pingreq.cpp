@@ -31,7 +31,8 @@ namespace iot::mqtt::packets {
     }
 
     Pingreq::Pingreq(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ, flags, remainingLength, MQTT_PINGREQ_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PINGREQ_FLAGS) {
     }
 
     std::vector<char> Pingreq::serializeVP() const {

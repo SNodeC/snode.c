@@ -19,8 +19,9 @@
 #ifndef IOT_MQTT_PACKETSNEW_PUBREL_H
 #define IOT_MQTT_PACKETSNEW_PUBREL_H
 
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
+#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -35,7 +36,9 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Pubrel : public iot::mqtt::ControlPacket {
+    class Pubrel
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::ControlPacketSender {
     public:
         explicit Pubrel(const uint16_t packetIdentifier);         // Server & Client
         explicit Pubrel(uint32_t remainingLength, uint8_t flags); // Server & Client

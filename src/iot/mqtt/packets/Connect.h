@@ -19,10 +19,11 @@
 #ifndef IOT_MQTT_PACKETSNEW_CONNECT_H
 #define IOT_MQTT_PACKETSNEW_CONNECT_H
 
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-#include "iot/mqtt/types/String.h"  // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
+#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
+#include "iot/mqtt/types/String.h"          // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -39,7 +40,9 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Connect : public iot::mqtt::ControlPacket {
+    class Connect
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::ControlPacketSender {
     public:
         explicit Connect(const std::string& clientId);             // Client
         explicit Connect(uint32_t remainingLength, uint8_t flags); // Server

@@ -60,7 +60,8 @@ namespace iot::mqtt {
         virtual ~SocketContext() override;
 
     private:
-        virtual std::size_t onReceiveFromPeer() final;
+        std::size_t onReceiveFromPeer() final;
+        //        virtual iot::mqtt::ControlPacket* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) = 0;
 
         virtual void onConnect(iot::mqtt::packets::Connect& connect) = 0;             // Server
         virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0;             // Client
@@ -112,19 +113,20 @@ namespace iot::mqtt {
         void sendPingresp();                                                         // Server
         void sendDisconnect();                                                       // Client
 
-    private:
-        void send(iot::mqtt::ControlPacket&& controlPacket) const;
-        void send(iot::mqtt::ControlPacket& controlPacket) const;
+    protected:
+        void send(iot::mqtt::ControlPacketSender&& controlPacket) const;
+        void send(iot::mqtt::ControlPacketSender& controlPacket) const;
         void send(std::vector<char>&& data) const;
 
         std::string getRandomClientId();
 
+    private:
         uint16_t getPacketIdentifier();
 
         static void printData(const std::vector<char>& data);
 
         iot::mqtt::StaticHeader staticHeader;
-        iot::mqtt::ControlPacket* currentPacket = nullptr;
+        iot::mqtt::ControlPacketReceiver* currentPacket = nullptr;
 
         uint16_t packetIdentifier = 0;
 

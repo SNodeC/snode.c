@@ -19,8 +19,9 @@
 #ifndef IOT_MQTT_PACKETSNEW_CONNACK_H
 #define IOT_MQTT_PACKETSNEW_CONNACK_H
 
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
+#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -45,7 +46,9 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Connack : public iot::mqtt::ControlPacket {
+    class Connack
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::ControlPacketSender {
     public:
         Connack(uint8_t returncode, uint8_t flags);                // Server
         explicit Connack(uint32_t remainingLength, uint8_t flags); // Client
