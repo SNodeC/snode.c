@@ -16,16 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_CONNACK_H
-#define IOT_MQTT_PACKETSNEW_CONNACK_H
+#ifndef IOT_MQTT_SERVER_PACKETSNEW_CONNACK_H
+#define IOT_MQTT_SERVER_PACKETSNEW_CONNACK_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-} // namespace iot::mqtt
+#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
+#include "iot/mqtt/packets/Connack.h"
+#include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,32 +40,18 @@ namespace iot::mqtt {
 #define MQTT_SESSION_NEW 0x00
 #define MQTT_SESSION_PRESENT 0x01
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::server::packets {
 
-    class Connack : public iot::mqtt::ControlPacketReceiver {
+    class Connack
+        : public iot::mqtt::ControlPacketSender
+        , public iot::mqtt::packets::Connack {
     public:
-        Connack() = default;
-        explicit Connack(uint32_t remainingLength, uint8_t flags); // Client
+        Connack(uint8_t returncode, uint8_t flags); // Server
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
-        void propagateEvent(SocketContext* socketContext) override;                  // Client
-
-    public:
-        uint8_t getFlags() const;
-        uint8_t getReturnCode() const;
-
-        bool getSessionPresent() const;
-
-    protected:
-        iot::mqtt::types::UInt8 flags;
-        iot::mqtt::types::UInt8 returnCode;
-
-        bool sessionPresent = false;
-
-        int state = 0;
+        std::vector<char> serializeVP() const override; // Server
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::server::packets
 
-#endif // IOT_MQTT_PACKETSNEW_CONNACK_H
+#endif // IOT_MQTT_SERVER_PACKETSNEW_CONNACK_H

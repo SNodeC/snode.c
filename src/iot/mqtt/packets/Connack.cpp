@@ -26,12 +26,6 @@
 
 namespace iot::mqtt::packets {
 
-    Connack::Connack(uint8_t returncode, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, MQTT_CONNACK_FLAGS) {
-        this->returnCode = returncode;
-        this->flags = flags;
-    }
-
     Connack::Connack(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_CONNACK_FLAGS) {
@@ -47,18 +41,6 @@ namespace iot::mqtt::packets {
 
     bool Connack::getSessionPresent() const {
         return sessionPresent;
-    }
-
-    std::vector<char> Connack::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = flags.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        tmpVector = returnCode.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        return packet;
     }
 
     std::size_t Connack::deserializeVP(SocketContext* socketContext) {

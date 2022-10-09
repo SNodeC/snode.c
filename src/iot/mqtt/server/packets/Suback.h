@@ -16,60 +16,53 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_CONNACK_H
-#define IOT_MQTT_PACKETSNEW_CONNACK_H
+#ifndef IOT_MQTT_PACKETSNEW_SUBACK_H
+#define IOT_MQTT_PACKETSNEW_SUBACK_H
 
 #include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
 #include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
-} // namespace iot::mqtt
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list> // IWYU pragma: export
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_CONNACK 0x02
-#define MQTT_CONNACK_FLAGS 0x00
-
-#define MQTT_CONNACK_ACCEPT 0
-#define MQTT_CONNACK_UNACEPTABLEVERSION 1
-#define MQTT_CONNACK_IDENTIFIERREJECTED 2
-#define MQTT_CONNACK_SERVERUNAVAILABLE 3
-#define MQTT_CONNACK_BADUSERNAMEORPASSWORD 4
-#define MQTT_CONNACK_NOTAUTHORIZED 5
-
-#define MQTT_SESSION_NEW 0x00
-#define MQTT_SESSION_PRESENT 0x01
+#define MQTT_SUBACK 0x09
+#define MQTT_SUBACK_FLAGS 0x00
 
 namespace iot::mqtt::packets {
 
-    class Connack : public iot::mqtt::ControlPacketReceiver {
+    class Suback
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::ControlPacketSender {
     public:
-        Connack() = default;
-        explicit Connack(uint32_t remainingLength, uint8_t flags); // Client
+        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes); // Server
+        explicit Suback(uint32_t remainingLength, uint8_t flags);                 // Client
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
-        void propagateEvent(SocketContext* socketContext) override;                  // Client
+        std::size_t deserializeVP(SocketContext* socketContext) override; // Client
+        std::vector<char> serializeVP() const override;                   // Server
+        void propagateEvent(SocketContext* socketContext) override;       // Client
 
     public:
-        uint8_t getFlags() const;
-        uint8_t getReturnCode() const;
+        uint16_t getPacketIdentifier() const;
+        const std::list<uint8_t>& getReturnCodes() const;
 
-        bool getSessionPresent() const;
-
-    protected:
-        iot::mqtt::types::UInt8 flags;
+    private:
+        iot::mqtt::types::UInt16 packetIdentifier;
         iot::mqtt::types::UInt8 returnCode;
+        std::list<uint8_t> returnCodes;
 
-        bool sessionPresent = false;
-
-        int state = 0;
+        int state;
     };
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTT_PACKETSNEW_CONNACK_H
+#endif // IOT_MQTT_PACKETSNEW_SUBACK_H

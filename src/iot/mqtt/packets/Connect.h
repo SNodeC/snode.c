@@ -25,10 +25,6 @@
 #include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
 
-namespace iot::mqtt {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -40,17 +36,13 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Connect
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+    class Connect : public iot::mqtt::ControlPacketSender {
     public:
-        explicit Connect(const std::string& clientId);             // Client
-        explicit Connect(uint32_t remainingLength, uint8_t flags); // Server
+        Connect() = default;
+        explicit Connect(const std::string& clientId); // Client
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Server
-        std::vector<char> serializeVP() const override;                              // Client
-        void propagateEvent(SocketContext* socketContext) override;                  // Server
+        std::vector<char> serializeVP() const override; // Client
 
     public:
         std::string getProtocol() const;
@@ -74,7 +66,7 @@ namespace iot::mqtt::packets {
 
         void setClientId(const std::string& clientId);
 
-    private:
+    protected:
         iot::mqtt::types::String protocol;
         iot::mqtt::types::UInt8 level;
         iot::mqtt::types::UInt8 connectFlags;

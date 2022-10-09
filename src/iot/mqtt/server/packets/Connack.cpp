@@ -1,4 +1,4 @@
-﻿/*
+/*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
@@ -16,35 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_CONTROLPACKET_H
-#define IOT_MQTT_CONTROLPACKET_H
+#include "iot/mqtt/server/packets/Connack.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // IWYU pragma: export
-#include <cstdint> // IWYU pragma: export
-#include <vector>  // IWYU pragma: export
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {
+namespace iot::mqtt::server::packets {
 
-    class ControlPacket {
-    public:
-        ControlPacket() = default;
-        ControlPacket(uint8_t type, uint8_t flags);
+    Connack::Connack(uint8_t returncode, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags) {
+        this->returnCode = returncode;
+        this->flags = flags;
+    }
 
-        virtual ~ControlPacket() = default;
+    std::vector<char> Connack::serializeVP() const {
+        std::vector<char> packet;
 
-    public:
-        uint8_t getType() const;
-        uint8_t getFlags() const;
+        std::vector<char> tmpVector = flags.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-    protected:
-        uint8_t type = 0;
-        uint8_t flags = 0;
-    };
+        tmpVector = returnCode.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-} // namespace iot::mqtt
+        return packet;
+    }
 
-#endif // IOT_MQTT_CONTROLPACKET_H
+} // namespace iot::mqtt::server::packets

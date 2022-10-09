@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(mqtt_TYPES_CPP
+set(MQTT_TYPES_CPP
     String.cpp
     StringRaw.cpp
     UInt16.cpp
@@ -12,7 +12,7 @@ set(mqtt_TYPES_CPP
     UInt8List.cpp
     UIntV.cpp
 )
-set(mqtt_TYPES_H
+set(MQTT_TYPES_H
     String.h
     StringRaw.h
     TypeBase.h
@@ -25,7 +25,7 @@ set(mqtt_TYPES_H
     UIntV.h
 )
 
-add_library(mqtt-types STATIC ${mqtt_TYPES_CPP} ${mqtt_TYPES_H})
+add_library(mqtt-types STATIC ${MQTT_TYPES_CPP} ${MQTT_TYPES_H})
 add_library(snodec::mqtt-types ALIAS mqtt-types)
 
 set_property(TARGET mqtt-types PROPERTY POSITION_INDEPENDENT_CODE ON)

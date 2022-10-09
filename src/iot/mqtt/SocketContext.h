@@ -21,8 +21,8 @@
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt/StaticHeader.h"
-#include "iot/mqtt/packets/Connack.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Connect.h"     // IWYU pragma: export
+#include "iot/mqtt/packets/Connack.h" // IWYU pragma: export
+// #include "iot/mqtt/packets/Connect.h"     // IWYU pragma: export
 #include "iot/mqtt/packets/Disconnect.h"  // IWYU pragma: export
 #include "iot/mqtt/packets/Pingreq.h"     // IWYU pragma: export
 #include "iot/mqtt/packets/Pingresp.h"    // IWYU pragma: export
@@ -61,9 +61,9 @@ namespace iot::mqtt {
 
     private:
         std::size_t onReceiveFromPeer() final;
-        //        virtual iot::mqtt::ControlPacket* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) = 0;
+        virtual iot::mqtt::ControlPacketReceiver* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) = 0;
 
-        virtual void onConnect(iot::mqtt::packets::Connect& connect) = 0;             // Server
+        //        virtual void onConnect(iot::mqtt::packets::Connect& connect) = 0;             // Server
         virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0;             // Client
         virtual void onPublish(iot::mqtt::packets::Publish& publish) = 0;             // Server & Client
         virtual void onPuback(iot::mqtt::packets::Puback& puback) = 0;                // Server & Client
@@ -78,7 +78,8 @@ namespace iot::mqtt {
         virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0;          // Client
         virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect) = 0;    // Server
 
-        void _onConnect(iot::mqtt::packets::Connect& connect);             // Server
+    public:
+        //        void _onConnect(iot::mqtt::packets::Connect& connect);             // Server
         void _onConnack(iot::mqtt::packets::Connack& connack);             // Client
         void _onPublish(iot::mqtt::packets::Publish& publish);             // Server & Client
         void _onPuback(iot::mqtt::packets::Puback& puback);                // Server & Client
@@ -94,8 +95,8 @@ namespace iot::mqtt {
         void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect);    // Server
 
     public:
-        void sendConnect(const std::string& clientId);       // Client
-        void sendConnack(uint8_t returnCode, uint8_t flags); // Server
+        //        void sendConnect(const std::string& clientId);       // Client
+        //        void sendConnack(uint8_t returnCode, uint8_t flags); // Server
         void sendPublish(const std::string& topic,
                          const std::string& message,
                          bool dup = false,
@@ -133,7 +134,7 @@ namespace iot::mqtt {
         int state = 0;
 
         friend class iot::mqtt::packets::Connack;
-        friend class iot::mqtt::packets::Connect;
+        //        friend class iot::mqtt::packets::Connect;
         friend class iot::mqtt::packets::Publish;
         friend class iot::mqtt::packets::Puback;
         friend class iot::mqtt::packets::Pubrec;
