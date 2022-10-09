@@ -27,7 +27,7 @@
 namespace iot::mqtt::server::packets {
 
     Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, flags)
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
     }
 

@@ -109,10 +109,10 @@ namespace iot::mqtt {
         void sendSubscribe(std::list<Topic>& topics); // Client
         //        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes); // Server
         void sendUnsubscribe(std::list<std::string>& topics); // Client
-        void sendUnsuback(uint16_t packetIdentifier);         // Server
-        void sendPingreq();                                   // Client
-        void sendPingresp();                                  // Server
-        void sendDisconnect();                                // Client
+        //        void sendUnsuback(uint16_t packetIdentifier);         // Server
+        void sendPingreq();    // Client
+        void sendPingresp();   // Server
+        void sendDisconnect(); // Client
 
     protected:
         void send(iot::mqtt::ControlPacketSender&& controlPacket) const;

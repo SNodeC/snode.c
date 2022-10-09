@@ -32,7 +32,7 @@ namespace iot::mqtt::packets {
     }
 
     Pubcomp::Pubcomp(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        : iot::mqtt::ControlPacket(MQTT_PUBCOMP, flags)
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PUBCOMP_FLAGS) {
     }
 

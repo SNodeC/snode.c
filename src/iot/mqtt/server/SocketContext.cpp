@@ -152,15 +152,14 @@ namespace iot::mqtt::server {
         send(iot::mqtt::server::packets::Suback(packetIdentifier, returnCodes));
     }
 
+    void SocketContext::sendUnsuback(uint16_t packetIdentifier) { // Server
+        LOG(TRACE) << "Send UNSUBACK";
+        LOG(TRACE) << "=============";
+
+        send(iot::mqtt::server::packets::Unsuback(packetIdentifier));
+    }
+
     /*
-
-        void SocketContext::sendUnsuback(uint16_t packetIdentifier) { // Server
-            LOG(TRACE) << "Send UNSUBACK";
-            LOG(TRACE) << "=============";
-
-            send(iot::mqtt::packets::Unsuback(packetIdentifier));
-        }
-
         void SocketContext::sendPingresp() { // Server
             LOG(TRACE) << "Send Pingresp";
             LOG(TRACE) << "=============";

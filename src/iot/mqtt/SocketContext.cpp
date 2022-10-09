@@ -327,14 +327,14 @@ namespace iot::mqtt {
 
         send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
+    /*
+        void SocketContext::sendUnsuback(uint16_t packetIdentifier) { // Server
+            LOG(TRACE) << "Send UNSUBACK";
+            LOG(TRACE) << "=============";
 
-    void SocketContext::sendUnsuback(uint16_t packetIdentifier) { // Server
-        LOG(TRACE) << "Send UNSUBACK";
-        LOG(TRACE) << "=============";
-
-        send(iot::mqtt::packets::Unsuback(packetIdentifier));
-    }
-
+            send(iot::mqtt::packets::Unsuback(packetIdentifier));
+        }
+    */
     void SocketContext::sendPingreq() { // Client
         LOG(TRACE) << "Send Pingreq";
         LOG(TRACE) << "============";

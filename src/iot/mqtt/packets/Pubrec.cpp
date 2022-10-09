@@ -32,7 +32,7 @@ namespace iot::mqtt::packets {
     }
 
     Pubrec::Pubrec(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        : iot::mqtt::ControlPacket(MQTT_PUBREC, flags)
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PUBREC_FLAGS) {
     }
 

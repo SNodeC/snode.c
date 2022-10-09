@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Unsubscribe.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -27,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
         this->packetIdentifier = packetIdentifier;
         this->topics = topics;
     }

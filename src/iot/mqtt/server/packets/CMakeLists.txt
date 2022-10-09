@@ -11,7 +11,7 @@ set(MQTT_PACKETS_CPP
     Subscribe.cpp
     Suback.cpp
     Unsubscribe.cpp
-#    Unsuback.cpp
+    Unsuback.cpp
 )
 set(MQTT_PACKETS_H
     Connect.h
@@ -22,7 +22,7 @@ set(MQTT_PACKETS_H
     Subscribe.h
     Suback.h
     Unsubscribe.h
-#    Unsuback.h
+    Unsuback.h
 )
 
 add_library(mqtt-server-packets STATIC ${MQTT_PACKETS_CPP} ${MQTT_PACKETS_H})
