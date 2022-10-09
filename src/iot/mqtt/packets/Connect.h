@@ -19,11 +19,10 @@
 #ifndef IOT_MQTT_PACKETSNEW_CONNECT_H
 #define IOT_MQTT_PACKETSNEW_CONNECT_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
-#include "iot/mqtt/types/String.h"          // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
+#include "iot/mqtt/types/String.h"        // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"        // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"         // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

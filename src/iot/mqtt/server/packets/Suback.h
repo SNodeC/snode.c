@@ -16,17 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_SUBACK_H
-#define IOT_MQTT_PACKETSNEW_SUBACK_H
+#ifndef IOT_MQTT_SERVER_PACKETSNEW_SUBACK_H
+#define IOT_MQTT_SERVER_PACKETSNEW_SUBACK_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
+#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
+#include "iot/mqtt/packets/Suback.h"
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,23 +33,16 @@ namespace iot::mqtt {
 #define MQTT_SUBACK 0x09
 #define MQTT_SUBACK_FLAGS 0x00
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::server::packets {
 
     class Suback
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+        : public iot::mqtt::ControlPacketSender
+        , public iot::mqtt::packets::Suback {
     public:
         Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes); // Server
-        explicit Suback(uint32_t remainingLength, uint8_t flags);                 // Client
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Client
-        std::vector<char> serializeVP() const override;                   // Server
-        void propagateEvent(SocketContext* socketContext) override;       // Client
-
-    public:
-        uint16_t getPacketIdentifier() const;
-        const std::list<uint8_t>& getReturnCodes() const;
+        std::vector<char> serializeVP() const override; // Server
 
     private:
         iot::mqtt::types::UInt16 packetIdentifier;
@@ -63,6 +52,6 @@ namespace iot::mqtt::packets {
         int state;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::server::packets
 
-#endif // IOT_MQTT_PACKETSNEW_SUBACK_H
+#endif // IOT_MQTT_SERVER_PACKETSNEW_SUBACK_H

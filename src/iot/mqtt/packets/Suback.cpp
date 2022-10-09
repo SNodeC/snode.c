@@ -26,12 +26,6 @@
 
 namespace iot::mqtt::packets {
 
-    Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK, MQTT_SUBACK_FLAGS) {
-        this->packetIdentifier = packetIdentifier;
-        this->returnCodes = returnCodes;
-    }
-
     Suback::Suback(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_SUBACK_FLAGS) {
@@ -43,19 +37,6 @@ namespace iot::mqtt::packets {
 
     const std::list<uint8_t>& Suback::getReturnCodes() const {
         return returnCodes;
-    }
-
-    std::vector<char> Suback::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        for (uint8_t returnCode : returnCodes) {
-            packet.push_back(static_cast<char>(returnCode));
-        }
-
-        return packet;
     }
 
     std::size_t Suback::deserializeVP([[maybe_unused]] SocketContext* socketContext) {

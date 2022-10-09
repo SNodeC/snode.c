@@ -145,13 +145,14 @@ namespace iot::mqtt::server {
         }
     }
 
-    /*
-        void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) { // Server
-            LOG(TRACE) << "Send SUBACK";
-            LOG(TRACE) << "===========";
+    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) { // Server
+        LOG(TRACE) << "Send SUBACK";
+        LOG(TRACE) << "===========";
 
-            send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
-        }
+        send(iot::mqtt::server::packets::Suback(packetIdentifier, returnCodes));
+    }
+
+    /*
 
         void SocketContext::sendUnsuback(uint16_t packetIdentifier) { // Server
             LOG(TRACE) << "Send UNSUBACK";

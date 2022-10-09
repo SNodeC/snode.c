@@ -18,7 +18,7 @@ target_include_directories(
                 "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(mqtt PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt)
+set_target_properties(mqtt-server PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt-server)
 
 install(
     TARGETS mqtt-server

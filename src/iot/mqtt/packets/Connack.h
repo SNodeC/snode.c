@@ -20,7 +20,6 @@
 #define IOT_MQTT_PACKETSNEW_CONNACK_H
 
 #include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
 
 namespace iot::mqtt {

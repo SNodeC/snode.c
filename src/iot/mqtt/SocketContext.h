@@ -101,18 +101,18 @@ namespace iot::mqtt {
                          const std::string& message,
                          bool dup = false,
                          uint8_t qoSLevel = 0,
-                         bool retain = false);                                       // Server & Client
-        void sendPuback(uint16_t packetIdentifier);                                  // Server & Client
-        void sendPubrec(uint16_t packetIdentifier);                                  // Server & Client
-        void sendPubrel(uint16_t packetIdentifier);                                  // Server & Client
-        void sendPubcomp(uint16_t packetIdentifier);                                 // Server & Client
-        void sendSubscribe(std::list<Topic>& topics);                                // Client
-        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes); // Server
-        void sendUnsubscribe(std::list<std::string>& topics);                        // Client
-        void sendUnsuback(uint16_t packetIdentifier);                                // Server
-        void sendPingreq();                                                          // Client
-        void sendPingresp();                                                         // Server
-        void sendDisconnect();                                                       // Client
+                         bool retain = false);        // Server & Client
+        void sendPuback(uint16_t packetIdentifier);   // Server & Client
+        void sendPubrec(uint16_t packetIdentifier);   // Server & Client
+        void sendPubrel(uint16_t packetIdentifier);   // Server & Client
+        void sendPubcomp(uint16_t packetIdentifier);  // Server & Client
+        void sendSubscribe(std::list<Topic>& topics); // Client
+        //        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes); // Server
+        void sendUnsubscribe(std::list<std::string>& topics); // Client
+        void sendUnsuback(uint16_t packetIdentifier);         // Server
+        void sendPingreq();                                   // Client
+        void sendPingresp();                                  // Server
+        void sendDisconnect();                                // Client
 
     protected:
         void send(iot::mqtt::ControlPacketSender&& controlPacket) const;

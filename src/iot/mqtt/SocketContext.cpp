@@ -325,12 +325,14 @@ namespace iot::mqtt {
         send(iot::mqtt::packets::Subscribe(0, topics));
     }
 
-    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) { // Server
-        LOG(TRACE) << "Send SUBACK";
-        LOG(TRACE) << "===========";
+    /*
+        void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) { // Server
+            LOG(TRACE) << "Send SUBACK";
+            LOG(TRACE) << "===========";
 
-        send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
-    }
+            send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
+        }
+    */
 
     void SocketContext::sendUnsubscribe(std::list<std::string>& topics) { // Client
         LOG(TRACE) << "Send UNSUBSCRIBE";

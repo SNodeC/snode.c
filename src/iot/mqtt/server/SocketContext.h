@@ -36,6 +36,7 @@
 */
 #include "iot/mqtt/server/packets/Connack.h"   // IWYU pragma: export
 #include "iot/mqtt/server/packets/Connect.h"   // IWYU pragma: export
+#include "iot/mqtt/server/packets/Suback.h"    // IWYU pragma: export
 #include "iot/mqtt/server/packets/Subscribe.h" // IWYU pragma: export
 
 namespace core::socket {
@@ -83,9 +84,9 @@ namespace iot::mqtt::server {
         */
 
     public:
-        void sendConnack(uint8_t returnCode, uint8_t flags); // Server
+        void sendConnack(uint8_t returnCode, uint8_t flags);                         // Server
+        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes); // Server
         /*
-                void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes); // Server
                 void sendUnsuback(uint16_t packetIdentifier);                                // Server
                 void sendPingresp();                                                         // Server
         */
