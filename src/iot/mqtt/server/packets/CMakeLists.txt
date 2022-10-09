@@ -6,7 +6,7 @@ set(MQTT_PACKETS_CPP
     Connect.cpp
     Connack.cpp
 #    Disconnect.cpp
-#    Pingreq.cpp
+    Pingreq.cpp
 #    Pingresp.cpp
     Subscribe.cpp
     Suback.cpp
@@ -17,7 +17,7 @@ set(MQTT_PACKETS_H
     Connect.h
     Connack.h
 #    Disconnect.h
-#    Pingreq.h
+    Pingreq.h
 #    Pingresp.h
     Subscribe.h
     Suback.h

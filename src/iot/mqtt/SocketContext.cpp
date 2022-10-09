@@ -90,9 +90,6 @@ namespace iot::mqtt {
                         case MQTT_UNSUBACK: // Client
                             currentPacket = new iot::mqtt::packets::Unsuback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
-                        case MQTT_PINGREQ: // Server
-                            currentPacket = new iot::mqtt::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
                         case MQTT_PINGRESP: // Client
                             currentPacket = new iot::mqtt::packets::Pingresp(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
@@ -228,12 +225,6 @@ namespace iot::mqtt {
         } else {
             onUnsuback(unsuback);
         }
-    }
-
-    void SocketContext::_onPingreq(packets::Pingreq& pingreq) {
-        sendPingresp();
-
-        onPingreq(pingreq);
     }
 
     void SocketContext::_onPingresp(packets::Pingresp& pingresp) {

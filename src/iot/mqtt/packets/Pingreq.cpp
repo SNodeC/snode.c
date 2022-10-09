@@ -30,25 +30,8 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_PINGREQ, MQTT_PINGREQ_FLAGS) {
     }
 
-    Pingreq::Pingreq(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PINGREQ_FLAGS) {
-    }
-
     std::vector<char> Pingreq::serializeVP() const {
         return std::vector<char>();
-    }
-
-    std::size_t Pingreq::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
-        // no V-Header
-        // no Payload
-
-        complete = true;
-        return 0;
-    }
-
-    void Pingreq::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
-        socketContext->_onPingreq(*this);
     }
 
 } // namespace iot::mqtt::packets

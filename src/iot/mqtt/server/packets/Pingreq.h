@@ -16,11 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_PINGREQ_H
-#define IOT_MQTT_PACKETSNEW_PINGREQ_H
+#ifndef IOT_MQTT_SERVER_PACKETSNEW_PINGREQ_H
+#define IOT_MQTT_SERVER_PACKETSNEW_PINGREQ_H
 
 #include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -37,21 +36,17 @@ namespace iot::mqtt {
 #define MQTT_PINGREQ 0x0C
 #define MQTT_PINGREQ_FLAGS 0x00
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::server::packets {
 
-    class Pingreq
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+    class Pingreq : public iot::mqtt::ControlPacketReceiver {
     public:
-        explicit Pingreq();                                        // Client
         explicit Pingreq(uint32_t remainingLength, uint8_t flags); // Server
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Server
-        std::vector<char> serializeVP() const override;                   // Client
-        void propagateEvent(SocketContext* socketContext) override;       // Server
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Server
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;       // Server
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::server::packets
 
-#endif // IOT_MQTT_PACKETSNEW_PINGREQ_H
+#endif // IOT_MQTT_SERVER_PACKETSNEW_PINGREQ_H

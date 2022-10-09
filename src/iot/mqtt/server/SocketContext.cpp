@@ -54,10 +54,10 @@ namespace iot::mqtt::server {
             case MQTT_UNSUBSCRIBE: // Server
                 currentPacket = new iot::mqtt::server::packets::Unsubscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            /*
             case MQTT_PINGREQ: //
                 currentPacket = new iot::mqtt::server::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
+            /*
             case MQTT_DISCONNECT: // Server
                 currentPacket = new iot::mqtt::server::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
@@ -120,13 +120,13 @@ namespace iot::mqtt::server {
         }
     }
 
+    void SocketContext::_onPingreq(packets::Pingreq& pingreq) {
+        sendPingresp();
+
+        onPingreq(pingreq);
+    }
+
     /*
-        void SocketContext::_onPingreq(packets::Pingreq& pingreq) {
-            sendPingresp();
-
-            onPingreq(pingreq);
-        }
-
         void SocketContext::_onDisconnect(packets::Disconnect& disconnect) {
             onDisconnect(disconnect);
 

@@ -73,8 +73,8 @@ namespace iot::mqtt {
         //        virtual void onSubscribe(iot::mqtt::packets::Subscribe& subscribe) = 0;       // Server
         virtual void onSuback(iot::mqtt::packets::Suback& suback) = 0; // Client
         //        virtual void onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe) = 0; // Server
-        virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback) = 0;       // Client
-        virtual void onPingreq(iot::mqtt::packets::Pingreq& pingreq) = 0;          // Server
+        virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback) = 0; // Client
+        //        virtual void onPingreq(iot::mqtt::packets::Pingreq& pingreq) = 0;          // Server
         virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0;       // Client
         virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect) = 0; // Server
 
@@ -89,8 +89,8 @@ namespace iot::mqtt {
         //        void _onSubscribe(iot::mqtt::packets::Subscribe& subscribe);       // Server
         void _onSuback(iot::mqtt::packets::Suback& suback); // Client
         //        void _onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe); // Server
-        void _onUnsuback(iot::mqtt::packets::Unsuback& unsuback);       // Client
-        void _onPingreq(iot::mqtt::packets::Pingreq& pingreq);          // Server
+        void _onUnsuback(iot::mqtt::packets::Unsuback& unsuback); // Client
+        //        void _onPingreq(iot::mqtt::packets::Pingreq& pingreq);          // Server
         void _onPingresp(iot::mqtt::packets::Pingresp& pingresp);       // Client
         void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect); // Server
 
