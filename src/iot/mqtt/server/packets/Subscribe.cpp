@@ -31,14 +31,6 @@ namespace iot::mqtt::server::packets {
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_SUBSCRIBE_FLAGS) {
     }
 
-    uint16_t Subscribe::getPacketIdentifier() const {
-        return packetIdentifier;
-    }
-
-    std::list<Topic>& Subscribe::getTopics() {
-        return topics;
-    }
-
     std::size_t Subscribe::deserializeVP(iot::mqtt::SocketContext* socketContext) {
         std::size_t consumed = 0;
 

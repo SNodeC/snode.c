@@ -19,20 +19,14 @@
 #ifndef IOT_MQTT_CLIENT_PACKETSNEW_UNSUBSCRIBE_H
 #define IOT_MQTT_CLIENT_PACKETSNEW_UNSUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-#include "iot/mqtt/Topic.h"               // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h"
 #include "iot/mqtt/packets/Unsubscribe.h"
-#include "iot/mqtt/types/String.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_UNSUBSCRIBE 0x0A
-#define MQTT_UNSUBSCRIBE_FLAGS 0x02
 
 namespace iot::mqtt::client::packets {
 

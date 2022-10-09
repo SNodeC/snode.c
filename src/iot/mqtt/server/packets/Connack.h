@@ -19,26 +19,12 @@
 #ifndef IOT_MQTT_SERVER_PACKETSNEW_CONNACK_H
 #define IOT_MQTT_SERVER_PACKETSNEW_CONNACK_H
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h"
 #include "iot/mqtt/packets/Connack.h"
-#include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_CONNACK 0x02
-#define MQTT_CONNACK_FLAGS 0x00
-
-#define MQTT_CONNACK_ACCEPT 0
-#define MQTT_CONNACK_UNACEPTABLEVERSION 1
-#define MQTT_CONNACK_IDENTIFIERREJECTED 2
-#define MQTT_CONNACK_SERVERUNAVAILABLE 3
-#define MQTT_CONNACK_BADUSERNAMEORPASSWORD 4
-#define MQTT_CONNACK_NOTAUTHORIZED 5
-
-#define MQTT_SESSION_NEW 0x00
-#define MQTT_SESSION_PRESENT 0x01
 
 namespace iot::mqtt::server::packets {
 

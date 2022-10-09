@@ -19,12 +19,8 @@
 #ifndef IOT_MQTT_SERVER_PACKETSNEW_SUBSCRIBE_H
 #define IOT_MQTT_SERVER_PACKETSNEW_SUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/Topic.h"                 // IWYU pragma: export
+#include "iot/mqtt/ControlPacketReceiver.h"
 #include "iot/mqtt/packets/Subscribe.h"
-#include "iot/mqtt/types/String.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -32,12 +28,7 @@ namespace iot::mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list> // IWYU pragma: export
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_SUBSCRIBE 0x08
-#define MQTT_SUBSCRIBE_FLAGS 0x02
 
 namespace iot::mqtt::server::packets {
 
@@ -50,10 +41,6 @@ namespace iot::mqtt::server::packets {
     private:
         std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
         void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
-
-    public:
-        uint16_t getPacketIdentifier() const;
-        std::list<iot::mqtt::Topic>& getTopics();
 
     private:
         int state = 0;

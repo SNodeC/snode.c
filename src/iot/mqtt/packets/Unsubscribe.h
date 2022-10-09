@@ -19,7 +19,6 @@
 #ifndef IOT_MQTT_PACKETSNEW_UNSUBSCRIBE_H
 #define IOT_MQTT_PACKETSNEW_UNSUBSCRIBE_H
 
-#include "iot/mqtt/Topic.h"        // IWYU pragma: export
 #include "iot/mqtt/types/String.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 

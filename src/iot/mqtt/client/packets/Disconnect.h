@@ -19,19 +19,12 @@
 #ifndef IOT_MQTT_CLIENT_PACKETSNEW_DISCONNECT_H
 #define IOT_MQTT_CLIENT_PACKETSNEW_DISCONNECT_H
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h"
 #include "iot/mqtt/packets/Disconnect.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_DISCONNECT 0x0E
-#define MQTT_DISCONNECT_FLAGS 0x00
 
 namespace iot::mqtt::client::packets {
 
@@ -42,7 +35,7 @@ namespace iot::mqtt::client::packets {
         explicit Disconnect(); // Client
 
     private:
-        std::vector<char> serializeVP() const override; // Client
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::client::packets

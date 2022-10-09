@@ -19,19 +19,12 @@
 #ifndef IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
 #define IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSender.h"
 #include "iot/mqtt/packets/Pingresp.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_PINGRESP 0x0D
-#define MQTT_PINGRESP_FLAGS 0x00
 
 namespace iot::mqtt::server::packets {
 

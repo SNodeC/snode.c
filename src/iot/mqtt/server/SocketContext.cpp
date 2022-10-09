@@ -50,7 +50,6 @@ namespace iot::mqtt::server {
             case MQTT_PINGREQ:
                 currentPacket = new iot::mqtt::server::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-
             case MQTT_DISCONNECT:
                 currentPacket = new iot::mqtt::server::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;

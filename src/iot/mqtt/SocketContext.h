@@ -69,7 +69,6 @@ namespace iot::mqtt {
         virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel) = 0;
         virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) = 0;
 
-    public:
         void _onPublish(iot::mqtt::packets::Publish& publish);
         void _onPuback(iot::mqtt::packets::Puback& puback);
         void _onPubrec(iot::mqtt::packets::Pubrec& pubrec);
@@ -101,6 +100,12 @@ namespace iot::mqtt {
         uint16_t packetIdentifier = 0;
 
         int state = 0;
+
+        friend class iot::mqtt::packets::Publish;
+        friend class iot::mqtt::packets::Pubcomp;
+        friend class iot::mqtt::packets::Pubrec;
+        friend class iot::mqtt::packets::Puback;
+        friend class iot::mqtt::packets::Pubrel;
     };
 
 } // namespace iot::mqtt

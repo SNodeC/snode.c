@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_SERVER_PACKETSNEW_DISCONNECT_H
 #define IOT_MQTT_SERVER_PACKETSNEW_DISCONNECT_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketReceiver.h"
 #include "iot/mqtt/packets/Disconnect.h"
 
 namespace iot::mqtt {
@@ -28,14 +28,7 @@ namespace iot::mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_DISCONNECT 0x0E
-#define MQTT_DISCONNECT_FLAGS 0x00
 
 namespace iot::mqtt::server::packets {
 

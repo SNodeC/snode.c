@@ -19,11 +19,8 @@
 #ifndef IOT_MQTT_SERVER_PACKETSNEW_CONNECT_H
 #define IOT_MQTT_SERVER_PACKETSNEW_CONNECT_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketReceiver.h"
 #include "iot/mqtt/packets/Connect.h"
-#include "iot/mqtt/types/String.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -32,11 +29,6 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_CONNECT 0x01
-#define MQTT_CONNECT_FLAGS 0x00
-
-#define MQTT_VERSION_3_1_1 0x04
 
 namespace iot::mqtt::server::packets {
 

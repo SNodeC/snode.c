@@ -111,7 +111,7 @@ namespace iot::mqtt {
 
                 if (currentPacket->isComplete()) {
                     //                    printData(currentPacket->serialize());
-                    //                    propagateEvent(currentPacket);
+
                     currentPacket->propagateEvent(this);
 
                     delete currentPacket;

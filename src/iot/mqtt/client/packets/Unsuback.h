@@ -19,9 +19,8 @@
 #ifndef IOT_MQTT_CLIENT_PACKETSNEW_UNSUBACK_H
 #define IOT_MQTT_CLIENT_PACKETSNEW_UNSUBACK_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketReceiver.h"
 #include "iot/mqtt/packets/Unsuback.h"
-#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -30,9 +29,6 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_UNSUBACK 0x0B
-#define MQTT_UNSUBACK_FLAGS 0x00
 
 namespace iot::mqtt::client::packets {
 
