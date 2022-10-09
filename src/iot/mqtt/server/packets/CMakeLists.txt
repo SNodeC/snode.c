@@ -13,7 +13,7 @@ set(MQTT_PACKETS_CPP
 #    Pubcomp.cpp
 #    Pubrec.cpp
 #    Pubrel.cpp
-#    Subscribe.cpp
+    Subscribe.cpp
 #    Suback.cpp
 #    Unsubscribe.cpp
 #    Unsuback.cpp
@@ -29,7 +29,7 @@ set(MQTT_PACKETS_H
 #    Pubcomp.h
 #    Pubrec.h
 #    Pubrel.h
-#    Subscribe.h
+    Subscribe.h
 #    Suback.h
 #    Unsubscribe.h
 #    Unsuback.h

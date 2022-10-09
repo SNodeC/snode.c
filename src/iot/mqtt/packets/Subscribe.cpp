@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Subscribe.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -30,11 +28,6 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_SUBSCRIBE_FLAGS) {
         this->packetIdentifier = packetIdentifier;
         this->topics = topics;
-    }
-
-    Subscribe::Subscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_SUBSCRIBE_FLAGS) {
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {
@@ -57,55 +50,6 @@ namespace iot::mqtt::packets {
         }
 
         return packet;
-    }
-
-    std::size_t Subscribe::deserializeVP(SocketContext* socketContext) {
-        std::size_t consumed = 0;
-
-        switch (state) {
-            case 0: // V-Header
-                consumed += packetIdentifier.deserialize(socketContext);
-
-                if (!packetIdentifier.isComplete()) {
-                    break;
-                }
-
-                state++;
-                [[fallthrough]];
-            case 1: // Payload
-                consumed += topic.deserialize(socketContext);
-
-                if (!topic.isComplete()) {
-                    break;
-                }
-
-                state++;
-                [[fallthrough]];
-            case 2:
-                consumed += qoS.deserialize(socketContext);
-
-                if (!qoS.isComplete()) {
-                    break;
-                } else {
-                    topics.push_back(Topic(topic, qoS));
-                    topic.reset();
-                    qoS.reset();
-
-                    if (getConsumed() + consumed < this->getRemainingLength()) {
-                        state = 1;
-                        break;
-                    }
-                }
-
-                complete = true;
-                break;
-        }
-
-        return consumed;
-    }
-
-    void Subscribe::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onSubscribe(*this);
     }
 
 } // namespace iot::mqtt::packets

@@ -26,10 +26,6 @@
 #include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
 
-namespace iot::mqtt {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list> // IWYU pragma: export
@@ -41,30 +37,24 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Subscribe
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+    class Subscribe : public iot::mqtt::ControlPacketSender {
     public:
+        Subscribe() = default;
         Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics); // Client
-        explicit Subscribe(uint32_t remainingLength, uint8_t flags);               // Server
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Server
-        std::vector<char> serializeVP() const override;                   // Client
-        void propagateEvent(SocketContext* socketContext) override;       // Server
+        std::vector<char> serializeVP() const override; // Client
 
     public:
         uint16_t getPacketIdentifier() const;
         std::list<iot::mqtt::Topic>& getTopics();
 
-    private:
+    protected:
         iot::mqtt::types::UInt16 packetIdentifier;
         iot::mqtt::types::String topic;
         iot::mqtt::types::UInt8 qoS;
 
         std::list<iot::mqtt::Topic> topics;
-
-        int state = 0;
     };
 
 } // namespace iot::mqtt::packets

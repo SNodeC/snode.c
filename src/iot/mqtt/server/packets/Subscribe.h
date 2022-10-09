@@ -16,15 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_SUBSCRIBE_H
-#define IOT_MQTT_PACKETSNEW_SUBSCRIBE_H
+#ifndef IOT_MQTT_SERVER_PACKETSNEW_SUBSCRIBE_H
+#define IOT_MQTT_SERVER_PACKETSNEW_SUBSCRIBE_H
 
 #include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
 #include "iot/mqtt/Topic.h"                 // IWYU pragma: export
-#include "iot/mqtt/types/String.h"          // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
+#include "iot/mqtt/packets/Subscribe.h"
+#include "iot/mqtt/types/String.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -39,34 +39,26 @@ namespace iot::mqtt {
 #define MQTT_SUBSCRIBE 0x08
 #define MQTT_SUBSCRIBE_FLAGS 0x02
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::server::packets {
 
     class Subscribe
         : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+        , public iot::mqtt::packets::Subscribe {
     public:
-        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics); // Client
-        explicit Subscribe(uint32_t remainingLength, uint8_t flags);               // Server
+        explicit Subscribe(uint32_t remainingLength, uint8_t flags); // Server
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Server
-        std::vector<char> serializeVP() const override;                   // Client
-        void propagateEvent(SocketContext* socketContext) override;       // Server
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Server
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;       // Server
 
     public:
         uint16_t getPacketIdentifier() const;
         std::list<iot::mqtt::Topic>& getTopics();
 
     private:
-        iot::mqtt::types::UInt16 packetIdentifier;
-        iot::mqtt::types::String topic;
-        iot::mqtt::types::UInt8 qoS;
-
-        std::list<iot::mqtt::Topic> topics;
-
         int state = 0;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::server::packets
 
-#endif // IOT_MQTT_PACKETSNEW_SUBSCRIBE_H
+#endif // IOT_MQTT_PSERVER_ACKETSNEW_SUBSCRIBE_H

@@ -48,18 +48,18 @@ namespace iot::mqtt::server {
             case MQTT_CONNECT: // Server
                 currentPacket = new iot::mqtt::server::packets::Connect(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            /*
             case MQTT_SUBSCRIBE: // Server
-                currentPacket = new iot::mqtt::packets::Subscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Subscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
+            /*
             case MQTT_UNSUBSCRIBE: // Server
-                currentPacket = new iot::mqtt::packets::Unsubscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Unsubscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
             case MQTT_PINGREQ: //
-                currentPacket = new iot::mqtt::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
             case MQTT_DISCONNECT: // Server
-                currentPacket = new iot::mqtt::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
 
             */
@@ -91,26 +91,26 @@ namespace iot::mqtt::server {
         }
     }
 
-    /*
-        void SocketContext::_onSubscribe(packets::Subscribe& subscribe) {
-            if (subscribe.getPacketIdentifier() == 0) {
-                shutdown(true);
-            } else {
-                onSubscribe(subscribe); // Shall only subscribe but not send retained messages
+    void SocketContext::_onSubscribe(packets::Subscribe& subscribe) {
+        if (subscribe.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            onSubscribe(subscribe); // Shall only subscribe but not send retained messages
 
-                std::list<uint8_t> returnCodes;
+            std::list<uint8_t> returnCodes;
 
-                // Check QoS-Levels of subscribtions (topic.getRequestedQoS())
-                for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                    returnCodes.push_back(topic.getAcceptedQoS()); // QoS + Success
-                }
-
-                sendSuback(subscribe.getPacketIdentifier(), returnCodes);
-
-                // Here we shall trigger sending of retained messages
+            // Check QoS-Levels of subscribtions (topic.getRequestedQoS())
+            for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
+                returnCodes.push_back(topic.getAcceptedQoS()); // QoS + Success
             }
-        }
 
+            sendSuback(subscribe.getPacketIdentifier(), returnCodes);
+
+            // Here we shall trigger sending of retained messages
+        }
+    }
+
+    /*
         void SocketContext::_onUnsubscribe(packets::Unsubscribe& unsubscribe) {
             if (unsubscribe.getPacketIdentifier() == 0) {
                 shutdown(true);

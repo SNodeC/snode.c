@@ -84,8 +84,6 @@ namespace iot::mqtt::packets {
         bool willFlag = false;
         bool cleanSession = false;
         bool reserved = false;
-
-        int state = 0;
     };
 
 } // namespace iot::mqtt::packets

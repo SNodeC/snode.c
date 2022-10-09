@@ -16,24 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Subscribe.h"
+#include "iot/mqtt/server/packets/Subscribe.h"
 
-#include "iot/mqtt/SocketContext.h"
+#include "iot/mqtt/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
-
-    Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_SUBSCRIBE_FLAGS) {
-        this->packetIdentifier = packetIdentifier;
-        this->topics = topics;
-    }
+namespace iot::mqtt::server::packets {
 
     Subscribe::Subscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, flags)
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_SUBSCRIBE_FLAGS) {
     }
 
@@ -45,21 +39,7 @@ namespace iot::mqtt::packets {
         return topics;
     }
 
-    std::vector<char> Subscribe::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        for (const Topic& topic : topics) {
-            packet.insert(packet.end(), topic.getName().begin(), topic.getName().end());
-            packet.push_back(static_cast<char>(topic.getRequestedQoS()));
-        }
-
-        return packet;
-    }
-
-    std::size_t Subscribe::deserializeVP(SocketContext* socketContext) {
+    std::size_t Subscribe::deserializeVP(iot::mqtt::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
@@ -104,8 +84,8 @@ namespace iot::mqtt::packets {
         return consumed;
     }
 
-    void Subscribe::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onSubscribe(*this);
+    void Subscribe::propagateEvent(iot::mqtt::SocketContext* socketContext) {
+        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onSubscribe(*this);
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::server::packets

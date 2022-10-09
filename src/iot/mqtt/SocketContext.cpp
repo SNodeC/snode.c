@@ -84,9 +84,6 @@ namespace iot::mqtt {
                         case MQTT_PUBCOMP: // Server & Client
                             currentPacket = new iot::mqtt::packets::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
-                        case MQTT_SUBSCRIBE: // Server
-                            currentPacket = new iot::mqtt::packets::Subscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
                         case MQTT_SUBACK: // Client
                             currentPacket = new iot::mqtt::packets::Suback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
@@ -217,25 +214,6 @@ namespace iot::mqtt {
             shutdown(true);
         } else {
             onPubcomp(pubcomp);
-        }
-    }
-
-    void SocketContext::_onSubscribe(packets::Subscribe& subscribe) {
-        if (subscribe.getPacketIdentifier() == 0) {
-            shutdown(true);
-        } else {
-            onSubscribe(subscribe); // Shall only subscribe but not send retained messages
-
-            std::list<uint8_t> returnCodes;
-
-            // Check QoS-Levels of subscribtions (topic.getRequestedQoS())
-            for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                returnCodes.push_back(topic.getAcceptedQoS()); // QoS + Success
-            }
-
-            sendSuback(subscribe.getPacketIdentifier(), returnCodes);
-
-            // Here we shall trigger sending of retained messages
         }
     }
 
