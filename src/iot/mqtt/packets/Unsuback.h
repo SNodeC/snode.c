@@ -19,12 +19,7 @@
 #ifndef IOT_MQTT_PACKETSNEW_UNSUBACK_H
 #define IOT_MQTT_PACKETSNEW_UNSUBACK_H
 
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,20 +30,13 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Unsuback : public iot::mqtt::ControlPacket {
+    class Unsuback {
     public:
-        explicit Unsuback(const uint16_t packetIdentifier);         // Server
-        explicit Unsuback(uint32_t remainingLength, uint8_t flags); // Client
+        Unsuback() = default;
 
-    private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Client
-        std::vector<char> serializeVP() const override;                   // Server
-        void propagateEvent(SocketContext* socketContext) override;       // Client
-
-    public:
         uint16_t getPacketIdentifier() const;
 
-    private:
+    protected:
         iot::mqtt::types::UInt16 packetIdentifier;
     };
 

@@ -51,6 +51,9 @@ set(core-socket-stream-tls_DEPENDENCIES core-socket-stream)
 set(mqtt_DEPENDENCIES core)
 set(mqtt-fast_DEPENDENCIES core)
 
+set(mqtt-server_DEPENDENCIES mqtt)
+set(mqtt-client DEPENDENCIES mqtt)
+
 set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
@@ -97,8 +100,9 @@ set(_supported_components
     http-server-express
     websocket-server
     websocket-client
-    mqtt-fast
-    mqtt
+    # mqtt-fast
+    mqtt-server
+    mqtt-client
 )
 
 set(snodec_FOUND True)

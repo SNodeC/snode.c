@@ -19,14 +19,9 @@
 #ifndef IOT_MQTT_PACKETSNEW_CONNECT_H
 #define IOT_MQTT_PACKETSNEW_CONNECT_H
 
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-#include "iot/mqtt/types/String.h"  // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
+#include "iot/mqtt/types/String.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,17 +34,10 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Connect : public iot::mqtt::ControlPacket {
+    class Connect {
     public:
-        explicit Connect(const std::string& clientId);             // Client
-        explicit Connect(uint32_t remainingLength, uint8_t flags); // Server
+        Connect() = default;
 
-    private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Server
-        std::vector<char> serializeVP() const override;                              // Client
-        void propagateEvent(SocketContext* socketContext) override;                  // Server
-
-    public:
         std::string getProtocol() const;
         uint8_t getLevel() const;
         uint8_t getConnectFlags() const;
@@ -71,7 +59,7 @@ namespace iot::mqtt::packets {
 
         void setClientId(const std::string& clientId);
 
-    private:
+    protected:
         iot::mqtt::types::String protocol;
         iot::mqtt::types::UInt8 level;
         iot::mqtt::types::UInt8 connectFlags;
@@ -89,8 +77,6 @@ namespace iot::mqtt::packets {
         bool willFlag = false;
         bool cleanSession = false;
         bool reserved = false;
-
-        int state = 0;
     };
 
 } // namespace iot::mqtt::packets

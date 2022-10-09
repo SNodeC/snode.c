@@ -19,15 +19,9 @@
 #ifndef IOT_MQTT_CONTROLPACKET_H
 #define IOT_MQTT_CONTROLPACKET_H
 
-namespace iot::mqtt {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // IWYU pragma: export
 #include <cstdint> // IWYU pragma: export
-#include <vector>  // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -35,41 +29,18 @@ namespace iot::mqtt {
 
     class ControlPacket {
     public:
+        ControlPacket() = default;
         ControlPacket(uint8_t type, uint8_t flags);
-        ControlPacket(uint8_t type, uint8_t flags, uint32_t remainingLength, uint8_t mustFlags);
 
-        virtual ~ControlPacket();
-
-        std::size_t deserialize(iot::mqtt::SocketContext* socketContext);
-        std::vector<char> serialize() const;
-        virtual void propagateEvent(SocketContext* socketContext) = 0;
-
-    private:
-        virtual std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) = 0;
-        virtual std::vector<char> serializeVP() const = 0;
+        virtual ~ControlPacket() = default;
 
     public:
         uint8_t getType() const;
         uint8_t getFlags() const;
-        uint32_t getRemainingLength() const;
-
-        bool isComplete() const;
-        bool isError() const;
-
-        std::size_t getConsumed() const;
 
     protected:
-        bool complete = false;
-        bool error = false;
-
-    private:
-        ControlPacket* currentPacket = nullptr;
-
         uint8_t type = 0;
         uint8_t flags = 0;
-        uint32_t remainingLength = 0;
-
-        std::size_t consumed = 0;
     };
 
 } // namespace iot::mqtt

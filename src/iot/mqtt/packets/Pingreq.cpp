@@ -18,36 +18,8 @@
 
 #include "iot/mqtt/packets/Pingreq.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
-
-    Pingreq::Pingreq()
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ, MQTT_PINGREQ_FLAGS) {
-    }
-
-    Pingreq::Pingreq(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ, flags, remainingLength, MQTT_PINGREQ_FLAGS) {
-    }
-
-    std::vector<char> Pingreq::serializeVP() const {
-        return std::vector<char>();
-    }
-
-    std::size_t Pingreq::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
-        // no V-Header
-        // no Payload
-
-        complete = true;
-        return 0;
-    }
-
-    void Pingreq::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
-        socketContext->_onPingreq(*this);
-    }
-
-} // namespace iot::mqtt::packets
+namespace iot::mqtt::packets {} // namespace iot::mqtt::packets

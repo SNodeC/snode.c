@@ -18,23 +18,11 @@
 
 #include "iot/mqtt/packets/Unsubscribe.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
-
-    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
-        this->packetIdentifier = packetIdentifier;
-        this->topics = topics;
-    }
-
-    Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, flags, remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
-    }
 
     uint16_t Unsubscribe::getPacketIdentifier() const {
         return packetIdentifier;
@@ -42,56 +30,6 @@ namespace iot::mqtt::packets {
 
     const std::list<std::string>& Unsubscribe::getTopics() const {
         return topics;
-    }
-
-    std::vector<char> Unsubscribe::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        for (const std::string& topic : topics) {
-            packet.insert(packet.end(), topic.begin(), topic.end());
-        }
-
-        return packet;
-    }
-
-    std::size_t Unsubscribe::deserializeVP(SocketContext* socketContext) {
-        std::size_t consumed = 0;
-
-        switch (state) {
-            case 0: // V-Header
-                consumed += packetIdentifier.deserialize(socketContext);
-                if (!packetIdentifier.isComplete()) {
-                    break;
-                }
-
-                state++;
-                [[fallthrough]];
-            case 1: // Payload
-                consumed += topic.deserialize(socketContext);
-
-                if (!topic.isComplete()) {
-                    break;
-                } else {
-                    topics.push_back(topic);
-                    topic.reset();
-
-                    if (getConsumed() + consumed < this->getRemainingLength()) {
-                        break;
-                    }
-                }
-
-                complete = true;
-                break;
-        }
-
-        return consumed;
-    }
-
-    void Unsubscribe::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
-        socketContext->_onUnsubscribe(*this);
     }
 
 } // namespace iot::mqtt::packets
