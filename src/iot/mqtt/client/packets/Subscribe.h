@@ -20,7 +20,6 @@
 #define IOT_MQTT_CLIENT_PACKETSNEW_SUBSCRIBE_H
 
 #include "iot/mqtt/ControlPacketSender.h"
-#include "iot/mqtt/Topic.h"             // IWYU pragma: export
 #include "iot/mqtt/packets/Subscribe.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

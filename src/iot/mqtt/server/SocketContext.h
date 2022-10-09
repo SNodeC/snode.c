@@ -34,8 +34,6 @@ namespace core::socket {
     class SocketConnection;
 }
 
-#include "iot/mqtt/Topic.h" // IWYU pragma: export
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
