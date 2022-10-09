@@ -75,8 +75,8 @@ namespace iot::mqtt {
         //        virtual void onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe) = 0; // Server
         virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback) = 0; // Client
         //        virtual void onPingreq(iot::mqtt::packets::Pingreq& pingreq) = 0;          // Server
-        virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0;       // Client
-        virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect) = 0; // Server
+        virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0; // Client
+        //        virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect) = 0; // Server
 
     public:
         //        void _onConnect(iot::mqtt::packets::Connect& connect);             // Server
@@ -91,8 +91,8 @@ namespace iot::mqtt {
         //        void _onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe); // Server
         void _onUnsuback(iot::mqtt::packets::Unsuback& unsuback); // Client
         //        void _onPingreq(iot::mqtt::packets::Pingreq& pingreq);          // Server
-        void _onPingresp(iot::mqtt::packets::Pingresp& pingresp);       // Client
-        void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect); // Server
+        void _onPingresp(iot::mqtt::packets::Pingresp& pingresp); // Client
+        //        void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect); // Server
 
     public:
         //        void sendConnect(const std::string& clientId);       // Client
@@ -110,8 +110,8 @@ namespace iot::mqtt {
         //        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes); // Server
         void sendUnsubscribe(std::list<std::string>& topics); // Client
         //        void sendUnsuback(uint16_t packetIdentifier);         // Server
-        void sendPingreq();    // Client
-        void sendPingresp();   // Server
+        void sendPingreq(); // Client
+        //        void sendPingresp();   // Server
         void sendDisconnect(); // Client
 
     protected:

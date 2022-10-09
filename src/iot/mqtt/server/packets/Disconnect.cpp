@@ -16,30 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Disconnect.h"
+#include "iot/mqtt/server/packets/Disconnect.h"
 
-#include "iot/mqtt/SocketContext.h"
+#include "iot/mqtt/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
-
-    Disconnect::Disconnect()
-        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, MQTT_DISCONNECT_FLAGS) {
-    }
+namespace iot::mqtt::server::packets {
 
     Disconnect::Disconnect(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
         , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_DISCONNECT_FLAGS) {
     }
 
-    std::vector<char> Disconnect::serializeVP() const {
-        return std::vector<char>();
-    }
-
-    std::size_t Disconnect::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
+    std::size_t Disconnect::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {
         // no V-Header
         // no Payload
 
@@ -47,8 +39,8 @@ namespace iot::mqtt::packets {
         return 0;
     }
 
-    void Disconnect::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onDisconnect(*this);
+    void Disconnect::propagateEvent(iot::mqtt::SocketContext* socketContext) {
+        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onDisconnect(*this);
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::server::packets

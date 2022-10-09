@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/packets/Pingreq.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS

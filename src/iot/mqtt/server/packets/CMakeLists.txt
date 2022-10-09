@@ -5,9 +5,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(MQTT_PACKETS_CPP
     Connect.cpp
     Connack.cpp
-#    Disconnect.cpp
+    Disconnect.cpp
     Pingreq.cpp
-#    Pingresp.cpp
+    Pingresp.cpp
     Subscribe.cpp
     Suback.cpp
     Unsubscribe.cpp
@@ -16,9 +16,9 @@ set(MQTT_PACKETS_CPP
 set(MQTT_PACKETS_H
     Connect.h
     Connack.h
-#    Disconnect.h
+    Disconnect.h
     Pingreq.h
-#    Pingresp.h
+    Pingresp.h
     Subscribe.h
     Suback.h
     Unsubscribe.h

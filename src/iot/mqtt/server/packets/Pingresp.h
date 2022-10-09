@@ -16,15 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_PINGRESP_H
-#define IOT_MQTT_PACKETSNEW_PINGRESP_H
+#ifndef IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
+#define IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
+#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
+#include "iot/mqtt/packets/Pingresp.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,21 +33,18 @@ namespace iot::mqtt {
 #define MQTT_PINGRESP 0x0D
 #define MQTT_PINGRESP_FLAGS 0x00
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::server::packets {
 
     class Pingresp
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+        : public iot::mqtt::ControlPacketSender
+        , public iot::mqtt::packets::Pingresp {
     public:
-        explicit Pingresp();                                        // Server
-        explicit Pingresp(uint32_t remainingLength, uint8_t flags); // Client
+        explicit Pingresp(); // Server
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Client
-        std::vector<char> serializeVP() const override;                   // Server
-        void propagateEvent(SocketContext* socketContext) override;       // Client
+        std::vector<char> serializeVP() const override; // Server
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::server::packets
 
 #endif // IOT_MQTT_PACKETSNEW_PINGRESP_H

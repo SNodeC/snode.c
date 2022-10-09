@@ -93,9 +93,6 @@ namespace iot::mqtt {
                         case MQTT_PINGRESP: // Client
                             currentPacket = new iot::mqtt::packets::Pingresp(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
-                        case MQTT_DISCONNECT: // Server
-                            currentPacket = new iot::mqtt::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
                         default:
                             currentPacket = nullptr;
                             break;
@@ -231,12 +228,6 @@ namespace iot::mqtt {
         onPingresp(pingresp);
     }
 
-    void SocketContext::_onDisconnect(packets::Disconnect& disconnect) {
-        onDisconnect(disconnect);
-
-        shutdown();
-    }
-
     void SocketContext::send(ControlPacketSender&& controlPacket) const {
         send(controlPacket.serialize());
     }
@@ -331,22 +322,6 @@ namespace iot::mqtt {
         LOG(TRACE) << "============";
 
         send(iot::mqtt::packets::Pingreq());
-    }
-
-    void SocketContext::sendPingresp() { // Server
-        LOG(TRACE) << "Send Pingresp";
-        LOG(TRACE) << "=============";
-
-        send(iot::mqtt::packets::Pingresp());
-    }
-
-    void SocketContext::sendDisconnect() { // Client
-        LOG(TRACE) << "Send Disconnect";
-        LOG(TRACE) << "===============";
-
-        send(iot::mqtt::packets::Disconnect());
-
-        shutdown();
     }
 
 #define UUID_LEN 36

@@ -34,7 +34,9 @@
 */
 #include "iot/mqtt/server/packets/Connack.h"     // IWYU pragma: export
 #include "iot/mqtt/server/packets/Connect.h"     // IWYU pragma: export
+#include "iot/mqtt/server/packets/Disconnect.h"  // IWYU pragma: export
 #include "iot/mqtt/server/packets/Pingreq.h"     // IWYU pragma: export
+#include "iot/mqtt/server/packets/Pingresp.h"    // IWYU pragma: export
 #include "iot/mqtt/server/packets/Suback.h"      // IWYU pragma: export
 #include "iot/mqtt/server/packets/Subscribe.h"   // IWYU pragma: export
 #include "iot/mqtt/server/packets/Unsuback.h"    // IWYU pragma: export
@@ -72,25 +74,19 @@ namespace iot::mqtt::server {
         virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) = 0;       // Server
         virtual void onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe) = 0; // Server
         virtual void onPingreq(iot::mqtt::server::packets::Pingreq& pingreq) = 0;             // Server
-        /*
-                virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect) = 0;    // Server
-        */
+        virtual void onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect) = 0;    // Server
 
         void _onConnect(iot::mqtt::server::packets::Connect& connect);
         void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);       // Server
         void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe); // Server
         void _onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);             // Server
-        /*
-                void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect);    // Server
-        */
+        void _onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);    // Server
 
     public:
         void sendConnack(uint8_t returnCode, uint8_t flags);                         // Server
         void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes); // Server
         void sendUnsuback(uint16_t packetIdentifier);                                // Server
-        /*
-                void sendPingresp();                                                         // Server
-        */
+        void sendPingresp();                                                         // Server
 
         //        friend class iot::mqtt::packets::Connack;
         friend class iot::mqtt::server::packets::Connect;
@@ -105,7 +101,7 @@ namespace iot::mqtt::server {
         //        friend class iot::mqtt::packets::Unsuback;
         friend class iot::mqtt::server::packets::Pingreq;
         //        friend class iot::mqtt::packets::Pingresp;
-        //        friend class iot::mqtt::packets::Disconnect;
+        friend class iot::mqtt::server::packets::Disconnect;
     };
 
 } // namespace iot::mqtt::server

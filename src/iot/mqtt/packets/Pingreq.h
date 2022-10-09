@@ -21,10 +21,6 @@
 
 #include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
 
-namespace iot::mqtt {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>

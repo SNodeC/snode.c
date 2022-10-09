@@ -57,12 +57,10 @@ namespace iot::mqtt::server {
             case MQTT_PINGREQ: //
                 currentPacket = new iot::mqtt::server::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            /*
+
             case MQTT_DISCONNECT: // Server
                 currentPacket = new iot::mqtt::server::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-
-            */
             default:
                 currentPacket = nullptr;
                 break;
@@ -126,13 +124,11 @@ namespace iot::mqtt::server {
         onPingreq(pingreq);
     }
 
-    /*
-        void SocketContext::_onDisconnect(packets::Disconnect& disconnect) {
-            onDisconnect(disconnect);
+    void SocketContext::_onDisconnect(packets::Disconnect& disconnect) {
+        onDisconnect(disconnect);
 
-            shutdown();
-        }
-    */
+        shutdown();
+    }
 
     void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) { // Server
         LOG(TRACE) << "Send CONNACK";
@@ -159,13 +155,11 @@ namespace iot::mqtt::server {
         send(iot::mqtt::server::packets::Unsuback(packetIdentifier));
     }
 
-    /*
-        void SocketContext::sendPingresp() { // Server
-            LOG(TRACE) << "Send Pingresp";
-            LOG(TRACE) << "=============";
+    void SocketContext::sendPingresp() { // Server
+        LOG(TRACE) << "Send Pingresp";
+        LOG(TRACE) << "=============";
 
-            send(iot::mqtt::packets::Pingresp());
-        }
-    */
+        send(iot::mqtt::server::packets::Pingresp());
+    }
 
 } // namespace iot::mqtt::server
