@@ -16,35 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
-#define IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
-
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"
+#include "iot/mqtt/client/packets/Disconnect.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PINGRESP 0x0D
-#define MQTT_PINGRESP_FLAGS 0x00
+namespace iot::mqtt::client::packets {
 
-namespace iot::mqtt::server::packets {
+    Disconnect::Disconnect()
+        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, MQTT_DISCONNECT_FLAGS) {
+    }
 
-    class Pingresp
-        : public iot::mqtt::ControlPacketSender
-        , public iot::mqtt::packets::Pingresp {
-    public:
-        explicit Pingresp();
+    std::vector<char> Disconnect::serializeVP() const {
+        return std::vector<char>();
+    }
 
-    private:
-        std::vector<char> serializeVP() const override;
-    };
-
-} // namespace iot::mqtt::server::packets
-
-#endif // IOT_MQTT_PACKETSNEW_PINGRESP_H
+} // namespace iot::mqtt::client::packets

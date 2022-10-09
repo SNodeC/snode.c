@@ -66,9 +66,6 @@ namespace iot::mqtt {
 
                 if (currentPacket == nullptr) {
                     switch (staticHeader.getPacketType()) {
-                        case MQTT_CONNACK: // Client
-                            currentPacket = new iot::mqtt::packets::Connack(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
                         case MQTT_PUBLISH: // Server & Client
                             currentPacket = new iot::mqtt::packets::Publish(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
@@ -83,15 +80,6 @@ namespace iot::mqtt {
                             break;
                         case MQTT_PUBCOMP: // Server & Client
                             currentPacket = new iot::mqtt::packets::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
-                        case MQTT_SUBACK: // Client
-                            currentPacket = new iot::mqtt::packets::Suback(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
-                        case MQTT_UNSUBACK: // Client
-                            currentPacket = new iot::mqtt::packets::Unsuback(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
-                        case MQTT_PINGRESP: // Client
-                            currentPacket = new iot::mqtt::packets::Pingresp(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
                         default:
                             currentPacket = nullptr;
@@ -143,14 +131,6 @@ namespace iot::mqtt {
         }
 
         return consumed;
-    }
-
-    void SocketContext::_onConnack(packets::Connack& connack) {
-        if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
-            shutdown(true);
-        } else {
-            onConnack(connack);
-        }
     }
 
     void SocketContext::_onPublish(packets::Publish& publish) {
@@ -208,26 +188,6 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::_onSuback(packets::Suback& suback) {
-        if (suback.getPacketIdentifier() == 0) {
-            shutdown(true);
-        } else {
-            onSuback(suback);
-        }
-    }
-
-    void SocketContext::_onUnsuback(packets::Unsuback& unsuback) {
-        if (unsuback.getPacketIdentifier() == 0) {
-            shutdown(true);
-        } else {
-            onUnsuback(unsuback);
-        }
-    }
-
-    void SocketContext::_onPingresp(packets::Pingresp& pingresp) {
-        onPingresp(pingresp);
-    }
-
     void SocketContext::send(ControlPacketSender&& controlPacket) const {
         send(controlPacket.serialize());
     }
@@ -241,15 +201,6 @@ namespace iot::mqtt {
 
         sendToPeer(data.data(), data.size());
     }
-
-    /*
-        void SocketContext::sendConnect(const std::string& clientId) { // Client
-            LOG(TRACE) << "Send CONNECT";
-            LOG(TRACE) << "============";
-
-            send(iot::mqtt::packets::Connect(clientId)); // Flags, Username, Will, ...
-        }
-    */
 
     void SocketContext::sendPublish(
         const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) { // Server & Client
@@ -285,43 +236,6 @@ namespace iot::mqtt {
         LOG(TRACE) << "============";
 
         send(iot::mqtt::packets::Pubcomp(packetIdentifier));
-    }
-
-    void SocketContext::sendSubscribe(std::list<iot::mqtt::Topic>& topics) { // Client
-        LOG(TRACE) << "Send SUBSCRIBE";
-        LOG(TRACE) << "==============";
-
-        send(iot::mqtt::packets::Subscribe(0, topics));
-    }
-
-    /*
-        void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) { // Server
-            LOG(TRACE) << "Send SUBACK";
-            LOG(TRACE) << "===========";
-
-            send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
-        }
-    */
-
-    void SocketContext::sendUnsubscribe(std::list<std::string>& topics) { // Client
-        LOG(TRACE) << "Send UNSUBSCRIBE";
-        LOG(TRACE) << "================";
-
-        send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
-    }
-    /*
-        void SocketContext::sendUnsuback(uint16_t packetIdentifier) { // Server
-            LOG(TRACE) << "Send UNSUBACK";
-            LOG(TRACE) << "=============";
-
-            send(iot::mqtt::packets::Unsuback(packetIdentifier));
-        }
-    */
-    void SocketContext::sendPingreq() { // Client
-        LOG(TRACE) << "Send Pingreq";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt::packets::Pingreq());
     }
 
 #define UUID_LEN 36

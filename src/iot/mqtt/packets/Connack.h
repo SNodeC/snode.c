@@ -19,12 +19,7 @@
 #ifndef IOT_MQTT_PACKETSNEW_CONNACK_H
 #define IOT_MQTT_PACKETSNEW_CONNACK_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"           // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-} // namespace iot::mqtt
+#include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -45,23 +40,17 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Connack : public iot::mqtt::ControlPacketReceiver {
+    class Connack {
     public:
         Connack() = default;
-        explicit Connack(uint32_t remainingLength, uint8_t flags); // Client
 
-    private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
-        void propagateEvent(SocketContext* socketContext) override;                  // Client
-
-    public:
         uint8_t getFlags() const;
         uint8_t getReturnCode() const;
 
         bool getSessionPresent() const;
 
     protected:
-        iot::mqtt::types::UInt8 flags;
+        iot::mqtt::types::UInt8 connectFlags;
         iot::mqtt::types::UInt8 returnCode;
 
         bool sessionPresent = false;

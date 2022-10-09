@@ -19,11 +19,10 @@
 #ifndef IOT_MQTT_PACKETSNEW_SUBSCRIBE_H
 #define IOT_MQTT_PACKETSNEW_SUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-#include "iot/mqtt/Topic.h"               // IWYU pragma: export
-#include "iot/mqtt/types/String.h"        // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"        // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"         // IWYU pragma: export
+#include "iot/mqtt/Topic.h"        // IWYU pragma: export
+#include "iot/mqtt/types/String.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,15 +35,10 @@
 
 namespace iot::mqtt::packets {
 
-    class Subscribe : public iot::mqtt::ControlPacketSender {
+    class Subscribe {
     public:
         Subscribe() = default;
-        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics); // Client
 
-    private:
-        std::vector<char> serializeVP() const override; // Client
-
-    public:
         uint16_t getPacketIdentifier() const;
         std::list<iot::mqtt::Topic>& getTopics();
 

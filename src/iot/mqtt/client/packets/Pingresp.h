@@ -16,12 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_PUBREC_H
-#define IOT_MQTT_PACKETSNEW_PUBREC_H
+#ifndef IOT_MQTT_CLIENT_PACKETSNEW_PINGRESP_H
+#define IOT_MQTT_CLIENT_PACKETSNEW_PINGRESP_H
 
 #include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
+#include "iot/mqtt/packets/Pingresp.h"
 
 namespace iot::mqtt {
     class SocketContext;
@@ -29,32 +28,29 @@ namespace iot::mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+#include <cstdint>
+#include <vector>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PUBREC 0x05
-#define MQTT_PUBREC_FLAGS 0x00
+#define MQTT_PINGRESP 0x0D
+#define MQTT_PINGRESP_FLAGS 0x00
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::client::packets {
 
-    class Pubrec
+    class Pingresp
         : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+        , public iot::mqtt::packets::Pingresp {
     public:
-        explicit Pubrec(const uint16_t packetIdentifier);         // Server & Client
-        explicit Pubrec(uint32_t remainingLength, uint8_t flags); // Server & Client
+        explicit Pingresp() = default;                              // Server
+        explicit Pingresp(uint32_t remainingLength, uint8_t flags); // Client
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Server & Client
-        std::vector<char> serializeVP() const override;                   // Server & Client
-        void propagateEvent(SocketContext* socketContext) override;       // Server & Client
-
-    public:
-        uint16_t getPacketIdentifier() const;
-
-    private:
-        iot::mqtt::types::UInt16 packetIdentifier;
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;       // Client
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::client::packets
 
-#endif // IOT_MQTT_PACKETSNEW_PUBREC_H
+#endif // IOT_MQTT_CLIENT_PACKETSNEW_PINGRESP_H

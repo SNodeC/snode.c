@@ -16,35 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
-#define IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
+#ifndef IOT_MQTT_CLIENT_PACKETSNEW_SUBSCRIBE_H
+#define IOT_MQTT_CLIENT_PACKETSNEW_SUBSCRIBE_H
 
 #include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"
+#include "iot/mqtt/Topic.h"               // IWYU pragma: export
+#include "iot/mqtt/packets/Subscribe.h"
+#include "iot/mqtt/types/String.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
+#include <list> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PINGRESP 0x0D
-#define MQTT_PINGRESP_FLAGS 0x00
+#define MQTT_SUBSCRIBE 0x08
+#define MQTT_SUBSCRIBE_FLAGS 0x02
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::client::packets {
 
-    class Pingresp
+    class Subscribe
         : public iot::mqtt::ControlPacketSender
-        , public iot::mqtt::packets::Pingresp {
+        , public iot::mqtt::packets::Subscribe {
     public:
-        explicit Pingresp();
+        Subscribe() = default;
+        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics); // Client
 
     private:
-        std::vector<char> serializeVP() const override;
+        std::vector<char> serializeVP() const override; // Client
     };
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::client::packets
 
-#endif // IOT_MQTT_PACKETSNEW_PINGRESP_H
+#endif // IOT_MQTT_CLIENT_PACKETSNEW_SUBSCRIBE_H

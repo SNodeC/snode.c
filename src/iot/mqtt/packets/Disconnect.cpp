@@ -18,20 +18,8 @@
 
 #include "iot/mqtt/packets/Disconnect.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
-
-    Disconnect::Disconnect()
-        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, MQTT_DISCONNECT_FLAGS) {
-    }
-
-    std::vector<char> Disconnect::serializeVP() const {
-        return std::vector<char>();
-    }
-
-} // namespace iot::mqtt::packets
+namespace iot::mqtt::packets {} // namespace iot::mqtt::packets

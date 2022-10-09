@@ -36,27 +36,27 @@ namespace iot::mqtt {
         ControlPacketReceiver() = default;
         ControlPacketReceiver(uint32_t remainingLength, uint8_t mustFlags);
 
-        std::size_t deserialize(iot::mqtt::SocketContext* socketContext); // Receive
-        virtual void propagateEvent(SocketContext* socketContext) = 0;    // Receive
+        std::size_t deserialize(iot::mqtt::SocketContext* socketContext);
+        virtual void propagateEvent(SocketContext* socketContext) = 0;
 
     private:
-        virtual std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) = 0; // Receive
+        virtual std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) = 0;
 
     public:
-        uint32_t getRemainingLength() const; // Receive
+        uint32_t getRemainingLength() const;
 
-        bool isComplete() const; // Receive
-        bool isError() const;    // Receive
+        bool isComplete() const;
+        bool isError() const;
 
-        std::size_t getConsumed() const; // Receive
+        std::size_t getConsumed() const;
 
     protected:
-        bool complete = false; // Receive
-        bool error = false;    // Receive
+        bool complete = false;
+        bool error = false;
 
-        uint32_t remainingLength = 0; // Receive
+        uint32_t remainingLength = 0;
 
-        std::size_t consumed = 0; // Receive
+        std::size_t consumed = 0;
     };
 
 } // namespace iot::mqtt

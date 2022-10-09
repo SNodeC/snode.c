@@ -46,10 +46,10 @@ namespace iot::mqtt::server::packets {
         : public iot::mqtt::ControlPacketSender
         , public iot::mqtt::packets::Connack {
     public:
-        Connack(uint8_t returncode, uint8_t flags); // Server
+        Connack(uint8_t returncode, uint8_t flags);
 
     private:
-        std::vector<char> serializeVP() const override; // Server
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::server::packets

@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
-#define IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
+#ifndef IOT_MQTT_CLIENT_PACKETSNEW_PINGREQ_H
+#define IOT_MQTT_CLIENT_PACKETSNEW_PINGREQ_H
 
 #include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"
+#include "iot/mqtt/packets/Pingreq.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,21 +30,21 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PINGRESP 0x0D
-#define MQTT_PINGRESP_FLAGS 0x00
+#define MQTT_PINGREQ 0x0C
+#define MQTT_PINGREQ_FLAGS 0x00
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::client::packets {
 
-    class Pingresp
+    class Pingreq
         : public iot::mqtt::ControlPacketSender
-        , public iot::mqtt::packets::Pingresp {
+        , public iot::mqtt::packets::Pingreq {
     public:
-        explicit Pingresp();
+        explicit Pingreq(); // Client
 
     private:
-        std::vector<char> serializeVP() const override;
+        std::vector<char> serializeVP() const override; // Client
     };
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::client::packets
 
-#endif // IOT_MQTT_PACKETSNEW_PINGRESP_H
+#endif // IOT_MQTT_CLIENT_PACKETSNEW_PINGREQ_H

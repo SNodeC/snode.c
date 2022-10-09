@@ -19,17 +19,7 @@
 #ifndef IOT_MQTT_PACKETSNEW_PINGRESP_H
 #define IOT_MQTT_PACKETSNEW_PINGRESP_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstddef>
-#include <cstdint>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -38,14 +28,9 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Pingresp : public iot::mqtt::ControlPacketReceiver {
+    class Pingresp {
     public:
-        explicit Pingresp() = default;                              // Server
-        explicit Pingresp(uint32_t remainingLength, uint8_t flags); // Client
-
-    private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Client
-        void propagateEvent(SocketContext* socketContext) override;       // Client
+        Pingresp() = default;
     };
 
 } // namespace iot::mqtt::packets

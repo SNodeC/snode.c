@@ -25,7 +25,6 @@
 #include "log/Logger.h"
 
 #include <cstdint>
-#include <iomanip>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -36,29 +35,23 @@ namespace iot::mqtt::server {
     }
 
     iot::mqtt::ControlPacketReceiver* SocketContext::onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) {
-        LOG(TRACE) << "======================================================";
-        LOG(TRACE) << "PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
-                   << static_cast<uint16_t>(staticHeader.getPacketType());
-        LOG(TRACE) << "PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(staticHeader.getFlags());
-        LOG(TRACE) << "RemainingLength: " << staticHeader.getRemainingLength();
-
         iot::mqtt::ControlPacketReceiver* currentPacket = nullptr;
 
         switch (staticHeader.getPacketType()) {
-            case MQTT_CONNECT: // Server
+            case MQTT_CONNECT:
                 currentPacket = new iot::mqtt::server::packets::Connect(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            case MQTT_SUBSCRIBE: // Server
+            case MQTT_SUBSCRIBE:
                 currentPacket = new iot::mqtt::server::packets::Subscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            case MQTT_UNSUBSCRIBE: // Server
+            case MQTT_UNSUBSCRIBE:
                 currentPacket = new iot::mqtt::server::packets::Unsubscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            case MQTT_PINGREQ: //
+            case MQTT_PINGREQ:
                 currentPacket = new iot::mqtt::server::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
 
-            case MQTT_DISCONNECT: // Server
+            case MQTT_DISCONNECT:
                 currentPacket = new iot::mqtt::server::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
             default:
@@ -93,18 +86,15 @@ namespace iot::mqtt::server {
         if (subscribe.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            onSubscribe(subscribe); // Shall only subscribe but not send retained messages
+            onSubscribe(subscribe);
 
             std::list<uint8_t> returnCodes;
 
-            // Check QoS-Levels of subscribtions (topic.getRequestedQoS())
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                returnCodes.push_back(topic.getAcceptedQoS()); // QoS + Success
+                returnCodes.push_back(topic.getAcceptedQoS());
             }
 
             sendSuback(subscribe.getPacketIdentifier(), returnCodes);
-
-            // Here we shall trigger sending of retained messages
         }
     }
 
@@ -130,7 +120,7 @@ namespace iot::mqtt::server {
         shutdown();
     }
 
-    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) { // Server
+    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
         LOG(TRACE) << "Send CONNACK";
         LOG(TRACE) << "============";
 
@@ -141,14 +131,14 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) { // Server
+    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
         LOG(TRACE) << "Send SUBACK";
         LOG(TRACE) << "===========";
 
         send(iot::mqtt::server::packets::Suback(packetIdentifier, returnCodes));
     }
 
-    void SocketContext::sendUnsuback(uint16_t packetIdentifier) { // Server
+    void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
         LOG(TRACE) << "Send UNSUBACK";
         LOG(TRACE) << "=============";
 

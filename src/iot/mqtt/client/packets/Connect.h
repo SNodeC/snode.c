@@ -16,35 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
-#define IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
+#ifndef IOT_MQTT_CLIENT_PACKETSNEW_CONNECT_H
+#define IOT_MQTT_CLIENT_PACKETSNEW_CONNECT_H
 
 #include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"
+#include "iot/mqtt/packets/Connect.h"
+#include "iot/mqtt/types/String.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PINGRESP 0x0D
-#define MQTT_PINGRESP_FLAGS 0x00
+#define MQTT_CONNECT 0x01
+#define MQTT_CONNECT_FLAGS 0x00
 
-namespace iot::mqtt::server::packets {
+#define MQTT_VERSION_3_1_1 0x04
 
-    class Pingresp
+namespace iot::mqtt::client::packets {
+
+    class Connect
         : public iot::mqtt::ControlPacketSender
-        , public iot::mqtt::packets::Pingresp {
+        , public iot::mqtt::packets::Connect {
     public:
-        explicit Pingresp();
+        Connect() = default;
+        explicit Connect(const std::string& clientId);
 
     private:
         std::vector<char> serializeVP() const override;
     };
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::client::packets
 
-#endif // IOT_MQTT_PACKETSNEW_PINGRESP_H
+#endif // IOT_MQTT_PACKETSNEW_CONNECT_H

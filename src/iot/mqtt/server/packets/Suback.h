@@ -39,17 +39,15 @@ namespace iot::mqtt::server::packets {
         : public iot::mqtt::ControlPacketSender
         , public iot::mqtt::packets::Suback {
     public:
-        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes); // Server
+        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
 
     private:
-        std::vector<char> serializeVP() const override; // Server
+        std::vector<char> serializeVP() const override;
 
     private:
         iot::mqtt::types::UInt16 packetIdentifier;
         iot::mqtt::types::UInt8 returnCode;
         std::list<uint8_t> returnCodes;
-
-        int state;
     };
 
 } // namespace iot::mqtt::server::packets

@@ -16,35 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
-#define IOT_MQTT_SERVER_PACKETSNEW_PINGRESP_H
+#include "iot/mqtt/client/packets/Unsuback.h"
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"
+#include "iot/mqtt/client/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PINGRESP 0x0D
-#define MQTT_PINGRESP_FLAGS 0x00
+namespace iot::mqtt::client::packets {
 
-namespace iot::mqtt::server::packets {
+    Unsuback::Unsuback(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_UNSUBACK_FLAGS) {
+    }
 
-    class Pingresp
-        : public iot::mqtt::ControlPacketSender
-        , public iot::mqtt::packets::Pingresp {
-    public:
-        explicit Pingresp();
+    void Unsuback::propagateEvent(iot::mqtt::SocketContext* socketContext) {
+        dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onUnsuback(*this);
+    }
 
-    private:
-        std::vector<char> serializeVP() const override;
-    };
-
-} // namespace iot::mqtt::server::packets
-
-#endif // IOT_MQTT_PACKETSNEW_PINGRESP_H
+} // namespace iot::mqtt::client::packets

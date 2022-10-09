@@ -19,12 +19,6 @@
 #ifndef IOT_MQTT_PACKETSNEW_DISCONNECT_H
 #define IOT_MQTT_PACKETSNEW_DISCONNECT_H
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -38,12 +32,9 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Disconnect : public iot::mqtt::ControlPacketSender {
+    class Disconnect {
     public:
-        explicit Disconnect(); // Client
-
-    private:
-        std::vector<char> serializeVP() const override; // Client
+        Disconnect() = default;
     };
 
 } // namespace iot::mqtt::packets

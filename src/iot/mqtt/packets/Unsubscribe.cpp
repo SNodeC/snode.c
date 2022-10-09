@@ -24,31 +24,12 @@
 
 namespace iot::mqtt::packets {
 
-    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
-        this->packetIdentifier = packetIdentifier;
-        this->topics = topics;
-    }
-
     uint16_t Unsubscribe::getPacketIdentifier() const {
         return packetIdentifier;
     }
 
     const std::list<std::string>& Unsubscribe::getTopics() const {
         return topics;
-    }
-
-    std::vector<char> Unsubscribe::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        for (const std::string& topic : topics) {
-            packet.insert(packet.end(), topic.begin(), topic.end());
-        }
-
-        return packet;
     }
 
 } // namespace iot::mqtt::packets

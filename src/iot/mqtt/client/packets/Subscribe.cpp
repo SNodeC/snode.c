@@ -16,51 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Pubrel.h"
-
-#include "iot/mqtt/SocketContext.h"
+#include "iot/mqtt/client/packets/Subscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::client::packets {
 
-    Pubrel::Pubrel(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL, MQTT_PUBREL_FLAGS) {
+    Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_SUBSCRIBE_FLAGS) {
         this->packetIdentifier = packetIdentifier;
+        this->topics = topics;
     }
 
-    Pubrel::Pubrel(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PUBREL_FLAGS) {
-    }
-
-    uint16_t Pubrel::getPacketIdentifier() const {
-        return packetIdentifier;
-    }
-
-    std::vector<char> Pubrel::serializeVP() const {
+    std::vector<char> Subscribe::serializeVP() const {
         std::vector<char> packet;
 
         std::vector<char> tmpVector = packetIdentifier.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
+        for (const Topic& topic : topics) {
+            packet.insert(packet.end(), topic.getName().begin(), topic.getName().end());
+            packet.push_back(static_cast<char>(topic.getRequestedQoS()));
+        }
+
         return packet;
     }
 
-    std::size_t Pubrel::deserializeVP(SocketContext* socketContext) {
-        // V-Header
-        std::size_t consumed = packetIdentifier.deserialize(socketContext);
-        complete = packetIdentifier.isComplete();
-
-        // no Payload
-
-        return consumed;
-    }
-
-    void Pubrel::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onPubrel(*this);
-    }
-
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::client::packets

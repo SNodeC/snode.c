@@ -19,8 +19,6 @@
 #ifndef IOT_MQTT_PACKETSNEW_PINGREQ_H
 #define IOT_MQTT_PACKETSNEW_PINGREQ_H
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -34,12 +32,9 @@
 
 namespace iot::mqtt::packets {
 
-    class Pingreq : public iot::mqtt::ControlPacketSender {
+    class Pingreq {
     public:
-        explicit Pingreq(); // Client
-
-    private:
-        std::vector<char> serializeVP() const override; // Client
+        Pingreq() = default;
     };
 
 } // namespace iot::mqtt::packets

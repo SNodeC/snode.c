@@ -44,11 +44,11 @@ namespace iot::mqtt::server::packets {
         : public iot::mqtt::ControlPacketReceiver
         , public iot::mqtt::packets::Connect {
     public:
-        explicit Connect(uint32_t remainingLength, uint8_t flags); // Server
+        explicit Connect(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Server
-        void propagateEvent(iot::mqtt::SocketContext* socketcontext) override;       // Server
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketcontext) override;
 
     private:
         int state = 0;

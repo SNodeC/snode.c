@@ -16,44 +16,50 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_PACKETSNEW_UNSUBSCRIBE_H
-#define IOT_MQTT_SERVER_PACKETSNEW_UNSUBSCRIBE_H
+#ifndef IOT_MQTT_CLIENT_PACKETSNEW_CONNACK_H
+#define IOT_MQTT_CLIENT_PACKETSNEW_CONNACK_H
 
 #include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/Topic.h"                 // IWYU pragma: export
-#include "iot/mqtt/packets/Unsubscribe.h"
-#include "iot/mqtt/types/String.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/packets/Connack.h"
+#include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
-}
+} // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list> // IWYU pragma: export
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_UNSUBSCRIBE 0x0A
-#define MQTT_UNSUBSCRIBE_FLAGS 0x02
+#define MQTT_CONNACK 0x02
+#define MQTT_CONNACK_FLAGS 0x00
 
-namespace iot::mqtt::server::packets {
+#define MQTT_CONNACK_ACCEPT 0
+#define MQTT_CONNACK_UNACEPTABLEVERSION 1
+#define MQTT_CONNACK_IDENTIFIERREJECTED 2
+#define MQTT_CONNACK_SERVERUNAVAILABLE 3
+#define MQTT_CONNACK_BADUSERNAMEORPASSWORD 4
+#define MQTT_CONNACK_NOTAUTHORIZED 5
 
-    class Unsubscribe
+#define MQTT_SESSION_NEW 0x00
+#define MQTT_SESSION_PRESENT 0x01
+
+namespace iot::mqtt::client::packets {
+
+    class Connack
         : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::packets::Unsubscribe {
+        , public iot::mqtt::packets::Connack {
     public:
-        explicit Unsubscribe(uint32_t remainingLength, uint8_t flags);
+        Connack() = default;
+        explicit Connack(uint32_t remainingLength, uint8_t flags); // Client
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
-        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;       // Client
 
-    private:
         int state = 0;
     };
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::client::packets
 
-#endif // IOT_MQTT_SERVER_PACKETSNEW_UNSUBSCRIBE_H
+#endif // IOT_MQTT_CLIENT_PACKETSNEW_CONNACK_H

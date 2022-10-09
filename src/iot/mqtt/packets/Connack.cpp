@@ -18,21 +18,14 @@
 
 #include "iot/mqtt/packets/Connack.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Connack::Connack(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_CONNACK_FLAGS) {
-    }
-
     uint8_t Connack::getFlags() const {
-        return flags;
+        return connectFlags;
     }
 
     uint8_t Connack::getReturnCode() const {
@@ -41,40 +34,6 @@ namespace iot::mqtt::packets {
 
     bool Connack::getSessionPresent() const {
         return sessionPresent;
-    }
-
-    std::size_t Connack::deserializeVP(SocketContext* socketContext) {
-        std::size_t consumed = 0;
-
-        switch (state) {
-            case 0: // V-Header
-                consumed += flags.deserialize(socketContext);
-                if (!flags.isComplete()) {
-                    break;
-                }
-
-                state++;
-                [[fallthrough]];
-            case 1:
-                consumed += returnCode.deserialize(socketContext);
-
-                if (!returnCode.isComplete()) {
-                    break;
-                }
-
-                sessionPresent = returnCode & 0x01;
-
-                complete = true;
-                break;
-
-                // no Payload
-        }
-
-        return consumed;
-    }
-
-    void Connack::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onConnack(*this);
     }
 
 } // namespace iot::mqtt::packets

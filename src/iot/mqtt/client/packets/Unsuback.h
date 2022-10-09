@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_PUBASK_H
-#define IOT_MQTT_PACKETSNEW_PUBASK_H
+#ifndef IOT_MQTT_CLIENT_PACKETSNEW_UNSUBACK_H
+#define IOT_MQTT_CLIENT_PACKETSNEW_UNSUBACK_H
 
 #include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
+#include "iot/mqtt/packets/Unsuback.h"
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -31,30 +31,23 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PUBACK 0x04
-#define MQTT_PUBACK_FLAGS 0x00
+#define MQTT_UNSUBACK 0x0B
+#define MQTT_UNSUBACK_FLAGS 0x00
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::client::packets {
 
-    class Puback
+    class Unsuback
         : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+        , public iot::mqtt::packets::Unsuback {
     public:
-        explicit Puback(const uint16_t packetIdentifier);         // Server & Client
-        explicit Puback(uint32_t remainingLength, uint8_t flags); // Server & Client
+        Unsuback() = default;
+        explicit Unsuback(uint32_t remainingLength, uint8_t flags); // Client
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override; // Server & Client
-        std::vector<char> serializeVP() const override;                   // Server & Client
-        void propagateEvent(SocketContext* socketContext) override;       // Server & Client
-
-    public:
-        uint16_t getPacketIdentifier() const;
-
-    private:
-        iot::mqtt::types::UInt16 packetIdentifier;
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;       // Client
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::client::packets
 
-#endif // IOT_MQTT_PACKETSNEW_PUBASK_H
+#endif // IOT_MQTT_CLIENT_PACKETSNEW_UNSUBACK_H

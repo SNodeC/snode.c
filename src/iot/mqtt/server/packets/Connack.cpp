@@ -27,13 +27,13 @@ namespace iot::mqtt::server::packets {
     Connack::Connack(uint8_t returncode, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNACK, flags) {
         this->returnCode = returncode;
-        this->flags = flags;
+        this->connectFlags = flags;
     }
 
     std::vector<char> Connack::serializeVP() const {
         std::vector<char> packet;
 
-        std::vector<char> tmpVector = flags.serialize();
+        std::vector<char> tmpVector = connectFlags.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         tmpVector = returnCode.serialize();

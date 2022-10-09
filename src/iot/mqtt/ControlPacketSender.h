@@ -31,7 +31,7 @@ namespace iot::mqtt {
     public:
         ControlPacketSender() = default;
 
-        std::vector<char> serialize() const; // Send
+        std::vector<char> serialize() const;
 
     private:
         virtual std::vector<char> serializeVP() const = 0;

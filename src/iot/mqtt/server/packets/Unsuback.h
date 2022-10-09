@@ -36,10 +36,10 @@ namespace iot::mqtt::server::packets {
         : public iot::mqtt::ControlPacketSender
         , public iot::mqtt::packets::Unsuback {
     public:
-        explicit Unsuback(const uint16_t packetIdentifier); // Server
+        explicit Unsuback(const uint16_t packetIdentifier);
 
     private:
-        std::vector<char> serializeVP() const override; // Server
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::server::packets

@@ -19,10 +19,9 @@
 #ifndef IOT_MQTT_PACKETSNEW_CONNECT_H
 #define IOT_MQTT_PACKETSNEW_CONNECT_H
 
-#include "iot/mqtt/ControlPacketSender.h" // IWYU pragma: export
-#include "iot/mqtt/types/String.h"        // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"        // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"         // IWYU pragma: export
+#include "iot/mqtt/types/String.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,15 +34,10 @@
 
 namespace iot::mqtt::packets {
 
-    class Connect : public iot::mqtt::ControlPacketSender {
+    class Connect {
     public:
         Connect() = default;
-        explicit Connect(const std::string& clientId); // Client
 
-    private:
-        std::vector<char> serializeVP() const override; // Client
-
-    public:
         std::string getProtocol() const;
         uint8_t getLevel() const;
         uint8_t getConnectFlags() const;

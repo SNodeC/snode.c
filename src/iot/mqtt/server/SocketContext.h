@@ -19,19 +19,7 @@
 #ifndef IOT_MQTT_SERVER_SOCKETCONTEXT_H
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
-#include "iot/mqtt/SocketContext.h" // IWYU pragma: export
-/*
-#include "iot/mqtt/packets/Disconnect.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Pingreq.h"        // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"       // IWYU pragma: export
-#include "iot/mqtt/packets/Puback.h"         // IWYU pragma: export
-#include "iot/mqtt/packets/Pubcomp.h"        // IWYU pragma: export
-#include "iot/mqtt/packets/Publish.h"        // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrec.h"         // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrel.h"         // IWYU pragma: export
-#include "iot/mqtt/packets/Suback.h"         // IWYU pragma: export
-#include "iot/mqtt/packets/Subscribe.h"      // IWYU pragma: export
-*/
+#include "iot/mqtt/SocketContext.h"              // IWYU pragma: export
 #include "iot/mqtt/server/packets/Connack.h"     // IWYU pragma: export
 #include "iot/mqtt/server/packets/Connect.h"     // IWYU pragma: export
 #include "iot/mqtt/server/packets/Disconnect.h"  // IWYU pragma: export
@@ -71,36 +59,27 @@ namespace iot::mqtt::server {
         iot::mqtt::ControlPacketReceiver* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) final;
 
         virtual void onConnect(iot::mqtt::server::packets::Connect& connect) = 0;
-        virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) = 0;       // Server
-        virtual void onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe) = 0; // Server
-        virtual void onPingreq(iot::mqtt::server::packets::Pingreq& pingreq) = 0;             // Server
-        virtual void onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect) = 0;    // Server
+        virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) = 0;
+        virtual void onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe) = 0;
+        virtual void onPingreq(iot::mqtt::server::packets::Pingreq& pingreq) = 0;
+        virtual void onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect) = 0;
 
         void _onConnect(iot::mqtt::server::packets::Connect& connect);
-        void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);       // Server
-        void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe); // Server
-        void _onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);             // Server
-        void _onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);    // Server
+        void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);
+        void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe);
+        void _onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);
+        void _onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
 
     public:
-        void sendConnack(uint8_t returnCode, uint8_t flags);                         // Server
-        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes); // Server
-        void sendUnsuback(uint16_t packetIdentifier);                                // Server
-        void sendPingresp();                                                         // Server
+        void sendConnack(uint8_t returnCode, uint8_t flags);
+        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes);
+        void sendUnsuback(uint16_t packetIdentifier);
+        void sendPingresp();
 
-        //        friend class iot::mqtt::packets::Connack;
         friend class iot::mqtt::server::packets::Connect;
-        //        friend class iot::mqtt::packets::Publish;
-        //        friend class iot::mqtt::packets::Puback;
-        //        friend class iot::mqtt::packets::Pubrec;
-        //        friend class iot::mqtt::packets::Pubrel;
-        //        friend class iot::mqtt::packets::Pubcomp;
         friend class iot::mqtt::server::packets::Subscribe;
-        //        friend class iot::mqtt::packets::Suback;
         friend class iot::mqtt::server::packets::Unsubscribe;
-        //        friend class iot::mqtt::packets::Unsuback;
         friend class iot::mqtt::server::packets::Pingreq;
-        //        friend class iot::mqtt::packets::Pingresp;
         friend class iot::mqtt::server::packets::Disconnect;
     };
 

@@ -40,11 +40,11 @@ namespace iot::mqtt::server::packets {
 
     class Pingreq : public iot::mqtt::ControlPacketReceiver {
     public:
-        explicit Pingreq(uint32_t remainingLength, uint8_t flags); // Server
+        explicit Pingreq(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Server
-        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;       // Server
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
     };
 
 } // namespace iot::mqtt::server::packets

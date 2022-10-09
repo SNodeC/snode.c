@@ -18,18 +18,11 @@
 
 #include "iot/mqtt/packets/Suback.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
-
-    Suback::Suback(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_SUBACK_FLAGS) {
-    }
 
     uint16_t Suback::getPacketIdentifier() const {
         return packetIdentifier;
@@ -37,44 +30,6 @@ namespace iot::mqtt::packets {
 
     const std::list<uint8_t>& Suback::getReturnCodes() const {
         return returnCodes;
-    }
-
-    std::size_t Suback::deserializeVP([[maybe_unused]] SocketContext* socketContext) {
-        std::size_t consumed = 0;
-
-        switch (state) {
-            case 0: // V-Header
-                consumed += packetIdentifier.deserialize(socketContext);
-
-                if (!packetIdentifier.isComplete()) {
-                    break;
-                }
-
-                state++;
-                [[fallthrough]];
-            case 1: // Payload
-                consumed += returnCode.deserialize(socketContext);
-
-                if (!returnCode.isComplete()) {
-                    break;
-                } else {
-                    returnCodes.push_back(returnCode);
-                    returnCode.reset();
-
-                    if (getConsumed() + consumed < this->getRemainingLength()) {
-                        break;
-                    }
-                }
-
-                complete = true;
-                break;
-        }
-
-        return consumed;
-    }
-
-    void Suback::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
-        socketContext->_onSuback(*this);
     }
 
 } // namespace iot::mqtt::packets

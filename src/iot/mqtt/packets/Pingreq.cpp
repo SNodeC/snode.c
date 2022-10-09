@@ -22,14 +22,4 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
-
-    Pingreq::Pingreq()
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ, MQTT_PINGREQ_FLAGS) {
-    }
-
-    std::vector<char> Pingreq::serializeVP() const {
-        return std::vector<char>();
-    }
-
-} // namespace iot::mqtt::packets
+namespace iot::mqtt::packets {} // namespace iot::mqtt::packets

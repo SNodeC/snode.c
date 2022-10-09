@@ -16,51 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Pubcomp.h"
-
-#include "iot/mqtt/SocketContext.h"
+#include "iot/mqtt/client/packets/Unsubscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::client::packets {
 
-    Pubcomp::Pubcomp(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBCOMP, MQTT_PUBCOMP_FLAGS) {
+    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
         this->packetIdentifier = packetIdentifier;
+        this->topics = topics;
     }
 
-    Pubcomp::Pubcomp(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PUBCOMP_FLAGS) {
-    }
-
-    uint16_t Pubcomp::getPacketIdentifier() const {
-        return packetIdentifier;
-    }
-
-    std::vector<char> Pubcomp::serializeVP() const {
+    std::vector<char> Unsubscribe::serializeVP() const {
         std::vector<char> packet;
 
         std::vector<char> tmpVector = packetIdentifier.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
+        for (const std::string& topic : topics) {
+            packet.insert(packet.end(), topic.begin(), topic.end());
+        }
+
         return packet;
     }
 
-    std::size_t Pubcomp::deserializeVP(SocketContext* socketContext) {
-        // no Payload
-        std::size_t consumed = packetIdentifier.deserialize(socketContext);
-        complete = packetIdentifier.isComplete();
-
-        // no Payload
-
-        return consumed;
-    }
-
-    void Pubcomp::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onPubcomp(*this);
-    }
-
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::client::packets
