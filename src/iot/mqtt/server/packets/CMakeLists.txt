@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_PACKETS_CPP
+set(MQTT_SERVER_PACKETS_CPP
     Connect.cpp
     Connack.cpp
     Disconnect.cpp
@@ -13,7 +13,7 @@ set(MQTT_PACKETS_CPP
     Unsubscribe.cpp
     Unsuback.cpp
 )
-set(MQTT_PACKETS_H
+set(MQTT_SERVER_PACKETS_H
     Connect.h
     Connack.h
     Disconnect.h
@@ -25,10 +25,15 @@ set(MQTT_PACKETS_H
     Unsuback.h
 )
 
-add_library(mqtt-server-packets STATIC ${MQTT_PACKETS_CPP} ${MQTT_PACKETS_H})
+add_library(
+    mqtt-server-packets STATIC ${MQTT_SERVER_PACKETS_CPP}
+                               ${MQTT_SERVER_PACKETS_H}
+)
 add_library(snodec::mqtt-server-packets ALIAS mqtt-server-packets)
 
-target_link_libraries(mqtt-server-packets PRIVATE snodec::mqtt-types snodec::mqtt-packets)
+target_link_libraries(
+    mqtt-server-packets PRIVATE snodec::mqtt-types snodec::mqtt-packets
+)
 
 set_property(TARGET mqtt-server-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 

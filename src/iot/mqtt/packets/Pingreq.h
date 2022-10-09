@@ -21,10 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_PINGREQ 0x0C

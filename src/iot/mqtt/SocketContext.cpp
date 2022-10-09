@@ -62,7 +62,7 @@ namespace iot::mqtt {
                            << static_cast<uint16_t>(staticHeader.getFlags());
                 LOG(TRACE) << "RemainingLength: " << staticHeader.getRemainingLength();
 
-                currentPacket = onReceiveFromPeer(staticHeader);
+                currentPacket = deserialize(staticHeader);
 
                 if (currentPacket == nullptr) {
                     switch (staticHeader.getPacketType()) {

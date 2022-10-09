@@ -4,21 +4,27 @@ add_subdirectory(packets)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_CPP SocketContext.cpp)
+set(MQTT_SERVER_CPP SocketContext.cpp)
 
-set(MQTT_H SocketContext.h)
+set(MQTT_SERVER_H SocketContext.h)
 
-add_library(mqtt-server SHARED ${MQTT_CPP} ${MQTT_H})
+add_library(mqtt-server SHARED ${MQTT_SERVER_CPP} ${MQTT_SERVER_H})
 add_library(snodec::mqtt-server ALIAS mqtt-server)
 
-target_link_libraries(mqtt-server PUBLIC snodec::mqtt PRIVATE snodec::mqtt-server-packets)
+target_link_libraries(
+    mqtt-server
+    PUBLIC snodec::mqtt
+    PRIVATE snodec::mqtt-server-packets
+)
 
 target_include_directories(
     mqtt-server PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                "$<INSTALL_INTERFACE:include/snode.c>"
+                       "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(mqtt-server PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt-server)
+set_target_properties(
+    mqtt-server PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt-server
+)
 
 install(
     TARGETS mqtt-server

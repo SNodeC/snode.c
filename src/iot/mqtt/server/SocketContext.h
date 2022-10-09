@@ -56,7 +56,7 @@ namespace iot::mqtt::server {
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
     private:
-        iot::mqtt::ControlPacketReceiver* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) final;
+        iot::mqtt::ControlPacketReceiver* deserialize(iot::mqtt::StaticHeader& staticHeader) final;
 
         virtual void onConnect(iot::mqtt::server::packets::Connect& connect) = 0;
         virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) = 0;

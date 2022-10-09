@@ -21,10 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 #define MQTT_DISCONNECT 0x0E
