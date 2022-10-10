@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 3.18)
 
+add_subdirectory(packets)
+add_subdirectory(types)
+
+add_subdirectory(server)
+add_subdirectory(client)
+
 set(CMAKE_INSTALL_RPATH
     ${CMAKE_INSTALL_RPATH} "${CMAKE_INSTALL_PREFIX}/lib/snode.c/iot/mqtt"
     CACHE INTERNAL ""
 )
-
-add_subdirectory(packets)
-add_subdirectory(types)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -54,6 +57,3 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
-
-add_subdirectory(server)
-add_subdirectory(client)

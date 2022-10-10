@@ -1,12 +1,10 @@
 @PACKAGE_INIT@
 
-set(websocket-server_DEPENDENCIES websocket http-server)
-set(websocket-client_DEPENDENCIES websocket http-client)
-
-set(http-server-express_DEPENDENCIES http-server)
-
-set(http-server_DEPENDENCIES http)
-set(http-client_DEPENDENCIES http)
+# Core
+set(core-socket_DEPENDENCIES core)
+set(core-socket-stream_DEPENDENCIES core-socket net-un-dgram)
+set(core-socket-stream-legacy_DEPENDENCIES core-socket-stream)
+set(core-socket-stream-tls_DEPENDENCIES core-socket-stream)
 
 # Base network code
 set(net-in_DEPENDENCIES net)
@@ -39,20 +37,21 @@ set(net-un-stream-tls_DEPENDENCIES net-un-stream core-socket-stream-tls)
 # Base network-dgram code
 set(net-un-dgram_DEPENDENCIES net-un)
 
-set(db-mariadb_DEPENDENCIES core)
+# HTTP
+set(http-server_DEPENDENCIES http)
+set(http-client_DEPENDENCIES http)
+set(http-server-express_DEPENDENCIES http-server)
 
-set(core-socket_DEPENDENCIES core)
+# Websocket
+set(websocket-server_DEPENDENCIES websocket http-server)
+set(websocket-client_DEPENDENCIES websocket http-client)
 
-set(core-socket-stream_DEPENDENCIES core-socket net-un-dgram)
-
-set(core-socket-stream-legacy_DEPENDENCIES core-socket-stream)
-set(core-socket-stream-tls_DEPENDENCIES core-socket-stream)
-
-set(mqtt_DEPENDENCIES core)
-set(mqtt-fast_DEPENDENCIES core)
-
+# MQTT
 set(mqtt-server_DEPENDENCIES mqtt)
 set(mqtt-client DEPENDENCIES mqtt)
+
+# Database
+set(db-mariadb_DEPENDENCIES core)
 
 set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils logger)
 
