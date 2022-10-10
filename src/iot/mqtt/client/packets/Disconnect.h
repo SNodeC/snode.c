@@ -32,7 +32,7 @@ namespace iot::mqtt::client::packets {
         : public iot::mqtt::ControlPacketSender
         , public iot::mqtt::packets::Disconnect {
     public:
-        explicit Disconnect(); // Client
+        explicit Disconnect();
 
     private:
         std::vector<char> serializeVP() const override;

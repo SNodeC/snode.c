@@ -34,11 +34,10 @@ namespace iot::mqtt::client::packets {
         : public iot::mqtt::ControlPacketSender
         , public iot::mqtt::packets::Subscribe {
     public:
-        Subscribe() = default;
-        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics); // Client
+        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics);
 
     private:
-        std::vector<char> serializeVP() const override; // Client
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::client::packets

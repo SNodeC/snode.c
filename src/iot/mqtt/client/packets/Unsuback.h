@@ -36,12 +36,11 @@ namespace iot::mqtt::client::packets {
         : public iot::mqtt::ControlPacketReceiver
         , public iot::mqtt::packets::Unsuback {
     public:
-        Unsuback() = default;
-        explicit Unsuback(uint32_t remainingLength, uint8_t flags); // Client
+        explicit Unsuback(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
-        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;       // Client
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
     };
 
 } // namespace iot::mqtt::client::packets

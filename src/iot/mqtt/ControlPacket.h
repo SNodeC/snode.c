@@ -29,7 +29,7 @@ namespace iot::mqtt {
 
     class ControlPacket {
     public:
-        ControlPacket() = default;
+        ControlPacket() = delete;
         ControlPacket(uint8_t type, uint8_t flags);
 
         virtual ~ControlPacket() = default;

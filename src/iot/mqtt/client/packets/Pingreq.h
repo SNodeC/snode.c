@@ -32,10 +32,10 @@ namespace iot::mqtt::client::packets {
         : public iot::mqtt::ControlPacketSender
         , public iot::mqtt::packets::Pingreq {
     public:
-        explicit Pingreq(); // Client
+        explicit Pingreq();
 
     private:
-        std::vector<char> serializeVP() const override; // Client
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::client::packets

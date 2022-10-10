@@ -32,7 +32,6 @@ namespace iot::mqtt::client::packets {
         : public iot::mqtt::ControlPacketSender
         , public iot::mqtt::packets::Connect {
     public:
-        Connect() = default;
         explicit Connect(const std::string& clientId);
 
     private:

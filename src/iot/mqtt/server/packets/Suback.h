@@ -38,11 +38,6 @@ namespace iot::mqtt::server::packets {
 
     private:
         std::vector<char> serializeVP() const override;
-
-    private:
-        iot::mqtt::types::UInt16 packetIdentifier;
-        iot::mqtt::types::UInt8 returnCode;
-        std::list<uint8_t> returnCodes;
     };
 
 } // namespace iot::mqtt::server::packets

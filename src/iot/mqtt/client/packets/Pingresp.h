@@ -36,12 +36,11 @@ namespace iot::mqtt::client::packets {
         : public iot::mqtt::ControlPacketReceiver
         , public iot::mqtt::packets::Pingresp {
     public:
-        explicit Pingresp() = default;                     // Server
-        Pingresp(uint32_t remainingLength, uint8_t flags); // Client
+        Pingresp(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Client
-        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;       // Client
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
     };
 
 } // namespace iot::mqtt::client::packets

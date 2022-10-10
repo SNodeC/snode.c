@@ -47,13 +47,13 @@ namespace iot::mqtt::packets {
                 const std::string& message,
                 bool dup = false,
                 uint8_t qoSLevel = 0,
-                bool retain = false);                              // Server & Client
-        explicit Publish(uint32_t remainingLength, uint8_t flags); // Server & Client
+                bool retain = false);
+        explicit Publish(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override; // Server & Client
-        std::vector<char> serializeVP() const override;                              // Server & Client
-        void propagateEvent(SocketContext* socketContext) override;                  // Server & Client
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        std::vector<char> serializeVP() const override;
+        void propagateEvent(SocketContext* socketContext) override;
 
     public:
         bool getDup() const;
