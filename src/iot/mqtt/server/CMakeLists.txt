@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_subdirectory(packets)
 add_subdirectory(broker)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -15,8 +14,8 @@ add_library(snodec::mqtt-server ALIAS mqtt-server)
 target_link_libraries(
     mqtt-server
     PUBLIC snodec::mqtt
-    PRIVATE snodec::mqtt-server-packets
     PRIVATE snodec::mqtt-broker
+    PRIVATE snodec::mqtt-packets
 )
 
 target_include_directories(

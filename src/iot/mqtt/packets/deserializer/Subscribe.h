@@ -16,30 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/packets/Connack.h"
+#ifndef IOT_MQTT_PACKETS_DESERIALIZER_SUBSCRIBE_H
+#define IOT_MQTT_PACKETS_DESERIALIZER_SUBSCRIBE_H
+
+#include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/packets/Subscribe.h" // IWYU pragma: export
+
+namespace iot::mqtt {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    Connack::Connack(uint8_t returncode, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags) {
-        this->returnCode = returncode;
-        this->connectFlags = flags;
-    }
+    class Subscribe
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::packets::Subscribe {
+    public:
+        explicit Subscribe(uint32_t remainingLength, uint8_t flags);
 
-    std::vector<char> Connack::serializeVP() const {
-        std::vector<char> packet;
+    private:
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
 
-        std::vector<char> tmpVector = connectFlags.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+    private:
+        int state = 0;
+    };
 
-        tmpVector = returnCode.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+} // namespace iot::mqtt::packets::deserializer
 
-        return packet;
-    }
-
-} // namespace iot::mqtt::server::packets
+#endif // IOT_MQTT_PACKETS_DESERIALIZER_SUBSCRIBE_H

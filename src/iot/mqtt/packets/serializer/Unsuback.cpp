@@ -16,33 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_CLIENT_PACKETS_PINGRESP_H
-#define IOT_MQTT_CLIENT_PACKETS_PINGRESP_H
-
-#include "iot/mqtt/ControlPacketReceiver.h"
-#include "iot/mqtt/packets/Pingresp.h" // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
+#include "iot/mqtt/packets/serializer/Unsuback.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::server::packets {
 
-    class Pingresp
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::packets::Pingresp {
-    public:
-        Pingresp(uint32_t remainingLength, uint8_t flags);
+    Unsuback::Unsuback(const uint16_t packetIdentifier)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, MQTT_UNSUBACK_FLAGS) {
+        this->packetIdentifier = packetIdentifier;
+    }
 
-    private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
-        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
-    };
+    std::vector<char> Unsuback::serializeVP() const {
+        std::vector<char> packet;
 
-} // namespace iot::mqtt::client::packets
+        std::vector<char> tmpVector = packetIdentifier.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-#endif // IOT_MQTT_CLIENT_PACKETS_PINGRESP_H
+        return packet;
+    }
+
+} // namespace iot::mqtt::server::packets

@@ -16,56 +16,53 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/packets/Unsubscribe.h"
+#include "iot/mqtt/packets/deserializer/Connack.h"
 
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/client/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
+    Connack::Connack(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_CONNACK_FLAGS) {
     }
 
-    std::size_t Unsubscribe::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Connack::deserializeVP(iot::mqtt::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0: // V-Header
-                consumed += packetIdentifier.deserialize(socketContext);
-                if (!packetIdentifier.isComplete()) {
+                consumed += connectFlags.deserialize(socketContext);
+                if (!connectFlags.isComplete()) {
                     break;
                 }
 
                 state++;
                 [[fallthrough]];
-            case 1: // Payload
-                consumed += topic.deserialize(socketContext);
+            case 1:
+                consumed += returnCode.deserialize(socketContext);
 
-                if (!topic.isComplete()) {
+                if (!returnCode.isComplete()) {
                     break;
-                } else {
-                    topics.push_back(topic);
-                    topic.reset();
-
-                    if (getConsumed() + consumed < this->getRemainingLength()) {
-                        break;
-                    }
                 }
+
+                sessionPresent = returnCode & 0x01;
 
                 complete = true;
                 break;
+
+                // no Payload
         }
 
         return consumed;
     }
 
-    void Unsubscribe::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onUnsubscribe(*this);
+    void Connack::propagateEvent(iot::mqtt::SocketContext* socketContext) {
+        dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onConnack(*this);
     }
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::packets::deserializer

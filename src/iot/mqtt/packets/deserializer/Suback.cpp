@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/client/packets/Suback.h"
+#include "iot/mqtt/packets/deserializer/Suback.h"
 
 #include "iot/mqtt/client/SocketContext.h"
 
@@ -24,7 +24,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::deserializer {
 
     Suback::Suback(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_SUBACK, flags)
@@ -69,4 +69,4 @@ namespace iot::mqtt::client::packets {
         dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onSuback(*this);
     }
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt::packets::deserializer

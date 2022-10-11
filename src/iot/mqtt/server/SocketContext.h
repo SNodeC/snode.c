@@ -19,16 +19,16 @@
 #ifndef IOT_MQTT_SERVER_SOCKETCONTEXT_H
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
-#include "iot/mqtt/SocketContext.h"              // IWYU pragma: export
-#include "iot/mqtt/server/packets/Connack.h"     // IWYU pragma: export
-#include "iot/mqtt/server/packets/Connect.h"     // IWYU pragma: export
-#include "iot/mqtt/server/packets/Disconnect.h"  // IWYU pragma: export
-#include "iot/mqtt/server/packets/Pingreq.h"     // IWYU pragma: export
-#include "iot/mqtt/server/packets/Pingresp.h"    // IWYU pragma: export
-#include "iot/mqtt/server/packets/Suback.h"      // IWYU pragma: export
-#include "iot/mqtt/server/packets/Subscribe.h"   // IWYU pragma: export
-#include "iot/mqtt/server/packets/Unsuback.h"    // IWYU pragma: export
-#include "iot/mqtt/server/packets/Unsubscribe.h" // IWYU pragma: export
+#include "iot/mqtt/SocketContext.h"                    // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Connect.h"     // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Disconnect.h"  // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Pingreq.h"     // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Subscribe.h"   // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Unsubscribe.h" // IWYU pragma: export
+#include "iot/mqtt/packets/serializer/Connack.h"       // IWYU pragma: export
+#include "iot/mqtt/packets/serializer/Pingresp.h"      // IWYU pragma: export
+#include "iot/mqtt/packets/serializer/Suback.h"        // IWYU pragma: export
+#include "iot/mqtt/packets/serializer/Unsuback.h"      // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -62,23 +62,23 @@ namespace iot::mqtt::server {
         void initSession();
         void releaseSession();
 
-        virtual void onConnect(iot::mqtt::server::packets::Connect& connect);
+        virtual void onConnect(iot::mqtt::packets::deserializer::Connect& connect);
         void onPublish(iot::mqtt::packets::Publish& publish) override;
         void onPuback(iot::mqtt::packets::Puback& puback) override;
         void onPubrec(iot::mqtt::packets::Pubrec& pubrec) override;
         void onPubrel(iot::mqtt::packets::Pubrel& pubrel) override;
         void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) override;
-        virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);
-        virtual void onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe);
-        virtual void onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);
-        virtual void onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
+        virtual void onSubscribe(iot::mqtt::packets::deserializer::Subscribe& subscribe);
+        virtual void onUnsubscribe(iot::mqtt::packets::deserializer::Unsubscribe& unsubscribe);
+        virtual void onPingreq(iot::mqtt::packets::deserializer::Pingreq& pingreq);
+        virtual void onDisconnect(iot::mqtt::packets::deserializer::Disconnect& disconnect);
 
         void __onPublish(iot::mqtt::packets::Publish& publish) override;
-        void _onConnect(iot::mqtt::server::packets::Connect& connect);
-        void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);
-        void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe);
-        void _onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);
-        void _onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
+        void _onConnect(iot::mqtt::packets::deserializer::Connect& connect);
+        void _onSubscribe(iot::mqtt::packets::deserializer::Subscribe& subscribe);
+        void _onUnsubscribe(iot::mqtt::packets::deserializer::Unsubscribe& unsubscribe);
+        void _onPingreq(iot::mqtt::packets::deserializer::Pingreq& pingreq);
+        void _onDisconnect(iot::mqtt::packets::deserializer::Disconnect& disconnect);
 
     public:
         void sendConnack(uint8_t returnCode, uint8_t flags);
@@ -109,11 +109,12 @@ namespace iot::mqtt::server {
         uint8_t willQoS = 0;
         bool willFlag = false;
         bool cleanSession = false;
-        friend class iot::mqtt::server::packets::Connect;
-        friend class iot::mqtt::server::packets::Subscribe;
-        friend class iot::mqtt::server::packets::Unsubscribe;
-        friend class iot::mqtt::server::packets::Pingreq;
-        friend class iot::mqtt::server::packets::Disconnect;
+
+        friend class iot::mqtt::packets::deserializer::Connect;
+        friend class iot::mqtt::packets::deserializer::Subscribe;
+        friend class iot::mqtt::packets::deserializer::Unsubscribe;
+        friend class iot::mqtt::packets::deserializer::Pingreq;
+        friend class iot::mqtt::packets::deserializer::Disconnect;
     };
 
 } // namespace iot::mqtt::server

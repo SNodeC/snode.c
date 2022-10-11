@@ -16,23 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/client/packets/Unsuback.h"
+#ifndef IOT_MQTT_PACKETS_DESERIALIZER_DISCONNECT_H
+#define IOT_MQTT_PACKETS_DESERIALIZER_DISCONNECT_H
 
-#include "iot/mqtt/client/SocketContext.h"
+#include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/packets/Disconnect.h" // IWYU pragma: export
+
+namespace iot::mqtt {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    Unsuback::Unsuback(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_UNSUBACK_FLAGS) {
-    }
+    class Disconnect
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::packets::Disconnect {
+    public:
+        explicit Disconnect(uint32_t remainingLength, uint8_t flags);
 
-    void Unsuback::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onUnsuback(*this);
-    }
+    private:
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
+    };
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt::packets::deserializer
+
+#endif // IOT_MQTT_PACKETS_DESERIALIZER_DISCONNECT_H

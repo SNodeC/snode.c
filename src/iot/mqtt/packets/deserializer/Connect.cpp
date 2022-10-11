@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/packets/Connect.h"
+#include "iot/mqtt/packets/deserializer/Connect.h"
 
 #include "iot/mqtt/server/SocketContext.h"
 
@@ -24,7 +24,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::deserializer {
 
     Connect::Connect(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNECT, flags)
@@ -132,4 +132,4 @@ namespace iot::mqtt::server::packets {
         dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onConnect(*this);
     }
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::packets::deserializer

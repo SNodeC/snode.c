@@ -16,31 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/packets/Disconnect.h"
-
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/packets/serializer/Pingreq.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::client::packets {
 
-    Disconnect::Disconnect(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_DISCONNECT_FLAGS) {
+    Pingreq::Pingreq()
+        : iot::mqtt::ControlPacket(MQTT_PINGREQ, MQTT_PINGREQ_FLAGS) {
     }
 
-    std::size_t Disconnect::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {
-        // no V-Header
-        // no Payload
-
-        complete = true;
-        return 0;
+    std::vector<char> Pingreq::serializeVP() const {
+        return std::vector<char>();
     }
 
-    void Disconnect::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onDisconnect(*this);
-    }
-
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::client::packets

@@ -16,31 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/packets/Suback.h"
+#ifndef IOT_MQTT_PACKETS_DESERIALIZER_SUBACK_H
+#define IOT_MQTT_PACKETS_DESERIALIZER_SUBACK_H
+
+#include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/packets/Suback.h" // IWYU pragma: export
+
+namespace iot::mqtt {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK, MQTT_SUBACK_FLAGS) {
-        this->packetIdentifier = packetIdentifier;
-        this->returnCodes = returnCodes;
-    }
+    class Suback
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::packets::Suback {
+    public:
+        explicit Suback(uint32_t remainingLength, uint8_t flags);
 
-    std::vector<char> Suback::serializeVP() const {
-        std::vector<char> packet;
+    private:
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
 
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        int state = 0;
+    };
 
-        for (uint8_t returnCode : returnCodes) {
-            packet.push_back(static_cast<char>(returnCode));
-        }
+} // namespace iot::mqtt::packets::deserializer
 
-        return packet;
-    }
-
-} // namespace iot::mqtt::server::packets
+#endif // IOT_MQTT_PACKETS_DESERIALIZER_SUBACK_H

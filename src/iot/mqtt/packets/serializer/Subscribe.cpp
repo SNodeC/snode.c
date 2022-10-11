@@ -16,26 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/packets/Unsuback.h"
+#include "iot/mqtt/packets/serializer/Subscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::client::packets {
 
-    Unsuback::Unsuback(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, MQTT_UNSUBACK_FLAGS) {
+    Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_SUBSCRIBE_FLAGS) {
         this->packetIdentifier = packetIdentifier;
+        this->topics = topics;
     }
 
-    std::vector<char> Unsuback::serializeVP() const {
+    std::vector<char> Subscribe::serializeVP() const {
         std::vector<char> packet;
 
         std::vector<char> tmpVector = packetIdentifier.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
+        for (const Topic& topic : topics) {
+            packet.insert(packet.end(), topic.getName().begin(), topic.getName().end());
+            packet.push_back(static_cast<char>(topic.getRequestedQoS()));
+        }
+
         return packet;
     }
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::client::packets

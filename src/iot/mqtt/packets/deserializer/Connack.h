@@ -16,20 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/client/packets/Pingreq.h"
+#ifndef IOT_MQTT_PACKETS_DESERIALIZER_CONNACK_H
+#define IOT_MQTT_PACKETS_DESERIALIZER_CONNACK_H
+
+#include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/packets/Connack.h" // IWYU pragma: export
+
+namespace iot::mqtt {
+    class SocketContext;
+} // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    Pingreq::Pingreq()
-        : iot::mqtt::ControlPacket(MQTT_PINGREQ, MQTT_PINGREQ_FLAGS) {
-    }
+    class Connack
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::packets::Connack {
+    public:
+        explicit Connack(uint32_t remainingLength, uint8_t flags);
 
-    std::vector<char> Pingreq::serializeVP() const {
-        return std::vector<char>();
-    }
+    private:
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
 
-} // namespace iot::mqtt::client::packets
+        int state = 0;
+    };
+
+} // namespace iot::mqtt::packets::deserializer
+
+#endif // IOT_MQTT_PACKETS_DESERIALIZER_CONNACK_H

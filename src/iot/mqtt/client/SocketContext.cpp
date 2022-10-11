@@ -35,16 +35,16 @@ namespace iot::mqtt::client {
 
         switch (staticHeader.getPacketType()) {
             case MQTT_CONNACK: // Client
-                currentPacket = new iot::mqtt::client::packets::Connack(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::packets::deserializer::Connack(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
             case MQTT_SUBACK: // Client
-                currentPacket = new iot::mqtt::client::packets::Suback(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::packets::deserializer::Suback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
             case MQTT_UNSUBACK: // Client
-                currentPacket = new iot::mqtt::client::packets::Unsuback(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::packets::deserializer::Unsuback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
             case MQTT_PINGRESP: // Client
-                currentPacket = new iot::mqtt::client::packets::Pingresp(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::packets::deserializer::Pingresp(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
             default:
                 currentPacket = nullptr;
@@ -54,7 +54,7 @@ namespace iot::mqtt::client {
         return currentPacket;
     }
 
-    void SocketContext::_onConnack(packets::Connack& connack) {
+    void SocketContext::_onConnack(iot::mqtt::packets::Connack& connack) {
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
             shutdown(true);
         } else {
@@ -62,7 +62,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void SocketContext::_onSuback(packets::Suback& suback) {
+    void SocketContext::_onSuback(iot::mqtt::packets::Suback& suback) {
         if (suback.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -70,7 +70,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void SocketContext::_onUnsuback(packets::Unsuback& unsuback) {
+    void SocketContext::_onUnsuback(iot::mqtt::packets::Unsuback& unsuback) {
         if (unsuback.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -78,7 +78,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void SocketContext::_onPingresp(packets::Pingresp& pingresp) {
+    void SocketContext::_onPingresp(iot::mqtt::packets::Pingresp& pingresp) {
         onPingresp(pingresp);
     }
 

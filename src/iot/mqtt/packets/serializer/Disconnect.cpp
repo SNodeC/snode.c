@@ -16,20 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/packets/Pingresp.h"
+#include "iot/mqtt/packets/serializer/Disconnect.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::client::packets {
 
-    Pingresp::Pingresp()
-        : iot::mqtt::ControlPacket(MQTT_PINGRESP, MQTT_PINGRESP_FLAGS) {
+    Disconnect::Disconnect()
+        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, MQTT_DISCONNECT_FLAGS) {
     }
 
-    std::vector<char> Pingresp::serializeVP() const {
+    std::vector<char> Disconnect::serializeVP() const {
         return std::vector<char>();
     }
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::client::packets

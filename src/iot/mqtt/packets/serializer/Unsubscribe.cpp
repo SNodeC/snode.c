@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/client/packets/Disconnect.h"
+#include "iot/mqtt/packets/serializer/Unsubscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,12 +24,23 @@
 
 namespace iot::mqtt::client::packets {
 
-    Disconnect::Disconnect()
-        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, MQTT_DISCONNECT_FLAGS) {
+    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
+        this->packetIdentifier = packetIdentifier;
+        this->topics = topics;
     }
 
-    std::vector<char> Disconnect::serializeVP() const {
-        return std::vector<char>();
+    std::vector<char> Unsubscribe::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = packetIdentifier.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        for (const std::string& topic : topics) {
+            packet.insert(packet.end(), topic.begin(), topic.end());
+        }
+
+        return packet;
     }
 
 } // namespace iot::mqtt::client::packets

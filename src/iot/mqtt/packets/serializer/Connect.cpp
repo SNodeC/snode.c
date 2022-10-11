@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/client/packets/Connect.h"
+#include "iot/mqtt/packets/serializer/Connect.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

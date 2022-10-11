@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/packets/Subscribe.h"
+#include "iot/mqtt/packets/deserializer/Unsubscribe.h"
 
 #include "iot/mqtt/server/SocketContext.h"
 
@@ -24,20 +24,19 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    Subscribe::Subscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_SUBSCRIBE_FLAGS) {
+    Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
     }
 
-    std::size_t Subscribe::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Unsubscribe::deserializeVP(iot::mqtt::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0: // V-Header
                 consumed += packetIdentifier.deserialize(socketContext);
-
                 if (!packetIdentifier.isComplete()) {
                     break;
                 }
@@ -49,22 +48,11 @@ namespace iot::mqtt::server::packets {
 
                 if (!topic.isComplete()) {
                     break;
-                }
-
-                state++;
-                [[fallthrough]];
-            case 2:
-                consumed += qoS.deserialize(socketContext);
-
-                if (!qoS.isComplete()) {
-                    break;
                 } else {
-                    topics.push_back(Topic(topic, qoS));
+                    topics.push_back(topic);
                     topic.reset();
-                    qoS.reset();
 
                     if (getConsumed() + consumed < this->getRemainingLength()) {
-                        state = 1;
                         break;
                     }
                 }
@@ -76,8 +64,8 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Subscribe::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onSubscribe(*this);
+    void Unsubscribe::propagateEvent(iot::mqtt::SocketContext* socketContext) {
+        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onUnsubscribe(*this);
     }
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::packets::deserializer

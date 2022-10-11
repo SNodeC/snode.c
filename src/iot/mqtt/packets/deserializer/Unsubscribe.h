@@ -16,31 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/client/packets/Pingresp.h"
+#ifndef IOT_MQTT_PACKETS_DESERIALIZER_UNSUBSCRIBE_H
+#define IOT_MQTT_PACKETS_DESERIALIZER_UNSUBSCRIBE_H
 
-#include "iot/mqtt/client/SocketContext.h"
+#include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/packets/Unsubscribe.h" // IWYU pragma: export
+
+namespace iot::mqtt {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    Pingresp::Pingresp(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_PINGRESP, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PINGRESP_FLAGS) {
-    }
+    class Unsubscribe
+        : public iot::mqtt::ControlPacketReceiver
+        , public iot::mqtt::packets::Unsubscribe {
+    public:
+        explicit Unsubscribe(uint32_t remainingLength, uint8_t flags);
 
-    std::size_t Pingresp::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {
-        // no V-Header
-        // no Payload
+    private:
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
 
-        complete = true;
-        return 0;
-    }
+    private:
+        int state = 0;
+    };
 
-    void Pingresp::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onPingresp(*this);
-    }
+} // namespace iot::mqtt::packets::deserializer
 
-} // namespace iot::mqtt::client::packets
+#endif // IOT_MQTT_PACKETS_DESERIALIZER_UNSUBSCRIBE_H

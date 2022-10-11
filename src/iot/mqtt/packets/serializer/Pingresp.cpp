@@ -16,31 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/client/packets/Unsubscribe.h"
+#include "iot/mqtt/packets/serializer/Pingresp.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::server::packets {
 
-    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
-        this->packetIdentifier = packetIdentifier;
-        this->topics = topics;
+    Pingresp::Pingresp()
+        : iot::mqtt::ControlPacket(MQTT_PINGRESP, MQTT_PINGRESP_FLAGS) {
     }
 
-    std::vector<char> Unsubscribe::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        for (const std::string& topic : topics) {
-            packet.insert(packet.end(), topic.begin(), topic.end());
-        }
-
-        return packet;
+    std::vector<char> Pingresp::serializeVP() const {
+        return std::vector<char>();
     }
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt::server::packets

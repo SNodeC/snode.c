@@ -16,32 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/client/packets/Subscribe.h"
+#include "iot/mqtt/packets/deserializer/Pingreq.h"
+
+#include "iot/mqtt/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, MQTT_SUBSCRIBE_FLAGS) {
-        this->packetIdentifier = packetIdentifier;
-        this->topics = topics;
+    Pingreq::Pingreq(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_PINGREQ, flags)
+        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PINGREQ_FLAGS) {
     }
 
-    std::vector<char> Subscribe::serializeVP() const {
-        std::vector<char> packet;
+    std::size_t Pingreq::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {
+        // no V-Header
+        // no Payload
 
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        for (const Topic& topic : topics) {
-            packet.insert(packet.end(), topic.getName().begin(), topic.getName().end());
-            packet.push_back(static_cast<char>(topic.getRequestedQoS()));
-        }
-
-        return packet;
+        complete = true;
+        return 0;
     }
 
-} // namespace iot::mqtt::client::packets
+    void Pingreq::propagateEvent(iot::mqtt::SocketContext* socketContext) {
+        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onPingreq(*this);
+    }
+
+} // namespace iot::mqtt::packets::deserializer

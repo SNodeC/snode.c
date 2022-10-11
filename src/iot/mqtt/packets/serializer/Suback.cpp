@@ -16,35 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_CLIENT_PACKETS_CONNACK_H
-#define IOT_MQTT_CLIENT_PACKETS_CONNACK_H
-
-#include "iot/mqtt/ControlPacketReceiver.h"
-#include "iot/mqtt/packets/Connack.h" // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-} // namespace iot::mqtt
+#include "iot/mqtt/packets/serializer/Suback.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::server::packets {
 
-    class Connack
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::packets::Connack {
-    public:
-        explicit Connack(uint32_t remainingLength, uint8_t flags);
+    Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
+        : iot::mqtt::ControlPacket(MQTT_SUBACK, MQTT_SUBACK_FLAGS) {
+        this->packetIdentifier = packetIdentifier;
+        this->returnCodes = returnCodes;
+    }
 
-    private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
-        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
+    std::vector<char> Suback::serializeVP() const {
+        std::vector<char> packet;
 
-        int state = 0;
-    };
+        std::vector<char> tmpVector = packetIdentifier.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-} // namespace iot::mqtt::client::packets
+        for (uint8_t returnCode : returnCodes) {
+            packet.push_back(static_cast<char>(returnCode));
+        }
 
-#endif // IOT_MQTT_CLIENT_PACKETS_CONNACK_H
+        return packet;
+    }
+
+} // namespace iot::mqtt::server::packets
