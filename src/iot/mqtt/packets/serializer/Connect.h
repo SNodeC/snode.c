@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_CLIENT_PACKETS_CONNECT_H
 #define IOT_MQTT_CLIENT_PACKETS_CONNECT_H
 
-#include "iot/mqtt/ControlPacketSender.h"
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/packets/Connect.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,7 +29,7 @@
 namespace iot::mqtt::packets::serializer {
 
     class Connect
-        : public iot::mqtt::ControlPacketSender
+        : public iot::mqtt::ControlPacketSerializer
         , public iot::mqtt::packets::Connect {
     public:
         explicit Connect(const std::string& clientId);

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ControlPacketReceiver.h"
+#include "ControlPacketDeserializer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,12 +24,12 @@
 
 namespace iot::mqtt {
 
-    ControlPacketReceiver::ControlPacketReceiver(uint32_t remainingLength, uint8_t mustFlags)
+    ControlPacketDeserializer::ControlPacketDeserializer(uint32_t remainingLength, uint8_t mustFlags)
         : remainingLength(remainingLength) {
         error = flags != mustFlags;
     }
 
-    std::size_t ControlPacketReceiver::deserialize(SocketContext* socketContext) {
+    std::size_t ControlPacketDeserializer::deserialize(SocketContext* socketContext) {
         std::size_t currentConsumed = deserializeVP(socketContext);
         consumed += currentConsumed;
 
@@ -41,19 +41,19 @@ namespace iot::mqtt {
         return currentConsumed;
     }
 
-    uint32_t ControlPacketReceiver::getRemainingLength() const {
+    uint32_t ControlPacketDeserializer::getRemainingLength() const {
         return remainingLength;
     }
 
-    bool ControlPacketReceiver::isComplete() const {
+    bool ControlPacketDeserializer::isComplete() const {
         return complete;
     }
 
-    bool ControlPacketReceiver::isError() const {
+    bool ControlPacketDeserializer::isError() const {
         return error;
     }
 
-    std::size_t ControlPacketReceiver::getConsumed() const {
+    std::size_t ControlPacketDeserializer::getConsumed() const {
         return consumed;
     }
 

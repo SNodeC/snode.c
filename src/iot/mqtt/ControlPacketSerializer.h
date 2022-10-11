@@ -16,51 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_CONTROLPACKETRECEIVER_H
-#define IOT_MQTT_CONTROLPACKETRECEIVER_H
+#ifndef IOT_MQTT_CONTROLPACKETSENDER_H
+#define IOT_MQTT_CONTROLPACKETSENDER_H
 
 #include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 
-namespace iot::mqtt {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // IWYU pragma: export
+#include <vector> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt {
 
-    class ControlPacketReceiver : virtual public ControlPacket {
+    class ControlPacketSerializer : virtual public ControlPacket {
     public:
-        ControlPacketReceiver() = default;
-        ControlPacketReceiver(uint32_t remainingLength, uint8_t mustFlags);
+        ControlPacketSerializer() = default;
 
-        std::size_t deserialize(iot::mqtt::SocketContext* socketContext);
-        virtual void propagateEvent(SocketContext* socketContext) = 0;
+        std::vector<char> serialize() const;
 
     private:
-        virtual std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) = 0;
-
-    public:
-        uint32_t getRemainingLength() const;
-
-        bool isComplete() const;
-        bool isError() const;
-
-        std::size_t getConsumed() const;
-
-    protected:
-        bool complete = false;
-        bool error = false;
-
-        uint32_t remainingLength = 0;
-
-        std::size_t consumed = 0;
+        virtual std::vector<char> serializeVP() const = 0;
     };
 
 } // namespace iot::mqtt
 
-#endif // IOT_MQTT_CONTROLPACKETRECEIVER_H
+#endif // IOT_MQTT_CONTROLPACKETSENDER_H

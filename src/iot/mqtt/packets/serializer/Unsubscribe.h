@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_CLIENT_PACKETS_UNSUBSCRIBE_H
 #define IOT_MQTT_CLIENT_PACKETS_UNSUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacketSender.h"
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/packets/Unsubscribe.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,7 +31,7 @@
 namespace iot::mqtt::packets::serializer {
 
     class Unsubscribe
-        : public iot::mqtt::ControlPacketSender
+        : public iot::mqtt::ControlPacketSerializer
         , public iot::mqtt::packets::Unsubscribe {
     public:
         Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);

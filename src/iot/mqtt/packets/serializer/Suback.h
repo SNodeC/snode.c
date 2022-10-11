@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_SERVER_PACKETS_SUBACK_H
 #define IOT_MQTT_SERVER_PACKETS_SUBACK_H
 
-#include "iot/mqtt/ControlPacketSender.h"
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/packets/Suback.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,7 +31,7 @@
 namespace iot::mqtt::packets::serializer {
 
     class Suback
-        : public iot::mqtt::ControlPacketSender
+        : public iot::mqtt::ControlPacketSerializer
         , public iot::mqtt::packets::Suback {
     public:
         Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);

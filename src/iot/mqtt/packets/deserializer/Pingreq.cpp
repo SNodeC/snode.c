@@ -28,7 +28,7 @@ namespace iot::mqtt::packets::deserializer {
 
     Pingreq::Pingreq(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_PINGREQ, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PINGREQ_FLAGS) {
+        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_PINGREQ_FLAGS) {
     }
 
     std::size_t Pingreq::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {

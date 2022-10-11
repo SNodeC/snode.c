@@ -33,7 +33,7 @@ namespace iot::mqtt::packets {
 
     Puback::Puback(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_PUBACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PUBACK_FLAGS) {
+        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_PUBACK_FLAGS) {
     }
 
     uint16_t Puback::getPacketIdentifier() const {

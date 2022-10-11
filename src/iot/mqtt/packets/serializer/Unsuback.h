@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_SERVER_PACKETS_UNSUBACK_H
 #define IOT_MQTT_SERVER_PACKETS_UNSUBACK_H
 
-#include "iot/mqtt/ControlPacketSender.h"
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/packets/Unsuback.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,7 +29,7 @@
 namespace iot::mqtt::packets::serializer {
 
     class Unsuback
-        : public iot::mqtt::ControlPacketSender
+        : public iot::mqtt::ControlPacketSerializer
         , public iot::mqtt::packets::Unsuback {
     public:
         explicit Unsuback(const uint16_t packetIdentifier);

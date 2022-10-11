@@ -28,7 +28,7 @@ namespace iot::mqtt::packets::deserializer {
 
     Connect::Connect(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNECT, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_CONNECT_FLAGS) {
+        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_CONNECT_FLAGS) {
     }
 
     std::size_t Connect::deserializeVP(iot::mqtt::SocketContext* socketContext) {

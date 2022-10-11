@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_DESERIALIZER_UNSUBACK_H
 #define IOT_MQTT_PACKETS_DESERIALIZER_UNSUBACK_H
 
-#include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/ControlPacketDeserializer.h"
 #include "iot/mqtt/packets/Unsuback.h" // IWYU pragma: export
 
 namespace iot::mqtt {
@@ -33,7 +33,7 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Unsuback
-        : public iot::mqtt::ControlPacketReceiver
+        : public iot::mqtt::ControlPacketDeserializer
         , public iot::mqtt::packets::Unsuback {
     public:
         explicit Unsuback(uint32_t remainingLength, uint8_t flags);

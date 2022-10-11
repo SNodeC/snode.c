@@ -188,11 +188,11 @@ namespace iot::mqtt {
         }
     }
 
-    void SocketContext::send(ControlPacketSender&& controlPacket) const {
+    void SocketContext::send(ControlPacketSerializer&& controlPacket) const {
         send(controlPacket.serialize());
     }
 
-    void SocketContext::send(ControlPacketSender& controlPacket) const {
+    void SocketContext::send(ControlPacketSerializer& controlPacket) const {
         send(controlPacket.serialize());
     }
 
@@ -260,7 +260,7 @@ namespace iot::mqtt {
         return packetIdentifier;
     }
 
-    void SocketContext::printStandardHeader(const iot::mqtt::ControlPacketReceiver& packet) {
+    void SocketContext::printStandardHeader(const iot::mqtt::ControlPacketDeserializer& packet) {
         LOG(DEBUG) << "Error: " << packet.isError();
         LOG(DEBUG) << "Type: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getType());
         LOG(DEBUG) << "Flags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getFlags());

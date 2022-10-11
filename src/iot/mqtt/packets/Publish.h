@@ -19,8 +19,8 @@
 #ifndef IOT_MQTT_PACKETS_PUBLISH_H
 #define IOT_MQTT_PACKETS_PUBLISH_H
 
-#include "iot/mqtt/ControlPacketReceiver.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSender.h"   // IWYU pragma: export
+#include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketSerializer.h"   // IWYU pragma: export
 #include "iot/mqtt/types/String.h"          // IWYU pragma: export
 #include "iot/mqtt/types/StringRaw.h"       // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
@@ -39,8 +39,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets {
 
     class Publish
-        : public iot::mqtt::ControlPacketReceiver
-        , public iot::mqtt::ControlPacketSender {
+        : public iot::mqtt::ControlPacketDeserializer
+        , public iot::mqtt::ControlPacketSerializer {
     public:
         Publish(uint16_t packetIdentifier,
                 const std::string& topic,

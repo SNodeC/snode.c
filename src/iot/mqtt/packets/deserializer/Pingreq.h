@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_DESERIALIZER_PINGREQ_H
 #define IOT_MQTT_PACKETS_DESERIALIZER_PINGREQ_H
 
-#include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/ControlPacketDeserializer.h"
 #include "iot/mqtt/packets/Pingreq.h" // IWYU pragma: export
 
 namespace iot::mqtt {
@@ -33,7 +33,7 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Pingreq
-        : public iot::mqtt::ControlPacketReceiver
+        : public iot::mqtt::ControlPacketDeserializer
         , public iot::mqtt::packets::Pingreq {
     public:
         explicit Pingreq(uint32_t remainingLength, uint8_t flags);

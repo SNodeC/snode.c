@@ -11,11 +11,11 @@ set(CMAKE_INSTALL_RPATH
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(MQTT_CPP
-    ControlPacket.cpp ControlPacketReceiver.cpp ControlPacketSender.cpp
+    ControlPacket.cpp ControlPacketDeserializer.cpp ControlPacketSerializer.cpp
     SocketContext.cpp StaticHeader.cpp Topic.cpp
 )
 
-set(MQTT_H ControlPacket.h ControlPacketReceiver.h ControlPacketSender.h
+set(MQTT_H ControlPacket.h ControlPacketDeserializer.h ControlPacketSerializer.h
            SocketContext.h StaticHeader.h Topic.h
 )
 

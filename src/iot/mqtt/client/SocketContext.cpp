@@ -30,8 +30,8 @@ namespace iot::mqtt::client {
         : iot::mqtt::SocketContext(socketConnection) {
     }
 
-    iot::mqtt::ControlPacketReceiver* SocketContext::deserialize(iot::mqtt::StaticHeader& staticHeader) {
-        iot::mqtt::ControlPacketReceiver* currentPacket = nullptr;
+    iot::mqtt::ControlPacketDeserializer* SocketContext::deserialize(iot::mqtt::StaticHeader& staticHeader) {
+        iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
         switch (staticHeader.getPacketType()) {
             case MQTT_CONNACK: // Client

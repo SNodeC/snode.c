@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_SERVER_PACKETS_CONNACK_H
 #define IOT_MQTT_SERVER_PACKETS_CONNACK_H
 
-#include "iot/mqtt/ControlPacketSender.h"
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/packets/Connack.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,7 +29,7 @@
 namespace iot::mqtt::packets::serializer {
 
     class Connack
-        : public iot::mqtt::ControlPacketSender
+        : public iot::mqtt::ControlPacketSerializer
         , public iot::mqtt::packets::Connack {
     public:
         Connack(uint8_t returncode, uint8_t flags);

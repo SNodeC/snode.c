@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_DESERIALIZER_SUBSCRIBE_H
 #define IOT_MQTT_PACKETS_DESERIALIZER_SUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacketReceiver.h"
+#include "iot/mqtt/ControlPacketDeserializer.h"
 #include "iot/mqtt/packets/Subscribe.h" // IWYU pragma: export
 
 namespace iot::mqtt {
@@ -33,7 +33,7 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Subscribe
-        : public iot::mqtt::ControlPacketReceiver
+        : public iot::mqtt::ControlPacketDeserializer
         , public iot::mqtt::packets::Subscribe {
     public:
         explicit Subscribe(uint32_t remainingLength, uint8_t flags);

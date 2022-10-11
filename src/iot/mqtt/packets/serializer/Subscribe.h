@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_CLIENT_PACKETS_SUBSCRIBE_H
 #define IOT_MQTT_CLIENT_PACKETS_SUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacketSender.h"
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/packets/Subscribe.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,7 +31,7 @@
 namespace iot::mqtt::packets::serializer {
 
     class Subscribe
-        : public iot::mqtt::ControlPacketSender
+        : public iot::mqtt::ControlPacketSerializer
         , public iot::mqtt::packets::Subscribe {
     public:
         Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics);

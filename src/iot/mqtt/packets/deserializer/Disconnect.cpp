@@ -28,7 +28,7 @@ namespace iot::mqtt::packets::deserializer {
 
     Disconnect::Disconnect(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_DISCONNECT, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_DISCONNECT_FLAGS) {
+        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_DISCONNECT_FLAGS) {
     }
 
     std::size_t Disconnect::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {

@@ -28,7 +28,7 @@ namespace iot::mqtt::packets::deserializer {
 
     Pingresp::Pingresp(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_PINGRESP, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_PINGRESP_FLAGS) {
+        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_PINGRESP_FLAGS) {
     }
 
     std::size_t Pingresp::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {

@@ -28,7 +28,7 @@ namespace iot::mqtt::packets::deserializer {
 
     Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
+        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_UNSUBSCRIBE_FLAGS) {
     }
 
     std::size_t Unsubscribe::deserializeVP(iot::mqtt::SocketContext* socketContext) {

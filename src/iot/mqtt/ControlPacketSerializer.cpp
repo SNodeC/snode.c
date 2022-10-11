@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ControlPacketSender.h"
+#include "ControlPacketSerializer.h"
 
 #include "iot/mqtt/StaticHeader.h"
 
@@ -26,7 +26,7 @@
 
 namespace iot::mqtt {
 
-    std::vector<char> ControlPacketSender::serialize() const {
+    std::vector<char> ControlPacketSerializer::serialize() const {
         std::vector<char> variablHeaderPayload = serializeVP();
 
         iot::mqtt::StaticHeader staticHeader(getType(), getFlags());

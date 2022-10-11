@@ -28,7 +28,7 @@ namespace iot::mqtt::packets::deserializer {
 
     Connack::Connack(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNACK, flags)
-        , iot::mqtt::ControlPacketReceiver(remainingLength, MQTT_CONNACK_FLAGS) {
+        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_CONNACK_FLAGS) {
     }
 
     std::size_t Connack::deserializeVP(iot::mqtt::SocketContext* socketContext) {
