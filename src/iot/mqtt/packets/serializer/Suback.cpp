@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::serializer {
 
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
         : iot::mqtt::ControlPacket(MQTT_SUBACK, MQTT_SUBACK_FLAGS) {
@@ -43,4 +43,4 @@ namespace iot::mqtt::server::packets {
         return packet;
     }
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::packets::serializer

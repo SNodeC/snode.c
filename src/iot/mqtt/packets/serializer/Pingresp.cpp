@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::serializer {
 
     Pingresp::Pingresp()
         : iot::mqtt::ControlPacket(MQTT_PINGRESP, MQTT_PINGRESP_FLAGS) {
@@ -32,4 +32,4 @@ namespace iot::mqtt::server::packets {
         return std::vector<char>();
     }
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::packets::serializer

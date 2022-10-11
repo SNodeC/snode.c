@@ -22,8 +22,6 @@ set(MQTT_H ControlPacket.h ControlPacketReceiver.h ControlPacketSender.h
 add_library(mqtt SHARED ${MQTT_CPP} ${MQTT_H})
 add_library(snodec::mqtt ALIAS mqtt)
 
-target_link_libraries(mqtt PRIVATE snodec::mqtt-packets)
-
 target_include_directories(
     mqtt PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                 "$<INSTALL_INTERFACE:include/snode.c>"

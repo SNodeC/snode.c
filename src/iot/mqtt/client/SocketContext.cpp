@@ -86,35 +86,35 @@ namespace iot::mqtt::client {
         LOG(TRACE) << "Send CONNECT";
         LOG(TRACE) << "============";
 
-        send(iot::mqtt::client::packets::Connect(clientId)); // Flags, Username, Will, ...
+        send(iot::mqtt::packets::serializer::Connect(clientId)); // Flags, Username, Will, ...
     }
 
     void SocketContext::sendSubscribe(std::list<iot::mqtt::Topic>& topics) { // Client
         LOG(TRACE) << "Send SUBSCRIBE";
         LOG(TRACE) << "==============";
 
-        send(iot::mqtt::client::packets::Subscribe(0, topics));
+        send(iot::mqtt::packets::serializer::Subscribe(0, topics));
     }
 
     void SocketContext::sendUnsubscribe(std::list<std::string>& topics) { // Client
         LOG(TRACE) << "Send UNSUBSCRIBE";
         LOG(TRACE) << "================";
 
-        send(iot::mqtt::client::packets::Unsubscribe(getPacketIdentifier(), topics));
+        send(iot::mqtt::packets::serializer::Unsubscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendPingreq() { // Client
         LOG(TRACE) << "Send Pingreq";
         LOG(TRACE) << "============";
 
-        send(iot::mqtt::client::packets::Pingreq());
+        send(iot::mqtt::packets::serializer::Pingreq());
     }
 
     void SocketContext::sendDisconnect() {
         LOG(TRACE) << "Send Disconnect";
         LOG(TRACE) << "===============";
 
-        send(iot::mqtt::client::packets::Disconnect());
+        send(iot::mqtt::packets::serializer::Disconnect());
     }
 
 } // namespace iot::mqtt::client

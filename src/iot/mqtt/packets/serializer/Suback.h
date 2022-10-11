@@ -28,7 +28,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::serializer {
 
     class Suback
         : public iot::mqtt::ControlPacketSender
@@ -40,6 +40,6 @@ namespace iot::mqtt::server::packets {
         std::vector<char> serializeVP() const override;
     };
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::packets::serializer
 
 #endif // IOT_MQTT_SERVER_PACKETS_SUBACK_H

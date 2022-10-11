@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::serializer {
 
     Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
         : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, MQTT_UNSUBSCRIBE_FLAGS) {
@@ -43,4 +43,4 @@ namespace iot::mqtt::client::packets {
         return packet;
     }
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt::packets::serializer

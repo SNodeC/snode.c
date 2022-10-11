@@ -26,7 +26,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::serializer {
 
     class Connect
         : public iot::mqtt::ControlPacketSender
@@ -38,6 +38,6 @@ namespace iot::mqtt::client::packets {
         std::vector<char> serializeVP() const override;
     };
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt::packets::serializer
 
 #endif // IOT_MQTT_PACKETS_CONNECT_H

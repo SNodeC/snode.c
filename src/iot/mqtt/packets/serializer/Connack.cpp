@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server::packets {
+namespace iot::mqtt::packets::serializer {
 
     Connack::Connack(uint8_t returncode, uint8_t flags)
         : iot::mqtt::ControlPacket(MQTT_CONNACK, flags) {
@@ -42,4 +42,4 @@ namespace iot::mqtt::server::packets {
         return packet;
     }
 
-} // namespace iot::mqtt::server::packets
+} // namespace iot::mqtt::packets::serializer

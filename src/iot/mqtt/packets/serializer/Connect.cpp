@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::serializer {
 
     Connect::Connect(const std::string& clientId)
         : iot::mqtt::ControlPacket(MQTT_CONNECT, MQTT_CONNECT_FLAGS) {
@@ -66,4 +66,4 @@ namespace iot::mqtt::client::packets {
         return packet;
     }
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt::packets::serializer

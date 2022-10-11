@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::serializer {
 
     Disconnect::Disconnect()
         : iot::mqtt::ControlPacket(MQTT_DISCONNECT, MQTT_DISCONNECT_FLAGS) {
@@ -32,4 +32,4 @@ namespace iot::mqtt::client::packets {
         return std::vector<char>();
     }
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt::packets::serializer

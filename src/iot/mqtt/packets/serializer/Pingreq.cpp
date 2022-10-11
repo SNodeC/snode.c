@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt::packets::serializer {
 
     Pingreq::Pingreq()
         : iot::mqtt::ControlPacket(MQTT_PINGREQ, MQTT_PINGREQ_FLAGS) {
@@ -32,4 +32,4 @@ namespace iot::mqtt::client::packets {
         return std::vector<char>();
     }
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt::packets::serializer
