@@ -24,8 +24,12 @@
 
 namespace iot::mqtt::packets {
 
+    Unsuback::Unsuback()
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK) {
+    }
+
     Unsuback::Unsuback(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, MQTT_UNSUBACK_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_UNSUBACK) {
         this->packetIdentifier = packetIdentifier;
     }
 

@@ -20,7 +20,6 @@
 #define IOT_MQTT_PACKETS_PUBASK_H
 
 #include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSerializer.h"   // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
 
 namespace iot::mqtt {
@@ -31,12 +30,11 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PUBACK 0x04
-#define MQTT_PUBACK_FLAGS 0x00
-
 namespace iot::mqtt::packets {
 
-    class Puback : public iot::mqtt::ControlPacketDeserializer {
+    class Puback
+        : public iot::mqtt::ControlPacketDeserializer
+        , public iot::mqtt::ControlPacket {
     public:
         explicit Puback(const uint16_t packetIdentifier);
         explicit Puback(uint32_t remainingLength, uint8_t flags);

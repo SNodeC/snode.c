@@ -19,18 +19,15 @@
 #ifndef IOT_MQTT_PACKETS_DISCONNECT_H
 #define IOT_MQTT_PACKETS_DISCONNECT_H
 
-#include "iot/mqtt/ControlPacketSerializer.h"
+#include "iot/mqtt/ControlPacket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_DISCONNECT 0x0E
-#define MQTT_DISCONNECT_FLAGS 0x00
-
 namespace iot::mqtt::packets {
 
-    class Disconnect : virtual public iot::mqtt::ControlPacket {
+    class Disconnect : public iot::mqtt::ControlPacket {
     public:
         Disconnect();
 

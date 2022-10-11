@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_CONNECT_H
 #define IOT_MQTT_PACKETS_CONNECT_H
 
-#include "iot/mqtt/ControlPacketSerializer.h"
+#include "iot/mqtt/ControlPacket.h"
 #include "iot/mqtt/types/String.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
@@ -27,9 +27,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_CONNECT 0x01
-#define MQTT_CONNECT_FLAGS 0x00
 
 #define MQTT_VERSION_3_1_1 0x04
 

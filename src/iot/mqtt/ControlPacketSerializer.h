@@ -29,7 +29,7 @@
 
 namespace iot::mqtt {
 
-    class ControlPacketSerializer : virtual public ControlPacket {
+    class ControlPacketSerializer : public ControlPacket {
     public:
         ControlPacketSerializer() = default;
     };

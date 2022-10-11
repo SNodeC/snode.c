@@ -26,9 +26,6 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_CONNACK 0x02
-#define MQTT_CONNACK_FLAGS 0x00
-
 #define MQTT_CONNACK_ACCEPT 0
 #define MQTT_CONNACK_UNACEPTABLEVERSION 1
 #define MQTT_CONNACK_IDENTIFIERREJECTED 2
@@ -41,7 +38,7 @@
 
 namespace iot::mqtt::packets {
 
-    class Connack : virtual public iot::mqtt::ControlPacket {
+    class Connack : public iot::mqtt::ControlPacket {
     public:
         Connack();
         Connack(uint8_t returncode, uint8_t flags);

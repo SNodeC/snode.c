@@ -30,7 +30,7 @@ namespace iot::mqtt::client {
         : iot::mqtt::SocketContext(socketConnection) {
     }
 
-    iot::mqtt::ControlPacketDeserializer* SocketContext::deserialize(iot::mqtt::StaticHeader& staticHeader) {
+    iot::mqtt::ControlPacketDeserializer* SocketContext::onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
         switch (staticHeader.getPacketType()) {
@@ -83,36 +83,36 @@ namespace iot::mqtt::client {
     }
 
     void SocketContext::sendConnect(const std::string& clientId) { // Client
-        LOG(TRACE) << "Send CONNECT";
-        LOG(TRACE) << "============";
+        LOG(DEBUG) << "Send CONNECT";
+        LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Connect(clientId)); // Flags, Username, Will, ...
     }
 
     void SocketContext::sendSubscribe(std::list<iot::mqtt::Topic>& topics) { // Client
-        LOG(TRACE) << "Send SUBSCRIBE";
-        LOG(TRACE) << "==============";
+        LOG(DEBUG) << "Send SUBSCRIBE";
+        LOG(DEBUG) << "==============";
 
         send(iot::mqtt::packets::Subscribe(0, topics));
     }
 
     void SocketContext::sendUnsubscribe(std::list<std::string>& topics) { // Client
-        LOG(TRACE) << "Send UNSUBSCRIBE";
-        LOG(TRACE) << "================";
+        LOG(DEBUG) << "Send UNSUBSCRIBE";
+        LOG(DEBUG) << "================";
 
         send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendPingreq() { // Client
-        LOG(TRACE) << "Send Pingreq";
-        LOG(TRACE) << "============";
+        LOG(DEBUG) << "Send Pingreq";
+        LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Pingreq());
     }
 
     void SocketContext::sendDisconnect() {
-        LOG(TRACE) << "Send Disconnect";
-        LOG(TRACE) << "===============";
+        LOG(DEBUG) << "Send Disconnect";
+        LOG(DEBUG) << "===============";
 
         send(iot::mqtt::packets::Disconnect());
     }

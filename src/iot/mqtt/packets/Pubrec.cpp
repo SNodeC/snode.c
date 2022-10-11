@@ -27,13 +27,14 @@
 namespace iot::mqtt::packets {
 
     Pubrec::Pubrec(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREC, MQTT_PUBREC_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_PUBREC) {
         this->packetIdentifier = packetIdentifier;
     }
 
     Pubrec::Pubrec(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_PUBREC, flags)
-        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_PUBREC_FLAGS) {
+        : iot::mqtt::ControlPacketDeserializer(remainingLength)
+        , iot::mqtt::ControlPacket(MQTT_PUBREC) {
+        this->flags = flags;
     }
 
     uint16_t Pubrec::getPacketIdentifier() const {

@@ -25,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Pingresp::Pingresp()
-        : iot::mqtt::ControlPacket(MQTT_PINGRESP, MQTT_PINGRESP_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_PINGRESP) {
     }
 
     std::vector<char> Pingresp::serializeVP() const {

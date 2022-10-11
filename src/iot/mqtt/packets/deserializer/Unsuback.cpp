@@ -27,8 +27,8 @@
 namespace iot::mqtt::packets::deserializer {
 
     Unsuback::Unsuback(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBACK, flags)
-        , iot::mqtt::ControlPacketDeserializer(remainingLength, MQTT_UNSUBACK_FLAGS) {
+        : iot::mqtt::ControlPacketDeserializer(remainingLength) {
+        this->flags = flags;
     }
 
     void Unsuback::propagateEvent(iot::mqtt::SocketContext* socketContext) {

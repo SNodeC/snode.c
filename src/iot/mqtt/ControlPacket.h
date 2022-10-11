@@ -26,12 +26,42 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_CONNECT 0x01
+#define MQTT_CONNACK 0x02
+#define MQTT_PUBLISH 0x03
+#define MQTT_PUBACK 0x04
+#define MQTT_PUBREC 0x05
+#define MQTT_PUBREL 0x06
+#define MQTT_PUBCOMP 0x07
+#define MQTT_SUBSCRIBE 0x08
+#define MQTT_SUBACK 0x09
+#define MQTT_UNSUBSCRIBE 0x0A
+#define MQTT_UNSUBACK 0x0B
+#define MQTT_PINGREQ 0x0C
+#define MQTT_PINGRESP 0x0D
+#define MQTT_DISCONNECT 0x0E
+
+#define MQTT_CONNECT_FLAGS 0x00
+#define MQTT_CONNACK_FLAGS 0x00
+// no value for MQTT_PUBLISH_FLAGS
+#define MQTT_PUBACK_FLAGS 0x00
+#define MQTT_PUBREC_FLAGS 0x00
+#define MQTT_PUBREL_FLAGS 0x02
+#define MQTT_PUBCOMP_FLAGS 0x00
+#define MQTT_SUBSCRIBE_FLAGS 0x02
+#define MQTT_SUBACK_FLAGS 0x00
+#define MQTT_UNSUBSCRIBE_FLAGS 0x02
+#define MQTT_UNSUBACK_FLAGS 0x00
+#define MQTT_PINGREQ_FLAGS 0x00
+#define MQTT_PINGRESP_FLAGS 0x00
+#define MQTT_DISCONNECT_FLAGS 0x00
+
 namespace iot::mqtt {
 
     class ControlPacket {
     public:
         ControlPacket() = default;
-        ControlPacket(uint8_t type, uint8_t flags);
+        ControlPacket(uint8_t type);
 
         virtual ~ControlPacket() = default;
 

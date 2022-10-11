@@ -20,7 +20,6 @@
 #define IOT_MQTT_PACKETS_PUBLISH_H
 
 #include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSerializer.h"   // IWYU pragma: export
 #include "iot/mqtt/types/String.h"              // IWYU pragma: export
 #include "iot/mqtt/types/StringRaw.h"           // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
@@ -33,12 +32,11 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PUBLISH 0x03
-// no value for MQTT_PUBLISH_FLAGS
-
 namespace iot::mqtt::packets {
 
-    class Publish : public iot::mqtt::ControlPacketDeserializer {
+    class Publish
+        : public iot::mqtt::ControlPacketDeserializer
+        , public iot::mqtt::ControlPacket {
     public:
         Publish(uint16_t packetIdentifier,
                 const std::string& topic,

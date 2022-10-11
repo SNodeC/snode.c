@@ -50,7 +50,7 @@ namespace iot::mqtt::client {
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
     private:
-        iot::mqtt::ControlPacketDeserializer* deserialize(iot::mqtt::StaticHeader& staticHeader) final;
+        iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) final;
 
         virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0;    // Client
         virtual void onSuback(iot::mqtt::packets::Suback& suback) = 0;       // Client

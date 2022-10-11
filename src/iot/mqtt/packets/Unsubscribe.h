@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_UNSUBSCRIBE_H
 #define IOT_MQTT_PACKETS_UNSUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacketSerializer.h"
+#include "iot/mqtt/ControlPacket.h"
 #include "iot/mqtt/types/String.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 
@@ -29,12 +29,9 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_UNSUBSCRIBE 0x0A
-#define MQTT_UNSUBSCRIBE_FLAGS 0x02
-
 namespace iot::mqtt::packets {
 
-    class Unsubscribe : virtual public iot::mqtt::ControlPacket {
+    class Unsubscribe : public iot::mqtt::ControlPacket {
     public:
         Unsubscribe();
         Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);

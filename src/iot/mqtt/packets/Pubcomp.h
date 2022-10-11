@@ -20,7 +20,6 @@
 #define IOT_MQTT_PACKETS_PUBCOMP_H
 
 #include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSerializer.h"   // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
 
 namespace iot::mqtt {
@@ -31,12 +30,11 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PUBCOMP 0x07
-#define MQTT_PUBCOMP_FLAGS 0x00
-
 namespace iot::mqtt::packets {
 
-    class Pubcomp : public iot::mqtt::ControlPacketDeserializer {
+    class Pubcomp
+        : public iot::mqtt::ControlPacketDeserializer
+        , public iot::mqtt::ControlPacket {
     public:
         explicit Pubcomp(const uint16_t packetIdentifier);
         explicit Pubcomp(uint32_t remainingLength, uint8_t flags);

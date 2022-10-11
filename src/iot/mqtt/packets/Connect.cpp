@@ -25,11 +25,11 @@
 namespace iot::mqtt::packets {
 
     Connect::Connect()
-        : iot::mqtt::ControlPacket(MQTT_CONNECT, MQTT_CONNECT_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_CONNECT) {
     }
 
     Connect::Connect(const std::string& clientId)
-        : iot::mqtt::ControlPacket(MQTT_CONNECT, MQTT_CONNECT_FLAGS) {
+        : iot::mqtt::ControlPacket(MQTT_CONNECT) {
         this->clientId = clientId;
     }
 

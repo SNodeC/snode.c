@@ -20,7 +20,6 @@
 #define IOT_MQTT_PACKETS_PUBREC_H
 
 #include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketSerializer.h"   // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
 
 namespace iot::mqtt {
@@ -31,12 +30,11 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PUBREC 0x05
-#define MQTT_PUBREC_FLAGS 0x00
-
 namespace iot::mqtt::packets {
 
-    class Pubrec : public iot::mqtt::ControlPacketDeserializer {
+    class Pubrec
+        : public iot::mqtt::ControlPacketDeserializer
+        , public ControlPacket {
     public:
         explicit Pubrec(const uint16_t packetIdentifier);
         explicit Pubrec(uint32_t remainingLength, uint8_t flags);

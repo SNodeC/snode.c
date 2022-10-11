@@ -44,7 +44,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    iot::mqtt::ControlPacketDeserializer* SocketContext::deserialize(iot::mqtt::StaticHeader& staticHeader) {
+    iot::mqtt::ControlPacketDeserializer* SocketContext::onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
         switch (staticHeader.getPacketType()) {
@@ -313,8 +313,8 @@ namespace iot::mqtt::server {
     }
 
     void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
-        LOG(TRACE) << "Send CONNACK";
-        LOG(TRACE) << "============";
+        LOG(DEBUG) << "Send CONNACK";
+        LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Connack(returnCode, flags));
 
@@ -324,22 +324,22 @@ namespace iot::mqtt::server {
     }
 
     void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
-        LOG(TRACE) << "Send SUBACK";
-        LOG(TRACE) << "===========";
+        LOG(DEBUG) << "Send SUBACK";
+        LOG(DEBUG) << "===========";
 
         send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
     }
 
     void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send UNSUBACK";
-        LOG(TRACE) << "=============";
+        LOG(DEBUG) << "Send UNSUBACK";
+        LOG(DEBUG) << "=============";
 
         send(iot::mqtt::packets::Unsuback(packetIdentifier));
     }
 
     void SocketContext::sendPingresp() { // Server
-        LOG(TRACE) << "Send Pingresp";
-        LOG(TRACE) << "=============";
+        LOG(DEBUG) << "Send Pingresp";
+        LOG(DEBUG) << "=============";
 
         send(iot::mqtt::packets::Pingresp());
     }

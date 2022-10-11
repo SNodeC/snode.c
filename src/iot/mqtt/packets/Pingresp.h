@@ -19,18 +19,15 @@
 #ifndef IOT_MQTT_PACKETS_PINGRESP_H
 #define IOT_MQTT_PACKETS_PINGRESP_H
 
-#include "iot/mqtt/ControlPacketSerializer.h"
+#include "iot/mqtt/ControlPacket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PINGRESP 0x0D
-#define MQTT_PINGRESP_FLAGS 0x00
-
 namespace iot::mqtt::packets {
 
-    class Pingresp : virtual public iot::mqtt::ControlPacket {
+    class Pingresp : public iot::mqtt::ControlPacket {
     public:
         explicit Pingresp();
 

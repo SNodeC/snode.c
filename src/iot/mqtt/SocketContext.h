@@ -49,7 +49,7 @@ namespace iot::mqtt {
 
     private:
         std::size_t onReceiveFromPeer() final;
-        virtual iot::mqtt::ControlPacketDeserializer* deserialize(iot::mqtt::StaticHeader& staticHeader) = 0;
+        virtual iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) = 0;
 
         virtual void onPublish(iot::mqtt::packets::Publish& publish) = 0;
         virtual void onPuback(iot::mqtt::packets::Puback& puback) = 0;
@@ -81,13 +81,13 @@ namespace iot::mqtt {
 
         uint16_t getPacketIdentifier();
 
-        void printStandardHeader(const iot::mqtt::ControlPacketDeserializer& packet);
+        void printStandardHeader(const iot::mqtt::ControlPacket& packet);
 
     private:
         static void printData(const std::vector<char>& data);
 
         iot::mqtt::StaticHeader staticHeader;
-        iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
+        iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
 
         uint16_t packetIdentifier = 0;
 
