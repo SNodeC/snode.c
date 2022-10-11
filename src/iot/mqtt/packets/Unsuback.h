@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_UNSUBACK_H
-#define IOT_MQTT_PACKETSNEW_UNSUBACK_H
+#ifndef IOT_MQTT_PACKETS_UNSUBACK_H
+#define IOT_MQTT_PACKETS_UNSUBACK_H
 
 #include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 
@@ -42,4 +42,4 @@ namespace iot::mqtt::packets {
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTT_PACKETSNEW_UNSUBACK_H
+#endif // IOT_MQTT_PACKETS_UNSUBACK_H

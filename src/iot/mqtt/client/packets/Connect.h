@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_CLIENT_PACKETSNEW_CONNECT_H
-#define IOT_MQTT_CLIENT_PACKETSNEW_CONNECT_H
+#ifndef IOT_MQTT_CLIENT_PACKETS_CONNECT_H
+#define IOT_MQTT_CLIENT_PACKETS_CONNECT_H
 
 #include "iot/mqtt/ControlPacketSender.h"
 #include "iot/mqtt/packets/Connect.h" // IWYU pragma: export
@@ -40,4 +40,4 @@ namespace iot::mqtt::client::packets {
 
 } // namespace iot::mqtt::client::packets
 
-#endif // IOT_MQTT_PACKETSNEW_CONNECT_H
+#endif // IOT_MQTT_PACKETS_CONNECT_H

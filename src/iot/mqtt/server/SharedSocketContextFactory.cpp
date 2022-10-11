@@ -16,23 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETS_PINGRESP_H
-#define IOT_MQTT_PACKETS_PINGRESP_H
+#include "iot/mqtt/server/SharedSocketContextFactory.h"
+
+#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/server/broker/Broker.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_PINGRESP 0x0D
-#define MQTT_PINGRESP_FLAGS 0x00
+namespace iot::mqtt::server {
 
-namespace iot::mqtt::packets {
+    core::socket::SocketContext* SharedSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
+        return new iot::mqtt::server::SocketContext(socketConnection, iot::mqtt::server::broker::Broker::instance(SUBSCRIBTION_MAX_QOS));
+    }
 
-    class Pingresp {
-    public:
-        Pingresp() = default;
-    };
-
-} // namespace iot::mqtt::packets
-
-#endif // IOT_MQTT_PACKETS_PINGRESP_H
+} // namespace iot::mqtt::server

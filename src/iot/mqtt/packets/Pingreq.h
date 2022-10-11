@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETSNEW_PINGREQ_H
-#define IOT_MQTT_PACKETSNEW_PINGREQ_H
+#ifndef IOT_MQTT_PACKETS_PINGREQ_H
+#define IOT_MQTT_PACKETS_PINGREQ_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,4 +35,4 @@ namespace iot::mqtt::packets {
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTT_PACKETSNEW_PINGREQ_H
+#endif // IOT_MQTT_PACKETS_PINGREQ_H

@@ -260,6 +260,13 @@ namespace iot::mqtt {
         return packetIdentifier;
     }
 
+    void SocketContext::printStandardHeader(const iot::mqtt::ControlPacketReceiver& packet) {
+        LOG(DEBUG) << "Error: " << packet.isError();
+        LOG(DEBUG) << "Type: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getType());
+        LOG(DEBUG) << "Flags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getFlags());
+        LOG(DEBUG) << "RemainingLength: " << packet.getRemainingLength();
+    }
+
     void SocketContext::printData(const std::vector<char>& data) {
         std::stringstream ss;
 

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_CLIENT_PACKETSNEW_SUBACK_H
-#define IOT_MQTT_CLIENT_PACKETSNEW_SUBACK_H
+#ifndef IOT_MQTT_CLIENT_PACKETS_SUBACK_H
+#define IOT_MQTT_CLIENT_PACKETS_SUBACK_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
 #include "iot/mqtt/packets/Suback.h" // IWYU pragma: export
@@ -47,4 +47,4 @@ namespace iot::mqtt::client::packets {
 
 } // namespace iot::mqtt::client::packets
 
-#endif // IOT_MQTT_CLIENT_PACKETSNEW_SUBACK_H
+#endif // IOT_MQTT_CLIENT_PACKETS_SUBACK_H

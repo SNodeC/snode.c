@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_PACKETSNEW_SUBSCRIBE_H
-#define IOT_MQTT_SERVER_PACKETSNEW_SUBSCRIBE_H
+#ifndef IOT_MQTT_SERVER_PACKETS_SUBSCRIBE_H
+#define IOT_MQTT_SERVER_PACKETS_SUBSCRIBE_H
 
 #include "iot/mqtt/ControlPacketReceiver.h"
 #include "iot/mqtt/packets/Subscribe.h" // IWYU pragma: export

@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.18)
 
 add_subdirectory(packets)
+add_subdirectory(broker)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_SERVER_CPP SocketContext.cpp)
+set(MQTT_SERVER_CPP SocketContext.cpp SharedSocketContextFactory.cpp SocketContextFactory.cpp)
 
-set(MQTT_SERVER_H SocketContext.h)
+set(MQTT_SERVER_H SocketContext.h SharedSocketContextFactory.h SocketContextFactory.h)
 
 add_library(mqtt-server SHARED ${MQTT_SERVER_CPP} ${MQTT_SERVER_H})
 add_library(snodec::mqtt-server ALIAS mqtt-server)
@@ -15,6 +16,7 @@ target_link_libraries(
     mqtt-server
     PUBLIC snodec::mqtt
     PRIVATE snodec::mqtt-server-packets
+    PRIVATE snodec::mqtt-broker
 )
 
 target_include_directories(

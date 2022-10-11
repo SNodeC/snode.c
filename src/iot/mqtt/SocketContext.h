@@ -57,7 +57,7 @@ namespace iot::mqtt {
         virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel) = 0;
         virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) = 0;
 
-        void _onPublish(iot::mqtt::packets::Publish& publish);
+        virtual void _onPublish(iot::mqtt::packets::Publish& publish) = 0;
         void _onPuback(iot::mqtt::packets::Puback& puback);
         void _onPubrec(iot::mqtt::packets::Pubrec& pubrec);
         void _onPubrel(iot::mqtt::packets::Pubrel& pubrel);
@@ -78,6 +78,8 @@ namespace iot::mqtt {
         std::string getRandomClientId();
 
         uint16_t getPacketIdentifier();
+
+        void printStandardHeader(const iot::mqtt::ControlPacketReceiver& packet);
 
     private:
         static void printData(const std::vector<char>& data);

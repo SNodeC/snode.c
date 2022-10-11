@@ -34,10 +34,15 @@ namespace core::socket {
     class SocketConnection;
 }
 
+namespace iot::mqtt::server::broker {
+    class Broker;
+} // namespace iot::mqtt::server::broker
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -47,18 +52,29 @@ namespace iot::mqtt::server {
 
     class SocketContext : public iot::mqtt::SocketContext {
     public:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        explicit SocketContext(core::socket::SocketConnection* socketConnection,
+                               const std::shared_ptr<iot::mqtt::server::broker::Broker>& broker);
+        ~SocketContext() override;
 
     private:
         iot::mqtt::ControlPacketReceiver* deserialize(iot::mqtt::StaticHeader& staticHeader) final;
 
-        virtual void onConnect(iot::mqtt::server::packets::Connect& connect) = 0;
-        virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) = 0;
-        virtual void onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe) = 0;
-        virtual void onPingreq(iot::mqtt::server::packets::Pingreq& pingreq) = 0;
-        virtual void onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect) = 0;
+        void initSession();
+        void releaseSession();
+
+        virtual void onConnect(iot::mqtt::server::packets::Connect& connect);
+        void onPublish(iot::mqtt::packets::Publish& publish) override;
+        void onPuback(iot::mqtt::packets::Puback& puback) override;
+        void onPubrec(iot::mqtt::packets::Pubrec& pubrec) override;
+        void onPubrel(iot::mqtt::packets::Pubrel& pubrel) override;
+        void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) override;
+        virtual void onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);
+        virtual void onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe);
+        virtual void onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);
+        virtual void onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
 
         void _onConnect(iot::mqtt::server::packets::Connect& connect);
+        void _onPublish(iot::mqtt::packets::Publish& publish) override;
         void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);
         void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe);
         void _onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);
@@ -70,6 +86,29 @@ namespace iot::mqtt::server {
         void sendUnsuback(uint16_t packetIdentifier);
         void sendPingresp();
 
+    private:
+        std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
+
+        // V-Header
+        std::string protocol;
+        uint8_t level = 0;
+        uint8_t connectFlags = 0;
+        uint16_t keepAlive = 0;
+
+        // Payload
+        std::string clientId;
+        std::string willTopic;
+        std::string willMessage;
+        std::string username;
+        std::string password;
+
+        // Derived from flags
+        bool usernameFlag = false;
+        bool passwordFlag = false;
+        bool willRetain = false;
+        uint8_t willQoS = 0;
+        bool willFlag = false;
+        bool cleanSession = false;
         friend class iot::mqtt::server::packets::Connect;
         friend class iot::mqtt::server::packets::Subscribe;
         friend class iot::mqtt::server::packets::Unsubscribe;
