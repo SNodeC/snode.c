@@ -86,7 +86,13 @@ namespace iot::mqtt::client {
         LOG(DEBUG) << "Send CONNECT";
         LOG(DEBUG) << "============";
 
-        send(iot::mqtt::packets::Connect(clientId)); // Flags, Username, Will, ...
+        send(iot::mqtt::packets::Connect(0x00 /* connect flags */,
+                                         60 /* keep alive */,
+                                         clientId,
+                                         "" /* WillTopic */,
+                                         "" /* WillMessage */,
+                                         "" /* Username */,
+                                         "" /* Password */)); // Flags, Username, Will, ...
     }
 
     void SocketContext::sendSubscribe(std::list<iot::mqtt::Topic>& topics) { // Client

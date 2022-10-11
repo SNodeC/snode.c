@@ -26,7 +26,6 @@ namespace iot::mqtt {
 
     ControlPacketDeserializer::ControlPacketDeserializer(uint32_t remainingLength)
         : remainingLength(remainingLength) {
-        //        error = flags != mustFlags;
     }
 
     std::size_t ControlPacketDeserializer::deserialize(SocketContext* socketContext) {

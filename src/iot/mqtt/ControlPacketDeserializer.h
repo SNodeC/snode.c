@@ -19,8 +19,6 @@
 #ifndef IOT_MQTT_CONTROLPACKETRECEIVER_H
 #define IOT_MQTT_CONTROLPACKETRECEIVER_H
 
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-
 namespace iot::mqtt {
     class SocketContext;
 }
@@ -28,6 +26,7 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // IWYU pragma: export
+#include <cstdint> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

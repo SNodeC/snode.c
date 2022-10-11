@@ -19,6 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_PUBREL_H
 #define IOT_MQTT_PACKETS_PUBREL_H
 
+#include "iot/mqtt/ControlPacket.h"             // IWYU pragma: export
 #include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
 

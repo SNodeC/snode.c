@@ -29,7 +29,7 @@ namespace iot::mqtt::packets {
 
     class Pingreq : public iot::mqtt::ControlPacket {
     public:
-        explicit Pingreq();
+        Pingreq();
 
     private:
         std::vector<char> serializeVP() const override;

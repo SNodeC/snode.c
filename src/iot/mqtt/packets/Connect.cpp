@@ -28,9 +28,23 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_CONNECT) {
     }
 
-    Connect::Connect(const std::string& clientId)
+    Connect::Connect(uint8_t connectFlags,
+                     uint16_t keepAlive,
+                     const std::string& clientId,
+                     const std::string& willTopic,
+                     const std::string& willMessage,
+                     const std::string& username,
+                     const std::string& password)
         : iot::mqtt::ControlPacket(MQTT_CONNECT) {
+        this->protocol = "MQTT";
+        this->level = MQTT_VERSION_3_1_1;
+        this->connectFlags = connectFlags;
+        this->keepAlive = keepAlive;
         this->clientId = clientId;
+        this->willTopic = willTopic;
+        this->willMessage = willMessage;
+        this->username = username;
+        this->password = password;
     }
 
     std::vector<char> Connect::serializeVP() const {

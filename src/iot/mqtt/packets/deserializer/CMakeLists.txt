@@ -25,12 +25,17 @@ set(MQTT_PACKETS_DESERIALIZER_H
     Unsuback.h
 )
 
-add_library(mqtt-packets-deserializer STATIC ${MQTT_PACKETS_DESERIALIZER_CPP} ${MQTT_PACKETS_DESERIALIZER_H})
+add_library(
+    mqtt-packets-deserializer STATIC ${MQTT_PACKETS_DESERIALIZER_CPP}
+                                     ${MQTT_PACKETS_DESERIALIZER_H}
+)
 add_library(snodec::mqtt-packets-deserializer ALIAS mqtt-packets-deserializer)
 
 target_link_libraries(mqtt-packets-deserializer PRIVATE snodec::mqtt-packets)
 
-set_property(TARGET mqtt-packets-deserializer PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(
+    TARGET mqtt-packets-deserializer PROPERTY POSITION_INDEPENDENT_CODE ON
+)
 
 target_include_directories(
     mqtt-packets-deserializer PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"

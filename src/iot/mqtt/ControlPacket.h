@@ -60,17 +60,18 @@ namespace iot::mqtt {
 
     class ControlPacket {
     public:
-        ControlPacket() = default;
         ControlPacket(uint8_t type);
 
-        virtual ~ControlPacket() = default;
+        // error = flags != mustFlags;
 
-        std::vector<char> serialize() const;
+        virtual ~ControlPacket() = default;
 
     private:
         virtual std::vector<char> serializeVP() const = 0;
 
     public:
+        std::vector<char> serialize() const;
+
         uint8_t getType() const;
         uint8_t getFlags() const;
 
