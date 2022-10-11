@@ -148,7 +148,7 @@ namespace iot::mqtt {
                     break;
             }
 
-            onPublish(publish);
+            __onPublish(publish);
         }
     }
 

@@ -73,8 +73,8 @@ namespace iot::mqtt::server {
         virtual void onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);
         virtual void onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
 
+        void __onPublish(iot::mqtt::packets::Publish& publish) override;
         void _onConnect(iot::mqtt::server::packets::Connect& connect);
-        void _onPublish(iot::mqtt::packets::Publish& publish) override;
         void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);
         void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe);
         void _onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);

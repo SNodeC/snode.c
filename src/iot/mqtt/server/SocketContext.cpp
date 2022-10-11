@@ -178,6 +178,10 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "=========";
         printStandardHeader(subscribe);
         LOG(DEBUG) << "PacketIdentifier: " << subscribe.getPacketIdentifier();
+
+        for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
+            LOG(DEBUG) << "  Topic: " << topic.getName() << ", requestedQoS: " << static_cast<uint16_t>(topic.getRequestedQoS());
+        }
     }
 
     void SocketContext::onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
@@ -185,6 +189,10 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "===========";
         printStandardHeader(unsubscribe);
         LOG(DEBUG) << "PacketIdentifier: " << unsubscribe.getPacketIdentifier();
+
+        for (const std::string& topic : unsubscribe.getTopics()) {
+            LOG(DEBUG) << "  Topic: " << topic;
+        }
     }
 
     void SocketContext::onPingreq(iot::mqtt::server::packets::Pingreq& pingreq) {
@@ -242,38 +250,20 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::_onPublish(mqtt::packets::Publish& publish) {
-        if (publish.getQoSLevel() > 2) {
-            shutdown(true);
-        } else if (publish.getPacketIdentifier() == 0 && publish.getQoSLevel() > 0) {
-            shutdown(true);
-        } else {
-            onPublish(publish);
-
-            broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoSLevel());
-            if (publish.getRetain()) {
-                broker->retain(publish.getTopic(), publish.getMessage(), publish.getQoSLevel());
-            }
-
-            switch (publish.getQoSLevel()) {
-                case 1:
-                    sendPuback(publish.getPacketIdentifier());
-                    break;
-                case 2:
-                    sendPubrec(publish.getPacketIdentifier());
-                    break;
-            }
+    void SocketContext::__onPublish(mqtt::packets::Publish& publish) {
+        broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoSLevel());
+        if (publish.getRetain()) {
+            broker->retain(publish.getTopic(), publish.getMessage(), publish.getQoSLevel());
         }
+
+        onPublish(publish);
     }
 
     void SocketContext::_onSubscribe(packets::Subscribe& subscribe) {
         if (subscribe.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            onSubscribe(subscribe);
-
             for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                LOG(DEBUG) << "  Topic: " << topic.getName() << ", requestedQoS: " << static_cast<uint16_t>(topic.getRequestedQoS());
                 uint8_t ret = broker->subscribe(topic.getName(), clientId, topic.getRequestedQoS());
                 topic.setAcceptedQoS(ret);
             }
@@ -285,6 +275,8 @@ namespace iot::mqtt::server {
             }
 
             sendSuback(subscribe.getPacketIdentifier(), returnCodes);
+
+            onSubscribe(subscribe);
         }
     }
 
@@ -295,7 +287,6 @@ namespace iot::mqtt::server {
             onUnsubscribe(unsubscribe);
 
             for (const std::string& topic : unsubscribe.getTopics()) {
-                LOG(DEBUG) << "  Topic: " << topic;
                 broker->unsubscribe(topic, clientId);
             }
 
@@ -304,9 +295,9 @@ namespace iot::mqtt::server {
     }
 
     void SocketContext::_onPingreq(packets::Pingreq& pingreq) {
-        onPingreq(pingreq);
-
         sendPingresp();
+
+        onPingreq(pingreq);
     }
 
     void SocketContext::_onDisconnect(packets::Disconnect& disconnect) {

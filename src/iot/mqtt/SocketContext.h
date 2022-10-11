@@ -57,7 +57,9 @@ namespace iot::mqtt {
         virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel) = 0;
         virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) = 0;
 
-        virtual void _onPublish(iot::mqtt::packets::Publish& publish) = 0;
+        virtual void __onPublish(iot::mqtt::packets::Publish& publish) = 0;
+
+        void _onPublish(iot::mqtt::packets::Publish& publish);
         void _onPuback(iot::mqtt::packets::Puback& puback);
         void _onPubrec(iot::mqtt::packets::Pubrec& pubrec);
         void _onPubrel(iot::mqtt::packets::Pubrel& pubrel);
