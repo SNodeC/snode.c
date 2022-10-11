@@ -19,6 +19,8 @@
 #ifndef IOT_MQTT_PACKETS_DISCONNECT_H
 #define IOT_MQTT_PACKETS_DISCONNECT_H
 
+#include "iot/mqtt/ControlPacketSerializer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -28,9 +30,12 @@
 
 namespace iot::mqtt::packets {
 
-    class Disconnect {
+    class Disconnect : virtual public iot::mqtt::ControlPacket {
     public:
-        Disconnect() = default;
+        Disconnect();
+
+    private:
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::packets

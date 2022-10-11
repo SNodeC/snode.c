@@ -19,6 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_CONNECT_H
 #define IOT_MQTT_PACKETS_CONNECT_H
 
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/types/String.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
@@ -34,10 +35,16 @@
 
 namespace iot::mqtt::packets {
 
-    class Connect {
+    class Connect : public iot::mqtt::ControlPacket {
     public:
-        Connect() = default;
+        Connect();
 
+        explicit Connect(const std::string& clientId);
+
+    private:
+        std::vector<char> serializeVP() const override;
+
+    public:
         std::string getProtocol() const;
         uint8_t getLevel() const;
         uint8_t getConnectFlags() const;

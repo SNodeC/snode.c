@@ -19,6 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_CONNACK_H
 #define IOT_MQTT_PACKETS_CONNACK_H
 
+#include "iot/mqtt/ControlPacket.h"
 #include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,10 +41,15 @@
 
 namespace iot::mqtt::packets {
 
-    class Connack {
+    class Connack : virtual public iot::mqtt::ControlPacket {
     public:
-        Connack() = default;
+        Connack();
+        Connack(uint8_t returncode, uint8_t flags);
 
+    private:
+        std::vector<char> serializeVP() const override;
+
+    public:
         uint8_t getFlags() const;
         uint8_t getReturnCode() const;
 

@@ -316,7 +316,7 @@ namespace iot::mqtt::server {
         LOG(TRACE) << "Send CONNACK";
         LOG(TRACE) << "============";
 
-        send(iot::mqtt::packets::serializer::Connack(returnCode, flags));
+        send(iot::mqtt::packets::Connack(returnCode, flags));
 
         if (returnCode != MQTT_CONNACK_ACCEPT) {
             shutdown();
@@ -327,21 +327,21 @@ namespace iot::mqtt::server {
         LOG(TRACE) << "Send SUBACK";
         LOG(TRACE) << "===========";
 
-        send(iot::mqtt::packets::serializer::Suback(packetIdentifier, returnCodes));
+        send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
     }
 
     void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
         LOG(TRACE) << "Send UNSUBACK";
         LOG(TRACE) << "=============";
 
-        send(iot::mqtt::packets::serializer::Unsuback(packetIdentifier));
+        send(iot::mqtt::packets::Unsuback(packetIdentifier));
     }
 
     void SocketContext::sendPingresp() { // Server
         LOG(TRACE) << "Send Pingresp";
         LOG(TRACE) << "=============";
 
-        send(iot::mqtt::packets::serializer::Pingresp());
+        send(iot::mqtt::packets::Pingresp());
     }
 
 } // namespace iot::mqtt::server

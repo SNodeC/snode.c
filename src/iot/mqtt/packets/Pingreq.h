@@ -19,7 +19,11 @@
 #ifndef IOT_MQTT_PACKETS_PINGREQ_H
 #define IOT_MQTT_PACKETS_PINGREQ_H
 
+#include "iot/mqtt/ControlPacketSerializer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -28,9 +32,12 @@
 
 namespace iot::mqtt::packets {
 
-    class Pingreq {
+    class Pingreq : virtual public iot::mqtt::ControlPacket {
     public:
-        Pingreq() = default;
+        explicit Pingreq();
+
+    private:
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::packets

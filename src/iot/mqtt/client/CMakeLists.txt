@@ -26,7 +26,7 @@ set_target_properties(
 
 install(
     TARGETS mqtt-client
-    EXPORT snodec_mqtt-server_Targets
+    EXPORT snodec_mqtt-client_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt
 )
 
@@ -42,8 +42,8 @@ install(
 )
 
 install(
-    EXPORT snodec_mqtt-server_Targets
-    FILE snodec_mqtt-server_Targets.cmake
+    EXPORT snodec_mqtt-client_Targets
+    FILE snodec_mqtt-client_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

@@ -22,4 +22,13 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {} // namespace iot::mqtt::packets
+namespace iot::mqtt::packets {
+
+    Disconnect::Disconnect()
+        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, MQTT_DISCONNECT_FLAGS) {
+    }
+
+    std::vector<char> Disconnect::serializeVP() const {
+        return std::vector<char>();
+    }
+} // namespace iot::mqtt::packets

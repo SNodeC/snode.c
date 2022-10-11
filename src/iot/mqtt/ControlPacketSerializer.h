@@ -32,11 +32,6 @@ namespace iot::mqtt {
     class ControlPacketSerializer : virtual public ControlPacket {
     public:
         ControlPacketSerializer() = default;
-
-        std::vector<char> serialize() const;
-
-    private:
-        virtual std::vector<char> serializeVP() const = 0;
     };
 
 } // namespace iot::mqtt

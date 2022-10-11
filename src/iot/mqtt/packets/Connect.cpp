@@ -24,6 +24,51 @@
 
 namespace iot::mqtt::packets {
 
+    Connect::Connect()
+        : iot::mqtt::ControlPacket(MQTT_CONNECT, MQTT_CONNECT_FLAGS) {
+    }
+
+    Connect::Connect(const std::string& clientId)
+        : iot::mqtt::ControlPacket(MQTT_CONNECT, MQTT_CONNECT_FLAGS) {
+        this->clientId = clientId;
+    }
+
+    std::vector<char> Connect::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = protocol.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = level.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = connectFlags.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = keepAlive.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = clientId.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        if (willFlag) {
+            tmpVector = willTopic.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+            tmpVector = willMessage.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+        if (usernameFlag) {
+            tmpVector = username.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+        if (passwordFlag) {
+            tmpVector = password.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+
+        return packet;
+    }
     std::string Connect::getProtocol() const {
         return protocol;
     }

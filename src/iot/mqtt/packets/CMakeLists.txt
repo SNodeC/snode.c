@@ -38,7 +38,7 @@ set(MQTT_PACKETS_H
 add_library(mqtt-packets STATIC ${MQTT_PACKETS_CPP} ${MQTT_PACKETS_H})
 add_library(snodec::mqtt-packets ALIAS mqtt-packets)
 
-target_link_libraries(mqtt-packets PUBLIC snodec::mqtt-packets-deserializer snodec::mqtt-packets-serializer snodec::mqtt-types)
+target_link_libraries(mqtt-packets PUBLIC snodec::mqtt-packets-deserializer snodec::mqtt-types)
 
 set_property(TARGET mqtt-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 
@@ -53,7 +53,7 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "deserializer" EXCLUDE
 )
 
 add_subdirectory(deserializer)
-add_subdirectory(serializer)

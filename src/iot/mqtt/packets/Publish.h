@@ -21,9 +21,9 @@
 
 #include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
 #include "iot/mqtt/ControlPacketSerializer.h"   // IWYU pragma: export
-#include "iot/mqtt/types/String.h"          // IWYU pragma: export
-#include "iot/mqtt/types/StringRaw.h"       // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"          // IWYU pragma: export
+#include "iot/mqtt/types/String.h"              // IWYU pragma: export
+#include "iot/mqtt/types/StringRaw.h"           // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -38,9 +38,7 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Publish
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::ControlPacketSerializer {
+    class Publish : public iot::mqtt::ControlPacketDeserializer {
     public:
         Publish(uint16_t packetIdentifier,
                 const std::string& topic,

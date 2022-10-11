@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint> // IWYU pragma: export
+#include <vector>  // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -29,10 +30,15 @@ namespace iot::mqtt {
 
     class ControlPacket {
     public:
-        ControlPacket() = delete;
+        ControlPacket() = default;
         ControlPacket(uint8_t type, uint8_t flags);
 
         virtual ~ControlPacket() = default;
+
+        std::vector<char> serialize() const;
+
+    private:
+        virtual std::vector<char> serializeVP() const = 0;
 
     public:
         uint8_t getType() const;

@@ -42,6 +42,8 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "server" EXCLUDE
+    PATTERN "client" EXCLUDE
     PATTERN "types" EXCLUDE
     PATTERN "packets" EXCLUDE
 )

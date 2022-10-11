@@ -19,6 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_SUBACK_H
 #define IOT_MQTT_PACKETS_SUBACK_H
 
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
 
@@ -33,10 +34,15 @@
 
 namespace iot::mqtt::packets {
 
-    class Suback {
+    class Suback : virtual public iot::mqtt::ControlPacket {
     public:
-        Suback() = default;
+        Suback();
+        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
 
+    private:
+        std::vector<char> serializeVP() const override;
+
+    public:
         uint16_t getPacketIdentifier() const;
         const std::list<uint8_t>& getReturnCodes() const;
 

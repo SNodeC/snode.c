@@ -73,8 +73,8 @@ namespace iot::mqtt {
         void sendPubcomp(uint16_t packetIdentifier);
 
     protected:
-        void send(iot::mqtt::ControlPacketSerializer&& controlPacket) const;
-        void send(iot::mqtt::ControlPacketSerializer& controlPacket) const;
+        void send(iot::mqtt::ControlPacket&& controlPacket) const;
+        void send(iot::mqtt::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
 
         std::string getRandomClientId();

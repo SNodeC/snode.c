@@ -20,9 +20,33 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
+
+    Connack::Connack()
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, MQTT_CONNACK_FLAGS) {
+    }
+
+    Connack::Connack(uint8_t returncode, uint8_t flags)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK, flags) {
+        this->returnCode = returncode;
+        this->connectFlags = flags;
+    }
+
+    std::vector<char> Connack::serializeVP() const {
+        std::vector<char> packet;
+
+        std::vector<char> tmpVector = connectFlags.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = returnCode.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
 
     uint8_t Connack::getFlags() const {
         return connectFlags;

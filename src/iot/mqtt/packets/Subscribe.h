@@ -19,6 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_SUBSCRIBE_H
 #define IOT_MQTT_PACKETS_SUBSCRIBE_H
 
+#include "iot/mqtt/ControlPacketSerializer.h"
 #include "iot/mqtt/Topic.h"        // IWYU pragma: export
 #include "iot/mqtt/types/String.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
@@ -35,10 +36,15 @@
 
 namespace iot::mqtt::packets {
 
-    class Subscribe {
+    class Subscribe : virtual public iot::mqtt::ControlPacket {
     public:
-        Subscribe() = default;
+        Subscribe();
+        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics);
 
+    private:
+        std::vector<char> serializeVP() const override;
+
+    public:
         uint16_t getPacketIdentifier() const;
         std::list<iot::mqtt::Topic>& getTopics();
 

@@ -19,16 +19,16 @@
 #ifndef IOT_MQTT_SERVER_SOCKETCONTEXT_H
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
-#include "iot/mqtt/SocketContext.h"                  // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Connack.h"   // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Pingresp.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Suback.h"    // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Unsuback.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/serializer/Connect.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/serializer/Disconnect.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/serializer/Pingreq.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/serializer/Subscribe.h"   // IWYU pragma: export
-#include "iot/mqtt/packets/serializer/Unsubscribe.h" // IWYU pragma: export
+#include "iot/mqtt/SocketContext.h"                 // IWYU pragma: export
+#include "iot/mqtt/packets/Connect.h"               // IWYU pragma: export
+#include "iot/mqtt/packets/Disconnect.h"            // IWYU pragma: export
+#include "iot/mqtt/packets/Pingreq.h"               // IWYU pragma: export
+#include "iot/mqtt/packets/Subscribe.h"             // IWYU pragma: export
+#include "iot/mqtt/packets/Unsubscribe.h"           // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Connack.h"  // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Pingresp.h" // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Suback.h"   // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Unsuback.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;

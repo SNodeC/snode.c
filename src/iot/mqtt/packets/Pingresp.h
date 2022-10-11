@@ -19,6 +19,8 @@
 #ifndef IOT_MQTT_PACKETS_PINGRESP_H
 #define IOT_MQTT_PACKETS_PINGRESP_H
 
+#include "iot/mqtt/ControlPacketSerializer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -28,9 +30,12 @@
 
 namespace iot::mqtt::packets {
 
-    class Pingresp {
+    class Pingresp : virtual public iot::mqtt::ControlPacket {
     public:
-        Pingresp() = default;
+        explicit Pingresp();
+
+    private:
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::packets
