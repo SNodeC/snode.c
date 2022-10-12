@@ -33,8 +33,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Disconnect
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::packets::Disconnect {
+        : public iot::mqtt::packets::Disconnect
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
         explicit Disconnect(uint32_t remainingLength, uint8_t flags);
 

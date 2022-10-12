@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETS_PUBASK_H
-#define IOT_MQTT_PACKETS_PUBASK_H
+#ifndef IOT_MQTT_PACKETS_DESERIALIZER_PUBLISH_H
+#define IOT_MQTT_PACKETS_DESERIALIZER_PUBLISH_H
 
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
+#include "iot/mqtt/ControlPacketDeserializer.h"
+#include "iot/mqtt/packets/Publish.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
@@ -30,23 +30,21 @@ namespace iot::mqtt {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt::packets::deserializer {
 
-    class Puback : public iot::mqtt::ControlPacket {
+    class Publish
+        : public iot::mqtt::packets::Publish
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
-        Puback();
-        explicit Puback(const uint16_t packetIdentifier);
+        explicit Publish(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::vector<char> serializeVP() const override;
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::SocketContext* socketContext) override;
 
-    public:
-        uint16_t getPacketIdentifier() const;
-
-    protected:
-        iot::mqtt::types::UInt16 packetIdentifier;
+        int state = 0;
     };
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::packets::deserializer
 
-#endif // IOT_MQTT_PACKETS_PUBASK_H
+#endif // IOT_MQTT_PACKETS_DESERIALIZER_PUBLISH_H

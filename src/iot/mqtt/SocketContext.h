@@ -19,13 +19,13 @@
 #ifndef IOT_MQTT_SOCKETCONTEXT_H
 #define IOT_MQTT_SOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h" // IWYU pragma: export
-#include "iot/mqtt/StaticHeader.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Puback.h"   // IWYU pragma: export
-#include "iot/mqtt/packets/Pubcomp.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/Publish.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrec.h"   // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrel.h"   // IWYU pragma: export
+#include "core/socket/SocketContext.h"             // IWYU pragma: export
+#include "iot/mqtt/StaticHeader.h"                 // IWYU pragma: export
+#include "iot/mqtt/packets/Pubcomp.h"              // IWYU pragma: export
+#include "iot/mqtt/packets/Pubrec.h"               // IWYU pragma: export
+#include "iot/mqtt/packets/Pubrel.h"               // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Puback.h"  // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Publish.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -93,10 +93,10 @@ namespace iot::mqtt {
 
         int state = 0;
 
-        friend class iot::mqtt::packets::Publish;
+        friend class iot::mqtt::packets::deserializer::Publish;
         friend class iot::mqtt::packets::Pubcomp;
         friend class iot::mqtt::packets::Pubrec;
-        friend class iot::mqtt::packets::Puback;
+        friend class iot::mqtt::packets::deserializer::Puback;
         friend class iot::mqtt::packets::Pubrel;
     };
 

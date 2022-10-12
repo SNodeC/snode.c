@@ -33,8 +33,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Pingresp
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::packets::Pingresp {
+        : public iot::mqtt::packets::Pingresp
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
         Pingresp(uint32_t remainingLength, uint8_t flags);
 

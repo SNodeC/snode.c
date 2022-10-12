@@ -68,11 +68,11 @@ namespace iot::mqtt {
                     switch (staticHeader.getPacketType()) {
                         case MQTT_PUBLISH: // Server & Client
                             controlPacketDeserializer =
-                                new iot::mqtt::packets::Publish(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                                new iot::mqtt::packets::deserializer::Publish(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
                         case MQTT_PUBACK: // Server & Client
                             controlPacketDeserializer =
-                                new iot::mqtt::packets::Puback(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                                new iot::mqtt::packets::deserializer::Puback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
                         case MQTT_PUBREC: // Server & Client
                             controlPacketDeserializer =
@@ -142,6 +142,8 @@ namespace iot::mqtt {
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoSLevel() > 0) {
             shutdown(true);
         } else {
+            __onPublish(publish);
+
             switch (publish.getQoSLevel()) {
                 case 1:
                     sendPuback(publish.getPacketIdentifier());
@@ -150,8 +152,6 @@ namespace iot::mqtt {
                     sendPubrec(publish.getPacketIdentifier());
                     break;
             }
-
-            __onPublish(publish);
         }
     }
 
@@ -177,9 +177,9 @@ namespace iot::mqtt {
         if (pubrel.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            sendPubcomp(pubrel.getPacketIdentifier());
-
             onPubrel(pubrel);
+
+            sendPubcomp(pubrel.getPacketIdentifier());
         }
     }
 

@@ -33,8 +33,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Connect
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::packets::Connect {
+        : public iot::mqtt::packets::Connect
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
         explicit Connect(uint32_t remainingLength, uint8_t flags);
 

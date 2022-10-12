@@ -33,8 +33,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Pingreq
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::packets::Pingreq {
+        : public iot::mqtt::packets::Pingreq
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
         explicit Pingreq(uint32_t remainingLength, uint8_t flags);
 

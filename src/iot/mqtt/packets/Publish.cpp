@@ -18,13 +18,15 @@
 
 #include "iot/mqtt/packets/Publish.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
+
+    Publish::Publish()
+        : iot::mqtt::ControlPacket(MQTT_PUBLISH) {
+    }
 
     Publish::Publish(
         uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
@@ -36,17 +38,6 @@ namespace iot::mqtt::packets {
         this->dup = dup;
         this->qoSLevel = qoSLevel;
         this->retain = retain;
-    }
-
-    Publish::Publish(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength)
-        , iot::mqtt::ControlPacket(MQTT_PUBLISH) {
-        this->flags = flags;
-        this->qoSLevel = flags >> 1 & 0x03;
-        this->dup = (flags & 0x04) != 0;
-        this->retain = (flags & 0x01) != 0;
-
-        error = this->qoSLevel > 2;
     }
 
     bool Publish::getDup() const {
@@ -88,47 +79,6 @@ namespace iot::mqtt::packets {
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
-    }
-
-    std::size_t Publish::deserializeVP(SocketContext* socketContext) {
-        std::size_t consumed = 0;
-
-        switch (state) {
-            case 0: // V-Header
-                consumed += topic.deserialize(socketContext);
-                if (!topic.isComplete()) {
-                    break;
-                }
-
-                state++;
-                [[fallthrough]];
-            case 1:
-                if (qoSLevel > 0) {
-                    consumed += packetIdentifier.deserialize(socketContext);
-                    if (!packetIdentifier.isComplete()) {
-                        break;
-                    }
-                }
-
-                message.setSize(static_cast<uint16_t>(getRemainingLength() - getConsumed() - consumed));
-
-                state++;
-                [[fallthrough]];
-            case 2: // Payload
-                consumed += message.deserialize(socketContext);
-                if (!message.isComplete()) {
-                    break;
-                }
-
-                complete = true;
-                break;
-        }
-
-        return consumed;
-    }
-
-    void Publish::propagateEvent([[maybe_unused]] SocketContext* socketContext) {
-        socketContext->_onPublish(*this);
     }
 
 } // namespace iot::mqtt::packets

@@ -33,8 +33,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Unsuback
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::packets::Unsuback {
+        : public iot::mqtt::packets::Unsuback
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
         explicit Unsuback(uint32_t remainingLength, uint8_t flags);
 

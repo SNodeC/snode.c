@@ -33,8 +33,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Subscribe
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::packets::Subscribe {
+        : public iot::mqtt::packets::Subscribe
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
         explicit Subscribe(uint32_t remainingLength, uint8_t flags);
 

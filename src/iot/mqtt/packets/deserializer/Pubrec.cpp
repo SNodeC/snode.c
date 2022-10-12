@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Puback.h"
+#include "iot/mqtt/packets/Pubrec.h"
 
 #include "iot/mqtt/SocketContext.h"
 
@@ -26,26 +26,42 @@
 
 namespace iot::mqtt::packets {
 
-    Puback::Puback()
-        : iot::mqtt::ControlPacket(MQTT_PUBACK) {
-    }
-
-    Puback::Puback(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBACK) {
+    Pubrec::Pubrec(const uint16_t packetIdentifier)
+        : iot::mqtt::ControlPacket(MQTT_PUBREC) {
         this->packetIdentifier = packetIdentifier;
     }
 
-    uint16_t Puback::getPacketIdentifier() const {
+    Pubrec::Pubrec(uint32_t remainingLength, uint8_t flags)
+        : iot::mqtt::ControlPacketDeserializer(remainingLength)
+        , iot::mqtt::ControlPacket(MQTT_PUBREC) {
+        this->flags = flags;
+    }
+
+    uint16_t Pubrec::getPacketIdentifier() const {
         return packetIdentifier;
     }
 
-    std::vector<char> Puback::serializeVP() const {
+    std::vector<char> Pubrec::serializeVP() const {
         std::vector<char> packet;
 
         std::vector<char> tmpVector = packetIdentifier.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
+    }
+
+    std::size_t Pubrec::deserializeVP(SocketContext* socketContext) {
+        // V-Header
+        std::size_t consumed = packetIdentifier.deserialize(socketContext);
+        complete = packetIdentifier.isComplete();
+
+        // no Payload
+
+        return consumed;
+    }
+
+    void Pubrec::propagateEvent(SocketContext* socketContext) {
+        socketContext->_onPubrec(*this);
     }
 
 } // namespace iot::mqtt::packets

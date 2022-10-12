@@ -33,8 +33,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Suback
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::packets::Suback {
+        : public iot::mqtt::packets::Suback
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
         explicit Suback(uint32_t remainingLength, uint8_t flags);
 

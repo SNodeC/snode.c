@@ -33,8 +33,8 @@ namespace iot::mqtt {
 namespace iot::mqtt::packets::deserializer {
 
     class Connack
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::packets::Connack {
+        : public iot::mqtt::packets::Connack
+        , public iot::mqtt::ControlPacketDeserializer {
     public:
         explicit Connack(uint32_t remainingLength, uint8_t flags);
 

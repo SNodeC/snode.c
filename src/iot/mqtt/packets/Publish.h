@@ -19,15 +19,10 @@
 #ifndef IOT_MQTT_PACKETS_PUBLISH_H
 #define IOT_MQTT_PACKETS_PUBLISH_H
 
-#include "iot/mqtt/ControlPacket.h"             // IWYU pragma: export
-#include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-#include "iot/mqtt/types/String.h"              // IWYU pragma: export
-#include "iot/mqtt/types/StringRaw.h"           // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
+#include "iot/mqtt/ControlPacket.h"   // IWYU pragma: export
+#include "iot/mqtt/types/String.h"    // IWYU pragma: export
+#include "iot/mqtt/types/StringRaw.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"    // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,22 +30,18 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Publish
-        : public iot::mqtt::ControlPacketDeserializer
-        , public iot::mqtt::ControlPacket {
+    class Publish : public iot::mqtt::ControlPacket {
     public:
+        Publish();
         Publish(uint16_t packetIdentifier,
                 const std::string& topic,
                 const std::string& message,
                 bool dup = false,
                 uint8_t qoSLevel = 0,
                 bool retain = false);
-        explicit Publish(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
         std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
 
     public:
         bool getDup() const;
@@ -61,7 +52,7 @@ namespace iot::mqtt::packets {
 
         bool getRetain() const;
 
-    private:
+    protected:
         iot::mqtt::types::UInt16 packetIdentifier;
         iot::mqtt::types::String topic;
         iot::mqtt::types::StringRaw message;
@@ -69,8 +60,6 @@ namespace iot::mqtt::packets {
         bool dup = false;
         uint8_t qoSLevel = 0;
         bool retain = false;
-
-        int state = 0;
     };
 
 } // namespace iot::mqtt::packets
