@@ -2,58 +2,52 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_PACKETS_CPP
+set(MQTT_PACKETS_SERVER_CPP
     Connect.cpp
-    Connack.cpp
     Disconnect.cpp
     Pingreq.cpp
-    Pingresp.cpp
     Publish.cpp
     Puback.cpp
     Pubcomp.cpp
     Pubrec.cpp
     Pubrel.cpp
     Subscribe.cpp
-    Suback.cpp
     Unsubscribe.cpp
-    Unsuback.cpp
 )
-set(MQTT_PACKETS_H
+set(MQTT_PACKETS_SERVER_H
     Connect.h
-    Connack.h
     Disconnect.h
     Pingreq.h
-    Pingresp.h
     Publish.h
     Puback.h
     Pubcomp.h
     Pubrec.h
     Pubrel.h
     Subscribe.h
-    Suback.h
     Unsubscribe.h
-    Unsuback.h
 )
 
-add_library(mqtt-packets STATIC ${MQTT_PACKETS_CPP} ${MQTT_PACKETS_H})
-add_library(snodec::mqtt-packets ALIAS mqtt-packets)
-
-target_link_libraries(
-    mqtt-packets PUBLIC snodec::mqtt-types
+add_library(
+    mqtt-server-packets STATIC ${MQTT_PACKETS_SERVER_CPP}
+                                     ${MQTT_PACKETS_SERVER_CPP}
 )
+add_library(snodec::mqtt-server-packets ALIAS mqtt-server-packets)
 
-set_property(TARGET mqtt-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(mqtt-server-packets PRIVATE snodec::mqtt-packets)
+
+set_property(
+    TARGET mqtt-server-packets PROPERTY POSITION_INDEPENDENT_CODE ON
+)
 
 target_include_directories(
-    mqtt-packets PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    mqtt-server-packets PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/iot/mqtt/packets
+    DESTINATION include/snode.c/iot/mqtt/server/packets
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
-    PATTERN "deserializer" EXCLUDE
 )

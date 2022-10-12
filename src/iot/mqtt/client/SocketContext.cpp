@@ -34,17 +34,32 @@ namespace iot::mqtt::client {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
         switch (staticHeader.getPacketType()) {
-            case MQTT_CONNACK: // Client
+            case MQTT_CONNACK:
                 currentPacket = new iot::mqtt::packets::deserializer::Connack(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            case MQTT_SUBACK: // Client
+            case MQTT_SUBACK:
                 currentPacket = new iot::mqtt::packets::deserializer::Suback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            case MQTT_UNSUBACK: // Client
+            case MQTT_UNSUBACK:
                 currentPacket = new iot::mqtt::packets::deserializer::Unsuback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
-            case MQTT_PINGRESP: // Client
+            case MQTT_PINGRESP:
                 currentPacket = new iot::mqtt::packets::deserializer::Pingresp(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                break;
+            case MQTT_PUBLISH:
+                currentPacket = new iot::mqtt::packets::deserializer::Publish(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                break;
+            case MQTT_PUBACK:
+                currentPacket = new iot::mqtt::packets::deserializer::Puback(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                break;
+            case MQTT_PUBREC:
+                currentPacket = new iot::mqtt::packets::deserializer::Pubrec(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                break;
+            case MQTT_PUBREL:
+                currentPacket = new iot::mqtt::packets::deserializer::Pubrel(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                break;
+            case MQTT_PUBCOMP:
+                currentPacket = new iot::mqtt::packets::deserializer::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
                 break;
             default:
                 currentPacket = nullptr;
@@ -59,6 +74,65 @@ namespace iot::mqtt::client {
             shutdown(true);
         } else {
             onConnack(connack);
+        }
+    }
+
+    void SocketContext::__onPublish(mqtt::packets::Publish& publish) {
+        onPublish(publish);
+    }
+
+    void SocketContext::_onPublish(packets::Publish& publish) {
+        if (publish.getQoSLevel() > 2) {
+            shutdown(true);
+        } else if (publish.getPacketIdentifier() == 0 && publish.getQoSLevel() > 0) {
+            shutdown(true);
+        } else {
+            __onPublish(publish);
+
+            switch (publish.getQoSLevel()) {
+                case 1:
+                    sendPuback(publish.getPacketIdentifier());
+                    break;
+                case 2:
+                    sendPubrec(publish.getPacketIdentifier());
+                    break;
+            }
+        }
+    }
+
+    void SocketContext::_onPuback(packets::Puback& puback) {
+        if (puback.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            onPuback(puback);
+        }
+    }
+
+    void SocketContext::_onPubrec(packets::Pubrec& pubrec) {
+        if (pubrec.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            sendPubrel(pubrec.getPacketIdentifier());
+
+            onPubrec(pubrec);
+        }
+    }
+
+    void SocketContext::_onPubrel(packets::Pubrel& pubrel) {
+        if (pubrel.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            onPubrel(pubrel);
+
+            sendPubcomp(pubrel.getPacketIdentifier());
+        }
+    }
+
+    void SocketContext::_onPubcomp(packets::Pubcomp& pubcomp) {
+        if (pubcomp.getPacketIdentifier() == 0) {
+            shutdown(true);
+        } else {
+            onPubcomp(pubcomp);
         }
     }
 

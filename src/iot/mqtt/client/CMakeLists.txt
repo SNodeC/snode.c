@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+add_subdirectory(packets)
+
 set(MQTT_CLIENT_CPP SocketContext.cpp)
 
 set(MQTT_CLIENT_H SocketContext.h)
@@ -12,7 +14,7 @@ add_library(snodec::mqtt-client ALIAS mqtt-client)
 target_link_libraries(
     mqtt-client
     PUBLIC snodec::mqtt
-    PRIVATE snodec::mqtt-packets-deserializer
+    PRIVATE snodec::mqtt-client-packets
 )
 
 target_include_directories(

@@ -19,13 +19,10 @@
 #ifndef IOT_MQTT_SOCKETCONTEXT_H
 #define IOT_MQTT_SOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h"             // IWYU pragma: export
-#include "iot/mqtt/StaticHeader.h"                 // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Puback.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Pubcomp.h" // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Publish.h" // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Pubrec.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/deserializer/Pubrel.h"  // IWYU pragma: export
+#include "core/socket/SocketContext.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt/ControlPacketDeserializer.h"
+#include "iot/mqtt/StaticHeader.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -50,20 +47,6 @@ namespace iot::mqtt {
     private:
         std::size_t onReceiveFromPeer() final;
         virtual iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) = 0;
-
-        virtual void onPublish(iot::mqtt::packets::Publish& publish) = 0;
-        virtual void onPuback(iot::mqtt::packets::Puback& puback) = 0;
-        virtual void onPubrec(iot::mqtt::packets::Pubrec& pubrec) = 0;
-        virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel) = 0;
-        virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) = 0;
-
-        virtual void __onPublish(iot::mqtt::packets::Publish& publish) = 0;
-
-        void _onPublish(iot::mqtt::packets::Publish& publish);
-        void _onPuback(iot::mqtt::packets::Puback& puback);
-        void _onPubrec(iot::mqtt::packets::Pubrec& pubrec);
-        void _onPubrel(iot::mqtt::packets::Pubrel& pubrel);
-        void _onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp);
 
     public:
         void sendPublish(const std::string& topic, const std::string& message, bool dup = false, uint8_t qoSLevel = 0, bool retain = false);
@@ -92,12 +75,6 @@ namespace iot::mqtt {
         uint16_t packetIdentifier = 0;
 
         int state = 0;
-
-        friend class iot::mqtt::packets::deserializer::Publish;
-        friend class iot::mqtt::packets::deserializer::Pubcomp;
-        friend class iot::mqtt::packets::deserializer::Pubrec;
-        friend class iot::mqtt::packets::deserializer::Puback;
-        friend class iot::mqtt::packets::deserializer::Pubrel;
     };
 
 } // namespace iot::mqtt

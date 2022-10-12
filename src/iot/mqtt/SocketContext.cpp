@@ -18,6 +18,12 @@
 
 #include "iot/mqtt/SocketContext.h"
 
+#include "iot/mqtt/packets/Puback.h"
+#include "iot/mqtt/packets/Pubcomp.h"
+#include "iot/mqtt/packets/Publish.h"
+#include "iot/mqtt/packets/Pubrec.h"
+#include "iot/mqtt/packets/Pubrel.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -64,34 +70,6 @@ namespace iot::mqtt {
 
                 controlPacketDeserializer = onReceiveFromPeer(staticHeader);
 
-                if (controlPacketDeserializer == nullptr) {
-                    switch (staticHeader.getPacketType()) {
-                        case MQTT_PUBLISH:
-                            controlPacketDeserializer =
-                                new iot::mqtt::packets::deserializer::Publish(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
-                        case MQTT_PUBACK:
-                            controlPacketDeserializer =
-                                new iot::mqtt::packets::deserializer::Puback(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
-                        case MQTT_PUBREC:
-                            controlPacketDeserializer =
-                                new iot::mqtt::packets::deserializer::Pubrec(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
-                        case MQTT_PUBREL:
-                            controlPacketDeserializer =
-                                new iot::mqtt::packets::deserializer::Pubrel(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
-                        case MQTT_PUBCOMP:
-                            controlPacketDeserializer =
-                                new iot::mqtt::packets::deserializer::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
-                            break;
-                        default:
-                            controlPacketDeserializer = nullptr;
-                            break;
-                    }
-                }
-
                 staticHeader.reset();
 
                 if (controlPacketDeserializer == nullptr) {
@@ -134,61 +112,6 @@ namespace iot::mqtt {
         }
 
         return consumed;
-    }
-
-    void SocketContext::_onPublish(packets::Publish& publish) {
-        if (publish.getQoSLevel() > 2) {
-            shutdown(true);
-        } else if (publish.getPacketIdentifier() == 0 && publish.getQoSLevel() > 0) {
-            shutdown(true);
-        } else {
-            __onPublish(publish);
-
-            switch (publish.getQoSLevel()) {
-                case 1:
-                    sendPuback(publish.getPacketIdentifier());
-                    break;
-                case 2:
-                    sendPubrec(publish.getPacketIdentifier());
-                    break;
-            }
-        }
-    }
-
-    void SocketContext::_onPuback(packets::Puback& puback) {
-        if (puback.getPacketIdentifier() == 0) {
-            shutdown(true);
-        } else {
-            onPuback(puback);
-        }
-    }
-
-    void SocketContext::_onPubrec(packets::Pubrec& pubrec) {
-        if (pubrec.getPacketIdentifier() == 0) {
-            shutdown(true);
-        } else {
-            sendPubrel(pubrec.getPacketIdentifier());
-
-            onPubrec(pubrec);
-        }
-    }
-
-    void SocketContext::_onPubrel(packets::Pubrel& pubrel) {
-        if (pubrel.getPacketIdentifier() == 0) {
-            shutdown(true);
-        } else {
-            onPubrel(pubrel);
-
-            sendPubcomp(pubrel.getPacketIdentifier());
-        }
-    }
-
-    void SocketContext::_onPubcomp(packets::Pubcomp& pubcomp) {
-        if (pubcomp.getPacketIdentifier() == 0) {
-            shutdown(true);
-        } else {
-            onPubcomp(pubcomp);
-        }
     }
 
     void SocketContext::send(ControlPacket&& controlPacket) const {
