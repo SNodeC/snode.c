@@ -29,7 +29,7 @@ namespace iot::mqtt::packets {
 
     class Pingresp : public iot::mqtt::ControlPacket {
     public:
-        explicit Pingresp();
+        Pingresp();
 
     private:
         std::vector<char> serializeVP() const override;

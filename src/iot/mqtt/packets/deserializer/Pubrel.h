@@ -37,7 +37,7 @@ namespace iot::mqtt::packets::deserializer {
         : public iot::mqtt::packets::Pubrel
         , public iot::mqtt::ControlPacketDeserializer {
     public:
-        explicit Pubrel(uint32_t remainingLength, uint8_t flags);
+        Pubrel(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(SocketContext* socketContext) override;

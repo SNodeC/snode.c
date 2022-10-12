@@ -37,7 +37,7 @@ namespace iot::mqtt::packets::deserializer {
         : public iot::mqtt::packets::Puback
         , public iot::mqtt::ControlPacketDeserializer {
     public:
-        explicit Puback(uint32_t remainingLength, uint8_t flags);
+        Puback(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
