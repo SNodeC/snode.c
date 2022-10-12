@@ -27,7 +27,7 @@
 namespace iot::mqtt::packets::deserializer {
 
     Pubrec::Pubrec(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength) {
+        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_PUBREC_FLAGS) {
         this->flags = flags;
     }
 

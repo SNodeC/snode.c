@@ -27,7 +27,7 @@
 namespace iot::mqtt::packets::deserializer {
 
     Subscribe::Subscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength) {
+        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_SUBSCRIBE_FLAGS) {
         this->flags = flags;
     }
 

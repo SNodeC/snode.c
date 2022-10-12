@@ -27,7 +27,7 @@
 namespace iot::mqtt::packets::deserializer {
 
     Suback::Suback(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength) {
+        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_SUBACK_FLAGS) {
         this->flags = flags;
     }
 

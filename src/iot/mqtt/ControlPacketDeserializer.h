@@ -34,7 +34,7 @@ namespace iot::mqtt {
 
     class ControlPacketDeserializer {
     public:
-        ControlPacketDeserializer(uint32_t remainingLength);
+        ControlPacketDeserializer(uint32_t remainingLength, uint8_t flags, uint8_t mustFlags);
 
         virtual ~ControlPacketDeserializer() = default;
 

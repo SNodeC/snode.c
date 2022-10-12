@@ -27,7 +27,7 @@
 namespace iot::mqtt::packets::deserializer {
 
     Publish::Publish(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength) {
+        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, flags) {
         this->flags = flags;
         this->qoSLevel = flags >> 1 & 0x03;
         this->dup = (flags & 0x04) != 0;
