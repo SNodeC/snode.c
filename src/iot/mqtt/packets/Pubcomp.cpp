@@ -18,23 +18,19 @@
 
 #include "iot/mqtt/packets/Pubcomp.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
+    Pubcomp::Pubcomp()
+        : iot::mqtt::ControlPacket(MQTT_PUBCOMP) {
+    }
+
     Pubcomp::Pubcomp(const uint16_t packetIdentifier)
         : iot::mqtt::ControlPacket(MQTT_PUBCOMP) {
         this->packetIdentifier = packetIdentifier;
-    }
-
-    Pubcomp::Pubcomp(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength)
-        , iot::mqtt::ControlPacket(MQTT_PUBCOMP) {
-        this->flags = flags;
     }
 
     uint16_t Pubcomp::getPacketIdentifier() const {
@@ -48,20 +44,6 @@ namespace iot::mqtt::packets {
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
-    }
-
-    std::size_t Pubcomp::deserializeVP(SocketContext* socketContext) {
-        // no Payload
-        std::size_t consumed = packetIdentifier.deserialize(socketContext);
-        complete = packetIdentifier.isComplete();
-
-        // no Payload
-
-        return consumed;
-    }
-
-    void Pubcomp::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onPubcomp(*this);
     }
 
 } // namespace iot::mqtt::packets

@@ -22,10 +22,6 @@
 #include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
 
-namespace iot::mqtt {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS

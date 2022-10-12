@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/packets/deserializer/Puback.h"
 
-#include "iot/mqtt/client/SocketContext.h"
+#include "iot/mqtt/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

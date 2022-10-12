@@ -11,8 +11,8 @@ set(MQTT_PACKETS_DESERIALIZER_CPP
 
     Publish.cpp
     Puback.cpp
-#    Pubcomp.cpp
-#    Pubrec.cpp
+    Pubcomp.cpp
+    Pubrec.cpp
 #    Pubrel.cpp
 
     Subscribe.cpp
@@ -29,8 +29,8 @@ set(MQTT_PACKETS_DESERIALIZER_H
 
     Publish.h
     Puback.h
-#    Pubcomp.h
-#    Pubrec.h
+    Pubcomp.h
+    Pubrec.h
 #    Pubrel.h
 
     Subscribe.h

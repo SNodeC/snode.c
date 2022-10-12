@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/packets/deserializer/Publish.h"
 
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

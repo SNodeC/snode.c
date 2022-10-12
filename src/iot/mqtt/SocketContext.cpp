@@ -76,7 +76,7 @@ namespace iot::mqtt {
                             break;
                         case MQTT_PUBREC: // Server & Client
                             controlPacketDeserializer =
-                                new iot::mqtt::packets::Pubrec(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                                new iot::mqtt::packets::deserializer::Pubrec(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
                         case MQTT_PUBREL: // Server & Client
                             controlPacketDeserializer =
@@ -84,7 +84,7 @@ namespace iot::mqtt {
                             break;
                         case MQTT_PUBCOMP: // Server & Client
                             controlPacketDeserializer =
-                                new iot::mqtt::packets::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                                new iot::mqtt::packets::deserializer::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
                         default:
                             controlPacketDeserializer = nullptr;
