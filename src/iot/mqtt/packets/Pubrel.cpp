@@ -18,23 +18,19 @@
 
 #include "iot/mqtt/packets/Pubrel.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
+    Pubrel::Pubrel()
+        : iot::mqtt::ControlPacket(MQTT_PUBREL) {
+    }
+
     Pubrel::Pubrel(const uint16_t packetIdentifier)
         : iot::mqtt::ControlPacket(MQTT_PUBREL) {
         this->packetIdentifier = packetIdentifier;
-    }
-
-    Pubrel::Pubrel(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength)
-        , iot::mqtt::ControlPacket(MQTT_PUBREL) {
-        this->flags = flags;
     }
 
     uint16_t Pubrel::getPacketIdentifier() const {
@@ -48,20 +44,6 @@ namespace iot::mqtt::packets {
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;
-    }
-
-    std::size_t Pubrel::deserializeVP(SocketContext* socketContext) {
-        // V-Header
-        std::size_t consumed = packetIdentifier.deserialize(socketContext);
-        complete = packetIdentifier.isComplete();
-
-        // no Payload
-
-        return consumed;
-    }
-
-    void Pubrel::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onPubrel(*this);
     }
 
 } // namespace iot::mqtt::packets

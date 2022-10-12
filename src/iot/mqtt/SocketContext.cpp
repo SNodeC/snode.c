@@ -80,7 +80,7 @@ namespace iot::mqtt {
                             break;
                         case MQTT_PUBREL: // Server & Client
                             controlPacketDeserializer =
-                                new iot::mqtt::packets::Pubrel(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                                new iot::mqtt::packets::deserializer::Pubrel(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
                         case MQTT_PUBCOMP: // Server & Client
                             controlPacketDeserializer =

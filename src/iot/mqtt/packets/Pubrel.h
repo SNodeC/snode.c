@@ -19,13 +19,8 @@
 #ifndef IOT_MQTT_PACKETS_PUBREL_H
 #define IOT_MQTT_PACKETS_PUBREL_H
 
-#include "iot/mqtt/ControlPacket.h"             // IWYU pragma: export
-#include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
-
-namespace iot::mqtt {
-    class SocketContext;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,22 +28,18 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::packets {
 
-    class Pubrel
-        : public iot::mqtt::ControlPacketDeserializer
-        , public ControlPacket {
+    class Pubrel : public ControlPacket {
     public:
+        Pubrel();
         explicit Pubrel(const uint16_t packetIdentifier);
-        explicit Pubrel(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override;
         std::vector<char> serializeVP() const override;
-        void propagateEvent(SocketContext* socketContext) override;
 
     public:
         uint16_t getPacketIdentifier() const;
 
-    private:
+    protected:
         iot::mqtt::types::UInt16 packetIdentifier;
     };
 

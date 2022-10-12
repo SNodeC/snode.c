@@ -21,11 +21,11 @@
 
 #include "core/socket/SocketContext.h"             // IWYU pragma: export
 #include "iot/mqtt/StaticHeader.h"                 // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrel.h"               // IWYU pragma: export
 #include "iot/mqtt/packets/deserializer/Puback.h"  // IWYU pragma: export
 #include "iot/mqtt/packets/deserializer/Pubcomp.h" // IWYU pragma: export
 #include "iot/mqtt/packets/deserializer/Publish.h" // IWYU pragma: export
 #include "iot/mqtt/packets/deserializer/Pubrec.h"  // IWYU pragma: export
+#include "iot/mqtt/packets/deserializer/Pubrel.h"  // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -97,7 +97,7 @@ namespace iot::mqtt {
         friend class iot::mqtt::packets::deserializer::Pubcomp;
         friend class iot::mqtt::packets::deserializer::Pubrec;
         friend class iot::mqtt::packets::deserializer::Puback;
-        friend class iot::mqtt::packets::Pubrel;
+        friend class iot::mqtt::packets::deserializer::Pubrel;
     };
 
 } // namespace iot::mqtt

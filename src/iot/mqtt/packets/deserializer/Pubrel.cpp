@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/packets/Pubrel.h"
+#include "iot/mqtt/packets/deserializer/Pubrel.h"
 
 #include "iot/mqtt/SocketContext.h"
 
@@ -24,30 +24,11 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets {
-
-    Pubrel::Pubrel(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL) {
-        this->packetIdentifier = packetIdentifier;
-    }
+namespace iot::mqtt::packets::deserializer {
 
     Pubrel::Pubrel(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength)
-        , iot::mqtt::ControlPacket(MQTT_PUBREL) {
+        : iot::mqtt::ControlPacketDeserializer(remainingLength) {
         this->flags = flags;
-    }
-
-    uint16_t Pubrel::getPacketIdentifier() const {
-        return packetIdentifier;
-    }
-
-    std::vector<char> Pubrel::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        return packet;
     }
 
     std::size_t Pubrel::deserializeVP(SocketContext* socketContext) {
@@ -64,4 +45,4 @@ namespace iot::mqtt::packets {
         socketContext->_onPubrel(*this);
     }
 
-} // namespace iot::mqtt::packets
+} // namespace iot::mqtt::packets::deserializer
