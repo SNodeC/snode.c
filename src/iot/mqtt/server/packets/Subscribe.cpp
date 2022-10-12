@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::server::packets {
 
     Subscribe::Subscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_SUBSCRIBE_FLAGS) {
+        : iot::mqtt::server::ControlPacketDeserializer(remainingLength, flags, MQTT_SUBSCRIBE_FLAGS) {
         this->flags = flags;
     }
 
@@ -76,8 +76,8 @@ namespace iot::mqtt::packets::deserializer {
         return consumed;
     }
 
-    void Subscribe::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onSubscribe(*this);
+    void Subscribe::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
+        socketContext->_onSubscribe(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::server::packets

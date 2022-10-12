@@ -19,11 +19,11 @@
 #ifndef IOT_MQTT_PACKETS_SUBSCRIBE_H
 #define IOT_MQTT_PACKETS_SUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/Topic.h"        // IWYU pragma: export
-#include "iot/mqtt/types/String.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt8.h"  // IWYU pragma: export
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/Topic.h"         // IWYU pragma: export
+#include "iot/mqtt/types/String.h"  // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

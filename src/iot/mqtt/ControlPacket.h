@@ -62,8 +62,6 @@ namespace iot::mqtt {
     public:
         ControlPacket(uint8_t type);
 
-        // error = flags != mustFlags;
-
         virtual ~ControlPacket() = default;
 
     private:

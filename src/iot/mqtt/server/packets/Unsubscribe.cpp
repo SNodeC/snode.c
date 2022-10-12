@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::server::packets {
 
     Unsubscribe::Unsubscribe(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_UNSUBSCRIBE_FLAGS) {
+        : iot::mqtt::server::ControlPacketDeserializer(remainingLength, flags, MQTT_UNSUBSCRIBE_FLAGS) {
         this->flags = flags;
     }
 
@@ -64,8 +64,8 @@ namespace iot::mqtt::packets::deserializer {
         return consumed;
     }
 
-    void Unsubscribe::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onUnsubscribe(*this);
+    void Unsubscribe::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
+        socketContext->_onUnsubscribe(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::server::packets

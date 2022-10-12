@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::client::packets {
 
     Pingresp::Pingresp(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_PINGRESP_FLAGS) {
+        : iot::mqtt::client::ControlPacketDeserializer(remainingLength, flags, MQTT_PINGRESP_FLAGS) {
         this->flags = flags;
     }
 
@@ -39,8 +39,8 @@ namespace iot::mqtt::packets::deserializer {
         return 0;
     }
 
-    void Pingresp::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onPingresp(*this);
+    void Pingresp::propagateEvent(iot::mqtt::client::SocketContext* socketContext) {
+        socketContext->_onPingresp(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::client::packets

@@ -24,15 +24,15 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::client::packets {
 
     Unsuback::Unsuback(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_UNSUBACK_FLAGS) {
+        : iot::mqtt::client::ControlPacketDeserializer(remainingLength, flags, MQTT_UNSUBACK_FLAGS) {
         this->flags = flags;
     }
 
-    void Unsuback::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onUnsuback(*this);
+    void Unsuback::propagateEvent(iot::mqtt::client::SocketContext* socketContext) {
+        socketContext->_onUnsuback(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::client::packets

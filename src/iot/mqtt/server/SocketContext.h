@@ -20,10 +20,6 @@
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
 #include "iot/mqtt/SocketContext.h"              // IWYU pragma: export
-#include "iot/mqtt/packets/Connack.h"            // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"           // IWYU pragma: export
-#include "iot/mqtt/packets/Suback.h"             // IWYU pragma: export
-#include "iot/mqtt/packets/Unsuback.h"           // IWYU pragma: export
 #include "iot/mqtt/server/packets/Connect.h"     // IWYU pragma: export
 #include "iot/mqtt/server/packets/Disconnect.h"  // IWYU pragma: export
 #include "iot/mqtt/server/packets/Pingreq.h"     // IWYU pragma: export
@@ -63,32 +59,32 @@ namespace iot::mqtt::server {
 
     private:
         iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) final;
+        void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
         void initSession();
         void releaseSession();
 
-        virtual void onConnect(iot::mqtt::packets::deserializer::Connect& connect);
+        virtual void onConnect(iot::mqtt::packets::Connect& connect);
         virtual void onPublish(iot::mqtt::packets::Publish& publish);
         virtual void onPuback(iot::mqtt::packets::Puback& puback);
         virtual void onPubrec(iot::mqtt::packets::Pubrec& pubrec);
         virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel);
         virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp);
-        virtual void onSubscribe(iot::mqtt::packets::deserializer::Subscribe& subscribe);
-        virtual void onUnsubscribe(iot::mqtt::packets::deserializer::Unsubscribe& unsubscribe);
-        virtual void onPingreq(iot::mqtt::packets::deserializer::Pingreq& pingreq);
-        virtual void onDisconnect(iot::mqtt::packets::deserializer::Disconnect& disconnect);
+        virtual void onSubscribe(iot::mqtt::packets::Subscribe& subscribe);
+        virtual void onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe);
+        virtual void onPingreq(iot::mqtt::packets::Pingreq& pingreq);
+        virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect);
 
-        void __onPublish(iot::mqtt::packets::Publish& publish);
-        void _onConnect(iot::mqtt::packets::deserializer::Connect& connect);
+        void _onConnect(iot::mqtt::packets::Connect& connect);
         void _onPublish(iot::mqtt::packets::Publish& publish);
         void _onPuback(iot::mqtt::packets::Puback& puback);
         void _onPubrec(iot::mqtt::packets::Pubrec& pubrec);
         void _onPubrel(iot::mqtt::packets::Pubrel& pubrel);
         void _onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp);
-        void _onSubscribe(iot::mqtt::packets::deserializer::Subscribe& subscribe);
-        void _onUnsubscribe(iot::mqtt::packets::deserializer::Unsubscribe& unsubscribe);
-        void _onPingreq(iot::mqtt::packets::deserializer::Pingreq& pingreq);
-        void _onDisconnect(iot::mqtt::packets::deserializer::Disconnect& disconnect);
+        void _onSubscribe(iot::mqtt::packets::Subscribe& subscribe);
+        void _onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe);
+        void _onPingreq(iot::mqtt::packets::Pingreq& pingreq);
+        void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect);
 
     public:
         void sendConnack(uint8_t returnCode, uint8_t flags);
@@ -120,16 +116,16 @@ namespace iot::mqtt::server {
         bool willFlag = false;
         bool cleanSession = false;
 
-        friend class iot::mqtt::packets::deserializer::Connect;
-        friend class iot::mqtt::packets::deserializer::Subscribe;
-        friend class iot::mqtt::packets::deserializer::Unsubscribe;
-        friend class iot::mqtt::packets::deserializer::Pingreq;
-        friend class iot::mqtt::packets::deserializer::Disconnect;
-        friend class iot::mqtt::packets::deserializer::Publish;
-        friend class iot::mqtt::packets::deserializer::Pubcomp;
-        friend class iot::mqtt::packets::deserializer::Pubrec;
-        friend class iot::mqtt::packets::deserializer::Puback;
-        friend class iot::mqtt::packets::deserializer::Pubrel;
+        friend class iot::mqtt::server::packets::Connect;
+        friend class iot::mqtt::server::packets::Subscribe;
+        friend class iot::mqtt::server::packets::Unsubscribe;
+        friend class iot::mqtt::server::packets::Pingreq;
+        friend class iot::mqtt::server::packets::Disconnect;
+        friend class iot::mqtt::server::packets::Publish;
+        friend class iot::mqtt::server::packets::Pubcomp;
+        friend class iot::mqtt::server::packets::Pubrec;
+        friend class iot::mqtt::server::packets::Puback;
+        friend class iot::mqtt::server::packets::Pubrel;
     };
 
 } // namespace iot::mqtt::server

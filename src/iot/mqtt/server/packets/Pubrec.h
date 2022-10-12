@@ -16,34 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETS_DESERIALIZER_PUBREC_H
-#define IOT_MQTT_PACKETS_DESERIALIZER_PUBREC_H
+#ifndef IOT_MQTT_SERVER_PACKETS_DESERIALIZER_PUBREC_H
+#define IOT_MQTT_SERVER_PACKETS_DESERIALIZER_PUBREC_H
 
-#include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrec.h"            // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"              // IWYU pragma: export
+#include "iot/mqtt/packets/Pubrec.h"                   // IWYU pragma: export
+#include "iot/mqtt/server/ControlPacketDeserializer.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
-}
+    namespace server {
+        class SocketContext;
+    }
+} // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::server::packets {
 
     class Pubrec
         : public iot::mqtt::packets::Pubrec
-        , public iot::mqtt::ControlPacketDeserializer {
+        , public iot::mqtt::server::ControlPacketDeserializer {
     public:
         Pubrec(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(SocketContext* socketContext) override;
-        void propagateEvent(SocketContext* socketContext) override;
+        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
+        void propagateEvent(iot::mqtt::server::SocketContext* socketContext) override;
     };
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::server::packets
 
-#endif // IOT_MQTT_PACKETS_DESERIALIZER_PUBREC_H
+#endif // IOT_MQTT_SERVER_PACKETS_DESERIALIZER_PUBREC_H

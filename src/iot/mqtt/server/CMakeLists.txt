@@ -9,7 +9,7 @@ set(MQTT_SERVER_CPP SocketContext.cpp SharedSocketContextFactory.cpp
                     SocketContextFactory.cpp
 )
 
-set(MQTT_SERVER_H SocketContext.h SharedSocketContextFactory.h
+set(MQTT_SERVER_H ControlPacketDeserializer.h SocketContext.h SharedSocketContextFactory.h
                   SocketContextFactory.h
 )
 

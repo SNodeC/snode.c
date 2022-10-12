@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_PACKETS_PINGREQ_H
 #define IOT_MQTT_PACKETS_PINGREQ_H
 
-#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

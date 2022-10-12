@@ -16,36 +16,39 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETS_DESERIALIZER_CONNECT_H
-#define IOT_MQTT_PACKETS_DESERIALIZER_CONNECT_H
+#ifndef IOT_MQTT_SERVER_PACKETS_DESERIALIZER_CONNECT_H
+#define IOT_MQTT_SERVER_PACKETS_DESERIALIZER_CONNECT_H
 
-#include "iot/mqtt/ControlPacketDeserializer.h"
-#include "iot/mqtt/packets/Connect.h" // IWYU pragma: export
+#include "iot/mqtt/packets/Connect.h"                  // IWYU pragma: export
+#include "iot/mqtt/server/ControlPacketDeserializer.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext;
-}
+    namespace server {
+        class SocketContext;
+    }
+} // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::server::packets {
 
     class Connect
         : public iot::mqtt::packets::Connect
-        , public iot::mqtt::ControlPacketDeserializer {
+        , public iot::mqtt::server::ControlPacketDeserializer {
     public:
         Connect(uint32_t remainingLength, uint8_t flags);
 
     private:
         std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
-        void propagateEvent(iot::mqtt::SocketContext* socketcontext) override;
+        void propagateEvent(iot::mqtt::server::SocketContext* socketcontext) override;
 
     private:
         int state = 0;
     };
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::server::packets
 
-#endif // IOT_MQTT_PACKETS_DESERIALIZER_CONNECT_H
+#endif // IOT_MQTT_SERVER_PACKETS_DESERIALIZER_CONNECT_H

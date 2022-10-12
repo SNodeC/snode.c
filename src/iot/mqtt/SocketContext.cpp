@@ -18,6 +18,7 @@
 
 #include "iot/mqtt/SocketContext.h"
 
+#include "iot/mqtt/ControlPacketDeserializer.h"
 #include "iot/mqtt/packets/Puback.h"
 #include "iot/mqtt/packets/Pubcomp.h"
 #include "iot/mqtt/packets/Publish.h"
@@ -93,7 +94,7 @@ namespace iot::mqtt {
                 consumed += controlPacketDeserializer->deserialize(this);
 
                 if (controlPacketDeserializer->isComplete()) {
-                    controlPacketDeserializer->propagateEvent(this);
+                    propagateEvent(controlPacketDeserializer);
 
                     delete controlPacketDeserializer;
                     controlPacketDeserializer = nullptr;

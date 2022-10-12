@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::client::packets {
 
     Suback::Suback(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_SUBACK_FLAGS) {
+        : iot::mqtt::client::ControlPacketDeserializer(remainingLength, flags, MQTT_SUBACK_FLAGS) {
         this->flags = flags;
     }
 
@@ -65,8 +65,8 @@ namespace iot::mqtt::packets::deserializer {
         return consumed;
     }
 
-    void Suback::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onSuback(*this);
+    void Suback::propagateEvent(iot::mqtt::client::SocketContext* socketContext) {
+        socketContext->_onSuback(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::client::packets

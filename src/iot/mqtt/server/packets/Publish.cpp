@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::server::packets {
 
     Publish::Publish(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, flags) {
+        : iot::mqtt::server::ControlPacketDeserializer(remainingLength, flags, flags) {
         this->flags = flags;
         this->qoSLevel = flags >> 1 & 0x03;
         this->dup = (flags & 0x04) != 0;
@@ -73,8 +73,8 @@ namespace iot::mqtt::packets::deserializer {
         return consumed;
     }
 
-    void Publish::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onPublish(*this);
+    void Publish::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
+        socketContext->_onPublish(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::server::packets

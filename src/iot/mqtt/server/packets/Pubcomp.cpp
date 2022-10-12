@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::server::packets {
 
     Pubcomp::Pubcomp(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_PUBCOMP_FLAGS) {
+        : iot::mqtt::server::ControlPacketDeserializer(remainingLength, flags, MQTT_PUBCOMP_FLAGS) {
         this->flags = flags;
     }
 
@@ -41,8 +41,8 @@ namespace iot::mqtt::packets::deserializer {
         return consumed;
     }
 
-    void Pubcomp::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onPubcomp(*this);
+    void Pubcomp::propagateEvent(SocketContext* socketContext) {
+        socketContext->_onPubcomp(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::server::packets

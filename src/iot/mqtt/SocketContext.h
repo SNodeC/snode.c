@@ -21,11 +21,14 @@
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/ControlPacketDeserializer.h"
 #include "iot/mqtt/StaticHeader.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
+}
+
+namespace iot::mqtt {
+    class ControlPacketDeserializer;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -47,6 +50,7 @@ namespace iot::mqtt {
     private:
         std::size_t onReceiveFromPeer() final;
         virtual iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) = 0;
+        virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     public:
         void sendPublish(const std::string& topic, const std::string& message, bool dup = false, uint8_t qoSLevel = 0, bool retain = false);

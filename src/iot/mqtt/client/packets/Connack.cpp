@@ -24,10 +24,10 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::client::packets {
 
     Connack::Connack(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_CONNACK_FLAGS) {
+        : iot::mqtt::client::ControlPacketDeserializer(remainingLength, flags, MQTT_CONNACK_FLAGS) {
         this->flags = flags;
     }
 
@@ -61,8 +61,8 @@ namespace iot::mqtt::packets::deserializer {
         return consumed;
     }
 
-    void Connack::propagateEvent(iot::mqtt::SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::client::SocketContext*>(socketContext)->_onConnack(*this);
+    void Connack::propagateEvent(iot::mqtt::client::SocketContext* socketContext) {
+        socketContext->_onConnack(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::client::packets

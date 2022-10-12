@@ -24,14 +24,14 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::packets::deserializer {
+namespace iot::mqtt::server::packets {
 
     Pubrel::Pubrel(uint32_t remainingLength, uint8_t flags)
-        : iot::mqtt::ControlPacketDeserializer(remainingLength, flags, MQTT_PUBREL_FLAGS) {
+        : iot::mqtt::server::ControlPacketDeserializer(remainingLength, flags, MQTT_PUBREL_FLAGS) {
         this->flags = flags;
     }
 
-    std::size_t Pubrel::deserializeVP(SocketContext* socketContext) {
+    std::size_t Pubrel::deserializeVP(iot::mqtt::SocketContext* socketContext) {
         // V-Header
         std::size_t consumed = packetIdentifier.deserialize(socketContext);
         complete = packetIdentifier.isComplete();
@@ -41,8 +41,8 @@ namespace iot::mqtt::packets::deserializer {
         return consumed;
     }
 
-    void Pubrel::propagateEvent(SocketContext* socketContext) {
-        dynamic_cast<iot::mqtt::server::SocketContext*>(socketContext)->_onPubrel(*this);
+    void Pubrel::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
+        socketContext->_onPubrel(*this);
     }
 
-} // namespace iot::mqtt::packets::deserializer
+} // namespace iot::mqtt::server::packets

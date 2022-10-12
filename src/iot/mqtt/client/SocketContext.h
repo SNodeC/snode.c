@@ -20,6 +20,7 @@
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
 #include "iot/mqtt/SocketContext.h"           // IWYU pragma: export
+#include "iot/mqtt/Topic.h"                   // IWYU pragma: export
 #include "iot/mqtt/client/packets/Connack.h"  // IWYU pragma: export
 #include "iot/mqtt/client/packets/Pingresp.h" // IWYU pragma: export
 #include "iot/mqtt/client/packets/Puback.h"   // IWYU pragma: export
@@ -29,11 +30,6 @@
 #include "iot/mqtt/client/packets/Pubrel.h"   // IWYU pragma: export
 #include "iot/mqtt/client/packets/Suback.h"   // IWYU pragma: export
 #include "iot/mqtt/client/packets/Unsuback.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Connect.h"         // IWYU pragma: export
-#include "iot/mqtt/packets/Disconnect.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Pingreq.h"         // IWYU pragma: export
-#include "iot/mqtt/packets/Subscribe.h"       // IWYU pragma: export
-#include "iot/mqtt/packets/Unsubscribe.h"     // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -56,6 +52,7 @@ namespace iot::mqtt::client {
 
     private:
         iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) final;
+        void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
         virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0; // Client
         virtual void onPublish(iot::mqtt::packets::Publish& publish) = 0;
@@ -66,8 +63,6 @@ namespace iot::mqtt::client {
         virtual void onSuback(iot::mqtt::packets::Suback& suback) = 0;       // Client
         virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback) = 0; // Client
         virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0; // Client
-
-        void __onPublish(iot::mqtt::packets::Publish& publish);
 
         void _onConnack(iot::mqtt::packets::Connack& connack); // Client
         void _onPublish(iot::mqtt::packets::Publish& publish);
@@ -86,15 +81,15 @@ namespace iot::mqtt::client {
         void sendPingreq();                                   // Client
         void sendDisconnect();                                // Client
 
-        friend class iot::mqtt::packets::deserializer::Connack;
-        friend class iot::mqtt::packets::deserializer::Suback;
-        friend class iot::mqtt::packets::deserializer::Unsuback;
-        friend class iot::mqtt::packets::deserializer::Pingresp;
-        friend class iot::mqtt::packets::deserializer::Publish;
-        friend class iot::mqtt::packets::deserializer::Pubcomp;
-        friend class iot::mqtt::packets::deserializer::Pubrec;
-        friend class iot::mqtt::packets::deserializer::Puback;
-        friend class iot::mqtt::packets::deserializer::Pubrel;
+        friend class iot::mqtt::client::packets::Connack;
+        friend class iot::mqtt::client::packets::Suback;
+        friend class iot::mqtt::client::packets::Unsuback;
+        friend class iot::mqtt::client::packets::Pingresp;
+        friend class iot::mqtt::client::packets::Publish;
+        friend class iot::mqtt::client::packets::Pubcomp;
+        friend class iot::mqtt::client::packets::Pubrec;
+        friend class iot::mqtt::client::packets::Puback;
+        friend class iot::mqtt::client::packets::Pubrel;
     };
 
 } // namespace iot::mqtt::client
