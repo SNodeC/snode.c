@@ -39,7 +39,7 @@ namespace iot::mqtt {
         virtual ~ControlPacketDeserializer() = default;
 
         std::size_t deserialize(iot::mqtt::SocketContext* socketContext);
-        virtual void propagateEvent(SocketContext* socketContext) = 0;
+        virtual void propagateEvent(iot::mqtt::SocketContext* socketContext) = 0;
 
     private:
         virtual std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) = 0;

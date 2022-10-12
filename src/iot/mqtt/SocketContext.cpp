@@ -66,23 +66,23 @@ namespace iot::mqtt {
 
                 if (controlPacketDeserializer == nullptr) {
                     switch (staticHeader.getPacketType()) {
-                        case MQTT_PUBLISH: // Server & Client
+                        case MQTT_PUBLISH:
                             controlPacketDeserializer =
                                 new iot::mqtt::packets::deserializer::Publish(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
-                        case MQTT_PUBACK: // Server & Client
+                        case MQTT_PUBACK:
                             controlPacketDeserializer =
                                 new iot::mqtt::packets::deserializer::Puback(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
-                        case MQTT_PUBREC: // Server & Client
+                        case MQTT_PUBREC:
                             controlPacketDeserializer =
                                 new iot::mqtt::packets::deserializer::Pubrec(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
-                        case MQTT_PUBREL: // Server & Client
+                        case MQTT_PUBREL:
                             controlPacketDeserializer =
                                 new iot::mqtt::packets::deserializer::Pubrel(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
-                        case MQTT_PUBCOMP: // Server & Client
+                        case MQTT_PUBCOMP:
                             controlPacketDeserializer =
                                 new iot::mqtt::packets::deserializer::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
                             break;
@@ -269,7 +269,7 @@ namespace iot::mqtt {
         LOG(DEBUG) << "Error: " << dynamic_cast<const ControlPacketDeserializer&>(packet).isError();
         LOG(DEBUG) << "Type: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getType());
         LOG(DEBUG) << "Flags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getFlags());
-        LOG(DEBUG) << "RemainingLength: " << dynamic_cast<const ControlPacketDeserializer&>(packet).getRemainingLength();
+        LOG(DEBUG) << "RemainingLength: " << std::dec << dynamic_cast<const ControlPacketDeserializer&>(packet).getRemainingLength();
     }
 
     void SocketContext::printData(const std::vector<char>& data) {

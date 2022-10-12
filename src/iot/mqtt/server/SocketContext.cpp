@@ -26,6 +26,7 @@
 #include "utils/Timeval.h" // IWYU pragma: keep
 
 #include <cstdint>
+#include <iomanip>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -151,35 +152,35 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "Recv PUBACK";
         LOG(DEBUG) << "===========";
         printStandardHeader(puback);
-        LOG(DEBUG) << "PacketIdentifier: " << puback.getPacketIdentifier();
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << puback.getPacketIdentifier();
     }
 
     void SocketContext::onPubrec(iot::mqtt::packets::Pubrec& pubrec) {
         LOG(DEBUG) << "Recv PUBREC";
         LOG(DEBUG) << "===========";
         printStandardHeader(pubrec);
-        LOG(DEBUG) << "PacketIdentifier: " << pubrec.getPacketIdentifier();
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrec.getPacketIdentifier();
     }
 
     void SocketContext::onPubrel(iot::mqtt::packets::Pubrel& pubrel) {
         LOG(DEBUG) << "Recv PUBREL";
         LOG(DEBUG) << "===========";
         printStandardHeader(pubrel);
-        LOG(DEBUG) << "PacketIdentifier: " << pubrel.getPacketIdentifier();
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrel.getPacketIdentifier();
     }
 
     void SocketContext::onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) {
         LOG(DEBUG) << "Recv PUBCOMP";
         LOG(DEBUG) << "============";
         printStandardHeader(pubcomp);
-        LOG(DEBUG) << "PacketIdentifier: " << pubcomp.getPacketIdentifier();
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubcomp.getPacketIdentifier();
     }
 
     void SocketContext::onSubscribe(iot::mqtt::packets::deserializer::Subscribe& subscribe) {
         LOG(DEBUG) << "Recv SUBSCRIBE";
         LOG(DEBUG) << "==============";
         printStandardHeader(subscribe);
-        LOG(DEBUG) << "PacketIdentifier: " << subscribe.getPacketIdentifier();
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << subscribe.getPacketIdentifier();
 
         for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
             LOG(DEBUG) << "  Topic: " << topic.getName() << ", requestedQoS: " << static_cast<uint16_t>(topic.getRequestedQoS());
@@ -190,7 +191,7 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "Recv UNSUBSCRIBE";
         LOG(DEBUG) << "================";
         printStandardHeader(unsubscribe);
-        LOG(DEBUG) << "PacketIdentifier: " << unsubscribe.getPacketIdentifier();
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsubscribe.getPacketIdentifier();
 
         for (const std::string& topic : unsubscribe.getTopics()) {
             LOG(DEBUG) << "  Topic: " << topic;
