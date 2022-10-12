@@ -19,7 +19,7 @@ target_link_libraries(
     mqtt-server
     PUBLIC snodec::mqtt
     PRIVATE snodec::mqtt-broker
-    PRIVATE snodec::mqtt-packets
+    PRIVATE snodec::mqtt-packets-deserializer
 )
 
 target_include_directories(
