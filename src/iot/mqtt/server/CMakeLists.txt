@@ -9,8 +9,8 @@ set(MQTT_SERVER_CPP SocketContext.cpp SharedSocketContextFactory.cpp
                     SocketContextFactory.cpp
 )
 
-set(MQTT_SERVER_H ControlPacketDeserializer.h SocketContext.h SharedSocketContextFactory.h
-                  SocketContextFactory.h
+set(MQTT_SERVER_H ControlPacketDeserializer.h SocketContext.h
+                  SharedSocketContextFactory.h SocketContextFactory.h
 )
 
 add_library(mqtt-server SHARED ${MQTT_SERVER_CPP} ${MQTT_SERVER_H})

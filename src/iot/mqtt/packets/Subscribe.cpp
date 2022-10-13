@@ -42,7 +42,7 @@ namespace iot::mqtt::packets {
 
         for (const Topic& topic : topics) {
             packet.insert(packet.end(), topic.getName().begin(), topic.getName().end());
-            packet.push_back(static_cast<char>(topic.getRequestedQoS()));
+            packet.push_back(static_cast<char>(topic.getQoS()));
         }
 
         return packet;

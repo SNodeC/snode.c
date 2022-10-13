@@ -136,8 +136,8 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    void Broker::publishRetained(const std::string& topic, const std::string& clientId, uint8_t clientQoSLevel) {
-        retainTree.publish(topic, clientId, clientQoSLevel);
+    void Broker::publishRetained(const std::string& topic, const std::string& clientId, uint8_t clientQoS) {
+        retainTree.publish(topic, clientId, clientQoS);
     }
 
     iot::mqtt::server::SocketContext* Broker::getSocketContext(const std::string& clientId) {

@@ -30,7 +30,7 @@ namespace iot::mqtt {
 
     class Topic {
     public:
-        Topic(const std::string& name, uint8_t requestedQoS);
+        Topic(const std::string& name, uint8_t qoS);
         Topic(const Topic&) = default;
 
         Topic& operator=(const Topic&) = default;
@@ -38,15 +38,11 @@ namespace iot::mqtt {
         ~Topic();
 
         const std::string& getName() const;
-        uint8_t getRequestedQoS() const;
-
-        void setAcceptedQoS(uint8_t qoS);
-        uint8_t getAcceptedQoS() const;
+        uint8_t getQoS() const;
 
     private:
         std::string name;
-        uint8_t requestedQoS;
-        uint8_t acceptedQoS;
+        uint8_t qoS;
     };
 
 } // namespace iot::mqtt

@@ -33,7 +33,7 @@
 
 namespace core::socket {
     class SocketConnection;
-}
+} // namespace core::socket
 
 namespace iot::mqtt::server::broker {
     class Broker;

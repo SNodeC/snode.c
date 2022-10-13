@@ -116,7 +116,7 @@ namespace iot::mqtt::server::packets {
             case 8:
                 if (passwordFlag) {
                     consumed += password.deserialize(socketContext);
-                    if (!username.isComplete()) {
+                    if (!password.isComplete()) {
                         break;
                     }
                 }

@@ -74,7 +74,7 @@ namespace iot::mqtt::server::broker {
                          bool retain,
                          uint8_t clientQoSLevel);
 
-        void publishRetained(const std::string& topic, const std::string& clientId, uint8_t clientQoSLevel);
+        void publishRetained(const std::string& topic, const std::string& clientId, uint8_t clientQoS);
 
         iot::mqtt::server::SocketContext* getSocketContext(const std::string& clientId);
 

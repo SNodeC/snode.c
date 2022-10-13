@@ -94,6 +94,7 @@ namespace iot::mqtt {
                 consumed += controlPacketDeserializer->deserialize(this);
 
                 if (controlPacketDeserializer->isComplete()) {
+                    LOG(TRACE) << "Control packet ready ... propagating event";
                     propagateEvent(controlPacketDeserializer);
 
                     delete controlPacketDeserializer;
@@ -101,6 +102,7 @@ namespace iot::mqtt {
 
                     state = 0;
                 } else if (controlPacketDeserializer->isError()) {
+                    LOG(TRACE) << "Control packet has error ... closing connection";
                     shutdown(true);
 
                     delete controlPacketDeserializer;

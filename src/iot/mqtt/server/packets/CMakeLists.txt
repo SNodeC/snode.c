@@ -29,15 +29,13 @@ set(MQTT_PACKETS_SERVER_H
 
 add_library(
     mqtt-server-packets STATIC ${MQTT_PACKETS_SERVER_CPP}
-                                     ${MQTT_PACKETS_SERVER_CPP}
+                               ${MQTT_PACKETS_SERVER_CPP}
 )
 add_library(snodec::mqtt-server-packets ALIAS mqtt-server-packets)
 
 target_link_libraries(mqtt-server-packets PRIVATE snodec::mqtt-packets)
 
-set_property(
-    TARGET mqtt-server-packets PROPERTY POSITION_INDEPENDENT_CODE ON
-)
+set_property(TARGET mqtt-server-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(
     mqtt-server-packets PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"

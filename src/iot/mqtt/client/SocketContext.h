@@ -33,7 +33,7 @@
 
 namespace core::socket {
     class SocketConnection;
-}
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -54,32 +54,32 @@ namespace iot::mqtt::client {
         iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) final;
         void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
-        virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0; // Client
+        virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0;
         virtual void onPublish(iot::mqtt::packets::Publish& publish) = 0;
         virtual void onPuback(iot::mqtt::packets::Puback& puback) = 0;
         virtual void onPubrec(iot::mqtt::packets::Pubrec& pubrec) = 0;
         virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel) = 0;
         virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) = 0;
-        virtual void onSuback(iot::mqtt::packets::Suback& suback) = 0;       // Client
-        virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback) = 0; // Client
-        virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0; // Client
+        virtual void onSuback(iot::mqtt::packets::Suback& suback) = 0;
+        virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback) = 0;
+        virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0;
 
-        void _onConnack(iot::mqtt::packets::Connack& connack); // Client
+        void _onConnack(iot::mqtt::packets::Connack& connack);
         void _onPublish(iot::mqtt::packets::Publish& publish);
         void _onPuback(iot::mqtt::packets::Puback& puback);
         void _onPubrec(iot::mqtt::packets::Pubrec& pubrec);
         void _onPubrel(iot::mqtt::packets::Pubrel& pubrel);
         void _onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp);
-        void _onSuback(iot::mqtt::packets::Suback& suback);       // Client
-        void _onUnsuback(iot::mqtt::packets::Unsuback& unsuback); // Client
-        void _onPingresp(iot::mqtt::packets::Pingresp& pingresp); // Client
+        void _onSuback(iot::mqtt::packets::Suback& suback);
+        void _onUnsuback(iot::mqtt::packets::Unsuback& unsuback);
+        void _onPingresp(iot::mqtt::packets::Pingresp& pingresp);
 
     public:
-        void sendConnect(const std::string& clientId);        // Client
-        void sendSubscribe(std::list<Topic>& topics);         // Client
-        void sendUnsubscribe(std::list<std::string>& topics); // Client
-        void sendPingreq();                                   // Client
-        void sendDisconnect();                                // Client
+        void sendConnect(const std::string& clientId);
+        void sendSubscribe(std::list<Topic>& topics);
+        void sendUnsubscribe(std::list<std::string>& topics);
+        void sendPingreq();
+        void sendDisconnect();
 
         friend class iot::mqtt::client::packets::Connack;
         friend class iot::mqtt::client::packets::Suback;

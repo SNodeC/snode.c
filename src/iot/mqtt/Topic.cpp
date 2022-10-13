@@ -24,9 +24,9 @@
 
 namespace iot::mqtt {
 
-    Topic::Topic(const std::string& name, uint8_t requestedQoS)
+    Topic::Topic(const std::string& name, uint8_t qoS)
         : name(name)
-        , requestedQoS(requestedQoS) {
+        , qoS(qoS) {
     }
 
     Topic::~Topic() {
@@ -36,16 +36,8 @@ namespace iot::mqtt {
         return name;
     }
 
-    uint8_t Topic::getRequestedQoS() const {
-        return requestedQoS;
-    }
-
-    void Topic::setAcceptedQoS(uint8_t qoS) {
-        acceptedQoS = qoS;
-    }
-
-    uint8_t Topic::getAcceptedQoS() const {
-        return acceptedQoS;
+    uint8_t Topic::getQoS() const {
+        return qoS;
     }
 
 } // namespace iot::mqtt
