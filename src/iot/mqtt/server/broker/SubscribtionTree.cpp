@@ -106,23 +106,32 @@ namespace iot::mqtt::server::broker {
                                                          bool leafFound) {
         if (leafFound) {
             if (!subscribedTopicName.empty()) {
-                LOG(TRACE) << "Found Match: Subscribed Topic: '" << subscribedTopicName << "', Matched Topic: '" << fullTopicName
-                           << "', Message: '" << message << "'";
+                LOG(TRACE) << "Found match:";
+                LOG(TRACE) << "  Received topic = '" << fullTopicName << "';";
+                LOG(TRACE) << "  Matched topic = '" << subscribedTopicName << "'";
+
+                LOG(TRACE) << "  Message:' " << message << "' ";
                 LOG(TRACE) << "Distribute Publish ...";
+
                 for (auto& [clientId, clientQoSLevel] : subscribers) {
                     broker->sendPublish(clientId, fullTopicName, message, DUP_FALSE, qoSLevel, retained, clientQoSLevel);
                 }
+
                 LOG(TRACE) << "... completed!";
             }
 
             auto nextHashNode = subscribtions.find("#");
             if (nextHashNode != subscribtions.end()) {
-                LOG(TRACE) << "Found Parent Match: Subscribed Child-Topic: '" << fullTopicName << "/#', Matched Topic: '" << fullTopicName
-                           << "', Message: '" << message << "'";
+                LOG(TRACE) << "Found parent match:";
+                LOG(TRACE) << "  Received topic = '" << fullTopicName << "'";
+                LOG(TRACE) << "  Matched topic : '" << fullTopicName << "/#'";
+                LOG(TRACE) << "  Message: '" << message << "'";
                 LOG(TRACE) << "Distribute Publish ...";
+
                 for (auto& [clientId, clientQoSLevel] : nextHashNode->second.subscribers) {
                     broker->sendPublish(clientId, fullTopicName, message, DUP_FALSE, qoSLevel, retained, clientQoSLevel);
                 }
+
                 LOG(TRACE) << "... completed!";
             }
         } else {

@@ -102,33 +102,38 @@ namespace iot::mqtt::server {
 
             close();
         } else if (broker->hasRetainedSession(clientId)) {
-            LOG(DEBUG) << "Retained session found for ClientId = '" << clientId << "'";
+            sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_PRESENT);
 
+            LOG(DEBUG) << "Retained session found for ClientId = '" << clientId << "'";
             if (cleanSession) {
                 LOG(DEBUG) << "  clean Session = " << this;
                 broker->unsubscribe(clientId);
+                broker->newSession(clientId, this);
             } else {
-                LOG(DEBUG) << "  renewed Session = " << this;
+                LOG(DEBUG) << "  renew Session = " << this;
+                broker->renewSession(clientId, this);
             }
-
-            sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_PRESENT);
-
-            broker->renewSession(clientId, this);
         } else {
+            sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
+
             LOG(DEBUG) << "No session found for ClientId = '" << clientId << "\'";
             LOG(DEBUG) << "  new Session = " << this;
 
             broker->newSession(clientId, this);
-
-            sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
         }
     }
 
     void SocketContext::releaseSession() {
-        if (cleanSession) {
-            broker->deleteSession(clientId, this);
-        } else {
-            broker->retainSession(clientId, this);
+        if (broker->hasActiveSession(clientId)) {
+            if (cleanSession) {
+                LOG(DEBUG) << "Delete session: " << clientId;
+
+                broker->deleteSession(clientId, this);
+            } else {
+                LOG(DEBUG) << "Retain session: " << clientId;
+
+                broker->retainSession(clientId, this);
+            }
         }
     }
 

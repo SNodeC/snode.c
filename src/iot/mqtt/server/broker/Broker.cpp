@@ -86,14 +86,10 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::newSession(const std::string& clientId, SocketContext* socketContext) {
-        LOG(TRACE) << "New session: " << clientId << " - " << socketContext;
-
         sessions[clientId] = socketContext;
     }
 
     void Broker::renewSession(const std::string& clientId, SocketContext* socketContext) {
-        LOG(TRACE) << "Attach session: " << clientId << " - " << socketContext;
-
         sessions[clientId] = socketContext;
         subscribtionTree.publishRetained(clientId);
 
@@ -102,16 +98,12 @@ namespace iot::mqtt::server::broker {
 
     void Broker::retainSession(const std::string& clientId, SocketContext* socketContext) {
         if (sessions.contains(clientId) && sessions[clientId] == socketContext) {
-            LOG(TRACE) << "Retain session: " << clientId;
-
             sessions[clientId] = nullptr;
         }
     }
 
     void Broker::deleteSession(const std::string& clientId, SocketContext* socketContext) {
         if (sessions.contains(clientId) && sessions[clientId] == socketContext) {
-            LOG(TRACE) << "Delete session: " << clientId;
-
             subscribtionTree.unsubscribe(clientId);
             sessions.erase(clientId);
         }
@@ -125,8 +117,11 @@ namespace iot::mqtt::server::broker {
                              bool retain,
                              uint8_t clientQoSLevel) {
         if (hasActiveSession(clientId)) {
-            LOG(TRACE) << "Send Publish: " << clientId << ": " << fullTopicName << " - " << message << " - "
-                       << static_cast<uint16_t>(std::min(clientQoSLevel, qoSLevel));
+            LOG(TRACE) << "Send Publish: ClientId = " << clientId;
+
+            LOG(TRACE) << "              TopicName = " << fullTopicName;
+            LOG(TRACE) << "              Message = " << message;
+            LOG(TRACE) << "              QoS = " << static_cast<uint16_t>(std::min(clientQoSLevel, qoSLevel));
 
             sessions[clientId]->sendPublish(fullTopicName, message, dup, std::min(qoSLevel, clientQoSLevel), retain);
         } else if (hasRetainedSession(clientId) && qoSLevel > 0) { // only for QoS = 1 and 2

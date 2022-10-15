@@ -19,7 +19,9 @@
 #ifndef IOT_MQTT_TYPES_TYPEBASE_H
 #define IOT_MQTT_TYPES_TYPEBASE_H
 
-#include "core/socket/SocketContext.h" // IWYU pragma: export
+namespace core::socket {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

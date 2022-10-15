@@ -63,11 +63,11 @@ namespace iot::mqtt {
                 }
 
                 LOG(TRACE) << "======================================================";
-                LOG(TRACE) << "PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                LOG(TRACE) << "Fixed Header: PacketType= 0x" << std::hex << std::setfill('0') << std::setw(2)
                            << static_cast<uint16_t>(staticHeader.getPacketType());
-                LOG(TRACE) << "PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
-                           << static_cast<uint16_t>(staticHeader.getFlags());
-                LOG(TRACE) << "RemainingLength: " << staticHeader.getRemainingLength();
+                LOG(TRACE) << "              PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                           << static_cast<uint16_t>(staticHeader.getFlags()) << std::dec;
+                LOG(TRACE) << "              RemainingLength: " << staticHeader.getRemainingLength();
 
                 controlPacketDeserializer = onReceiveFromPeer(staticHeader);
 
@@ -79,7 +79,7 @@ namespace iot::mqtt {
                     shutdown(true);
                     break;
                 } else if (controlPacketDeserializer->isError()) {
-                    LOG(TRACE) << "Static header has error ... closing connection";
+                    LOG(TRACE) << "Fixed header has error ... closing connection";
 
                     delete controlPacketDeserializer;
                     controlPacketDeserializer = nullptr;

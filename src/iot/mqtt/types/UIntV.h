@@ -23,6 +23,10 @@
 
 // IWYU pragma: no_include "iot/mqtt/types/TypeBase.hpp"
 
+namespace core::socket {
+    class SocketContext;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint> // IWYU pragma: export
