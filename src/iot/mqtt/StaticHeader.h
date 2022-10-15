@@ -35,7 +35,7 @@ namespace iot::mqtt {
     class StaticHeader {
     public:
         StaticHeader();
-        StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength = 0);
+        StaticHeader(uint8_t type, uint8_t flags, uint32_t remainingLength = 0);
 
         ~StaticHeader();
 

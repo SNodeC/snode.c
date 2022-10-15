@@ -29,8 +29,8 @@ namespace iot::mqtt {
     StaticHeader::StaticHeader() {
     }
 
-    StaticHeader::StaticHeader(uint8_t packetType, uint8_t reserved, uint32_t remainingLength) {
-        this->typeFlags = static_cast<uint8_t>((packetType << 4) | (reserved & 0x0F));
+    StaticHeader::StaticHeader(uint8_t type, uint8_t flags, uint32_t remainingLength) {
+        this->typeFlags = static_cast<uint8_t>((type << 4) | (flags & 0x0F));
         this->remainingLength = remainingLength;
     }
 
@@ -86,12 +86,9 @@ namespace iot::mqtt {
     }
 
     std::vector<char> StaticHeader::serialize() {
-        std::vector<char> packet;
+        std::vector<char> packet = typeFlags.serialize();
 
-        std::vector<char> tmpVector = typeFlags.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        tmpVector = remainingLength.serialize();
+        std::vector<char> tmpVector = remainingLength.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;

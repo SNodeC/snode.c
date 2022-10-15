@@ -41,19 +41,19 @@ namespace iot::mqtt::packets {
     class Connack : public iot::mqtt::ControlPacket {
     public:
         Connack();
-        Connack(uint8_t returncode, uint8_t flags);
+        Connack(uint8_t returncode, uint8_t acknowledgeFlags);
 
     private:
         std::vector<char> serializeVP() const override;
 
     public:
-        uint8_t getFlags() const;
+        uint8_t getAcknowledgeFlags() const;
         uint8_t getReturnCode() const;
 
         bool getSessionPresent() const;
 
     protected:
-        iot::mqtt::types::UInt8 connectFlags;
+        iot::mqtt::types::UInt8 acknowledgeFlags;
         iot::mqtt::types::UInt8 returnCode;
 
         bool sessionPresent = false;

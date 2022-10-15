@@ -36,8 +36,8 @@ namespace iot::mqtt::client::packets {
 
         switch (state) {
             case 0: // V-Header
-                consumed += connectFlags.deserialize(socketContext);
-                if (!connectFlags.isComplete()) {
+                consumed += acknowledgeFlags.deserialize(socketContext);
+                if (!acknowledgeFlags.isComplete()) {
                     break;
                 }
 

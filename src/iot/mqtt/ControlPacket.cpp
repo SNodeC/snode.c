@@ -77,11 +77,9 @@ namespace iot::mqtt {
     std::vector<char> ControlPacket::serialize() const {
         std::vector<char> variablHeaderPayload = serializeVP();
 
-        iot::mqtt::StaticHeader staticHeader(getType(), getFlags());
-        staticHeader.setRemainingLength(static_cast<uint32_t>(variablHeaderPayload.size()));
+        iot::mqtt::StaticHeader staticHeader(type, flags, static_cast<uint32_t>(variablHeaderPayload.size()));
 
         std::vector<char> packet = staticHeader.serialize();
-
         packet.insert(packet.end(), variablHeaderPayload.begin(), variablHeaderPayload.end());
 
         return packet;
