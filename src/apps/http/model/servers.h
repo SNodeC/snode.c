@@ -103,6 +103,10 @@ namespace apps::http::tls {
         webApp.onConnected([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnected";
 
+            VLOG(0) << "\tSSL/TLS-Version: " << SSL_get_version(socketConnection->getSSL());
+            VLOG(0) << "\tSSL/TLS-Version: " << SSL_version(socketConnection->getSSL());
+            VLOG(0) << "\tSSL/TLS-Client-Version: " << SSL_client_version(socketConnection->getSSL());
+
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
