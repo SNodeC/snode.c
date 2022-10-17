@@ -48,12 +48,9 @@ namespace iot::mqtt::packets {
     }
 
     std::vector<char> Connect::serializeVP() const {
-        std::vector<char> packet;
+        std::vector<char> packet(protocol.serialize());
 
-        std::vector<char> tmpVector = protocol.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        tmpVector = level.serialize();
+        std::vector<char> tmpVector = level.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         tmpVector = connectFlags.serialize();

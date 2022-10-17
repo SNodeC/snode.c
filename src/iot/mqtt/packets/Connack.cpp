@@ -35,12 +35,9 @@ namespace iot::mqtt::packets {
     }
 
     std::vector<char> Connack::serializeVP() const {
-        std::vector<char> packet;
+        std::vector<char> packet(acknowledgeFlags.serialize());
 
-        std::vector<char> tmpVector = acknowledgeFlags.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        tmpVector = returnCode.serialize();
+        std::vector<char> tmpVector = returnCode.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         return packet;

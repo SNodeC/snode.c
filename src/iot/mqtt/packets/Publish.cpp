@@ -40,6 +40,20 @@ namespace iot::mqtt::packets {
         this->retain = retain;
     }
 
+    std::vector<char> Publish::serializeVP() const {
+        std::vector<char> packet(topic.serialize());
+
+        if (qoSLevel > 0) {
+            std::vector<char> tmpVector = packetIdentifier.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+
+        std::vector<char> tmpVector = message.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
+    }
+
     bool Publish::getDup() const {
         return dup;
     }
@@ -62,23 +76,6 @@ namespace iot::mqtt::packets {
 
     bool Publish::getRetain() const {
         return retain;
-    }
-
-    std::vector<char> Publish::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = topic.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        if (qoSLevel > 0) {
-            tmpVector = packetIdentifier.serialize();
-            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-        }
-
-        tmpVector = message.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        return packet;
     }
 
 } // namespace iot::mqtt::packets

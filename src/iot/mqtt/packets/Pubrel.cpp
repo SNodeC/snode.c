@@ -33,17 +33,12 @@ namespace iot::mqtt::packets {
         this->packetIdentifier = packetIdentifier;
     }
 
-    uint16_t Pubrel::getPacketIdentifier() const {
-        return packetIdentifier;
+    std::vector<char> Pubrel::serializeVP() const {
+        return std::vector<char>(packetIdentifier.serialize());
     }
 
-    std::vector<char> Pubrel::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        return packet;
+    uint16_t Pubrel::getPacketIdentifier() const {
+        return packetIdentifier;
     }
 
 } // namespace iot::mqtt::packets

@@ -34,12 +34,7 @@ namespace iot::mqtt::packets {
     }
 
     std::vector<char> Unsuback::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        return packet;
+        return std::vector<char>(packetIdentifier.serialize());
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {

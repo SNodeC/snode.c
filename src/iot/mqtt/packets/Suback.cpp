@@ -35,14 +35,9 @@ namespace iot::mqtt::packets {
     }
 
     std::vector<char> Suback::serializeVP() const {
-        std::vector<char> packet;
+        std::vector<char> packet(packetIdentifier.serialize());
 
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
-
-        for (uint8_t returnCode : returnCodes) {
-            packet.push_back(static_cast<char>(returnCode));
-        }
+        packet.insert(packet.end(), returnCodes.begin(), returnCodes.end());
 
         return packet;
     }

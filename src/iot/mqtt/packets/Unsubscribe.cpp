@@ -35,10 +35,7 @@ namespace iot::mqtt::packets {
     }
 
     std::vector<char> Unsubscribe::serializeVP() const {
-        std::vector<char> packet;
-
-        std::vector<char> tmpVector = packetIdentifier.serialize();
-        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        std::vector<char> packet(packetIdentifier.serialize());
 
         for (const std::string& topic : topics) {
             packet.insert(packet.end(), topic.begin(), topic.end());
