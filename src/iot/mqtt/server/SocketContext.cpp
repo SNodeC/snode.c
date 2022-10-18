@@ -351,9 +351,8 @@ namespace iot::mqtt::server {
 
             std::list<uint8_t> returnCodes;
             for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                uint8_t acceptedQoS = broker->subscribe(topic.getName(), clientId, topic.getQoS());
-                //                topic.setAcceptedQoS(acceptedQoS);
-                returnCodes.push_back(acceptedQoS);
+                uint8_t returnCode = broker->subscribe(topic.getName(), clientId, topic.getQoS());
+                returnCodes.push_back(returnCode);
             }
 
             sendSuback(subscribe.getPacketIdentifier(), returnCodes);

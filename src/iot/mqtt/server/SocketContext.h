@@ -95,20 +95,17 @@ namespace iot::mqtt::server {
     private:
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
 
-        // V-Header
         std::string protocol;
         uint8_t level = 0;
         uint8_t connectFlags = 0;
         uint16_t keepAlive = 0;
 
-        // Payload
         std::string clientId;
         std::string willTopic;
         std::string willMessage;
         std::string username;
         std::string password;
 
-        // Derived from flags
         bool usernameFlag = false;
         bool passwordFlag = false;
         bool willRetain = false;
