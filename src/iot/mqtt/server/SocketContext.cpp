@@ -18,6 +18,7 @@
 
 #include "iot/mqtt/server/SocketContext.h"
 
+#include "core/DescriptorEventReceiver.h"
 #include "iot/mqtt/packets/Connack.h"
 #include "iot/mqtt/packets/Pingresp.h"
 #include "iot/mqtt/packets/Suback.h"
@@ -274,7 +275,7 @@ namespace iot::mqtt::server {
             if (keepAlive != 0) {
                 setTimeout(1.5 * keepAlive);
             } else {
-                // setTimeout(core::DescriptorEventReceiver::TIMEOUT::DISABLE); // Leaf at framework default (default 60 sec)
+                setTimeout(core::DescriptorEventReceiver::TIMEOUT::DISABLE); // Or leaf at framework default (default 60 sec)?
             }
 
             onConnect(connect);
