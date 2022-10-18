@@ -42,7 +42,6 @@ namespace iot::mqtt::types {
                 value.push_back(byte);
 
                 if (value.size() > sizeof(uint32_t)) {
-                    socketContext->close();
                     error = true;
                 } else {
                     complete = (byte & 0x80) == 0;

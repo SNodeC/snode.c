@@ -81,6 +81,8 @@ namespace iot::mqtt::server::packets {
                     break;
                 }
 
+                effectiveClientId = clientId;
+
                 state++;
                 [[fallthrough]];
             case 5:
@@ -130,6 +132,14 @@ namespace iot::mqtt::server::packets {
 
     void Connect::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
         socketContext->_onConnect(*this);
+    }
+
+    void Connect::setEffectiveClientId(const std::string& clientId) {
+        this->effectiveClientId = clientId;
+    }
+
+    std::string Connect::getEffectiveClientId() const {
+        return effectiveClientId;
     }
 
 } // namespace iot::mqtt::server::packets

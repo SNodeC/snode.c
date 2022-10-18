@@ -75,16 +75,16 @@ namespace iot::mqtt::server {
         virtual void onPingreq(iot::mqtt::packets::Pingreq& pingreq);
         virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect);
 
-        void _onConnect(iot::mqtt::packets::Connect& connect);
-        void _onPublish(iot::mqtt::packets::Publish& publish);
-        void _onPuback(iot::mqtt::packets::Puback& puback);
-        void _onPubrec(iot::mqtt::packets::Pubrec& pubrec);
-        void _onPubrel(iot::mqtt::packets::Pubrel& pubrel);
-        void _onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp);
-        void _onSubscribe(iot::mqtt::packets::Subscribe& subscribe);
-        void _onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe);
-        void _onPingreq(iot::mqtt::packets::Pingreq& pingreq);
-        void _onDisconnect(iot::mqtt::packets::Disconnect& disconnect);
+        void _onConnect(iot::mqtt::server::packets::Connect& connect);
+        void _onPublish(iot::mqtt::server::packets::Publish& publish);
+        void _onPuback(iot::mqtt::server::packets::Puback& puback);
+        void _onPubrec(iot::mqtt::server::packets::Pubrec& pubrec);
+        void _onPubrel(iot::mqtt::server::packets::Pubrel& pubrel);
+        void _onPubcomp(iot::mqtt::server::packets::Pubcomp& pubcomp);
+        void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);
+        void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe);
+        void _onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);
+        void _onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
 
     public:
         void sendConnack(uint8_t returnCode, uint8_t flags);

@@ -18,6 +18,9 @@
 
 #include "iot/mqtt/packets/Subscribe.h"
 
+#include "iot/mqtt/types/String.h"
+#include "iot/mqtt/types/UInt16.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -38,7 +41,12 @@ namespace iot::mqtt::packets {
         std::vector<char> packet(packetIdentifier.serialize());
 
         for (const Topic& topic : topics) {
-            packet.insert(packet.end(), topic.getName().begin(), topic.getName().end());
+            iot::mqtt::types::String topicString;
+            topicString = topic.getName();
+
+            std::vector<char> tmpPacket = topicString.serialize();
+            packet.insert(packet.end(), tmpPacket.begin(), tmpPacket.end());
+
             packet.push_back(static_cast<char>(topic.getQoS()));
         }
 

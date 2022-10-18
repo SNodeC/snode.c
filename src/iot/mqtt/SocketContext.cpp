@@ -63,7 +63,7 @@ namespace iot::mqtt {
                 }
 
                 LOG(TRACE) << "======================================================";
-                LOG(TRACE) << "Fixed Header: PacketType= 0x" << std::hex << std::setfill('0') << std::setw(2)
+                LOG(TRACE) << "Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
                            << static_cast<uint16_t>(staticHeader.getPacketType());
                 LOG(TRACE) << "              PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                            << static_cast<uint16_t>(staticHeader.getFlags()) << std::dec;
@@ -94,7 +94,7 @@ namespace iot::mqtt {
                 consumed += controlPacketDeserializer->deserialize(this);
 
                 if (controlPacketDeserializer->isComplete()) {
-                    LOG(TRACE) << "Control packet ready ... propagating event";
+                    //                    LOG(TRACE) << "Control packet ready ... propagating event";
                     propagateEvent(controlPacketDeserializer);
 
                     delete controlPacketDeserializer;
@@ -192,7 +192,6 @@ namespace iot::mqtt {
     void SocketContext::printStandardHeader(const iot::mqtt::ControlPacket& packet) {
         printData(packet.serialize());
 
-        LOG(DEBUG) << "Error: " << dynamic_cast<const ControlPacketDeserializer&>(packet).isError();
         LOG(DEBUG) << "Type: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getType());
         LOG(DEBUG) << "Flags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getFlags());
         LOG(DEBUG) << "RemainingLength: " << std::dec << dynamic_cast<const ControlPacketDeserializer&>(packet).getRemainingLength();

@@ -67,8 +67,6 @@ namespace iot::mqtt::packets {
         std::string getUsername() const;
         std::string getPassword() const;
 
-        void setClientId(const std::string& clientId);
-
     protected:
         iot::mqtt::types::String protocol;
         iot::mqtt::types::UInt8 level;

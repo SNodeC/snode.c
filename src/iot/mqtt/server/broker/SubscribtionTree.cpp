@@ -154,8 +154,8 @@ namespace iot::mqtt::server::broker {
 
             foundNode = subscribtions.find("#");
             if (foundNode != subscribtions.end()) {
-                LOG(TRACE) << "Found Match: Subscribed Topic: '" << foundNode->second.subscribedTopicName << "', Matched Topic: '"
-                           << fullTopicName << "', Message: '" << message << "'";
+                LOG(TRACE) << "Found match: Subscribed topic: '" << foundNode->second.subscribedTopicName << "', topic: '" << fullTopicName
+                           << "', Message: '" << message << "'";
                 LOG(TRACE) << "Distribute Publish ...";
                 for (auto& [clientId, clientQoSLevel] : foundNode->second.subscribers) {
                     broker->sendPublish(clientId, fullTopicName, message, DUP_FALSE, qoSLevel, retained, clientQoSLevel);

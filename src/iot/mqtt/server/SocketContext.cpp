@@ -145,11 +145,6 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "Version: " << static_cast<uint16_t>(level);
         LOG(DEBUG) << "ConnectFlags: " << static_cast<uint16_t>(connectFlags);
         LOG(DEBUG) << "KeepAlive: " << keepAlive;
-        if (keepAlive != 0) {
-            setTimeout(1.5 * keepAlive);
-        } else {
-            // setTimeout(core::DescriptorEventReceiver::TIMEOUT::DISABLE); // Leaf at framework default (default 60 sec)
-        }
         LOG(DEBUG) << "ClientID: " << clientId;
         LOG(DEBUG) << "CleanSession: " << cleanSession;
         if (willFlag) {
@@ -240,20 +235,19 @@ namespace iot::mqtt::server {
         printStandardHeader(disconnect);
     }
 
-    void SocketContext::_onConnect(iot::mqtt::packets::Connect& connect) {
+    void SocketContext::_onConnect(iot::mqtt::server::packets::Connect& connect) {
         if (connect.getProtocol() != "MQTT") {
             shutdown(true);
         } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
             shutdown(true);
 
-        } else if (connect.getClientId() == "" && !connect.getCleanSession()) {
+        } else if (connect.getEffectiveClientId() == "" && !connect.getCleanSession()) {
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
             shutdown(true);
-
         } else {
-            if (connect.getClientId().empty()) {
-                connect.setClientId(getRandomClientId());
+            if (connect.getEffectiveClientId().empty()) {
+                connect.setEffectiveClientId(getRandomClientId());
             }
 
             // V-Header
@@ -263,7 +257,7 @@ namespace iot::mqtt::server {
             keepAlive = connect.getKeepAlive();
 
             // Payload
-            clientId = connect.getClientId();
+            clientId = connect.getEffectiveClientId();
             willTopic = connect.getWillTopic();
             willMessage = connect.getWillMessage();
             username = connect.getUsername();
@@ -277,13 +271,19 @@ namespace iot::mqtt::server {
             willFlag = connect.getWillFlag();
             cleanSession = connect.getCleanSession();
 
+            if (keepAlive != 0) {
+                setTimeout(1.5 * keepAlive);
+            } else {
+                // setTimeout(core::DescriptorEventReceiver::TIMEOUT::DISABLE); // Leaf at framework default (default 60 sec)
+            }
+
             onConnect(connect);
 
             initSession();
         }
     }
 
-    void SocketContext::_onPublish(iot::mqtt::packets::Publish& publish) {
+    void SocketContext::_onPublish(iot::mqtt::server::packets::Publish& publish) {
         if (publish.getQoSLevel() > 2) {
             shutdown(true);
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoSLevel() > 0) {
@@ -307,7 +307,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::_onPuback(iot::mqtt::packets::Puback& puback) {
+    void SocketContext::_onPuback(iot::mqtt::server::packets::Puback& puback) {
         if (puback.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -315,7 +315,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::_onPubrec(iot::mqtt::packets::Pubrec& pubrec) {
+    void SocketContext::_onPubrec(iot::mqtt::server::packets::Pubrec& pubrec) {
         if (pubrec.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -325,7 +325,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::_onPubrel(iot::mqtt::packets::Pubrel& pubrel) {
+    void SocketContext::_onPubrel(iot::mqtt::server::packets::Pubrel& pubrel) {
         if (pubrel.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -335,7 +335,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::_onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) {
+    void SocketContext::_onPubcomp(iot::mqtt::server::packets::Pubcomp& pubcomp) {
         if (pubcomp.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -343,7 +343,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::_onSubscribe(iot::mqtt::packets::Subscribe& subscribe) {
+    void SocketContext::_onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) {
         if (subscribe.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -359,7 +359,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::_onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe) {
+    void SocketContext::_onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
         if (unsubscribe.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
@@ -373,13 +373,13 @@ namespace iot::mqtt::server {
         }
     }
 
-    void SocketContext::_onPingreq(iot::mqtt::packets::Pingreq& pingreq) {
+    void SocketContext::_onPingreq(iot::mqtt::server::packets::Pingreq& pingreq) {
         onPingreq(pingreq);
 
         sendPingresp();
     }
 
-    void SocketContext::_onDisconnect(iot::mqtt::packets::Disconnect& disconnect) {
+    void SocketContext::_onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect) {
         willFlag = false;
 
         onDisconnect(disconnect);

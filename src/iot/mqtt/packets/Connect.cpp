@@ -96,10 +96,6 @@ namespace iot::mqtt::packets {
         return keepAlive;
     }
 
-    void Connect::setClientId(const std::string& clientId) {
-        this->clientId = clientId;
-    }
-
     std::string Connect::getClientId() const {
         return clientId;
     }

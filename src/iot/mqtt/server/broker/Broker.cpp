@@ -118,7 +118,6 @@ namespace iot::mqtt::server::broker {
                              uint8_t clientQoSLevel) {
         if (hasActiveSession(clientId)) {
             LOG(TRACE) << "Send Publish: ClientId = " << clientId;
-
             LOG(TRACE) << "              TopicName = " << fullTopicName;
             LOG(TRACE) << "              Message = " << message;
             LOG(TRACE) << "              QoS = " << static_cast<uint16_t>(std::min(clientQoSLevel, qoSLevel));

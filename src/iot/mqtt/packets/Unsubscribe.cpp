@@ -38,7 +38,11 @@ namespace iot::mqtt::packets {
         std::vector<char> packet(packetIdentifier.serialize());
 
         for (const std::string& topic : topics) {
-            packet.insert(packet.end(), topic.begin(), topic.end());
+            iot::mqtt::types::String topicString;
+            topicString = topic;
+
+            std::vector<char> tmpPacket = topicString.serialize();
+            packet.insert(packet.end(), tmpPacket.begin(), tmpPacket.end());
         }
 
         return packet;
