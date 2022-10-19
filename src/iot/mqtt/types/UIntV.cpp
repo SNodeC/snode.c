@@ -75,7 +75,7 @@ namespace iot::mqtt::types {
         uint32_t multiplicator = 1;
 
         for (std::size_t i = 0; i < value.size(); i++, multiplicator *= 0x80) {
-            uint32Value += static_cast<uint8_t>(value[i] & 0xFF) * multiplicator;
+            uint32Value += static_cast<uint8_t>(value[i] & 0x7F) * multiplicator;
         }
 
         return uint32Value;
