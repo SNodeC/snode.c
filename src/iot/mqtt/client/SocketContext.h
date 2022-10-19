@@ -77,7 +77,7 @@ namespace iot::mqtt::client {
     public:
         void sendConnect(const std::string& clientId);
         void sendSubscribe(std::list<Topic>& topics);
-        void sendUnsubscribe(std::list<std::string>& topics);
+        void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
         void sendPingreq();
         void sendDisconnect();
 

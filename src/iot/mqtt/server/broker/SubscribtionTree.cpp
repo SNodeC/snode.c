@@ -70,11 +70,8 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    bool SubscribtionTree::SubscribtionTreeNode::subscribe(const std::string& fullTopicName,
-                                                           const std::string& clientId,
-                                                           uint8_t clientQoS,
-                                                           std::string remainingTopicName,
-                                                           bool leafFound) {
+    bool SubscribtionTree::SubscribtionTreeNode::subscribe(
+        const std::string& fullTopicName, const std::string& clientId, uint8_t clientQoS, std::string remainingTopicName, bool leafFound) {
         bool success = true;
 
         if (leafFound) {

@@ -42,9 +42,8 @@ namespace iot::mqtt::server::broker {
         return qoS;
     }
 
-    void Message::setQoS(uint8_t newQoS)
-    {
-        qoS = newQoS;
+    void Message::setQoS(uint8_t qoS) {
+        this->qoS = qoS;
     }
 
 } // namespace iot::mqtt::server::broker

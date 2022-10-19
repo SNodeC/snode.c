@@ -313,6 +313,8 @@ namespace iot::mqtt::server {
             shutdown(true);
         } else {
             onPuback(puback);
+
+            broker->puback(puback.getPacketIdentifier(), clientId);
         }
     }
 
@@ -321,6 +323,8 @@ namespace iot::mqtt::server {
             shutdown(true);
         } else {
             onPubrec(pubrec);
+
+            broker->pubrec(pubrec.getPacketIdentifier(), clientId);
 
             sendPubrel(pubrec.getPacketIdentifier());
         }
@@ -332,6 +336,8 @@ namespace iot::mqtt::server {
         } else {
             onPubrel(pubrel);
 
+            broker->pubrel(pubrel.getPacketIdentifier(), clientId);
+
             sendPubcomp(pubrel.getPacketIdentifier());
         }
     }
@@ -341,6 +347,8 @@ namespace iot::mqtt::server {
             shutdown(true);
         } else {
             onPubcomp(pubcomp);
+
+            broker->pubcomp(pubcomp.getPacketIdentifier(), clientId);
         }
     }
 

@@ -40,7 +40,7 @@ namespace iot::mqtt::server::broker {
         const std::string& getMessage() const;
         uint8_t getQoS() const;
 
-        void setQoS(uint8_t newQoS);
+        void setQoS(uint8_t qoS);
 
     private:
         std::string topic;

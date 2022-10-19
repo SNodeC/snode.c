@@ -182,11 +182,11 @@ namespace iot::mqtt::client {
         send(iot::mqtt::packets::Subscribe(0, topics));
     }
 
-    void SocketContext::sendUnsubscribe(std::list<std::string>& topics) { // Client
+    void SocketContext::sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics) { // Client
         LOG(DEBUG) << "Send UNSUBSCRIBE";
         LOG(DEBUG) << "================";
 
-        send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
+        send(iot::mqtt::packets::Unsubscribe(packetIdentifier, topics));
     }
 
     void SocketContext::sendPingreq() { // Client

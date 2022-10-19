@@ -44,24 +44,24 @@ namespace iot::mqtt::server::broker {
 
         ~Session();
 
-        void sendPublish(Message& message, bool dup, bool retain, uint8_t clientQoS);
-        void sendQueuedMessages();
+        void sendPublish(iot::mqtt::server::broker::Message& message, bool dup, bool retain, uint8_t clientQoS);
 
-        void queue(iot::mqtt::server::broker::Message& message, uint8_t clientQoS);
-
-        void renew(SocketContext* socketContext);
+        void renew(iot::mqtt::server::SocketContext* socketContext);
 
         void retain();
 
         bool isActive() const;
-        bool isOwner(const iot::mqtt::server::SocketContext* socketContext) const;
-        bool isRetained() const;
+        bool isOwnedBy(const iot::mqtt::server::SocketContext* socketContext) const;
 
         iot::mqtt::server::SocketContext* getSocketContext() const;
 
     private:
+        uint16_t getPacketIdentifier();
+
         iot::mqtt::server::SocketContext* socketContext = nullptr;
         std::deque<Message> messageQueue;
+
+        uint16_t packetIdentifier = 0;
     };
 
 } // namespace iot::mqtt::server::broker

@@ -131,12 +131,16 @@ namespace iot::mqtt {
         sendToPeer(data.data(), data.size());
     }
 
-    void SocketContext::sendPublish(
-        const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain) { // Server & Client
+    void SocketContext::sendPublish(uint16_t packetIdentifier,
+                                    const std::string& topic,
+                                    const std::string& message,
+                                    bool dup,
+                                    uint8_t qoS,
+                                    bool retain) { // Server & Client
         LOG(DEBUG) << "Send PUBLISH";
         LOG(DEBUG) << "============";
 
-        send(iot::mqtt::packets::Publish(qoS == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoS, retain));
+        send(iot::mqtt::packets::Publish(qoS == 0 ? 0 : packetIdentifier, topic, message, dup, qoS, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) { // Server & Client
@@ -177,16 +181,6 @@ namespace iot::mqtt {
         file.close();
 
         return std::string(uuid);
-    }
-
-    uint16_t SocketContext::getPacketIdentifier() {
-        ++packetIdentifier;
-
-        if (packetIdentifier == 0) {
-            ++packetIdentifier;
-        }
-
-        return packetIdentifier;
     }
 
     void SocketContext::printStandardHeader(const iot::mqtt::ControlPacket& packet) {
