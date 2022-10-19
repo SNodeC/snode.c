@@ -68,7 +68,7 @@ namespace iot::mqtt::server::broker {
         return socketContext != nullptr;
     }
 
-    bool Session::isActive(const SocketContext* socketContext) const {
+    bool Session::isOwner(const SocketContext* socketContext) const {
         return this->socketContext == socketContext;
     }
 

@@ -96,13 +96,13 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::retainSession(const std::string& clientId, SocketContext* socketContext) {
-        if (sessions.contains(clientId) && sessions[clientId].isActive(socketContext)) {
+        if (sessions.contains(clientId) && sessions[clientId].isOwner(socketContext)) {
             sessions[clientId].retain();
         }
     }
 
     void Broker::deleteSession(const std::string& clientId, SocketContext* socketContext) {
-        if (sessions.contains(clientId) && sessions[clientId].isActive(socketContext)) {
+        if (sessions.contains(clientId) && sessions[clientId].isOwner(socketContext)) {
             subscribtionTree.unsubscribe(clientId);
             sessions.erase(clientId);
         }

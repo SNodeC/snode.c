@@ -54,7 +54,7 @@ namespace iot::mqtt::server::broker {
         void retain();
 
         bool isActive() const;
-        bool isActive(const iot::mqtt::server::SocketContext* socketContext) const;
+        bool isOwner(const iot::mqtt::server::SocketContext* socketContext) const;
         bool isRetained() const;
 
         std::deque<Message>& getMessageQueue();

@@ -71,7 +71,6 @@ namespace iot::mqtt::server::broker {
         void deleteSession(const std::string& clinetId, iot::mqtt::server::SocketContext* socketContext);
 
         void sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoS);
-
         void publishRetained(const std::string& topic, const std::string& clientId, uint8_t clientQoS);
 
         iot::mqtt::server::SocketContext* getSocketContext(const std::string& clientId);
