@@ -37,7 +37,7 @@ namespace iot::mqtt::packets {
                 const std::string& topic,
                 const std::string& message,
                 bool dup = false,
-                uint8_t qoSLevel = 0,
+                uint8_t qoS = 0,
                 bool retain = false);
 
     private:
@@ -45,7 +45,7 @@ namespace iot::mqtt::packets {
 
     public:
         bool getDup() const;
-        uint8_t getQoSLevel() const;
+        uint8_t getQoS() const;
         uint16_t getPacketIdentifier() const;
         std::string getTopic() const;
         std::string getMessage() const;
@@ -58,7 +58,7 @@ namespace iot::mqtt::packets {
         iot::mqtt::types::StringRaw message;
 
         bool dup = false;
-        uint8_t qoSLevel = 0;
+        uint8_t qoS = 0;
         bool retain = false;
     };
 

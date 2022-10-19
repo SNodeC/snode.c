@@ -88,14 +88,14 @@ namespace iot::mqtt::client {
     }
 
     void SocketContext::_onPublish(iot::mqtt::packets::Publish& publish) {
-        if (publish.getQoSLevel() > 2) {
+        if (publish.getQoS() > 2) {
             shutdown(true);
-        } else if (publish.getPacketIdentifier() == 0 && publish.getQoSLevel() > 0) {
+        } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
             shutdown(true);
         } else {
             onPublish(publish);
 
-            switch (publish.getQoSLevel()) {
+            switch (publish.getQoS()) {
                 case 1:
                     sendPuback(publish.getPacketIdentifier());
                     break;

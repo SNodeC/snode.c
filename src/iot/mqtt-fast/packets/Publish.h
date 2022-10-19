@@ -42,12 +42,12 @@ namespace iot::mqtt_fast::packets {
                 const std::string& topic,
                 const std::string& message,
                 bool dup = false,
-                uint8_t qoSLevel = 0,
+                uint8_t qoS = 0,
                 bool retain = false);
         explicit Publish(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         bool getDup() const;
-        uint8_t getQoSLevel() const;
+        uint8_t getQoS() const;
         uint16_t getPacketIdentifier() const;
         const std::string& getTopic() const;
         const std::string& getMessage() const;
@@ -59,7 +59,7 @@ namespace iot::mqtt_fast::packets {
         std::string topic;
         std::string message;
         bool dup = false;
-        uint8_t qoSLevel = 0;
+        uint8_t qoS = 0;
         bool retain = false;
     };
 

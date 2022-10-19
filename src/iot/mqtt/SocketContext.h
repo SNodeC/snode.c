@@ -53,7 +53,7 @@ namespace iot::mqtt {
         virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     public:
-        void sendPublish(const std::string& topic, const std::string& message, bool dup = false, uint8_t qoSLevel = 0, bool retain = false);
+        void sendPublish(const std::string& topic, const std::string& message, bool dup = false, uint8_t qoS = 0, bool retain = false);
         void sendPuback(uint16_t packetIdentifier);
         void sendPubrec(uint16_t packetIdentifier);
         void sendPubrel(uint16_t packetIdentifier);

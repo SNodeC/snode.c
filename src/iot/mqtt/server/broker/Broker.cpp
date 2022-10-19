@@ -46,8 +46,8 @@ namespace iot::mqtt::server::broker {
         return broker;
     }
 
-    uint8_t Broker::subscribe(const std::string& topic, const std::string& clientId, uint8_t suscribedQoSLevel) {
-        uint8_t selectedQoS = std::min(subscribtionMaxQoS, suscribedQoSLevel);
+    uint8_t Broker::subscribe(const std::string& topic, const std::string& clientId, uint8_t suscribedQoS) {
+        uint8_t selectedQoS = std::min(subscribtionMaxQoS, suscribedQoS);
         uint8_t returnCode = 0;
 
         if (subscribtionTree.subscribe(topic, clientId, selectedQoS)) {
@@ -61,12 +61,12 @@ namespace iot::mqtt::server::broker {
         return returnCode;
     }
 
-    void Broker::publish(const std::string& topic, const std::string& message, uint8_t qoSLevel, bool retain) {
-        subscribtionTree.publish(Message(topic, message, qoSLevel), retain);
+    void Broker::publish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain) {
+        subscribtionTree.publish(Message(topic, message, qoS), retain);
     }
 
-    void Broker::retain(const std::string& topic, const std::string& message, uint8_t qoSLevel) {
-        retainTree.retain(Message(topic, message, qoSLevel));
+    void Broker::retain(const std::string& topic, const std::string& message, uint8_t qoS) {
+        retainTree.retain(Message(topic, message, qoS));
     }
 
     void Broker::unsubscribe(const std::string& topic, const std::string& clientId) {

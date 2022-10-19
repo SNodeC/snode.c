@@ -132,11 +132,11 @@ namespace iot::mqtt {
     }
 
     void SocketContext::sendPublish(
-        const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) { // Server & Client
+        const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain) { // Server & Client
         LOG(DEBUG) << "Send PUBLISH";
         LOG(DEBUG) << "============";
 
-        send(iot::mqtt::packets::Publish(qoSLevel == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoSLevel, retain));
+        send(iot::mqtt::packets::Publish(qoS == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoS, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) { // Server & Client

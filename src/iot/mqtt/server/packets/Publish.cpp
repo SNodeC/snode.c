@@ -29,11 +29,11 @@ namespace iot::mqtt::server::packets {
     Publish::Publish(uint32_t remainingLength, uint8_t flags)
         : iot::mqtt::server::ControlPacketDeserializer(remainingLength, flags, flags) {
         this->flags = flags;
-        this->qoSLevel = flags >> 1 & 0x03;
+        this->qoS = flags >> 1 & 0x03;
         this->dup = (flags & 0x04) != 0;
         this->retain = (flags & 0x01) != 0;
 
-        error = this->qoSLevel > 2;
+        error = this->qoS > 2;
     }
 
     std::size_t Publish::deserializeVP(iot::mqtt::SocketContext* socketContext) {
@@ -49,7 +49,7 @@ namespace iot::mqtt::server::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                if (qoSLevel > 0) {
+                if (qoS > 0) {
                     consumed += packetIdentifier.deserialize(socketContext);
                     if (!packetIdentifier.isComplete()) {
                         break;

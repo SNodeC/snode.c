@@ -29,21 +29,21 @@ namespace iot::mqtt::packets {
     }
 
     Publish::Publish(
-        uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
+        uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain)
         : iot::mqtt::ControlPacket(MQTT_PUBLISH) {
-        this->flags = (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00);
+        this->flags = (dup ? 0x04 : 0x00) | ((qoS << 1) & 0x06) | (retain ? 0x01 : 0x00);
         this->packetIdentifier = packetIdentifier;
         this->topic = topic;
         this->message = message;
         this->dup = dup;
-        this->qoSLevel = qoSLevel;
+        this->qoS = qoS;
         this->retain = retain;
     }
 
     std::vector<char> Publish::serializeVP() const {
         std::vector<char> packet(topic.serialize());
 
-        if (qoSLevel > 0) {
+        if (qoS > 0) {
             std::vector<char> tmpVector = packetIdentifier.serialize();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
@@ -58,8 +58,8 @@ namespace iot::mqtt::packets {
         return dup;
     }
 
-    uint8_t Publish::getQoSLevel() const {
-        return qoSLevel;
+    uint8_t Publish::getQoS() const {
+        return qoS;
     }
 
     uint16_t Publish::getPacketIdentifier() const {

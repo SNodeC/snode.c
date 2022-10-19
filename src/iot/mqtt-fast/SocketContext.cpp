@@ -52,11 +52,11 @@ namespace iot::mqtt_fast {
         send(iot::mqtt_fast::packets::Connack(returnCode, flags));
     }
 
-    void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {
+    void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain) {
         LOG(TRACE) << "Send PUBLISH";
         LOG(TRACE) << "============";
 
-        send(iot::mqtt_fast::packets::Publish(qoSLevel == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoSLevel, retain));
+        send(iot::mqtt_fast::packets::Publish(qoS == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoS, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) {
