@@ -19,6 +19,7 @@
 #include "iot/mqtt/server/broker/Broker.h"
 
 #include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/server/broker/Message.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -62,11 +63,11 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::publish(const std::string& topic, const std::string& message, uint8_t qoSLevel, bool retain) {
-        subscribtionTree.publish(topic, message, qoSLevel, retain);
+        subscribtionTree.publish(Message(topic, message, qoSLevel), retain);
     }
 
     void Broker::retain(const std::string& topic, const std::string& message, uint8_t qoSLevel) {
-        retainTree.retain(topic, message, qoSLevel);
+        retainTree.retain(Message(topic, message, qoSLevel));
     }
 
     void Broker::unsubscribe(const std::string& topic, const std::string& clientId) {
@@ -109,21 +110,16 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    void Broker::sendPublish(const std::string& clientId,
-                             const std::string& fullTopicName,
-                             const std::string& message,
-                             bool dup,
-                             uint8_t qoSLevel,
-                             bool retain,
-                             uint8_t clientQoSLevel) {
+    void Broker::sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoSLevel) {
         if (hasActiveSession(clientId)) {
             LOG(TRACE) << "Send Publish: ClientId = " << clientId;
-            LOG(TRACE) << "              TopicName = " << fullTopicName;
-            LOG(TRACE) << "              Message = " << message;
-            LOG(TRACE) << "              QoS = " << static_cast<uint16_t>(std::min(clientQoSLevel, qoSLevel));
+            LOG(TRACE) << "              TopicName = " << message.getTopic();
+            LOG(TRACE) << "              Message = " << message.getMessage();
+            LOG(TRACE) << "              QoS = " << static_cast<uint16_t>(std::min(clientQoSLevel, message.getQoS()));
 
-            sessions[clientId]->sendPublish(fullTopicName, message, dup, std::min(qoSLevel, clientQoSLevel), retain);
-        } else if (hasRetainedSession(clientId) && qoSLevel > 0) { // only for QoS = 1 and 2
+            sessions[clientId]->sendPublish(
+                message.getTopic(), message.getMessage(), dup, std::min(message.getQoS(), clientQoSLevel), retain);
+        } else if (hasRetainedSession(clientId) && message.getQoS() > 0) { // only for QoS = 1 and 2
             // Queue Messages for offline clients
         } else {
             // Discard all queued messages and use current message as the only one queued message

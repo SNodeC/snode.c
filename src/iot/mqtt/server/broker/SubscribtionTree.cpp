@@ -19,6 +19,7 @@
 #include "iot/mqtt/server/broker/SubscribtionTree.h"
 
 #include "iot/mqtt/server/broker/Broker.h"
+#include "iot/mqtt/server/broker/Message.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,8 +44,8 @@ namespace iot::mqtt::server::broker {
         return head.subscribe(fullTopicName, clientId, clientQoSLevel, fullTopicName, false);
     }
 
-    void SubscribtionTree::publish(const std::string& fullTopicName, const std::string& message, uint8_t qoSLevel, bool retained) {
-        head.publish(fullTopicName, message, qoSLevel, retained, fullTopicName, false);
+    void SubscribtionTree::publish(Message&& message, bool retained) {
+        head.publish(message, retained, message.getTopic(), false);
     }
 
     bool SubscribtionTree::unsubscribe(std::string fullTopicName, const std::string& clientId) {
@@ -98,23 +99,18 @@ namespace iot::mqtt::server::broker {
         return success;
     }
 
-    void SubscribtionTree::SubscribtionTreeNode::publish(const std::string& fullTopicName,
-                                                         const std::string& message,
-                                                         uint8_t qoSLevel,
-                                                         bool retained,
-                                                         std::string remainingTopicName,
-                                                         bool leafFound) {
+    void SubscribtionTree::SubscribtionTreeNode::publish(Message& message, bool retained, std::string remainingTopicName, bool leafFound) {
         if (leafFound) {
             if (!subscribedTopicName.empty()) {
                 LOG(TRACE) << "Found match:";
-                LOG(TRACE) << "  Received topic = '" << fullTopicName << "';";
+                LOG(TRACE) << "  Received topic = '" << message.getTopic() << "';";
                 LOG(TRACE) << "  Matched topic = '" << subscribedTopicName << "'";
 
-                LOG(TRACE) << "  Message:' " << message << "' ";
+                LOG(TRACE) << "  Message:' " << message.getMessage() << "' ";
                 LOG(TRACE) << "Distribute Publish ...";
 
                 for (auto& [clientId, clientQoSLevel] : subscribers) {
-                    broker->sendPublish(clientId, fullTopicName, message, DUP_FALSE, qoSLevel, retained, clientQoSLevel);
+                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoSLevel);
                 }
 
                 LOG(TRACE) << "... completed!";
@@ -123,13 +119,13 @@ namespace iot::mqtt::server::broker {
             auto nextHashNode = subscribtions.find("#");
             if (nextHashNode != subscribtions.end()) {
                 LOG(TRACE) << "Found parent match:";
-                LOG(TRACE) << "  Received topic = '" << fullTopicName << "'";
-                LOG(TRACE) << "  Matched topic : '" << fullTopicName << "/#'";
-                LOG(TRACE) << "  Message: '" << message << "'";
+                LOG(TRACE) << "  Received topic = '" << message.getTopic() << "'";
+                LOG(TRACE) << "  Matched topic : '" << message.getTopic() << "/#'";
+                LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
 
                 for (auto& [clientId, clientQoSLevel] : nextHashNode->second.subscribers) {
-                    broker->sendPublish(clientId, fullTopicName, message, DUP_FALSE, qoSLevel, retained, clientQoSLevel);
+                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoSLevel);
                 }
 
                 LOG(TRACE) << "... completed!";
@@ -144,21 +140,21 @@ namespace iot::mqtt::server::broker {
 
             auto foundNode = subscribtions.find(topicName);
             if (foundNode != subscribtions.end()) {
-                foundNode->second.publish(fullTopicName, message, qoSLevel, retained, remainingTopicName, leafFound);
+                foundNode->second.publish(message, retained, remainingTopicName, leafFound);
             }
 
             foundNode = subscribtions.find("+");
             if (foundNode != subscribtions.end()) {
-                foundNode->second.publish(fullTopicName, message, qoSLevel, retained, remainingTopicName, leafFound);
+                foundNode->second.publish(message, retained, remainingTopicName, leafFound);
             }
 
             foundNode = subscribtions.find("#");
             if (foundNode != subscribtions.end()) {
-                LOG(TRACE) << "Found match: Subscribed topic: '" << foundNode->second.subscribedTopicName << "', topic: '" << fullTopicName
-                           << "', Message: '" << message << "'";
+                LOG(TRACE) << "Found match: Subscribed topic: '" << foundNode->second.subscribedTopicName << "', topic: '"
+                           << message.getTopic() << "', Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
                 for (auto& [clientId, clientQoSLevel] : foundNode->second.subscribers) {
-                    broker->sendPublish(clientId, fullTopicName, message, DUP_FALSE, qoSLevel, retained, clientQoSLevel);
+                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoSLevel);
                 }
                 LOG(TRACE) << "... completed!";
             }

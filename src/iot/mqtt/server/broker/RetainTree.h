@@ -19,6 +19,8 @@
 #ifndef IOT_MQTT_SERVER_BROKER_TOPICTREE_H
 #define IOT_MQTT_SERVER_BROKER_TOPICTREE_H
 
+#include "iot/mqtt/server/broker/Message.h"
+
 namespace iot::mqtt::server::broker {
     class Broker;
 } // namespace iot::mqtt::server::broker
@@ -37,7 +39,7 @@ namespace iot::mqtt::server::broker {
     public:
         explicit RetainTree(iot::mqtt::server::broker::Broker* broker);
 
-        void retain(const std::string& fullTopicName, const std::string& message, uint8_t qosLevel);
+        void retain(Message&& message);
         void publish(std::string subscribedTopicName, const std::string& clientId, uint8_t clientQoSLevel);
 
     private:
@@ -45,18 +47,13 @@ namespace iot::mqtt::server::broker {
         public:
             explicit RetainTreeNode(iot::mqtt::server::broker::Broker* broker);
 
-            bool retain(const std::string& fullTopicName,
-                        const std::string& message,
-                        uint8_t qoSLevel,
-                        std::string remainingTopicName,
-                        bool leafFound);
+            bool retain(Message& message, std::string remainingTopicName, bool leafFound);
+
             void publish(const std::string& clientId, uint8_t clientQoSLevel, std::string remainingSubscribedTopicName, bool leafFound);
             void publish(const std::string& clientId, uint8_t clientQoSLevel);
 
         private:
-            std::string fullTopicName = "";
-            std::string message = "";
-            uint8_t qoSLevel = 0;
+            Message message;
 
             std::map<std::string, RetainTreeNode> topicTreeNodes;
 

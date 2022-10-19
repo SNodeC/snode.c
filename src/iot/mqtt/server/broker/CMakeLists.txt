@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(IOT_MQTT_SERVER_BROKER_CPP Broker.cpp SubscribtionTree.cpp RetainTree.cpp)
-set(IOT_MQTT_SERVER_BROKER_H Broker.h SubscribtionTree.h RetainTree.h)
+set(IOT_MQTT_SERVER_BROKER_CPP Broker.cpp Message.cpp SubscribtionTree.cpp RetainTree.cpp)
+set(IOT_MQTT_SERVER_BROKER_H Broker.h Message.h SubscribtionTree.h RetainTree.h)
 
 add_library(
     mqtt-broker STATIC ${IOT_MQTT_SERVER_BROKER_CPP}

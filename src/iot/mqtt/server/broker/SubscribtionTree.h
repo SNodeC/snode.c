@@ -21,6 +21,7 @@
 
 namespace iot::mqtt::server::broker {
     class Broker;
+    class Message;
 } // namespace iot::mqtt::server::broker
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -41,7 +42,7 @@ namespace iot::mqtt::server::broker {
 
         bool subscribe(const std::string& fullTopicName, const std::string& clientId, uint8_t clientQoSLevel);
 
-        void publish(const std::string& fullTopicName, const std::string& message, uint8_t qoSLevel, bool retained);
+        void publish(Message&& message, bool retained);
 
         bool unsubscribe(std::string fullTopicName, const std::string& clientId);
         bool unsubscribe(const std::string& clientId);
@@ -59,12 +60,7 @@ namespace iot::mqtt::server::broker {
                            std::string remainingTopicName,
                            bool leafFound);
 
-            void publish(const std::string& fullTopicName,
-                         const std::string& message,
-                         uint8_t qoSLevel,
-                         bool retained,
-                         std::string remainingTopicName,
-                         bool leafFound);
+            void publish(Message& message, bool retained, std::string remainingTopicName, bool leafFound);
 
             bool unsubscribe(const std::string& clientId, std::string remainingTopicName, bool leafFound);
             bool unsubscribe(const std::string& clientId);

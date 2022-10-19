@@ -34,8 +34,8 @@ namespace iot::mqtt::server::broker {
         : head(broker) {
     }
 
-    void RetainTree::retain(const std::string& fullTopicName, const std::string& message, uint8_t qoSLevel) {
-        head.retain(fullTopicName, message, qoSLevel, fullTopicName, false);
+    void RetainTree::retain(Message&& message) {
+        head.retain(message, message.getTopic(), false);
     }
 
     void RetainTree::publish(std::string subscribedTopicName, const std::string& clientId, uint8_t clientQoSLevel) {
@@ -46,14 +46,11 @@ namespace iot::mqtt::server::broker {
         : broker(broker) {
     }
 
-    bool RetainTree::RetainTreeNode::retain(
-        const std::string& fullTopicName, const std::string& message, uint8_t qoSLevel, std::string remainingTopicName, bool leafFound) {
+    bool RetainTree::RetainTreeNode::retain(Message& message, std::string remainingTopicName, bool leafFound) {
         if (leafFound) {
-            if (!fullTopicName.empty()) {
-                LOG(TRACE) << "Retaining: " << fullTopicName << " - " << message;
-                this->fullTopicName = fullTopicName;
+            if (!message.getTopic().empty()) {
+                LOG(TRACE) << "Retaining: " << message.getTopic() << " - " << message.getMessage();
                 this->message = message;
-                this->qoSLevel = qoSLevel;
             }
         } else {
             std::string::size_type slashPosition = remainingTopicName.find('/');
@@ -63,13 +60,12 @@ namespace iot::mqtt::server::broker {
 
             remainingTopicName.erase(0, topicName.size() + 1);
 
-            if (topicTreeNodes.insert({topicName, RetainTreeNode(broker)})
-                    .first->second.retain(fullTopicName, message, qoSLevel, remainingTopicName, leafFound)) {
+            if (topicTreeNodes.insert({topicName, RetainTreeNode(broker)}).first->second.retain(message, remainingTopicName, leafFound)) {
                 topicTreeNodes.erase(topicName);
             }
         }
 
-        return this->message.empty() && topicTreeNodes.empty();
+        return this->message.getMessage().empty() && topicTreeNodes.empty();
     }
 
     void RetainTree::RetainTreeNode::publish(const std::string& clientId,
@@ -77,10 +73,11 @@ namespace iot::mqtt::server::broker {
                                              std::string remainingSubscribedTopicName,
                                              bool leafFound) {
         if (leafFound) {
-            if (!fullTopicName.empty()) {
-                LOG(TRACE) << "Found retained message: " << fullTopicName << " - " << message << " - " << static_cast<uint16_t>(qoSLevel);
+            if (!message.getMessage().empty()) {
+                LOG(TRACE) << "Found retained message: " << message.getTopic() << " - " << message.getMessage() << " - "
+                           << static_cast<uint16_t>(message.getQoS());
                 LOG(TRACE) << "Distribute message ...";
-                broker->sendPublish(clientId, fullTopicName, message, DUP_FALSE, qoSLevel, RETAIN_TRUE, clientQoSLevel);
+                broker->sendPublish(clientId, message, DUP_FALSE, RETAIN_TRUE, clientQoSLevel);
                 LOG(TRACE) << "... completed!";
             }
         } else {
@@ -105,10 +102,11 @@ namespace iot::mqtt::server::broker {
     }
 
     void RetainTree::RetainTreeNode::publish(const std::string& clientId, uint8_t clientQoSLevel) {
-        if (!fullTopicName.empty()) {
-            LOG(TRACE) << "Found retained message: " << fullTopicName << " - " << message << " - " << static_cast<uint16_t>(qoSLevel);
+        if (!message.getTopic().empty()) {
+            LOG(TRACE) << "Found retained message: " << message.getTopic() << " - " << message.getMessage() << " - "
+                       << static_cast<uint16_t>(message.getQoS());
             LOG(TRACE) << "Distribute message ...";
-            broker->sendPublish(clientId, fullTopicName, message, DUP_FALSE, qoSLevel, RETAIN_TRUE, clientQoSLevel);
+            broker->sendPublish(clientId, message, DUP_FALSE, RETAIN_TRUE, clientQoSLevel);
             LOG(TRACE) << "... completed!";
         }
 
