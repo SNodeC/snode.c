@@ -46,13 +46,13 @@ namespace iot::mqtt::server::broker {
         messageQueue.clear();
     }
 
-    void Session::queue(Message& message, uint8_t clientQoSLevel) {
+    void Session::queue(Message& message, uint8_t clientQoS) {
         if (message.getQoS() == 0) {
             messageQueue.clear();
         }
 
         Message queuedMessage(message);
-        queuedMessage.setQoS(std::min(message.getQoS(), clientQoSLevel));
+        queuedMessage.setQoS(std::min(message.getQoS(), clientQoS));
         messageQueue.push_back(queuedMessage);
     }
 

@@ -40,8 +40,8 @@ namespace iot::mqtt::server::broker {
         head.publishRetained(clientId);
     }
 
-    bool SubscribtionTree::subscribe(const std::string& fullTopicName, const std::string& clientId, uint8_t clientQoSLevel) {
-        return head.subscribe(fullTopicName, clientId, clientQoSLevel, fullTopicName, false);
+    bool SubscribtionTree::subscribe(const std::string& fullTopicName, const std::string& clientId, uint8_t clientQoS) {
+        return head.subscribe(fullTopicName, clientId, clientQoS, fullTopicName, false);
     }
 
     void SubscribtionTree::publish(Message&& message, bool retained) {
@@ -72,14 +72,14 @@ namespace iot::mqtt::server::broker {
 
     bool SubscribtionTree::SubscribtionTreeNode::subscribe(const std::string& fullTopicName,
                                                            const std::string& clientId,
-                                                           uint8_t clientQoSLevel,
+                                                           uint8_t clientQoS,
                                                            std::string remainingTopicName,
                                                            bool leafFound) {
         bool success = true;
 
         if (leafFound) {
             subscribedTopicName = fullTopicName;
-            subscribers[clientId] = clientQoSLevel;
+            subscribers[clientId] = clientQoS;
         } else {
             std::string::size_type slashPosition = remainingTopicName.find('/');
 
@@ -92,7 +92,7 @@ namespace iot::mqtt::server::broker {
                 remainingTopicName.erase(0, topicName.size() + 1);
 
                 success = subscribtions.insert({topicName, SubscribtionTree::SubscribtionTreeNode(broker)})
-                              .first->second.subscribe(fullTopicName, clientId, clientQoSLevel, remainingTopicName, leafFound);
+                              .first->second.subscribe(fullTopicName, clientId, clientQoS, remainingTopicName, leafFound);
             }
         }
 
@@ -109,8 +109,8 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "  Message:' " << message.getMessage() << "' ";
                 LOG(TRACE) << "Distribute Publish ...";
 
-                for (auto& [clientId, clientQoSLevel] : subscribers) {
-                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoSLevel);
+                for (auto& [clientId, clientQoS] : subscribers) {
+                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoS);
                 }
 
                 LOG(TRACE) << "... completed!";
@@ -124,8 +124,8 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
 
-                for (auto& [clientId, clientQoSLevel] : nextHashNode->second.subscribers) {
-                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoSLevel);
+                for (auto& [clientId, clientQoS] : nextHashNode->second.subscribers) {
+                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoS);
                 }
 
                 LOG(TRACE) << "... completed!";
@@ -153,8 +153,8 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Found match: Subscribed topic: '" << foundNode->second.subscribedTopicName << "', topic: '"
                            << message.getTopic() << "', Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
-                for (auto& [clientId, clientQoSLevel] : foundNode->second.subscribers) {
-                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoSLevel);
+                for (auto& [clientId, clientQoS] : foundNode->second.subscribers) {
+                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoS);
                 }
                 LOG(TRACE) << "... completed!";
             }

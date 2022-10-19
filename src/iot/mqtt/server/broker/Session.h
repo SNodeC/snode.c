@@ -47,7 +47,7 @@ namespace iot::mqtt::server::broker {
         void sendPublish(Message& message, bool dup, bool retain, uint8_t clientQoS);
         void sendQueuedMessages();
 
-        void queue(iot::mqtt::server::broker::Message& message, uint8_t clientQoSLevel);
+        void queue(iot::mqtt::server::broker::Message& message, uint8_t clientQoS);
 
         void renew(SocketContext* socketContext);
 

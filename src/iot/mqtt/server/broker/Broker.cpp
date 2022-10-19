@@ -108,16 +108,16 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    void Broker::sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoSLevel) {
+    void Broker::sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoS) {
         if (hasActiveSession(clientId)) {
             LOG(TRACE) << "Send Publish: ClientId = " << clientId;
             LOG(TRACE) << "              TopicName = " << message.getTopic();
             LOG(TRACE) << "              Message = " << message.getMessage();
-            LOG(TRACE) << "              QoS = " << static_cast<uint16_t>(std::min(clientQoSLevel, message.getQoS()));
+            LOG(TRACE) << "              QoS = " << static_cast<uint16_t>(std::min(clientQoS, message.getQoS()));
 
-            sessions[clientId].sendPublish(message, dup, retain, clientQoSLevel);
+            sessions[clientId].sendPublish(message, dup, retain, clientQoS);
         } else if (hasRetainedSession(clientId)) {
-            sessions[clientId].queue(message, clientQoSLevel);
+            sessions[clientId].queue(message, clientQoS);
         }
     }
 

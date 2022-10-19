@@ -70,7 +70,7 @@ namespace iot::mqtt::server::broker {
         void retainSession(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
         void deleteSession(const std::string& clinetId, iot::mqtt::server::SocketContext* socketContext);
 
-        void sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoSLevel);
+        void sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoS);
 
         void publishRetained(const std::string& topic, const std::string& clientId, uint8_t clientQoS);
 

@@ -40,7 +40,7 @@ namespace iot::mqtt::server::broker {
         explicit RetainTree(iot::mqtt::server::broker::Broker* broker);
 
         void retain(Message&& message);
-        void publish(std::string subscribedTopicName, const std::string& clientId, uint8_t clientQoSLevel);
+        void publish(std::string subscribedTopicName, const std::string& clientId, uint8_t clientQoS);
 
     private:
         class RetainTreeNode {
@@ -49,8 +49,8 @@ namespace iot::mqtt::server::broker {
 
             bool retain(Message& message, std::string remainingTopicName, bool leafFound);
 
-            void publish(const std::string& clientId, uint8_t clientQoSLevel, std::string remainingSubscribedTopicName, bool leafFound);
-            void publish(const std::string& clientId, uint8_t clientQoSLevel);
+            void publish(const std::string& clientId, uint8_t clientQoS, std::string remainingSubscribedTopicName, bool leafFound);
+            void publish(const std::string& clientId, uint8_t clientQoS);
 
         private:
             Message message;

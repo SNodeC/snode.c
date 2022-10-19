@@ -40,7 +40,7 @@ namespace iot::mqtt::server::broker {
 
         void publishRetained(const std::string& clientId);
 
-        bool subscribe(const std::string& fullTopicName, const std::string& clientId, uint8_t clientQoSLevel);
+        bool subscribe(const std::string& fullTopicName, const std::string& clientId, uint8_t clientQoS);
 
         void publish(Message&& message, bool retained);
 
@@ -56,7 +56,7 @@ namespace iot::mqtt::server::broker {
 
             bool subscribe(const std::string& fullTopicName,
                            const std::string& clientId,
-                           uint8_t clientQoSLevel,
+                           uint8_t clientQoS,
                            std::string remainingTopicName,
                            bool leafFound);
 
