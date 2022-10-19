@@ -63,6 +63,7 @@ namespace iot::mqtt::server::broker {
         void unsubscribe(const std::string& topic, const std::string& clientId);
         void unsubscribe(const std::string& clientId);
 
+        bool hasSession(const std::string& clientId);
         bool hasActiveSession(const std::string& clientId);
         bool hasRetainedSession(const std::string& clientId);
         void newSession(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
@@ -72,8 +73,6 @@ namespace iot::mqtt::server::broker {
 
         void sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoS);
         void publishRetained(const std::string& topic, const std::string& clientId, uint8_t clientQoS);
-
-        iot::mqtt::server::SocketContext* getSocketContext(const std::string& clientId);
 
     private:
         uint8_t subscribtionMaxQoS;

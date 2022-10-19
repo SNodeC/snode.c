@@ -23,6 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -53,7 +54,7 @@ namespace iot::mqtt::server::broker {
 
         Message queuedMessage(message);
         queuedMessage.setQoS(std::min(message.getQoS(), clientQoS));
-        messageQueue.push_back(queuedMessage);
+        messageQueue.push_back(std::move(queuedMessage));
     }
 
     void Session::renew(SocketContext* socketContext) {
@@ -74,10 +75,6 @@ namespace iot::mqtt::server::broker {
 
     bool Session::isRetained() const {
         return socketContext == nullptr;
-    }
-
-    std::deque<Message>& Session::getMessageQueue() {
-        return messageQueue;
     }
 
     iot::mqtt::server::SocketContext* Session::getSocketContext() const {

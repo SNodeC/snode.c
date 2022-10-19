@@ -77,12 +77,16 @@ namespace iot::mqtt::server::broker {
         subscribtionTree.unsubscribe(clientId);
     }
 
+    bool Broker::hasSession(const std::string& clientId) {
+        return sessions.contains(clientId);
+    }
+
     bool Broker::hasActiveSession(const std::string& clientId) {
-        return sessions.contains(clientId) && sessions[clientId].isActive();
+        return hasSession(clientId) && sessions[clientId].isActive();
     }
 
     bool Broker::hasRetainedSession(const std::string& clientId) {
-        return sessions.contains(clientId) && sessions[clientId].isRetained();
+        return hasSession(clientId) && sessions[clientId].isRetained();
     }
 
     void Broker::newSession(const std::string& clientId, SocketContext* socketContext) {
@@ -123,10 +127,6 @@ namespace iot::mqtt::server::broker {
 
     void Broker::publishRetained(const std::string& topic, const std::string& clientId, uint8_t clientQoS) {
         retainTree.publish(topic, clientId, clientQoS);
-    }
-
-    iot::mqtt::server::SocketContext* Broker::getSocketContext(const std::string& clientId) {
-        return sessions[clientId].getSocketContext();
     }
 
 } // namespace iot::mqtt::server::broker
