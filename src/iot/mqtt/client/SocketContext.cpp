@@ -36,36 +36,36 @@ namespace iot::mqtt::client {
         : iot::mqtt::SocketContext(socketConnection) {
     }
 
-    iot::mqtt::ControlPacketDeserializer* SocketContext::onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) {
+    iot::mqtt::ControlPacketDeserializer* SocketContext::onReceiveFromPeer(iot::mqtt::FixedHeader& fixedHeader) {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
-        switch (staticHeader.getPacketType()) {
+        switch (fixedHeader.getPacketType()) {
             case MQTT_CONNACK:
-                currentPacket = new iot::mqtt::client::packets::Connack(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Connack(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBLISH:
-                currentPacket = new iot::mqtt::client::packets::Publish(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Publish(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBACK:
-                currentPacket = new iot::mqtt::client::packets::Puback(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Puback(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBREC:
-                currentPacket = new iot::mqtt::client::packets::Pubrec(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Pubrec(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBREL:
-                currentPacket = new iot::mqtt::client::packets::Pubrel(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Pubrel(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBCOMP:
-                currentPacket = new iot::mqtt::client::packets::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Pubcomp(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_SUBACK:
-                currentPacket = new iot::mqtt::client::packets::Suback(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Suback(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_UNSUBACK:
-                currentPacket = new iot::mqtt::client::packets::Unsuback(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Unsuback(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PINGRESP:
-                currentPacket = new iot::mqtt::client::packets::Pingresp(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::client::packets::Pingresp(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             default:
                 currentPacket = nullptr;

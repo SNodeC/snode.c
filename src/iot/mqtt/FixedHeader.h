@@ -32,12 +32,12 @@ namespace iot::mqtt {
 
 namespace iot::mqtt {
 
-    class StaticHeader {
+    class FixedHeader {
     public:
-        StaticHeader();
-        StaticHeader(uint8_t type, uint8_t flags, uint32_t remainingLength = 0);
+        FixedHeader();
+        FixedHeader(uint8_t type, uint8_t flags, uint32_t remainingLength = 0);
 
-        ~StaticHeader();
+        ~FixedHeader();
 
         std::size_t deserialize(iot::mqtt::SocketContext* socketContext);
         std::vector<char> serialize();

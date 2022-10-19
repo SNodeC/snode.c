@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/ControlPacket.h"
 
-#include "iot/mqtt/StaticHeader.h"
+#include "iot/mqtt/FixedHeader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -77,9 +77,9 @@ namespace iot::mqtt {
     std::vector<char> ControlPacket::serialize() const {
         std::vector<char> variablHeaderPayload = serializeVP();
 
-        iot::mqtt::StaticHeader staticHeader(type, flags, static_cast<uint32_t>(variablHeaderPayload.size()));
+        iot::mqtt::FixedHeader fixedHeader(type, flags, static_cast<uint32_t>(variablHeaderPayload.size()));
 
-        std::vector<char> packet = staticHeader.serialize();
+        std::vector<char> packet = fixedHeader.serialize();
         packet.insert(packet.end(), variablHeaderPayload.begin(), variablHeaderPayload.end());
 
         return packet;

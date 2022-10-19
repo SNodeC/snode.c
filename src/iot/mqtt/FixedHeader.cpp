@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/StaticHeader.h"
+#include "iot/mqtt/FixedHeader.h"
 
 #include "iot/mqtt/SocketContext.h"
 
@@ -26,18 +26,18 @@
 
 namespace iot::mqtt {
 
-    StaticHeader::StaticHeader() {
+    FixedHeader::FixedHeader() {
     }
 
-    StaticHeader::StaticHeader(uint8_t type, uint8_t flags, uint32_t remainingLength) {
+    FixedHeader::FixedHeader(uint8_t type, uint8_t flags, uint32_t remainingLength) {
         this->typeFlags = static_cast<uint8_t>((type << 4) | (flags & 0x0F));
         this->remainingLength = remainingLength;
     }
 
-    StaticHeader::~StaticHeader() {
+    FixedHeader::~FixedHeader() {
     }
 
-    std::size_t StaticHeader::deserialize(iot::mqtt::SocketContext* socketContext) {
+    std::size_t FixedHeader::deserialize(iot::mqtt::SocketContext* socketContext) {
         std::size_t consumed = 0;
 
         switch (state) {
@@ -61,31 +61,31 @@ namespace iot::mqtt {
         return consumed;
     }
 
-    uint8_t StaticHeader::getPacketType() const {
+    uint8_t FixedHeader::getPacketType() const {
         return static_cast<uint8_t>(typeFlags >> 0x04);
     }
 
-    uint8_t StaticHeader::getFlags() const {
+    uint8_t FixedHeader::getFlags() const {
         return static_cast<uint8_t>(typeFlags & 0x0F);
     }
 
-    void StaticHeader::setRemainingLength(uint32_t remainingLength) {
+    void FixedHeader::setRemainingLength(uint32_t remainingLength) {
         this->remainingLength = remainingLength;
     }
 
-    uint32_t StaticHeader::getRemainingLength() const {
+    uint32_t FixedHeader::getRemainingLength() const {
         return remainingLength;
     }
 
-    bool StaticHeader::isComplete() const {
+    bool FixedHeader::isComplete() const {
         return complete;
     }
 
-    bool StaticHeader::isError() const {
+    bool FixedHeader::isError() const {
         return error;
     }
 
-    std::vector<char> StaticHeader::serialize() {
+    std::vector<char> FixedHeader::serialize() {
         std::vector<char> packet = typeFlags.serialize();
 
         std::vector<char> tmpVector = remainingLength.serialize();
@@ -94,7 +94,7 @@ namespace iot::mqtt {
         return packet;
     }
 
-    void StaticHeader::reset() {
+    void FixedHeader::reset() {
         typeFlags.reset();
         remainingLength.reset();
 

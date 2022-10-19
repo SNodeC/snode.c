@@ -53,25 +53,25 @@ namespace iot::mqtt {
 
         switch (state) {
             case 0:
-                consumed = staticHeader.deserialize(this);
+                consumed = fixedHeader.deserialize(this);
 
-                if (!staticHeader.isComplete()) {
+                if (!fixedHeader.isComplete()) {
                     break;
-                } else if (staticHeader.isError()) {
+                } else if (fixedHeader.isError()) {
                     close();
                     break;
                 }
 
                 LOG(TRACE) << "======================================================";
                 LOG(TRACE) << "Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
-                           << static_cast<uint16_t>(staticHeader.getPacketType());
+                           << static_cast<uint16_t>(fixedHeader.getPacketType());
                 LOG(TRACE) << "              PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
-                           << static_cast<uint16_t>(staticHeader.getFlags()) << std::dec;
-                LOG(TRACE) << "              RemainingLength: " << staticHeader.getRemainingLength();
+                           << static_cast<uint16_t>(fixedHeader.getFlags()) << std::dec;
+                LOG(TRACE) << "              RemainingLength: " << fixedHeader.getRemainingLength();
 
-                controlPacketDeserializer = onReceiveFromPeer(staticHeader);
+                controlPacketDeserializer = onReceiveFromPeer(fixedHeader);
 
-                staticHeader.reset();
+                fixedHeader.reset();
 
                 if (controlPacketDeserializer == nullptr) {
                     LOG(TRACE) << "Received packet-type is unavailable ... closing connection";

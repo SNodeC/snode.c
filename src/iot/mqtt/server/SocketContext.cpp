@@ -50,39 +50,39 @@ namespace iot::mqtt::server {
         }
     }
 
-    iot::mqtt::ControlPacketDeserializer* SocketContext::onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) {
+    iot::mqtt::ControlPacketDeserializer* SocketContext::onReceiveFromPeer(iot::mqtt::FixedHeader& fixedHeader) {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
-        switch (staticHeader.getPacketType()) {
+        switch (fixedHeader.getPacketType()) {
             case MQTT_CONNECT:
-                currentPacket = new iot::mqtt::server::packets::Connect(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Connect(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBLISH:
-                currentPacket = new iot::mqtt::server::packets::Publish(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Publish(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBACK:
-                currentPacket = new iot::mqtt::server::packets::Puback(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Puback(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBREC:
-                currentPacket = new iot::mqtt::server::packets::Pubrec(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Pubrec(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBREL:
-                currentPacket = new iot::mqtt::server::packets::Pubrel(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Pubrel(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PUBCOMP:
-                currentPacket = new iot::mqtt::server::packets::Pubcomp(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Pubcomp(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_SUBSCRIBE:
-                currentPacket = new iot::mqtt::server::packets::Subscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Subscribe(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_UNSUBSCRIBE:
-                currentPacket = new iot::mqtt::server::packets::Unsubscribe(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Unsubscribe(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_PINGREQ:
-                currentPacket = new iot::mqtt::server::packets::Pingreq(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Pingreq(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             case MQTT_DISCONNECT:
-                currentPacket = new iot::mqtt::server::packets::Disconnect(staticHeader.getRemainingLength(), staticHeader.getFlags());
+                currentPacket = new iot::mqtt::server::packets::Disconnect(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
             default:
                 currentPacket = nullptr;

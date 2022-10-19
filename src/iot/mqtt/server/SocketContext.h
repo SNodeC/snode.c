@@ -58,7 +58,7 @@ namespace iot::mqtt::server {
         ~SocketContext() override;
 
     private:
-        iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) final;
+        iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::FixedHeader& fixedHeader) final;
         void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
         void initSession();

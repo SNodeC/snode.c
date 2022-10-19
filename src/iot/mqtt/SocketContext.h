@@ -21,7 +21,7 @@
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/StaticHeader.h" // IWYU pragma: export
+#include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -49,7 +49,7 @@ namespace iot::mqtt {
 
     private:
         std::size_t onReceiveFromPeer() final;
-        virtual iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::StaticHeader& staticHeader) = 0;
+        virtual iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::FixedHeader& staticHeader) = 0;
         virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     public:
@@ -73,7 +73,7 @@ namespace iot::mqtt {
     private:
         static void printData(const std::vector<char>& data);
 
-        iot::mqtt::StaticHeader staticHeader;
+        iot::mqtt::FixedHeader fixedHeader;
         iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
 
         uint16_t packetIdentifier = 0;

@@ -10,12 +10,12 @@ set(CMAKE_INSTALL_RPATH
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_CPP ControlPacket.cpp ControlPacketDeserializer.cpp SocketContext.cpp
-             StaticHeader.cpp Topic.cpp
+set(MQTT_CPP ControlPacket.cpp ControlPacketDeserializer.cpp FixedHeader.cpp
+             SocketContext.cpp Topic.cpp
 )
 
-set(MQTT_H ControlPacket.h ControlPacketDeserializer.h SocketContext.h
-           StaticHeader.h Topic.h
+set(MQTT_H ControlPacket.h ControlPacketDeserializer.h FixedHeader.h
+           SocketContext.h Topic.h
 )
 
 add_library(mqtt SHARED ${MQTT_CPP} ${MQTT_H})
