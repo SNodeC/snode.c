@@ -20,13 +20,14 @@
 #define IOT_MQTT_SERVER_BROKER_BROKER_H
 
 #include "iot/mqtt/server/broker/RetainTree.h"
+#include "iot/mqtt/server/broker/Session.h"
 #include "iot/mqtt/server/broker/SubscribtionTree.h"
 
 namespace iot::mqtt::server {
     class SocketContext;
     namespace broker {
         class Message;
-    }
+    } // namespace broker
 } // namespace iot::mqtt::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -81,7 +82,7 @@ namespace iot::mqtt::server::broker {
         iot::mqtt::server::broker::SubscribtionTree subscribtionTree;
         iot::mqtt::server::broker::RetainTree retainTree;
 
-        std::map<std::string, iot::mqtt::server::SocketContext*> sessions;
+        std::map<std::string, iot::mqtt::server::broker::Session> sessions;
 
         static std::shared_ptr<Broker> broker;
     };

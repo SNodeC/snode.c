@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Message.h"
+#include "iot/mqtt/server/broker/Message.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,6 +40,11 @@ namespace iot::mqtt::server::broker {
 
     uint8_t Message::getQoS() const {
         return qoS;
+    }
+
+    void Message::setQoS(uint8_t newQoS)
+    {
+        qoS = newQoS;
     }
 
 } // namespace iot::mqtt::server::broker

@@ -18,7 +18,6 @@
 
 #include "iot/mqtt/server/broker/Broker.h"
 
-#include "iot/mqtt/server/SocketContext.h"
 #include "iot/mqtt/server/broker/Message.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -79,32 +78,31 @@ namespace iot::mqtt::server::broker {
     }
 
     bool Broker::hasActiveSession(const std::string& clientId) {
-        return sessions.contains(clientId) && sessions[clientId] != nullptr;
+        return sessions.contains(clientId) && sessions[clientId].isActive();
     }
 
     bool Broker::hasRetainedSession(const std::string& clientId) {
-        return sessions.contains(clientId) && sessions[clientId] == nullptr;
+        return sessions.contains(clientId) && sessions[clientId].isRetained();
     }
 
     void Broker::newSession(const std::string& clientId, SocketContext* socketContext) {
-        sessions[clientId] = socketContext;
+        sessions[clientId] = iot::mqtt::server::broker::Session(socketContext);
     }
 
     void Broker::renewSession(const std::string& clientId, SocketContext* socketContext) {
-        sessions[clientId] = socketContext;
+        sessions[clientId].renew(socketContext);
         subscribtionTree.publishRetained(clientId);
-
-        // TODO: send queued messages
+        sessions[clientId].sendQueuedMessages();
     }
 
     void Broker::retainSession(const std::string& clientId, SocketContext* socketContext) {
-        if (sessions.contains(clientId) && sessions[clientId] == socketContext) {
-            sessions[clientId] = nullptr;
+        if (sessions.contains(clientId) && sessions[clientId].isActive(socketContext)) {
+            sessions[clientId].retain();
         }
     }
 
     void Broker::deleteSession(const std::string& clientId, SocketContext* socketContext) {
-        if (sessions.contains(clientId) && sessions[clientId] == socketContext) {
+        if (sessions.contains(clientId) && sessions[clientId].isActive(socketContext)) {
             subscribtionTree.unsubscribe(clientId);
             sessions.erase(clientId);
         }
@@ -117,12 +115,9 @@ namespace iot::mqtt::server::broker {
             LOG(TRACE) << "              Message = " << message.getMessage();
             LOG(TRACE) << "              QoS = " << static_cast<uint16_t>(std::min(clientQoSLevel, message.getQoS()));
 
-            sessions[clientId]->sendPublish(
-                message.getTopic(), message.getMessage(), dup, std::min(message.getQoS(), clientQoSLevel), retain);
-        } else if (hasRetainedSession(clientId) && message.getQoS() > 0) { // only for QoS = 1 and 2
-            // Queue Messages for offline clients
-        } else {
-            // Discard all queued messages and use current message as the only one queued message
+            sessions[clientId].sendPublish(message, dup, retain, clientQoSLevel);
+        } else if (hasRetainedSession(clientId)) {
+            sessions[clientId].queue(message, clientQoSLevel);
         }
     }
 
@@ -131,7 +126,7 @@ namespace iot::mqtt::server::broker {
     }
 
     iot::mqtt::server::SocketContext* Broker::getSocketContext(const std::string& clientId) {
-        return sessions[clientId];
+        return sessions[clientId].getSocketContext();
     }
 
 } // namespace iot::mqtt::server::broker
