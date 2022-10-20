@@ -31,7 +31,7 @@ namespace iot::mqtt::server::broker {
     class Message {
     public:
         Message() = default;
-        Message(const std::string& topic, const std::string& message, uint8_t qoS);
+        Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retained);
         Message(const Message&) = default;
 
         Message& operator=(const Message&) = default;
@@ -46,6 +46,7 @@ namespace iot::mqtt::server::broker {
         std::string topic;
         std::string message;
         uint8_t qoS = 0;
+        bool retained = false;
     };
 
 } // namespace iot::mqtt::server::broker

@@ -53,8 +53,6 @@ namespace iot::mqtt::server::broker {
         bool isActive() const;
         bool isOwnedBy(const iot::mqtt::server::SocketContext* socketContext) const;
 
-        iot::mqtt::server::SocketContext* getSocketContext() const;
-
     private:
         uint16_t getPacketIdentifier();
 

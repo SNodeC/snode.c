@@ -46,7 +46,7 @@ namespace iot::mqtt::server {
         releaseSession();
 
         if (willFlag) {
-            broker->publishReceived(willTopic, willMessage, willQoS, willRetain);
+            broker->publishReceived(willTopic, willMessage, false, willQoS, willRetain);
         }
     }
 
@@ -98,42 +98,41 @@ namespace iot::mqtt::server {
 
     void SocketContext::initSession() {
         if (broker->hasActiveSession(clientId)) {
-            LOG(DEBUG) << "Existing session found for ClientId = `" << clientId << "'";
-            LOG(DEBUG) << "  closing";
+            LOG(TRACE) << "Existing session found for ClientId = `" << clientId << "'";
+            LOG(TRACE) << "  closing";
 
-            close();
+            sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
+            shutdown(true);
         } else if (broker->hasRetainedSession(clientId)) {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_PRESENT);
 
-            LOG(DEBUG) << "Retained session found for ClientId = '" << clientId << "'";
+            LOG(TRACE) << "Retained session found for ClientId = '" << clientId << "'";
             if (cleanSession) {
-                LOG(DEBUG) << "  clean Session = " << this;
+                LOG(TRACE) << "  clean Session = " << this;
                 broker->unsubscribe(clientId);
                 broker->newSession(clientId, this);
             } else {
-                LOG(DEBUG) << "  renew Session = " << this;
+                LOG(TRACE) << "  renew Session = " << this;
                 broker->renewSession(clientId, this);
             }
         } else {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
-            LOG(DEBUG) << "No session found for ClientId = '" << clientId << "\'";
-            LOG(DEBUG) << "  new Session = " << this;
+            LOG(TRACE) << "No session found for ClientId = '" << clientId << "\'";
+            LOG(TRACE) << "  new Session = " << this;
 
             broker->newSession(clientId, this);
         }
     }
 
     void SocketContext::releaseSession() {
-        if (broker->hasActiveSession(clientId)) {
+        if (broker->isActiveSesscion(clientId, this)) {
             if (cleanSession) {
                 LOG(DEBUG) << "Delete session: " << clientId;
-
-                broker->deleteSession(clientId, this);
+                broker->deleteSession(clientId);
             } else {
                 LOG(DEBUG) << "Retain session: " << clientId;
-
-                broker->retainSession(clientId, this);
+                broker->retainSession(clientId);
             }
         }
     }
@@ -292,7 +291,7 @@ namespace iot::mqtt::server {
         } else {
             onPublish(publish);
 
-            broker->publishReceived(publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
+            broker->publishReceived(publish.getTopic(), publish.getMessage(), publish.getDup(), publish.getQoS(), publish.getRetain());
             if (publish.getRetain()) {
                 broker->retainMessage(publish.getTopic(), publish.getMessage(), publish.getQoS());
             }
@@ -360,7 +359,7 @@ namespace iot::mqtt::server {
 
             std::list<uint8_t> returnCodes;
             for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                uint8_t returnCode = broker->subscribeReceived(topic.getName(), clientId, topic.getQoS());
+                uint8_t returnCode = broker->subscribeReceived(clientId, topic.getName(), topic.getQoS());
                 returnCodes.push_back(returnCode);
             }
 
@@ -375,7 +374,7 @@ namespace iot::mqtt::server {
             onUnsubscribe(unsubscribe);
 
             for (const std::string& topic : unsubscribe.getTopics()) {
-                broker->unsubscribeReceived(topic, clientId);
+                broker->unsubscribeReceived(clientId, topic);
             }
 
             sendUnsuback(unsubscribe.getPacketIdentifier());
@@ -405,7 +404,7 @@ namespace iot::mqtt::server {
         send(iot::mqtt::packets::Connack(returnCode, flags));
 
         if (returnCode != MQTT_CONNACK_ACCEPT) {
-            shutdown();
+            shutdown(true);
         }
     }
 

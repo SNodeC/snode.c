@@ -74,11 +74,11 @@ namespace iot::mqtt::server::broker {
                                              bool leafFound) {
         if (leafFound) {
             if (!message.getMessage().empty()) {
-                LOG(TRACE) << "Found retained message: " << message.getTopic() << " - " << message.getMessage() << " - "
+                LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                            << static_cast<uint16_t>(message.getQoS());
-                LOG(TRACE) << "Distribute message ...";
+                LOG(TRACE) << "  distribute message ...";
                 broker->sendPublish(clientId, message, DUP_FALSE, RETAIN_TRUE, clientQoS);
-                LOG(TRACE) << "... completed!";
+                LOG(TRACE) << "  ... completed!";
             }
         } else {
             std::string::size_type slashPosition = remainingSubscribedTopicName.find('/');
@@ -103,11 +103,11 @@ namespace iot::mqtt::server::broker {
 
     void RetainTree::RetainTreeNode::publish(const std::string& clientId, uint8_t clientQoS) {
         if (!message.getTopic().empty()) {
-            LOG(TRACE) << "Found retained message: " << message.getTopic() << " - " << message.getMessage() << " - "
+            LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                        << static_cast<uint16_t>(message.getQoS());
-            LOG(TRACE) << "Distribute message ...";
+            LOG(TRACE) << "  distribute message ...";
             broker->sendPublish(clientId, message, DUP_FALSE, RETAIN_TRUE, clientQoS);
-            LOG(TRACE) << "... completed!";
+            LOG(TRACE) << "  ... completed!";
         }
 
         for (auto& [topicName, topicTree] : topicTreeNodes) {

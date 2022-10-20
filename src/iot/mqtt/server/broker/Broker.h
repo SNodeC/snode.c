@@ -59,25 +59,28 @@ namespace iot::mqtt::server::broker {
 
         static std::shared_ptr<Broker> instance(uint8_t subscribtionMaxQoS);
 
-        void publishRetainedMessage(const std::string& topic, const std::string& clientId, uint8_t clientQoS);
+        void publishRetainedMessage(const std::string& clientId, const std::string& topic, uint8_t clientQoS);
         void retainMessage(const std::string& topic, const std::string& message, uint8_t qoS);
         void unsubscribe(const std::string& clientId);
 
-        void publishReceived(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
+        void publishReceived(const std::string& topic, const std::string& message, uint8_t dup, uint8_t qoS, bool retain);
         void pubackReceived(uint16_t packetIdentifier, const std::string& clintId);
         void pubrecReceived(uint16_t packetIdentifier, const std::string& clintId);
         void pubrelReceived(uint16_t packetIdentifier, const std::string& clintId);
         void pubcompReceived(uint16_t packetIdentifier, const std::string& clintId);
-        uint8_t subscribeReceived(const std::string& topic, const std::string& clientId, uint8_t suscribedQoS);
-        void unsubscribeReceived(const std::string& topic, const std::string& clientId);
+        uint8_t subscribeReceived(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS);
+        void unsubscribeReceived(const std::string& clientId, const std::string& topic);
 
         bool hasSession(const std::string& clientId);
         bool hasActiveSession(const std::string& clientId);
         bool hasRetainedSession(const std::string& clientId);
+
+        bool isActiveSesscion(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
+
         void newSession(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
         void renewSession(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
-        void retainSession(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
-        void deleteSession(const std::string& clinetId, iot::mqtt::server::SocketContext* socketContext);
+        void retainSession(const std::string& clientId);
+        void deleteSession(const std::string& clinetId);
 
         void sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoS);
 

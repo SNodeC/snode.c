@@ -69,11 +69,11 @@ namespace iot::mqtt::server::broker {
     void Session::renew(iot::mqtt::server::SocketContext* socketContext) {
         this->socketContext = socketContext;
 
-        LOG(DEBUG) << "    send queued messages ...";
+        LOG(TRACE) << "    send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
             sendPublish(message, false, false, message.getQoS());
         }
-        LOG(DEBUG) << "    ... done";
+        LOG(TRACE) << "    ... done";
 
         messageQueue.clear();
     }
@@ -88,10 +88,6 @@ namespace iot::mqtt::server::broker {
 
     bool Session::isOwnedBy(const SocketContext* socketContext) const {
         return this->socketContext == socketContext;
-    }
-
-    iot::mqtt::server::SocketContext* Session::getSocketContext() const {
-        return socketContext;
     }
 
     uint16_t Session::getPacketIdentifier() {

@@ -62,7 +62,7 @@ namespace iot::mqtt::server::broker {
 
     void SubscribtionTree::SubscribtionTreeNode::publishRetained(const std::string& clientId) {
         if (subscribers.contains(clientId) && !subscribedTopicName.empty()) {
-            broker->publishRetainedMessage(subscribedTopicName, clientId, subscribers[clientId]);
+            broker->publishRetainedMessage(clientId, subscribedTopicName, subscribers[clientId]);
         }
 
         for (auto& [topicName, subscribtion] : subscribtions) {
