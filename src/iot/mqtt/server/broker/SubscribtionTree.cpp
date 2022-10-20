@@ -62,7 +62,7 @@ namespace iot::mqtt::server::broker {
 
     void SubscribtionTree::SubscribtionTreeNode::publishRetained(const std::string& clientId) {
         if (subscribers.contains(clientId) && !subscribedTopicName.empty()) {
-            broker->publishRetained(subscribedTopicName, clientId, subscribers[clientId]);
+            broker->publishRetainedMessage(subscribedTopicName, clientId, subscribers[clientId]);
         }
 
         for (auto& [topicName, subscribtion] : subscribtions) {
@@ -100,10 +100,10 @@ namespace iot::mqtt::server::broker {
         if (leafFound) {
             if (!subscribedTopicName.empty()) {
                 LOG(TRACE) << "Found match:";
-                LOG(TRACE) << "  Received topic = '" << message.getTopic() << "';";
-                LOG(TRACE) << "  Matched topic = '" << subscribedTopicName << "'";
+                LOG(TRACE) << "  Received topic: '" << message.getTopic() << "';";
+                LOG(TRACE) << "  Matched topic: '" << subscribedTopicName << "'";
 
-                LOG(TRACE) << "  Message:' " << message.getMessage() << "' ";
+                LOG(TRACE) << "  Message: '" << message.getMessage() << "' ";
                 LOG(TRACE) << "Distribute Publish ...";
 
                 for (auto& [clientId, clientQoS] : subscribers) {
@@ -116,8 +116,8 @@ namespace iot::mqtt::server::broker {
             auto nextHashNode = subscribtions.find("#");
             if (nextHashNode != subscribtions.end()) {
                 LOG(TRACE) << "Found parent match:";
-                LOG(TRACE) << "  Received topic = '" << message.getTopic() << "'";
-                LOG(TRACE) << "  Matched topic : '" << message.getTopic() << "/#'";
+                LOG(TRACE) << "  Received topic: '" << message.getTopic() << "'";
+                LOG(TRACE) << "  Matched topic: '" << message.getTopic() << "/#'";
                 LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
 

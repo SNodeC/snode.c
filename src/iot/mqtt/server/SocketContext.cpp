@@ -46,7 +46,7 @@ namespace iot::mqtt::server {
         releaseSession();
 
         if (willFlag) {
-            broker->publish(willTopic, willMessage, willQoS, willRetain);
+            broker->publishReceived(willTopic, willMessage, willQoS, willRetain);
         }
     }
 
@@ -292,9 +292,9 @@ namespace iot::mqtt::server {
         } else {
             onPublish(publish);
 
-            broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS());
+            broker->publishReceived(publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
             if (publish.getRetain()) {
-                broker->retain(publish.getTopic(), publish.getMessage(), publish.getQoS());
+                broker->retainMessage(publish.getTopic(), publish.getMessage(), publish.getQoS());
             }
 
             switch (publish.getQoS()) {
@@ -314,7 +314,7 @@ namespace iot::mqtt::server {
         } else {
             onPuback(puback);
 
-            broker->puback(puback.getPacketIdentifier(), clientId);
+            broker->pubackReceived(puback.getPacketIdentifier(), clientId);
         }
     }
 
@@ -324,7 +324,7 @@ namespace iot::mqtt::server {
         } else {
             onPubrec(pubrec);
 
-            broker->pubrec(pubrec.getPacketIdentifier(), clientId);
+            broker->pubrecReceived(pubrec.getPacketIdentifier(), clientId);
 
             sendPubrel(pubrec.getPacketIdentifier());
         }
@@ -336,7 +336,7 @@ namespace iot::mqtt::server {
         } else {
             onPubrel(pubrel);
 
-            broker->pubrel(pubrel.getPacketIdentifier(), clientId);
+            broker->pubrelReceived(pubrel.getPacketIdentifier(), clientId);
 
             sendPubcomp(pubrel.getPacketIdentifier());
         }
@@ -348,7 +348,7 @@ namespace iot::mqtt::server {
         } else {
             onPubcomp(pubcomp);
 
-            broker->pubcomp(pubcomp.getPacketIdentifier(), clientId);
+            broker->pubcompReceived(pubcomp.getPacketIdentifier(), clientId);
         }
     }
 
@@ -360,7 +360,7 @@ namespace iot::mqtt::server {
 
             std::list<uint8_t> returnCodes;
             for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                uint8_t returnCode = broker->subscribe(topic.getName(), clientId, topic.getQoS());
+                uint8_t returnCode = broker->subscribeReceived(topic.getName(), clientId, topic.getQoS());
                 returnCodes.push_back(returnCode);
             }
 
@@ -375,7 +375,7 @@ namespace iot::mqtt::server {
             onUnsubscribe(unsubscribe);
 
             for (const std::string& topic : unsubscribe.getTopics()) {
-                broker->unsubscribe(topic, clientId);
+                broker->unsubscribeReceived(topic, clientId);
             }
 
             sendUnsuback(unsubscribe.getPacketIdentifier());

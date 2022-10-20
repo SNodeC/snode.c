@@ -25,6 +25,8 @@
 #include "log/Logger.h"
 
 #include <algorithm>
+#include <fstream>
+#include <iomanip>
 #include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -39,6 +41,17 @@ namespace iot::mqtt::server::broker {
     }
 
     void Session::sendPublish(Message& message, bool dup, bool retain, uint8_t clientQoS) {
+        std::stringstream messageData;
+
+        const std::string& mes = message.getMessage();
+        std::for_each(mes.begin(), mes.end(), [&messageData](char ch) {
+            messageData << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(ch) << " ";
+        });
+
+        LOG(TRACE) << "                TopicName: " << message.getTopic();
+        LOG(TRACE) << "                Message: " << messageData.str();
+        LOG(TRACE) << "                QoS: " << static_cast<uint16_t>(std::min(clientQoS, message.getQoS()));
+
         if (isActive()) {
             socketContext->sendPublish(
                 getPacketIdentifier(), message.getTopic(), message.getMessage(), dup, std::min(message.getQoS(), clientQoS), retain);
@@ -56,11 +69,11 @@ namespace iot::mqtt::server::broker {
     void Session::renew(iot::mqtt::server::SocketContext* socketContext) {
         this->socketContext = socketContext;
 
-        LOG(DEBUG) << "        send queued messages ...";
+        LOG(DEBUG) << "    send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
             sendPublish(message, false, false, message.getQoS());
         }
-        LOG(DEBUG) << "        ... done";
+        LOG(DEBUG) << "    ... done";
 
         messageQueue.clear();
     }

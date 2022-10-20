@@ -202,8 +202,7 @@ namespace iot::mqtt {
                 ss << "                                            ";
             }
             ++i;
-            ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
-               << " "; // << " | ";
+            ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(ch) << " "; // << " | ";
         }
 
         LOG(DEBUG) << ss.str();
