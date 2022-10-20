@@ -46,7 +46,11 @@ namespace iot::mqtt::server {
         releaseSession();
 
         if (willFlag) {
-            broker->publishReceived(willTopic, willMessage, false, willQoS, willRetain);
+            broker->publishReceived(willTopic, willMessage, false, willQoS);
+
+            if (willRetain) {
+                broker->retainMessage(willTopic, willMessage, willQoS);
+            }
         }
     }
 
@@ -291,7 +295,7 @@ namespace iot::mqtt::server {
         } else {
             onPublish(publish);
 
-            broker->publishReceived(publish.getTopic(), publish.getMessage(), publish.getDup(), publish.getQoS(), publish.getRetain());
+            broker->publishReceived(publish.getTopic(), publish.getMessage(), publish.getDup(), publish.getQoS());
             if (publish.getRetain()) {
                 broker->retainMessage(publish.getTopic(), publish.getMessage(), publish.getQoS());
             }

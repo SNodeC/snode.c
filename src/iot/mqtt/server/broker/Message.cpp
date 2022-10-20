@@ -24,11 +24,11 @@
 
 namespace iot::mqtt::server::broker {
 
-    Message::Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retained)
+    Message::Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retain)
         : topic(topic)
         , message(message)
         , qoS(qoS)
-        , retained(retained) {
+        , retain(retain) {
     }
 
     const std::string& Message::getTopic() const {
@@ -45,6 +45,10 @@ namespace iot::mqtt::server::broker {
 
     void Message::setQoS(uint8_t qoS) {
         this->qoS = qoS;
+    }
+
+    bool Message::getRetain() const {
+        return retain;
     }
 
 } // namespace iot::mqtt::server::broker

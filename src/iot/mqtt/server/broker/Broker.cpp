@@ -51,16 +51,15 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::retainMessage(const std::string& topic, const std::string& message, uint8_t qoS) {
-        retainTree.retain(Message(topic, message, qoS, true));
+        retainTree.retain(Message(topic, message, qoS, MQTT_RETAIN_TRUE));
     }
 
     void Broker::unsubscribe(const std::string& clientId) {
         subscribtionTree.unsubscribe(clientId);
     }
 
-    void
-    Broker::publishReceived(const std::string& topic, const std::string& message, [[maybe_unused]] uint8_t dup, uint8_t qoS, bool retain) {
-        subscribtionTree.publish(Message(topic, message, qoS, retain), retain);
+    void Broker::publishReceived(const std::string& topic, const std::string& message, [[maybe_unused]] uint8_t dup, uint8_t qoS) {
+        subscribtionTree.publish(Message(topic, message, qoS, MQTT_RETAIN_FALSE));
     }
 
     void Broker::pubackReceived([[maybe_unused]] uint16_t packetIdentifier, [[maybe_unused]] const std::string& clintId) {
@@ -117,6 +116,7 @@ namespace iot::mqtt::server::broker {
     void Broker::renewSession(const std::string& clientId, SocketContext* socketContext) {
         sessions[clientId].renew(socketContext);
         subscribtionTree.publishRetained(clientId);
+        sessions[clientId].publishQueued();
     }
 
     void Broker::retainSession(const std::string& clientId) {
@@ -128,10 +128,10 @@ namespace iot::mqtt::server::broker {
         sessions.erase(clientId);
     }
 
-    void Broker::sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoS) {
+    void Broker::sendPublish(const std::string& clientId, Message& message, bool dup, uint8_t clientQoS) {
         LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
 
-        sessions[clientId].sendPublish(message, dup, retain, clientQoS);
+        sessions[clientId].sendPublish(message, dup, message.getRetain(), clientQoS);
     }
 
 } // namespace iot::mqtt::server::broker

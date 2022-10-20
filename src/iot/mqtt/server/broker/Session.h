@@ -42,9 +42,9 @@ namespace iot::mqtt::server::broker {
 
         Session& operator=(const Session&) = default;
 
-        ~Session();
-
         void sendPublish(iot::mqtt::server::broker::Message& message, bool dup, bool retain, uint8_t clientQoS);
+
+        void publishQueued();
 
         void renew(iot::mqtt::server::SocketContext* socketContext);
 

@@ -41,10 +41,10 @@ namespace iot::mqtt::server {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define DUP_FALSE false
-#define DUP_TRUE true
-#define RETAIN_FALSE false
-#define RETAIN_TRUE true
+#define MQTT_DUP_FALSE false
+#define MQTT_DUP_TRUE true
+#define MQTT_RETAIN_FALSE false
+#define MQTT_RETAIN_TRUE true
 
 #define SUBSCRIBTION_MAX_QOS 0x02
 
@@ -63,7 +63,7 @@ namespace iot::mqtt::server::broker {
         void retainMessage(const std::string& topic, const std::string& message, uint8_t qoS);
         void unsubscribe(const std::string& clientId);
 
-        void publishReceived(const std::string& topic, const std::string& message, uint8_t dup, uint8_t qoS, bool retain);
+        void publishReceived(const std::string& topic, const std::string& message, uint8_t dup, uint8_t qoS);
         void pubackReceived(uint16_t packetIdentifier, const std::string& clintId);
         void pubrecReceived(uint16_t packetIdentifier, const std::string& clintId);
         void pubrelReceived(uint16_t packetIdentifier, const std::string& clintId);
@@ -82,7 +82,7 @@ namespace iot::mqtt::server::broker {
         void retainSession(const std::string& clientId);
         void deleteSession(const std::string& clinetId);
 
-        void sendPublish(const std::string& clientId, Message& message, bool dup, bool retain, uint8_t clientQoS);
+        void sendPublish(const std::string& clientId, Message& message, bool dup, uint8_t clientQoS);
 
     private:
         uint8_t subscribtionMaxQoS;

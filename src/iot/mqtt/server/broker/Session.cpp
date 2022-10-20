@@ -37,9 +37,6 @@ namespace iot::mqtt::server::broker {
         : socketContext(socketContext) {
     }
 
-    Session::~Session() {
-    }
-
     void Session::sendPublish(Message& message, bool dup, bool retain, uint8_t clientQoS) {
         std::stringstream messageData;
 
@@ -66,9 +63,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    void Session::renew(iot::mqtt::server::SocketContext* socketContext) {
-        this->socketContext = socketContext;
-
+    void Session::publishQueued() {
         LOG(TRACE) << "    send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
             sendPublish(message, false, false, message.getQoS());
@@ -76,6 +71,10 @@ namespace iot::mqtt::server::broker {
         LOG(TRACE) << "    ... done";
 
         messageQueue.clear();
+    }
+
+    void Session::renew(iot::mqtt::server::SocketContext* socketContext) {
+        this->socketContext = socketContext;
     }
 
     void Session::retain() {

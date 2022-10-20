@@ -44,8 +44,8 @@ namespace iot::mqtt::server::broker {
         return head.subscribe(fullTopicName, clientId, clientQoS, fullTopicName, false);
     }
 
-    void SubscribtionTree::publish(Message&& message, bool retained) {
-        head.publish(message, retained, message.getTopic(), false);
+    void SubscribtionTree::publish(Message&& message) {
+        head.publish(message, message.getTopic(), false);
     }
 
     bool SubscribtionTree::unsubscribe(std::string fullTopicName, const std::string& clientId) {
@@ -96,7 +96,7 @@ namespace iot::mqtt::server::broker {
         return success;
     }
 
-    void SubscribtionTree::SubscribtionTreeNode::publish(Message& message, bool retained, std::string remainingTopicName, bool leafFound) {
+    void SubscribtionTree::SubscribtionTreeNode::publish(Message& message, std::string remainingTopicName, bool leafFound) {
         if (leafFound) {
             if (!subscribedTopicName.empty()) {
                 LOG(TRACE) << "Found match:";
@@ -107,7 +107,7 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Distribute Publish ...";
 
                 for (auto& [clientId, clientQoS] : subscribers) {
-                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoS);
+                    broker->sendPublish(clientId, message, MQTT_DUP_FALSE, clientQoS);
                 }
 
                 LOG(TRACE) << "... completed!";
@@ -122,7 +122,7 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Distribute Publish ...";
 
                 for (auto& [clientId, clientQoS] : nextHashNode->second.subscribers) {
-                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoS);
+                    broker->sendPublish(clientId, message, MQTT_DUP_FALSE, clientQoS);
                 }
 
                 LOG(TRACE) << "... completed!";
@@ -137,12 +137,12 @@ namespace iot::mqtt::server::broker {
 
             auto foundNode = subscribtions.find(topicName);
             if (foundNode != subscribtions.end()) {
-                foundNode->second.publish(message, retained, remainingTopicName, leafFound);
+                foundNode->second.publish(message, remainingTopicName, leafFound);
             }
 
             foundNode = subscribtions.find("+");
             if (foundNode != subscribtions.end()) {
-                foundNode->second.publish(message, retained, remainingTopicName, leafFound);
+                foundNode->second.publish(message, remainingTopicName, leafFound);
             }
 
             foundNode = subscribtions.find("#");
@@ -151,7 +151,7 @@ namespace iot::mqtt::server::broker {
                            << message.getTopic() << "', Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
                 for (auto& [clientId, clientQoS] : foundNode->second.subscribers) {
-                    broker->sendPublish(clientId, message, DUP_FALSE, retained, clientQoS);
+                    broker->sendPublish(clientId, message, MQTT_DUP_FALSE, clientQoS);
                 }
                 LOG(TRACE) << "... completed!";
             }
