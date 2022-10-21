@@ -24,23 +24,17 @@
 
 namespace iot::mqtt::packets {
 
-    Puback::Puback(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBACK)
-        , packetIdentifier(packetIdentifier) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // no Payload
+    Puback::Puback()
+        : iot::mqtt::ControlPacket(MQTT_PUBACK) {
     }
 
-    Puback::Puback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
+    Puback::Puback(const uint16_t packetIdentifier)
+        : iot::mqtt::ControlPacket(MQTT_PUBACK) {
+        this->packetIdentifier = packetIdentifier;
+    }
 
-        // no Payload
-
-        error = isError();
+    std::vector<char> Puback::serializeVP() const {
+        return packetIdentifier.serialize();
     }
 
     uint16_t Puback::getPacketIdentifier() const {

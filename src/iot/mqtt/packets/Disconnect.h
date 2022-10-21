@@ -19,24 +19,20 @@
 #ifndef IOT_MQTT_PACKETS_DISCONNECT_H
 #define IOT_MQTT_PACKETS_DISCONNECT_H
 
-#include "iot/mqtt/ControlPacket.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_DISCONNECT 0x0E
-
 namespace iot::mqtt::packets {
 
-    class Disconnect : public mqtt::ControlPacket {
+    class Disconnect : public iot::mqtt::ControlPacket {
     public:
         Disconnect();
-        explicit Disconnect(mqtt::ControlPacketFactory& controlPacketFactory);
+
+    private:
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::packets

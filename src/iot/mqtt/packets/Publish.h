@@ -19,47 +19,48 @@
 #ifndef IOT_MQTT_PACKETS_PUBLISH_H
 #define IOT_MQTT_PACKETS_PUBLISH_H
 
-#include "iot/mqtt/ControlPacket.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h"   // IWYU pragma: export
+#include "iot/mqtt/types/String.h"    // IWYU pragma: export
+#include "iot/mqtt/types/StringRaw.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"    // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // IWYU pragma: export
-#include <string>  // IWYU pragma: export
+#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_PUBLISH 0x03
 
 namespace iot::mqtt::packets {
 
     class Publish : public iot::mqtt::ControlPacket {
     public:
+        Publish();
         Publish(uint16_t packetIdentifier,
                 const std::string& topic,
                 const std::string& message,
                 bool dup = false,
-                uint8_t qoSLevel = 0,
+                uint8_t qoS = 0,
                 bool retain = false);
-        explicit Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory);
 
+    private:
+        std::vector<char> serializeVP() const override;
+
+    public:
         bool getDup() const;
-        uint8_t getQoSLevel() const;
+        uint8_t getQoS() const;
         uint16_t getPacketIdentifier() const;
-        const std::string& getTopic() const;
-        const std::string& getMessage() const;
+        std::string getTopic() const;
+        std::string getMessage() const;
 
         bool getRetain() const;
 
-    private:
-        uint16_t packetIdentifier = 0;
-        std::string topic;
-        std::string message;
+    protected:
+        iot::mqtt::types::UInt16 packetIdentifier;
+        iot::mqtt::types::String topic;
+        iot::mqtt::types::StringRaw message;
+
         bool dup = false;
-        uint8_t qoSLevel = 0;
+        uint8_t qoS = 0;
         bool retain = false;
     };
 

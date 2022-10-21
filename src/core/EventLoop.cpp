@@ -131,6 +131,9 @@ namespace core {
         struct sigaction oldAlarmAct {};
         sigaction(SIGALRM, &sact, &oldAlarmAct);
 
+        struct sigaction oldHupAct {};
+        sigaction(SIGHUP, &sact, &oldHupAct);
+
         if (!running) {
             running = true;
             stopped = false;
@@ -160,6 +163,7 @@ namespace core {
         sigaction(SIGINT, &oldIntAct, nullptr);
         sigaction(SIGTERM, &oldTermAct, nullptr);
         sigaction(SIGALRM, &oldAlarmAct, nullptr);
+        sigaction(SIGHUP, &oldHupAct, nullptr);
 
         free();
 

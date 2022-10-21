@@ -18,212 +18,186 @@
 
 #include "iot/mqtt/SocketContext.h"
 
-#include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/types/Binary.h"
+#include "iot/mqtt/ControlPacketDeserializer.h"
+#include "iot/mqtt/packets/Puback.h"
+#include "iot/mqtt/packets/Pubcomp.h"
+#include "iot/mqtt/packets/Publish.h"
+#include "iot/mqtt/packets/Pubrec.h"
+#include "iot/mqtt/packets/Pubrel.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 
 #include <cstdint>
+#include <fstream>
 #include <iomanip>
-#include <iostream>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt {
 
     SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
-        : core::socket::SocketContext(socketConnection)
-        , controlPacketFactory(this) {
+        : core::socket::SocketContext(socketConnection) {
     }
 
-    void SocketContext::sendConnect(const std::string& clientId) {
-        LOG(TRACE) << "Send CONNECT";
-        LOG(TRACE) << "============";
-
-        send(mqtt::packets::Connect(clientId));
-    }
-
-    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
-        LOG(TRACE) << "Send CONNACK";
-        LOG(TRACE) << "============";
-
-        send(mqtt::packets::Connack(returnCode, flags));
-    }
-
-    void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain) {
-        LOG(TRACE) << "Send PUBLISH";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt::packets::Publish(qoSLevel == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoSLevel, retain));
-    }
-
-    void SocketContext::sendPuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBACK";
-        LOG(TRACE) << "===========";
-
-        send(iot::mqtt::packets::Puback(packetIdentifier));
-    }
-
-    void SocketContext::sendPubrec(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBREC";
-        LOG(TRACE) << "===========";
-
-        send(iot::mqtt::packets::Pubrec(packetIdentifier));
-    }
-
-    void SocketContext::sendPubrel(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBREL";
-        LOG(TRACE) << "===========";
-
-        send(iot::mqtt::packets::Pubrel(packetIdentifier));
-    }
-
-    void SocketContext::sendPubcomp(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBCOMP";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt::packets::Pubcomp(packetIdentifier));
-    }
-
-    void SocketContext::sendSubscribe(std::list<iot::mqtt::Topic>& topics) {
-        LOG(TRACE) << "Send SUBSCRIBE";
-        LOG(TRACE) << "==============";
-
-        send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
-    }
-
-    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
-        LOG(TRACE) << "Send SUBACK";
-        LOG(TRACE) << "===========";
-
-        send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
-    }
-
-    void SocketContext::sendUnsubscribe(std::list<std::string>& topics) {
-        LOG(TRACE) << "Send UNSUBSCRIBE";
-        LOG(TRACE) << "================";
-
-        send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
-    }
-
-    void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send UNSUBACK";
-        LOG(TRACE) << "=============";
-
-        send(iot::mqtt::packets::Unsuback(packetIdentifier));
-    }
-
-    void SocketContext::sendPingreq() {
-        LOG(TRACE) << "Send Pingreq";
-        LOG(TRACE) << "============";
-
-        send(iot::mqtt::packets::Pingreq());
-    }
-
-    void SocketContext::sendPingresp() {
-        LOG(TRACE) << "Send Pingresp";
-        LOG(TRACE) << "=============";
-
-        send(iot::mqtt::packets::Pingresp());
-    }
-
-    void SocketContext::sendDisconnect() {
-        LOG(TRACE) << "Send Disconnect";
-        LOG(TRACE) << "===============";
-
-        send(iot::mqtt::packets::Disconnect());
+    SocketContext::~SocketContext() {
+        if (controlPacketDeserializer != nullptr) {
+            delete controlPacketDeserializer;
+            controlPacketDeserializer = nullptr;
+        }
     }
 
     std::size_t SocketContext::onReceiveFromPeer() {
-        std::size_t consumed = controlPacketFactory.construct();
+        std::size_t consumed = 0;
 
-        if (controlPacketFactory.isError()) {
-            LOG(ERROR) << "SocketContext: Error during ControlPacket construction";
-            close();
-        } else if (controlPacketFactory.isComplete()) {
-            LOG(TRACE) << "======================================================";
-            LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(controlPacketFactory.getPacketType());
-            LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(controlPacketFactory.getPacketFlags());
-            LOG(TRACE) << "RemainingLength: " << static_cast<uint16_t>(controlPacketFactory.getRemainingLength());
+        switch (state) {
+            case 0:
+                consumed = fixedHeader.deserialize(this);
 
-            printData(controlPacketFactory.getPacket().getValue());
-
-            switch (controlPacketFactory.getPacketType()) {
-                case MQTT_CONNECT:
-                    onConnect(iot::mqtt::packets::Connect(controlPacketFactory));
+                if (!fixedHeader.isComplete()) {
                     break;
-                case MQTT_CONNACK:
-                    onConnack(iot::mqtt::packets::Connack(controlPacketFactory));
-                    break;
-                case MQTT_PUBLISH:
-                    onPublish(iot::mqtt::packets::Publish(controlPacketFactory));
-                    break;
-                case MQTT_PUBACK:
-                    onPuback(iot::mqtt::packets::Puback(controlPacketFactory));
-                    break;
-                case MQTT_PUBREC:
-                    onPubrec(iot::mqtt::packets::Pubrec(controlPacketFactory));
-                    break;
-                case MQTT_PUBREL:
-                    onPubrel(iot::mqtt::packets::Pubrel(controlPacketFactory));
-                    break;
-                case MQTT_PUBCOMP:
-                    onPubcomp(iot::mqtt::packets::Pubcomp(controlPacketFactory));
-                    break;
-                case MQTT_SUBSCRIBE:
-                    onSubscribe(iot::mqtt::packets::Subscribe(controlPacketFactory));
-                    break;
-                case MQTT_SUBACK:
-                    onSuback(iot::mqtt::packets::Suback(controlPacketFactory));
-                    break;
-                case MQTT_UNSUBSCRIBE:
-                    onUnsubscribe(iot::mqtt::packets::Unsubscribe(controlPacketFactory));
-                    break;
-                case MQTT_UNSUBACK:
-                    onUnsuback(iot::mqtt::packets::Unsuback(controlPacketFactory));
-                    break;
-                case MQTT_PINGREQ:
-                    onPingreq(iot::mqtt::packets::Pingreq(controlPacketFactory));
-                    break;
-                case MQTT_PINGRESP:
-                    onPingresp(iot::mqtt::packets::Pingresp(controlPacketFactory));
-                    break;
-                case MQTT_DISCONNECT:
-                    onDisconnect(iot::mqtt::packets::Disconnect(controlPacketFactory));
-                    break;
-                default:
+                } else if (fixedHeader.isError()) {
                     close();
                     break;
-            }
+                }
 
-            controlPacketFactory.reset();
+                LOG(TRACE) << "======================================================";
+                LOG(TRACE) << "Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                           << static_cast<uint16_t>(fixedHeader.getPacketType());
+                LOG(TRACE) << "              PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                           << static_cast<uint16_t>(fixedHeader.getFlags()) << std::dec;
+                LOG(TRACE) << "              RemainingLength: " << fixedHeader.getRemainingLength();
+
+                controlPacketDeserializer = onReceiveFromPeer(fixedHeader);
+
+                fixedHeader.reset();
+
+                if (controlPacketDeserializer == nullptr) {
+                    LOG(TRACE) << "Received packet-type is unavailable ... closing connection";
+
+                    shutdown(true);
+                    break;
+                } else if (controlPacketDeserializer->isError()) {
+                    LOG(TRACE) << "Fixed header has error ... closing connection";
+
+                    delete controlPacketDeserializer;
+                    controlPacketDeserializer = nullptr;
+
+                    shutdown(true);
+                    break;
+                }
+
+                state++;
+                [[fallthrough]];
+            case 1:
+                consumed += controlPacketDeserializer->deserialize(this);
+
+                if (controlPacketDeserializer->isComplete()) {
+                    //                    LOG(TRACE) << "Control packet ready ... propagating event";
+                    propagateEvent(controlPacketDeserializer);
+
+                    delete controlPacketDeserializer;
+                    controlPacketDeserializer = nullptr;
+
+                    state = 0;
+                } else if (controlPacketDeserializer->isError()) {
+                    LOG(TRACE) << "Control packet has error ... closing connection";
+                    shutdown(true);
+
+                    delete controlPacketDeserializer;
+                    controlPacketDeserializer = nullptr;
+
+                    state = 0;
+                }
+
+                break;
         }
 
         return consumed;
     }
 
     void SocketContext::send(ControlPacket&& controlPacket) const {
-        send(controlPacket.getPacket());
+        send(controlPacket.serialize());
     }
 
     void SocketContext::send(ControlPacket& controlPacket) const {
-        send(controlPacket.getPacket());
+        send(controlPacket.serialize());
     }
 
     void SocketContext::send(std::vector<char>&& data) const {
         printData(data);
+
         sendToPeer(data.data(), data.size());
     }
 
-    void SocketContext::printData(const std::vector<char>& data) const {
+    void SocketContext::sendPublish(uint16_t packetIdentifier,
+                                    const std::string& topic,
+                                    const std::string& message,
+                                    bool dup,
+                                    uint8_t qoS,
+                                    bool retain) { // Server & Client
+        LOG(DEBUG) << "Send PUBLISH";
+        LOG(DEBUG) << "============";
+
+        send(iot::mqtt::packets::Publish(qoS == 0 ? 0 : packetIdentifier, topic, message, dup, qoS, retain));
+    }
+
+    void SocketContext::sendPuback(uint16_t packetIdentifier) { // Server & Client
+        LOG(DEBUG) << "Send PUBACK";
+        LOG(DEBUG) << "===========";
+
+        send(iot::mqtt::packets::Puback(packetIdentifier));
+    }
+
+    void SocketContext::sendPubrec(uint16_t packetIdentifier) { // Server & Client
+        LOG(DEBUG) << "Send PUBREC";
+        LOG(DEBUG) << "===========";
+
+        send(iot::mqtt::packets::Pubrec(packetIdentifier));
+    }
+
+    void SocketContext::sendPubrel(uint16_t packetIdentifier) { // Server & Client
+        LOG(DEBUG) << "Send PUBREL";
+        LOG(DEBUG) << "===========";
+
+        send(iot::mqtt::packets::Pubrel(packetIdentifier));
+    }
+
+    void SocketContext::sendPubcomp(uint16_t packetIdentifier) { // Server & Client
+        LOG(DEBUG) << "Send PUBCOMP";
+        LOG(DEBUG) << "============";
+
+        send(iot::mqtt::packets::Pubcomp(packetIdentifier));
+    }
+
+#define UUID_LEN 36
+
+    std::string SocketContext::getRandomClientId() {
+        char uuid[UUID_LEN];
+
+        std::ifstream file("/proc/sys/kernel/random/uuid");
+        file.getline(uuid, UUID_LEN);
+        file.close();
+
+        return std::string(uuid);
+    }
+
+    void SocketContext::printStandardHeader(const iot::mqtt::ControlPacket& packet) {
+        printData(packet.serialize());
+
+        LOG(DEBUG) << "Type: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getType());
+        LOG(DEBUG) << "Flags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getFlags());
+        LOG(DEBUG) << "RemainingLength: " << std::dec << dynamic_cast<const ControlPacketDeserializer&>(packet).getRemainingLength();
+    }
+
+    void SocketContext::printData(const std::vector<char>& data) {
         std::stringstream ss;
 
         ss << "Data: ";
         unsigned long i = 0;
         for (char ch : data) {
-            if (i != 0 && i % 8 == 0 && i + 1 != data.size()) {
+            if (i != 0 && i % 8 == 0 && i != data.size()) {
                 ss << std::endl;
                 ss << "                                            ";
             }
@@ -232,7 +206,7 @@ namespace iot::mqtt {
                << " "; // << " | ";
         }
 
-        LOG(TRACE) << ss.str();
+        LOG(DEBUG) << ss.str();
     }
 
 } // namespace iot::mqtt

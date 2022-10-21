@@ -20,32 +20,26 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK)
-        , packetIdentifier(packetIdentifier)
-        , returnCodes(std::move(returnCodes)) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // Payload
-        putUint8ListRaw(returnCodes);
+    Suback::Suback()
+        : iot::mqtt::ControlPacket(MQTT_SUBACK) {
     }
 
-    Suback::Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
+    Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
+        : iot::mqtt::ControlPacket(MQTT_SUBACK) {
+        this->packetIdentifier = packetIdentifier;
+        this->returnCodes = returnCodes;
+    }
 
-        // Payload
-        returnCodes = getUint8ListRaw();
+    std::vector<char> Suback::serializeVP() const {
+        std::vector<char> packet(packetIdentifier.serialize());
 
-        error = isError();
+        packet.insert(packet.end(), returnCodes.begin(), returnCodes.end());
+
+        return packet;
     }
 
     uint16_t Suback::getPacketIdentifier() const {

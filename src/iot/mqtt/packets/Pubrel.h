@@ -19,33 +19,30 @@
 #ifndef IOT_MQTT_PACKETS_PUBREL_H
 #define IOT_MQTT_PACKETS_PUBREL_H
 
-#include "iot/mqtt/ControlPacket.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_PUBREL 0x06
 
 namespace iot::mqtt::packets {
 
-    class Pubrel : public iot::mqtt::ControlPacket {
+    class Pubrel : public ControlPacket {
     public:
-        explicit Pubrel(uint16_t packetIdentifier);
-        explicit Pubrel(iot::mqtt::ControlPacketFactory& controlPacketFactory);
-
-        uint16_t getPacketIdentifier() const;
+        Pubrel();
+        explicit Pubrel(const uint16_t packetIdentifier);
 
     private:
-        uint16_t packetIdentifier;
+        std::vector<char> serializeVP() const override;
+
+    public:
+        uint16_t getPacketIdentifier() const;
+
+    protected:
+        iot::mqtt::types::UInt16 packetIdentifier;
     };
 
 } // namespace iot::mqtt::packets
 
-#endif // IOT_MQTT_PACKETS_PUBREL_H
+#endif // IOT_MQTT_PACKETS_PUBREC_H

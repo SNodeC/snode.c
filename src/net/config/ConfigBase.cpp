@@ -32,7 +32,6 @@ namespace net::config {
         if (!name.empty()) {
             baseSc = utils::Config::add_subcommand(name, name + " configuration");
             baseSc->fallthrough();
-            baseSc->required();
             baseSc->group("Instances");
         }
     }
@@ -51,6 +50,10 @@ namespace net::config {
 
     CLI::Option* ConfigBase::add_flag(const std::string& name, const std::string& description) {
         return baseSc->add_flag(name, description);
+    }
+
+    void ConfigBase::required(bool req) {
+        baseSc->required(req);
     }
 
     void ConfigBase::parse(bool forceError) const {

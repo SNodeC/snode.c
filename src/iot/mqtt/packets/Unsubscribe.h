@@ -19,35 +19,34 @@
 #ifndef IOT_MQTT_PACKETS_UNSUBSCRIBE_H
 #define IOT_MQTT_PACKETS_UNSUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacket.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/types/String.h"  // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // IWYU pragma: export
-#include <list>    // IWYU pragma: export
-#include <string>  // IWYU pragma: export
+#include <list> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_UNSUBSCRIBE 0x0A
 
 namespace iot::mqtt::packets {
 
     class Unsubscribe : public iot::mqtt::ControlPacket {
     public:
-        Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics);
-        explicit Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
-
-        uint16_t getPacketIdentifier() const;
-
-        const std::list<std::string>& getTopics() const;
+        Unsubscribe();
+        Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
 
     private:
-        uint16_t packetIdentifier;
+        std::vector<char> serializeVP() const override;
+
+    public:
+        uint16_t getPacketIdentifier() const;
+        const std::list<std::string>& getTopics() const;
+
+    protected:
+        iot::mqtt::types::UInt16 packetIdentifier;
+        iot::mqtt::types::String topic;
+
         std::list<std::string> topics;
     };
 

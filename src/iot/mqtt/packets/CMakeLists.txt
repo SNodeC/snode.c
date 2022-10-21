@@ -38,11 +38,20 @@ set(MQTT_PACKETS_H
 add_library(mqtt-packets STATIC ${MQTT_PACKETS_CPP} ${MQTT_PACKETS_H})
 add_library(snodec::mqtt-packets ALIAS mqtt-packets)
 
+target_link_libraries(mqtt-packets PUBLIC snodec::mqtt-types)
+
 set_property(TARGET mqtt-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(
-    mqtt-packets
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
+    mqtt-packets PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION include/snode.c/iot/mqtt/packets
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+    PATTERN "cmake" EXCLUDE
+    PATTERN "deserializer" EXCLUDE
 )

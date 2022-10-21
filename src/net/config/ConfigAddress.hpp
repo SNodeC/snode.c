@@ -61,6 +61,7 @@ namespace net::config {
         address = localAddress;
         initialized = true;
         needsRequired = false;
+        ConfigBase::required(false);
     }
 
     template <typename SocketAddressT>
@@ -71,12 +72,14 @@ namespace net::config {
     template <typename SocketAddress>
     void ConfigAddress<SocketAddress>::require(CLI::Option* opt) {
         addressSc->required();
+        ConfigBase::required();
         opt->required();
     }
 
     template <typename SocketAddress>
     void ConfigAddress<SocketAddress>::require(CLI::Option* opt1, CLI::Option* opt2) {
         addressSc->required();
+        ConfigBase::required();
         opt1->required();
         opt2->required();
     }

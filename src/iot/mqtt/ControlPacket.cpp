@@ -18,133 +18,79 @@
 
 #include "iot/mqtt/ControlPacket.h"
 
-#include "iot/mqtt/ControlPacketFactory.h"
+#include "iot/mqtt/FixedHeader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt {
 
-    ControlPacket::ControlPacket(uint8_t type, uint8_t reserved)
-        : type(type)
-        , reserved(reserved) {
+    ControlPacket::ControlPacket(uint8_t type)
+        : type(type) {
+        switch (type) {
+            case MQTT_CONNECT:
+                flags = MQTT_CONNECT_FLAGS;
+                break;
+            case MQTT_CONNACK:
+                flags = MQTT_CONNACK_FLAGS;
+                break;
+            case MQTT_PUBLISH:
+                // no value for MQTT_PUBLISH_FLAGS
+                break;
+            case MQTT_PUBACK:
+                flags = MQTT_PUBACK_FLAGS;
+                break;
+            case MQTT_PUBREC:
+                flags = MQTT_PUBREC_FLAGS;
+                break;
+            case MQTT_PUBREL:
+                flags = MQTT_PUBREL_FLAGS;
+                break;
+            case MQTT_PUBCOMP:
+                flags = MQTT_PUBCOMP_FLAGS;
+                break;
+            case MQTT_SUBSCRIBE:
+                flags = MQTT_SUBSCRIBE_FLAGS;
+                break;
+            case MQTT_SUBACK:
+                flags = MQTT_SUBACK_FLAGS;
+                break;
+            case MQTT_UNSUBSCRIBE:
+                flags = MQTT_UNSUBSCRIBE_FLAGS;
+                break;
+            case MQTT_UNSUBACK:
+                flags = MQTT_UNSUBACK_FLAGS;
+                break;
+            case MQTT_PINGREQ:
+                flags = MQTT_PINGREQ_FLAGS;
+                break;
+            case MQTT_PINGRESP:
+                flags = MQTT_PINGRESP_FLAGS;
+                break;
+            case MQTT_DISCONNECT:
+                flags = MQTT_DISCONNECT_FLAGS;
+                break;
+        }
     }
 
-    ControlPacket::ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : type(controlPacketFactory.getPacketType())
-        , reserved(controlPacketFactory.getPacketFlags())
-        , data(std::move(controlPacketFactory.getPacket())) {
+    std::vector<char> ControlPacket::serialize() const {
+        std::vector<char> variablHeaderPayload = serializeVP();
+
+        iot::mqtt::FixedHeader fixedHeader(type, flags, static_cast<uint32_t>(variablHeaderPayload.size()));
+
+        std::vector<char> packet = fixedHeader.serialize();
+        packet.insert(packet.end(), variablHeaderPayload.begin(), variablHeaderPayload.end());
+
+        return packet;
     }
 
     uint8_t ControlPacket::getType() const {
         return type;
     }
 
-    uint8_t ControlPacket::getReserved() const {
-        return reserved;
-    }
-
-    uint64_t ControlPacket::getRemainingLength() const {
-        return data.getLength();
-    }
-
-    std::vector<char> ControlPacket::getPacket() {
-        std::vector<char> packet;
-
-        packet.push_back(static_cast<char>((type << 0x04) | (reserved & 0x0F)));
-
-        uint64_t remainingLength = data.getLength();
-        do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingLength % 0x80);
-            remainingLength /= 0x80;
-            if (remainingLength > 0) {
-                encodedByte |= 0x80;
-            }
-            packet.push_back(static_cast<char>(encodedByte));
-        } while (remainingLength > 0);
-
-        packet.insert(packet.end(), data.getValue().begin(), data.getValue().end());
-
-        return packet;
-    }
-
-    bool ControlPacket::isError() const {
-        return error;
-    }
-
-    std::vector<char>& ControlPacket::getValue() {
-        return data.getValue();
-    }
-
-    uint8_t ControlPacket::getInt8() {
-        return data.getInt8();
-    }
-
-    uint16_t ControlPacket::getInt16() {
-        return data.getInt16();
-    }
-
-    uint32_t ControlPacket::getInt32() {
-        return data.getInt32();
-    }
-
-    uint64_t ControlPacket::getInt64() {
-        return data.getInt64();
-    }
-
-    uint32_t ControlPacket::getIntV() {
-        return data.getIntV();
-    }
-
-    std::string ControlPacket::getString() {
-        return data.getString();
-    }
-
-    std::string ControlPacket::getStringRaw() {
-        return data.getStringRaw();
-    }
-
-    std::list<uint8_t> ControlPacket::getUint8ListRaw() {
-        return data.getUint8ListRaw();
-    }
-
-    void ControlPacket::putInt8(uint8_t value) {
-        data.putInt8(value);
-    }
-
-    void ControlPacket::putInt16(uint16_t value) {
-        data.putInt16(value);
-    }
-
-    void ControlPacket::putInt32(uint32_t value) {
-        data.putInt32(value);
-    }
-
-    void ControlPacket::putInt64(uint64_t value) {
-        data.putInt64(value);
-    }
-
-    void ControlPacket::putIntV(uint32_t value) {
-        data.putIntV(value);
-    }
-
-    void ControlPacket::putString(const std::string& value) {
-        data.putString(value);
-    }
-
-    void ControlPacket::putStringRaw(const std::string& value) {
-        data.putStringRaw(value);
-    }
-
-    void ControlPacket::putUint8ListRaw(const std::list<uint8_t>& value) {
-        data.putUint8ListRaw(value);
-    }
-
-    bool ControlPacket::isError() {
-        return data.isError();
+    uint8_t ControlPacket::getFlags() const {
+        return flags;
     }
 
 } // namespace iot::mqtt

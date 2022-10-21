@@ -19,34 +19,36 @@
 #ifndef IOT_MQTT_PACKETS_SUBSCRIBE_H
 #define IOT_MQTT_PACKETS_SUBSCRIBE_H
 
-#include "iot/mqtt/ControlPacket.h"
-#include "iot/mqtt/Topic.h" // IWYU pragma: export
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/Topic.h"         // IWYU pragma: export
+#include "iot/mqtt/types/String.h"  // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // IWYU pragma: export
-#include <list>    // IWYU pragma: export
+#include <list> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_SUBSCRIBE 0x08
-
 namespace iot::mqtt::packets {
 
-    class Subscribe : public ControlPacket {
+    class Subscribe : public iot::mqtt::ControlPacket {
     public:
-        Subscribe(uint16_t packetIdentifier, const std::list<iot::mqtt::Topic>& topics);
-        explicit Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory);
-
-        uint16_t getPacketIdentifier() const;
-        const std::list<iot::mqtt::Topic>& getTopics() const;
+        Subscribe();
+        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics);
 
     private:
-        uint16_t packetIdentifier;
+        std::vector<char> serializeVP() const override;
+
+    public:
+        uint16_t getPacketIdentifier() const;
+        std::list<iot::mqtt::Topic>& getTopics();
+
+    protected:
+        iot::mqtt::types::UInt16 packetIdentifier;
+        iot::mqtt::types::String topic;
+        iot::mqtt::types::UInt8 qoS;
 
         std::list<iot::mqtt::Topic> topics;
     };

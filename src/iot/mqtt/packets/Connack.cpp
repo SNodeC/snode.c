@@ -24,34 +24,35 @@
 
 namespace iot::mqtt::packets {
 
-    Connack::Connack(uint8_t reason, uint8_t flags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK)
-        , flags(flags)
-        , reason(reason) {
-        // V-Header
-        putInt8(this->flags);
-        putInt8(this->reason);
-
-        // no Payload
+    Connack::Connack()
+        : iot::mqtt::ControlPacket(MQTT_CONNACK) {
     }
 
-    Connack::Connack(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        flags = getInt8();
-        reason = getInt8();
-
-        // no Payload
-
-        error = isError();
+    Connack::Connack(uint8_t returncode, uint8_t acknowledgeFlags)
+        : iot::mqtt::ControlPacket(MQTT_CONNACK) {
+        this->returnCode = returncode;
+        this->acknowledgeFlags = acknowledgeFlags;
     }
 
-    uint8_t Connack::getFlags() const {
-        return flags;
+    std::vector<char> Connack::serializeVP() const {
+        std::vector<char> packet(acknowledgeFlags.serialize());
+
+        std::vector<char> tmpVector = returnCode.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        return packet;
     }
 
-    uint8_t Connack::getReason() const {
-        return reason;
+    uint8_t Connack::getAcknowledgeFlags() const {
+        return acknowledgeFlags;
+    }
+
+    uint8_t Connack::getReturnCode() const {
+        return returnCode;
+    }
+
+    bool Connack::getSessionPresent() const {
+        return sessionPresent;
     }
 
 } // namespace iot::mqtt::packets

@@ -24,23 +24,17 @@
 
 namespace iot::mqtt::packets {
 
-    Pubcomp::Pubcomp(uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBCOMP)
-        , packetIdentifier(packetIdentifier) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // no Payload
+    Pubcomp::Pubcomp()
+        : iot::mqtt::ControlPacket(MQTT_PUBCOMP) {
     }
 
-    Pubcomp::Pubcomp(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
+    Pubcomp::Pubcomp(const uint16_t packetIdentifier)
+        : iot::mqtt::ControlPacket(MQTT_PUBCOMP) {
+        this->packetIdentifier = packetIdentifier;
+    }
 
-        // no Payload
-
-        error = isError();
+    std::vector<char> Pubcomp::serializeVP() const {
+        return packetIdentifier.serialize();
     }
 
     uint16_t Pubcomp::getPacketIdentifier() const {

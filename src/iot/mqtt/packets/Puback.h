@@ -19,31 +19,28 @@
 #ifndef IOT_MQTT_PACKETS_PUBASK_H
 #define IOT_MQTT_PACKETS_PUBASK_H
 
-#include "iot/mqtt/ControlPacket.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // IWYU pragma: export
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_PUBACK 0x04
 
 namespace iot::mqtt::packets {
 
     class Puback : public iot::mqtt::ControlPacket {
     public:
-        explicit Puback(uint16_t packetIdentifier);
-        explicit Puback(iot::mqtt::ControlPacketFactory& controlPacketFactory);
-
-        uint16_t getPacketIdentifier() const;
+        Puback();
+        explicit Puback(const uint16_t packetIdentifier);
 
     private:
-        uint16_t packetIdentifier;
+        std::vector<char> serializeVP() const override;
+
+    public:
+        uint16_t getPacketIdentifier() const;
+
+    protected:
+        iot::mqtt::types::UInt16 packetIdentifier;
     };
 
 } // namespace iot::mqtt::packets

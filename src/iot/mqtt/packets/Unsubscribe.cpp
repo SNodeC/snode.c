@@ -20,41 +20,32 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics)
-        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
-        , packetIdentifier(packetIdentifier)
-        , topics(std::move(topics)) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // Payload
-        for (std::string& topic : this->topics) {
-            putString(topic);
-        }
+    Unsubscribe::Unsubscribe()
+        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE) {
     }
 
-    Unsubscribe::Unsubscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
+    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
+        : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE) {
+        this->packetIdentifier = packetIdentifier;
+        this->topics = topics;
+    }
 
-        // Payload
-        std::string name = "";
-        do {
-            name = getString();
+    std::vector<char> Unsubscribe::serializeVP() const {
+        std::vector<char> packet(packetIdentifier.serialize());
 
-            if (!name.empty()) {
-                topics.push_back(name);
-            }
-        } while (!name.empty());
+        for (const std::string& topic : topics) {
+            iot::mqtt::types::String topicString;
+            topicString = topic;
 
-        error = topics.empty();
+            std::vector<char> tmpPacket = topicString.serialize();
+            packet.insert(packet.end(), tmpPacket.begin(), tmpPacket.end());
+        }
+
+        return packet;
     }
 
     uint16_t Unsubscribe::getPacketIdentifier() const {

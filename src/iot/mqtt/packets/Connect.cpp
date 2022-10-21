@@ -24,77 +24,79 @@
 
 namespace iot::mqtt::packets {
 
-    Connect::Connect(std::string clientId, std::string protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
-        : iot::mqtt::ControlPacket(MQTT_CONNECT)
-        , protocol(protocol)
-        , version(version)
-        , flags(flags)
-        , keepAlive(keepAlive)
-        , clientId(clientId) {
-        // V-Header
-        putString(this->protocol);
-        putInt8(this->version);
-        putInt8(this->flags);
-        putInt16(this->keepAlive);
-
-        // Payload
-        putString(this->clientId);
+    Connect::Connect()
+        : iot::mqtt::ControlPacket(MQTT_CONNECT) {
     }
 
-    Connect::Connect(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        protocol = getString();
-        version = getInt8();
-        flags = getInt8();
-        keepAlive = getInt16();
-
-        usernameFlag = (flags & 0x80) != 0;
-        passwordFlag = (flags & 0x40) != 0;
-        willRetain = (flags & 0x20) != 0;
-        willQoS = (flags & 0x18) >> 3;
-        willFlag = (flags & 0x04) != 0;
-        cleanSession = (flags & 0x02) != 0;
-        reserved = (flags & 0x01) != 0;
-
-        // Payload
-        if (!isError()) {
-            clientId = getString();
-        } else {
-            error = true;
-        }
-
-        if (!error && willFlag) {
-            willTopic = getString();
-            willMessage = getString();
-        }
-
-        if (!error && usernameFlag) {
-            username = getString();
-        }
-
-        if (!error && passwordFlag) {
-            password = getString();
-        }
+    Connect::Connect(uint8_t connectFlags,
+                     uint16_t keepAlive,
+                     const std::string& clientId,
+                     const std::string& willTopic,
+                     const std::string& willMessage,
+                     const std::string& username,
+                     const std::string& password)
+        : iot::mqtt::ControlPacket(MQTT_CONNECT) {
+        this->protocol = "MQTT";
+        this->level = MQTT_VERSION_3_1_1;
+        this->connectFlags = connectFlags;
+        this->keepAlive = keepAlive;
+        this->clientId = clientId;
+        this->willTopic = willTopic;
+        this->willMessage = willMessage;
+        this->username = username;
+        this->password = password;
     }
 
+    std::vector<char> Connect::serializeVP() const {
+        std::vector<char> packet(protocol.serialize());
+
+        std::vector<char> tmpVector = level.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = connectFlags.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = keepAlive.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        tmpVector = clientId.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+        if (willFlag) {
+            tmpVector = willTopic.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+
+            tmpVector = willMessage.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+        if (usernameFlag) {
+            tmpVector = username.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+        if (passwordFlag) {
+            tmpVector = password.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+
+        return packet;
+    }
     std::string Connect::getProtocol() const {
         return protocol;
     }
 
-    uint8_t Connect::getVersion() const {
-        return version;
+    uint8_t Connect::getLevel() const {
+        return level;
     }
 
-    uint8_t Connect::getFlags() const {
-        return flags;
+    uint8_t Connect::getConnectFlags() const {
+        return connectFlags;
     }
 
     uint16_t Connect::getKeepAlive() const {
         return keepAlive;
     }
 
-    const std::string& Connect::getClientId() const {
+    std::string Connect::getClientId() const {
         return clientId;
     }
 
@@ -122,19 +124,19 @@ namespace iot::mqtt::packets {
         return cleanSession;
     }
 
-    const std::string& Connect::getWillTopic() const {
+    std::string Connect::getWillTopic() const {
         return willTopic;
     }
 
-    const std::string& Connect::getWillMessage() const {
+    std::string Connect::getWillMessage() const {
         return willMessage;
     }
 
-    const std::string& Connect::getUsername() const {
+    std::string Connect::getUsername() const {
         return username;
     }
 
-    const std::string& Connect::getPassword() const {
+    std::string Connect::getPassword() const {
         return password;
     }
 

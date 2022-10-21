@@ -20,35 +20,20 @@
 #define IOT_MQTT_SOCKETCONTEXT_H
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
-#include "iot/mqtt/ControlPacketFactory.h"
-#include "iot/mqtt/Topic.h"               // IWYU pragma: export
-#include "iot/mqtt/packets/Connack.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Connect.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Disconnect.h"  // IWYU pragma: export
-#include "iot/mqtt/packets/Pingreq.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Pingresp.h"    // IWYU pragma: export
-#include "iot/mqtt/packets/Puback.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Pubcomp.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Publish.h"     // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrec.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Pubrel.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Suback.h"      // IWYU pragma: export
-#include "iot/mqtt/packets/Subscribe.h"   // IWYU pragma: export
-#include "iot/mqtt/packets/Unsuback.h"    // IWYU pragma: export
-#include "iot/mqtt/packets/Unsubscribe.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacket.h"
+#include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
 }
 
 namespace iot::mqtt {
-    class ControlPacket;
+    class ControlPacketDeserializer;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <list>
 #include <string>
 #include <vector>
 
@@ -60,57 +45,42 @@ namespace iot::mqtt {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
-        void sendConnect(const std::string& clientId);
-        void sendConnack(uint8_t returnCode, uint8_t flags);
-        void sendPublish(const std::string& topic, const std::string& message, bool dup = false, uint8_t qoSLevel = 0, bool retain = false);
+        virtual ~SocketContext() override;
+
+    private:
+        std::size_t onReceiveFromPeer() final;
+        virtual iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::FixedHeader& staticHeader) = 0;
+        virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
+
+    public:
+        void sendPublish(uint16_t packetIdentifier,
+                         const std::string& topic,
+                         const std::string& message,
+                         bool dup = false,
+                         uint8_t qoS = 0,
+                         bool retain = false);
         void sendPuback(uint16_t packetIdentifier);
         void sendPubrec(uint16_t packetIdentifier);
         void sendPubrel(uint16_t packetIdentifier);
         void sendPubcomp(uint16_t packetIdentifier);
-        void sendSubscribe(std::list<Topic>& topics);
-        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes);
-        void sendUnsubscribe(std::list<std::string>& topics);
-        void sendUnsuback(uint16_t packetIdentifier);
-        void sendPingreq();
-        void sendPingresp();
-        void sendDisconnect();
 
-    private:
-        virtual void onConnect(const iot::mqtt::packets::Connect& connect) = 0;
-        virtual void onConnack(const iot::mqtt::packets::Connack& connack) = 0;
-        virtual void onPublish(const iot::mqtt::packets::Publish& publish) = 0;
-        virtual void onPuback(const iot::mqtt::packets::Puback& puback) = 0;
-        virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec) = 0;
-        virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel) = 0;
-        virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) = 0;
-        virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe) = 0;
-        virtual void onSuback(const iot::mqtt::packets::Suback& suback) = 0;
-        virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe) = 0;
-        virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) = 0;
-        virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq) = 0;
-        virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp) = 0;
-        virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect) = 0;
-
-        virtual std::size_t onReceiveFromPeer() final;
-
+    protected:
         void send(iot::mqtt::ControlPacket&& controlPacket) const;
         void send(iot::mqtt::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
-        void printData(const std::vector<char>& data) const;
 
-        uint16_t getPacketIdentifier() {
-            ++_packetIdentifier;
+        std::string getRandomClientId();
 
-            if (_packetIdentifier == 0) {
-                ++_packetIdentifier;
-            }
+    protected:
+        void printStandardHeader(const iot::mqtt::ControlPacket& packet);
 
-            return _packetIdentifier;
-        }
+    private:
+        static void printData(const std::vector<char>& data);
 
-        iot::mqtt::ControlPacketFactory controlPacketFactory;
+        iot::mqtt::FixedHeader fixedHeader;
+        iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
 
-        uint16_t _packetIdentifier = 0;
+        int state = 0;
     };
 
 } // namespace iot::mqtt

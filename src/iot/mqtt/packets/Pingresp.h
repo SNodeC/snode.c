@@ -19,24 +19,20 @@
 #ifndef IOT_MQTT_PACKETS_PINGRESP_H
 #define IOT_MQTT_PACKETS_PINGRESP_H
 
-#include "iot/mqtt/ControlPacket.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_PINGRESP 0x0D
 
 namespace iot::mqtt::packets {
 
     class Pingresp : public iot::mqtt::ControlPacket {
     public:
         Pingresp();
-        explicit Pingresp(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+
+    private:
+        std::vector<char> serializeVP() const override;
     };
 
 } // namespace iot::mqtt::packets

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
@@ -19,72 +19,63 @@
 #ifndef IOT_MQTT_CONTROLPACKET_H
 #define IOT_MQTT_CONTROLPACKET_H
 
-#include "iot/mqtt/types/Binary.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-} // namespace iot::mqtt
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-#include <list>
-#include <string>
-#include <vector>
+#include <cstdint> // IWYU pragma: export
+#include <vector>  // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
+
+#define MQTT_CONNECT 0x01
+#define MQTT_CONNACK 0x02
+#define MQTT_PUBLISH 0x03
+#define MQTT_PUBACK 0x04
+#define MQTT_PUBREC 0x05
+#define MQTT_PUBREL 0x06
+#define MQTT_PUBCOMP 0x07
+#define MQTT_SUBSCRIBE 0x08
+#define MQTT_SUBACK 0x09
+#define MQTT_UNSUBSCRIBE 0x0A
+#define MQTT_UNSUBACK 0x0B
+#define MQTT_PINGREQ 0x0C
+#define MQTT_PINGRESP 0x0D
+#define MQTT_DISCONNECT 0x0E
+
+#define MQTT_CONNECT_FLAGS 0x00
+#define MQTT_CONNACK_FLAGS 0x00
+// no value for MQTT_PUBLISH_FLAGS
+#define MQTT_PUBACK_FLAGS 0x00
+#define MQTT_PUBREC_FLAGS 0x00
+#define MQTT_PUBREL_FLAGS 0x02
+#define MQTT_PUBCOMP_FLAGS 0x00
+#define MQTT_SUBSCRIBE_FLAGS 0x02
+#define MQTT_SUBACK_FLAGS 0x00
+#define MQTT_UNSUBSCRIBE_FLAGS 0x02
+#define MQTT_UNSUBACK_FLAGS 0x00
+#define MQTT_PINGREQ_FLAGS 0x00
+#define MQTT_PINGRESP_FLAGS 0x00
+#define MQTT_DISCONNECT_FLAGS 0x00
 
 namespace iot::mqtt {
 
     class ControlPacket {
     public:
-        explicit ControlPacket(uint8_t type, uint8_t reserved = 0);
-        explicit ControlPacket(iot::mqtt::ControlPacketFactory& controlPacketFactory);
+        ControlPacket(uint8_t type);
 
-        ControlPacket(const ControlPacket&) = delete;
-        ControlPacket(ControlPacket&&) = delete;
-
-        ControlPacket& operator=(const ControlPacket&) = delete;
-        ControlPacket& operator=(ControlPacket&&) = delete;
-
-        uint8_t getType() const;
-        uint8_t getReserved() const;
-        uint64_t getRemainingLength() const;
-        std::vector<char> getPacket();
-
-        bool isError() const;
-
-    protected:
-        std::vector<char>& getValue();
-
-        uint8_t getInt8();
-        uint16_t getInt16();
-        uint32_t getInt32();
-        uint64_t getInt64();
-        uint32_t getIntV();
-        std::string getString();
-        std::string getStringRaw();
-        std::list<uint8_t> getUint8ListRaw();
-
-        void putInt8(uint8_t value);
-        void putInt16(uint16_t value);
-        void putInt32(uint32_t value);
-        void putInt64(uint64_t value);
-        void putIntV(uint32_t value);
-        void putString(const std::string& value);
-        void putStringRaw(const std::string& value);
-        void putUint8ListRaw(const std::list<uint8_t>& value);
-
-        bool isError();
+        virtual ~ControlPacket() = default;
 
     private:
-        uint8_t type;
-        uint8_t reserved;
+        virtual std::vector<char> serializeVP() const = 0;
 
-        iot::mqtt::types::Binary data;
+    public:
+        std::vector<char> serialize() const;
+
+        uint8_t getType() const;
+        uint8_t getFlags() const;
 
     protected:
-        bool error = false;
+        uint8_t type = 0;
+        uint8_t flags = 0;
     };
 
 } // namespace iot::mqtt

@@ -18,55 +18,46 @@
 
 #include "iot/mqtt/packets/Subscribe.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "iot/mqtt/types/String.h"
+#include "iot/mqtt/types/UInt16.h"
 
-#include <string>
-#include <utility>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Subscribe::Subscribe(uint16_t packetIdentifier, const std::list<Topic>& topics)
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, 0x02)
-        , packetIdentifier(packetIdentifier)
-        , topics(std::move(topics)) {
-        // V-Header
-        putInt16(this->packetIdentifier);
-
-        // Payload
-        for (const iot::mqtt::Topic& topic : this->topics) {
-            putString(topic.getName());
-            putInt8(topic.getRequestedQoS());
-        }
+    Subscribe::Subscribe()
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE) {
     }
 
-    Subscribe::Subscribe(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // V-Header
-        packetIdentifier = getInt16();
+    Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE) {
+        this->packetIdentifier = packetIdentifier;
+        this->topics = topics;
+    }
 
-        // Payload
-        std::string name = "";
-        do {
-            name = getString();
-            uint8_t requestedQoS = getInt8();
+    std::vector<char> Subscribe::serializeVP() const {
+        std::vector<char> packet(packetIdentifier.serialize());
 
-            if (!name.empty()) {
-                topics.push_back(iot::mqtt::Topic(name, requestedQoS));
-            }
-        } while (!name.empty());
+        for (const Topic& topic : topics) {
+            iot::mqtt::types::String topicString;
+            topicString = topic.getName();
 
-        if (!isError()) {
-            error = topics.empty();
+            std::vector<char> tmpPacket = topicString.serialize();
+            packet.insert(packet.end(), tmpPacket.begin(), tmpPacket.end());
+
+            packet.push_back(static_cast<char>(topic.getQoS()));
         }
+
+        return packet;
     }
 
     uint16_t Subscribe::getPacketIdentifier() const {
         return packetIdentifier;
     }
 
-    const std::list<iot::mqtt::Topic>& Subscribe::getTopics() const {
+    std::list<Topic>& Subscribe::getTopics() {
         return topics;
     }
 

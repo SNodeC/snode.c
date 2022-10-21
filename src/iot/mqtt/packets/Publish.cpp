@@ -18,70 +18,59 @@
 
 #include "iot/mqtt/packets/Publish.h"
 
-#include "iot/mqtt/ControlPacketFactory.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::packets {
 
-    Publish::Publish(
-        uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoSLevel, bool retain)
-        : iot::mqtt::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoSLevel << 1) & 0x06) | (retain ? 0x01 : 0x00))
-        , packetIdentifier(packetIdentifier)
-        , topic(topic)
-        , message(message)
-        , dup(dup)
-        , qoSLevel(qoSLevel)
-        , retain(retain) {
-        // V-Header
-        putString(this->topic);
-
-        if (this->qoSLevel > 0) {
-            putInt16(this->packetIdentifier);
-        }
-
-        // Payload
-        putStringRaw(this->message);
+    Publish::Publish()
+        : iot::mqtt::ControlPacket(MQTT_PUBLISH) {
     }
 
-    Publish::Publish(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        dup = (controlPacketFactory.getPacketFlags() & 0x08) != 0;
-        qoSLevel = static_cast<uint8_t>((controlPacketFactory.getPacketFlags() & 0x06) >> 1);
-        retain = (controlPacketFactory.getPacketFlags() & 0x01) != 0;
+    Publish::Publish(
+        uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain)
+        : iot::mqtt::ControlPacket(MQTT_PUBLISH) {
+        this->flags = (dup ? 0x04 : 0x00) | ((qoS << 1) & 0x06) | (retain ? 0x01 : 0x00);
+        this->packetIdentifier = packetIdentifier;
+        this->topic = topic;
+        this->message = message;
+        this->dup = dup;
+        this->qoS = qoS;
+        this->retain = retain;
+    }
 
-        // V-Header
-        topic = getString();
+    std::vector<char> Publish::serializeVP() const {
+        std::vector<char> packet(topic.serialize());
 
-        if (qoSLevel != 0) {
-            packetIdentifier = getInt16();
+        if (qoS > 0) {
+            std::vector<char> tmpVector = packetIdentifier.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
 
-        // Payload
-        message = getStringRaw();
+        std::vector<char> tmpVector = message.serialize();
+        packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
-        error = isError();
+        return packet;
     }
 
     bool Publish::getDup() const {
         return dup;
     }
 
-    uint8_t Publish::getQoSLevel() const {
-        return qoSLevel;
+    uint8_t Publish::getQoS() const {
+        return qoS;
     }
 
     uint16_t Publish::getPacketIdentifier() const {
         return packetIdentifier;
     }
 
-    const std::string& Publish::getTopic() const {
+    std::string Publish::getTopic() const {
         return topic;
     }
 
-    const std::string& Publish::getMessage() const {
+    std::string Publish::getMessage() const {
         return message;
     }
 

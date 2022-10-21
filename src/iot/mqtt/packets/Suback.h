@@ -19,35 +19,36 @@
 #ifndef IOT_MQTT_PACKETS_SUBACK_H
 #define IOT_MQTT_PACKETS_SUBACK_H
 
-#include "iot/mqtt/ControlPacket.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // IWYU pragma: export
-#include <list>    // IWYU pragma: export
+#include <list> // IWYU pragma: export
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_SUBACK 0x09
 
 namespace iot::mqtt::packets {
 
     class Suback : public iot::mqtt::ControlPacket {
     public:
+        Suback();
         Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
-        explicit Suback(iot::mqtt::ControlPacketFactory& controlPacketFactory);
-
-        uint16_t getPacketIdentifier() const;
-
-        const std::list<uint8_t>& getReturnCodes() const;
 
     private:
-        uint16_t packetIdentifier;
+        std::vector<char> serializeVP() const override;
+
+    public:
+        uint16_t getPacketIdentifier() const;
+        const std::list<uint8_t>& getReturnCodes() const;
+
+    protected:
+        iot::mqtt::types::UInt16 packetIdentifier;
+        iot::mqtt::types::UInt8 returnCode;
         std::list<uint8_t> returnCodes;
+
+        int state = 0;
     };
 
 } // namespace iot::mqtt::packets

@@ -70,8 +70,7 @@ namespace core {
 
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
-        class TIMEOUT {
-        public:
+        struct TIMEOUT {
             static const utils::Timeval DEFAULT;
             static const utils::Timeval DISABLE;
             static const utils::Timeval MAX;

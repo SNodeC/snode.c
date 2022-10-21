@@ -19,19 +19,12 @@
 #ifndef IOT_MQTT_PACKETS_CONNACK_H
 #define IOT_MQTT_PACKETS_CONNACK_H
 
-#include "iot/mqtt/ControlPacket.h"
-
-namespace iot::mqtt {
-    class ControlPacketFactory;
-}
+#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // IWYU pragma: export
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#define MQTT_CONNACK 0x02
 
 #define MQTT_CONNACK_ACCEPT 0
 #define MQTT_CONNACK_UNACEPTABLEVERSION 1
@@ -41,22 +34,31 @@ namespace iot::mqtt {
 #define MQTT_CONNACK_NOTAUTHORIZED 5
 
 #define MQTT_SESSION_NEW 0x00
-#define MQTT_SESSION_PRESENT 0x01
+#define MQTT_SESSION_PRESENT 0x01 // IWYU pragma: export
 
 namespace iot::mqtt::packets {
 
     class Connack : public iot::mqtt::ControlPacket {
     public:
-        explicit Connack(uint8_t reason, uint8_t flags);
-        explicit Connack(mqtt::ControlPacketFactory& controlPacketFactory);
-
-        uint8_t getFlags() const;
-
-        uint8_t getReason() const;
+        Connack();
+        Connack(uint8_t returncode, uint8_t acknowledgeFlags);
 
     private:
-        uint8_t flags = 0;
-        uint8_t reason = 0;
+        std::vector<char> serializeVP() const override;
+
+    public:
+        uint8_t getAcknowledgeFlags() const;
+        uint8_t getReturnCode() const;
+
+        bool getSessionPresent() const;
+
+    protected:
+        iot::mqtt::types::UInt8 acknowledgeFlags;
+        iot::mqtt::types::UInt8 returnCode;
+
+        bool sessionPresent = false;
+
+        int state = 0;
     };
 
 } // namespace iot::mqtt::packets

@@ -26,16 +26,10 @@ namespace iot::mqtt::packets {
 
     Pingreq::Pingreq()
         : iot::mqtt::ControlPacket(MQTT_PINGREQ) {
-        // no V-Header
-        // no Payload
     }
 
-    Pingreq::Pingreq(iot::mqtt::ControlPacketFactory& controlPacketFactory)
-        : iot::mqtt::ControlPacket(controlPacketFactory) {
-        // no V-Header
-        // no Payload
-
-        error = isError();
+    std::vector<char> Pingreq::serializeVP() const {
+        return std::vector<char>();
     }
 
 } // namespace iot::mqtt::packets

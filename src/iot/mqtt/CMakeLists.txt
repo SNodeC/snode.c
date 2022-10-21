@@ -1,26 +1,29 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_subdirectory(types)
 add_subdirectory(packets)
+add_subdirectory(types)
+
+set(CMAKE_INSTALL_RPATH
+    ${CMAKE_INSTALL_RPATH} "${CMAKE_INSTALL_PREFIX}/lib/snode.c/iot/mqtt"
+    CACHE INTERNAL ""
+)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(MQTT_CPP ControlPacket.cpp ControlPacketFactory.cpp SocketContext.cpp
-             Topic.cpp
+set(MQTT_CPP ControlPacket.cpp ControlPacketDeserializer.cpp FixedHeader.cpp
+             SocketContext.cpp Topic.cpp
 )
-set(MQTT_H ControlPacket.h ControlPacketFactory.h SocketContext.h Topic.h)
+
+set(MQTT_H ControlPacket.h ControlPacketDeserializer.h FixedHeader.h
+           SocketContext.h Topic.h
+)
 
 add_library(mqtt SHARED ${MQTT_CPP} ${MQTT_H})
 add_library(snodec::mqtt ALIAS mqtt)
 
-target_link_libraries(mqtt PRIVATE snodec::mqtt-types snodec::mqtt-packets)
-
 target_include_directories(
-    mqtt
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    mqtt PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(mqtt PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt)
@@ -38,6 +41,10 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "server" EXCLUDE
+    PATTERN "client" EXCLUDE
+    PATTERN "types" EXCLUDE
+    PATTERN "packets" EXCLUDE
 )
 
 install(
@@ -46,3 +53,6 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
+
+add_subdirectory(server)
+add_subdirectory(client)
