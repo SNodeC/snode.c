@@ -32,7 +32,6 @@ namespace net::config {
         if (!name.empty()) {
             baseSc = utils::Config::add_subcommand(name, name + " configuration");
             baseSc->fallthrough();
-            baseSc->required();
             baseSc->group("Instances");
         }
     }
