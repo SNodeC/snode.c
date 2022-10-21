@@ -29,6 +29,7 @@ namespace iot::mqtt::server {
 
 #include <cstdint>
 #include <deque>
+#include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -37,7 +38,7 @@ namespace iot::mqtt::server::broker {
     class Session {
     public:
         Session() = default;
-        explicit Session(iot::mqtt::server::SocketContext* socketContext);
+        Session(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
         Session(const Session&) = default;
 
         Session& operator=(const Session&) = default;
@@ -56,7 +57,9 @@ namespace iot::mqtt::server::broker {
     private:
         uint16_t getPacketIdentifier();
 
+        std::string clientId;
         iot::mqtt::server::SocketContext* socketContext = nullptr;
+
         std::deque<Message> messageQueue;
 
         uint16_t packetIdentifier = 0;

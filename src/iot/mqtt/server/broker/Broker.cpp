@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <algorithm>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -110,7 +108,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::newSession(const std::string& clientId, SocketContext* socketContext) {
-        sessions[clientId] = iot::mqtt::server::broker::Session(socketContext);
+        sessions[clientId] = iot::mqtt::server::broker::Session(clientId, socketContext);
     }
 
     void Broker::renewSession(const std::string& clientId, SocketContext* socketContext) {
@@ -129,8 +127,6 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::sendPublish(const std::string& clientId, Message& message, bool dup, uint8_t clientQoS) {
-        LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
-
         sessions[clientId].sendPublish(message, dup, message.getRetain(), clientQoS);
     }
 

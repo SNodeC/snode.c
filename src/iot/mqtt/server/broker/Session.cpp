@@ -33,13 +33,15 @@
 
 namespace iot::mqtt::server::broker {
 
-    Session::Session(SocketContext* socketContext)
-        : socketContext(socketContext) {
+    Session::Session(const std::string& clientId, SocketContext* socketContext)
+        : clientId(clientId)
+        , socketContext(socketContext) {
     }
 
     void Session::sendPublish(Message& message, bool dup, bool retain, uint8_t clientQoS) {
-        std::stringstream messageData;
+        LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
 
+        std::stringstream messageData;
         const std::string& mes = message.getMessage();
         std::for_each(mes.begin(), mes.end(), [&messageData](char ch) {
             messageData << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(ch) << " ";
