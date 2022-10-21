@@ -14,7 +14,7 @@ add_library(mqtt-fast SHARED ${MQTT_FAST_CPP} ${MQTT_FAST_H})
 add_library(snodec::mqtt-fast ALIAS mqtt-fast)
 
 target_link_libraries(
-    mqtt PRIVATE snodec::mqtt-fast-types snodec::mqtt-fast-packets
+    mqtt-fast PRIVATE snodec::mqtt-fast-types snodec::mqtt-fast-packets
 )
 
 target_include_directories(
