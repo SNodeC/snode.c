@@ -65,12 +65,15 @@ target_link_libraries(
 )
 install(TARGETS lowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(testregex testregex.cpp)
-target_link_libraries(
-    testregex PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
-                      snodec::net-in-stream-tls snodec::db-mariadb
-)
-install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+if(MARIADB_FOUND)
+    add_executable(testregex testregex.cpp)
+    target_link_libraries(
+        testregex
+        PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
+                snodec::net-in-stream-tls snodec::db-mariadb
+    )
+    install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif(MARIADB_FOUND)
 
 add_executable(warema-jalousien warema-jalousien.cpp)
 target_link_libraries(
@@ -118,7 +121,9 @@ macro(subdirlist result curdir)
     )
     set(dirlist "")
     foreach(child ${children})
-        if(IS_DIRECTORY ${curdir}/${child} AND EXISTS ${curdir}/${child}/CMakeLists.txt)
+        if(IS_DIRECTORY ${curdir}/${child}
+           AND EXISTS ${curdir}/${child}/CMakeLists.txt
+        )
             list(APPEND dirlist ${child})
         endif()
     endforeach()
