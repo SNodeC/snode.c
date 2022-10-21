@@ -25,11 +25,6 @@ target_include_directories(
 
 target_link_libraries(core-socket-stream INTERFACE core-socket net-un-dgram)
 
-set_target_properties(
-    core-socket-stream PROPERTIES SOVERSION 1 OUTPUT_NAME
-                                              snodec-core-socket-stream
-)
-
 install(
     TARGETS core-socket-stream
     EXPORT snodec_core-socket-stream_Targets
