@@ -26,9 +26,9 @@
 
 namespace iot::mqtt_fast::packets {
 
-    Publish::Publish(
-        uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain)
-        : iot::mqtt_fast::ControlPacket(MQTT_PUBLISH, (dup ? 0x04 : 0x00) | ((qoS << 1) & 0x06) | (retain ? 0x01 : 0x00))
+    Publish::Publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain)
+        : iot::mqtt_fast::ControlPacket(MQTT_PUBLISH,
+                                        static_cast<uint8_t>((dup ? 0x04 : 0x00) | ((qoS << 1) & 0x06) | (retain ? 0x01 : 0x00)))
         , packetIdentifier(packetIdentifier)
         , topic(topic)
         , message(message)
