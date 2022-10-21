@@ -46,7 +46,7 @@ namespace iot::mqtt::server {
         releaseSession();
 
         if (willFlag) {
-            broker->publishReceived(willTopic, willMessage, false, willQoS);
+            broker->publishReceived(willTopic, willMessage, MQTT_DUP_FALSE, willQoS);
 
             if (willRetain) {
                 broker->retainMessage(willTopic, willMessage, willQoS);
