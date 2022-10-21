@@ -109,6 +109,7 @@ target_include_directories(
 
 target_link_libraries(
     core PUBLIC snodec::mux-${IO_Multiplexer} snodec::logger snodec::utils
+                ${CMAKE_DL_LIBS}
 )
 
 set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)

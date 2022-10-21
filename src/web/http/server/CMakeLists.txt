@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-find_package(PkgConfig REQUIRED)
-
-pkg_check_modules(LIBMAGIC libmagic)
-
 set(HTTPSERVER_CPP
     Request.cpp RequestContextBase.cpp RequestParser.cpp Response.cpp
     SocketContextUpgradeFactory.cpp SocketContextUpgradeFactorySelector.cpp

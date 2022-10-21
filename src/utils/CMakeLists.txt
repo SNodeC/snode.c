@@ -1,38 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 
-find_package(Backward QUIET)
-
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-if(BACKWARD_FOUND)
-    option(USE_BACKWARD "Compile stacktrace code")
-
-    if(USE_BACKWARD)
-        if(${STACK_DETAILS_DW})
-            set(BACKWARD_LIBS "Backward::Backward")
-            add_compile_definitions(BACKTRACE_SUPPORTED=1)
-        endif(${STACK_DETAILS_DW})
-    endif(USE_BACKWARD)
-else(FACKWARD_FOUND)
-    message(
-        WARNING
-            " backward-cpp-dev not found:\n"
-            "    backward-cpp-dev is used to create stacktraces at runtime for debugging.\n"
-            "    It is highly recommented to install it, if you intend to modify and debug the code of SNode.C.\n"
-            "    In case you have it installed you can create stacktraces by calling stacktrace::stacktrace().\n"
-            "    For that to work you have to #include \"utils/stacktrace.h\".\n"
-    )
-endif(BACKWARD_FOUND)
-
-set(UTILS_CPP
-    Config.cpp
-    Daemon.cpp
-    Timeval.cpp
-    base64.cpp
-    instrumentation.cpp
-    sha1.cpp
-    stacktrace.cpp
-)
+set(UTILS_CPP Config.cpp Daemon.cpp Timeval.cpp base64.cpp sha1.cpp)
 
 set(UTILS_H
     AttributeInjector.h
@@ -42,7 +12,6 @@ set(UTILS_H
     Timeval.h
     base64.h
     sha1.h
-    stacktrace.h
 )
 
 set_source_files_properties(

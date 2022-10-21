@@ -9,10 +9,10 @@ if(NLOHMANN_JSON_FOUND)
     set(JSONMIDDLEWARE_H middleware/JsonMiddleware.h)
 else(NLOHMANN_JSON_FOUND)
     message(
-        WARNING
+        FATAL_ERROR
             " nlohmann-json3-dev not found:\n"
-            "    nlohmann_json is used to build the JsonMiddleware. In case you need\n"
-            "   json support install nlohmann-json-dev"
+            "   nlohmann_json is used for http. Plaase install it by executing\n"
+            "       sudo apt install nlohmann-json3-dev"
     )
 endif(NLOHMANN_JSON_FOUND)
 
