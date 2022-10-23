@@ -99,7 +99,7 @@ set(_supported_components
     http-server-express
     websocket-server
     websocket-client
-    # mqtt-fast
+    mqtt-fast
     mqtt-server
     mqtt-client
 )
