@@ -11,8 +11,6 @@ set(HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR
     ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/snode.c/web/http
 )
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LIBMAGIC libmagic)

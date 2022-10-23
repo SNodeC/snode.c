@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
 add_subdirectory(packets)
 
 set(MQTT_CLIENT_CPP SocketContext.cpp)
