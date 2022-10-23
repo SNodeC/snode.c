@@ -7,7 +7,6 @@ set(SNODEC_INTREE_BUILD "YES")
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(iwyu)
-# include(instrumentation)
 
 set(IO_Multiplexers "epoll;poll;select")
 list(SUBLIST IO_Multiplexers 0 1 IO_DefaultMultiplexer)

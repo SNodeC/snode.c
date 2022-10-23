@@ -8,8 +8,6 @@ set(SNODEC_IOT_MQTT_RPATH
     CACHE INTERNAL ""
 )
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
 set(MQTT_CPP ControlPacket.cpp ControlPacketDeserializer.cpp FixedHeader.cpp
              SocketContext.cpp Topic.cpp
 )
