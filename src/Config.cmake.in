@@ -113,3 +113,5 @@ foreach(_comp ${snodec_FIND_COMPONENTS})
         load_component_with_dependencies(${_comp})
     endif()
 endforeach()
+
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)

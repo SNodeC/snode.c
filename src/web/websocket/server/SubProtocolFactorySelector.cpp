@@ -25,6 +25,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
+
     SubProtocolFactorySelector::SubProtocolFactorySelector() {
         Super::addSubProtocolSearchPath(WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR);
 

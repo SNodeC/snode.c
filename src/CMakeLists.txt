@@ -7,8 +7,7 @@ set(SNODEC_INTREE_BUILD "YES")
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(iwyu)
-include(instrumentation)
-include(rpath-use-always)
+# include(instrumentation)
 
 set(IO_Multiplexers "epoll;poll;select")
 list(SUBLIST IO_Multiplexers 0 1 IO_DefaultMultiplexer)
@@ -70,15 +69,6 @@ add_compile_options(
     ${ADDITIONAL_OPTIONS}
 )
 
-# set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
-# link_libraries(asan) link_libraries(ubsan)
-
-# if (CMAKE_BUILD_TYPE MATCHES Debug) find_library(SegFault SegFault)
-# message("Library: " ${SegFault}) link_libraries(${SegFault})
-# add_link_options(LINKER:--no-as-needed) message ("*************** DEBUG")
-# else(CMAKE_BUILD_TYPE MATCHES Debug) message ("*************** NDEBUG")
-# endif(CMAKE_BUILD_TYPE MATCHES Debug)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -92,3 +82,5 @@ add_subdirectory(express)
 add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
+
+install(CODE "execute_process(COMMAND ldconfig)")

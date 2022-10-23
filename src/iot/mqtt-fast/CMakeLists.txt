@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.18)
 add_subdirectory(types)
 add_subdirectory(packets)
 
+set(SNODEC_IOT_MQTT-FAST_RPATH
+    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt"
+    CACHE INTERNAL ""
+)
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(MQTT_FAST_CPP ControlPacket.cpp ControlPacketFactory.cpp SocketContext.cpp

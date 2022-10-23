@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.18)
 add_subdirectory(packets)
 add_subdirectory(types)
 
-set(CMAKE_INSTALL_RPATH
-    ${CMAKE_INSTALL_RPATH} "${CMAKE_INSTALL_PREFIX}/lib/snode.c/iot/mqtt"
+set(SNODEC_IOT_MQTT_RPATH
+    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt"
     CACHE INTERNAL ""
 )
 

@@ -76,8 +76,7 @@ namespace web::websocket::server {
         static bool linked = false;
 
         if (!linked) {
-            web::http::server::SocketContextUpgradeFactory::link(
-                "websocket", websocketServerContextUpgradeFactory); // cppcheck-suppress leakNoVarFunctionCall
+            web::http::server::SocketContextUpgradeFactory::link("websocket", websocketServerContextUpgradeFactory);
             linked = true;
         }
     }
