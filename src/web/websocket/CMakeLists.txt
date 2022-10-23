@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.18)
 
 add_compile_options(-Wno-undefined-func-template)
 
-set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR "lib/snode.c/web/websocket")
+set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR
+    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/snode.c/web/websocket"
+)
 
 get_target_property(
     HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR snodec::http
