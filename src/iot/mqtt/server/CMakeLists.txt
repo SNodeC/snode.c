@@ -28,6 +28,7 @@ target_include_directories(
 
 set_target_properties(
     mqtt-server PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt-server
+    INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
 )
 
 install(
@@ -38,7 +39,7 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/iot/mqtt/server
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/iot/mqtt/server
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
