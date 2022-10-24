@@ -86,9 +86,10 @@ target_link_libraries(
 )
 
 set_target_properties(
-    http-server-express PROPERTIES SOVERSION 1 OUTPUT_NAME
-                                               snodec-http-server-express
-                                               INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    http-server-express
+    PROPERTIES SOVERSION 1
+               OUTPUT_NAME snodec-http-server-express
+               INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
 )
 
 install(
