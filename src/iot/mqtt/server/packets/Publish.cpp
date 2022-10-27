@@ -30,7 +30,7 @@ namespace iot::mqtt::server::packets {
         : iot::mqtt::server::ControlPacketDeserializer(remainingLength, flags, flags) {
         this->flags = flags;
         this->qoS = flags >> 1 & 0x03;
-        this->dup = (flags & 0x04) != 0;
+        this->dup = (flags & 0x08) != 0;
         this->retain = (flags & 0x01) != 0;
 
         error = this->qoS > 2;
