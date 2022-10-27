@@ -93,9 +93,10 @@ namespace iot::mqtt::server {
         void sendUnsuback(uint16_t packetIdentifier);
         void sendPingresp();
 
-    protected:
+    private:
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
 
+    protected:
         std::string protocol;
         uint8_t level = 0;
         uint8_t connectFlags = 0;
