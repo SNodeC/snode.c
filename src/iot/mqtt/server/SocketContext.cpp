@@ -281,9 +281,9 @@ namespace iot::mqtt::server {
                 setTimeout(core::DescriptorEventReceiver::TIMEOUT::DISABLE); // Or leaf at framework default (default 60 sec)?
             }
 
-            onConnect(connect);
-
             initSession();
+
+            onConnect(connect);
         }
     }
 
@@ -293,8 +293,6 @@ namespace iot::mqtt::server {
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
             shutdown(true);
         } else {
-            onPublish(publish);
-
             broker->publish(publish.getTopic(), publish.getMessage(), publish.getDup(), publish.getQoS());
             if (publish.getRetain()) {
                 broker->retainMessage(publish.getTopic(), publish.getMessage(), publish.getQoS());
@@ -308,6 +306,8 @@ namespace iot::mqtt::server {
                     sendPubrec(publish.getPacketIdentifier());
                     break;
             }
+
+            onPublish(publish);
         }
     }
 
@@ -325,11 +325,11 @@ namespace iot::mqtt::server {
         if (pubrec.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            onPubrec(pubrec);
-
             broker->pubrecReceived(pubrec.getPacketIdentifier(), clientId);
 
             sendPubrel(pubrec.getPacketIdentifier());
+
+            onPubrec(pubrec);
         }
     }
 
@@ -337,11 +337,11 @@ namespace iot::mqtt::server {
         if (pubrel.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            onPubrel(pubrel);
-
             broker->pubrelReceived(pubrel.getPacketIdentifier(), clientId);
 
             sendPubcomp(pubrel.getPacketIdentifier());
+
+            onPubrel(pubrel);
         }
     }
 
@@ -349,9 +349,9 @@ namespace iot::mqtt::server {
         if (pubcomp.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            onPubcomp(pubcomp);
-
             broker->pubcompReceived(pubcomp.getPacketIdentifier(), clientId);
+
+            onPubcomp(pubcomp);
         }
     }
 
@@ -375,13 +375,13 @@ namespace iot::mqtt::server {
         if (unsubscribe.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            onUnsubscribe(unsubscribe);
-
             for (const std::string& topic : unsubscribe.getTopics()) {
                 broker->unsubscribeReceived(clientId, topic);
             }
 
             sendUnsuback(unsubscribe.getPacketIdentifier());
+
+            onUnsubscribe(unsubscribe);
         }
     }
 
