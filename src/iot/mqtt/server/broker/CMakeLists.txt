@@ -25,4 +25,5 @@ install(
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
+    PATTERN "cmake" EXCLUDE
 )
