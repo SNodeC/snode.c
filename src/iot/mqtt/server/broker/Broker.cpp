@@ -56,7 +56,7 @@ namespace iot::mqtt::server::broker {
         subscribtionTree.unsubscribe(clientId);
     }
 
-    void Broker::publish(const std::string& topic, const std::string& message, [[maybe_unused]] uint8_t dup, uint8_t qoS) {
+    void Broker::publish(const std::string& topic, const std::string& message, uint8_t qoS) {
         subscribtionTree.publish(Message(topic, message, qoS, MQTT_RETAIN_FALSE));
     }
 
