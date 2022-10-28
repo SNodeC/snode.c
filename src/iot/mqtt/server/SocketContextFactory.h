@@ -26,9 +26,14 @@ namespace core::socket {
     class SocketConnection;
 } // namespace core::socket
 
-namespace iot::mqtt::server::broker {
-    class Broker;
-} // namespace iot::mqtt::server::broker
+namespace iot::mqtt::server {
+    class SocketContext;
+
+    namespace broker {
+        class Broker;
+    }
+
+} // namespace iot::mqtt::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,13 +43,17 @@ namespace iot::mqtt::server::broker {
 
 namespace iot::mqtt::server {
 
+    template <typename SocketContextT = iot::mqtt::server::SocketContext>
     class SocketContextFactory : public core::socket::SocketContextFactory {
+        using SocketContext = SocketContextT;
+
     public:
         SocketContextFactory();
 
     private:
         core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
 
+    protected:
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
     };
 

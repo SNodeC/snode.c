@@ -46,7 +46,7 @@ namespace iot::mqtt::server {
         releaseSession();
 
         if (willFlag) {
-            broker->publishReceived(willTopic, willMessage, MQTT_DUP_FALSE, willQoS);
+            broker->publish(willTopic, willMessage, MQTT_DUP_FALSE, willQoS);
 
             if (willRetain) {
                 broker->retainMessage(willTopic, willMessage, willQoS);
@@ -295,7 +295,7 @@ namespace iot::mqtt::server {
         } else {
             onPublish(publish);
 
-            broker->publishReceived(publish.getTopic(), publish.getMessage(), publish.getDup(), publish.getQoS());
+            broker->publish(publish.getTopic(), publish.getMessage(), publish.getDup(), publish.getQoS());
             if (publish.getRetain()) {
                 broker->retainMessage(publish.getTopic(), publish.getMessage(), publish.getQoS());
             }
@@ -399,6 +399,10 @@ namespace iot::mqtt::server {
         releaseSession();
 
         shutdown();
+    }
+
+    void SocketContext::publish(const std::string& topic, const std::string& message, uint8_t qoS) {
+        broker->publish(topic, message, MQTT_DUP_FALSE, qoS);
     }
 
     void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {

@@ -51,5 +51,4 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
-    PATTERN "deserializer" EXCLUDE
 )
