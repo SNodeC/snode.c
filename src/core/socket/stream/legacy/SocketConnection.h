@@ -48,7 +48,7 @@ namespace core::socket::stream::legacy {
         using SocketAddress = typename Super::SocketAddress;
 
         SocketConnection(int fd,
-                         const std::shared_ptr<core::socket::SocketContextFactory>& socketProtocolFactory,
+                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(SocketConnection*)>& onConnect,
@@ -60,7 +60,7 @@ namespace core::socket::stream::legacy {
                          const utils::Timeval& terminateTimeout)
             : Super(
                   fd,
-                  socketProtocolFactory,
+                  socketContextFactory,
                   localAddress,
                   remoteAddress,
                   [onConnect, this]() -> void {
