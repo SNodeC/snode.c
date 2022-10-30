@@ -23,6 +23,7 @@
 
 namespace CLI {
     class App;
+    class Option;
 } // namespace CLI
 
 #include <string>
@@ -44,6 +45,10 @@ namespace utils {
         static void terminate();
 
         static CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
+
+        static CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
+        static CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
+        static CLI::Option* add_flag(const std::string& name, const std::string& description = "");
 
         static std::string getApplicationName();
 

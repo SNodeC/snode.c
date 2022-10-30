@@ -112,31 +112,40 @@ namespace utils {
 
         app.get_formatter()->column_width(40);
 
-        CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
+        CLI::Option* allHelpOpt =
+            app.set_help_all_flag("--help-all", "Expand all help")->group("General Options")->group("General Options");
         allHelpOpt->configurable(false);
 
-        CLI::Option* showConfigFlag = app.add_flag("-s,--show-config", showConfig, "Show current configuration and exit");
+        app.get_help_ptr()->group("General Options");
+
+        CLI::Option* showConfigFlag =
+            app.add_flag("-s,--show-config", showConfig, "Show current configuration and exit")->group("General Options");
+        showConfigFlag->disable_flag_override();
         showConfigFlag->configurable(false);
 
         CLI::Option* dumpConfigFlg =
             app.add_flag("-w{" + defaultConfDir + "/" + name + ".conf" + "},--write-config{" + defaultConfDir + "/" + name + ".conf" + "}",
                          outputConfigFile,
                          "Write config file");
+        dumpConfigFlg->group("General Options");
         dumpConfigFlg->configurable(false);
 
-        CLI::Option* logFileOpt = app.add_option("-l,--log-file", logFile, "Log to file");
+        CLI::Option* logFileOpt = app.add_option("-l,--log-file", logFile, "Log to file")->group("General Options");
         logFileOpt->default_val(defaultLogDir + "/" + name + ".log");
         logFileOpt->type_name("[path]");
         logFileOpt->excludes(showConfigFlag);
 
         CLI::Option* forceLogFileFlag =
             app.add_flag("-g,!-n,--force-log-file,!--no-log-file", forceLogFile, "Force writing logs to file for foureground applications");
+        forceLogFileFlag->group("General Options");
         forceLogFileFlag->excludes(showConfigFlag);
 
         CLI::Option* startDaemonOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", startDaemon, "Start application as daemon");
+        startDaemonOpt->group("General Options");
         startDaemonOpt->excludes(showConfigFlag);
 
         CLI::Option* stopDaemonOpt = app.add_flag("-k,--kill", stopDaemon, "Kill running daemon");
+        stopDaemonOpt->group("General Options");
         stopDaemonOpt->disable_flag_override();
         stopDaemonOpt->configurable(false);
 
@@ -149,7 +158,12 @@ namespace utils {
             exit(0);
         } else {
             if (app["--help"]->count() == 0 && app["--help-all"]->count() == 0) {
-                app.set_config("--config", defaultConfDir + "/" + name + ".conf", "Read an config file", false);
+                app.set_config("--config", defaultConfDir + "/" + name + ".conf", "Read an config file", false)->group("General Options");
+            } else {
+                CLI::Option* configOption = app.add_option("--config", "Read an config file");
+                configOption->group("General Options");
+                configOption->type_name("[path]");
+                configOption->default_val(defaultConfDir + "/" + name + ".conf");
             }
 
             parse(); // for daemonize, logfile and forceLogFile
@@ -207,6 +221,18 @@ namespace utils {
 
     CLI::App* Config::add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description) {
         return app.add_subcommand(subcommand_name, subcommand_description);
+    }
+
+    CLI::Option* Config::add_option(const std::string& name, int& variable, const std::string& description) {
+        return app.add_option(name, variable, description);
+    }
+
+    CLI::Option* Config::add_option(const std::string& name, std::string& variable, const std::string& description) {
+        return app.add_option(name, variable, description);
+    }
+
+    CLI::Option* Config::add_flag(const std::string& name, const std::string& description) {
+        return app.add_flag(name, description);
     }
 
     std::string Config::getApplicationName() {
