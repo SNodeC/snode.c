@@ -100,13 +100,14 @@ namespace iot::mqtt::server::broker {
         if (leafFound) {
             if (!subscribedTopicName.empty()) {
                 LOG(TRACE) << "Found match:";
-                LOG(TRACE) << "  Received topic: '" << message.getTopic() << "';";
-                LOG(TRACE) << "  Matched topic: '" << subscribedTopicName << "'";
+                LOG(TRACE) << "  Topic: '" << message.getTopic() << "';";
+                LOG(TRACE) << "  Filter: '" << subscribedTopicName << "'";
 
                 LOG(TRACE) << "  Message: '" << message.getMessage() << "' ";
-                LOG(TRACE) << "Distribute Publish ...";
+                LOG(TRACE) << "Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : subscribers) {
+                    LOG(TRACE) << "  ClientId: " << clientId;
                     broker->sendPublish(clientId, message, MQTT_DUP_FALSE, clientQoS);
                 }
 
@@ -116,10 +117,10 @@ namespace iot::mqtt::server::broker {
             auto nextHashNode = subscribtions.find("#");
             if (nextHashNode != subscribtions.end()) {
                 LOG(TRACE) << "Found parent match:";
-                LOG(TRACE) << "  Received topic: '" << message.getTopic() << "'";
-                LOG(TRACE) << "  Matched topic: '" << message.getTopic() << "/#'";
+                LOG(TRACE) << "  Topic: '" << message.getTopic() << "'";
+                LOG(TRACE) << "  Filter: '" << message.getTopic() << "/#'";
                 LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
-                LOG(TRACE) << "Distribute Publish ...";
+                LOG(TRACE) << "Distribute Publish for math ...";
 
                 for (auto& [clientId, clientQoS] : nextHashNode->second.subscribers) {
                     broker->sendPublish(clientId, message, MQTT_DUP_FALSE, clientQoS);
