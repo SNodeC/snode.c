@@ -51,9 +51,11 @@ namespace iot::mqtt::server {
         SharedSocketContextFactory();
 
     private:
-        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
+        virtual core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection,
+                                                    std::shared_ptr<iot::mqtt::server::broker::Broker>& broker) = 0;
 
-    protected:
+        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) final;
+
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
     };
 

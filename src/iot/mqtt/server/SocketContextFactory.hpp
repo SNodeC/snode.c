@@ -33,7 +33,7 @@ namespace iot::mqtt::server {
 
     template <typename SocketContext>
     core::socket::SocketContext* SocketContextFactory<SocketContext>::create(core::socket::SocketConnection* socketConnection) {
-        return new SocketContext(socketConnection, broker);
+        return create(socketConnection, broker);
     }
 
 } // namespace iot::mqtt::server
