@@ -36,7 +36,7 @@ namespace iot::mqtt::client {
         : iot::mqtt::SocketContext(socketConnection) {
     }
 
-    iot::mqtt::ControlPacketDeserializer* SocketContext::onReceiveFromPeer(iot::mqtt::FixedHeader& fixedHeader) {
+    iot::mqtt::ControlPacketDeserializer* SocketContext::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
         switch (fixedHeader.getPacketType()) {

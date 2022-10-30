@@ -69,7 +69,7 @@ namespace iot::mqtt {
                            << static_cast<uint16_t>(fixedHeader.getFlags()) << std::dec;
                 LOG(TRACE) << "              RemainingLength: " << fixedHeader.getRemainingLength();
 
-                controlPacketDeserializer = onReceiveFromPeer(fixedHeader);
+                controlPacketDeserializer = createControlPacketDeserializer(fixedHeader);
 
                 fixedHeader.reset();
 
@@ -94,7 +94,6 @@ namespace iot::mqtt {
                 consumed += controlPacketDeserializer->deserialize(this);
 
                 if (controlPacketDeserializer->isComplete()) {
-                    //                    LOG(TRACE) << "Control packet ready ... propagating event";
                     propagateEvent(controlPacketDeserializer);
 
                     delete controlPacketDeserializer;

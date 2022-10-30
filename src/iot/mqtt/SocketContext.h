@@ -49,7 +49,7 @@ namespace iot::mqtt {
 
     private:
         std::size_t onReceiveFromPeer() final;
-        virtual iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::FixedHeader& staticHeader) = 0;
+        virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;
         virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     public:

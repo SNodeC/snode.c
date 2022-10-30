@@ -107,7 +107,6 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : subscribers) {
-                    LOG(TRACE) << "  ClientId: " << clientId;
                     broker->sendPublish(clientId, message, MQTT_DUP_FALSE, clientQoS);
                 }
 

@@ -51,7 +51,7 @@ namespace iot::mqtt::client {
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
     private:
-        iot::mqtt::ControlPacketDeserializer* onReceiveFromPeer(iot::mqtt::FixedHeader& fixedHeader) final;
+        iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
         void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
         virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0;
