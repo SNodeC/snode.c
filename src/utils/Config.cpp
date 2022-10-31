@@ -104,7 +104,6 @@ namespace utils {
 
         app.option_defaults()->take_first();
         app.option_defaults()->configurable();
-        app.configurable();
 
         app.description("Configuration for application " + name);
         app.allow_extras();
@@ -112,7 +111,7 @@ namespace utils {
 
         app.get_formatter()->column_width(40);
 
-        CLI::Option* allHelpOpt =
+        [[maybe_unused]] CLI::Option* allHelpOpt =
             app.set_help_all_flag("--help-all", "Expand all help")->group("General Options")->group("General Options");
         allHelpOpt->configurable(false);
 
@@ -157,14 +156,7 @@ namespace utils {
 
             exit(0);
         } else {
-            if (app["--help"]->count() == 0 && app["--help-all"]->count() == 0) {
-                app.set_config("--config", defaultConfDir + "/" + name + ".conf", "Read an config file", false)->group("General Options");
-            } else {
-                CLI::Option* configOption = app.add_option("--config", "Read an config file");
-                configOption->group("General Options");
-                configOption->type_name("[path]");
-                configOption->default_val(defaultConfDir + "/" + name + ".conf");
-            }
+            app.set_config("--config", defaultConfDir + "/" + name + ".conf", "Read an config file", false)->group("General Options");
 
             parse(); // for daemonize, logfile and forceLogFile
 

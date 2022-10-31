@@ -33,6 +33,7 @@ namespace net::config {
             baseSc = utils::Config::add_subcommand(name, name + " configuration");
             baseSc->fallthrough();
             baseSc->group("Instances");
+            baseSc->configurable(false);
         }
     }
 
