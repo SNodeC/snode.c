@@ -77,10 +77,14 @@ namespace utils {
                     /* or another appropriated directory */
                     chdir("/");
 
-                    /* Close all open file descriptors */
-                    for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
-                        close(static_cast<int>(fd));
-                    }
+                    /* Close all open file descriptors */ /*
+                     for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
+                         close(static_cast<int>(fd));
+                     }
+                     */
+                    close(STDIN_FILENO);
+                    close(STDOUT_FILENO);
+                    close(STDERR_FILENO);
 
                     /* Reopen stdin (fd = 0), stdout (fd = 1), stderr (fd = 2) */
                     if (std::freopen("/dev/null", "r", stdin) == nullptr) {

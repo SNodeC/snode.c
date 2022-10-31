@@ -44,7 +44,7 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/utils
     FILES_MATCHING
     PATTERN "*.h"
-    PATTERN "*.hpp"
+#    PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
 )
 

@@ -46,9 +46,35 @@ namespace utils {
 
         static CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
 
+        static void add_option(const std::string& name,
+                               std::string& variable,
+                               const std::string& description,
+                               bool required,
+                               const std::string& typeNam = "[string]",
+                               const std::string& default_val = "",
+                               bool configurable = true,
+                               const std::string& groupName = "Application Options");
+
+        static void add_option(const std::string& name,
+                               int& variable,
+                               const std::string& description,
+                               bool required,
+                               const std::string& typeNam = "[int]",
+                               int default_val = 0,
+                               bool configurable = true,
+                               const std::string& groupName = "Application Options");
+
+        static void add_flag(const std::string& name,
+                             bool& variable,
+                             const std::string& description,
+                             bool required,
+                             bool configurable = true,
+                             const std::string& groupName = "Application Options");
+
         static CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
         static CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
         static CLI::Option* add_flag(const std::string& name, const std::string& description = "");
+        static CLI::Option* add_flag(const std::string& name, bool& variable, const std::string& description = "");
 
         static std::string getApplicationName();
 

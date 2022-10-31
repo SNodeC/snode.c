@@ -215,6 +215,47 @@ namespace utils {
         return app.add_subcommand(subcommand_name, subcommand_description);
     }
 
+    void Config::add_option(const std::string& name,
+                            std::string& variable,
+                            const std::string& description,
+                            bool required,
+                            const std::string& typeName,
+                            const std::string& default_val,
+                            bool configurable,
+                            const std::string& groupName) {
+        add_option(name, variable, description)
+            ->required(required)
+            ->default_val(default_val)
+            ->type_name(typeName)
+            ->configurable(configurable)
+            ->group(groupName);
+    }
+
+    void Config::add_option(const std::string& name,
+                            int& variable,
+                            const std::string& description,
+                            bool required,
+                            const std::string& typeName,
+                            int default_val,
+                            bool configurable,
+                            const std::string& groupName) {
+        add_option(name, variable, description)
+            ->required(required)
+            ->default_val(default_val)
+            ->type_name(typeName)
+            ->configurable(configurable)
+            ->group(groupName);
+    }
+
+    void Config::add_flag(const std::string& name,
+                          bool& variable,
+                          const std::string& description,
+                          bool required,
+                          bool configurable,
+                          const std::string& groupName) {
+        add_flag(name, variable, description)->required(required)->configurable(configurable)->group(groupName);
+    }
+
     CLI::Option* Config::add_option(const std::string& name, int& variable, const std::string& description) {
         return app.add_option(name, variable, description);
     }
@@ -225,6 +266,10 @@ namespace utils {
 
     CLI::Option* Config::add_flag(const std::string& name, const std::string& description) {
         return app.add_flag(name, description);
+    }
+
+    CLI::Option* Config::add_flag(const std::string& name, bool& variable, const std::string& description) {
+        return app.add_flag(name, variable, description);
     }
 
     std::string Config::getApplicationName() {
