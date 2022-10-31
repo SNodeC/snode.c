@@ -36,7 +36,7 @@ namespace net::config {
     public:
         ConfigCluster();
 
-        enum MODE { NONE, PRIMARY, SECONDARY, PROXY };
+        enum MODE { STANDALONE, PRIMARY, SECONDARY, PROXY };
 
         int getClusterMode() const;
 
@@ -44,7 +44,7 @@ namespace net::config {
         CLI::App* clusterSc = nullptr;
         CLI::Option* modeOpt = nullptr;
 
-        MODE mode = MODE::NONE;
+        MODE mode = MODE::STANDALONE;
     };
 
 } // namespace net::config

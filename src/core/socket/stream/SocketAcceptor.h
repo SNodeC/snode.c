@@ -99,7 +99,7 @@ namespace core::socket::stream {
 
     private:
         void initAcceptEvent() override {
-            if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE ||
+            if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                 VLOG(0) << "Mode: STANDALONE or PRIMARY";
 
@@ -154,7 +154,7 @@ namespace core::socket::stream {
         }
 
         void acceptEvent() override {
-            if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE ||
+            if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                 PrimarySocket socket;
 
@@ -164,7 +164,7 @@ namespace core::socket::stream {
                     SocketAddress remoteAddress{};
                     socket = primarySocket->accept4(remoteAddress, SOCK_NONBLOCK);
                     if (socket.isValid()) {
-                        if (config->getClusterMode() == net::config::ConfigCluster::MODE::NONE) {
+                        if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE) {
                             socketConnectionFactory.create(socket, config);
                         } else {
                             // Send descriptor to SECONDARY
