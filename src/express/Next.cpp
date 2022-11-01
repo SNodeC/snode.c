@@ -30,7 +30,7 @@ namespace express {
         : controller(controller) {
     }
 
-    void Next::operator()(const std::string& how) {
+    void Next::operator()(const std::string& how) const {
         controller.next(how);
     }
 

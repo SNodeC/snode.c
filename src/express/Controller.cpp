@@ -55,7 +55,7 @@ namespace express {
         return flags;
     }
 
-    void Controller::next(const std::string& how) {
+    void Controller::next(const std::string& how) const {
         flags = NEXT;
 
         if (how == "route") {
@@ -67,7 +67,7 @@ namespace express {
         lastRoute = currentRoute;
 
         if (lastTick != core::EventLoop::getTickCounter()) { // If asynchron next() start traversing of route-tree
-            rootRoute->dispatch(*this);
+            rootRoute->dispatch(*const_cast<express::Controller*>(this));
         }
     }
 

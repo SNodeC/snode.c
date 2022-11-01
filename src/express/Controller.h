@@ -45,7 +45,7 @@ namespace express {
         Response* getResponse() const;
         int getFlags() const;
 
-        void next(const std::string& how);
+        void next(const std::string& how) const;
         bool nextRouter();
         bool dispatchNext(const std::string& parentMountPath);
 
@@ -54,7 +54,7 @@ namespace express {
     private:
         RootRoute* rootRoute = nullptr;
 
-        Route* lastRoute = nullptr;
+        mutable Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
 
         unsigned long lastTick = 0;
@@ -62,7 +62,7 @@ namespace express {
         Request* request = nullptr;
         Response* response = nullptr;
 
-        int flags = NONE;
+        mutable int flags = NONE;
     };
 
 } // namespace express

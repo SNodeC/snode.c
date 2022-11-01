@@ -37,7 +37,7 @@ namespace express {
     public:
         explicit Next(Controller& controller);
 
-        void operator()(const std::string& how = "");
+        void operator()(const std::string& how = "") const;
 
     private:
         Controller controller;
