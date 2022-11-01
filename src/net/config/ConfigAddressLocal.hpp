@@ -42,8 +42,8 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    const SocketAddress& ConfigAddressLocal<SocketAddress>::getLocalAddress(bool required) {
-        return Super::getAddress(required);
+    const SocketAddress& ConfigAddressLocal<SocketAddress>::getLocalAddress() {
+        return Super::getAddress();
     }
 
     template <typename SocketAddress>

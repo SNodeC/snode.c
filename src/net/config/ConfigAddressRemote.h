@@ -43,7 +43,7 @@ namespace net::config {
     public:
         bool isRemoteInitialized();
 
-        const SocketAddress& getRemoteAddress(bool required = true);
+        const SocketAddress& getRemoteAddress();
         void setRemoteAddress(const SocketAddress& localAddress);
     };
 

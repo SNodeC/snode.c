@@ -40,8 +40,8 @@ namespace utils {
 
         Config& operator=(const Config&) = delete;
 
-        static int init(int argc, char* argv[]);
-        static void prepare();
+        static bool init(int argc, char* argv[]);
+        static bool prepare();
         static void terminate();
 
         static CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
@@ -71,20 +71,20 @@ namespace utils {
                              bool configurable = true,
                              const std::string& groupName = "Application Options");
 
+        static std::string getApplicationName();
+
+    private:
         static CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
         static CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
         static CLI::Option* add_flag(const std::string& name, const std::string& description = "");
         static CLI::Option* add_flag(const std::string& name, bool& variable, const std::string& description = "");
 
-        static std::string getApplicationName();
+        static bool parse(bool stopOnError = false);
 
-        static int parse(bool stopOnError = false);
-
-    private:
         static int argc;
         static char** argv;
         static CLI::App app;
-        static std::string name;
+        static std::string applicationName;
         static bool startDaemon;
         static bool stopDaemon;
         static std::string outputConfigFile;

@@ -38,7 +38,7 @@ namespace net::config {
     protected:
         ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription);
 
-        const SocketAddress& getAddress(bool required);
+        const SocketAddress& getAddress();
         void setAddress(const SocketAddress& address);
 
         void require(CLI::Option* opt);
@@ -54,8 +54,6 @@ namespace net::config {
     private:
         virtual void updateFromCommandLine() = 0;
 
-        bool needsRequired = false;
-        bool updated = false;
         bool initialized = false;
     };
 

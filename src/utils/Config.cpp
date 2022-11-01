@@ -55,7 +55,7 @@ namespace utils {
     int Config::argc = 0;
     char** Config::argv = nullptr;
     CLI::App Config::app;
-    std::string Config::name;
+    std::string Config::applicationName;
     bool Config::dumpConfig = false;
     bool Config::startDaemon = false;
     bool Config::stopDaemon = false;
@@ -68,13 +68,13 @@ namespace utils {
     std::string Config::defaultLogDir;
     std::string Config::defaultPidDir;
 
-    int Config::init(int argc, char* argv[]) {
+    bool Config::init(int argc, char* argv[]) {
         Config::argc = argc;
         Config::argv = argv;
 
         std::setlocale(LC_ALL, "en_US.UTF-8");
 
-        name = std::filesystem::path(argv[0]).filename();
+        applicationName = std::filesystem::path(argv[0]).filename();
 
         const char* homedir = nullptr;
         if ((homedir = getenv("XDG_CONFIG_HOME")) == nullptr) {
@@ -105,13 +105,13 @@ namespace utils {
         app.option_defaults()->take_first();
         app.option_defaults()->configurable();
 
-        app.description("Configuration for application " + name);
+        app.description("Configuration for application " + applicationName);
         app.allow_extras();
         app.allow_config_extras();
 
         app.get_formatter()->column_width(40);
 
-        [[maybe_unused]] CLI::Option* allHelpOpt =
+        CLI::Option* allHelpOpt =
             app.set_help_all_flag("--help-all", "Expand all help")->group("General Options")->group("General Options");
         allHelpOpt->configurable(false);
 
@@ -123,21 +123,16 @@ namespace utils {
         showConfigFlag->configurable(false);
 
         CLI::Option* dumpConfigFlg =
-            app.add_flag("-w{" + defaultConfDir + "/" + name + ".conf" + "},--write-config{" + defaultConfDir + "/" + name + ".conf" + "}",
+            app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" + defaultConfDir + "/" + applicationName + ".conf" + "}",
                          outputConfigFile,
                          "Write config file");
         dumpConfigFlg->group("General Options");
         dumpConfigFlg->configurable(false);
 
         CLI::Option* logFileOpt = app.add_option("-l,--log-file", logFile, "Log to file")->group("General Options");
-        logFileOpt->default_val(defaultLogDir + "/" + name + ".log");
+        logFileOpt->default_val(defaultLogDir + "/" + applicationName + ".log");
         logFileOpt->type_name("[path]");
         logFileOpt->excludes(showConfigFlag);
-
-        CLI::Option* forceLogFileFlag =
-            app.add_flag("-g,!-n,--force-log-file,!--no-log-file", forceLogFile, "Force writing logs to file for foureground applications");
-        forceLogFileFlag->group("General Options");
-        forceLogFileFlag->excludes(showConfigFlag);
 
         CLI::Option* startDaemonOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", startDaemon, "Start application as daemon");
         startDaemonOpt->group("General Options");
@@ -148,60 +143,68 @@ namespace utils {
         stopDaemonOpt->disable_flag_override();
         stopDaemonOpt->configurable(false);
 
-        parse();
+        CLI::Option* forceLogFileFlag =
+            app.add_flag("-e,--enforce-log-file", forceLogFile, "Enforce writing logs to file for foureground applications");
+        forceLogFileFlag->group("General Options");
+        forceLogFileFlag->excludes(showConfigFlag);
+        forceLogFileFlag->excludes(startDaemonOpt);
+        forceLogFileFlag->excludes(stopDaemonOpt);
+
+        app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false)->group("General Options");
+
+        bool ret = parse(); // for stopDaemon but do not act on -h or --help-all
 
         if (stopDaemon) {
-            utils::Daemon::stopDaemon(defaultPidDir + "/" + name + ".pid");
+            utils::Daemon::stopDaemon(defaultPidDir + "/" + applicationName + ".pid");
             VLOG(0) << "Daemon killed";
 
-            exit(0);
-        } else {
-            app.set_config("--config", defaultConfDir + "/" + name + ".conf", "Read an config file", false)->group("General Options");
+            ret = false;
+        }
 
-            parse(); // for daemonize, logfile and forceLogFile
+        return ret;
+    }
 
-            if (!showConfig) {
+    bool Config::prepare() {
+        bool ret = parse(true);
+
+        if (ret) {
+            if (showConfig) {
+                VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
+
+                ret = false;
+            } else {
                 if (startDaemon) {
                     VLOG(0) << "Running as daemon";
 
-                    utils::Daemon::startDaemon(defaultPidDir + "/" + name + ".pid");
+                    utils::Daemon::startDaemon(defaultPidDir + "/" + applicationName + ".pid");
+
                     logger::Logger::quiet();
                 } else {
                     if (!forceLogFile) {
                         logFile = "";
                     }
-
-                    VLOG(0) << "Running in foureground";
                 }
 
                 if (!logFile.empty()) {
                     logger::Logger::logToFile(logFile);
                 }
+
+                if (app["--write-config"]->count() > 0) {
+                    VLOG(0) << "Write config file " << outputConfigFile;
+                    std::ofstream confFile(outputConfigFile);
+                    confFile << app.config_to_str(true, true);
+                }
+
+                VLOG(0) << "Running in foureground";
             }
         }
 
-        return 0;
-    }
-
-    void Config::prepare() {
-        parse(app["--help"]->count() > 0 || app["--help-all"]->count() > 0);
-
-        if (app["--write-config"]->count() > 0) {
-            VLOG(0) << "Write config file " << outputConfigFile;
-            std::ofstream confFile(outputConfigFile);
-            confFile << app.config_to_str(true, true);
-        }
-
-        if (showConfig) {
-            VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
-
-            exit(0);
-        }
+        return ret;
     }
 
     void Config::terminate() {
         if (startDaemon) {
-            Daemon::erasePidFile(defaultPidDir + "/" + name + ".pid");
+            Daemon::erasePidFile(defaultPidDir + "/" + applicationName + ".pid");
         }
 
         if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
@@ -273,25 +276,23 @@ namespace utils {
     }
 
     std::string Config::getApplicationName() {
-        return name;
+        return applicationName;
     }
 
-    int Config::parse(bool stopOnError) {
+    bool Config::parse(bool stopOnError) {
+        bool ret = true;
+
         try {
-            int errnotmp = errno;
             Config::app.parse(argc, argv);
-            errno = errnotmp;
         } catch (const CLI::ParseError& e) {
             if (stopOnError && !showConfig) {
-                exit(Config::app.exit(e));
+                Config::app.exit(e);
+
+                ret = false;
             }
         }
 
-        return 0;
+        return ret;
     }
-    /*
-        template <typename VariableTypeT>
-        CLI::Option* Config::add_flag_new(const std::string& name, VariableTypeT& variable, const std::string& description) {
-        }
-    */
+
 } // namespace utils

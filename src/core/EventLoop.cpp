@@ -74,12 +74,12 @@ namespace core {
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-    void EventLoop::init(int argc, char* argv[]) {
+    bool EventLoop::init(int argc, char* argv[]) {
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
-        utils::Config::init(argc, argv);
+        EventLoop::initialized = utils::Config::init(argc, argv);
 
-        EventLoop::initialized = true;
+        return EventLoop::initialized;
     }
 
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
@@ -104,72 +104,70 @@ namespace core {
     }
 
     int EventLoop::start(const utils::Timeval& timeOut) {
-        if (!initialized) {
-            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::start().";
-            exit(1);
-        }
-
-        utils::Config::prepare();
-
-        struct sigaction sact {};
-        sigemptyset(&sact.sa_mask);
-        sact.sa_flags = 0;
-
-        sact.sa_handler = SIG_IGN;
-
-        struct sigaction oldPipeAct {};
-        sigaction(SIGPIPE, &sact, &oldPipeAct);
-
-        sact.sa_handler = EventLoop::stoponsig;
-
-        struct sigaction oldIntAct {};
-        sigaction(SIGINT, &sact, &oldIntAct);
-
-        struct sigaction oldTermAct {};
-        sigaction(SIGTERM, &sact, &oldTermAct);
-
-        struct sigaction oldAlarmAct {};
-        sigaction(SIGALRM, &sact, &oldAlarmAct);
-
-        struct sigaction oldHupAct {};
-        sigaction(SIGHUP, &sact, &oldHupAct);
-
-        if (!running) {
-            running = true;
-            stopped = false;
-
-            core::TickStatus tickStatus = TickStatus::SUCCESS;
-
-            while (tickStatus == TickStatus::SUCCESS && !stopped) {
-                tickStatus = EventLoop::instance()._tick(timeOut);
-            }
-
-            switch (tickStatus) {
-                case TickStatus::SUCCESS:
-                    LOG(INFO) << "EventLoop terminated: Releasing resources";
-                    break;
-                case TickStatus::NO_OBSERVER:
-                    LOG(INFO) << "EventLoop: No Observer - exiting";
-                    break;
-                case TickStatus::ERROR:
-                    PLOG(ERROR) << "EventPublisher::publish()";
-                    break;
-            }
-
-            running = false;
-        }
-
-        sigaction(SIGPIPE, &oldPipeAct, nullptr);
-        sigaction(SIGINT, &oldIntAct, nullptr);
-        sigaction(SIGTERM, &oldTermAct, nullptr);
-        sigaction(SIGALRM, &oldAlarmAct, nullptr);
-        sigaction(SIGHUP, &oldHupAct, nullptr);
-
-        free();
-
         int returnReason = 0;
-        if (stopsig != 0) {
-            returnReason = -stopsig;
+
+        if (initialized && utils::Config::prepare()) {
+            struct sigaction sact {};
+            sigemptyset(&sact.sa_mask);
+            sact.sa_flags = 0;
+
+            sact.sa_handler = SIG_IGN;
+
+            struct sigaction oldPipeAct {};
+            sigaction(SIGPIPE, &sact, &oldPipeAct);
+
+            sact.sa_handler = EventLoop::stoponsig;
+
+            struct sigaction oldIntAct {};
+            sigaction(SIGINT, &sact, &oldIntAct);
+
+            struct sigaction oldTermAct {};
+            sigaction(SIGTERM, &sact, &oldTermAct);
+
+            struct sigaction oldAlarmAct {};
+            sigaction(SIGALRM, &sact, &oldAlarmAct);
+
+            struct sigaction oldHupAct {};
+            sigaction(SIGHUP, &sact, &oldHupAct);
+
+            if (!running) {
+                running = true;
+                stopped = false;
+
+                core::TickStatus tickStatus = TickStatus::SUCCESS;
+
+                while (tickStatus == TickStatus::SUCCESS && !stopped) {
+                    tickStatus = EventLoop::instance()._tick(timeOut);
+                }
+
+                switch (tickStatus) {
+                    case TickStatus::SUCCESS:
+                        LOG(INFO) << "EventLoop terminated: Releasing resources";
+                        break;
+                    case TickStatus::NO_OBSERVER:
+                        LOG(INFO) << "EventLoop: No Observer - exiting";
+                        break;
+                    case TickStatus::ERROR:
+                        PLOG(ERROR) << "EventPublisher::publish()";
+                        break;
+                }
+
+                running = false;
+            }
+
+            sigaction(SIGPIPE, &oldPipeAct, nullptr);
+            sigaction(SIGINT, &oldIntAct, nullptr);
+            sigaction(SIGTERM, &oldTermAct, nullptr);
+            sigaction(SIGALRM, &oldAlarmAct, nullptr);
+            sigaction(SIGHUP, &oldHupAct, nullptr);
+
+            free();
+
+            if (stopsig != 0) {
+                returnReason = -stopsig;
+            }
+        } else {
+            // TODO: Free already allocated resources
         }
 
         return returnReason;

@@ -52,8 +52,6 @@ namespace net::config {
 
         void required(bool req = true);
 
-        void parse(bool forceError = false) const;
-
     private:
         CLI::App* baseSc = nullptr;
 

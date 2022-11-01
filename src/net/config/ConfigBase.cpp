@@ -57,14 +57,10 @@ namespace net::config {
         return baseSc->add_flag(name, description);
     }
 
-    void ConfigBase::required(bool req) {
+    void ConfigBase::required(bool reqired) {
         if (baseSc != nullptr) {
-            baseSc->required(req);
+            baseSc->required(reqired);
         }
-    }
-
-    void ConfigBase::parse(bool forceError) const {
-        utils::Config::parse(forceError);
     }
 
 } // namespace net::config

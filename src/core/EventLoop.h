@@ -51,7 +51,7 @@ namespace core {
 
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static void init(int argc, char* argv[]);
+        static bool init(int argc, char* argv[]);
         TickStatus _tick(const utils::Timeval& timeOut);
         static TickStatus tick(const utils::Timeval& timeOut = 0);
         static int start(const utils::Timeval& timeOut);

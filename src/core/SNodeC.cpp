@@ -27,7 +27,9 @@
 namespace core {
 
     void SNodeC::init(int argc, char* argv[]) {
-        EventLoop::init(argc, argv);
+        if (!EventLoop::init(argc, argv)) {
+            exit(1);
+        }
     }
 
     int SNodeC::start(const utils::Timeval& timeOut) {

@@ -28,9 +28,13 @@ namespace net {
 
     template <typename SocketAddress>
     int Socket<SocketAddress>::bind(const SocketAddress& bindAddress) {
-        this->bindAddress = bindAddress;
+        int ret = core::system::bind(getFd(), &bindAddress.getSockAddr(), bindAddress.getSockAddrLen());
 
-        return core::system::bind(getFd(), &bindAddress.getSockAddr(), bindAddress.getSockAddrLen());
+        if (ret == 0) {
+            this->bindAddress = bindAddress;
+        }
+
+        return ret;
     }
 
     template <typename SocketAddress>

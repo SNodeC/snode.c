@@ -33,7 +33,9 @@ namespace core {
     }
 
     Event::~Event() {
-        unPublish();
+        if (published) {
+            unPublish();
+        }
     }
 
     void Event::publish() {
