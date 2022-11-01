@@ -289,5 +289,9 @@ namespace utils {
 
         return 0;
     }
-
+    /*
+        template <typename VariableTypeT>
+        CLI::Option* Config::add_flag_new(const std::string& name, VariableTypeT& variable, const std::string& description) {
+        }
+    */
 } // namespace utils

@@ -50,7 +50,7 @@ namespace utils {
                                std::string& variable,
                                const std::string& description,
                                bool required,
-                               const std::string& typeNam = "[string]",
+                               const std::string& typeName = "[string]",
                                const std::string& default_val = "",
                                bool configurable = true,
                                const std::string& groupName = "Application Options");
@@ -59,7 +59,7 @@ namespace utils {
                                int& variable,
                                const std::string& description,
                                bool required,
-                               const std::string& typeNam = "[int]",
+                               const std::string& typeName = "[int]",
                                int default_val = 0,
                                bool configurable = true,
                                const std::string& groupName = "Application Options");
