@@ -285,6 +285,10 @@ namespace utils {
     bool Config::parse(bool stopOnError) {
         bool ret = true;
 
+        if (stopOnError) {
+            Config::app.allow_extras(false);
+        }
+
         try {
             Config::app.parse(argc, argv);
         } catch (const CLI::ParseError& e) {
