@@ -124,7 +124,7 @@ namespace core::socket::stream {
                     if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
-                    } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/primary")) < 0) {
+                    } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getName())) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
@@ -143,7 +143,7 @@ namespace core::socket::stream {
                 if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/secondary")) < 0) {
+                } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getName())) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else {
@@ -169,7 +169,7 @@ namespace core::socket::stream {
                         } else {
                             // Send descriptor to SECONDARY
                             VLOG(0) << "Sending to secondary";
-                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary"), socket.getFd());
+                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getName()), socket.getFd());
                             SecondarySocket::SocketAddress address;
                         }
                     } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
