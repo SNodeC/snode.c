@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         if (queryClientId.length() > 0) {
             db.query(
                 "select count(*) from client where uuid = '" + queryClientId + "'",
-                [&req, &res, &next, queryClientId](const MYSQL_ROW row) -> void {
+                [&req, &res, next, queryClientId](const MYSQL_ROW row) -> void {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) > 0) {
                             VLOG(0) << "Valid client id '" << queryClientId << "'";
