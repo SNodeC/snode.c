@@ -151,8 +151,6 @@ namespace utils {
             app.add_flag("-e,--enforce-log-file", forceLogFile, "Enforce writing logs to file for foureground applications");
         forceLogFileFlag->group("General Options");
         forceLogFileFlag->excludes(showConfigFlag);
-        forceLogFileFlag->excludes(startDaemonOpt);
-        forceLogFileFlag->excludes(stopDaemonOpt);
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false)
             ->group("General Options");
