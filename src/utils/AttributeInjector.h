@@ -37,7 +37,7 @@ namespace utils {
                 buf[i] = s[i];
         }
 
-        constexpr operator char const*() const {
+        constexpr operator char const *() const {
             return buf;
         }
 
@@ -47,7 +47,7 @@ namespace utils {
     fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
 
     template <typename Attribute>
-    concept InjectableAttribute = std::copy_constructible<Attribute> and std::default_initializable<Attribute> and std::copyable<Attribute>;
+    concept InjectableAttribute = std::copy_constructible<Attribute>and std::default_initializable<Attribute>and std::copyable<Attribute>;
 
     template <InjectableAttribute Attribute>
     class AttributeProxy {

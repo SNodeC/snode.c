@@ -6,5 +6,6 @@
 /GTAGS
 *.txt.user
 /doc/xml/
+/.vscode
 /README.md
 /.vscode/
