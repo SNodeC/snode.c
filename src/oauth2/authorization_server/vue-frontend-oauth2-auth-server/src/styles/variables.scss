@@ -1,0 +1,144 @@
+:root {
+    $device-min-small: 0px;
+    $device-min-medium: 600px;
+    $device-min-large: 992px;
+    $device-min-xlarge: 1200px;
+
+    --font-prime: Montserrat, Avenir, -apple-system, Ubuntu, Tahoma, Geneva, Verdana, sans-serif;
+    --font-second: "Segoe UI", -apple-system, Ubuntu, Tahoma, Geneva, Verdana, sans-serif;
+
+    --font-size-normal: 18pt;
+
+    --duration-short: 100ms;
+    --duration-normal: 150ms;
+    --duration-long: 300ms;
+
+    --border-radius-s: 0.2em;
+    --border-radius-m: 0.3em;
+    --border-radius-l: 0.7em;
+
+    --icon-size-s: 0.8em;
+    --icon-size-m: 1.0em;
+    --icon-size-l: 1.8em;
+}
+
+html {
+    color-scheme: light;
+
+    --font-weight-light: 400;
+    --font-weight-normal: 600;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 800;
+
+    --c-back-acc-1: hwb(210 88% 8%);
+    --c-back: hwb(207 87% 7%);
+    --c-back-dim-1: hwb(208 72% 23%);
+
+    --c-text-prime: hwb(0 10% 90%);
+    --c-text-prime-acc-1: hwb(0 0% 100%);
+    --c-text-second: hwb(0 21% 79%);
+    --c-text-second-dim-1: hwb(240 49% 42%);
+    --c-text-inverse-prime: hwb(0 100% 0%);
+    --c-text-inverse-second: hwb(0 90% 10%);
+    --c-text-light: hwb(0 95% 5%);
+    --c-text-dark: hwb(0 10% 90%);
+
+    --c-prime-acc-2: hwb(22 9% 30%);
+    --c-prime-acc-1: hwb(22 10% 18%);
+    --c-prime: hwb(22 17% 0%);
+    --c-prime-dim-1: hwb(22 29% 0%);
+    --c-prime-dim-2: hwb(22 45% 0%);
+
+    --c-second-acc-2: hwb(240 38% 57%);
+    --c-second-acc-1: hwb(240 47% 45%);
+    --c-second: hwb(240 69% 22%);
+    --c-second-dim-1: hwb(240 65% 25%);
+    --c-second-dim-2: hwb(240 76% 13%);
+
+    --c-flash-acc-1: hwb(204 14% 15%);
+    --c-flash: hwb(204 25% 0%);
+    --c-flash-dim-1: hwb(204 47% 6%);
+
+    --c-highlight-acc-1: hwb(60 29% 0%);
+    --c-highlight: hwb(60 51% 0%);
+    --c-highlight-dim-1: hwb(60 69% 0%);
+
+    --c-info: hwb(214 12% 13%);
+    --c-error: hwb(0 9% 43%);
+
+    --c-theme-toggle: hwb(0 30% 70%);
+    --c-theme-toggle-hover: hwb(0 0% 100%);
+
+    --c-msg-text: hwb(240 68% 23%);
+    --c-msg-text-me: hwb(22 52% 0%);
+    --c-mgs-text-online-indicator: hwb(120 0% 0%);
+    --c-msg-system: hwb(240 61% 18%);
+    --c-msg-input: hwb(240 56% 37%);
+
+    --bg-scrollbar-thumb: hwb(0 30% 70%);
+    --bg-scrollbar-thumb-hover: hwb(0 20% 80%);
+    --bg-scrollbar-thumb-active: hwb(0 10% 90%);
+    --bg-scrollbar-track: hwb(0 60% 40%);
+    --bg-scrollbar-track-hover: hwb(0 70% 30%);
+    --bg-scrollbar-track-active: hwb(0 80% 20%);
+
+
+    &[data-theme="dark"] {
+        color-scheme: dark;
+
+        --font-weight-light: 200;
+        --font-weight-normal: 400;
+        --font-weight-semibold: 600;
+        --font-weight-bold: 700;
+
+        --c-back-acc-1: hwb(0 9% 91%);
+        --c-back: hwb(0 13% 87%);
+        --c-back-dim-1: hwb(0 21% 79%);
+
+        --c-text-prime: hwb(0 95% 5%);
+        --c-text-prime-acc-1: hwb(0 100% 0%);
+        --c-text-second: hwb(0 68% 32%);
+        --c-text-inverse-prime: hwb(0 10% 90%);
+        --c-text-inverse-second: hwb(0 20% 80%);
+        --c-text-light: hwb(0 95% 5%);
+        --c-text-dark: hwb(0 10% 90%);
+
+        --c-prime-acc-2: hwb(27 50% 0%);
+        --c-prime-acc-1: hwb(27 33% 0%);
+        --c-prime: hwb(27 18% 4%);
+        --c-prime-dim-1: hwb(27 9% 24%);
+        --c-prime-dim-2: hwb(27 7% 38%);
+
+        --c-second-acc-2: hwb(0 47% 53%);
+        --c-second-acc-1: hwb(0 29% 71%);
+        --c-second: hwb(0 18% 82%);
+        --c-second-dim-1: hwb(0 13% 87%);
+        --c-second-dim-2: hwb(0 4% 96%);
+
+        --c-flash-acc-1: hwb(204 14% 15%);
+        --c-flash: hwb(204 25% 0%);
+        --c-flash-dim-1: hwb(204 47% 6%);
+
+        --c-highlight-acc-1: hwb(60 29% 0%);
+        --c-highlight: hwb(60 51% 0%);
+        --c-highlight-dim-1: hwb(60 69% 0%);
+
+        --c-error: hwb(0 9% 43%);
+
+        --c-theme-toggle: hwb(0 80% 20%);
+        --c-theme-toggle-hover: hwb(0 100% 0%);
+
+        --c-msg-system: hwb(0 35% 65%);
+        --c-msg-text: hwb(0 18% 82%);
+        --c-msg-text-me: hwb(0 35% 65%);
+        --c-mgs-text-online-indicator: hwb(120 0% 0%);
+        --c-msg-input: hwb(0 18% 82%);
+
+        --bg-scrollbar-thumb: hwb(0 90% 10%);
+        --bg-scrollbar-thumb-hover: hwb(0 95% 15%);
+        --bg-scrollbar-thumb-active: hwb(0 100% 0%);
+        --bg-scrollbar-track: hwb(0 30% 70%);
+        --bg-scrollbar-track-hover: hwb(0 20% 80%);
+        --bg-scrollbar-track-active: hwb(0 10% 90%);
+    }
+}
