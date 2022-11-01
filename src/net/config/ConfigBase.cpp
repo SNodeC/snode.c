@@ -58,7 +58,9 @@ namespace net::config {
     }
 
     void ConfigBase::required(bool req) {
-        baseSc->required(req);
+        if (baseSc != nullptr) {
+            baseSc->required(req);
+        }
     }
 
     void ConfigBase::parse(bool forceError) const {
