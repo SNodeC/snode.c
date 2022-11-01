@@ -167,7 +167,7 @@ namespace core {
                 returnReason = -stopsig;
             }
         } else {
-            // TODO: Free already allocated resources
+            EventLoop::instance().eventMultiplexer.deletePublishedEvents();
         }
 
         return returnReason;

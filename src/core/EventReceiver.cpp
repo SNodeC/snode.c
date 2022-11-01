@@ -28,6 +28,10 @@ namespace core {
         : event(this, name) {
     }
 
+    void EventReceiver::destruct() {
+        delete this;
+    }
+
     void EventReceiver::publish() {
         event.publish();
     }

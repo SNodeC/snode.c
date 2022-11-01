@@ -114,6 +114,10 @@ namespace core {
         timerEventPublisher->stop();
     }
 
+    void EventMultiplexer::deletePublishedEvents() {
+        eventQueue.deleteEvents();
+    }
+
     utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
@@ -192,6 +196,14 @@ namespace core {
 
     bool EventMultiplexer::EventQueue::empty() const {
         return publishQueue->empty();
+    }
+
+    void EventMultiplexer::EventQueue::deleteEvents() {
+        std::swap(executeQueue, publishQueue);
+
+        for (Event* event : *executeQueue) {
+            event->eventReceiver->destruct();
+        }
     }
 
 } // namespace core

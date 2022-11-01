@@ -65,6 +65,7 @@ namespace core {
             void remove(Event* event);
             void execute(const utils::Timeval& currentTime);
             bool empty() const;
+            void deleteEvents();
 
         private:
             std::list<Event*>* executeQueue;
@@ -83,6 +84,7 @@ namespace core {
 
         TickStatus tick(const utils::Timeval& tickTimeOut);
         void stop();
+        void deletePublishedEvents();
 
     protected:
         int getObservedEventReceiverCount();
