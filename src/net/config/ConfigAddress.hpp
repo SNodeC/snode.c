@@ -40,10 +40,11 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    const SocketAddress& ConfigAddress<SocketAddress>::getAddress() {
+    const SocketAddress& ConfigAddress<SocketAddress>::getAddress(bool required) {
+        int errnum = errno;
         if (addressSc != nullptr) {
             if (needsRequired) {
-                parse(true); // Try command line parsing honoring required options
+                parse(required); // Try command line parsing honoring required options
                 updateFromCommandLine();
                 needsRequired = false;
                 updated = true;
@@ -52,6 +53,7 @@ namespace net::config {
                 updated = true;
             }
         }
+        errno = errnum;
 
         return address;
     }

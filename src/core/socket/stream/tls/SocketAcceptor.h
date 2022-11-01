@@ -98,8 +98,7 @@ namespace core::socket::stream::tls {
 
         void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
             if (masterSslCtx == nullptr) {
-                errno = EINVAL;
-                onError(config->getLocalAddress(), errno);
+                onError(config->getLocalAddress(false), EINVAL);
                 Super::destruct();
             } else {
                 Super::listen(config, onError);
