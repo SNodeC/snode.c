@@ -10,6 +10,7 @@
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
+
     express::legacy::in::WebApp app;
 
     const std::string authorizationServerUri{"http://localhost:8082"};

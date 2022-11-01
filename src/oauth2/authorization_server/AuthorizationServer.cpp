@@ -49,7 +49,7 @@ std::string hashSha1(const std::string& str) {
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
-    express::legacy::in::WebApp app{"OAuth2AuthorizationServer"};
+    express::legacy::in::WebApp app("OAuth2AuthorizationServer");
 
     database::mariadb::MariaDBConnectionDetails details{
         .hostname = "localhost",
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         if (queryClientId.length() > 0) {
             db.query(
                 "select count(*) from client where uuid = '" + queryClientId + "'",
-                [&req, &res, next, queryClientId](const MYSQL_ROW row) -> void {
+                [&req, &res, &next, queryClientId](const MYSQL_ROW row) -> void {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) > 0) {
                             VLOG(0) << "Valid client id '" << queryClientId << "'";
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
         res.redirect(loginUri);
     });
 
-    router.get("/login", [&db] APPLICATION(req, res) {
+    router.get("/login", [] APPLICATION(req, res) {
         res.sendFile("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend-oauth2-auth-server/dist/index.html",
                      [&req](int ret) -> void {
                          if (ret != 0) {
@@ -487,7 +487,7 @@ int main(int argc, char* argv[]) {
 
     router.post("/token/validate", [&db] APPLICATION(req, res) {
         VLOG(0) << "POST /token/validate";
-        req.getAttribute<nlohmann::json>([&req, &res, &db](nlohmann::json& jsonBody) -> void {
+        req.getAttribute<nlohmann::json>([&res, &db](nlohmann::json& jsonBody) -> void {
             if (!jsonBody.contains("access_token")) {
                 VLOG(0) << "Missing 'access_token' in json";
                 res.status(500).send("Missing 'access_token' in json");

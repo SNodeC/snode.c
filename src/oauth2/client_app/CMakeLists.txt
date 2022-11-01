@@ -4,6 +4,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(client_app ClientApp.cpp)
+
 target_link_libraries(
-    client_app PRIVATE snodec::express snodec::net-in snodec::core-legacy
+    client_app PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
 )
+
+set_target_properties(
+    client_app PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+)
+
+install(TARGETS client_app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
