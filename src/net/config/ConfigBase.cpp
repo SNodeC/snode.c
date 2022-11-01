@@ -30,7 +30,7 @@ namespace net::config {
     ConfigBase::ConfigBase(const std::string& name)
         : name(name) {
         if (!name.empty()) {
-            baseSc = utils::Config::add_subcommand(name, name + " configuration");
+            baseSc = utils::Config::add_subcommand(name, "Configuration for instance '" + name + "'");
             baseSc->fallthrough();
             baseSc->group("Instances");
             baseSc->configurable(false);
