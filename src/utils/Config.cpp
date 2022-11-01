@@ -96,11 +96,15 @@ namespace utils {
 
         std::filesystem::create_directories(defaultLogDir);
         std::filesystem::permissions(
-            defaultLogDir, (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) & ~std::filesystem::perms::others_all);
+            defaultLogDir,
+            (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
+                ~std::filesystem::perms::others_all);
 
         std::filesystem::create_directories(defaultPidDir);
         std::filesystem::permissions(
-            defaultPidDir, (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) & ~std::filesystem::perms::others_all);
+            defaultPidDir,
+            (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
+                ~std::filesystem::perms::others_all);
 
         app.option_defaults()->take_first();
         app.option_defaults()->configurable();
@@ -122,10 +126,10 @@ namespace utils {
         showConfigFlag->disable_flag_override();
         showConfigFlag->configurable(false);
 
-        CLI::Option* dumpConfigFlg =
-            app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" + defaultConfDir + "/" + applicationName + ".conf" + "}",
-                         outputConfigFile,
-                         "Write config file");
+        CLI::Option* dumpConfigFlg = app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" +
+                                                      defaultConfDir + "/" + applicationName + ".conf" + "}",
+                                                  outputConfigFile,
+                                                  "Write config file");
         dumpConfigFlg->group("General Options");
         dumpConfigFlg->configurable(false);
 
@@ -150,7 +154,8 @@ namespace utils {
         forceLogFileFlag->excludes(startDaemonOpt);
         forceLogFileFlag->excludes(stopDaemonOpt);
 
-        app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false)->group("General Options");
+        app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false)
+            ->group("General Options");
 
         bool ret = parse(); // for stopDaemon but do not act on -h or --help-all
 
