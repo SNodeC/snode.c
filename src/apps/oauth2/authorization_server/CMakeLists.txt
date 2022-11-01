@@ -11,9 +11,14 @@ target_link_libraries(
             snodec::db-mariadb
 )
 
-set_target_properties(
-    authorization_server PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
-)
+if(SNODEC_INTREE_BUILD)
+
+    set_target_properties(
+        authorization_server PROPERTIES INSTALL_RPATH
+                                        "${SNODEC_WEB_HTTP_RPATH}"
+    )
+
+endif(SNODEC_INTREE_BUILD)
 
 install(TARGETS authorization_server
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

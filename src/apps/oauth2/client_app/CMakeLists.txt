@@ -9,8 +9,12 @@ target_link_libraries(
     client_app PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
 )
 
-set_target_properties(
-    client_app PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
-)
+if(SNODEC_INTREE_BUILD)
+
+    set_target_properties(
+        client_app PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    )
+
+endif(SNODEC_INTREE_BUILD)
 
 install(TARGETS client_app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

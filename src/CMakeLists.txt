@@ -81,6 +81,5 @@ add_subdirectory(express)
 add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
-add_subdirectory(oauth2)
 
 install(CODE "execute_process(COMMAND ldconfig)")
