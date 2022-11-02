@@ -182,13 +182,7 @@ namespace utils {
                     utils::Daemon::startDaemon(defaultPidDir + "/" + applicationName + ".pid");
 
                     logger::Logger::quiet();
-                } else {
-                    if (!forceLogFile) {
-                        logFile = "";
-                    }
-                }
-
-                if (!logFile.empty()) {
+                } else if (forceLogFile) {
                     logger::Logger::logToFile(logFile);
                 }
 
@@ -196,9 +190,11 @@ namespace utils {
                     VLOG(0) << "Write config file " << outputConfigFile;
                     std::ofstream confFile(outputConfigFile);
                     confFile << app.config_to_str(true, true);
-                }
 
-                VLOG(0) << "Running in foureground";
+                    ret = false;
+                } else {
+                    VLOG(0) << "Running in foureground";
+                }
             }
         }
 
