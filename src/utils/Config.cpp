@@ -106,7 +106,7 @@ namespace utils {
             (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
                 ~std::filesystem::perms::others_all);
 
-        app.option_defaults()->take_first();
+        //        app.option_defaults()->take_first();
         app.option_defaults()->configurable();
 
         app.description("Configuration for application " + applicationName);

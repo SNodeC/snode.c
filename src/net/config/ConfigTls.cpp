@@ -37,7 +37,7 @@ namespace net::config {
     ConfigTls::ConfigTls() {
         if (!getName().empty()) {
             tlsSc = add_subcommand("tls", "Options for SSL/TLS behaviour");
-            tlsSc->group("Option groups");
+            tlsSc->group("Subcommands");
 
             initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout");
             initTimeoutOpt->type_name("[sec]");

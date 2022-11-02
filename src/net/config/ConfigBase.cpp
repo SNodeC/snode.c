@@ -32,7 +32,7 @@ namespace net::config {
         if (!name.empty()) {
             baseSc = utils::Config::add_subcommand(name, "Configuration for instance '" + name + "'");
             baseSc->fallthrough();
-            baseSc->group("Instances");
+            baseSc->group("Subcommands");
             baseSc->configurable(false);
         }
     }
