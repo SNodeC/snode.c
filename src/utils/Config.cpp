@@ -292,7 +292,7 @@ namespace utils {
         try {
             Config::app.parse(argc, argv);
         } catch (const CLI::ParseError& e) {
-            if (stopOnError && !showConfig) {
+            if (stopOnError && !showConfig && app["--write-config"]->count() == 0) {
                 Config::app.exit(e);
 
                 ret = false;
