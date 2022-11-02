@@ -125,7 +125,7 @@ namespace iot::mqtt {
     }
 
     void SocketContext::send(std::vector<char>&& data) const {
-        printData(data);
+        LOG(DEBUG) << dataToHexString(data);
 
         sendToPeer(data.data(), data.size());
     }
@@ -183,14 +183,14 @@ namespace iot::mqtt {
     }
 
     void SocketContext::printStandardHeader(const iot::mqtt::ControlPacket& packet) {
-        printData(packet.serialize());
+        LOG(DEBUG) << dataToHexString(packet.serialize());
 
         LOG(DEBUG) << "Type: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getType());
         LOG(DEBUG) << "Flags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getFlags());
         LOG(DEBUG) << "RemainingLength: " << std::dec << dynamic_cast<const ControlPacketDeserializer&>(packet).getRemainingLength();
     }
 
-    void SocketContext::printData(const std::vector<char>& data) {
+    std::string SocketContext::dataToHexString(const std::vector<char>& data) {
         std::stringstream ss;
 
         ss << "Data: ";
@@ -205,7 +205,7 @@ namespace iot::mqtt {
                << " "; // << " | ";
         }
 
-        LOG(DEBUG) << ss.str();
+        return ss.str();
     }
 
 } // namespace iot::mqtt

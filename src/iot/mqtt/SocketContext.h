@@ -64,6 +64,8 @@ namespace iot::mqtt {
         void sendPubrel(uint16_t packetIdentifier);
         void sendPubcomp(uint16_t packetIdentifier);
 
+        static std::string dataToHexString(const std::vector<char>& data);
+
     protected:
         void send(iot::mqtt::ControlPacket&& controlPacket) const;
         void send(iot::mqtt::ControlPacket& controlPacket) const;
@@ -75,8 +77,6 @@ namespace iot::mqtt {
         void printStandardHeader(const iot::mqtt::ControlPacket& packet);
 
     private:
-        static void printData(const std::vector<char>& data);
-
         iot::mqtt::FixedHeader fixedHeader;
         iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
 
