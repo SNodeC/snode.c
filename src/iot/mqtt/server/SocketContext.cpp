@@ -356,7 +356,7 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << subscribe.getPacketIdentifier();
 
         for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
-            LOG(DEBUG) << "  Topic: " << topic.getName() << ", requestedQoS: " << static_cast<uint16_t>(topic.getQoS());
+            LOG(DEBUG) << "  Topic filter: '" << topic.getName() << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
         }
 
         if (subscribe.getPacketIdentifier() == 0) {
