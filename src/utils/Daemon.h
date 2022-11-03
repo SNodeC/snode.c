@@ -32,7 +32,7 @@ namespace utils {
         Daemon() = delete;
         ~Daemon() = delete;
 
-        static void startDaemon(const std::string& pidFileName);
+        static bool startDaemon(const std::string& pidFileName);
         static void stopDaemon(const std::string& pidFileName);
 
         static void erasePidFile(const std::string& pidFileName);

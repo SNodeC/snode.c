@@ -159,7 +159,6 @@ namespace utils {
 
         if (stopDaemon) {
             utils::Daemon::stopDaemon(defaultPidDir + "/" + applicationName + ".pid");
-            VLOG(0) << "Daemon killed";
 
             ret = false;
         }
@@ -179,9 +178,11 @@ namespace utils {
                 if (startDaemon) {
                     VLOG(0) << "Running as daemon";
 
-                    utils::Daemon::startDaemon(defaultPidDir + "/" + applicationName + ".pid");
+                    ret = utils::Daemon::startDaemon(defaultPidDir + "/" + applicationName + ".pid");
 
-                    logger::Logger::quiet();
+                    if (ret) {
+                        logger::Logger::quiet();
+                    }
                 } else if (forceLogFile) {
                     logger::Logger::logToFile(logFile);
                 }

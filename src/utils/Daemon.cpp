@@ -29,18 +29,16 @@
 #include <fstream>
 #include <poll.h>
 #include <sys/stat.h>
-#include <syscall.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#ifndef __NR_pidfd_open
-#define __NR_pidfd_open 434 /* System call # on most architectures */
-#endif
-
 namespace utils {
 
-    void Daemon::startDaemon(const std::string& pidFileName) {
+    bool Daemon::startDaemon(const std::string& pidFileName) {
+        bool success = true;
+
         if (!std::filesystem::exists(pidFileName)) {
             pid_t pid = 0;
 
@@ -49,25 +47,25 @@ namespace utils {
 
             if (pid < 0) {
                 /* An error occurred */
-                exit(EXIT_FAILURE);
+                success = false; // 1st fork() not successfull
             } else if (pid > 0) {
                 /* Success: Let the parent terminate */
                 exit(EXIT_SUCCESS);
             } else if (setsid() < 0) {
                 /* On success: The child process becomes session leader */
-                exit(EXIT_FAILURE);
+                success = false; // setsid() not successfull
             } else if (signal(SIGHUP, SIG_IGN) == SIG_ERR) {
                 /* Ignore signal sent from parent to child process */
-                exit(EXIT_FAILURE);
+                success = false; // signal() not successfull
             } else {
                 /* Fork off for the second time*/
                 pid = fork();
 
                 if (pid < 0) {
                     /* An error occurred */
-                    exit(EXIT_FAILURE);
+                    success = false; // 2nd fork() not successfull
                 } else if (pid > 0) {
-                    /* Success: Let the parent terminate */
+                    /* Success: Let the second parent terminate */
                     exit(EXIT_SUCCESS);
                 } else {
                     /* Set new file permissions */
@@ -77,11 +75,11 @@ namespace utils {
                     /* or another appropriated directory */
                     chdir("/");
 
-                    /* Close all open file descriptors */ /*
-                     for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
-                         close(static_cast<int>(fd));
-                     }
-                     */
+                    /* Close all open file descriptors */
+                    // for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
+                    //     close(static_cast<int>(fd));
+                    // }
+
                     close(STDIN_FILENO);
                     close(STDOUT_FILENO);
                     close(STDERR_FILENO);
@@ -102,15 +100,17 @@ namespace utils {
                             pidFile << getpid() << std::endl;
                             pidFile.close();
                         } else {
-                            exit(EXIT_FAILURE);
+                            success = false; // PID-File not created (permissions, not existing directory ... ?)
                         }
                     }
                 }
             }
         } else {
             VLOG(0) << "Already running: Not daemonized ... exiting";
-            exit(EXIT_FAILURE);
+            success = false;
         }
+
+        return success;
     }
 
     void Daemon::stopDaemon(const std::string& pidFileName) {
@@ -124,12 +124,11 @@ namespace utils {
 
                 struct pollfd pollfd {};
 
-                int pidfd = static_cast<int>(syscall(__NR_pidfd_open, pid, 0));
+                int pidfd = static_cast<int>(syscall(SYS_pidfd_open, pid, 0));
 
                 if (pidfd == -1) {
                     VLOG(0) << "Daemon not running";
                     erasePidFile(pidFileName);
-                    exit(EXIT_FAILURE);
                 } else if (::kill(pid, SIGTERM) == 0) {
                     pidFile.close();
 
@@ -140,7 +139,6 @@ namespace utils {
                     if (ready == -1) {
                         PLOG(ERROR) << "Poll";
                         close(pidfd);
-                        exit(EXIT_FAILURE);
                     } else if (ready == 0) {
                         LOG(WARNING) << "Daemon not responding - killing";
                         ::kill(pid, SIGKILL);
@@ -150,14 +148,12 @@ namespace utils {
                     }
 
                     close(pidfd);
-                    exit(EXIT_SUCCESS);
                 } else {
                     PLOG(ERROR) << "Kill daemon";
-                    exit(EXIT_FAILURE);
                 }
             } else {
                 VLOG(0) << "Daemon not running";
-                exit(EXIT_FAILURE);
+                pidFile.close();
             }
         }
     }
