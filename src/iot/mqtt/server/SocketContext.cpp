@@ -24,6 +24,16 @@
 #include "iot/mqtt/packets/Suback.h"
 #include "iot/mqtt/packets/Unsuback.h"
 #include "iot/mqtt/server/broker/Broker.h"
+#include "iot/mqtt/server/packets/Connect.h"
+#include "iot/mqtt/server/packets/Disconnect.h"
+#include "iot/mqtt/server/packets/Pingreq.h"
+#include "iot/mqtt/server/packets/Puback.h"
+#include "iot/mqtt/server/packets/Pubcomp.h"
+#include "iot/mqtt/server/packets/Publish.h"
+#include "iot/mqtt/server/packets/Pubrec.h"
+#include "iot/mqtt/server/packets/Pubrel.h"
+#include "iot/mqtt/server/packets/Subscribe.h"
+#include "iot/mqtt/server/packets/Unsubscribe.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -18,6 +18,15 @@
 
 #include "iot/mqtt/client/SocketContext.h"
 
+#include "iot/mqtt/client/packets/Connack.h"
+#include "iot/mqtt/client/packets/Pingresp.h"
+#include "iot/mqtt/client/packets/Puback.h"
+#include "iot/mqtt/client/packets/Pubcomp.h"
+#include "iot/mqtt/client/packets/Publish.h"
+#include "iot/mqtt/client/packets/Pubrec.h"
+#include "iot/mqtt/client/packets/Pubrel.h"
+#include "iot/mqtt/client/packets/Suback.h"
+#include "iot/mqtt/client/packets/Unsuback.h"
 #include "iot/mqtt/packets/Connect.h"
 #include "iot/mqtt/packets/Disconnect.h"
 #include "iot/mqtt/packets/Pingreq.h"

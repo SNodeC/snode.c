@@ -19,21 +19,41 @@
 #ifndef IOT_MQTT_SERVER_SOCKETCONTEXT_H
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
-#include "iot/mqtt/SocketContext.h"           // IWYU pragma: export
-#include "iot/mqtt/Topic.h"                   // IWYU pragma: export
-#include "iot/mqtt/client/packets/Connack.h"  // IWYU pragma: export
-#include "iot/mqtt/client/packets/Pingresp.h" // IWYU pragma: export
-#include "iot/mqtt/client/packets/Puback.h"   // IWYU pragma: export
-#include "iot/mqtt/client/packets/Pubcomp.h"  // IWYU pragma: export
-#include "iot/mqtt/client/packets/Publish.h"  // IWYU pragma: export
-#include "iot/mqtt/client/packets/Pubrec.h"   // IWYU pragma: export
-#include "iot/mqtt/client/packets/Pubrel.h"   // IWYU pragma: export
-#include "iot/mqtt/client/packets/Suback.h"   // IWYU pragma: export
-#include "iot/mqtt/client/packets/Unsuback.h" // IWYU pragma: export
+#include "iot/mqtt/SocketContext.h" // IWYU pragma: export
+// IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
 namespace core::socket {
     class SocketConnection;
 } // namespace core::socket
+
+namespace iot::mqtt {
+    class Topic;
+
+    namespace packets {
+        class Connack;
+        class Pingresp;
+        class Puback;
+        class Pubcomp;
+        class Publish;
+        class Pubrec;
+        class Pubrel;
+        class Suback;
+        class Unsuback;
+
+    } // namespace packets
+
+    namespace client::packets {
+        class Connack;
+        class Pingresp;
+        class Puback;
+        class Pubcomp;
+        class Publish;
+        class Pubrec;
+        class Pubrel;
+        class Suback;
+        class Unsuback;
+    } // namespace client::packets
+} // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

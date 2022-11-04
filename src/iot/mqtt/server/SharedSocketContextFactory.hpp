@@ -17,7 +17,6 @@
  */
 
 #include "iot/mqtt/server/SharedSocketContextFactory.h" // IWYU pragma: export
-#include "iot/mqtt/server/SocketContext.h"
 #include "iot/mqtt/server/broker/Broker.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

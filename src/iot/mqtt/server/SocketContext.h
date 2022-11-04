@@ -19,25 +19,47 @@
 #ifndef IOT_MQTT_SERVER_SOCKETCONTEXT_H
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
-#include "iot/mqtt/SocketContext.h"              // IWYU pragma: export
-#include "iot/mqtt/server/packets/Connect.h"     // IWYU pragma: export
-#include "iot/mqtt/server/packets/Disconnect.h"  // IWYU pragma: export
-#include "iot/mqtt/server/packets/Pingreq.h"     // IWYU pragma: export
-#include "iot/mqtt/server/packets/Puback.h"      // IWYU pragma: export
-#include "iot/mqtt/server/packets/Pubcomp.h"     // IWYU pragma: export
-#include "iot/mqtt/server/packets/Publish.h"     // IWYU pragma: export
-#include "iot/mqtt/server/packets/Pubrec.h"      // IWYU pragma: export
-#include "iot/mqtt/server/packets/Pubrel.h"      // IWYU pragma: export
-#include "iot/mqtt/server/packets/Subscribe.h"   // IWYU pragma: export
-#include "iot/mqtt/server/packets/Unsubscribe.h" // IWYU pragma: export
+#include "iot/mqtt/SocketContext.h" // IWYU pragma: export
+// IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
 namespace core::socket {
     class SocketConnection;
 } // namespace core::socket
 
-namespace iot::mqtt::server::broker {
-    class Broker;
-} // namespace iot::mqtt::server::broker
+namespace iot::mqtt {
+    namespace packets {
+        class Connect;
+        class Disconnect;
+        class Pingreq;
+        class Puback;
+        class Pubcomp;
+        class Publish;
+        class Pubrec;
+        class Pubrel;
+        class Subscribe;
+        class Unsubscribe;
+
+    } // namespace packets
+
+    namespace server {
+        namespace broker {
+            class Broker;
+        }
+
+        namespace packets {
+            class Connect;
+            class Disconnect;
+            class Pingreq;
+            class Puback;
+            class Pubcomp;
+            class Publish;
+            class Pubrec;
+            class Pubrel;
+            class Subscribe;
+            class Unsubscribe;
+        } // namespace packets
+    }     // namespace server
+} // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
