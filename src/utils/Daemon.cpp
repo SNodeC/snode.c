@@ -29,7 +29,7 @@
 #include <fstream>
 #include <poll.h>
 #include <sys/stat.h>
-#include <sys/syscall.h>
+#include <syscall.h>
 #include <unistd.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

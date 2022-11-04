@@ -25,7 +25,6 @@
 
 #include "log/Logger.h"
 
-#include <cerrno>
 #include <clocale>
 #include <cstdlib>
 #include <fcntl.h>
