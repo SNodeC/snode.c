@@ -6,11 +6,13 @@
 #include "log/Logger.h"
 #include "utils/sha1.h"
 
-#include <bits/chrono.h>
+#include <chrono> // IWYU pragma: keep
 #include <ctime>
 #include <cxxabi.h>
 #include <iomanip>
 #include <iostream>
+
+// IWYU pragma: no_include <bits/chrono.h>
 
 void addQueryParamToUri(std::string& uri, const std::string& queryParamName, const std::string& queryParamValue) {
     if (uri.find("?") == std::string::npos) {
