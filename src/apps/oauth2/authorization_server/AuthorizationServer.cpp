@@ -1,22 +1,18 @@
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBCommandSequence.h"
-#include "express/Router.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "express/middleware/StaticMiddleware.h"
-#include "express/middleware/VHost.h"
+#include "log/Logger.h"
 #include "utils/sha1.h"
 
-#include <chrono>
-#include <fstream>
+#include <bits/chrono.h>
+#include <ctime>
+#include <cxxabi.h>
 #include <iomanip>
 #include <iostream>
-#include <nlohmann/json.hpp>
-#include <sstream>
-#include <string>
-#include <vector>
 
-void addQueryParamToUri(std::string& uri, std::string queryParamName, std::string queryParamValue) {
+void addQueryParamToUri(std::string& uri, const std::string& queryParamName, const std::string& queryParamValue) {
     if (uri.find("?") == std::string::npos) {
         uri += "?";
     } else {

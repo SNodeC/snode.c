@@ -1,12 +1,12 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
+#include "log/Logger.h"
 #include "web/http/client/Request.h"  // for Request, client
 #include "web/http/client/Response.h" // for Response
 #include "web/http/legacy/in/Client.h"
 
-#include <memory>
-#include <nlohmann/json.hpp>
-#include <vector>
+#include <iostream>
+#include <nlohmann/json.hpp> // IWYU pragma: keep
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);

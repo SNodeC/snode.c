@@ -1,6 +1,6 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
-#include "express/middleware/VHost.h"
+#include "log/Logger.h"
 
 #include <iostream>
 
