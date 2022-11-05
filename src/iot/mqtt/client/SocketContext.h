@@ -74,15 +74,15 @@ namespace iot::mqtt::client {
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
         void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
-        virtual void onConnack(iot::mqtt::packets::Connack& connack) = 0;
-        virtual void onPublish(iot::mqtt::packets::Publish& publish) = 0;
-        virtual void onPuback(iot::mqtt::packets::Puback& puback) = 0;
-        virtual void onPubrec(iot::mqtt::packets::Pubrec& pubrec) = 0;
-        virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel) = 0;
-        virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) = 0;
-        virtual void onSuback(iot::mqtt::packets::Suback& suback) = 0;
-        virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback) = 0;
-        virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp) = 0;
+        virtual void onConnack(iot::mqtt::packets::Connack& connack);
+        virtual void onPublish(iot::mqtt::packets::Publish& publish);
+        virtual void onPuback(iot::mqtt::packets::Puback& puback);
+        virtual void onPubrec(iot::mqtt::packets::Pubrec& pubrec);
+        virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel);
+        virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp);
+        virtual void onSuback(iot::mqtt::packets::Suback& suback);
+        virtual void onUnsuback(iot::mqtt::packets::Unsuback& unsuback);
+        virtual void onPingresp(iot::mqtt::packets::Pingresp& pingresp);
 
         void _onConnack(iot::mqtt::packets::Connack& connack);
         void _onPublish(iot::mqtt::packets::Publish& publish);
@@ -96,7 +96,7 @@ namespace iot::mqtt::client {
 
     public:
         void sendConnect(const std::string& clientId);
-        void sendSubscribe(std::list<Topic>& topics);
+        void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics);
         void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
         void sendPingreq();
         void sendDisconnect();
