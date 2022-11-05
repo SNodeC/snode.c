@@ -36,6 +36,9 @@ namespace iot::mqtt {
         if (complete && consumed != this->getRemainingLength()) {
             error = true;
             complete = false;
+        } else if (!complete && consumed == this->getRemainingLength()) {
+            // Error: Packet data incomplete
+            error = true;
         }
 
         return currentConsumed;
