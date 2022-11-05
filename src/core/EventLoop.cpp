@@ -27,8 +27,11 @@
 #include "log/Logger.h"
 #include "utils/Config.h"
 
+//#include <chrono> // IWYU pragma: keep
+// IWYU pragma: no_include <bits/chrono.h>
 #include <cstdlib>
 #include <string>
+//#include <thread>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -186,7 +189,13 @@ namespace core {
 
         do {
             EventLoop::instance().eventMultiplexer.stop();
-            tickStatus = EventLoop::instance()._tick(3);
+            tickStatus = EventLoop::instance()._tick(0); // (3)
+
+            /*
+                        if (tickStatus == TickStatus::SUCCESS) {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                        }
+            */
         } while (tickStatus == TickStatus::SUCCESS);
 
         DynamicLoader::execDlCloseAll();
