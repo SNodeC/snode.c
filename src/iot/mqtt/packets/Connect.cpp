@@ -52,8 +52,8 @@ namespace iot::mqtt::packets {
         this->password = password;
         this->passwordFlag = !password.empty();
 
-        this->connectFlags = (!usernameFlag ? 0 : 0x80) | (!passwordFlag ? 0 : 0x40) | (!willRetain ? 0 : 0x20) | ((willQoS << 3) & 0x18) |
-                             (!willFlag ? 0 : 0x04) | (!cleanSession ? 0 : 0x02);
+        this->connectFlags = static_cast<uint8_t>((!usernameFlag ? 0 : 0x80) | (!passwordFlag ? 0 : 0x40) | (!willRetain ? 0 : 0x20) |
+                                                  ((willQoS << 3) & 0x18) | (!willFlag ? 0 : 0x04) | (!cleanSession ? 0 : 0x02));
     }
 
     std::vector<char> Connect::serializeVP() const {
