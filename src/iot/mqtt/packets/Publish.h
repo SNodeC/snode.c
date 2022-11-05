@@ -38,8 +38,8 @@ namespace iot::mqtt::packets {
         Publish(uint16_t packetIdentifier,
                 const std::string& topic,
                 const std::string& message,
-                bool dup = false,
                 uint8_t qoS = 0,
+                bool dup = false,
                 bool retain = false);
 
     private:

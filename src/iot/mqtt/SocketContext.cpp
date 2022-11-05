@@ -30,8 +30,8 @@
 #include "log/Logger.h"
 
 #include <cstdint>
-#include <fstream>
 #include <iomanip>
+#include <ostream>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -133,13 +133,13 @@ namespace iot::mqtt {
     void SocketContext::sendPublish(uint16_t packetIdentifier,
                                     const std::string& topic,
                                     const std::string& message,
-                                    bool dup,
                                     uint8_t qoS,
-                                    bool retain) { // Server & Client
+                                    bool retain,
+                                    bool dup) { // Server & Client
         LOG(DEBUG) << "Send PUBLISH";
         LOG(DEBUG) << "============";
 
-        send(iot::mqtt::packets::Publish(qoS == 0 ? 0 : packetIdentifier, topic, message, dup, qoS, retain));
+        send(iot::mqtt::packets::Publish(qoS == 0 ? 0 : packetIdentifier, topic, message, qoS, dup, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) { // Server & Client
@@ -168,18 +168,6 @@ namespace iot::mqtt {
         LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Pubcomp(packetIdentifier));
-    }
-
-#define UUID_LEN 36
-
-    std::string SocketContext::getRandomClientId() {
-        char uuid[UUID_LEN];
-
-        std::ifstream file("/proc/sys/kernel/random/uuid");
-        file.getline(uuid, UUID_LEN);
-        file.close();
-
-        return std::string(uuid);
     }
 
     void SocketContext::printStandardHeader(const iot::mqtt::ControlPacket& packet) {

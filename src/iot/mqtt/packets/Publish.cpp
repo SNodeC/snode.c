@@ -28,7 +28,7 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_PUBLISH) {
     }
 
-    Publish::Publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain)
+    Publish::Publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain)
         : iot::mqtt::ControlPacket(MQTT_PUBLISH) {
         this->flags = static_cast<uint8_t>((dup ? 0x08 : 0x00) | ((qoS << 1) & 0x06) | (retain ? 0x01 : 0x00));
         this->packetIdentifier = packetIdentifier;

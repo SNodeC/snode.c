@@ -95,7 +95,14 @@ namespace iot::mqtt::client {
         void _onPingresp(iot::mqtt::packets::Pingresp& pingresp);
 
     public:
-        void sendConnect(const std::string& clientId);
+        void sendConnect(uint16_t keepAlive, const std::string& clientId,
+                         bool cleanSession,
+                         const std::string& willTopic,
+                         const std::string& willMessage,
+                         uint8_t willQoS,
+                         bool willRetain,
+                         const std::string& username,
+                         const std::string& password);
         void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics);
         void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
         void sendPingreq();

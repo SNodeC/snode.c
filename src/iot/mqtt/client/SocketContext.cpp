@@ -250,17 +250,30 @@ namespace iot::mqtt::client {
         onPingresp(pingresp);
     }
 
-    void SocketContext::sendConnect(const std::string& clientId) { // Client
+    void SocketContext::sendConnect(uint16_t keepAlive,
+                                    const std::string& clientId,
+
+                                    bool cleanSession,
+                                    const std::string& willTopic,
+                                    const std::string& willMessage,
+                                    uint8_t willQoS,
+                                    bool willRetain,
+                                    const std::string& username,
+                                    const std::string& password) { // Client
         LOG(DEBUG) << "Send CONNECT";
         LOG(DEBUG) << "============";
-
-        send(iot::mqtt::packets::Connect(0x02 /* connect flags */,
-                                         60 /* keep alive */,
-                                         clientId,
-                                         "" /* WillTopic */,
-                                         "" /* WillMessage */,
-                                         "" /* Username */,
-                                         "" /* Password */)); // Flags, Username, Will, ...
+        /*
+                uint16_t keepAlive = 60;
+                bool cleanSession = true;
+                std::string willTopic = "willtopic";
+                std::string willMessage = "willmessage";
+                uint8_t willQoS = 1;
+                bool willRetain = true;
+                std::string username = "username";
+                std::string password = "password";
+        */
+        send(iot::mqtt::packets::Connect(
+            clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password));
     }
 
     void SocketContext::sendSubscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics) { // Client

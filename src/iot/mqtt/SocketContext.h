@@ -56,9 +56,9 @@ namespace iot::mqtt {
         void sendPublish(uint16_t packetIdentifier,
                          const std::string& topic,
                          const std::string& message,
-                         bool dup = false,
                          uint8_t qoS = 0,
-                         bool retain = false);
+                         bool retain = false,
+                         bool dup = false);
         void sendPuback(uint16_t packetIdentifier);
         void sendPubrec(uint16_t packetIdentifier);
         void sendPubrel(uint16_t packetIdentifier);
@@ -70,8 +70,6 @@ namespace iot::mqtt {
         void send(iot::mqtt::ControlPacket&& controlPacket) const;
         void send(iot::mqtt::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
-
-        std::string getRandomClientId();
 
     protected:
         void printStandardHeader(const iot::mqtt::ControlPacket& packet);

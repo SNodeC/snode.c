@@ -41,11 +41,6 @@ namespace iot::mqtt::server {
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_DUP_FALSE false
-#define MQTT_DUP_TRUE true
-#define MQTT_RETAIN_FALSE false
-#define MQTT_RETAIN_TRUE true
-
 #define SUBSCRIBTION_MAX_QOS 0x02
 
 #define SUBSCRIBTION_SUCCESS 0x00
@@ -82,7 +77,7 @@ namespace iot::mqtt::server::broker {
         void retainSession(const std::string& clientId);
         void deleteSession(const std::string& clinetId);
 
-        void sendPublish(const std::string& clientId, Message& message, bool dup, uint8_t clientQoS);
+        void sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool dup = false);
 
     private:
         uint8_t subscribtionMaxQoS;

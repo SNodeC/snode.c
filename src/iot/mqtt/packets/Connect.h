@@ -36,11 +36,13 @@ namespace iot::mqtt::packets {
     public:
         Connect();
 
-        explicit Connect(uint8_t connectFlags,
+        explicit Connect(const std::string& clientId,
                          uint16_t keepAlive,
-                         const std::string& clientId,
+                         bool cleanSession,
                          const std::string& willTopic,
                          const std::string& willMessage,
+                         uint8_t willQoS,
+                         bool willRetain,
                          const std::string& username,
                          const std::string& password);
 

@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <fstream>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::server::packets {
@@ -82,6 +84,9 @@ namespace iot::mqtt::server::packets {
                 }
 
                 effectiveClientId = clientId;
+                if (effectiveClientId.empty()) {
+                    effectiveClientId = Connect::getRandomClientId();
+                }
 
                 state++;
                 [[fallthrough]];
@@ -140,6 +145,18 @@ namespace iot::mqtt::server::packets {
 
     std::string Connect::getEffectiveClientId() const {
         return effectiveClientId;
+    }
+
+#define UUID_LEN 36
+
+    std::string Connect::getRandomClientId() {
+        char uuid[UUID_LEN];
+
+        std::ifstream file("/proc/sys/kernel/random/uuid");
+        file.getline(uuid, UUID_LEN);
+        file.close();
+
+        return std::string(uuid);
     }
 
 } // namespace iot::mqtt::server::packets

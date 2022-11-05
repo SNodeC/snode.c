@@ -197,20 +197,22 @@ namespace iot::mqtt::server {
         printStandardHeader(connect);
         LOG(DEBUG) << "Protocol: " << connect.getProtocol();
         LOG(DEBUG) << "Version: " << static_cast<uint16_t>(connect.getLevel());
-        LOG(DEBUG) << "ConnectFlags: " << static_cast<uint16_t>(connect.getFlags());
+        LOG(DEBUG) << "ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                   << static_cast<uint16_t>(connect.getConnectFlags()) << std::dec << std::setw(0);
         LOG(DEBUG) << "KeepAlive: " << connect.getKeepAlive();
         LOG(DEBUG) << "ClientID: " << connect.getEffectiveClientId();
         LOG(DEBUG) << "CleanSession: " << connect.getCleanSession();
-        if (willFlag) {
+
+        if (connect.getWillFlag()) {
             LOG(DEBUG) << "WillTopic: " << connect.getWillTopic();
             LOG(DEBUG) << "WillMessage: " << connect.getWillMessage();
             LOG(DEBUG) << "WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
             LOG(DEBUG) << "WillRetain: " << connect.getWillRetain();
         }
-        if (usernameFlag) {
+        if (connect.getUsernameFlag()) {
             LOG(DEBUG) << "Username: " << connect.getUsername();
         }
-        if (passwordFlag) {
+        if (connect.getPasswordFlag()) {
             LOG(DEBUG) << "Password: " << connect.getPassword();
         }
 
@@ -224,10 +226,6 @@ namespace iot::mqtt::server {
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
             shutdown(true);
         } else {
-            if (connect.getEffectiveClientId().empty()) {
-                connect.setEffectiveClientId(getRandomClientId());
-            }
-
             // V-Header
             protocol = connect.getProtocol();
             level = connect.getLevel();

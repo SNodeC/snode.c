@@ -26,6 +26,11 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
+#define MQTT_DUP_FALSE false
+#define MQTT_DUP_TRUE true
+#define MQTT_RETAIN_FALSE false
+#define MQTT_RETAIN_TRUE true
+
 namespace iot::mqtt::server::broker {
 
     class Message {

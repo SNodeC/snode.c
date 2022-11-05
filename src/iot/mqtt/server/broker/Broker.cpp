@@ -126,8 +126,8 @@ namespace iot::mqtt::server::broker {
         sessions.erase(clientId);
     }
 
-    void Broker::sendPublish(const std::string& clientId, Message& message, bool dup, uint8_t clientQoS) {
-        sessions[clientId].sendPublish(message, dup, message.getRetain(), clientQoS);
+    void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool dup) {
+        sessions[clientId].sendPublish(message, qoS, message.getRetain(), dup);
     }
 
 } // namespace iot::mqtt::server::broker

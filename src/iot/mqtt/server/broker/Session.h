@@ -43,7 +43,7 @@ namespace iot::mqtt::server::broker {
 
         Session& operator=(const Session&) = default;
 
-        void sendPublish(iot::mqtt::server::broker::Message& message, bool dup, bool retain, uint8_t clientQoS);
+        void sendPublish(iot::mqtt::server::broker::Message& message, uint8_t qoS, bool retain, bool dup);
 
         void publishQueued();
 
