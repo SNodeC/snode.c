@@ -66,6 +66,7 @@ namespace core::socket {
 
     public:
         virtual std::size_t onReceiveFromPeer() = 0;
+        virtual void onExit();
 
     private:
         virtual void onWriteError(int errnum);

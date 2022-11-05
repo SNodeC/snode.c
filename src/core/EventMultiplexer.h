@@ -83,6 +83,7 @@ namespace core {
         void unPublish(core::Event* event);
 
         TickStatus tick(const utils::Timeval& tickTimeOut);
+        void exit();
         void stop();
         void deletePublishedEvents();
 

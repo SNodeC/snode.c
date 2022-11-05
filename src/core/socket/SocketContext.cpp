@@ -60,6 +60,9 @@ namespace core::socket {
         LOG(INFO) << "Protocol connected";
     }
 
+    void SocketContext::onExit() {
+    }
+
     void SocketContext::onDisconnected() {
         LOG(INFO) << "Protocol disconnected";
     }

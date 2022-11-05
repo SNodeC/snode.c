@@ -191,6 +191,13 @@ namespace core::socket::stream {
             close();
         }
 
+        void onExit() final {
+            if (!exitProcessed) {
+                socketContext->onExit();
+                exitProcessed = true;
+            }
+        }
+
         void unobservedEvent() final {
             delete this;
         }
@@ -199,6 +206,8 @@ namespace core::socket::stream {
         SocketAddress remoteAddress{};
 
         std::function<void()> onDisconnect;
+
+        bool exitProcessed = false;
     };
 
 } // namespace core::socket::stream

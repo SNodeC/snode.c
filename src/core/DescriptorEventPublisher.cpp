@@ -131,6 +131,14 @@ namespace core {
         return nextTimeout;
     }
 
+    void DescriptorEventPublisher::exit() {
+        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
+            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
+                eventReceiver->onExit();
+            }
+        }
+    }
+
     void DescriptorEventPublisher::stop() {
         for (const auto& [fd, eventReceivers] : observedEventReceivers) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {

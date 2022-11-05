@@ -180,6 +180,10 @@ namespace core {
     void EventLoop::free() {
         core::TickStatus tickStatus{};
 
+        if (stopsig != 0) {
+            EventLoop::instance().eventMultiplexer.exit();
+        }
+
         do {
             EventLoop::instance().eventMultiplexer.stop();
             tickStatus = EventLoop::instance()._tick(3);

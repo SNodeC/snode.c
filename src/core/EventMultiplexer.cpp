@@ -107,6 +107,12 @@ namespace core {
         return tickStatus;
     }
 
+    void EventMultiplexer::exit() {
+        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+            descriptorEventPublisher->exit();
+        }
+    }
+
     void EventMultiplexer::stop() {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
             descriptorEventPublisher->stop();

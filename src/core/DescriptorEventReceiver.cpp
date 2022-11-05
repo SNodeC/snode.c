@@ -149,6 +149,9 @@ namespace core {
         dispatchEvent();
     }
 
+    void DescriptorEventReceiver::onExit() {
+    }
+
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {
         lastTriggered = currentTime;
     }
