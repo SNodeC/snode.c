@@ -128,7 +128,7 @@ namespace iot::mqtt::server {
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
             shutdown(true);
         } else if (broker->hasRetainedSession(clientId)) {
-            sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_PRESENT);
+            sendConnack(MQTT_CONNACK_ACCEPT, cleanSession ? MQTT_SESSION_NEW : MQTT_SESSION_PRESENT);
 
             LOG(TRACE) << "Retained session found for ClientId = '" << clientId << "'";
             if (cleanSession) {
@@ -150,7 +150,7 @@ namespace iot::mqtt::server {
     }
 
     void SocketContext::releaseSession() {
-        if (broker->isActiveSesscion(clientId, this)) {
+        if (broker->isActiveSession(clientId, this)) {
             if (cleanSession) {
                 LOG(DEBUG) << "Delete session: " << clientId;
                 broker->deleteSession(clientId);
