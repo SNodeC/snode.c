@@ -195,23 +195,23 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "Received CONNECT: " << clientId;
         LOG(DEBUG) << "=================";
         printStandardHeader(connect);
-        LOG(DEBUG) << "Protocol: " << protocol;
-        LOG(DEBUG) << "Version: " << static_cast<uint16_t>(level);
-        LOG(DEBUG) << "ConnectFlags: " << static_cast<uint16_t>(connectFlags);
-        LOG(DEBUG) << "KeepAlive: " << keepAlive;
-        LOG(DEBUG) << "ClientID: " << clientId;
-        LOG(DEBUG) << "CleanSession: " << cleanSession;
+        LOG(DEBUG) << "Protocol: " << connect.getProtocol();
+        LOG(DEBUG) << "Version: " << static_cast<uint16_t>(connect.getLevel());
+        LOG(DEBUG) << "ConnectFlags: " << static_cast<uint16_t>(connect.getFlags());
+        LOG(DEBUG) << "KeepAlive: " << connect.getKeepAlive();
+        LOG(DEBUG) << "ClientID: " << connect.getEffectiveClientId();
+        LOG(DEBUG) << "CleanSession: " << connect.getCleanSession();
         if (willFlag) {
-            LOG(DEBUG) << "WillTopic: " << willTopic;
-            LOG(DEBUG) << "WillMessage: " << willMessage;
-            LOG(DEBUG) << "WillQoS: " << static_cast<uint16_t>(willQoS);
-            LOG(DEBUG) << "WillRetain: " << willRetain;
+            LOG(DEBUG) << "WillTopic: " << connect.getWillTopic();
+            LOG(DEBUG) << "WillMessage: " << connect.getWillMessage();
+            LOG(DEBUG) << "WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
+            LOG(DEBUG) << "WillRetain: " << connect.getWillRetain();
         }
         if (usernameFlag) {
-            LOG(DEBUG) << "Username: " << username;
+            LOG(DEBUG) << "Username: " << connect.getUsername();
         }
         if (passwordFlag) {
-            LOG(DEBUG) << "Password: " << password;
+            LOG(DEBUG) << "Password: " << connect.getPassword();
         }
 
         if (connect.getProtocol() != "MQTT") {
@@ -265,12 +265,12 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "Received PUBLISH: " << clientId;
         LOG(DEBUG) << "=================";
         printStandardHeader(publish);
-        LOG(DEBUG) << "DUP: " << publish.getDup();
-        LOG(DEBUG) << "QoS: " << static_cast<uint16_t>(publish.getQoS());
-        LOG(DEBUG) << "Retain: " << publish.getRetain();
         LOG(DEBUG) << "Topic: " << publish.getTopic();
-        LOG(DEBUG) << "PacketIdentifier: " << publish.getPacketIdentifier();
         LOG(DEBUG) << "Message: " << publish.getMessage();
+        LOG(DEBUG) << "QoS: " << static_cast<uint16_t>(publish.getQoS());
+        LOG(DEBUG) << "PacketIdentifier: " << publish.getPacketIdentifier();
+        LOG(DEBUG) << "DUP: " << publish.getDup();
+        LOG(DEBUG) << "Retain: " << publish.getRetain();
 
         if (publish.getQoS() > 2) {
             shutdown(true);
@@ -336,11 +336,11 @@ namespace iot::mqtt::server {
         if (pubrel.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            onPubrel(pubrel);
-
             broker->pubrelReceived(pubrel.getPacketIdentifier(), clientId);
 
             sendPubcomp(pubrel.getPacketIdentifier());
+
+            onPubrel(pubrel);
         }
     }
 
