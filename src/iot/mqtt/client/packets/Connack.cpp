@@ -41,6 +41,8 @@ namespace iot::mqtt::client::packets {
                     break;
                 }
 
+                sessionPresent = acknowledgeFlags & 0x01;
+
                 state++;
                 [[fallthrough]];
             case 1:
@@ -49,8 +51,6 @@ namespace iot::mqtt::client::packets {
                 if (!returnCode.isComplete()) {
                     break;
                 }
-
-                sessionPresent = returnCode & 0x01;
 
                 complete = true;
                 break;
