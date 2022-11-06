@@ -109,16 +109,14 @@ namespace iot::mqtt::server {
         void _onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
 
     public:
-        void publish(const std::string& topic, const std::string& message, uint8_t qoS);
         void sendConnack(uint8_t returnCode, uint8_t flags);
         void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes);
         void sendUnsuback(uint16_t packetIdentifier);
         void sendPingresp();
 
-    private:
+    protected:
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
 
-    protected:
         std::string protocol;
         uint8_t level = 0;
         uint8_t connectFlags = 0;

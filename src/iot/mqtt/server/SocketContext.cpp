@@ -429,10 +429,6 @@ namespace iot::mqtt::server {
         shutdown();
     }
 
-    void SocketContext::publish(const std::string& topic, const std::string& message, uint8_t qoS) {
-        broker->publish(topic, message, qoS);
-    }
-
     void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
         LOG(DEBUG) << "Send CONNACK";
         LOG(DEBUG) << "============";
