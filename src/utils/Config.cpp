@@ -181,19 +181,23 @@ namespace utils {
 
                     if (ret) {
                         logger::Logger::quiet();
+                        if (!logFile.empty()) {
+                            logger::Logger::logToFile(logFile);
+                        }
                     }
-                } else if (forceLogFile) {
-                    logger::Logger::logToFile(logFile);
-                }
-
-                if (app["--write-config"]->count() > 0) {
-                    VLOG(0) << "Write config file " << outputConfigFile;
-                    std::ofstream confFile(outputConfigFile);
-                    confFile << app.config_to_str(true, true);
-
-                    ret = false;
                 } else {
-                    VLOG(0) << "Running in foureground";
+                    if (forceLogFile) {
+                        logger::Logger::logToFile(logFile);
+                    }
+                    if (app["--write-config"]->count() > 0) {
+                        VLOG(0) << "Write config file " << outputConfigFile;
+                        std::ofstream confFile(outputConfigFile);
+                        confFile << app.config_to_str(true, true);
+
+                        ret = false;
+                    } else {
+                        VLOG(0) << "Running in foureground";
+                    }
                 }
             }
         }
