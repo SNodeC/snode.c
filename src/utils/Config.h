@@ -85,12 +85,8 @@ namespace utils {
         static char** argv;
         static CLI::App app;
         static std::string applicationName;
-        static bool startDaemon;
-        static bool stopDaemon;
+        static bool startAsDaemon;
         static std::string outputConfigFile;
-        static bool dumpConfig;
-        static bool forceLogFile;
-        static bool showConfig;
         static std::string logFile;
         static std::string defaultConfDir;
         static std::string defaultLogDir;
