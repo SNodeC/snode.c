@@ -48,7 +48,7 @@ set(websocket-client_DEPENDENCIES websocket http-client)
 
 # MQTT
 set(mqtt-server_DEPENDENCIES mqtt)
-set(mqtt-client DEPENDENCIES mqtt)
+set(mqtt-client_DEPENDENCIES mqtt)
 
 # Database
 set(db-mariadb_DEPENDENCIES core)
