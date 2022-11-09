@@ -61,6 +61,7 @@ namespace core::socket {
     }
 
     void SocketContext::onExit() {
+        LOG(INFO) << "Protocol exit";
     }
 
     void SocketContext::onDisconnected() {
