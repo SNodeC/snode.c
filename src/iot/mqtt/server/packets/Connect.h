@@ -50,8 +50,6 @@ namespace iot::mqtt::server::packets {
         void setEffectiveClientId(const std::string& clientId);
 
     private:
-        static std::string getRandomClientId();
-
         std::string effectiveClientId;
         int state = 0;
     };

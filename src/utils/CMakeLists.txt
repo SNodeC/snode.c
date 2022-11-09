@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(UTILS_CPP Config.cpp Daemon.cpp Timeval.cpp base64.cpp sha1.cpp)
+set(UTILS_CPP Config.cpp Daemon.cpp Timeval.cpp Uuid.cpp base64.cpp sha1.cpp)
 
 set(UTILS_H
     AttributeInjector.h
@@ -8,6 +8,7 @@ set(UTILS_H
     Config.h
     Daemon.h
     Timeval.h
+    Uuid.h
     base64.h
     sha1.h
 )
