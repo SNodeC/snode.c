@@ -24,8 +24,6 @@
 
 #include "utils/Uuid.h"
 
-#include <random>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::server::packets {
@@ -139,10 +137,6 @@ namespace iot::mqtt::server::packets {
 
     void Connect::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
         socketContext->_onConnect(*this);
-    }
-
-    void Connect::setEffectiveClientId(const std::string& clientId) {
-        this->effectiveClientId = clientId;
     }
 
     std::string Connect::getEffectiveClientId() const {
