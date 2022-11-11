@@ -97,7 +97,7 @@ namespace core::socket::stream {
             InitAcceptEventReceiver::publish();
         }
 
-    protected:
+    private:
         void initAcceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
@@ -153,7 +153,6 @@ namespace core::socket::stream {
             }
         }
 
-    private:
         void acceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
