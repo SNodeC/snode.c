@@ -19,8 +19,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/servers.h"
-#include "config.h" // just for this example app
+#include "config.h" // IWYU pragma: keep
 #include "log/Logger.h"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -29,19 +30,34 @@ using namespace express;
 int main(int argc, char* argv[]) {
     logger::Logger::setVerboseLevel(2);
 
+    std::string webRoot;
+    utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
+
+#if (STREAM_TYPE == TLS)
+    std::string certChainFile;
+    utils::Config::add_option("--cert-chain", certChainFile, "Certificate chain file", true, "[path]");
+
+    std::string keyFile;
+    utils::Config::add_option("--key", keyFile, "Certificate key file", true, "[path]");
+
+    std::string password;
+    utils::Config::add_option("--password", password, "Password for the certificate key file", false, "");
+#endif // STREAM_TYPE == TLS
+
     WebApp::init(argc, argv);
 
 #if (STREAM_TYPE == LEGACY)
     std::map<std::string, std::any> options{};
 #elif (STREAM_TYPE == TLS)
-    std::map<std::string, std::any> options{{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}};
+    VLOG(0) << "CertChainFile: " << certChainFile;
+    std::map<std::string, std::any> options{{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}};
     std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}},
-        {"www.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
+        {"snodec.home.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}},
+        {"www.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}}};
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;
-    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", SERVERROOT, options));
+    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot, options));
 
 #if (STREAM_TYPE == TLS)
     webApp.addSniCerts(sniCerts);

@@ -44,10 +44,37 @@ namespace net::config {
         void setInitTimeout(const utils::Timeval& newInitTimeoutSet);
         void setShutdownTimeout(const utils::Timeval& newShutdownTimeoutSet);
 
+        const std::string& getCertChainFile() const;
+        const std::string& getCertKeyFile() const;
+        const std::string& getCertKeyPassword() const;
+        const std::string& getCaFile() const;
+        const std::string& getCaDir() const;
+        bool getUseDefaultCaDir() const;
+        const std::string& getCipherList() const;
+        const uint64_t& getSslTlsOptions() const;
+
     private:
         CLI::App* tlsSc = nullptr;
+        CLI::Option* certChainFileOpt;
+        CLI::Option* certKeyFileOpt;
+        CLI::Option* certKeyPasswordOpt;
+        CLI::Option* caFileOpt;
+        CLI::Option* caDirOpt;
+        CLI::Option* useDefaultCaDirFlg;
+        CLI::Option* cipherListOpt;
+        CLI::Option* sslTlsOptionsOpt;
+
         CLI::Option* initTimeoutOpt = nullptr;
         CLI::Option* shutdownTimeoutOpt = nullptr;
+
+        std::string certChainFile;
+        std::string certKeyFile;
+        std::string certKeyPassword;
+        std::string caFile;
+        std::string caDir;
+        bool useDefaultCaDir;
+        std::string cipherList;
+        uint64_t sslTlsOptions;
 
         utils::Timeval initTimeout;
         utils::Timeval initTimeoutSet = -1;

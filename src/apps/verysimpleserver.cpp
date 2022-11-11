@@ -18,23 +18,27 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
+#include "config.h" // IWYU pragma: keep
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
+    std::string webRoot;
+    utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
+
     express::WebApp::init(argc, argv);
 
     express::legacy::in::WebApp legacyApp;
-    legacyApp.use(express::middleware::StaticMiddleware(SERVERROOT));
+    legacyApp.use(express::middleware::StaticMiddleware(webRoot));
 
     express::tls::in::WebApp tlsApp(
         {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}});
-    tlsApp.use(express::middleware::StaticMiddleware(SERVERROOT));
+    tlsApp.use(express::middleware::StaticMiddleware(webRoot));
 
     legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {

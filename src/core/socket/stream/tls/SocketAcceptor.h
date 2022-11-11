@@ -83,13 +83,8 @@ namespace core::socket::stream::tls {
                       onDisconnect(socketConnection);
                   },
                   options)
-            , masterSslCtx(ssl_ctx_new(options, true))
-            , masterSslCtxDomains(ssl_get_sans(masterSslCtx))
             , sniSslCtxs(std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second))
             , forceSni(std::any_cast<bool>(options.find("FORCE_SNI")->second)) {
-            if (masterSslCtx != nullptr) {
-                SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
-            }
         }
 
         ~SocketAcceptor() override {
@@ -97,15 +92,30 @@ namespace core::socket::stream::tls {
         }
 
         void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
-            if (masterSslCtx == nullptr) {
-                onError(config->getLocalAddress(), EINVAL);
-                Super::destruct();
-            } else {
-                Super::listen(config, onError);
-            }
+            //            if (masterSslCtx == nullptr) {
+            //                onError(config->getLocalAddress(), EINVAL);
+            //                Super::destruct();
+            //            } else {
+            Super::listen(config, onError);
+            //            }
         }
 
     private:
+        void initAcceptEvent() override {
+            VLOG(0) << "################# 1 1";
+            masterSslCtx = ssl_ctx_new(this->config, true);
+            if (masterSslCtx != nullptr) {
+                masterSslCtxDomains = ssl_get_sans(masterSslCtx);
+                SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
+
+                VLOG(0) << "################# 1 2: " << masterSslCtx;
+
+                Super::initAcceptEvent();
+            } else {
+                Super::destruct();
+            }
+        }
+
         SSL_CTX* getMasterSniCtx(const std::string& serverNameIndication) {
             SSL_CTX* sniSslCtx = nullptr;
 

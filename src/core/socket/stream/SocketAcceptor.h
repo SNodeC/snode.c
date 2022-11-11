@@ -91,13 +91,14 @@ namespace core::socket::stream {
         }
 
         void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
+            VLOG(0) << "########################## 1: ##### " << config->getLocalAddress().toString();
             this->config = config;
             this->onError = onError;
 
             InitAcceptEventReceiver::publish();
         }
 
-    private:
+    protected:
         void initAcceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
@@ -153,6 +154,7 @@ namespace core::socket::stream {
             }
         }
 
+    private:
         void acceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {

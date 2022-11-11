@@ -83,7 +83,7 @@ namespace core::socket::stream {
             InitConnectEventReceiver::publish();
         }
 
-    private:
+    protected:
         void initConnectEvent() override {
             socket = new PrimarySocket();
             if (socket->open(PrimarySocket::Flags::NONBLOCK) < 0) {
@@ -100,6 +100,7 @@ namespace core::socket::stream {
             }
         }
 
+    private:
         void connectEvent() override {
             int cErrno = -1;
 

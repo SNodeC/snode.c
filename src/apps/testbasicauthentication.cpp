@@ -18,29 +18,33 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
+#include "config.h" // IWYU pragma: keep
 #include "express/legacy/in6/WebApp.h"
 #include "express/middleware/BasicAuthentication.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VHost.h"
 #include "express/tls/in6/WebApp.h"
 #include "log/Logger.h"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;
 
-Router getRouter() {
+Router getRouter(const std::string& webRoot) {
     Router router;
 
     router.use(middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password"));
-    router.use(middleware::StaticMiddleware(SERVERROOT));
+    router.use(middleware::StaticMiddleware(webRoot));
 
     return router;
 }
 
 int main(int argc, char* argv[]) {
     logger::Logger::setVerboseLevel(2);
+
+    std::string webRoot;
+    utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
 
     WebApp::init(argc, argv);
 
@@ -50,7 +54,7 @@ int main(int argc, char* argv[]) {
         Router& router = middleware::VHost("localhost:8080");
 
         Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
-        ba.use(middleware::StaticMiddleware(SERVERROOT));
+        ba.use(middleware::StaticMiddleware(webRoot));
 
         router.use(ba);
         legacyApp.use(router);
@@ -79,7 +83,7 @@ int main(int argc, char* argv[]) {
             express::tls::in6::WebApp tlsApp("tls", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
             Router& vh = middleware::VHost("localhost:8088");
-            vh.use(getRouter());
+            vh.use(getRouter(webRoot));
             tlsApp.use(vh);
 
             vh = middleware::VHost("atlas.home.vchrist.at:8088");

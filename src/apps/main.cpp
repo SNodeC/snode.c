@@ -18,10 +18,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"
+#include "config.h" // IWYU pragma: keep
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
+#include "utils/Config.h"
 
 #include <fcntl.h>
 #include <iostream>
@@ -90,7 +91,7 @@ public:
 
 int timerApp();
 
-int timerApp() {
+int timerApp(const std::string& webRoot) {
     [[maybe_unused]] const Timer tick = Timer::intervalTimer(
         []() -> void {
             static int i = 0;
@@ -110,7 +111,7 @@ int timerApp() {
 
     express::legacy::in::WebApp app("testapp");
 
-    app.get("/", [&canceled, &tack](express::Request& req, express::Response& res) -> void {
+    app.get("/", [&webRoot, &canceled, &tack](express::Request& req, express::Response& res) -> void {
         std::string uri = req.originalUrl;
 
         if (uri == "/") {
@@ -132,7 +133,7 @@ int timerApp() {
             res.cookie("Test", "me", {{"Max-Age", "3600"}});
 
             //            res.set("Connection", "close");
-            res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
+            res.sendFile(webRoot + uri, [uri](int ret) -> void {
                 if (ret != 0) {
                     perror(uri.c_str());
                     //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
@@ -173,7 +174,7 @@ int timerApp() {
                 std::cout << "Body: " << req.body.data() << std::endl;
             }
 
-            res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
+            res.sendFile(webRoot + uri, [uri](int ret) -> void {
                 if (ret != 0) {
                     std::cerr << uri << ": " << strerror(ret) << std::endl;
                 }
@@ -233,6 +234,9 @@ void g(const std::function<void(express::Request&, express::Response&, express::
 }
 
 int main(int argc, char** argv) {
+    std::string webRoot;
+    utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
+
     express::WebApp::init(argc, argv);
 
     g(
@@ -256,5 +260,5 @@ int main(int argc, char** argv) {
     std::cout << "FileWriter: " << test2.rflags << " : " << O_WRONLY << std::endl;
     std::cout << "FileIO: " << test3.rflags << " : " << O_RDWR << std::endl;
 
-    return timerApp();
+    return timerApp(webRoot);
 }

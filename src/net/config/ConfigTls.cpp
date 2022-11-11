@@ -39,6 +39,15 @@ namespace net::config {
             tlsSc = add_subcommand("tls", "Options for SSL/TLS behaviour");
             tlsSc->group("Subcommands");
 
+            certChainFileOpt = tlsSc->add_option("--cert-chain", certChainFile, "Certificate chain file");
+            certKeyFileOpt = tlsSc->add_option("--cert-key", certKeyFile, "Certificate key file");
+            certKeyPasswordOpt = tlsSc->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file");
+            caFileOpt = tlsSc->add_option("--ca-file", caFile, "CA-certificate file");
+            caDirOpt = tlsSc->add_option("--ca-dir", caDir, "CA-certificate directory");
+            useDefaultCaDirFlg = tlsSc->add_flag("--use-default-ca-dir{true}", useDefaultCaDir, "Use default CA-certificate directory");
+            cipherListOpt = tlsSc->add_option("--cipher-list", cipherList, "Cipher list");
+            sslTlsOptionsOpt = tlsSc->add_option("--tls-options", sslTlsOptions, "SSL/TLS options");
+
             initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout");
             initTimeoutOpt->type_name("[sec]");
             initTimeoutOpt->default_val(DEFAULT_INITTIMEOUT);
@@ -78,6 +87,38 @@ namespace net::config {
 
     void ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeoutSet) {
         shutdownTimeoutSet = newShutdownTimeoutSet;
+    }
+
+    const std::string& ConfigTls::getCertChainFile() const {
+        return certChainFile;
+    }
+
+    const std::string& ConfigTls::getCertKeyFile() const {
+        return certKeyFile;
+    }
+
+    const std::string& ConfigTls::getCertKeyPassword() const {
+        return certKeyPassword;
+    }
+
+    const std::string& ConfigTls::getCaFile() const {
+        return caFile;
+    }
+
+    const std::string& ConfigTls::getCaDir() const {
+        return caDir;
+    }
+
+    bool ConfigTls::getUseDefaultCaDir() const {
+        return useDefaultCaDir;
+    }
+
+    const std::string& ConfigTls::getCipherList() const {
+        return cipherList;
+    }
+
+    const uint64_t &ConfigTls::getSslTlsOptions() const {
+        return sslTlsOptions;
     }
 
 } // namespace net::config

@@ -80,21 +80,21 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
-                  options)
-            , ctx(ssl_ctx_new(options, false)) {
+                  options) {
         }
 
         ~SocketConnector() override {
             ssl_ctx_free(ctx);
         }
 
-        void connect(const std::shared_ptr<Config>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
+        void connect(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
+            ctx = ssl_ctx_new(config, true);
             if (ctx == nullptr) {
                 errno = EINVAL;
-                onError(clientConfig->getRemoteAddress(), errno);
+                onError(config->getRemoteAddress(), errno);
                 Super::destruct();
             } else {
-                Super::connect(clientConfig, onError);
+                Super::connect(config, onError);
             }
         }
 
