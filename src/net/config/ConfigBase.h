@@ -44,13 +44,16 @@ namespace net::config {
 
         const std::string& getName() const;
 
-        //    protected:
+        // protected:
         CLI::App* add_subcommand(const std::string& name, const std::string& description = "");
         CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
         CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
         CLI::Option* add_flag(const std::string& name, const std::string& description = "");
 
         void required(bool req = true);
+
+    public:
+        void parse();
 
     private:
         CLI::App* baseSc = nullptr;

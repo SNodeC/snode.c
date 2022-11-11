@@ -63,4 +63,8 @@ namespace net::config {
         }
     }
 
+    void ConfigBase::parse() {
+        utils::Config::parse();
+    }
+
 } // namespace net::config

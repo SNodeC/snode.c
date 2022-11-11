@@ -73,14 +73,15 @@ namespace utils {
 
         static std::string getApplicationName();
 
+        static bool parse(bool stopOnError = false);
+
     private:
         static CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
         static CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
         static CLI::Option* add_flag(const std::string& name, const std::string& description = "");
         static CLI::Option* add_flag(const std::string& name, bool& variable, const std::string& description = "");
 
-        static bool parse(bool stopOnError = false);
-
+    private:
         static int argc;
         static char** argv;
         static CLI::App app;
