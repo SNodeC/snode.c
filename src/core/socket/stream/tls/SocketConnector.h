@@ -84,14 +84,16 @@ namespace core::socket::stream::tls {
         }
 
         ~SocketConnector() override {
-            ssl_ctx_free(ctx);
+            if (ctx != nullptr) {
+                ssl_ctx_free(ctx);
+            }
         }
 
         void connect(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
-            ctx = ssl_ctx_new(config, true);
+            ctx = ssl_ctx_new(config, false);
+
             if (ctx == nullptr) {
-                errno = EINVAL;
-                onError(config->getRemoteAddress(), errno);
+                onError(config->getRemoteAddress(), EINVAL);
                 Super::destruct();
             } else {
                 Super::connect(config, onError);

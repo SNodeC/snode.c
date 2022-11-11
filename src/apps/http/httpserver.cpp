@@ -33,35 +33,22 @@ int main(int argc, char* argv[]) {
     std::string webRoot;
     utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
 
-#if (STREAM_TYPE == TLS)
-    std::string certChainFile;
-    utils::Config::add_option("--cert-chain", certChainFile, "Certificate chain file", true, "[path]");
-
-    std::string keyFile;
-    utils::Config::add_option("--key", keyFile, "Certificate key file", true, "[path]");
-
-    std::string password;
-    utils::Config::add_option("--password", password, "Password for the certificate key file", false, "");
-#endif // STREAM_TYPE == TLS
-
     WebApp::init(argc, argv);
 
 #if (STREAM_TYPE == LEGACY)
     std::map<std::string, std::any> options{};
 #elif (STREAM_TYPE == TLS)
-    VLOG(0) << "CertChainFile: " << certChainFile;
-    std::map<std::string, std::any> options{{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}};
-    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-        {"snodec.home.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}},
-        {"www.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}}};
+//    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
+//        {"snodec.home.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}},
+//        {"www.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}}};
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;
-    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot, options));
+    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
 
 #if (STREAM_TYPE == TLS)
-    webApp.addSniCerts(sniCerts);
-    webApp.forceSni();
+//    webApp.addSniCerts(sniCerts);
+//    webApp.forceSni();
 #endif
 
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {

@@ -85,37 +85,30 @@ namespace core::socket::stream::tls {
                   options)
             , sniSslCtxs(std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second))
             , forceSni(std::any_cast<bool>(options.find("FORCE_SNI")->second)) {
-        }
-
-        ~SocketAcceptor() override {
-            ssl_ctx_free(masterSslCtx);
-        }
-
-        void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
-            //            if (masterSslCtx == nullptr) {
-            //                onError(config->getLocalAddress(), EINVAL);
-            //                Super::destruct();
-            //            } else {
-            Super::listen(config, onError);
-            //            }
-        }
-
-    private:
-        void initAcceptEvent() override {
-            VLOG(0) << "################# 1 1";
-            masterSslCtx = ssl_ctx_new(this->config, true);
             if (masterSslCtx != nullptr) {
-                masterSslCtxDomains = ssl_get_sans(masterSslCtx);
                 SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
-
-                VLOG(0) << "################# 1 2: " << masterSslCtx;
-
-                Super::initAcceptEvent();
-            } else {
-                Super::destruct();
             }
         }
 
+        ~SocketAcceptor() override {
+            if (masterSslCtx != nullptr) {
+                ssl_ctx_free(masterSslCtx);
+            }
+        }
+
+        void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
+            masterSslCtx = ssl_ctx_new(config, true);
+            masterSslCtxDomains = ssl_get_sans(masterSslCtx);
+
+            if (masterSslCtx == nullptr) {
+                onError(config->getLocalAddress(), EINVAL);
+                Super::destruct();
+            } else {
+                Super::listen(config, onError);
+            }
+        }
+
+    private:
         SSL_CTX* getMasterSniCtx(const std::string& serverNameIndication) {
             SSL_CTX* sniSslCtx = nullptr;
 

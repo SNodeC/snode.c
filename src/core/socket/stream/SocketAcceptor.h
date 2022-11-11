@@ -91,7 +91,6 @@ namespace core::socket::stream {
         }
 
         void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
-            VLOG(0) << "########################## 1: ##### " << config->getLocalAddress().toString();
             this->config = config;
             this->onError = onError;
 

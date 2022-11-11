@@ -106,9 +106,9 @@ namespace core::socket::stream::tls {
         std::string cipherList = configTls->getCipherList();
         ssl_option_t sslOptions = configTls->getSslTlsOptions();
 
-        VLOG(0) << "§§§§§§§§§§§§: " << certChain;
-
         SSL_CTX* ctx = SSL_CTX_new(server ? TLS_server_method() : TLS_client_method());
+
+        VLOG(0) << "CaFile: " << caFile;
 
         if (ctx != nullptr) {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -355,20 +355,15 @@ namespace core::socket::stream::tls {
     std::set<std::string> ssl_get_sans(SSL_CTX* sslCtx) {
         std::set<std::string> sans;
 
-        VLOG(0) << "%%%%%%%%%%%%%%%%%%%%%%% 1";
-
         if (sslCtx != nullptr) {
-            VLOG(0) << "%%%%%%%%%%%%%%%%%%%%%%% 2";
             X509* x509 = SSL_CTX_get0_certificate(sslCtx);
             if (x509 != nullptr) {
-                VLOG(0) << "%%%%%%%%%%%%%%%%%%%%%%% 3";
                 GENERAL_NAMES* subjectAltNames =
                     static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(x509, NID_subject_alt_name, nullptr, nullptr));
 
                 int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
                 for (int32_t i = 0; i < altNameCount; ++i) {
-                    VLOG(0) << "%%%%%%%%%%%%%%%%%%%%%%% 4";
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                     if (generalName->type == GEN_DNS || generalName->type == GEN_URI || generalName->type == GEN_EMAIL) {
                         std::string subjectAltName =

@@ -42,9 +42,10 @@ namespace net::config {
             certChainFileOpt = tlsSc->add_option("--cert-chain", certChainFile, "Certificate chain file");
             certKeyFileOpt = tlsSc->add_option("--cert-key", certKeyFile, "Certificate key file");
             certKeyPasswordOpt = tlsSc->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file");
-            caFileOpt = tlsSc->add_option("--ca-file", caFile, "CA-certificate file");
-            caDirOpt = tlsSc->add_option("--ca-dir", caDir, "CA-certificate directory");
-            useDefaultCaDirFlg = tlsSc->add_flag("--use-default-ca-dir{true}", useDefaultCaDir, "Use default CA-certificate directory");
+            caFileOpt = tlsSc->add_option("--ca-cert-file", caFile, "CA-certificate file");
+            caDirOpt = tlsSc->add_option("--ca-cert-dir", caDir, "CA-certificate directory");
+            useDefaultCaDirFlg =
+                tlsSc->add_flag("--use-default-ca-cert-dir{true}", useDefaultCaDir, "Use default CA-certificate directory");
             cipherListOpt = tlsSc->add_option("--cipher-list", cipherList, "Cipher list");
             sslTlsOptionsOpt = tlsSc->add_option("--tls-options", sslTlsOptions, "SSL/TLS options");
 
@@ -117,7 +118,7 @@ namespace net::config {
         return cipherList;
     }
 
-    const uint64_t &ConfigTls::getSslTlsOptions() const {
+    const uint64_t& ConfigTls::getSslTlsOptions() const {
         return sslTlsOptions;
     }
 
