@@ -81,10 +81,6 @@ namespace core::socket::stream::tls {
             }
         }
 
-        void forceSni(bool forceSni = true) {
-            Super::_options.insert_or_assign("FORCE_SNI", forceSni);
-        }
-
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
     };
 
