@@ -95,8 +95,6 @@ namespace core::socket::stream::tls {
 #endif
         static int sslSessionCtxId = 1;
 
-        VLOG(0) << "Pointer: " << configTls;
-
         std::string certChain = configTls->getCertChainFile();
         std::string certChainKey = configTls->getCertKeyFile();
         std::string password = configTls->getCertKeyPassword();
@@ -107,8 +105,6 @@ namespace core::socket::stream::tls {
         ssl_option_t sslOptions = configTls->getSslTlsOptions();
 
         SSL_CTX* ctx = SSL_CTX_new(server ? TLS_server_method() : TLS_client_method());
-
-        VLOG(0) << "CaFile: " << caFile;
 
         if (ctx != nullptr) {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -200,15 +196,15 @@ namespace core::socket::stream::tls {
 
         for (auto& [name, value] : options) {
             if (name == "CertChain") {
-                certChain = std::any_cast<std::string>(value);
+                certChain = std::any_cast<const char*>(value);
             } else if (name == "CertChainKey") {
-                certChainKey = std::any_cast<const std::string>(value);
+                certChainKey = std::any_cast<const char*>(value);
             } else if (name == "Password") {
-                password = std::any_cast<const std::string>(value);
+                password = std::any_cast<const char*>(value);
             } else if (name == "CaFile") {
-                caFile = std::any_cast<const std::string>(value);
+                caFile = std::any_cast<const char*>(value);
             } else if (name == "CaDir") {
-                caDir = std::any_cast<const std::string>(value);
+                caDir = std::any_cast<const char*>(value);
             } else if (name == "UseDefaultCaDir") {
                 useDefaultCaDir = std::any_cast<bool>(value);
             } else if (name == "CipherList") {
@@ -294,6 +290,12 @@ namespace core::socket::stream::tls {
     void ssl_ctx_free(SSL_CTX* ctx) {
         if (ctx != nullptr) {
             SSL_CTX_free(ctx);
+        }
+    }
+
+    void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTls>& configTls) {
+        if (!configTls->getSni().empty()) {
+            SSL_set_tlsext_host_name(ssl, configTls->getSni().data());
         }
     }
 

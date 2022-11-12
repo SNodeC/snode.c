@@ -50,8 +50,16 @@ namespace net::config {
         const std::string& getCaFile() const;
         const std::string& getCaDir() const;
         bool getUseDefaultCaDir() const;
+        const std::string& getSni() const;
         const std::string& getCipherList() const;
         const uint64_t& getSslTlsOptions() const;
+
+        void disableSni();
+        void disableForceSni();
+
+        void setForceSni(bool newForceSni);
+
+        bool getForceSni() const;
 
     private:
         CLI::App* tlsSc = nullptr;
@@ -61,6 +69,8 @@ namespace net::config {
         CLI::Option* caFileOpt;
         CLI::Option* caDirOpt;
         CLI::Option* useDefaultCaDirFlg;
+        CLI::Option* sniOpt;
+        CLI::Option* forceSniFlg;
         CLI::Option* cipherListOpt;
         CLI::Option* sslTlsOptionsOpt;
 
@@ -72,9 +82,11 @@ namespace net::config {
         std::string certKeyPassword;
         std::string caFile;
         std::string caDir;
-        bool useDefaultCaDir;
+        bool useDefaultCaDir = false;
+        std::string sni;
+        bool forceSni = false;
         std::string cipherList;
-        uint64_t sslTlsOptions;
+        uint64_t sslTlsOptions = 0;
 
         utils::Timeval initTimeout;
         utils::Timeval initTimeoutSet = -1;

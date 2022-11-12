@@ -28,20 +28,13 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-#if (STREAM_TYPE == LEGACY)
-    std::map<std::string, std::any> options = {{}};
-#elif (STREAM_TYPE == TLS)
-    std::map<std::string, std::any> options = {
-        {"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
-
-    std::map<std::string, std::any> sniCert = {
-        {"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
-#endif
-
     using SocketServer = apps::echo::model::STREAM::EchoSocketServer;
-    SocketServer server = apps::echo::model::STREAM::getServer(options);
+    SocketServer server = apps::echo::model::STREAM::getServer();
 
 #if (STREAM_TYPE == TLS)
+    std::map<std::string, std::any> sniCert = {
+        {"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
+
     server.addSniCert("snodec.home.vchrist.at", sniCert);
 //    server.setForceSni();
 #endif

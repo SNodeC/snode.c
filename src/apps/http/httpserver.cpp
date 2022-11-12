@@ -35,20 +35,15 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
-#if (STREAM_TYPE == LEGACY)
-    std::map<std::string, std::any> options{};
-#elif (STREAM_TYPE == TLS)
-//    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-//        {"snodec.home.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}},
-//        {"www.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}}};
-#endif
-
     using WebApp = apps::http::STREAM::WebApp;
     WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
 
 #if (STREAM_TYPE == TLS)
+//    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
+//        {"snodec.home.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}},
+//        {"www.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}}};
+
 //    webApp.addSniCerts(sniCerts);
-//    webApp.forceSni();
 #endif
 
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {

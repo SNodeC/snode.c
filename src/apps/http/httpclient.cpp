@@ -28,12 +28,6 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-#if (STREAM_TYPE == LEGACY)
-//    std::map<std::string, std::any> options{};
-#elif (STREAM_TYPE == TLS)
-//    std::map<std::string, std::any> options{{"CaFile", SERVERCAFILE}};
-#endif
-
     using Client = apps::http::STREAM::Client;
     using SocketAddress = Client::SocketAddress;
 

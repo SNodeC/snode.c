@@ -54,7 +54,7 @@ namespace apps::echo::model::legacy {
 
     using EchoSocketClient = net::NET::stream::legacy::SocketClient<EchoClientSocketContextFactory>;
 
-    EchoSocketClient getClient(const std::map<std::string, std::any>& options) {
+    EchoSocketClient getClient() {
         using SocketConnection = typename EchoSocketClient::SocketConnection;
 
         return EchoSocketClient(
@@ -77,8 +77,7 @@ namespace apps::echo::model::legacy {
                                socketConnection->getLocalAddress().toString();
                 VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
-            },
-            options);
+            });
     }
 
 } // namespace apps::echo::model::legacy
@@ -91,7 +90,7 @@ namespace apps::echo::model::tls {
 
     using EchoSocketClient = net::NET::stream::tls::SocketClient<EchoClientSocketContextFactory>;
 
-    EchoSocketClient getClient(const std::map<std::string, std::any>& options) {
+    EchoSocketClient getClient() {
         using SocketConnection = typename EchoSocketClient::SocketConnection;
 
         return EchoSocketClient(
@@ -158,8 +157,7 @@ namespace apps::echo::model::tls {
                                socketConnection->getLocalAddress().toString();
                 VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
-            },
-            options);
+            });
     }
 
 } // namespace apps::echo::model::tls

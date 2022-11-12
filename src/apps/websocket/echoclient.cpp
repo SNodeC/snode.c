@@ -207,8 +207,7 @@ int main(int argc, char* argv[]) {
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-            },
-            {{"CaFile", SERVERCAFILE}});
+            });
 
         //        legacyClient.connect("localhost", 8080, [](int err) -> void {
         legacyClient.connect([](const LegacySocketAddress& socketAddress, int err) -> void {

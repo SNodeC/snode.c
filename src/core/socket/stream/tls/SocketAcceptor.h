@@ -83,11 +83,7 @@ namespace core::socket::stream::tls {
                       onDisconnect(socketConnection);
                   },
                   options)
-            , sniSslCtxs(std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second))
-            , forceSni(std::any_cast<bool>(options.find("FORCE_SNI")->second)) {
-            if (masterSslCtx != nullptr) {
-                SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
-            }
+            , sniSslCtxs(std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second)) {
         }
 
         ~SocketAcceptor() override {
@@ -98,12 +94,15 @@ namespace core::socket::stream::tls {
 
         void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
             masterSslCtx = ssl_ctx_new(config, true);
-            masterSslCtxDomains = ssl_get_sans(masterSslCtx);
 
             if (masterSslCtx == nullptr) {
                 onError(config->getLocalAddress(), EINVAL);
                 Super::destruct();
             } else {
+                masterSslCtxDomains = ssl_get_sans(masterSslCtx);
+                SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
+                forceSni = config->getForceSni();
+
                 Super::listen(config, onError);
             }
         }

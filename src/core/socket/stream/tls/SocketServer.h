@@ -54,7 +54,6 @@ namespace core::socket::stream::tls {
                 delete sniSslCtxs;
             }) {
             Super::_options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
-            Super::_options.insert({{"FORCE_SNI", false}});
         }
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
