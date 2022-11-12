@@ -50,31 +50,19 @@ namespace net::config {
     }
 
     int ConfigListen::getBacklog() const {
-        int backlog = this->backlog;
-
-        if (backlogSet >= 0 && backlogOpt != nullptr && backlogOpt->count() == 0) {
-            backlog = this->backlogSet;
-        }
-
         return backlog;
     }
 
-    void ConfigListen::setBacklog(int backlog) {
-        backlogSet = backlog;
+    void ConfigListen::setBacklog(int newBacklog) {
+        backlog = newBacklog;
     }
 
     int ConfigListen::getAcceptsPerTick() const {
-        int acceptsPerTick = this->acceptsPerTick;
-
-        if (acceptsPerTickSet > 0 && acceptsPerTickOpt != nullptr && acceptsPerTickOpt->count() == 0) {
-            acceptsPerTick = this->acceptsPerTickSet;
-        }
-
         return acceptsPerTick;
     }
 
     void ConfigListen::setAcceptsPerTick(int newAcceptsPerTick) {
-        acceptsPerTickSet = newAcceptsPerTick;
+        acceptsPerTick = newAcceptsPerTick;
     }
 
 } // namespace net::config

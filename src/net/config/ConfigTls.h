@@ -38,28 +38,44 @@ namespace net::config {
     public:
         ConfigTls();
 
-        utils::Timeval getInitTimeout() const;
-        utils::Timeval getShutdownTimeout() const;
+        const utils::Timeval& getInitTimeout() const;
+        void setInitTimeout(const utils::Timeval& newInitTimeout);
 
-        void setInitTimeout(const utils::Timeval& newInitTimeoutSet);
-        void setShutdownTimeout(const utils::Timeval& newShutdownTimeoutSet);
+        const utils::Timeval& getShutdownTimeout() const;
+        void setShutdownTimeout(const utils::Timeval& newShutdownTimeout);
 
         const std::string& getCertChainFile() const;
+        void setCertChainFile(const std::string& newCertChainFile);
+
         const std::string& getCertKeyFile() const;
+        void setCertKeyFile(const std::string& newCertKeyFile);
+
         const std::string& getCertKeyPassword() const;
+        void setCertKeyPassword(const std::string& newCertKeyPassword);
+
         const std::string& getCaFile() const;
+        void setCaFile(const std::string& newCaFile);
+
         const std::string& getCaDir() const;
+        void setCaDir(const std::string& newCaDir);
+
         bool getUseDefaultCaDir() const;
+        void setUseDefaultCaDir();
+
         const std::string& getSni() const;
+        void setSni(const std::string& newSni);
+
+        bool getForceSni() const;
+        void setForceSni();
+
         const std::string& getCipherList() const;
+        void setCipherList(const std::string& newCipherList);
+
         const uint64_t& getSslTlsOptions() const;
+        void setSslTlsOptions(uint64_t newSslTlsOptions);
 
         void disableSni();
         void disableForceSni();
-
-        void setForceSni(bool newForceSni);
-
-        bool getForceSni() const;
 
     private:
         CLI::App* tlsSc = nullptr;
@@ -89,10 +105,7 @@ namespace net::config {
         uint64_t sslTlsOptions = 0;
 
         utils::Timeval initTimeout;
-        utils::Timeval initTimeoutSet = -1;
-
         utils::Timeval shutdownTimeout;
-        utils::Timeval shutdownTimeoutSet = -1;
     };
 
 } // namespace net::config

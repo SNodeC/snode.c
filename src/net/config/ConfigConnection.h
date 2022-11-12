@@ -40,19 +40,18 @@ namespace net::config {
 
     public:
         utils::Timeval getReadTimeout() const;
-        utils::Timeval getWriteTimeout() const;
-
-        std::size_t getReadBlockSize() const;
-        std::size_t getWriteBlockSize() const;
-
-        utils::Timeval getTerminateTimeout() const;
-
         void setReadTimeout(const utils::Timeval& newReadTimeoutSet);
+
+        utils::Timeval getWriteTimeout() const;
         void setWriteTimeout(const utils::Timeval& newWriteTimeoutSet);
 
+        std::size_t getReadBlockSize() const;
         void setReadBlockSize(std::size_t newReadBlockSizeSet);
+
+        std::size_t getWriteBlockSize() const;
         void setWriteBlockSize(std::size_t newWriteBlockSizeSet);
 
+        utils::Timeval getTerminateTimeout() const;
         void setTerminateTimeout(const utils::Timeval& newTerminateTimeoutSet);
 
     private:
@@ -66,19 +65,10 @@ namespace net::config {
         CLI::Option* terminateTimeoutOpt = nullptr;
 
         utils::Timeval readTimeout;
-        utils::Timeval readTimeoutSet = -1;
-
         utils::Timeval writeTimeout;
-        utils::Timeval writeTimeoutSet = -1;
-
         std::size_t readBlockSize;
-        std::size_t readBlockSizeSet = 0;
-
         std::size_t writeBlockSize;
-        std::size_t writeBlockSizeSet = 0;
-
         utils::Timeval terminateTimeout;
-        utils::Timeval terminateTimeoutSet = -1;
     };
 
 } // namespace net::config

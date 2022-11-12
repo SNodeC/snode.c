@@ -72,72 +72,84 @@ namespace net::config {
         }
     }
 
-    utils::Timeval ConfigTls::getInitTimeout() const {
-        utils::Timeval initTimeout = this->initTimeout;
-
-        if (initTimeoutSet >= 0 && initTimeoutOpt != nullptr && initTimeoutOpt->count() == 0) {
-            initTimeout = initTimeoutSet;
-        }
-
-        return initTimeout;
-    }
-
-    utils::Timeval ConfigTls::getShutdownTimeout() const {
-        utils::Timeval shutdownTimeout = this->shutdownTimeout;
-
-        if (shutdownTimeoutSet >= 0 && shutdownTimeoutOpt != nullptr && shutdownTimeoutOpt->count() == 0) {
-            shutdownTimeout = shutdownTimeoutSet;
-        }
-
-        return shutdownTimeout;
-    }
-
-    void ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeoutSet) {
-        initTimeoutSet = newInitTimeoutSet;
-    }
-
-    void ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeoutSet) {
-        shutdownTimeoutSet = newShutdownTimeoutSet;
-    }
-
     const std::string& ConfigTls::getCertChainFile() const {
         return certChainFile;
+    }
+
+    void ConfigTls::setCertChainFile(const std::string& newCertChainFile) {
+        certChainFile = newCertChainFile;
     }
 
     const std::string& ConfigTls::getCertKeyFile() const {
         return certKeyFile;
     }
 
+    void ConfigTls::setCertKeyFile(const std::string& newCertKeyFile) {
+        certKeyFile = newCertKeyFile;
+    }
+
     const std::string& ConfigTls::getCertKeyPassword() const {
         return certKeyPassword;
+    }
+
+    void ConfigTls::setCertKeyPassword(const std::string& newCertKeyPassword) {
+        certKeyPassword = newCertKeyPassword;
     }
 
     const std::string& ConfigTls::getCaFile() const {
         return caFile;
     }
 
+    void ConfigTls::setCaFile(const std::string& newCaFile) {
+        caFile = newCaFile;
+    }
+
     const std::string& ConfigTls::getCaDir() const {
         return caDir;
+    }
+
+    void ConfigTls::setCaDir(const std::string& newCaDir) {
+        caDir = newCaDir;
     }
 
     bool ConfigTls::getUseDefaultCaDir() const {
         return useDefaultCaDir;
     }
 
+    void ConfigTls::setUseDefaultCaDir() {
+        useDefaultCaDir = true;
+    }
+
     const std::string& ConfigTls::getSni() const {
         return sni;
+    }
+
+    void ConfigTls::setSni(const std::string& newSni) {
+        sni = newSni;
     }
 
     bool ConfigTls::getForceSni() const {
         return forceSni;
     }
 
+    void ConfigTls::setForceSni() {
+        forceSni = true;
+    }
+
     const std::string& ConfigTls::getCipherList() const {
         return cipherList;
     }
 
+    void ConfigTls::setCipherList(const std::string& newCipherList) {
+        cipherList = newCipherList;
+    }
+
     const uint64_t& ConfigTls::getSslTlsOptions() const {
         return sslTlsOptions;
+    }
+
+    void ConfigTls::setSslTlsOptions(uint64_t newSslTlsOptions) {
+        sslTlsOptions = newSslTlsOptions;
     }
 
     void ConfigTls::disableSni() {
@@ -150,6 +162,22 @@ namespace net::config {
         if (tlsSc != nullptr) {
             tlsSc->remove_option(forceSniFlg);
         }
+    }
+
+    const utils::Timeval& ConfigTls::getInitTimeout() const {
+        return initTimeout;
+    }
+
+    void ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
+        initTimeout = newInitTimeout;
+    }
+
+    const utils::Timeval& ConfigTls::getShutdownTimeout() const {
+        return shutdownTimeout;
+    }
+
+    void ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
+        shutdownTimeout = newShutdownTimeout;
     }
 
 } // namespace net::config

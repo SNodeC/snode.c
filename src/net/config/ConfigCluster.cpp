@@ -49,4 +49,8 @@ namespace net::config {
         return mode;
     }
 
+    void ConfigCluster::setClusterMode(MODE newMode) {
+        mode = newMode;
+    }
+
 } // namespace net::config

@@ -36,7 +36,7 @@ namespace net::config {
         ConfigListen();
 
         int getBacklog() const;
-        void setBacklog(int backlog);
+        void setBacklog(int newBacklog);
 
         int getAcceptsPerTick() const;
         void setAcceptsPerTick(int newAcceptsPerTickSet);
@@ -46,10 +46,7 @@ namespace net::config {
         CLI::Option* acceptsPerTickOpt = nullptr;
 
         int backlog = 0;
-        int backlogSet = -1;
-
         int acceptsPerTick = 1;
-        int acceptsPerTickSet = 0;
     };
 
 } // namespace net::config
