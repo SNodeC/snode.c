@@ -22,6 +22,8 @@
 
 #include "utils/CLI11.hpp"
 
+#include <stdexcept>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #ifndef DEFAULT_INITTIMEOUT
