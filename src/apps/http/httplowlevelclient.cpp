@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"
 #include "core/SNodeC.h"
 #include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
@@ -205,8 +204,7 @@ namespace tls {
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
-            },
-            {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
+            });
 
         SocketAddress remoteAddress("localhost", 8088);
 

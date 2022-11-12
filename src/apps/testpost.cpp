@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
@@ -76,7 +75,7 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    express::tls::in::WebApp tlsApp("tls-testpost", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+    express::tls::in::WebApp tlsApp("tls-testpost");
     tlsApp.use(legacyApp);
 
     legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {

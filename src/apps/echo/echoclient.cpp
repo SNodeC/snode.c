@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h" // IWYU pragma: keep
 #include "core/SNodeC.h"
 #include "log/Logger.h"
 #include "model/clients.h"

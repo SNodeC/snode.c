@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/clients.h"
-#include "config.h"
 #include "core/SNodeC.h"
 #include "log/Logger.h"
 

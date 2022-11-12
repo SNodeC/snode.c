@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"
 #include "core/SNodeC.h"
 #include "log/Logger.h"
 #include "web/http/client/Request.h"

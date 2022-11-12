@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/servers.h"
-#include "config.h" // IWYU pragma: keep
 #include "log/Logger.h"
 #include "utils/Config.h"
 

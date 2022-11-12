@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // IWYU pragma: keep
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"

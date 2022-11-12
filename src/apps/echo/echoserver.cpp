@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h" // IWYU pragma: keep
 #include "core/SNodeC.h"
 #include "log/Logger.h"
 #include "model/servers.h"
@@ -32,10 +31,10 @@ int main(int argc, char* argv[]) {
     SocketServer server = apps::echo::model::STREAM::getServer();
 
 #if (STREAM_TYPE == TLS)
-    std::map<std::string, std::any> sniCert = {
-        {"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
+//    std::map<std::string, std::any> sniCert = {
+//        {"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
 
-    server.addSniCert("snodec.home.vchrist.at", sniCert);
+//    server.addSniCert("snodec.home.vchrist.at", sniCert);
 //    server.getConfig().setForceSni();
 #endif
 

@@ -3,15 +3,15 @@
 
 #cmakedefine CMAKE_SOURCE_DIR "@CMAKE_SOURCE_DIR@/"
 
-#define SERVERCAFILE CMAKE_SOURCE_DIR "certs/snode.c_-_Root_CA.crt"
-#define SERVERCERTF CMAKE_SOURCE_DIR "certs/snode.c_-_server.pem"
-#define SERVERKEYF CMAKE_SOURCE_DIR "certs/snode.c_-_server.key.encrypted.pem"
+//#define SERVERCAFILE CMAKE_SOURCE_DIR "certs/snode.c_-_Root_CA.crt"
+//#define SERVERCERTF CMAKE_SOURCE_DIR "certs/snode.c_-_server.pem"
+//#define SERVERKEYF CMAKE_SOURCE_DIR "certs/snode.c_-_server.key.encrypted.pem"
 
-#define CLIENTCAFILE CMAKE_SOURCE_DIR "certs/snode.c_-_Root_CA.crt"
-#define CLIENTCERTF CMAKE_SOURCE_DIR "certs/snode.c_-_client.pem"
-#define CLIENTKEYF CMAKE_SOURCE_DIR "certs/snode.c_-_client.key.encrypted.pem"
+//#define CLIENTCAFILE CMAKE_SOURCE_DIR "certs/snode.c_-_Root_CA.crt"
+//#define CLIENTCERTF CMAKE_SOURCE_DIR "certs/snode.c_-_client.pem"
+//#define CLIENTKEYF CMAKE_SOURCE_DIR "certs/snode.c_-_client.key.encrypted.pem"
 
-#define KEYFPASS "snode.c"
+//#define KEYFPASS "snode.c"
 
 #define SNODECCERTF CMAKE_SOURCE_DIR "certs/snodec.home.vchrist.at_-_snode.c_-_server.pem"
 

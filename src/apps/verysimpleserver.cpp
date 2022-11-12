@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // IWYU pragma: keep
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/in/WebApp.h"
@@ -36,8 +35,7 @@ int main(int argc, char* argv[]) {
     express::legacy::in::WebApp legacyApp;
     legacyApp.use(express::middleware::StaticMiddleware(webRoot));
 
-    express::tls::in::WebApp tlsApp(
-        {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}});
+    express::tls::in::WebApp tlsApp;
     tlsApp.use(express::middleware::StaticMiddleware(webRoot));
 
     legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int errnum) {

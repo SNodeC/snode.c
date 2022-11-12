@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
 #include "database/mariadb/MariaDBClient.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
@@ -266,7 +265,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
-        tls::in::WebApp tlsApp("tls-testregex", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+        tls::in::WebApp tlsApp("tls-testregex");
 
         tlsApp.use(legacyApp);
 

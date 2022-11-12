@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // IWYU pragma: keep
 #include "express/legacy/in6/WebApp.h"
 #include "express/middleware/BasicAuthentication.h"
 #include "express/middleware/StaticMiddleware.h"
@@ -80,7 +79,7 @@ int main(int argc, char* argv[]) {
         });
 
         {
-            express::tls::in6::WebApp tlsApp("tls", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+            express::tls::in6::WebApp tlsApp("tls");
 
             Router& vh = middleware::VHost("localhost:8088");
             vh.use(getRouter(webRoot));
