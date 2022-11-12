@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         {"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
 
     server.addSniCert("snodec.home.vchrist.at", sniCert);
-//    server.setForceSni();
+//    server.getConfig().setForceSni();
 #endif
 
     server.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {
