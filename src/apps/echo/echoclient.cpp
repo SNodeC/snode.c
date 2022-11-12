@@ -28,19 +28,9 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-#if (STREAM_TYPE == LEGACY)
-    std::map<std::string, std::any> options = {{}};
-#elif (STREAM_TYPE == TLS)
-    std::map<std::string, std::any> options = {{"CertChain", CLIENTCERTF},
-                                               {"CertChainKey", CLIENTKEYF},
-                                               {"Password", KEYFPASS},
-                                               {"CaFile", SERVERCAFILE},
-                                               {"SNI", "snodec.home.vchrist.at"}};
-#endif
-
     using SocketClient = apps::echo::model::STREAM::EchoSocketClient;
     using SocketAddress = SocketClient::SocketAddress;
-    SocketClient client = apps::echo::model::STREAM::getClient(options);
+    SocketClient client = apps::echo::model::STREAM::getClient();
 
     client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {

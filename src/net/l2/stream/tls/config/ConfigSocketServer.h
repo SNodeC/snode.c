@@ -36,6 +36,7 @@ namespace net::l2::stream::tls::config {
     public:
         explicit ConfigSocketServer(const std::string& name)
             : net::config::ConfigBase(name) {
+            ConfigTls::disableSni();
         }
     };
 

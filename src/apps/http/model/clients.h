@@ -51,7 +51,7 @@ namespace apps::http::legacy {
     using Response = web::http::client::Response;
     using Client = web::http::legacy::NET::Client<Request, Response>;
 
-    Client getClient(const std::map<std::string, std::any>& options) {
+    Client getClient() {
         return Client(
             "httpclient",
             [](Client::SocketConnection* socketConnection) -> void { // onConnect
@@ -103,8 +103,7 @@ namespace apps::http::legacy {
                                socketConnection->getLocalAddress().toString();
                 VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
-            },
-            options);
+            });
     }
 
 } // namespace apps::http::legacy
@@ -119,7 +118,7 @@ namespace apps::http::tls {
     using Response = web::http::client::Response;
     using Client = web::http::tls::NET::Client<Request, Response>;
 
-    Client getClient(const std::map<std::string, std::any>& options) {
+    Client getClient() {
         return Client(
             "httpclient",
             [](Client::SocketConnection* socketConnection) -> void { // onConnect
@@ -219,8 +218,7 @@ namespace apps::http::tls {
                                socketConnection->getLocalAddress().toString();
                 VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
-            },
-            options);
+            });
     }
 
 } // namespace apps::http::tls

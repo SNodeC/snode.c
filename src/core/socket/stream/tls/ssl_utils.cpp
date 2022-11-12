@@ -21,6 +21,7 @@
 #include "core/socket/stream/tls/ssl_utils.h"
 
 #include "log/Logger.h"
+#include "net/config/ConfigTls.h"
 
 #include <cerrno>
 #include <cstdint>
@@ -86,13 +87,102 @@ namespace core::socket::stream::tls {
         return preverify_ok;
     }
 
+    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTls>& configTls, bool server) {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        using ssl_option_t = uint64_t;
+#else
+        using ssl_option_t = uint32_t;
+#endif
+        static int sslSessionCtxId = 1;
+
+        std::string certChain = configTls->getCertChainFile();
+        std::string certChainKey = configTls->getCertKeyFile();
+        std::string password = configTls->getCertKeyPassword();
+        std::string caFile = configTls->getCaFile();
+        std::string caDir = configTls->getCaDir();
+        bool useDefaultCaDir = configTls->getUseDefaultCaDir();
+        std::string cipherList = configTls->getCipherList();
+        ssl_option_t sslOptions = configTls->getSslTlsOptions();
+
+        SSL_CTX* ctx = SSL_CTX_new(server ? TLS_server_method() : TLS_client_method());
+
+        if (ctx != nullptr) {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+            SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
+#endif
+            SSL_CTX_set_read_ahead(ctx, 1);
+
+            SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+            SSL_CTX_set_mode(ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
+            bool sslErr = false;
+
+            if (server) {
+                SSL_CTX_set_session_id_context(ctx, reinterpret_cast<const unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
+                sslSessionCtxId++;
+            }
+            if (!caFile.empty() || !caDir.empty()) {
+                if (!SSL_CTX_load_verify_locations(
+                        ctx, !caFile.empty() ? caFile.c_str() : nullptr, !caDir.empty() ? caDir.c_str() : nullptr)) {
+                    ssl_log_error("Can not load CA file or non default CA directory");
+                    sslErr = true;
+                }
+            }
+            if (!sslErr && useDefaultCaDir) {
+                if (!SSL_CTX_set_default_verify_paths(ctx)) {
+                    ssl_log_error("Can not load default CA directory");
+                    sslErr = true;
+                }
+            }
+            if (!sslErr) {
+                if (server && (useDefaultCaDir || !caFile.empty() || !caDir.empty())) {
+                    SSL_CTX_set_verify_depth(ctx, 5);
+                    SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
+                }
+                if (!certChain.empty()) {
+                    if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) != 1) {
+                        ssl_log_error("Can not load certificate chain");
+                        sslErr = true;
+                    } else if (!certChainKey.empty()) {
+                        if (!password.empty()) {
+                            SSL_CTX_set_default_passwd_cb(ctx, password_callback);
+                            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
+                        }
+                        if (SSL_CTX_use_PrivateKey_file(ctx, certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
+                            ssl_log_error("Can not load private key");
+                            sslErr = true;
+                        } else if (!SSL_CTX_check_private_key(ctx)) {
+                            ssl_log_error("Private key not consistent with CA files");
+                            sslErr = true;
+                        }
+                    }
+                }
+            }
+            if (!sslErr) {
+                if (sslOptions != 0) {
+                    SSL_CTX_set_options(ctx, sslOptions);
+                }
+                if (!cipherList.empty()) {
+                    SSL_CTX_set_cipher_list(ctx, cipherList.c_str());
+                }
+            }
+            if (sslErr) {
+                SSL_CTX_free(ctx);
+                ctx = nullptr;
+            }
+        } else {
+            ssl_log_error("SSL CTX not created");
+        }
+
+        return ctx;
+    }
+
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
         using ssl_option_t = uint64_t;
 #else
         using ssl_option_t = uint32_t;
 #endif
-
         static int sslSessionCtxId = 1;
 
         std::string certChain;
@@ -104,7 +194,7 @@ namespace core::socket::stream::tls {
         std::string cipherList;
         ssl_option_t sslOptions = 0;
 
-        for (const auto& [name, value] : options) {
+        for (auto& [name, value] : options) {
             if (name == "CertChain") {
                 certChain = std::any_cast<const char*>(value);
             } else if (name == "CertChainKey") {
@@ -200,6 +290,12 @@ namespace core::socket::stream::tls {
     void ssl_ctx_free(SSL_CTX* ctx) {
         if (ctx != nullptr) {
             SSL_CTX_free(ctx);
+        }
+    }
+
+    void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTls>& configTls) {
+        if (!configTls->getSni().empty()) {
+            SSL_set_tlsext_host_name(ssl, configTls->getSni().data());
         }
     }
 

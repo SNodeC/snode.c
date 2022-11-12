@@ -19,8 +19,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/servers.h"
-#include "config.h" // just for this example app
+#include "config.h" // IWYU pragma: keep
 #include "log/Logger.h"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -29,27 +30,23 @@ using namespace express;
 int main(int argc, char* argv[]) {
     logger::Logger::setVerboseLevel(2);
 
+    std::string webRoot;
+    utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
+
     WebApp::init(argc, argv);
 
-#if (STREAM_TYPE == LEGACY)
-    std::map<std::string, std::any> options{};
-#elif (STREAM_TYPE == TLS)
-    std::map<std::string, std::any> options{
-        {"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
-    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-        {"snodec.home.vchrist.at",
-         {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}}},
-        {"www.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}}}};
-#endif
-
     using WebApp = apps::http::STREAM::WebApp;
-    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", SERVERROOT, options));
+    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
 
 #if (STREAM_TYPE == TLS)
-    webApp.addSniCerts(sniCerts);
-    webApp.forceSni();
-#endif
+    //    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
+    //        {"snodec.home.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}, {"CaFile",
+    //        caFile}}},
+    //        {"www.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}, {"CaFile", caFile}}}};
 
+    //    webApp.addSniCerts(sniCerts);
+    //    webApp.forceSni();
+#endif
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";

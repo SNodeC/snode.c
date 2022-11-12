@@ -36,6 +36,7 @@ namespace net::un::stream::tls::config {
     public:
         explicit ConfigSocketClient(const std::string& name)
             : net::config::ConfigBase(name) {
+            ConfigTls::disableForceSni();
         }
     };
 

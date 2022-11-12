@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
     });
 
     {
-        tls::in::WebApp tlsApp("tls", {{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
+        tls::in::WebApp tlsApp("tls");
 
         tlsApp.get("/", [] APPLICATION(req, res) {
             if (req.url == "/" || req.url == "/index.html") {

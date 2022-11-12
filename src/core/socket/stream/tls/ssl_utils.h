@@ -19,10 +19,15 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SSL_UTILS_H
 #define CORE_SOCKET_STREAM_TLS_SSL_UTILS_H
 
+namespace net::config {
+    class ConfigTls;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
 #include <map>
+#include <memory>
 #include <openssl/opensslv.h>
 #include <set>
 #include <string>
@@ -37,10 +42,12 @@
 
 namespace core::socket::stream::tls {
 
+    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTls>& configTls, bool server = false);
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server = false);
     void ssl_ctx_free(SSL_CTX* ctx);
 
     void ssl_set_sni(SSL* ssl, std::map<std::string, std::any>& options);
+    void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTls>& configTls);
     std::set<std::string> ssl_get_sans(SSL_CTX* sslCtx);
     std::string ssl_get_servername_from_client_hello(SSL* ssl);
     SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx);

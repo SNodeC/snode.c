@@ -54,7 +54,7 @@ namespace core::socket::stream::tls {
 
                       if (ssl != nullptr) {
                           SSL_set_connect_state(ssl);
-                          ssl_set_sni(ssl, this->options);
+                          ssl_set_sni(ssl, this->config);
 
                           socketConnection->doSSLHandshake(
                               [onConnected, socketConnection]() -> void { // onSuccess
@@ -80,15 +80,18 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
-                  options)
-            , ctx(ssl_ctx_new(options, false)) {
+                  options) {
         }
 
         ~SocketConnector() override {
-            ssl_ctx_free(ctx);
+            if (ctx != nullptr) {
+                ssl_ctx_free(ctx);
+            }
         }
 
         void connect(const std::shared_ptr<Config>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
+            ctx = ssl_ctx_new(clientConfig, false);
+
             if (ctx == nullptr) {
                 errno = EINVAL;
                 onError(clientConfig->getRemoteAddress(), errno);
