@@ -24,11 +24,12 @@
 
 namespace iot::mqtt::server::broker {
 
-    Message::Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retain)
+    Message::Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retain, bool dup)
         : topic(topic)
         , message(message)
         , qoS(qoS)
-        , retain(retain) {
+        , retain(retain)
+        , dup(dup) {
     }
 
     const std::string& Message::getTopic() const {
@@ -49,6 +50,10 @@ namespace iot::mqtt::server::broker {
 
     bool Message::getRetain() const {
         return retain;
+    }
+
+    bool Message::getDup() const {
+        return dup;
     }
 
 } // namespace iot::mqtt::server::broker

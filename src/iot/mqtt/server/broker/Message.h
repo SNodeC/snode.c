@@ -36,7 +36,7 @@ namespace iot::mqtt::server::broker {
     class Message {
     public:
         Message() = default;
-        Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
+        Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retain, bool dup);
         Message(const Message&) = default;
 
         Message& operator=(const Message&) = default;
@@ -48,12 +48,14 @@ namespace iot::mqtt::server::broker {
         void setQoS(uint8_t qoS);
 
         bool getRetain() const;
+        bool getDup() const;
 
     private:
         std::string topic;
         std::string message;
         uint8_t qoS = 0;
         bool retain = false;
+        bool dup = false;
     };
 
 } // namespace iot::mqtt::server::broker
