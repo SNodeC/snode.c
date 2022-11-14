@@ -87,24 +87,44 @@ namespace core::socket::stream::tls {
         return preverify_ok;
     }
 
-    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTls>& configTls, bool server) {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-        using ssl_option_t = uint64_t;
+    using ssl_option_t = uint64_t;
 #else
-        using ssl_option_t = uint32_t;
+    using ssl_option_t = uint32_t;
 #endif
+
+    struct SslConfig {
+        explicit SslConfig(bool server)
+            : server(server) {
+        }
+        SslConfig(bool server, const std::shared_ptr<net::config::ConfigTls>& configTls)
+            : certChain(configTls->getCertChainFile())
+            , certChainKey(configTls->getCertKeyFile())
+            , password(configTls->getCertKeyPassword())
+            , caFile(configTls->getCaFile())
+            , caDir(configTls->getCaDir())
+            , useDefaultCaDir(configTls->getUseDefaultCaDir())
+            , cipherList(configTls->getCipherList())
+            , sslOptions(static_cast<ssl_option_t>(configTls->getSslTlsOptions()))
+            , server(server) {
+        }
+
+        std::string certChain;
+        std::string certChainKey;
+        std::string password;
+        std::string caFile;
+        std::string caDir;
+        bool useDefaultCaDir = false;
+        std::string cipherList;
+        ssl_option_t sslOptions = 0;
+        bool server = false;
+    };
+
+    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig);
+    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) {
         static int sslSessionCtxId = 1;
 
-        std::string certChain = configTls->getCertChainFile();
-        std::string certChainKey = configTls->getCertKeyFile();
-        std::string password = configTls->getCertKeyPassword();
-        std::string caFile = configTls->getCaFile();
-        std::string caDir = configTls->getCaDir();
-        bool useDefaultCaDir = configTls->getUseDefaultCaDir();
-        std::string cipherList = configTls->getCipherList();
-        ssl_option_t sslOptions = static_cast<ssl_option_t>(configTls->getSslTlsOptions());
-
-        SSL_CTX* ctx = SSL_CTX_new(server ? TLS_server_method() : TLS_client_method());
+        SSL_CTX* ctx = SSL_CTX_new(sslConfig.server ? TLS_server_method() : TLS_client_method());
 
         if (ctx != nullptr) {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -117,38 +137,39 @@ namespace core::socket::stream::tls {
 
             bool sslErr = false;
 
-            if (server) {
+            if (sslConfig.server) {
                 SSL_CTX_set_session_id_context(ctx, reinterpret_cast<const unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
                 sslSessionCtxId++;
             }
-            if (!caFile.empty() || !caDir.empty()) {
-                if (!SSL_CTX_load_verify_locations(
-                        ctx, !caFile.empty() ? caFile.c_str() : nullptr, !caDir.empty() ? caDir.c_str() : nullptr)) {
+            if (!sslConfig.caFile.empty() || !sslConfig.caDir.empty()) {
+                if (!SSL_CTX_load_verify_locations(ctx,
+                                                   !sslConfig.caFile.empty() ? sslConfig.caFile.c_str() : nullptr,
+                                                   !sslConfig.caDir.empty() ? sslConfig.caDir.c_str() : nullptr)) {
                     ssl_log_error("Can not load CA file or non default CA directory");
                     sslErr = true;
                 }
             }
-            if (!sslErr && useDefaultCaDir) {
+            if (!sslErr && sslConfig.useDefaultCaDir) {
                 if (!SSL_CTX_set_default_verify_paths(ctx)) {
                     ssl_log_error("Can not load default CA directory");
                     sslErr = true;
                 }
             }
             if (!sslErr) {
-                if (server && (useDefaultCaDir || !caFile.empty() || !caDir.empty())) {
+                if (sslConfig.server && (sslConfig.useDefaultCaDir || !sslConfig.caFile.empty() || !sslConfig.caDir.empty())) {
                     SSL_CTX_set_verify_depth(ctx, 5);
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
                 }
-                if (!certChain.empty()) {
-                    if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) != 1) {
+                if (!sslConfig.certChain.empty()) {
+                    if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.certChain.c_str()) != 1) {
                         ssl_log_error("Can not load certificate chain");
                         sslErr = true;
-                    } else if (!certChainKey.empty()) {
-                        if (!password.empty()) {
+                    } else if (!sslConfig.certChainKey.empty()) {
+                        if (!sslConfig.password.empty()) {
                             SSL_CTX_set_default_passwd_cb(ctx, password_callback);
-                            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
+                            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(sslConfig.password.c_str()));
                         }
-                        if (SSL_CTX_use_PrivateKey_file(ctx, certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
+                        if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
                             ssl_log_error("Can not load private key");
                             sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
@@ -159,11 +180,11 @@ namespace core::socket::stream::tls {
                 }
             }
             if (!sslErr) {
-                if (sslOptions != 0) {
-                    SSL_CTX_set_options(ctx, sslOptions);
+                if (sslConfig.sslOptions != 0) {
+                    SSL_CTX_set_options(ctx, sslConfig.sslOptions);
                 }
-                if (!cipherList.empty()) {
-                    SSL_CTX_set_cipher_list(ctx, cipherList.c_str());
+                if (!sslConfig.cipherList.empty()) {
+                    SSL_CTX_set_cipher_list(ctx, sslConfig.cipherList.c_str());
                 }
             }
             if (sslErr) {
@@ -177,114 +198,45 @@ namespace core::socket::stream::tls {
         return ctx;
     }
 
-    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-        using ssl_option_t = uint64_t;
-#else
-        using ssl_option_t = uint32_t;
-#endif
-        static int sslSessionCtxId = 1;
+    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTls>& configTls, bool server) {
+        return ssl_ctx_new(SslConfig(server, configTls));
+    }
 
-        std::string certChain;
-        std::string certChainKey;
-        std::string password;
-        std::string caFile;
-        std::string caDir;
-        bool useDefaultCaDir = false;
-        std::string cipherList;
-        ssl_option_t sslOptions = 0;
+    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
+        SslConfig sslConfig(server);
 
         for (auto& [name, value] : options) {
             if (name == "CertChain") {
-                certChain = std::any_cast<const char*>(value);
+                sslConfig.certChain = std::any_cast<const char*>(value);
             } else if (name == "CertChainKey") {
-                certChainKey = std::any_cast<const char*>(value);
+                sslConfig.certChainKey = std::any_cast<const char*>(value);
             } else if (name == "Password") {
-                password = std::any_cast<const char*>(value);
+                sslConfig.password = std::any_cast<const char*>(value);
             } else if (name == "CaFile") {
-                caFile = std::any_cast<const char*>(value);
+                sslConfig.caFile = std::any_cast<const char*>(value);
             } else if (name == "CaDir") {
-                caDir = std::any_cast<const char*>(value);
+                sslConfig.caDir = std::any_cast<const char*>(value);
             } else if (name == "UseDefaultCaDir") {
-                useDefaultCaDir = std::any_cast<bool>(value);
+                sslConfig.useDefaultCaDir = std::any_cast<bool>(value);
             } else if (name == "CipherList") {
-                cipherList = std::any_cast<const char*>(value);
+                sslConfig.cipherList = std::any_cast<const char*>(value);
             } else if (name == "SslOptions") {
-                sslOptions = std::any_cast<ssl_option_t>(value);
+                sslConfig.sslOptions = std::any_cast<ssl_option_t>(value);
             }
         }
 
-        SSL_CTX* ctx = SSL_CTX_new(server ? TLS_server_method() : TLS_client_method());
+        return ssl_ctx_new(sslConfig);
+    }
 
-        if (ctx != nullptr) {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-            SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
-#endif
-            SSL_CTX_set_read_ahead(ctx, 1);
+    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) {
+        SSL_CTX* newSslCtx = SSL_set_SSL_CTX(ssl, sslCtx);
+        SSL_clear_options(ssl, 0xFFFFFFFFL);
+        SSL_set_options(ssl, SSL_CTX_get_options(sslCtx));
+        SSL_set_verify(ssl, SSL_CTX_get_verify_mode(sslCtx), SSL_CTX_get_verify_callback(sslCtx));
+        SSL_set_verify_depth(ssl, SSL_CTX_get_verify_depth(sslCtx));
+        SSL_set_mode(ssl, SSL_CTX_get_mode(sslCtx));
 
-            SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
-            SSL_CTX_set_mode(ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-
-            bool sslErr = false;
-
-            if (server) {
-                SSL_CTX_set_session_id_context(ctx, reinterpret_cast<const unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
-                sslSessionCtxId++;
-            }
-            if (!caFile.empty() || !caDir.empty()) {
-                if (!SSL_CTX_load_verify_locations(
-                        ctx, !caFile.empty() ? caFile.c_str() : nullptr, !caDir.empty() ? caDir.c_str() : nullptr)) {
-                    ssl_log_error("Can not load CA file or non default CA directory");
-                    sslErr = true;
-                }
-            }
-            if (!sslErr && useDefaultCaDir) {
-                if (!SSL_CTX_set_default_verify_paths(ctx)) {
-                    ssl_log_error("Can not load default CA directory");
-                    sslErr = true;
-                }
-            }
-            if (!sslErr) {
-                if (server && (useDefaultCaDir || !caFile.empty() || !caDir.empty())) {
-                    SSL_CTX_set_verify_depth(ctx, 5);
-                    SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
-                }
-                if (!certChain.empty()) {
-                    if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) != 1) {
-                        ssl_log_error("Can not load certificate chain");
-                        sslErr = true;
-                    } else if (!certChainKey.empty()) {
-                        if (!password.empty()) {
-                            SSL_CTX_set_default_passwd_cb(ctx, password_callback);
-                            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
-                        }
-                        if (SSL_CTX_use_PrivateKey_file(ctx, certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
-                            ssl_log_error("Can not load private key");
-                            sslErr = true;
-                        } else if (!SSL_CTX_check_private_key(ctx)) {
-                            ssl_log_error("Private key not consistent with CA files");
-                            sslErr = true;
-                        }
-                    }
-                }
-            }
-            if (!sslErr) {
-                if (sslOptions != 0) {
-                    SSL_CTX_set_options(ctx, sslOptions);
-                }
-                if (!cipherList.empty()) {
-                    SSL_CTX_set_cipher_list(ctx, cipherList.c_str());
-                }
-            }
-            if (sslErr) {
-                SSL_CTX_free(ctx);
-                ctx = nullptr;
-            }
-        } else {
-            ssl_log_error("SSL CTX not created");
-        }
-
-        return ctx;
+        return newSslCtx;
     }
 
     void ssl_ctx_free(SSL_CTX* ctx) {
@@ -302,55 +254,6 @@ namespace core::socket::stream::tls {
     void ssl_set_sni(SSL* ssl, std::map<std::string, std::any>& options) {
         if (options.contains("SNI")) {
             SSL_set_tlsext_host_name(ssl, std::any_cast<const char*>(options["SNI"]));
-        }
-    }
-
-    void ssl_log(const std::string& message, int sslErr) {
-        int errnum = errno;
-        switch (sslErr) {
-            case SSL_ERROR_NONE:
-                [[fallthrough]];
-            case SSL_ERROR_ZERO_RETURN:
-                ssl_log_info(message);
-                break;
-            case SSL_ERROR_SYSCALL:
-                if (errno != 0) {
-                    ssl_log_error(message);
-                } else {
-                    ssl_log_info(message);
-                }
-                break;
-            default:
-                ssl_log_warning(message);
-                break;
-        }
-        errno = errnum;
-    }
-
-    void ssl_log_error(const std::string& message) {
-        PLOG(ERROR) << message;
-
-        unsigned long errorCode = 0;
-        while ((errorCode = ERR_get_error()) != 0) {
-            LOG(ERROR) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
-        }
-    }
-
-    void ssl_log_warning(const std::string& message) {
-        LOG(WARNING) << message;
-
-        unsigned long errorCode = 0;
-        while ((errorCode = ERR_get_error()) != 0) {
-            LOG(WARNING) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
-        }
-    }
-
-    void ssl_log_info(const std::string& message) {
-        PLOG(INFO) << message;
-
-        unsigned long errorCode = 0;
-        while ((errorCode = ERR_get_error()) != 0) {
-            LOG(INFO) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 
@@ -426,15 +329,53 @@ namespace core::socket::stream::tls {
         return std::string(reinterpret_cast<const char*>(ext + p), ext_len - p);
     }
 
-    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) {
-        SSL_CTX* newSslCtx = SSL_set_SSL_CTX(ssl, sslCtx);
-        SSL_clear_options(ssl, 0xFFFFFFFFL);
-        SSL_set_options(ssl, SSL_CTX_get_options(sslCtx));
-        SSL_set_verify(ssl, SSL_CTX_get_verify_mode(sslCtx), SSL_CTX_get_verify_callback(sslCtx));
-        SSL_set_verify_depth(ssl, SSL_CTX_get_verify_depth(sslCtx));
-        SSL_set_mode(ssl, SSL_CTX_get_mode(sslCtx));
+    void ssl_log(const std::string& message, int sslErr) {
+        int errnum = errno;
+        switch (sslErr) {
+            case SSL_ERROR_NONE:
+                [[fallthrough]];
+            case SSL_ERROR_ZERO_RETURN:
+                ssl_log_info(message);
+                break;
+            case SSL_ERROR_SYSCALL:
+                if (errno != 0) {
+                    ssl_log_error(message);
+                } else {
+                    ssl_log_info(message);
+                }
+                break;
+            default:
+                ssl_log_warning(message);
+                break;
+        }
+        errno = errnum;
+    }
 
-        return newSslCtx;
+    void ssl_log_error(const std::string& message) {
+        PLOG(ERROR) << message;
+
+        unsigned long errorCode = 0;
+        while ((errorCode = ERR_get_error()) != 0) {
+            LOG(ERROR) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+        }
+    }
+
+    void ssl_log_warning(const std::string& message) {
+        LOG(WARNING) << message;
+
+        unsigned long errorCode = 0;
+        while ((errorCode = ERR_get_error()) != 0) {
+            LOG(WARNING) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+        }
+    }
+
+    void ssl_log_info(const std::string& message) {
+        PLOG(INFO) << message;
+
+        unsigned long errorCode = 0;
+        while ((errorCode = ERR_get_error()) != 0) {
+            LOG(INFO) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+        }
     }
 
 } // namespace core::socket::stream::tls
