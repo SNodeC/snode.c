@@ -376,8 +376,6 @@ namespace core::socket::stream::tls {
                     }
                 }
                 sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
-            } else {
-                VLOG(2) << "\tClient certificate: no certificate";
             }
         }
 
