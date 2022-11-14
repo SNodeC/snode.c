@@ -102,7 +102,7 @@ namespace core::socket::stream::tls {
         std::string caDir = configTls->getCaDir();
         bool useDefaultCaDir = configTls->getUseDefaultCaDir();
         std::string cipherList = configTls->getCipherList();
-        ssl_option_t sslOptions = configTls->getSslTlsOptions();
+        ssl_option_t sslOptions = static_cast<ssl_option_t>(configTls->getSslTlsOptions());
 
         SSL_CTX* ctx = SSL_CTX_new(server ? TLS_server_method() : TLS_client_method());
 
