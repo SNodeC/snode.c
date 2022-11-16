@@ -51,7 +51,7 @@ namespace net::config {
             connectionSc = add_subcommand("connection", "Options for established connections");
             connectionSc->group("Subcommands");
 
-            readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, getName() + ": Read timeout");
+            readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, "Read timeout");
             readTimeoutOpt->type_name("[sec]");
             readTimeoutOpt->default_val(DEFAULT_READTIMEOUT);
 
