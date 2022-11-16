@@ -220,10 +220,11 @@ namespace iot::mqtt::server {
             shutdown(true);
         } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
-            shutdown(true);
 
+            shutdown(true);
         } else if (connect.getEffectiveClientId() == "" && !connect.getCleanSession()) {
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
+
             shutdown(true);
         } else {
             // V-Header
