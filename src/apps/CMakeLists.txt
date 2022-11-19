@@ -12,9 +12,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
 
-#configure_file(config.h.in config.h @ONLY)
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 add_executable(snode.c main.cpp)
 target_link_libraries(
     snode.c PRIVATE snodec::http-server-express snodec::net-in-stream-legacy

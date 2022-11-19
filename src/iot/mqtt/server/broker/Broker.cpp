@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/server/broker/Broker.h"
 
-#include "iot/mqtt/server/broker/Message.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
