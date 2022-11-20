@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "++    Query: " << queryField << " = " << queryValue;
             }
         },
-        [](std::map<std::string, std::string>& header, std::map<std::string, std::string>& cookies) -> void {
+        [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
             VLOG(0) << "++    Header: ";
             for (const auto& [headerField, headerFieldValue] : header) {
                 VLOG(0) << "++      " << headerField << " = " << headerFieldValue;
