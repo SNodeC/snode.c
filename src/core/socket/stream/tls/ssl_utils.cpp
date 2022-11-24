@@ -77,12 +77,11 @@ namespace core::socket::stream::tls {
          * At this point, err contains the last verification error. We can use
          * it for something special
          */
-        /*
-                if (!preverify_ok && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT)) {
-                    X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
-                    printf("issuer= %s\n", buf);
-                }
-        */
+
+        if (!preverify_ok && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT)) {
+            X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
+            LOG(WARNING) << "no issuer certificate for issuer= " << buf;
+        }
 
         return preverify_ok;
     }
