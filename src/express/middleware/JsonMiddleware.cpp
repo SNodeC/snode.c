@@ -43,7 +43,7 @@ namespace express::middleware {
 
                 // set all the json data as attributes in the request object
                 req.setAttribute<nlohmann::json>(json);
-            } catch ([[maybe_unused]] nlohmann::detail::parse_error& error) {
+            } catch ([[maybe_unused]] const nlohmann::detail::parse_error& error) {
                 // silently fail if body is not json
             }
 
