@@ -38,8 +38,6 @@ namespace httputils {
     }
 
     std::string url_decode(const std::string& text) {
-        int h = 0;
-
         std::string escaped;
 
         for (std::string::const_iterator i = text.begin(), n = text.end(); i != n; ++i) {
@@ -47,8 +45,7 @@ namespace httputils {
 
             if (c == '%') {
                 if (i[1] && i[2]) {
-                    h = from_hex(i[1]) << 4 | from_hex(i[2]);
-                    escaped += static_cast<char>(h);
+                    escaped += static_cast<char>(from_hex(i[1]) << 4 | from_hex(i[2]));
                     i += 2;
                 }
             } else if (c == '+') {
