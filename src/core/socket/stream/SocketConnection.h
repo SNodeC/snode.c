@@ -56,7 +56,6 @@ namespace core::socket::stream {
                          const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void()>& onConnect,
                          const std::function<void()>& onDisconnect,
                          const utils::Timeval& readTimeout,
                          const utils::Timeval& writeTimeout,
@@ -87,8 +86,6 @@ namespace core::socket::stream {
             SocketReader::enable(fd);
             SocketWriter::enable(fd);
             SocketWriter::suspend();
-
-            onConnect();
         }
 
         ~SocketConnection() override {

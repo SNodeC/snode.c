@@ -48,9 +48,13 @@ namespace core::socket::stream::tls {
                         const std::map<std::string, std::any>& options)
             : Super(
                   socketContextFactory,
-                  onConnect,
+                  [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
+                      socketConnection->startSSL(this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
+
+                      onConnect(socketConnection);
+                  },
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
-                      SSL* ssl = socketConnection->startSSL(this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
+                      SSL* ssl = socketConnection->getSSL();
 
                       if (ssl != nullptr) {
                           SSL_set_connect_state(ssl);

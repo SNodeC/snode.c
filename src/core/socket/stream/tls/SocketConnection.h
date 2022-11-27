@@ -55,7 +55,6 @@ namespace core::socket::stream::tls {
                          const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(SocketConnection*)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect,
                          const utils::Timeval& readTimeout,
                          const utils::Timeval& writeTimeout,
@@ -67,9 +66,6 @@ namespace core::socket::stream::tls {
                   socketContextFactory,
                   localAddress,
                   remoteAddress,
-                  [onConnect, this]() -> void {
-                      onConnect(this);
-                  },
                   [onDisconnect, this]() -> void {
                       onDisconnect(this);
                   },
@@ -242,7 +238,7 @@ namespace core::socket::stream::tls {
             }
         }
 
-        SSL* ssl = nullptr;
+        SSL* ssl;
 
         utils::Timeval initTimeout;
         utils::Timeval shutdownTimeout;

@@ -51,7 +51,6 @@ namespace core::socket::stream::legacy {
                          const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(SocketConnection*)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect,
                          const utils::Timeval& readTimeout,
                          const utils::Timeval& writeTimeout,
@@ -63,9 +62,6 @@ namespace core::socket::stream::legacy {
                   socketContextFactory,
                   localAddress,
                   remoteAddress,
-                  [onConnect, this]() -> void {
-                      onConnect(this);
-                  },
                   [onDisconnect, this]() -> void {
                       onDisconnect(this);
                   },

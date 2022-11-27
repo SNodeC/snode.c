@@ -63,17 +63,18 @@ namespace core::socket::stream {
                 SocketAddress localAddress{};
                 SocketAddress remoteAddress{};
                 if (socket.getSockname(localAddress) == 0 && socket.getPeername(remoteAddress) == 0) {
-                    onConnected(new SocketConnection(socket.getFd(),
-                                                     socketContextFactory,
-                                                     SocketAddress(localAddress),
-                                                     SocketAddress(remoteAddress),
-                                                     onConnect,
-                                                     onDisconnect,
-                                                     config->getReadTimeout(),
-                                                     config->getWriteTimeout(),
-                                                     config->getReadBlockSize(),
-                                                     config->getWriteBlockSize(),
-                                                     config->getTerminateTimeout()));
+                    SocketConnection* socketConnection = new SocketConnection(socket.getFd(),
+                                                                              socketContextFactory,
+                                                                              SocketAddress(localAddress),
+                                                                              SocketAddress(remoteAddress),
+                                                                              onDisconnect,
+                                                                              config->getReadTimeout(),
+                                                                              config->getWriteTimeout(),
+                                                                              config->getReadBlockSize(),
+                                                                              config->getWriteBlockSize(),
+                                                                              config->getTerminateTimeout());
+                    onConnect(socketConnection);
+                    onConnected(socketConnection);
                 } else {
                     PLOG(ERROR) << "getsockname";
                 }
