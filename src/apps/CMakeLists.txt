@@ -73,16 +73,6 @@ set_target_properties(
 )
 install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(lowlevelclient lowlevelclient.cpp)
-target_link_libraries(
-    lowlevelclient PRIVATE snodec::http-client snodec::net-in-stream-legacy
-                           snodec::net-in-stream-tls
-)
-set_target_properties(
-    lowlevelclient PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
-)
-install(TARGETS lowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 if(MARIADB_FOUND)
     add_executable(testregex testregex.cpp)
     target_link_libraries(
