@@ -55,14 +55,10 @@ namespace iot::mqtt::server::broker {
         bool isOwnedBy(const iot::mqtt::server::SocketContext* socketContext) const;
 
     private:
-        uint16_t getPacketIdentifier();
-
         std::string clientId;
         iot::mqtt::server::SocketContext* socketContext = nullptr;
 
         std::deque<Message> messageQueue;
-
-        uint16_t packetIdentifier = 0;
     };
 
 } // namespace iot::mqtt::server::broker

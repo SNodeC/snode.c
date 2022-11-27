@@ -196,4 +196,14 @@ namespace iot::mqtt {
         return ss.str();
     }
 
+    uint16_t SocketContext::getPacketIdentifier() {
+        ++packetIdentifier;
+
+        if (packetIdentifier == 0) {
+            ++packetIdentifier;
+        }
+
+        return packetIdentifier;
+    }
+
 } // namespace iot::mqtt

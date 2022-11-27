@@ -52,8 +52,12 @@ namespace iot::mqtt::server::broker {
         LOG(TRACE) << "                QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
-            socketContext->sendPublish(
-                getPacketIdentifier(), message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain, dup);
+            socketContext->sendPublish(socketContext->getPacketIdentifier(),
+                                       message.getTopic(),
+                                       message.getMessage(),
+                                       std::min(message.getQoS(), qoS),
+                                       retain,
+                                       dup);
         } else {
             if (message.getQoS() == 0) {
                 messageQueue.clear();
@@ -89,16 +93,6 @@ namespace iot::mqtt::server::broker {
 
     bool Session::isOwnedBy(const SocketContext* socketContext) const {
         return this->socketContext == socketContext;
-    }
-
-    uint16_t Session::getPacketIdentifier() {
-        ++packetIdentifier;
-
-        if (packetIdentifier == 0) {
-            ++packetIdentifier;
-        }
-
-        return packetIdentifier;
     }
 
 } // namespace iot::mqtt::server::broker

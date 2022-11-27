@@ -66,6 +66,8 @@ namespace iot::mqtt {
 
         static std::string dataToHexString(const std::vector<char>& data);
 
+        uint16_t getPacketIdentifier();
+
     protected:
         void send(iot::mqtt::ControlPacket&& controlPacket) const;
         void send(iot::mqtt::ControlPacket& controlPacket) const;
@@ -77,6 +79,8 @@ namespace iot::mqtt {
     private:
         iot::mqtt::FixedHeader fixedHeader;
         iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
+
+        uint16_t packetIdentifier = 0;
 
         int state = 0;
     };
