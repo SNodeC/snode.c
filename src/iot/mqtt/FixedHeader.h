@@ -16,15 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef IOT_MQTT_FIXEDHEADER_H
+#define IOT_MQTT_FIXEDHEADER_H
+
 #include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
 #include "iot/mqtt/types/UIntV.h" // IWYU pragma: export
 
 namespace iot::mqtt {
     class SocketContext; // IWYU pragma: keep
 }
-
-#ifndef IOT_MQTT_STATICHEADER_H
-#define IOT_MQTT_STATICHEADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -65,4 +65,4 @@ namespace iot::mqtt {
 
 } // namespace iot::mqtt
 
-#endif // IOT_MQTT_STATICHEADER_H
+#endif // IOT_MQTT_FIXEDHEADER_H
