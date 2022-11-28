@@ -58,7 +58,7 @@ namespace core::socket::stream::tls {
 
                       onConnect(socketConnection);
                   },
-                  [onConnected, this](SocketConnection* socketConnection) -> void {
+                  [onConnected](SocketConnection* socketConnection) -> void {
                       SSL* ssl = socketConnection->getSSL();
 
                       if (ssl != nullptr) {
