@@ -40,7 +40,7 @@ namespace net::config {
 
         ConfigBase& operator=(const ConfigBase&) = delete;
 
-        virtual ~ConfigBase() = default;
+        virtual ~ConfigBase();
 
         const std::string& getName() const;
 

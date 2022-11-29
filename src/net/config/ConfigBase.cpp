@@ -37,6 +37,10 @@ namespace net::config {
         }
     }
 
+    ConfigBase::~ConfigBase() {
+        utils::Config::remove_subcommand(baseSc);
+    }
+
     const std::string& ConfigBase::getName() const {
         return name;
     }

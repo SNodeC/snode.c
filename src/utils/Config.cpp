@@ -211,6 +211,10 @@ namespace utils {
         return app.add_subcommand(subcommand_name, subcommand_description);
     }
 
+    bool Config::remove_subcommand(CLI::App* subCommand) {
+        return app.remove_subcommand(subCommand);
+    }
+
     void Config::add_option(const std::string& name,
                             std::string& variable,
                             const std::string& description,
