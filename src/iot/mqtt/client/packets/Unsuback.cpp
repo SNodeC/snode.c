@@ -31,7 +31,7 @@ namespace iot::mqtt::client::packets {
         this->flags = flags;
     }
 
-    std::size_t Unsuback::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {
+    std::size_t Unsuback::deserializeVP(iot::mqtt::SocketContext* socketContext) {
         // V-Header
         std::size_t consumed = packetIdentifier.deserialize(socketContext);
         complete = packetIdentifier.isComplete();
