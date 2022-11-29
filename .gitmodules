@@ -1,3 +1,0 @@
-[submodule "src/apps/mqttbroker"]
-	path = src/apps/mqttbroker
-	url = git@github.com:VolkerChristian/mqttbroker.git
