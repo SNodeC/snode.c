@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
 
-#include "core/socket/stream/SocketAcceptor.h"
+#include "core/socket/stream/SocketAcceptor.h"          // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketConnection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
