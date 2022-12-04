@@ -45,11 +45,7 @@ namespace iot::mqtt::server::packets {
         std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
         void propagateEvent(iot::mqtt::server::SocketContext* socketcontext) override;
 
-    public:
-        std::string getEffectiveClientId() const;
-
     private:
-        std::string effectiveClientId;
         int state = 0;
     };
 

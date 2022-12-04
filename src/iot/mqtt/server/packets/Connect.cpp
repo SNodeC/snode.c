@@ -83,9 +83,8 @@ namespace iot::mqtt::server::packets {
                     break;
                 }
 
-                effectiveClientId = clientId;
-                if (effectiveClientId.empty()) {
-                    effectiveClientId = utils::Uuid::getUudi();
+                if (clientId.size() == 0) {
+                    clientId = utils::Uuid::getUudi();
                 }
 
                 state++;
@@ -137,10 +136,6 @@ namespace iot::mqtt::server::packets {
 
     void Connect::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
         socketContext->_onConnect(*this);
-    }
-
-    std::string Connect::getEffectiveClientId() const {
-        return effectiveClientId;
     }
 
 } // namespace iot::mqtt::server::packets
