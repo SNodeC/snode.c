@@ -259,7 +259,7 @@ namespace iot::mqtt::client {
                                     uint8_t willQoS,
                                     bool willRetain,
                                     const std::string& username,
-                                    const std::string& password) { // Client
+                                    const std::string& password) const { // Client
         LOG(DEBUG) << "Send CONNECT";
         LOG(DEBUG) << "============";
 
@@ -267,28 +267,28 @@ namespace iot::mqtt::client {
             clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password));
     }
 
-    void SocketContext::sendSubscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics) { // Client
+    void SocketContext::sendSubscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics) const { // Client
         LOG(DEBUG) << "Send SUBSCRIBE";
         LOG(DEBUG) << "==============";
 
         send(iot::mqtt::packets::Subscribe(packetIdentifier, topics));
     }
 
-    void SocketContext::sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics) { // Client
+    void SocketContext::sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics) const { // Client
         LOG(DEBUG) << "Send UNSUBSCRIBE";
         LOG(DEBUG) << "================";
 
         send(iot::mqtt::packets::Unsubscribe(packetIdentifier, topics));
     }
 
-    void SocketContext::sendPingreq() { // Client
+    void SocketContext::sendPingreq() const { // Client
         LOG(DEBUG) << "Send Pingreq";
         LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Pingreq());
     }
 
-    void SocketContext::sendDisconnect() {
+    void SocketContext::sendDisconnect() const {
         LOG(DEBUG) << "Send Disconnect";
         LOG(DEBUG) << "===============";
 

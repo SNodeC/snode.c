@@ -135,35 +135,35 @@ namespace iot::mqtt {
                                     const std::string& message,
                                     uint8_t qoS,
                                     bool retain,
-                                    bool dup) { // Server & Client
+                                    bool dup) const { // Server & Client
         LOG(DEBUG) << "Send PUBLISH";
         LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Publish(qoS == 0 ? 0 : packetIdentifier, topic, message, qoS, dup, retain));
     }
 
-    void SocketContext::sendPuback(uint16_t packetIdentifier) { // Server & Client
+    void SocketContext::sendPuback(uint16_t packetIdentifier) const { // Server & Client
         LOG(DEBUG) << "Send PUBACK";
         LOG(DEBUG) << "===========";
 
         send(iot::mqtt::packets::Puback(packetIdentifier));
     }
 
-    void SocketContext::sendPubrec(uint16_t packetIdentifier) { // Server & Client
+    void SocketContext::sendPubrec(uint16_t packetIdentifier) const { // Server & Client
         LOG(DEBUG) << "Send PUBREC";
         LOG(DEBUG) << "===========";
 
         send(iot::mqtt::packets::Pubrec(packetIdentifier));
     }
 
-    void SocketContext::sendPubrel(uint16_t packetIdentifier) { // Server & Client
+    void SocketContext::sendPubrel(uint16_t packetIdentifier) const { // Server & Client
         LOG(DEBUG) << "Send PUBREL";
         LOG(DEBUG) << "===========";
 
         send(iot::mqtt::packets::Pubrel(packetIdentifier));
     }
 
-    void SocketContext::sendPubcomp(uint16_t packetIdentifier) { // Server & Client
+    void SocketContext::sendPubcomp(uint16_t packetIdentifier) const { // Server & Client
         LOG(DEBUG) << "Send PUBCOMP";
         LOG(DEBUG) << "============";
 

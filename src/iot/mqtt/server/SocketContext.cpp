@@ -126,6 +126,7 @@ namespace iot::mqtt::server {
             LOG(TRACE) << "  closing";
 
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
+
             shutdown(true);
         } else if (broker->hasRetainedSession(clientId)) {
             sendConnack(MQTT_CONNACK_ACCEPT, cleanSession ? MQTT_SESSION_NEW : MQTT_SESSION_PRESENT);
@@ -200,7 +201,7 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(connect.getConnectFlags()) << std::dec << std::setw(0);
         LOG(DEBUG) << "KeepAlive: " << connect.getKeepAlive();
-        LOG(DEBUG) << "ClientID: " << connect.getEffectiveClientId();
+        LOG(DEBUG) << "ClientID: " << connect.getClientId();
         LOG(DEBUG) << "CleanSession: " << connect.getCleanSession();
 
         if (connect.getWillFlag()) {
@@ -222,7 +223,7 @@ namespace iot::mqtt::server {
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
             shutdown(true);
-        } else if (connect.getEffectiveClientId() == "" && !connect.getCleanSession()) {
+        } else if (connect.getClientId() == "" && !connect.getCleanSession()) {
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
             shutdown(true);
@@ -234,7 +235,7 @@ namespace iot::mqtt::server {
             keepAlive = connect.getKeepAlive();
 
             // Payload
-            clientId = connect.getEffectiveClientId();
+            clientId = connect.getClientId();
             willTopic = connect.getWillTopic();
             willMessage = connect.getWillMessage();
             username = connect.getUsername();
@@ -430,36 +431,92 @@ namespace iot::mqtt::server {
         shutdown();
     }
 
-    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
+    void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) const {
         LOG(DEBUG) << "Send CONNACK";
         LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Connack(returnCode, flags));
-
-        if (returnCode != MQTT_CONNACK_ACCEPT) {
-            shutdown(true);
-        }
     }
 
-    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
+    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) const {
         LOG(DEBUG) << "Send SUBACK";
         LOG(DEBUG) << "===========";
 
         send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
     }
 
-    void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
+    void SocketContext::sendUnsuback(uint16_t packetIdentifier) const {
         LOG(DEBUG) << "Send UNSUBACK";
         LOG(DEBUG) << "=============";
 
         send(iot::mqtt::packets::Unsuback(packetIdentifier));
     }
 
-    void SocketContext::sendPingresp() { // Server
+    void SocketContext::sendPingresp() const { // Server
         LOG(DEBUG) << "Send Pingresp";
         LOG(DEBUG) << "=============";
 
         send(iot::mqtt::packets::Pingresp());
+    }
+
+    std::string SocketContext::getProtocol() const {
+        return protocol;
+    }
+
+    uint8_t SocketContext::getLevel() const {
+        return level;
+    }
+
+    uint8_t SocketContext::getConnectFlags() const {
+        return connectFlags;
+    }
+
+    uint16_t SocketContext::getKeepAlive() const {
+        return keepAlive;
+    }
+
+    std::string SocketContext::getClientId() const {
+        return clientId;
+    }
+
+    std::string SocketContext::getWillTopic() const {
+        return willTopic;
+    }
+
+    std::string SocketContext::getWillMessage() const {
+        return willMessage;
+    }
+
+    std::string SocketContext::getUsername() const {
+        return username;
+    }
+
+    std::string SocketContext::getPassword() const {
+        return password;
+    }
+
+    bool SocketContext::getUsernameFlag() const {
+        return usernameFlag;
+    }
+
+    bool SocketContext::getPasswordFlag() const {
+        return passwordFlag;
+    }
+
+    bool SocketContext::getWillRetain() const {
+        return willRetain;
+    }
+
+    uint8_t SocketContext::getWillQoS() const {
+        return willQoS;
+    }
+
+    bool SocketContext::getWillFlag() const {
+        return willFlag;
+    }
+
+    bool SocketContext::getCleanSession() const {
+        return cleanSession;
     }
 
 } // namespace iot::mqtt::server

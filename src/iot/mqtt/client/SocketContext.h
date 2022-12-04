@@ -103,11 +103,11 @@ namespace iot::mqtt::client {
                          uint8_t willQoS,
                          bool willRetain,
                          const std::string& username,
-                         const std::string& password);
-        void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics);
-        void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics);
-        void sendPingreq();
-        void sendDisconnect();
+                         const std::string& password) const;
+        void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics) const;
+        void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics) const;
+        void sendPingreq() const;
+        void sendDisconnect() const;
 
         friend class iot::mqtt::client::packets::Connack;
         friend class iot::mqtt::client::packets::Suback;

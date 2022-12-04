@@ -109,10 +109,26 @@ namespace iot::mqtt::server {
         void _onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
 
     public:
-        void sendConnack(uint8_t returnCode, uint8_t flags);
-        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes);
-        void sendUnsuback(uint16_t packetIdentifier);
-        void sendPingresp();
+        void sendConnack(uint8_t returnCode, uint8_t flags) const;
+        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) const;
+        void sendUnsuback(uint16_t packetIdentifier) const;
+        void sendPingresp() const;
+
+        std::string getProtocol() const;
+        uint8_t getLevel() const;
+        uint8_t getConnectFlags() const;
+        uint16_t getKeepAlive() const;
+        std::string getClientId() const;
+        std::string getWillTopic() const;
+        std::string getWillMessage() const;
+        std::string getUsername() const;
+        std::string getPassword() const;
+        bool getUsernameFlag() const;
+        bool getPasswordFlag() const;
+        bool getWillRetain() const;
+        uint8_t getWillQoS() const;
+        bool getWillFlag() const;
+        bool getCleanSession() const;
 
     protected:
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;

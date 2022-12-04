@@ -58,11 +58,11 @@ namespace iot::mqtt {
                          const std::string& message,
                          uint8_t qoS = 0,
                          bool retain = false,
-                         bool dup = false);
-        void sendPuback(uint16_t packetIdentifier);
-        void sendPubrec(uint16_t packetIdentifier);
-        void sendPubrel(uint16_t packetIdentifier);
-        void sendPubcomp(uint16_t packetIdentifier);
+                         bool dup = false) const;
+        void sendPuback(uint16_t packetIdentifier) const;
+        void sendPubrec(uint16_t packetIdentifier) const;
+        void sendPubrel(uint16_t packetIdentifier) const;
+        void sendPubcomp(uint16_t packetIdentifier) const;
 
         static std::string dataToHexString(const std::vector<char>& data);
 
@@ -73,8 +73,7 @@ namespace iot::mqtt {
         void send(iot::mqtt::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
 
-    protected:
-        void printStandardHeader(const iot::mqtt::ControlPacket& packet);
+        static void printStandardHeader(const iot::mqtt::ControlPacket& packet);
 
     private:
         iot::mqtt::FixedHeader fixedHeader;
