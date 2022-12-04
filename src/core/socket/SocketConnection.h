@@ -24,6 +24,7 @@ namespace utils {
 } // namespace utils
 
 namespace core::socket {
+    class SocketAddress;
     class SocketContextFactory;
     class SocketContext;
     class Socket;
@@ -52,6 +53,9 @@ namespace core::socket {
         core::socket::SocketContext* getSocketContext();
 
         virtual Socket& getSocket() = 0;
+
+        virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
+        virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
 
         virtual void close() = 0;
 

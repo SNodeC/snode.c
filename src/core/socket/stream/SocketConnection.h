@@ -127,11 +127,11 @@ namespace core::socket::stream {
             SocketWriter::setTimeout(timeout);
         }
 
-        const SocketAddress& getRemoteAddress() const {
+        const SocketAddress& getRemoteAddress() const override {
             return remoteAddress;
         }
 
-        const SocketAddress& getLocalAddress() const {
+        const SocketAddress& getLocalAddress() const override {
             return localAddress;
         }
 
