@@ -58,6 +58,8 @@ namespace core::socket {
 
         void close();
 
+        core::socket::SocketConnection* getSocketConnection() const;
+
         SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
     private:

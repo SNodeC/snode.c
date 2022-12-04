@@ -100,4 +100,8 @@ namespace core::socket {
         shutdownWrite();
     }
 
+    core::socket::SocketConnection* SocketContext::getSocketConnection() const {
+        return socketConnection;
+    }
+
 } // namespace core::socket
