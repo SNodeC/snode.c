@@ -50,6 +50,8 @@ namespace iot::mqtt::types {
 
         void setSize(std::size_t size);
 
+        std::size_t size();
+
         bool isComplete() const;
 
         virtual void reset(std::size_t size = sizeof(ValueType));

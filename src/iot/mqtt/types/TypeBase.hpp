@@ -51,6 +51,11 @@ namespace iot::mqtt::types {
         needed = size;
     }
 
+    template <typename ValueTypeT>
+    std::size_t TypeBase<ValueTypeT>::size() {
+        return length;
+    }
+
     template <typename ValueType>
     std::vector<char> iot::mqtt::types::TypeBase<ValueType>::serialize() const {
         return value;
