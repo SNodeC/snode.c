@@ -16,44 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKETADDRESS_H
-#define NET_SOCKETADDRESS_H
+#ifndef CORE_SOCKET_SOCKETADDRESS_H
+#define CORE_SOCKET_SOCKETADDRESS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/SocketAddress.h"
-#include "core/system/socket.h"
-
 #include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net {
+namespace core::socket {
 
-    template <typename SockAddrT>
-    class SocketAddress : public core::socket::SocketAddress {
+    class SocketAddress {
     public:
-        using SockAddr = SockAddrT;
+        SocketAddress() = default;
+        SocketAddress(const SocketAddress&) = default;
 
-        SocketAddress(socklen_t sockAddrLen = sizeof(SockAddr));
-
-        SocketAddress(const SocketAddress& socketAddress);
+        SocketAddress& operator=(const SocketAddress&) = default;
 
         virtual ~SocketAddress() = default;
 
-        SocketAddress& operator=(const SocketAddress& socketAddress);
-
-        sockaddr& getSockAddr();
-        const sockaddr& getSockAddr() const;
-
-        socklen_t& getSockAddrLen();
-        const socklen_t& getSockAddrLen() const;
-
-    protected:
-        SockAddr sockAddr;
-        socklen_t sockAddrLen;
+        virtual std::string address() const = 0;
+        virtual std::string toString() const = 0;
     };
 
-} // namespace net
+} // namespace core::socket
 
-#endif // NET_SOCKETADDRESS_H
+#endif // CORE_SOCKET_SOCKETADDRESS_H
