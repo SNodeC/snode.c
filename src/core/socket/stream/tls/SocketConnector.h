@@ -45,6 +45,7 @@ namespace core::socket::stream::tls {
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
+                        const std::function<void(const SocketAddress&, int)>& onError,
                         const std::map<std::string, std::any>& options,
                         const std::shared_ptr<Config>& config)
             : Super(
@@ -85,6 +86,7 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
+                  onError,
                   options,
                   config) {
         }
@@ -94,8 +96,6 @@ namespace core::socket::stream::tls {
                 ssl_ctx_free(ctx);
             }
         }
-
-        using Super::connect;
 
         void initConnectEvent() override {
             ctx = ssl_ctx_new(Super::config, false);

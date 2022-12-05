@@ -50,6 +50,7 @@ namespace core::socket::stream::tls {
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
+                       const std::function<void(const SocketAddress&, int)>& onError,
                        const std::map<std::string, std::any>& options,
                        const std::shared_ptr<Config>& config)
             : Super(
@@ -86,6 +87,7 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
+                  onError,
                   options,
                   config)
             , sniSslCtxs(std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second)) {
@@ -96,8 +98,6 @@ namespace core::socket::stream::tls {
                 ssl_ctx_free(masterSslCtx);
             }
         }
-
-        using Super::listen;
 
     private:
         void initAcceptEvent() override {

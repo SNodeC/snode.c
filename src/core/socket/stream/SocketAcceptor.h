@@ -74,13 +74,16 @@ namespace core::socket::stream {
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
+                       const std::function<void(const SocketAddress&, int)>& onError,
                        const std::map<std::string, std::any>& options,
                        const std::shared_ptr<Config>& config)
             : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
             , core::eventreceiver::AcceptEventReceiver("SocketAcceptor")
             , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
+            , onError(onError)
             , options(options)
             , config(config) {
+            InitAcceptEventReceiver::publish();
         }
 
         ~SocketAcceptor() override {
@@ -90,12 +93,6 @@ namespace core::socket::stream {
             if (primarySocket != nullptr) {
                 delete primarySocket;
             }
-        }
-
-        void listen(const std::function<void(const SocketAddress&, int)>& onError) {
-            this->onError = onError;
-
-            InitAcceptEventReceiver::publish();
         }
 
     protected:

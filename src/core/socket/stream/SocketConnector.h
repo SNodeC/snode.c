@@ -63,25 +63,22 @@ namespace core::socket::stream {
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
+                        const std::function<void(const SocketAddress&, int)>& onError,
                         const std::map<std::string, std::any>& options,
                         const std::shared_ptr<Config>& config)
             : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
             , core::eventreceiver::ConnectEventReceiver("SocketConnector")
             , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
+            , onError(onError)
             , options(options)
             , config(config) {
+            InitConnectEventReceiver::publish();
         }
 
         ~SocketConnector() override {
             if (socket != nullptr) {
                 delete socket;
             }
-        }
-
-        void connect(const std::function<void(const SocketAddress&, int)>& onError) {
-            this->onError = onError;
-
-            InitConnectEventReceiver::publish();
         }
 
     protected:
