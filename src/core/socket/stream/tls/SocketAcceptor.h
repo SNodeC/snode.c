@@ -50,7 +50,8 @@ namespace core::socket::stream::tls {
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
-                       const std::map<std::string, std::any>& options)
+                       const std::map<std::string, std::any>& options,
+                       const std::shared_ptr<Config>& config)
             : Super(
                   socketContextFactory,
                   [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
@@ -85,7 +86,8 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
-                  options)
+                  options,
+                  config)
             , sniSslCtxs(std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second)) {
         }
 
@@ -95,22 +97,24 @@ namespace core::socket::stream::tls {
             }
         }
 
-        void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
-            masterSslCtx = ssl_ctx_new(config, true);
+        using Super::listen;
+
+    private:
+        void initAcceptEvent() override {
+            masterSslCtx = ssl_ctx_new(Super::config, true);
 
             if (masterSslCtx == nullptr) {
-                onError(config->getLocalAddress(), EINVAL);
+                Super::onError(Super::config->getLocalAddress(), EINVAL);
                 Super::destruct();
             } else {
                 masterSslCtxDomains = ssl_get_sans(masterSslCtx);
                 SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
-                forceSni = config->getForceSni();
+                forceSni = Super::config->getForceSni();
 
-                Super::listen(config, onError);
+                Super::initAcceptEvent();
             }
         }
 
-    private:
         SSL_CTX* getMasterSniCtx(const std::string& serverNameIndication) {
             SSL_CTX* sniSslCtx = nullptr;
 

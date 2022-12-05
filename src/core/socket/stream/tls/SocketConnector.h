@@ -45,7 +45,8 @@ namespace core::socket::stream::tls {
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
-                        const std::map<std::string, std::any>& options)
+                        const std::map<std::string, std::any>& options,
+                        const std::shared_ptr<Config>& config)
             : Super(
                   socketContextFactory,
                   [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
@@ -84,7 +85,8 @@ namespace core::socket::stream::tls {
                       socketConnection->stopSSL();
                       onDisconnect(socketConnection);
                   },
-                  options) {
+                  options,
+                  config) {
         }
 
         ~SocketConnector() override {
@@ -93,15 +95,16 @@ namespace core::socket::stream::tls {
             }
         }
 
-        void connect(const std::shared_ptr<Config>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
-            ctx = ssl_ctx_new(clientConfig, false);
+        using Super::connect;
+
+        void initConnectEvent() override {
+            ctx = ssl_ctx_new(Super::config, false);
 
             if (ctx == nullptr) {
-                errno = EINVAL;
-                onError(clientConfig->getRemoteAddress(), errno);
+                Super::onError(Super::config->getRemoteAddress(), errno);
                 Super::destruct();
             } else {
-                Super::connect(clientConfig, onError);
+                Super::initConnectEvent();
             }
         }
 

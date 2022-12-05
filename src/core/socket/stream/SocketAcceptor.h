@@ -74,11 +74,13 @@ namespace core::socket::stream {
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
-                       const std::map<std::string, std::any>& options)
+                       const std::map<std::string, std::any>& options,
+                       const std::shared_ptr<Config>& config)
             : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
             , core::eventreceiver::AcceptEventReceiver("SocketAcceptor")
             , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
-            , options(options) {
+            , options(options)
+            , config(config) {
         }
 
         ~SocketAcceptor() override {
@@ -90,14 +92,13 @@ namespace core::socket::stream {
             }
         }
 
-        void listen(const std::shared_ptr<Config>& config, const std::function<void(const SocketAddress&, int)>& onError) {
-            this->config = config;
+        void listen(const std::function<void(const SocketAddress&, int)>& onError) {
             this->onError = onError;
 
             InitAcceptEventReceiver::publish();
         }
 
-    private:
+    protected:
         void initAcceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
@@ -153,6 +154,7 @@ namespace core::socket::stream {
             }
         }
 
+    private:
         void acceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
@@ -200,8 +202,6 @@ namespace core::socket::stream {
             delete this;
         }
 
-        std::shared_ptr<Config> config = nullptr;
-
     private:
         int reuseAddress() {
             int sockopt = 1;
@@ -222,6 +222,7 @@ namespace core::socket::stream {
         std::function<void(const SocketAddress&, int)> onError = nullptr;
 
         std::map<std::string, std::any> options;
+        std::shared_ptr<Config> config;
     };
 
 } // namespace core::socket::stream

@@ -27,7 +27,6 @@ namespace net {
     template <typename Config>
     SocketConfig<Config>::SocketConfig(const std::string& name)
         : config(std::make_shared<Config>(name)) {
-        config->parse();
     }
 
     template <typename Config>

@@ -43,7 +43,8 @@ namespace core::socket::stream::legacy {
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
-                       const std::map<std::string, std::any>& options)
+                       const std::map<std::string, std::any>& options,
+                       const std::shared_ptr<Config>& config)
             : Super(
                   socketContextFactory,
                   onConnect,
@@ -52,7 +53,8 @@ namespace core::socket::stream::legacy {
                       socketConnection->onConnected();
                   },
                   onDisconnect,
-                  options) {
+                  options,
+                  config) {
         }
 
         using Super::listen;

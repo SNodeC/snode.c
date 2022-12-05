@@ -63,11 +63,13 @@ namespace core::socket::stream {
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
-                        const std::map<std::string, std::any>& options)
+                        const std::map<std::string, std::any>& options,
+                        const std::shared_ptr<Config>& config)
             : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
             , core::eventreceiver::ConnectEventReceiver("SocketConnector")
             , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
-            , options(options) {
+            , options(options)
+            , config(config) {
         }
 
         ~SocketConnector() override {
@@ -76,14 +78,13 @@ namespace core::socket::stream {
             }
         }
 
-        void connect(const std::shared_ptr<Config>& clientConfig, const std::function<void(const SocketAddress&, int)>& onError) {
-            this->config = clientConfig;
+        void connect(const std::function<void(const SocketAddress&, int)>& onError) {
             this->onError = onError;
 
             InitConnectEventReceiver::publish();
         }
 
-    private:
+    protected:
         void initConnectEvent() override {
             socket = new PrimarySocket();
             if (socket->open(PrimarySocket::Flags::NONBLOCK) < 0) {
@@ -100,6 +101,7 @@ namespace core::socket::stream {
             }
         }
 
+    private:
         void connectEvent() override {
             int cErrno = -1;
 
@@ -129,8 +131,6 @@ namespace core::socket::stream {
             delete this;
         }
 
-        std::shared_ptr<Config> config = nullptr;
-
     private:
         void unobservedEvent() override {
             destruct();
@@ -144,6 +144,7 @@ namespace core::socket::stream {
         std::function<void(const SocketAddress& socketAddress, int err)> onError;
 
         std::map<std::string, std::any> options;
+        std::shared_ptr<Config> config = nullptr;
     };
 
 } // namespace core::socket::stream
