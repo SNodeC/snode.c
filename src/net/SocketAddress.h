@@ -35,7 +35,7 @@ namespace net {
     public:
         using SockAddr = SockAddrT;
 
-        SocketAddress(socklen_t sockAddrLen = sizeof(SockAddr));
+        explicit SocketAddress(socklen_t sockAddrLen = sizeof(SockAddr));
 
         SocketAddress(const SocketAddress& socketAddress);
 
