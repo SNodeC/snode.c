@@ -40,15 +40,15 @@ namespace web::http::tls::in {
         using Super::listen;
 
         void listen(uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(port, LISTEN_BACKLOG, onError);
+            listen(port, Super::config->getBacklog(), onError);
         }
 
         void listen(const std::string& ipOrHostname, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(ipOrHostname, LISTEN_BACKLOG, onError);
+            listen(ipOrHostname, Super::config->getBacklog(), onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
+            listen(ipOrHostname, port, Super::config->getBacklog(), onError);
         }
     };
 

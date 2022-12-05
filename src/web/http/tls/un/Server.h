@@ -40,7 +40,7 @@ namespace web::http::tls::un {
         using Super::listen;
 
         void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(sunPath, LISTEN_BACKLOG, onError);
+            listen(sunPath, Super::config->getBacklog(), onError);
         }
     };
 

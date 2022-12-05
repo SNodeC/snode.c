@@ -30,8 +30,6 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#define LISTEN_BACKLOG 512
-
 namespace web::http::server {
 
     template <template <typename SocketContextFactoryT> typename SocketServerT, typename RequestT, typename ResponseT>
@@ -79,7 +77,7 @@ namespace web::http::server {
         using Super::listen;
 
         void listen(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
-            Super::listen(socketAddress, LISTEN_BACKLOG, onError);
+            Super::listen(socketAddress, Super::config->getBacklog(), onError);
         }
     };
 

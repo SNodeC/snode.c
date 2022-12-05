@@ -40,15 +40,15 @@ namespace web::http::legacy::rc {
         using web::http::server::Server<net::rc::stream::legacy::SocketServer, Request, Response>::listen;
 
         void listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(channel, LISTEN_BACKLOG, onError);
+            listen(channel, Super::config->getBacklog(), onError);
         }
 
         void listen(const std::string& address, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(address, LISTEN_BACKLOG, onError);
+            listen(address, Super::config->getBacklog(), onError);
         }
 
         void listen(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(address, channel, LISTEN_BACKLOG, onError);
+            listen(address, channel, Super::config->getBacklog(), onError);
         }
     };
 
