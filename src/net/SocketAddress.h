@@ -39,8 +39,6 @@ namespace net {
 
         SocketAddress(const SocketAddress& socketAddress);
 
-        virtual ~SocketAddress() = default;
-
         SocketAddress& operator=(const SocketAddress& socketAddress);
 
         sockaddr& getSockAddr();

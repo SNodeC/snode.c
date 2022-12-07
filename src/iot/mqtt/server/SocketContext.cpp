@@ -304,7 +304,7 @@ namespace iot::mqtt::server {
         if (puback.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            broker->pubackReceived(puback.getPacketIdentifier(), clientId);
+            broker->pubackReceived(clientId, puback.getPacketIdentifier());
 
             onPuback(puback);
         }
@@ -319,7 +319,7 @@ namespace iot::mqtt::server {
         if (pubrec.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            broker->pubrecReceived(pubrec.getPacketIdentifier(), clientId);
+            broker->pubrecReceived(clientId, pubrec.getPacketIdentifier());
 
             sendPubrel(pubrec.getPacketIdentifier());
 
@@ -336,7 +336,7 @@ namespace iot::mqtt::server {
         if (pubrel.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            broker->pubrelReceived(pubrel.getPacketIdentifier(), clientId);
+            broker->pubrelReceived(clientId, pubrel.getPacketIdentifier());
 
             sendPubcomp(pubrel.getPacketIdentifier());
 
@@ -353,7 +353,7 @@ namespace iot::mqtt::server {
         if (pubcomp.getPacketIdentifier() == 0) {
             shutdown(true);
         } else {
-            broker->pubcompReceived(pubcomp.getPacketIdentifier(), clientId);
+            broker->pubcompReceived(clientId, pubcomp.getPacketIdentifier());
 
             onPubcomp(pubcomp);
         }
