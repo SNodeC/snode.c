@@ -19,12 +19,8 @@
 #ifndef IOT_MQTT_SERVER_SOCKETCONTEXT_H
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
-#include "iot/mqtt/SocketContext.h" // IWYU pragma: export
+#include "iot/mqtt/Mqtt.h" // IWYU pragma: export
 // IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
-
-namespace core::socket {
-    class SocketConnection;
-} // namespace core::socket
 
 namespace iot::mqtt {
     class Topic;
@@ -66,9 +62,9 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::client {
 
-    class SocketContext : public iot::mqtt::SocketContext {
+    class Mqtt : public iot::mqtt::Mqtt {
     public:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        explicit Mqtt();
 
     private:
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;

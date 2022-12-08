@@ -23,9 +23,9 @@
 #include "iot/mqtt/server/ControlPacketDeserializer.h" // IWYU pragma: export
 
 namespace iot::mqtt {
-    class SocketContext;
+    class MqttContext;
     namespace server {
-        class SocketContext;
+        class Mqtt;
     }
 } // namespace iot::mqtt
 
@@ -42,8 +42,8 @@ namespace iot::mqtt::server::packets {
         Unsubscribe(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
-        void propagateEvent(iot::mqtt::server::SocketContext* socketContext) override;
+        std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
+        void propagateEvent(iot::mqtt::server::Mqtt* mqtt) override;
 
     private:
         int state = 0;

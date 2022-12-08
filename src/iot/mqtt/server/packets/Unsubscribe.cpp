@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/server/packets/Unsubscribe.h"
 
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/server/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,12 +31,12 @@ namespace iot::mqtt::server::packets {
         this->flags = flags;
     }
 
-    std::size_t Unsubscribe::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Unsubscribe::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0: // V-Header
-                consumed += packetIdentifier.deserialize(socketContext);
+                consumed += packetIdentifier.deserialize(mqttContext);
                 if (!packetIdentifier.isComplete()) {
                     break;
                 }
@@ -44,7 +44,7 @@ namespace iot::mqtt::server::packets {
                 state++;
                 [[fallthrough]];
             case 1: // Payload
-                consumed += topic.deserialize(socketContext);
+                consumed += topic.deserialize(mqttContext);
 
                 if (!topic.isComplete()) {
                     break;
@@ -64,8 +64,8 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Unsubscribe::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
-        socketContext->_onUnsubscribe(*this);
+    void Unsubscribe::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->_onUnsubscribe(*this);
     }
 
 } // namespace iot::mqtt::server::packets

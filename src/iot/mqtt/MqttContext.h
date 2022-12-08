@@ -16,36 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_CLIENT_PACKETS_DESERIALIZER_UNSUBACK_H
-#define IOT_MQTT_CLIENT_PACKETS_DESERIALIZER_UNSUBACK_H
-
-#include "iot/mqtt/client/ControlPacketDeserializer.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Unsuback.h"                 // IWYU pragma: export
+#ifndef IOT_MQTT_MQTTCONTEXT_H
+#define IOT_MQTT_MQTTCONTEXT_H
 
 namespace iot::mqtt {
-    class MqttContext;
-    namespace client {
-        class Mqtt;
-    }
-} // namespace iot::mqtt
+    class Mqtt;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::client::packets {
+namespace iot::mqtt {
 
-    class Unsuback
-        : public iot::mqtt::packets::Unsuback
-        , public iot::mqtt::client::ControlPacketDeserializer {
+    class MqttContext {
     public:
-        Unsuback(uint32_t remainingLength, uint8_t flags);
+        explicit MqttContext(Mqtt* mqtt);
+        MqttContext(const MqttContext&) = default;
 
-    private:
-        std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
-        void propagateEvent(iot::mqtt::client::Mqtt* socketContext) override;
+        MqttContext& operator=(const MqttContext&) = default;
+
+        virtual ~MqttContext();
+
+        virtual std::size_t receive(char* junk, std::size_t junklen) const = 0;
+        virtual void send(char* junk, std::size_t junklen) const = 0;
+
+        virtual void setKeepAlive(const utils::Timeval& timeout) = 0;
+
+        virtual void end(bool fatal = false) = 0;
+        virtual void kill() = 0;
+
+        void onConnected();
+        std::size_t onReceiveFromPeer();
+        void onDisconnected();
+        void onExit();
+
+    protected:
+        Mqtt* mqtt;
     };
 
-} // namespace iot::mqtt::client::packets
+} // namespace iot::mqtt
 
-#endif // IOT_MQTT_CLIENT_PACKETS_DESERIALIZER_UNSUBACK_H
+#endif // IOT_MQTT_MQTTCONTEXT_H

@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/server/packets/Pingreq.h"
 
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/server/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace iot::mqtt::server::packets {
         this->flags = flags;
     }
 
-    std::size_t Pingreq::deserializeVP([[maybe_unused]] iot::mqtt::SocketContext* socketContext) {
+    std::size_t Pingreq::deserializeVP([[maybe_unused]] iot::mqtt::MqttContext* mqttContext) {
         // no V-Header
         // no Payload
 
@@ -39,8 +39,8 @@ namespace iot::mqtt::server::packets {
         return 0;
     }
 
-    void Pingreq::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onPingreq(*this);
+    void Pingreq::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->_onPingreq(*this);
     }
 
 } // namespace iot::mqtt::server::packets

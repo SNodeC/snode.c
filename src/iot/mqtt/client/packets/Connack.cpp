@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/client/packets/Connack.h"
 
-#include "iot/mqtt/client/SocketContext.h"
+#include "iot/mqtt/client/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,12 +31,12 @@ namespace iot::mqtt::client::packets {
         this->flags = flags;
     }
 
-    std::size_t Connack::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Connack::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0: // V-Header
-                consumed += acknowledgeFlags.deserialize(socketContext);
+                consumed += acknowledgeFlags.deserialize(mqttContext);
                 if (!acknowledgeFlags.isComplete()) {
                     break;
                 }
@@ -46,7 +46,7 @@ namespace iot::mqtt::client::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += returnCode.deserialize(socketContext);
+                consumed += returnCode.deserialize(mqttContext);
 
                 if (!returnCode.isComplete()) {
                     break;
@@ -61,7 +61,7 @@ namespace iot::mqtt::client::packets {
         return consumed;
     }
 
-    void Connack::propagateEvent(iot::mqtt::client::SocketContext* socketContext) {
+    void Connack::propagateEvent(iot::mqtt::client::Mqtt* socketContext) {
         socketContext->_onConnack(*this);
     }
 

@@ -9,11 +9,11 @@ set(SNODEC_IOT_MQTT_RPATH
 )
 
 set(MQTT_CPP ControlPacket.cpp ControlPacketDeserializer.cpp FixedHeader.cpp
-             SocketContext.cpp Topic.cpp
+             Mqtt.cpp MqttContext.cpp SocketContext.cpp Topic.cpp
 )
 
 set(MQTT_H ControlPacket.h ControlPacketDeserializer.h FixedHeader.h
-           SocketContext.h Topic.h
+           Mqtt.h MqttContext.h SocketContext.h Topic.h
 )
 
 add_library(mqtt SHARED ${MQTT_CPP} ${MQTT_H})

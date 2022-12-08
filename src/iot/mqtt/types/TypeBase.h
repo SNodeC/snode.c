@@ -19,8 +19,8 @@
 #ifndef IOT_MQTT_TYPES_TYPEBASE_H
 #define IOT_MQTT_TYPES_TYPEBASE_H
 
-namespace core::socket {
-    class SocketContext;
+namespace iot::mqtt {
+    class MqttContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -45,7 +45,7 @@ namespace iot::mqtt::types {
         virtual ValueType operator=(const ValueType& value) = 0;
         virtual operator ValueType() const = 0;
 
-        virtual std::size_t deserialize(core::socket::SocketContext* socketContext);
+        virtual std::size_t deserialize(iot::mqtt::MqttContext* mqttContext);
         virtual std::vector<char> serialize() const;
 
         void setSize(std::size_t size);
@@ -57,7 +57,7 @@ namespace iot::mqtt::types {
         virtual void reset(std::size_t size = sizeof(ValueType));
 
     protected:
-        core::socket::SocketContext* socketContext;
+        //        iot::mqtt::MqttContext* mqttContext;
 
         std::vector<char> value;
 

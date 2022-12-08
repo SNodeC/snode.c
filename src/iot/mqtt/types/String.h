@@ -24,8 +24,8 @@
 
 // IWYU pragma: no_include "iot/mqtt/types/TypeBase.hpp"
 
-namespace core::socket {
-    class SocketContext;
+namespace iot::mqtt {
+    class MqttContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,7 +40,7 @@ namespace iot::mqtt::types {
     public:
         String();
 
-        std::size_t deserialize(core::socket::SocketContext* socketContext) override;
+        std::size_t deserialize(iot::mqtt::MqttContext* mqttContext) override;
         std::vector<char> serialize() const override;
 
         std::string operator=(const std::string& newValue) override;

@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/server/packets/Publish.h"
 
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/server/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,12 +36,12 @@ namespace iot::mqtt::server::packets {
         error = this->qoS > 2;
     }
 
-    std::size_t Publish::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Publish::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0: // V-Header
-                consumed += topic.deserialize(socketContext);
+                consumed += topic.deserialize(mqttContext);
                 if (!topic.isComplete()) {
                     break;
                 }
@@ -50,7 +50,7 @@ namespace iot::mqtt::server::packets {
                 [[fallthrough]];
             case 1:
                 if (qoS > 0) {
-                    consumed += packetIdentifier.deserialize(socketContext);
+                    consumed += packetIdentifier.deserialize(mqttContext);
                     if (!packetIdentifier.isComplete()) {
                         break;
                     }
@@ -61,7 +61,7 @@ namespace iot::mqtt::server::packets {
                 state++;
                 [[fallthrough]];
             case 2: // Payload
-                consumed += message.deserialize(socketContext);
+                consumed += message.deserialize(mqttContext);
                 if (!message.isComplete()) {
                     break;
                 }
@@ -73,8 +73,8 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Publish::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
-        socketContext->_onPublish(*this);
+    void Publish::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->_onPublish(*this);
     }
 
 } // namespace iot::mqtt::server::packets

@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/server/packets/Pubcomp.h"
 
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/server/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,9 +31,9 @@ namespace iot::mqtt::server::packets {
         this->flags = flags;
     }
 
-    std::size_t Pubcomp::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Pubcomp::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
         // V-Header
-        std::size_t consumed = packetIdentifier.deserialize(socketContext);
+        std::size_t consumed = packetIdentifier.deserialize(mqttContext);
         complete = packetIdentifier.isComplete();
 
         // no Payload
@@ -41,8 +41,8 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Pubcomp::propagateEvent(SocketContext* socketContext) {
-        socketContext->_onPubcomp(*this);
+    void Pubcomp::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->_onPubcomp(*this);
     }
 
 } // namespace iot::mqtt::server::packets

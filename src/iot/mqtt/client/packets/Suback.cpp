@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/client/packets/Suback.h"
 
-#include "iot/mqtt/client/SocketContext.h"
+#include "iot/mqtt/client/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,12 +31,12 @@ namespace iot::mqtt::client::packets {
         this->flags = flags;
     }
 
-    std::size_t Suback::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Suback::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0: // V-Header
-                consumed += packetIdentifier.deserialize(socketContext);
+                consumed += packetIdentifier.deserialize(mqttContext);
 
                 if (!packetIdentifier.isComplete()) {
                     break;
@@ -45,7 +45,7 @@ namespace iot::mqtt::client::packets {
                 state++;
                 [[fallthrough]];
             case 1: // Payload
-                consumed += returnCode.deserialize(socketContext);
+                consumed += returnCode.deserialize(mqttContext);
 
                 if (!returnCode.isComplete()) {
                     break;
@@ -65,7 +65,7 @@ namespace iot::mqtt::client::packets {
         return consumed;
     }
 
-    void Suback::propagateEvent(iot::mqtt::client::SocketContext* socketContext) {
+    void Suback::propagateEvent(iot::mqtt::client::Mqtt* socketContext) {
         socketContext->_onSuback(*this);
     }
 
