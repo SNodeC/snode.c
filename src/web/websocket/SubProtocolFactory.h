@@ -19,6 +19,14 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 
+#include "core/socket/SocketContext.h"
+#include "web/websocket/SubProtocolContext.h"
+
+namespace web::websocket {
+    template <typename SubProtocolT, typename RequestT, typename ResponseT>
+    class SocketContextUpgrade;
+} // namespace web::websocket
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -42,14 +50,18 @@ namespace web::websocket {
 
         virtual ~SubProtocolFactory() = default;
 
-        SubProtocol* createSubProtocol() {
-            SubProtocol* subProtocol = create();
+        SubProtocol* createSubProtocol(SubProtocolContext* subProtocolContext) {
+            SubProtocol* subProtocol = create(subProtocolContext);
 
             refCount++;
 
             return subProtocol;
         }
 
+    private:
+        virtual SubProtocol* create(SubProtocolContext* subProtocolContext) = 0;
+
+    public:
         virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {
             delete subProtocol;
 
@@ -61,8 +73,6 @@ namespace web::websocket {
         const std::string& getName() {
             return subProtocolName;
         }
-
-        virtual SubProtocol* create() = 0;
 
         void setHandle(void* handle) {
             this->handle = handle;

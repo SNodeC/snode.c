@@ -21,11 +21,15 @@
 
 #include "web/websocket/SubProtocol.h"
 
-// IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
+namespace web::websocket {
+    class SubProtocolContext;
+}
 
 namespace web::websocket::server {
     class SocketContextUpgrade;
-} // namespace web::websocket::server
+}
+
+// IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,7 +46,7 @@ namespace web::websocket::server {
         using Super = web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
 
     protected:
-        explicit SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
+        SubProtocol(SubProtocolContext* socketContextUpgrade, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
 
     public:
         ~SubProtocol() override;

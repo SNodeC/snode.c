@@ -29,8 +29,8 @@
 
 namespace apps::websocket::subprotocol::echo::server {
 
-    Echo::Echo(const std::string& name)
-        : web::websocket::server::SubProtocol(name, PING_INTERVAL, MAX_FLYING_PINGS) {
+    Echo::Echo(web::websocket::SubProtocolContext* socketContextUpgradeBase, const std::string& name)
+        : web::websocket::server::SubProtocol(socketContextUpgradeBase, name, PING_INTERVAL, MAX_FLYING_PINGS) {
     }
 
     void Echo::onConnected() {
@@ -69,6 +69,10 @@ namespace apps::websocket::subprotocol::echo::server {
 
     void Echo::onDisconnected() {
         VLOG(0) << "Echo disconnected:";
+    }
+
+    void Echo::onExit() {
+        VLOG(0) << "Echo exit:";
     }
 
 } // namespace apps::websocket::subprotocol::echo::server

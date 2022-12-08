@@ -21,6 +21,10 @@
 
 #include "web/websocket/server/SubProtocol.h"
 
+namespace web::websocket {
+    class SubProtocolContext;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -33,7 +37,7 @@ namespace apps::websocket::subprotocol::echo::server {
 
     class Echo : public web::websocket::server::SubProtocol {
     public:
-        explicit Echo(const std::string& name);
+        Echo(web::websocket::SubProtocolContext* socketContextUpgradeBase, const std::string& name);
         ~Echo() override = default;
 
     private:
@@ -43,6 +47,7 @@ namespace apps::websocket::subprotocol::echo::server {
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
         void onDisconnected() override;
+        void onExit() override;
 
         std::string data;
     };

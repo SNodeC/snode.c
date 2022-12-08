@@ -20,6 +20,8 @@
 #define WEB_WEBSOCKET_SUBSPROTOCOL_H
 
 #include "core/timer/Timer.h" // IWYU pragma: export
+#include "web/websocket/SocketContextUpgrade.h"
+#include "web/websocket/SubProtocolContext.h"
 
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
@@ -47,29 +49,27 @@ namespace web::websocket {
         using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
-        SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
+        SubProtocol(SubProtocolContext* socketContextUpgrade, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
         virtual ~SubProtocol();
-
-    private:
-        void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade);
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        void sendMessage(const char* message, std::size_t messageLength);
-        void sendMessage(const std::string& message);
-        void sendMessageStart(const char* message, std::size_t messageLength);
-        void sendMessageStart(const std::string& message);
-        void sendMessageFrame(const char* message, std::size_t messageLength);
-        void sendMessageFrame(const std::string& message);
-        void sendMessageEnd(const char* message, std::size_t messageLength);
-        void sendMessageEnd(const std::string& message);
-        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendMessage(const char* message, std::size_t messageLength) const;
+        void sendMessage(const std::string& message) const;
+        void sendMessageStart(const char* message, std::size_t messageLength) const;
+        void sendMessageStart(const std::string& message) const;
+        void sendMessageFrame(const char* message, std::size_t messageLength) const;
+        void sendMessageFrame(const std::string& message) const;
+        void sendMessageEnd(const char* message, std::size_t messageLength) const;
+        void sendMessageEnd(const std::string& message) const;
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) const;
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
     private:
         /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
+        virtual void onExit() = 0;
 
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
@@ -81,11 +81,12 @@ namespace web::websocket {
 
     public:
         const std::string& getName();
+        SubProtocolContext* getSocketContextUpgrade();
 
     private:
         const std::string name;
 
-        SocketContextUpgrade* socketContextUpgrade;
+        SubProtocolContext* socketContextUpgrade;
 
         core::timer::Timer pingTimer;
         int flyingPings = 0;

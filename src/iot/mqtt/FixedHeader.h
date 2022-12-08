@@ -23,7 +23,7 @@
 #include "iot/mqtt/types/UIntV.h" // IWYU pragma: export
 
 namespace iot::mqtt {
-    class SocketContext; // IWYU pragma: keep
+    class MqttContext; // IWYU pragma: keep
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,7 +39,7 @@ namespace iot::mqtt {
 
         ~FixedHeader();
 
-        std::size_t deserialize(iot::mqtt::SocketContext* socketContext);
+        std::size_t deserialize(iot::mqtt::MqttContext* mqttContext);
         std::vector<char> serialize();
 
         uint8_t getPacketType() const;

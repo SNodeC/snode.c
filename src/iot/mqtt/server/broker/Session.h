@@ -22,7 +22,7 @@
 #include "iot/mqtt/server/broker/Message.h" // IWYU pragma: export
 
 namespace iot::mqtt::server {
-    class SocketContext;
+    class Mqtt;
 } // namespace iot::mqtt::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,7 +38,7 @@ namespace iot::mqtt::server::broker {
     class Session {
     public:
         Session() = default;
-        Session(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
+        Session(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
         Session(const Session&) = default;
 
         Session& operator=(const Session&) = default;
@@ -47,16 +47,16 @@ namespace iot::mqtt::server::broker {
 
         void publishQueued();
 
-        void renew(iot::mqtt::server::SocketContext* socketContext);
+        void renew(iot::mqtt::server::Mqtt* mqtt);
 
         void retain();
 
         bool isActive() const;
-        bool isOwnedBy(const iot::mqtt::server::SocketContext* socketContext) const;
+        bool isOwnedBy(const iot::mqtt::server::Mqtt* mqtt) const;
 
     private:
         std::string clientId;
-        iot::mqtt::server::SocketContext* socketContext = nullptr;
+        iot::mqtt::server::Mqtt* mqtt = nullptr;
 
         std::deque<Message> messageQueue;
     };

@@ -30,12 +30,12 @@ namespace iot::mqtt::types {
         : TypeBase(0) {
     }
 
-    std::size_t String::deserialize(core::socket::SocketContext* socketContext) {
+    std::size_t String::deserialize(MqttContext *mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0:
-                consumed = stringLength.deserialize(socketContext);
+                consumed = stringLength.deserialize(mqttContext);
                 if (!stringLength.isComplete()) {
                     break;
                 }
@@ -44,7 +44,7 @@ namespace iot::mqtt::types {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += TypeBase::deserialize(socketContext);
+                consumed += TypeBase::deserialize(mqttContext);
                 break;
         }
 

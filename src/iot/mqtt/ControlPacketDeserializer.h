@@ -20,7 +20,7 @@
 #define IOT_MQTT_CONTROLPACKETRECEIVER_H
 
 namespace iot::mqtt {
-    class SocketContext;
+    class MqttContext;
 } // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,10 +38,10 @@ namespace iot::mqtt {
 
         virtual ~ControlPacketDeserializer() = default;
 
-        std::size_t deserialize(iot::mqtt::SocketContext* socketContext);
+        std::size_t deserialize(iot::mqtt::MqttContext* mqttContext);
 
     private:
-        virtual std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) = 0;
+        virtual std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) = 0;
 
     public:
         uint32_t getRemainingLength() const;

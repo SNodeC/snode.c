@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/client/packets/Unsuback.h"
 
-#include "iot/mqtt/client/SocketContext.h"
+#include "iot/mqtt/client/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,9 +31,9 @@ namespace iot::mqtt::client::packets {
         this->flags = flags;
     }
 
-    std::size_t Unsuback::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Unsuback::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
         // V-Header
-        std::size_t consumed = packetIdentifier.deserialize(socketContext);
+        std::size_t consumed = packetIdentifier.deserialize(mqttContext);
         complete = packetIdentifier.isComplete();
 
         // no Payload
@@ -41,7 +41,7 @@ namespace iot::mqtt::client::packets {
         return consumed;
     }
 
-    void Unsuback::propagateEvent(iot::mqtt::client::SocketContext* socketContext) {
+    void Unsuback::propagateEvent(iot::mqtt::client::Mqtt* socketContext) {
         socketContext->_onUnsuback(*this);
     }
 

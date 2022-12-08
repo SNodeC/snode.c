@@ -16,28 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_CONTROLPACKETDESERIALIZER_H
-#define IOT_MQTT_SERVER_CONTROLPACKETDESERIALIZER_H
-
-#include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-
-namespace iot::mqtt::server {
-    class Mqtt;
-}
+#include "web/websocket/SubProtocolContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server {
+namespace web::websocket {
 
-    class ControlPacketDeserializer : public iot::mqtt::ControlPacketDeserializer {
-    public:
-        using iot::mqtt::ControlPacketDeserializer::ControlPacketDeserializer;
+    SubProtocolContext::SubProtocolContext(bool role)
+        : Transmitter(role) {
+    }
 
-        virtual void propagateEvent(iot::mqtt::server::Mqtt* socketContext) = 0;
-    };
-
-} // namespace iot::mqtt::server
-
-#endif // IOT_MQTT_SERVER_CONTROLPACKETDESERIALIZER_H
+} // namespace web::websocket

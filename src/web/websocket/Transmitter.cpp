@@ -25,6 +25,7 @@
 #include <endian.h>
 #include <iomanip>
 #include <memory>
+#include <random>
 #include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -33,27 +34,30 @@
 
 namespace web::websocket {
 
+    static std::random_device randomDevice;
+    static std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
+
     Transmitter::Transmitter(bool masking)
         : masking(masking) {
     }
 
-    void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const {
         send(true, opCode, message, messageLength);
     }
 
-    void Transmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) const {
         send(false, opCode, message, messageLength);
     }
 
-    void Transmitter::sendMessageFrame(const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageFrame(const char* message, std::size_t messageLength) const {
         send(false, 0, message, messageLength);
     }
 
-    void Transmitter::sendMessageEnd(const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageEnd(const char* message, std::size_t messageLength) const {
         send(true, 0, message, messageLength);
     }
 
-    void Transmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) const {
         std::size_t messageOffset = 0;
 
         do {
@@ -131,7 +135,7 @@ namespace web::websocket {
         }
     */
 
-    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
+    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) const {
         uint64_t length = 0;
 
         if (payloadLength < 126) {

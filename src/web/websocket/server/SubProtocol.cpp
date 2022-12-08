@@ -20,7 +20,6 @@
 
 #include "web/websocket/SubProtocol.hpp"
 #include "web/websocket/server/GroupsManager.h"
-#include "web/websocket/server/SocketContextUpgrade.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,8 +27,8 @@
 
 namespace web::websocket::server {
 
-    SubProtocol::SubProtocol(const std::string& name, int pingInterval, int maxFlyingPings)
-        : Super(name, pingInterval, maxFlyingPings) {
+    SubProtocol::SubProtocol(SubProtocolContext* socketContextUpgrade, const std::string& name, int pingInterval, int maxFlyingPings)
+        : Super(socketContextUpgrade, name, pingInterval, maxFlyingPings) {
         GroupsManager::instance()->subscribe(this);
     }
 

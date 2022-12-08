@@ -21,6 +21,10 @@
 
 #include "web/websocket/SubProtocolFactory.h"
 
+namespace web::websocket {
+    class SubProtocolContext;
+}
+
 namespace apps::websocket::subprotocol::echo::client {
     class Echo; // IWYU pragma: keep
 }
@@ -40,7 +44,7 @@ namespace apps::websocket::subprotocol::echo::client {
         using web::websocket::SubProtocolFactory<Echo>::SubProtocolFactory;
 
     private:
-        Echo* create() override;
+        Echo* create(web::websocket::SubProtocolContext* subProtocolContext) override;
     };
 
 } // namespace apps::websocket::subprotocol::echo::client

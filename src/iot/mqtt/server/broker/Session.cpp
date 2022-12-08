@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/server/broker/Session.h"
 
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/server/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,9 +33,9 @@
 
 namespace iot::mqtt::server::broker {
 
-    Session::Session(const std::string& clientId, SocketContext* socketContext)
+    Session::Session(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt)
         : clientId(clientId)
-        , socketContext(socketContext) {
+        , mqtt(mqtt) {
     }
 
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain, bool dup) {
@@ -52,12 +52,8 @@ namespace iot::mqtt::server::broker {
         LOG(TRACE) << "                QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
-            socketContext->sendPublish(socketContext->getPacketIdentifier(),
-                                       message.getTopic(),
-                                       message.getMessage(),
-                                       std::min(message.getQoS(), qoS),
-                                       retain,
-                                       dup);
+            mqtt->sendPublish(
+                mqtt->getPacketIdentifier(), message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain, dup);
         } else {
             if (message.getQoS() == 0) {
                 messageQueue.clear();
@@ -79,20 +75,20 @@ namespace iot::mqtt::server::broker {
         messageQueue.clear();
     }
 
-    void Session::renew(iot::mqtt::server::SocketContext* socketContext) {
-        this->socketContext = socketContext;
+    void Session::renew(iot::mqtt::server::Mqtt* mqtt) {
+        this->mqtt = mqtt;
     }
 
     void Session::retain() {
-        this->socketContext = nullptr;
+        this->mqtt = nullptr;
     }
 
     bool Session::isActive() const {
-        return socketContext != nullptr;
+        return mqtt != nullptr;
     }
 
-    bool Session::isOwnedBy(const SocketContext* socketContext) const {
-        return this->socketContext == socketContext;
+    bool Session::isOwnedBy(const iot::mqtt::server::Mqtt* mqtt) const {
+        return this->mqtt == mqtt;
     }
 
 } // namespace iot::mqtt::server::broker

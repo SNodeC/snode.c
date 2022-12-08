@@ -22,7 +22,7 @@
 #include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
 
 namespace iot::mqtt::client {
-    class SocketContext;
+    class Mqtt;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,7 +35,7 @@ namespace iot::mqtt::client {
     public:
         using iot::mqtt::ControlPacketDeserializer::ControlPacketDeserializer;
 
-        virtual void propagateEvent(iot::mqtt::client::SocketContext* socketContext) = 0;
+        virtual void propagateEvent(iot::mqtt::client::Mqtt* socketContext) = 0;
     };
 
 } // namespace iot::mqtt::client

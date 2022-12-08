@@ -21,67 +21,51 @@
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt/FixedHeader.h"      // IWYU pragma: export
+#include "iot/mqtt/MqttContext.h"
 
 namespace core::socket {
     class SocketConnection;
 }
 
+namespace utils {
+    class Timeval;
+}
+
 namespace iot::mqtt {
-    class ControlPacketDeserializer;
-    class ControlPacket;
-} // namespace iot::mqtt
+    class Mqtt;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt {
 
-    class SocketContext : public core::socket::SocketContext {
+    class SocketContext
+        : public core::socket::SocketContext
+        , public iot::mqtt::MqttContext {
     public:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        explicit SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt);
 
         virtual ~SocketContext() override;
 
     private:
-        std::size_t onReceiveFromPeer() final;
-        virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;
-        virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
-
-    public:
-        void sendPublish(uint16_t packetIdentifier,
-                         const std::string& topic,
-                         const std::string& message,
-                         uint8_t qoS = 0,
-                         bool retain = false,
-                         bool dup = false) const;
-        void sendPuback(uint16_t packetIdentifier) const;
-        void sendPubrec(uint16_t packetIdentifier) const;
-        void sendPubrel(uint16_t packetIdentifier) const;
-        void sendPubcomp(uint16_t packetIdentifier) const;
-
-        static std::string dataToHexString(const std::vector<char>& data);
-
-        uint16_t getPacketIdentifier();
+        void onConnected() override;
+        std::size_t onReceiveFromPeer() override;
+        void onDisconnected() override;
+        void onExit() override;
 
     protected:
-        void send(iot::mqtt::ControlPacket&& controlPacket) const;
-        void send(iot::mqtt::ControlPacket& controlPacket) const;
-        void send(std::vector<char>&& data) const;
+        std::size_t receive(char* junk, std::size_t junklen) const override;
+        void send(const char* junk, std::size_t junklen) const override;
 
-        static void printStandardHeader(const iot::mqtt::ControlPacket& packet);
+        void setKeepAlive(const utils::Timeval& timeout) override;
 
-    private:
-        iot::mqtt::FixedHeader fixedHeader;
-        iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
-
-        uint16_t packetIdentifier = 0;
-
-        int state = 0;
+        void end(bool fatal) override;
+        void kill() override;
     };
 
 } // namespace iot::mqtt

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/SocketContext.h"
+#include "iot/mqtt/MqttContext.h"
 #include "iot/mqtt/types/TypeBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,10 +33,10 @@ namespace iot::mqtt::types {
     }
 
     template <typename ValueType>
-    std::size_t TypeBase<ValueType>::deserialize(core::socket::SocketContext* socketContext) {
+    std::size_t TypeBase<ValueType>::deserialize(iot::mqtt::MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
-        consumed = socketContext->readFromPeer(value.data() + length - needed, static_cast<std::size_t>(needed));
+        consumed = mqttContext->receive(value.data() + length - needed, static_cast<std::size_t>(needed));
         needed -= consumed;
         complete = needed == 0;
 

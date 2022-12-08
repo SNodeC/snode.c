@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/server/packets/Connect.h"
 
-#include "iot/mqtt/server/SocketContext.h"
+#include "iot/mqtt/server/Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,12 +33,12 @@ namespace iot::mqtt::server::packets {
         this->flags = flags;
     }
 
-    std::size_t Connect::deserializeVP(iot::mqtt::SocketContext* socketContext) {
+    std::size_t Connect::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0: // V-Header
-                consumed += protocol.deserialize(socketContext);
+                consumed += protocol.deserialize(mqttContext);
                 if (!protocol.isComplete()) {
                     break;
                 }
@@ -46,7 +46,7 @@ namespace iot::mqtt::server::packets {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += level.deserialize(socketContext);
+                consumed += level.deserialize(mqttContext);
                 if (!level.isComplete()) {
                     break;
                 }
@@ -54,7 +54,7 @@ namespace iot::mqtt::server::packets {
                 state++;
                 [[fallthrough]];
             case 2:
-                consumed += connectFlags.deserialize(socketContext);
+                consumed += connectFlags.deserialize(mqttContext);
                 if (!connectFlags.isComplete()) {
                     break;
                 }
@@ -70,7 +70,7 @@ namespace iot::mqtt::server::packets {
                 state++;
                 [[fallthrough]];
             case 3:
-                consumed += keepAlive.deserialize(socketContext);
+                consumed += keepAlive.deserialize(mqttContext);
                 if (!keepAlive.isComplete()) {
                     break;
                 }
@@ -78,7 +78,7 @@ namespace iot::mqtt::server::packets {
                 state++;
                 [[fallthrough]];
             case 4: // Payload
-                consumed += clientId.deserialize(socketContext);
+                consumed += clientId.deserialize(mqttContext);
                 if (!clientId.isComplete()) {
                     break;
                 }
@@ -91,7 +91,7 @@ namespace iot::mqtt::server::packets {
                 [[fallthrough]];
             case 5:
                 if (willFlag) {
-                    consumed += willTopic.deserialize(socketContext);
+                    consumed += willTopic.deserialize(mqttContext);
                     if (!willTopic.isComplete()) {
                         break;
                     }
@@ -101,7 +101,7 @@ namespace iot::mqtt::server::packets {
                 [[fallthrough]];
             case 6:
                 if (willFlag) {
-                    consumed += willMessage.deserialize(socketContext);
+                    consumed += willMessage.deserialize(mqttContext);
                     if (!willMessage.isComplete()) {
                         break;
                     }
@@ -111,7 +111,7 @@ namespace iot::mqtt::server::packets {
                 [[fallthrough]];
             case 7:
                 if (usernameFlag) {
-                    consumed += username.deserialize(socketContext);
+                    consumed += username.deserialize(mqttContext);
                     if (!username.isComplete()) {
                         break;
                     }
@@ -121,7 +121,7 @@ namespace iot::mqtt::server::packets {
                 [[fallthrough]];
             case 8:
                 if (passwordFlag) {
-                    consumed += password.deserialize(socketContext);
+                    consumed += password.deserialize(mqttContext);
                     if (!password.isComplete()) {
                         break;
                     }
@@ -134,8 +134,8 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Connect::propagateEvent(iot::mqtt::server::SocketContext* socketContext) {
-        socketContext->_onConnect(*this);
+    void Connect::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->_onConnect(*this);
     }
 
 } // namespace iot::mqtt::server::packets

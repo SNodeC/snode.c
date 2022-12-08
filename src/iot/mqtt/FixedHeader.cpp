@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/FixedHeader.h"
 
-#include "iot/mqtt/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -37,12 +35,12 @@ namespace iot::mqtt {
     FixedHeader::~FixedHeader() {
     }
 
-    std::size_t FixedHeader::deserialize(iot::mqtt::SocketContext* socketContext) {
+    std::size_t FixedHeader::deserialize(MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0:
-                consumed += typeFlags.deserialize(socketContext);
+                consumed += typeFlags.deserialize(mqttContext);
 
                 if (!typeFlags.isComplete()) {
                     break;
@@ -50,7 +48,7 @@ namespace iot::mqtt {
                 state++;
                 [[fallthrough]];
             case 1:
-                consumed += remainingLength.deserialize(socketContext);
+                consumed += remainingLength.deserialize(mqttContext);
 
                 complete = remainingLength.isComplete();
                 error = remainingLength.isError();

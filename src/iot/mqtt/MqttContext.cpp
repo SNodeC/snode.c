@@ -16,28 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_CONTROLPACKETDESERIALIZER_H
-#define IOT_MQTT_SERVER_CONTROLPACKETDESERIALIZER_H
+#include "MqttContext.h"
 
-#include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
-
-namespace iot::mqtt::server {
-    class Mqtt;
-}
+#include "Mqtt.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server {
+namespace iot::mqtt {
 
-    class ControlPacketDeserializer : public iot::mqtt::ControlPacketDeserializer {
-    public:
-        using iot::mqtt::ControlPacketDeserializer::ControlPacketDeserializer;
+    MqttContext::MqttContext(Mqtt* mqtt)
+        : mqtt(mqtt) {
+        mqtt->setMqttContext(this);
+    }
 
-        virtual void propagateEvent(iot::mqtt::server::Mqtt* socketContext) = 0;
-    };
+    MqttContext::~MqttContext() {
+        delete mqtt;
+    }
 
-} // namespace iot::mqtt::server
+    void MqttContext::setSocketConnection(core::socket::SocketConnection* socketConnection) {
+        this->socketConnection = socketConnection;
+    }
 
-#endif // IOT_MQTT_SERVER_CONTROLPACKETDESERIALIZER_H
+    void MqttContext::onConnected() {
+        mqtt->onConnected();
+    }
+
+    std::size_t MqttContext::onReceiveFromPeer() {
+        return mqtt->onReceiveFromPeer();
+    }
+
+    void MqttContext::onDisconnected() {
+        mqtt->onDisconnected();
+    }
+
+    void MqttContext::onExit() {
+        mqtt->onExit();
+    }
+
+    core::socket::SocketConnection* MqttContext::getSocketConnection() {
+        return socketConnection;
+    }
+
+} // namespace iot::mqtt

@@ -18,7 +18,7 @@
 
 #include "iot/mqtt/types/UIntV.h"
 
-#include "core/socket/SocketContext.h"
+#include "iot/mqtt/MqttContext.h"
 #include "iot/mqtt/types/TypeBase.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,12 +31,12 @@ namespace iot::mqtt::types {
         : TypeBase(0) {
     }
 
-    std::size_t UIntV::deserialize(core::socket::SocketContext* socketContext) {
+    std::size_t UIntV::deserialize(MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         do {
             char byte;
-            consumed = socketContext->readFromPeer(&byte, 1);
+            consumed = mqttContext->receive(&byte, 1);
 
             if (consumed > 0) {
                 value.push_back(byte);

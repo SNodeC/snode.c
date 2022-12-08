@@ -24,7 +24,7 @@
 #include "iot/mqtt/server/broker/SubscribtionTree.h"
 
 namespace iot::mqtt::server {
-    class SocketContext;
+    class Mqtt;
 
 } // namespace iot::mqtt::server
 
@@ -66,10 +66,10 @@ namespace iot::mqtt::server::broker {
         bool hasActiveSession(const std::string& clientId);
         bool hasRetainedSession(const std::string& clientId);
 
-        bool isActiveSession(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
+        bool isActiveSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
 
-        void newSession(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
-        void renewSession(const std::string& clientId, iot::mqtt::server::SocketContext* socketContext);
+        void newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
+        void renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
         void retainSession(const std::string& clientId);
         void deleteSession(const std::string& clinetId);
 

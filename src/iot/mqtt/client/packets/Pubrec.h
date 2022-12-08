@@ -23,9 +23,9 @@
 #include "iot/mqtt/packets/Pubrec.h"                   // IWYU pragma: export
 
 namespace iot::mqtt {
-    class SocketContext;
+    class MqttContext;
     namespace client {
-        class SocketContext;
+        class Mqtt;
     }
 } // namespace iot::mqtt
 
@@ -42,8 +42,8 @@ namespace iot::mqtt::client::packets {
         Pubrec(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::SocketContext* socketContext) override;
-        void propagateEvent(iot::mqtt::client::SocketContext* socketContext) override;
+        std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
+        void propagateEvent(iot::mqtt::client::Mqtt* socketContext) override;
     };
 
 } // namespace iot::mqtt::client::packets
