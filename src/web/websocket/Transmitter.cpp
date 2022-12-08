@@ -25,6 +25,7 @@
 #include <endian.h>
 #include <iomanip>
 #include <memory>
+#include <random>
 #include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,6 +33,9 @@
 #define WSMAXFRAMEPAYLOADLENGTH 1024
 
 namespace web::websocket {
+
+    static std::random_device randomDevice;
+    static std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
 
     Transmitter::Transmitter(bool masking)
         : masking(masking) {
@@ -162,9 +166,6 @@ namespace web::websocket {
             uint32_t keyAsValue;
             char keyAsBytes[4];
         };
-
-        std::random_device randomDevice;
-        std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
 
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 

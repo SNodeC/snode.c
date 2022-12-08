@@ -20,10 +20,13 @@
 #define WEB_WEBSOCKET_SERVER_SUBSPROTOCOL_H
 
 #include "web/websocket/SubProtocol.h"
-#include "web/websocket/server/SocketContextUpgrade.h"
 
 namespace web::websocket {
     class SocketContextUpgradeBase;
+}
+
+namespace web::websocket::server {
+    class SocketContextUpgrade;
 }
 
 // IWYU pragma: no_include "web/websocket/SubProtocol.hpp"

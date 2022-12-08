@@ -23,7 +23,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -58,9 +57,6 @@ namespace web::websocket {
         virtual void sendFrameData(uint32_t data) const = 0;
         virtual void sendFrameData(uint64_t data) const = 0;
         virtual void sendFrameData(const char* frame, uint64_t frameLength) const = 0;
-
-        //        const std::random_device randomDevice;
-        //        const std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
 
         bool masking = false;
     };

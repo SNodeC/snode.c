@@ -79,7 +79,7 @@ namespace web::websocket {
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
                              web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory,
                              Role role)
-            : web::http::SocketContextUpgrade<Request, Response>(socketConnection, socketContextUpgradeFactory)
+            : Super(socketConnection, socketContextUpgradeFactory)
             , web::websocket::SocketContextUpgradeBase(role == Role::CLIENT)
             , subProtocol(subProtocolFactory->create(this)) {
             subProtocol->setSocketContextUpgrade(this);
@@ -134,6 +134,10 @@ namespace web::websocket {
         void sendClose(const char* message, std::size_t messageLength) override {
             sendMessage(8, message, messageLength);
             shutdownWrite();
+        }
+
+        core::socket::SocketConnection* getSocketConnection() override {
+            return Super::getSocketConnection();
         }
 
         /* WSReceiver */

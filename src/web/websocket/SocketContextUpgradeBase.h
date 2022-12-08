@@ -22,6 +22,10 @@
 #include "web/websocket/Receiver.h"
 #include "web/websocket/Transmitter.h"
 
+namespace core::socket {
+    class SocketConnection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -51,6 +55,8 @@ namespace web::websocket {
         virtual void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) const = 0;
         virtual void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) const = 0;
         virtual void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
+
+        virtual core::socket::SocketConnection* getSocketConnection() = 0;
 
     private:
         virtual void sendClose(const char* message, std::size_t messageLength) = 0;

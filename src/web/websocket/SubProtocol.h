@@ -46,9 +46,7 @@ namespace web::websocket {
         SubProtocol& operator=(const SubProtocol&) = delete;
 
     private:
-        using SocketContextUpgrade = web::websocket::SocketContextUpgrade<typename SocketContextUpgradeT::SubProtocol,
-                                                                          typename SocketContextUpgradeT::Request,
-                                                                          typename SocketContextUpgradeT::Response>;
+        using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
         SubProtocol(SocketContextUpgradeBase* socketContextUpgrade, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
