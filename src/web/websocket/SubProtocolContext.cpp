@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContextUpgradeBase.h"
+#include "SubProtocolContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,7 +24,7 @@
 
 namespace web::websocket {
 
-    SocketContextUpgradeBase::SocketContextUpgradeBase(bool role)
+    SubProtocolContext::SubProtocolContext(bool role)
         : Transmitter(role) {
     }
 

@@ -27,7 +27,7 @@
 
 namespace web::websocket::server {
 
-    SubProtocol::SubProtocol(SocketContextUpgradeBase* socketContextUpgrade, const std::string& name, int pingInterval, int maxFlyingPings)
+    SubProtocol::SubProtocol(SubProtocolContext* socketContextUpgrade, const std::string& name, int pingInterval, int maxFlyingPings)
         : Super(socketContextUpgrade, name, pingInterval, maxFlyingPings) {
         GroupsManager::instance()->subscribe(this);
     }

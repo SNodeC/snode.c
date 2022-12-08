@@ -20,7 +20,7 @@
 #define WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 
 #include "core/socket/SocketContext.h"
-#include "web/websocket/SocketContextUpgradeBase.h"
+#include "web/websocket/SubProtocolContext.h"
 
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
@@ -50,8 +50,8 @@ namespace web::websocket {
 
         virtual ~SubProtocolFactory() = default;
 
-        SubProtocol* createSubProtocol() {
-            SubProtocol* subProtocol = create();
+        SubProtocol* createSubProtocol(SubProtocolContext* subProtocolContext) {
+            SubProtocol* subProtocol = create(subProtocolContext);
 
             refCount++;
 
@@ -70,7 +70,7 @@ namespace web::websocket {
             return subProtocolName;
         }
 
-        virtual SubProtocol* create(SocketContextUpgradeBase*) = 0;
+        virtual SubProtocol* create(SubProtocolContext* subProtocolContext) = 0;
 
         void setHandle(void* handle) {
             this->handle = handle;

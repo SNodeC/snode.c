@@ -31,7 +31,7 @@
 namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
-    SubProtocol<SocketContextUpgradeT>::SubProtocol(SocketContextUpgradeBase* socketContextUpgrade,
+    SubProtocol<SocketContextUpgradeT>::SubProtocol(SubProtocolContext* socketContextUpgrade,
                                                     const std::string& name,
                                                     int pingInterval,
                                                     int maxFlyingPings)
@@ -60,12 +60,7 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::setSocketContextUpgrade(SocketContextUpgradeBase* socketContextUpgrade) {
-        this->socketContextUpgrade = socketContextUpgrade;
-    }
-
-    template <typename SocketContextUpgradeT>
-    SocketContextUpgradeBase* SubProtocol<SocketContextUpgradeT>::getSocketContextUpgrade() {
+    SubProtocolContext* SubProtocol<SocketContextUpgradeT>::getSocketContextUpgrade() {
         return socketContextUpgrade;
     }
 

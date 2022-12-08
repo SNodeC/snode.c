@@ -35,16 +35,16 @@ namespace core::socket {
 
 namespace web::websocket {
 
-    class SocketContextUpgradeBase
+    class SubProtocolContext
         : public Receiver
         , public Transmitter {
     public:
-        SocketContextUpgradeBase(bool role);
-        SocketContextUpgradeBase(const SocketContextUpgradeBase&) = delete;
+        SubProtocolContext(bool role);
+        SubProtocolContext(const SubProtocolContext&) = delete;
 
-        SocketContextUpgradeBase& operator=(const SocketContextUpgradeBase&) = delete;
+        SubProtocolContext& operator=(const SubProtocolContext&) = delete;
 
-        virtual ~SocketContextUpgradeBase() = default;
+        virtual ~SubProtocolContext() = default;
 
     public:
         virtual void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const = 0;

@@ -19,7 +19,7 @@
 #include "Echo.h"
 
 namespace web::websocket {
-    class SocketContextUpgradeBase;
+    class SubProtocolContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,7 +33,7 @@ namespace web::websocket {
 
 namespace apps::websocket::subprotocol::echo::client {
 
-    Echo::Echo(web::websocket::SocketContextUpgradeBase* socketContextUpgradeBase, const std::string& name)
+    Echo::Echo(web::websocket::SubProtocolContext* socketContextUpgradeBase, const std::string& name)
         : web::websocket::client::SubProtocol(socketContextUpgradeBase, name, PING_INTERVAL, MAX_FLYING_PINGS) {
     }
 
@@ -70,6 +70,10 @@ namespace apps::websocket::subprotocol::echo::client {
 
     void Echo::onDisconnected() {
         VLOG(0) << "Echo disconnected:";
+    }
+
+    void Echo::onExit() {
+        VLOG(0) << "Echo exit:";
     }
 
 } // namespace apps::websocket::subprotocol::echo::client

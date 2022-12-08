@@ -11,13 +11,13 @@ get_target_property(
     HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR
 )
 
-set(WEBSOCKETBASE_CPP Receiver.cpp SocketContextUpgradeBase.cpp  Transmitter.cpp)
+set(WEBSOCKETBASE_CPP Receiver.cpp SubProtocolContext.cpp  Transmitter.cpp)
 set(WEBSOCKETBASE_H
     Receiver.h
     SocketContextUpgrade.h
-    SocketContextUpgradeBase.h
     SubProtocol.h
     SubProtocol.hpp
+    SubProtocolContext.h
     SubProtocolFactory.h
     SubProtocolFactorySelector.h
     Transmitter.h

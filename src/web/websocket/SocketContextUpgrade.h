@@ -20,7 +20,7 @@
 #define WEB_WEBSOCKET_SOCKETCONTEXT_H
 
 #include "web/http/SocketContextUpgrade.h" // IWYU pragma: export
-#include "web/websocket/SocketContextUpgradeBase.h"
+#include "web/websocket/SubProtocolContext.h"
 
 namespace core::socket {
     class SocketConnection;
@@ -52,7 +52,7 @@ namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
-        , protected web::websocket::SocketContextUpgradeBase {
+        , protected web::websocket::SubProtocolContext {
     public:
         SocketContextUpgrade() = delete;
         SocketContextUpgrade(const SocketContextUpgrade&) = delete;
@@ -80,9 +80,8 @@ namespace web::websocket {
                              web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory,
                              Role role)
             : Super(socketConnection, socketContextUpgradeFactory)
-            , web::websocket::SocketContextUpgradeBase(role == Role::CLIENT)
-            , subProtocol(subProtocolFactory->create(this)) {
-            subProtocol->setSocketContextUpgrade(this);
+            , web::websocket::SubProtocolContext(role == Role::CLIENT)
+            , subProtocol(subProtocolFactory->createSubProtocol(this)) {
         }
 
         ~SocketContextUpgrade() override = default;
@@ -222,6 +221,10 @@ namespace web::websocket {
         void onDisconnected() override {
             subProtocol->onDisconnected();
             VLOG(0) << "Websocket disconnected";
+        }
+
+        void onExit() override {
+            subProtocol->onExit();
         }
 
         /* Facade to SocketProtocol used from WSTransmitter */

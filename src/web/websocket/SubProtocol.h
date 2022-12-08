@@ -21,7 +21,7 @@
 
 #include "core/timer/Timer.h" // IWYU pragma: export
 #include "web/websocket/SocketContextUpgrade.h"
-#include "web/websocket/SocketContextUpgradeBase.h"
+#include "web/websocket/SubProtocolContext.h"
 
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
@@ -49,11 +49,8 @@ namespace web::websocket {
         using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
-        SubProtocol(SocketContextUpgradeBase* socketContextUpgrade, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
+        SubProtocol(SubProtocolContext* socketContextUpgrade, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
         virtual ~SubProtocol();
-
-    private:
-        void setSocketContextUpgrade(SocketContextUpgradeBase* socketContextUpgrade);
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
@@ -72,6 +69,7 @@ namespace web::websocket {
         /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
+        virtual void onExit() = 0;
 
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
@@ -83,12 +81,12 @@ namespace web::websocket {
 
     public:
         const std::string& getName();
-        SocketContextUpgradeBase* getSocketContextUpgrade();
+        SubProtocolContext* getSocketContextUpgrade();
 
     private:
         const std::string name;
 
-        SocketContextUpgradeBase* socketContextUpgrade;
+        SubProtocolContext* socketContextUpgrade;
 
         core::timer::Timer pingTimer;
         int flyingPings = 0;

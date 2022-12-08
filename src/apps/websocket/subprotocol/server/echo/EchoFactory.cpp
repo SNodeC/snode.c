@@ -28,8 +28,8 @@
 
 namespace apps::websocket::subprotocol::echo::server {
 
-    Echo* EchoFactory::create(web::websocket::SocketContextUpgradeBase* socketContextUpgradeBase) {
-        return new Echo(socketContextUpgradeBase, getName());
+    Echo* EchoFactory::create(web::websocket::SubProtocolContext* subProtocolContext) {
+        return new Echo(subProtocolContext, getName());
     }
 
 } // namespace apps::websocket::subprotocol::echo::server

@@ -22,7 +22,7 @@
 #include "web/websocket/SubProtocolFactory.h"
 
 namespace web::websocket {
-    class SocketContextUpgradeBase;
+    class SubProtocolContext;
 }
 
 namespace apps::websocket::subprotocol::echo::client {
@@ -44,7 +44,7 @@ namespace apps::websocket::subprotocol::echo::client {
         using web::websocket::SubProtocolFactory<Echo>::SubProtocolFactory;
 
     private:
-        Echo* create(web::websocket::SocketContextUpgradeBase* socketContextUpgradeBase) override;
+        Echo* create(web::websocket::SubProtocolContext* subProtocolContext) override;
     };
 
 } // namespace apps::websocket::subprotocol::echo::client

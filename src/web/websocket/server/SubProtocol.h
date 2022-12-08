@@ -22,7 +22,7 @@
 #include "web/websocket/SubProtocol.h"
 
 namespace web::websocket {
-    class SocketContextUpgradeBase;
+    class SubProtocolContext;
 }
 
 namespace web::websocket::server {
@@ -46,7 +46,7 @@ namespace web::websocket::server {
         using Super = web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
 
     protected:
-        SubProtocol(SocketContextUpgradeBase* socketContextUpgrade, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
+        SubProtocol(SubProtocolContext* socketContextUpgrade, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
 
     public:
         ~SubProtocol() override;
