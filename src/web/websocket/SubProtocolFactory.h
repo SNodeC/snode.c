@@ -58,6 +58,10 @@ namespace web::websocket {
             return subProtocol;
         }
 
+    private:
+        virtual SubProtocol* create(SubProtocolContext* subProtocolContext) = 0;
+
+    public:
         virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {
             delete subProtocol;
 
@@ -69,8 +73,6 @@ namespace web::websocket {
         const std::string& getName() {
             return subProtocolName;
         }
-
-        virtual SubProtocol* create(SubProtocolContext* subProtocolContext) = 0;
 
         void setHandle(void* handle) {
             this->handle = handle;
