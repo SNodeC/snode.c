@@ -215,4 +215,8 @@ namespace iot::mqtt {
         return packetIdentifier;
     }
 
+    core::socket::SocketConnection* Mqtt::getSocketConnection() {
+        return mqttContext->getSocketConnection();
+    }
+
 } // namespace iot::mqtt

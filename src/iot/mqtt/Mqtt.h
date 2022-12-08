@@ -21,6 +21,10 @@
 
 #include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
 
+namespace core::socket {
+    class SocketConnection;
+}
+
 namespace iot::mqtt {
     class ControlPacketDeserializer;
     class ControlPacket;
@@ -71,6 +75,8 @@ namespace iot::mqtt {
         static std::string dataToHexString(const std::vector<char>& data);
 
         uint16_t getPacketIdentifier();
+
+        core::socket::SocketConnection* getSocketConnection();
 
     protected:
         void send(iot::mqtt::ControlPacket&& controlPacket) const;

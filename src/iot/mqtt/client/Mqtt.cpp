@@ -44,9 +44,6 @@
 
 namespace iot::mqtt::client {
 
-    Mqtt::Mqtt() {
-    }
-
     iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
@@ -251,15 +248,15 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::sendConnect(uint16_t keepAlive,
-                                    const std::string& clientId,
+                           const std::string& clientId,
 
-                                    bool cleanSession,
-                                    const std::string& willTopic,
-                                    const std::string& willMessage,
-                                    uint8_t willQoS,
-                                    bool willRetain,
-                                    const std::string& username,
-                                    const std::string& password) const { // Client
+                           bool cleanSession,
+                           const std::string& willTopic,
+                           const std::string& willMessage,
+                           uint8_t willQoS,
+                           bool willRetain,
+                           const std::string& username,
+                           const std::string& password) const { // Client
         LOG(DEBUG) << "Send CONNECT";
         LOG(DEBUG) << "============";
 

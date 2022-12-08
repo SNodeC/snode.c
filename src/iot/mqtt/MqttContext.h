@@ -19,6 +19,10 @@
 #ifndef IOT_MQTT_MQTTCONTEXT_H
 #define IOT_MQTT_MQTTCONTEXT_H
 
+namespace core::socket {
+    class SocketConnection;
+}
+
 namespace iot::mqtt {
     class Mqtt;
 }
@@ -33,7 +37,7 @@ namespace iot::mqtt {
 
     class MqttContext {
     public:
-        explicit MqttContext(Mqtt* mqtt);
+        explicit MqttContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt);
         MqttContext(const MqttContext&) = default;
 
         MqttContext& operator=(const MqttContext&) = default;
@@ -53,7 +57,10 @@ namespace iot::mqtt {
         void onDisconnected();
         void onExit();
 
+        core::socket::SocketConnection* getSocketConnection();
+
     protected:
+        core::socket::SocketConnection* socketConnection = nullptr;
         Mqtt* mqtt;
     };
 

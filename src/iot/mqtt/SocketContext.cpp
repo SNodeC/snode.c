@@ -18,6 +18,8 @@
 
 #include "iot/mqtt/SocketContext.h"
 
+#include "iot/mqtt/Mqtt.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
@@ -28,7 +30,7 @@ namespace iot::mqtt {
 
     SocketContext::SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt)
         : core::socket::SocketContext(socketConnection)
-        , iot::mqtt::MqttContext(mqtt) {
+        , iot::mqtt::MqttContext(socketConnection, mqtt) {
     }
 
     SocketContext::~SocketContext() {

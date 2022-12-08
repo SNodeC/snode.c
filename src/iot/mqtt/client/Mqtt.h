@@ -64,7 +64,7 @@ namespace iot::mqtt::client {
 
     class Mqtt : public iot::mqtt::Mqtt {
     public:
-        explicit Mqtt();
+        Mqtt() = default;
 
     private:
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;

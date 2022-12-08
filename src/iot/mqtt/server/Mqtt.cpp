@@ -252,7 +252,8 @@ namespace iot::mqtt::server {
             if (keepAlive != 0) {
                 mqttContext->setKeepAlive(1.5 * keepAlive);
             } else {
-                mqttContext->setKeepAlive(core::DescriptorEventReceiver::TIMEOUT::DISABLE); // Or leaf at framework default (default 60 sec)?
+                mqttContext->setKeepAlive(
+                    core::DescriptorEventReceiver::TIMEOUT::DISABLE); // Or leaf at framework default (default 60 sec)?
             }
 
             initSession();

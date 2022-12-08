@@ -26,8 +26,9 @@
 
 namespace iot::mqtt {
 
-    MqttContext::MqttContext(Mqtt* mqtt)
-        : mqtt(mqtt) {
+    MqttContext::MqttContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt)
+        : socketConnection(socketConnection)
+        , mqtt(mqtt) {
         mqtt->setMqttContext(this);
     }
 
@@ -49,6 +50,10 @@ namespace iot::mqtt {
 
     void MqttContext::onExit() {
         mqtt->onExit();
+    }
+
+    core::socket::SocketConnection *MqttContext::getSocketConnection() {
+        return socketConnection;
     }
 
 } // namespace iot::mqtt
