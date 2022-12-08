@@ -20,14 +20,13 @@
 #define WEB_WEBSOCKET_CLIENT_SUBSPROTOCOL_H
 
 #include "web/websocket/SubProtocol.h"
-
-namespace web::websocket::client {
-    class SocketContextUpgrade;
-} // namespace web::websocket::client
+#include "web/websocket/client/SocketContextUpgrade.h"
 
 // IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

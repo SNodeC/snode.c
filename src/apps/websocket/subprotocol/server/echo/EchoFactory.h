@@ -21,6 +21,10 @@
 
 #include "web/websocket/SubProtocolFactory.h"
 
+namespace web::websocket {
+    class SocketContextUpgradeBase;
+}
+
 namespace apps::websocket::subprotocol::echo::server {
     class Echo; // IWYU pragma: keep
 }
@@ -40,7 +44,7 @@ namespace apps::websocket::subprotocol::echo::server {
         using web::websocket::SubProtocolFactory<Echo>::SubProtocolFactory;
 
     private:
-        Echo* create() override;
+        Echo* create(web::websocket::SocketContextUpgradeBase* socketContextUpgradeBase) override;
     };
 
 } // namespace apps::websocket::subprotocol::echo::server

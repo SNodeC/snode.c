@@ -37,15 +37,17 @@ namespace iot::mqtt {
 
     class MqttContext {
     public:
-        explicit MqttContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt);
+        explicit MqttContext(Mqtt* mqtt);
         MqttContext(const MqttContext&) = default;
 
         MqttContext& operator=(const MqttContext&) = default;
 
         virtual ~MqttContext();
 
+        void setSocketConnection(core::socket::SocketConnection* socketConnection);
+
         virtual std::size_t receive(char* junk, std::size_t junklen) const = 0;
-        virtual void send(char* junk, std::size_t junklen) const = 0;
+        virtual void send(const char* junk, std::size_t junklen) const = 0;
 
         virtual void setKeepAlive(const utils::Timeval& timeout) = 0;
 

@@ -60,7 +60,7 @@ namespace iot::mqtt {
 
     protected:
         std::size_t receive(char* junk, std::size_t junklen) const override;
-        void send(char* junk, std::size_t junklen) const override;
+        void send(const char* junk, std::size_t junklen) const override;
 
         void setKeepAlive(const utils::Timeval& timeout) override;
 

@@ -31,9 +31,14 @@ namespace web {
         class Response;
     } // namespace http::server
 
-    namespace websocket::server {
-        class SubProtocol;
-    } // namespace websocket::server
+    namespace websocket {
+        template <typename SubProtocolT>
+        class SubProtocolFactory;
+
+        namespace server {
+            class SubProtocol;
+        }
+    } // namespace websocket
 } // namespace web
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -50,7 +55,7 @@ namespace web::websocket::server {
         SocketContextUpgrade(
             core::socket::SocketConnection* socketConnection,
             web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory,
-            web::websocket::server::SubProtocol* subProtocol);
+            web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory);
 
     protected:
         ~SocketContextUpgrade() override;

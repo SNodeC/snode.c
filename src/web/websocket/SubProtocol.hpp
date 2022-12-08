@@ -31,9 +31,12 @@
 namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
-    SubProtocol<SocketContextUpgradeT>::SubProtocol(const std::string& name, int pingInterval, int maxFlyingPings)
+    SubProtocol<SocketContextUpgradeT>::SubProtocol(SocketContextUpgradeBase* socketContextUpgrade,
+                                                    const std::string& name,
+                                                    int pingInterval,
+                                                    int maxFlyingPings)
         : name(name)
-        , socketContextUpgrade(nullptr) {
+        , socketContextUpgrade(socketContextUpgrade) {
         if (pingInterval > 0) {
             pingTimer = core::timer::Timer::intervalTimer(
                 [this, maxFlyingPings](const std::function<void()>& stop) -> void {
@@ -57,52 +60,57 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade) {
+    void SubProtocol<SocketContextUpgradeT>::setSocketContextUpgrade(SocketContextUpgradeBase* socketContextUpgrade) {
         this->socketContextUpgrade = socketContextUpgrade;
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendMessage(const char* message, std::size_t messageLength) {
+    SocketContextUpgradeBase* SubProtocol<SocketContextUpgradeT>::getSocketContextUpgrade() {
+        return socketContextUpgrade;
+    }
+
+    template <typename SocketContextUpgradeT>
+    void SubProtocol<SocketContextUpgradeT>::sendMessage(const char* message, std::size_t messageLength) const {
         socketContextUpgrade->sendMessage(2, message, messageLength);
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendMessage(const std::string& message) {
+    void SubProtocol<SocketContextUpgradeT>::sendMessage(const std::string& message) const {
         socketContextUpgrade->sendMessage(1, message.data(), message.length());
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendMessageStart(const char* message, std::size_t messageLength) {
+    void SubProtocol<SocketContextUpgradeT>::sendMessageStart(const char* message, std::size_t messageLength) const {
         socketContextUpgrade->sendMessageStart(2, message, messageLength);
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendMessageStart(const std::string& message) {
+    void SubProtocol<SocketContextUpgradeT>::sendMessageStart(const std::string& message) const {
         socketContextUpgrade->sendMessageStart(1, message.data(), message.length());
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendMessageFrame(const char* message, std::size_t messageLength) {
+    void SubProtocol<SocketContextUpgradeT>::sendMessageFrame(const char* message, std::size_t messageLength) const {
         socketContextUpgrade->sendMessageFrame(message, messageLength);
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendMessageFrame(const std::string& message) {
+    void SubProtocol<SocketContextUpgradeT>::sendMessageFrame(const std::string& message) const {
         sendMessageFrame(message.data(), message.length());
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendMessageEnd(const char* message, std::size_t messageLength) {
+    void SubProtocol<SocketContextUpgradeT>::sendMessageEnd(const char* message, std::size_t messageLength) const {
         socketContextUpgrade->sendMessageEnd(message, messageLength);
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendMessageEnd(const std::string& message) {
+    void SubProtocol<SocketContextUpgradeT>::sendMessageEnd(const std::string& message) const {
         sendMessageEnd(message.data(), message.length());
     }
 
     template <typename SocketContextUpgradeT>
-    void SubProtocol<SocketContextUpgradeT>::sendPing(const char* reason, std::size_t reasonLength) {
+    void SubProtocol<SocketContextUpgradeT>::sendPing(const char* reason, std::size_t reasonLength) const {
         socketContextUpgrade->sendPing(reason, reasonLength);
     }
 

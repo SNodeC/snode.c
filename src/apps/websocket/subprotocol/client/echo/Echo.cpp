@@ -18,6 +18,10 @@
 
 #include "Echo.h"
 
+namespace web::websocket {
+    class SocketContextUpgradeBase;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -29,8 +33,8 @@
 
 namespace apps::websocket::subprotocol::echo::client {
 
-    Echo::Echo(const std::string& name)
-        : web::websocket::client::SubProtocol(name, PING_INTERVAL, MAX_FLYING_PINGS) {
+    Echo::Echo(web::websocket::SocketContextUpgradeBase* socketContextUpgradeBase, const std::string& name)
+        : web::websocket::client::SubProtocol(socketContextUpgradeBase, name, PING_INTERVAL, MAX_FLYING_PINGS) {
     }
 
     void Echo::onConnected() {

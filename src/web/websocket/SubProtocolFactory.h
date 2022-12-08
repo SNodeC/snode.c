@@ -19,6 +19,14 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 
+#include "core/socket/SocketContext.h"
+#include "web/websocket/SocketContextUpgradeBase.h"
+
+namespace web::websocket {
+    template <typename SubProtocolT, typename RequestT, typename ResponseT>
+    class SocketContextUpgrade;
+} // namespace web::websocket
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -62,7 +70,7 @@ namespace web::websocket {
             return subProtocolName;
         }
 
-        virtual SubProtocol* create() = 0;
+        virtual SubProtocol* create(SocketContextUpgradeBase*) = 0;
 
         void setHandle(void* handle) {
             this->handle = handle;

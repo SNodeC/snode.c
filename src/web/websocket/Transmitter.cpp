@@ -37,23 +37,23 @@ namespace web::websocket {
         : masking(masking) {
     }
 
-    void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const {
         send(true, opCode, message, messageLength);
     }
 
-    void Transmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) const {
         send(false, opCode, message, messageLength);
     }
 
-    void Transmitter::sendMessageFrame(const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageFrame(const char* message, std::size_t messageLength) const {
         send(false, 0, message, messageLength);
     }
 
-    void Transmitter::sendMessageEnd(const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageEnd(const char* message, std::size_t messageLength) const {
         send(true, 0, message, messageLength);
     }
 
-    void Transmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) const {
         std::size_t messageOffset = 0;
 
         do {
@@ -131,7 +131,7 @@ namespace web::websocket {
         }
     */
 
-    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
+    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) const {
         uint64_t length = 0;
 
         if (payloadLength < 126) {
@@ -162,6 +162,9 @@ namespace web::websocket {
             uint32_t keyAsValue;
             char keyAsBytes[4];
         };
+
+        std::random_device randomDevice;
+        std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
 
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 

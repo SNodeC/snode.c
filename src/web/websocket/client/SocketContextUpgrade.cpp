@@ -30,11 +30,10 @@ namespace web::websocket::client {
 
     SocketContextUpgrade::SocketContextUpgrade(
         core::socket::SocketConnection* socketConnection,
-        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
-        SubProtocol* subProtocol)
+        web::http::SocketContextUpgradeFactory<http::client::Request, http::client::Response>* socketContextUpgradeFactory,
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory)
         : web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>(
-              socketConnection, socketContextUpgradeFactory, subProtocol, Role::CLIENT) {
-        subProtocol->setSocketContextUpgrade(this);
+              socketConnection, socketContextUpgradeFactory, subProtocolFactory, Role::CLIENT) {
     }
 
     SocketContextUpgrade* SocketContextUpgrade::create(
@@ -47,6 +46,15 @@ namespace web::websocket::client {
             SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
         if (subProtocolFactory != nullptr) {
+            socketContextUpgrade = new SocketContextUpgrade(socketConnection, socketContextUpgradeFactory, subProtocolFactory);
+
+            if (socketContextUpgrade->subProtocol == nullptr) {
+                delete socketContextUpgrade;
+                socketContextUpgrade = nullptr;
+            }
+        }
+        /*
+        if (subProtocolFactory != nullptr) {
             SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
@@ -56,7 +64,7 @@ namespace web::websocket::client {
                     SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
                 }
             }
-        }
+        }*/
 
         return socketContextUpgrade;
     }

@@ -16,24 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EchoFactory.h"
-
-#include "Echo.h"
+#include "SocketContextUpgradeBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define NAME "echo"
+namespace web::websocket {
 
-namespace apps::websocket::subprotocol::echo::server {
-
-    Echo* EchoFactory::create(web::websocket::SocketContextUpgradeBase* socketContextUpgradeBase) {
-        return new Echo(socketContextUpgradeBase, getName());
+    SocketContextUpgradeBase::SocketContextUpgradeBase(bool role)
+        : Transmitter(role) {
     }
 
-} // namespace apps::websocket::subprotocol::echo::server
-
-extern "C" void* echoServerSubProtocolFactory() {
-    return new apps::websocket::subprotocol::echo::server::EchoFactory(NAME);
-}
+} // namespace web::websocket

@@ -18,8 +18,6 @@
 
 #include "iot/mqtt/SocketContext.h"
 
-#include "iot/mqtt/Mqtt.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
@@ -30,7 +28,8 @@ namespace iot::mqtt {
 
     SocketContext::SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt)
         : core::socket::SocketContext(socketConnection)
-        , iot::mqtt::MqttContext(socketConnection, mqtt) {
+        , iot::mqtt::MqttContext(mqtt) {
+        MqttContext::setSocketConnection(socketConnection);
     }
 
     SocketContext::~SocketContext() {
@@ -56,7 +55,7 @@ namespace iot::mqtt {
         return readFromPeer(junk, junklen);
     }
 
-    void SocketContext::send(char* junk, std::size_t junklen) const {
+    void SocketContext::send(const char *junk, std::size_t junklen) const {
         sendToPeer(junk, junklen);
     }
 
