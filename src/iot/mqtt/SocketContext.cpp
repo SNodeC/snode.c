@@ -51,11 +51,11 @@ namespace iot::mqtt {
         return MqttContext::onReceiveFromPeer();
     }
 
-    std::size_t SocketContext::receive(char* junk, std::size_t junklen) const {
+    std::size_t SocketContext::receive(char* junk, std::size_t junklen) {
         return readFromPeer(junk, junklen);
     }
 
-    void SocketContext::send(const char *junk, std::size_t junklen) const {
+    void SocketContext::send(const char* junk, std::size_t junklen) {
         sendToPeer(junk, junklen);
     }
 

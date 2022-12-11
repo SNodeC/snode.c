@@ -8,12 +8,24 @@ set(SNODEC_IOT_MQTT_RPATH
     CACHE INTERNAL ""
 )
 
-set(MQTT_CPP ControlPacket.cpp ControlPacketDeserializer.cpp FixedHeader.cpp
-             Mqtt.cpp MqttContext.cpp SocketContext.cpp Topic.cpp
+set(MQTT_CPP
+    ControlPacket.cpp
+    ControlPacketDeserializer.cpp
+    FixedHeader.cpp
+    Mqtt.cpp
+    MqttContext.cpp
+    SocketContext.cpp
+    Topic.cpp
 )
 
-set(MQTT_H ControlPacket.h ControlPacketDeserializer.h FixedHeader.h
-           Mqtt.h MqttContext.h SocketContext.h Topic.h
+set(MQTT_H
+    ControlPacket.h
+    ControlPacketDeserializer.h
+    FixedHeader.h
+    Mqtt.h
+    MqttContext.h
+    SocketContext.h
+    Topic.h
 )
 
 add_library(mqtt SHARED ${MQTT_CPP} ${MQTT_H})
