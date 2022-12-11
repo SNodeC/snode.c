@@ -42,6 +42,8 @@ namespace core {
 
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
 
+        void restart();
+
     protected:
         TimerEventReceiver(const std::string& name, const utils::Timeval& delay);
         ~TimerEventReceiver() override;

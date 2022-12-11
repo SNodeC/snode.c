@@ -64,6 +64,12 @@ namespace core {
         }
     }
 
+    void Timer::restart() {
+        if (timerEventReceiver != nullptr) {
+            timerEventReceiver->restart();
+        }
+    }
+
     void Timer::removeTimerEventReceiver() {
         timerEventReceiver = nullptr;
     }

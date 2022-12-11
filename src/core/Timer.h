@@ -42,6 +42,7 @@ namespace core {
         Timer() = default;
 
         void cancel();
+        void restart();
 
     private:
         void removeTimerEventReceiver();

@@ -19,7 +19,6 @@
 #include "core/DescriptorEventPublisher.h"
 
 #include "core/DescriptorEventReceiver.h"
-#include "core/DynamicLoader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

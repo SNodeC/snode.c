@@ -38,6 +38,12 @@ namespace core {
         , delay(delay) {
     }
 
+    void TimerEventReceiver::restart() {
+        timerEventPublisher.erase(this);
+        absoluteTimeout = utils::Timeval::currentTime() + delay;
+        timerEventPublisher.insert(this);
+    }
+
     TimerEventReceiver::~TimerEventReceiver() {
         if (timer != nullptr) {
             timer->removeTimerEventReceiver();
@@ -49,7 +55,7 @@ namespace core {
     }
 
     void TimerEventReceiver::updateTimeout() {
-        absoluteTimeout += delay;
+        update();
     }
 
     void TimerEventReceiver::enable() {
