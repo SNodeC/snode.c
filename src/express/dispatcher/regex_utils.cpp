@@ -56,7 +56,7 @@ namespace express::dispatcher {
         return result;
     }
 
-#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
+#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+\\))?"
     const std::regex& pathRegex() {
         static std::regex pathregex(PATH_REGEX);
 
@@ -146,8 +146,7 @@ namespace express::dispatcher {
     }
 
     bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
-        bool hasRegex = hasResult(cpath);
-        return (!hasRegex && cpath == reqpath) || (hasRegex && matchFunction(cpath, reqpath));
+        return hasResult(cpath) && matchFunction(cpath, reqpath);
     }
 
 } // namespace express::dispatcher
