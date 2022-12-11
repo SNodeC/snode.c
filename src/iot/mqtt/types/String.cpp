@@ -30,7 +30,7 @@ namespace iot::mqtt::types {
         : TypeBase(0) {
     }
 
-    std::size_t String::deserialize(MqttContext *mqttContext) {
+    std::size_t String::deserialize(MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
