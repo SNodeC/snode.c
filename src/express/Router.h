@@ -65,6 +65,7 @@ namespace express {
     class Router /*: protected express::dispatcher::Route*/ {
     public:
         Router();
+        void laxRouting(bool strict = false);
 
         DECLARE_ROUTER_REQUESTMETHOD(use)
         DECLARE_ROUTER_REQUESTMETHOD(all)

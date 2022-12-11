@@ -49,6 +49,8 @@ namespace express {
         bool nextRouter();
         bool dispatchNext(const std::string& parentMountPath);
 
+        bool laxRouting();
+
         enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };
 
     private:

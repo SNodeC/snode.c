@@ -78,6 +78,8 @@ namespace express {
         DECLARE_ROOTROUTE_REQUESTMETHOD(patch)
         DECLARE_ROOTROUTE_REQUESTMETHOD(head)
 
+        bool strict = true;
+
         friend class Route;
         friend class Controller;
 

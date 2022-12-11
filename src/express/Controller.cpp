@@ -101,4 +101,17 @@ namespace express {
         return dispatched;
     }
 
+    bool Controller::laxRouting() {
+        bool ret = false;
+
+        if (!request->originalUrl.ends_with('/')) {
+            request->url = request->originalUrl + "/";
+            request->extend();
+
+            ret = true;
+        }
+
+        return ret;
+    }
+
 } // namespace express
