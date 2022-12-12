@@ -58,7 +58,8 @@ namespace iot::mqtt {
         void onDisconnected() override;
         void onExit() override;
 
-    protected:
+        core::socket::SocketConnection* getSocketConnection() override;
+
         std::size_t receive(char* junk, std::size_t junklen) override;
         void send(const char* junk, std::size_t junklen) override;
 

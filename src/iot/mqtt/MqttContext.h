@@ -44,12 +44,12 @@ namespace iot::mqtt {
 
         virtual ~MqttContext();
 
-        void setSocketConnection(core::socket::SocketConnection* socketConnection);
-
         virtual std::size_t receive(char* junk, std::size_t junklen) = 0;
         virtual void send(const char* junk, std::size_t junklen) = 0;
 
         virtual void setKeepAlive(const utils::Timeval& timeout) = 0;
+
+        virtual core::socket::SocketConnection* getSocketConnection() = 0;
 
         virtual void end(bool fatal = false) = 0;
         virtual void kill() = 0;
@@ -59,10 +59,7 @@ namespace iot::mqtt {
         void onDisconnected();
         void onExit();
 
-        core::socket::SocketConnection* getSocketConnection();
-
     protected:
-        core::socket::SocketConnection* socketConnection = nullptr;
         Mqtt* mqtt;
     };
 

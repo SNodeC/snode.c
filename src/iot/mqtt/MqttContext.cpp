@@ -35,10 +35,6 @@ namespace iot::mqtt {
         delete mqtt;
     }
 
-    void MqttContext::setSocketConnection(core::socket::SocketConnection* socketConnection) {
-        this->socketConnection = socketConnection;
-    }
-
     void MqttContext::onConnected() {
         mqtt->onConnected();
     }
@@ -53,10 +49,6 @@ namespace iot::mqtt {
 
     void MqttContext::onExit() {
         mqtt->onExit();
-    }
-
-    core::socket::SocketConnection* MqttContext::getSocketConnection() {
-        return socketConnection;
     }
 
 } // namespace iot::mqtt
