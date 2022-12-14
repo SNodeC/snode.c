@@ -44,8 +44,6 @@ namespace web::websocket {
 
         SubProtocolContext& operator=(const SubProtocolContext&) = delete;
 
-        virtual ~SubProtocolContext() = default;
-
     public:
         virtual void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const = 0;
         virtual void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) const = 0;
