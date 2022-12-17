@@ -60,7 +60,7 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgradeT>
-    SubProtocolContext* SubProtocol<SocketContextUpgradeT>::getSocketContextUpgrade() {
+    SubProtocolContext* SubProtocol<SocketContextUpgradeT>::getSubProtocolContext() {
         return socketContextUpgrade;
     }
 

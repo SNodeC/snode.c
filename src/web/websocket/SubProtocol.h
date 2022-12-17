@@ -81,7 +81,7 @@ namespace web::websocket {
 
     public:
         const std::string& getName();
-        SubProtocolContext* getSocketContextUpgrade();
+        SubProtocolContext* getSubProtocolContext();
 
     private:
         const std::string name;

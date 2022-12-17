@@ -128,6 +128,8 @@ namespace iot::mqtt::server {
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
 
             mqttContext->end(true);
+
+            willFlag = false;
         } else if (broker->hasRetainedSession(clientId)) {
             sendConnack(MQTT_CONNACK_ACCEPT, cleanSession ? MQTT_SESSION_NEW : MQTT_SESSION_PRESENT);
 

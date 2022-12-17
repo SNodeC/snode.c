@@ -66,7 +66,7 @@ namespace web::websocket::server {
         } else {
             response->set("Sec-WebSocket-Version", "13");
             response->set("Connection", "close");
-            response->status(400).end();
+            response->status(426).end();
         }
 
         return socketContext;

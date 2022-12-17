@@ -32,8 +32,8 @@
 
 namespace core {
 
-    const utils::Timeval DescriptorEventReceiver::TIMEOUT::DEFAULT = {-2, 0};
-    const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {-1, 0};
+    const utils::Timeval DescriptorEventReceiver::TIMEOUT::DEFAULT = {-1, 0};
+    const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {0, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::MAX = {LONG_MAX, 0};
 
     DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name, DISP_TYPE dispType, const utils::Timeval& timeout)
@@ -139,7 +139,7 @@ namespace core {
     }
 
     utils::Timeval DescriptorEventReceiver::getTimeout(const utils::Timeval& currentTime) const {
-        return maxInactivity >= 0 ? currentTime > lastTriggered ? maxInactivity - (currentTime - lastTriggered) : 0 : TIMEOUT::MAX;
+        return maxInactivity > 0 ? currentTime > lastTriggered ? maxInactivity - (currentTime - lastTriggered) : 0 : TIMEOUT::MAX;
     }
 
     void DescriptorEventReceiver::onEvent(const utils::Timeval& currentTime) {
@@ -157,7 +157,7 @@ namespace core {
     }
 
     void DescriptorEventReceiver::checkTimeout(const utils::Timeval& currentTime) {
-        if (maxInactivity >= 0 && currentTime - lastTriggered >= maxInactivity) {
+        if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
             timeoutEvent();
         }
     }

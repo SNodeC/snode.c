@@ -52,8 +52,9 @@ namespace web::websocket {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             for (const std::string& searchPath : searchPaths) {
-                void* handle =
-                    core::DynamicLoader::dlOpen(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so", RTLD_LAZY | RTLD_LOCAL);
+                std::string libFile = searchPath + "/libsnodec-websocket-" + subProtocolName + ".so";
+
+                void* handle = core::DynamicLoader::dlOpen(libFile, RTLD_LAZY | RTLD_LOCAL);
 
                 if (handle != nullptr) {
                     std::string subProtocolFactoryFunctionName =
@@ -76,7 +77,7 @@ namespace web::websocket {
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    VLOG(0) << "Error dlopen: " << core::DynamicLoader::dlError();
+                    VLOG(0) << "Error dlopen: " << libFile;
                 }
             }
 

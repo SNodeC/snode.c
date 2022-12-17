@@ -67,10 +67,10 @@ namespace web::http {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         for (const std::string& searchPath : searchPaths) {
-            void* handle = core::DynamicLoader::dlOpen((searchPath + "/libsnodec-" + upgradeContextName +
-                                                        (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so")
-                                                           .c_str(),
-                                                       RTLD_LAZY | RTLD_GLOBAL);
+            std::string libFile = searchPath + "/libsnodec-" + upgradeContextName +
+                                  (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so";
+
+            void* handle = core::DynamicLoader::dlOpen(libFile, RTLD_LAZY | RTLD_GLOBAL);
 
             if (handle != nullptr) {
                 std::string socketContextUpgradeFactoryName =
@@ -101,7 +101,7 @@ namespace web::http {
                     core::DynamicLoader::dlCloseDelayed(handle);
                 }
             } else {
-                VLOG(0) << "Error dlopen: " << core::DynamicLoader::dlError();
+                VLOG(0) << "Error dlopen: " << upgradeContextName;
             }
         }
 

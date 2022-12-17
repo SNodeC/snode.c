@@ -22,6 +22,7 @@
 
 #include "log/Logger.h"
 
+#include <filesystem>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,15 +33,21 @@ namespace core {
     std::map<void*, std::size_t> DynamicLoader::registeredForDlClose;
 
     void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
-        VLOG(0) << "dlOpen: " << libFile;
+        void* handle = nullptr;
 
-        void* handle = core::system::dlopen(libFile.c_str(), flags);
+        if (std::filesystem::exists(libFile)) {
+            VLOG(0) << "dlOpen: " << libFile;
 
-        if (handle != nullptr) {
-            if (!dlOpenedLibraries.contains(handle)) {
-                dlOpenedLibraries[handle].fileName = libFile;
+            handle = core::system::dlopen(libFile.c_str(), flags);
+
+            if (handle != nullptr) {
+                if (!dlOpenedLibraries.contains(handle)) {
+                    dlOpenedLibraries[handle].fileName = libFile;
+                }
+                dlOpenedLibraries[handle].refCount++;
+            } else {
+                VLOG(0) << "Error dlopen: " << core::DynamicLoader::dlError();
             }
-            dlOpenedLibraries[handle].refCount++;
         }
 
         return handle;
