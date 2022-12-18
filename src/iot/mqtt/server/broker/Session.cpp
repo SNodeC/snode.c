@@ -38,7 +38,7 @@ namespace iot::mqtt::server::broker {
         , mqtt(mqtt) {
     }
 
-    void Session::sendPublish(Message& message, uint8_t qoS, bool retain, bool dup) {
+    void Session::sendPublish(Message& message, uint8_t qoS) {
         LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
 
         std::stringstream messageData;
@@ -52,8 +52,12 @@ namespace iot::mqtt::server::broker {
         LOG(TRACE) << "                QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
-            mqtt->sendPublish(
-                mqtt->getPacketIdentifier(), message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain, dup);
+            mqtt->sendPublish(mqtt->getPacketIdentifier(),
+                              message.getTopic(),
+                              message.getMessage(),
+                              std::min(message.getQoS(), qoS),
+                              message.getDup(),
+                              message.getRetain());
         } else {
             if (message.getQoS() == 0) {
                 messageQueue.clear();
@@ -68,7 +72,7 @@ namespace iot::mqtt::server::broker {
     void Session::publishQueued() {
         LOG(TRACE) << "    send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
-            sendPublish(message, message.getQoS(), MQTT_RETAIN_FALSE, MQTT_DUP_FALSE);
+            sendPublish(message, message.getQoS());
         }
         LOG(TRACE) << "    ... done";
 

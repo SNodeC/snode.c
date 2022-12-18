@@ -143,8 +143,8 @@ namespace iot::mqtt {
                            const std::string& topic,
                            const std::string& message,
                            uint8_t qoS,
-                           bool retain,
-                           bool dup) const { // Server & Client
+                           bool dup,
+                           bool retain) const { // Server & Client
         LOG(DEBUG) << "Send PUBLISH";
         LOG(DEBUG) << "============";
 

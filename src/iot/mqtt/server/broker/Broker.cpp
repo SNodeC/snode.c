@@ -47,7 +47,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::retainMessage(const std::string& topic, const std::string& message, uint8_t qoS) {
-        retainTree.retain(Message(topic, message, qoS, MQTT_RETAIN_TRUE, MQTT_DUP_FALSE));
+        retainTree.retain(Message(topic, message, qoS, MQTT_DUP_FALSE, MQTT_RETAIN_TRUE));
     }
 
     void Broker::unsubscribe(const std::string& clientId) {
@@ -55,7 +55,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::publish(const std::string& topic, const std::string& message, uint8_t qoS) {
-        subscribtionTree.publish(Message(topic, message, qoS, MQTT_RETAIN_FALSE, MQTT_DUP_FALSE));
+        subscribtionTree.publish(Message(topic, message, qoS, MQTT_DUP_FALSE, MQTT_RETAIN_FALSE));
     }
 
     void Broker::pubackReceived([[maybe_unused]] const std::string& clintId, [[maybe_unused]] uint16_t packetIdentifier) {
@@ -124,8 +124,8 @@ namespace iot::mqtt::server::broker {
         sessions.erase(clientId);
     }
 
-    void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool dup) {
-        sessions[clientId].sendPublish(message, qoS, message.getRetain(), dup);
+    void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS) {
+        sessions[clientId].sendPublish(message, qoS);
     }
 
 } // namespace iot::mqtt::server::broker

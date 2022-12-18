@@ -73,7 +73,7 @@ namespace iot::mqtt::server::broker {
         void retainSession(const std::string& clientId);
         void deleteSession(const std::string& clinetId);
 
-        void sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool dup = false);
+        void sendPublish(const std::string& clientId, Message& message, uint8_t qoS);
 
     private:
         uint8_t subscribtionMaxQoS;
