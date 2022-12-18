@@ -87,34 +87,34 @@ namespace iot::mqtt::client {
         dynamic_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->propagateEvent(this);
     }
 
-    void Mqtt::onConnack([[maybe_unused]] mqtt::packets::Connack& connack) {
+    void Mqtt::onConnack([[maybe_unused]] const mqtt::packets::Connack& connack) {
     }
 
-    void Mqtt::onPublish([[maybe_unused]] mqtt::packets::Publish& publish) {
+    void Mqtt::onPublish([[maybe_unused]] const mqtt::packets::Publish& publish) {
     }
 
-    void Mqtt::onPuback([[maybe_unused]] mqtt::packets::Puback& puback) {
+    void Mqtt::onPuback([[maybe_unused]] const mqtt::packets::Puback& puback) {
     }
 
-    void Mqtt::onPubrec([[maybe_unused]] mqtt::packets::Pubrec& pubrec) {
+    void Mqtt::onPubrec([[maybe_unused]] const mqtt::packets::Pubrec& pubrec) {
     }
 
-    void Mqtt::onPubrel([[maybe_unused]] mqtt::packets::Pubrel& pubrel) {
+    void Mqtt::onPubrel([[maybe_unused]] const mqtt::packets::Pubrel& pubrel) {
     }
 
-    void Mqtt::onPubcomp([[maybe_unused]] mqtt::packets::Pubcomp& pubcomp) {
+    void Mqtt::onPubcomp([[maybe_unused]] const mqtt::packets::Pubcomp& pubcomp) {
     }
 
-    void Mqtt::onSuback([[maybe_unused]] mqtt::packets::Suback& suback) {
+    void Mqtt::onSuback([[maybe_unused]] const mqtt::packets::Suback& suback) {
     }
 
-    void Mqtt::onUnsuback([[maybe_unused]] mqtt::packets::Unsuback& unsuback) {
+    void Mqtt::onUnsuback([[maybe_unused]] const mqtt::packets::Unsuback& unsuback) {
     }
 
-    void Mqtt::onPingresp([[maybe_unused]] mqtt::packets::Pingresp& pingresp) {
+    void Mqtt::onPingresp([[maybe_unused]] const mqtt::packets::Pingresp& pingresp) {
     }
 
-    void Mqtt::_onConnack(iot::mqtt::packets::Connack& connack) {
+    void Mqtt::_onConnack(const iot::mqtt::packets::Connack& connack) {
         LOG(DEBUG) << "Received Connack:";
         LOG(DEBUG) << "=================";
         printStandardHeader(connack);
@@ -129,7 +129,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPublish(iot::mqtt::packets::Publish& publish) {
+    void Mqtt::_onPublish(const iot::mqtt::packets::Publish& publish) {
         LOG(DEBUG) << "Received PUBLISH:";
         LOG(DEBUG) << "=================";
         printStandardHeader(publish);
@@ -158,7 +158,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPuback(iot::mqtt::packets::Puback& puback) {
+    void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
         LOG(DEBUG) << "Received PUBACK:";
         LOG(DEBUG) << "================";
         printStandardHeader(puback);
@@ -171,7 +171,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPubrec(iot::mqtt::packets::Pubrec& pubrec) {
+    void Mqtt::_onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
         LOG(DEBUG) << "Received PUBREC:";
         LOG(DEBUG) << "================";
         printStandardHeader(pubrec);
@@ -186,7 +186,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPubrel(iot::mqtt::packets::Pubrel& pubrel) {
+    void Mqtt::_onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
         LOG(DEBUG) << "Received PUBREL:";
         LOG(DEBUG) << "================";
         printStandardHeader(pubrel);
@@ -201,7 +201,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp) {
+    void Mqtt::_onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
         LOG(DEBUG) << "Received PUBCOMP:";
         LOG(DEBUG) << "=================";
         printStandardHeader(pubcomp);
@@ -214,7 +214,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onSuback(iot::mqtt::packets::Suback& suback) {
+    void Mqtt::_onSuback(const iot::mqtt::packets::Suback& suback) {
         LOG(DEBUG) << "Received SUBACK:";
         LOG(DEBUG) << "================";
         printStandardHeader(suback);
@@ -228,7 +228,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onUnsuback(iot::mqtt::packets::Unsuback& unsuback) {
+    void Mqtt::_onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) {
         LOG(DEBUG) << "Received UNSUBACK:";
         LOG(DEBUG) << "==================";
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsuback.getPacketIdentifier();
@@ -240,7 +240,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPingresp(iot::mqtt::packets::Pingresp& pingresp) {
+    void Mqtt::_onPingresp(const iot::mqtt::packets::Pingresp& pingresp) {
         LOG(DEBUG) << "Received PINGRESP:";
         LOG(DEBUG) << "==================";
 

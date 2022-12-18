@@ -43,7 +43,7 @@ namespace iot::mqtt::packets {
 
     public:
         uint16_t getPacketIdentifier() const;
-        std::list<iot::mqtt::Topic>& getTopics();
+        const std::list<iot::mqtt::Topic>& getTopics() const;
 
     protected:
         iot::mqtt::types::UInt16 packetIdentifier;

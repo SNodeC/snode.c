@@ -164,37 +164,37 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::onConnect([[maybe_unused]] iot::mqtt::packets::Connect& connect) {
+    void Mqtt::onConnect([[maybe_unused]] const iot::mqtt::packets::Connect& connect) {
     }
 
-    void Mqtt::onPublish([[maybe_unused]] iot::mqtt::packets::Publish& publish) {
+    void Mqtt::onPublish([[maybe_unused]] const iot::mqtt::packets::Publish& publish) {
     }
 
-    void Mqtt::onPuback([[maybe_unused]] iot::mqtt::packets::Puback& puback) {
+    void Mqtt::onPuback([[maybe_unused]] const iot::mqtt::packets::Puback& puback) {
     }
 
-    void Mqtt::onPubrec([[maybe_unused]] iot::mqtt::packets::Pubrec& pubrec) {
+    void Mqtt::onPubrec([[maybe_unused]] const iot::mqtt::packets::Pubrec& pubrec) {
     }
 
-    void Mqtt::onPubrel([[maybe_unused]] iot::mqtt::packets::Pubrel& pubrel) {
+    void Mqtt::onPubrel([[maybe_unused]] const iot::mqtt::packets::Pubrel& pubrel) {
     }
 
-    void Mqtt::onPubcomp([[maybe_unused]] iot::mqtt::packets::Pubcomp& pubcomp) {
+    void Mqtt::onPubcomp([[maybe_unused]] const iot::mqtt::packets::Pubcomp& pubcomp) {
     }
 
-    void Mqtt::onSubscribe([[maybe_unused]] iot::mqtt::packets::Subscribe& subscribe) {
+    void Mqtt::onSubscribe([[maybe_unused]] const iot::mqtt::packets::Subscribe& subscribe) {
     }
 
-    void Mqtt::onUnsubscribe([[maybe_unused]] iot::mqtt::packets::Unsubscribe& unsubscribe) {
+    void Mqtt::onUnsubscribe([[maybe_unused]] const iot::mqtt::packets::Unsubscribe& unsubscribe) {
     }
 
-    void Mqtt::onPingreq([[maybe_unused]] iot::mqtt::packets::Pingreq& pingreq) {
+    void Mqtt::onPingreq([[maybe_unused]] const iot::mqtt::packets::Pingreq& pingreq) {
     }
 
-    void Mqtt::onDisconnect([[maybe_unused]] iot::mqtt::packets::Disconnect& disconnect) {
+    void Mqtt::onDisconnect([[maybe_unused]] const iot::mqtt::packets::Disconnect& disconnect) {
     }
 
-    void Mqtt::_onConnect(iot::mqtt::server::packets::Connect& connect) {
+    void Mqtt::_onConnect(const iot::mqtt::server::packets::Connect& connect) {
         LOG(DEBUG) << "Received CONNECT: " << clientId;
         LOG(DEBUG) << "=================";
         printStandardHeader(connect);
@@ -264,7 +264,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::_onPublish(iot::mqtt::server::packets::Publish& publish) {
+    void Mqtt::_onPublish(const iot::mqtt::server::packets::Publish& publish) {
         LOG(DEBUG) << "Received PUBLISH: " << clientId;
         LOG(DEBUG) << "=================";
         printStandardHeader(publish);
@@ -298,7 +298,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::_onPuback(iot::mqtt::server::packets::Puback& puback) {
+    void Mqtt::_onPuback(const iot::mqtt::server::packets::Puback& puback) {
         LOG(DEBUG) << "Received PUBACK: " << clientId;
         LOG(DEBUG) << "================";
         printStandardHeader(puback);
@@ -313,7 +313,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::_onPubrec(iot::mqtt::server::packets::Pubrec& pubrec) {
+    void Mqtt::_onPubrec(const iot::mqtt::server::packets::Pubrec& pubrec) {
         LOG(DEBUG) << "Received PUBREC: " << clientId;
         LOG(DEBUG) << "================";
         printStandardHeader(pubrec);
@@ -330,7 +330,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::_onPubrel(iot::mqtt::server::packets::Pubrel& pubrel) {
+    void Mqtt::_onPubrel(const iot::mqtt::server::packets::Pubrel& pubrel) {
         LOG(DEBUG) << "Received PUBREL: " << clientId;
         LOG(DEBUG) << "================";
         printStandardHeader(pubrel);
@@ -347,7 +347,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::_onPubcomp(iot::mqtt::server::packets::Pubcomp& pubcomp) {
+    void Mqtt::_onPubcomp(const iot::mqtt::server::packets::Pubcomp& pubcomp) {
         LOG(DEBUG) << "Received PUBCOMP: " << clientId;
         LOG(DEBUG) << "=================";
         printStandardHeader(pubcomp);
@@ -362,13 +362,13 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::_onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe) {
+    void Mqtt::_onSubscribe(const iot::mqtt::server::packets::Subscribe& subscribe) {
         LOG(DEBUG) << "Received SUBSCRIBE: " << clientId;
         LOG(DEBUG) << "===================";
         printStandardHeader(subscribe);
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << subscribe.getPacketIdentifier();
 
-        for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
+        for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
             LOG(DEBUG) << "  Topic filter: '" << topic.getName() << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
         }
 
@@ -376,7 +376,7 @@ namespace iot::mqtt::server {
             mqttContext->end(true);
         } else {
             std::list<uint8_t> returnCodes;
-            for (iot::mqtt::Topic& topic : subscribe.getTopics()) {
+            for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
                 uint8_t returnCode = broker->subscribeReceived(clientId, topic.getName(), topic.getQoS());
                 returnCodes.push_back(returnCode);
             }
@@ -387,7 +387,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::_onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
+    void Mqtt::_onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
         LOG(DEBUG) << "Received UNSUBSCRIBE: " << clientId;
         LOG(DEBUG) << "=====================";
         printStandardHeader(unsubscribe);
@@ -410,7 +410,7 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::_onPingreq(iot::mqtt::server::packets::Pingreq& pingreq) {
+    void Mqtt::_onPingreq(const iot::mqtt::server::packets::Pingreq& pingreq) {
         LOG(DEBUG) << "Received PINGREQ: " << clientId;
         LOG(DEBUG) << "=================";
         printStandardHeader(pingreq);
@@ -420,7 +420,7 @@ namespace iot::mqtt::server {
         onPingreq(pingreq);
     }
 
-    void Mqtt::_onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect) {
+    void Mqtt::_onDisconnect(const iot::mqtt::server::packets::Disconnect& disconnect) {
         LOG(DEBUG) << "Received DISCONNECT: " << clientId;
         LOG(DEBUG) << "====================";
         printStandardHeader(disconnect);

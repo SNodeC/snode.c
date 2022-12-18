@@ -81,27 +81,27 @@ namespace iot::mqtt::server {
         void initSession();
         void releaseSession();
 
-        virtual void onConnect(iot::mqtt::packets::Connect& connect);
-        virtual void onPublish(iot::mqtt::packets::Publish& publish);
-        virtual void onPuback(iot::mqtt::packets::Puback& puback);
-        virtual void onPubrec(iot::mqtt::packets::Pubrec& pubrec);
-        virtual void onPubrel(iot::mqtt::packets::Pubrel& pubrel);
-        virtual void onPubcomp(iot::mqtt::packets::Pubcomp& pubcomp);
-        virtual void onSubscribe(iot::mqtt::packets::Subscribe& subscribe);
-        virtual void onUnsubscribe(iot::mqtt::packets::Unsubscribe& unsubscribe);
-        virtual void onPingreq(iot::mqtt::packets::Pingreq& pingreq);
-        virtual void onDisconnect(iot::mqtt::packets::Disconnect& disconnect);
+        virtual void onConnect(const iot::mqtt::packets::Connect& connect);
+        virtual void onPublish(const iot::mqtt::packets::Publish& publish);
+        virtual void onPuback(const iot::mqtt::packets::Puback& puback);
+        virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
+        virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
+        virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
+        virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe);
+        virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe);
+        virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq);
+        virtual void onDisconnect(const iot::mqtt::packets::Disconnect& disconnect);
 
-        void _onConnect(iot::mqtt::server::packets::Connect& connect);
-        void _onPublish(iot::mqtt::server::packets::Publish& publish);
-        void _onPuback(iot::mqtt::server::packets::Puback& puback);
-        void _onPubrec(iot::mqtt::server::packets::Pubrec& pubrec);
-        void _onPubrel(iot::mqtt::server::packets::Pubrel& pubrel);
-        void _onPubcomp(iot::mqtt::server::packets::Pubcomp& pubcomp);
-        void _onSubscribe(iot::mqtt::server::packets::Subscribe& subscribe);
-        void _onUnsubscribe(iot::mqtt::server::packets::Unsubscribe& unsubscribe);
-        void _onPingreq(iot::mqtt::server::packets::Pingreq& pingreq);
-        void _onDisconnect(iot::mqtt::server::packets::Disconnect& disconnect);
+        void _onConnect(const iot::mqtt::server::packets::Connect& connect);
+        void _onPublish(const iot::mqtt::server::packets::Publish& publish);
+        void _onPuback(const iot::mqtt::server::packets::Puback& puback);
+        void _onPubrec(const iot::mqtt::server::packets::Pubrec& pubrec);
+        void _onPubrel(const iot::mqtt::server::packets::Pubrel& pubrel);
+        void _onPubcomp(const iot::mqtt::server::packets::Pubcomp& pubcomp);
+        void _onSubscribe(const iot::mqtt::server::packets::Subscribe& subscribe);
+        void _onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe);
+        void _onPingreq(const iot::mqtt::server::packets::Pingreq& pingreq);
+        void _onDisconnect(const iot::mqtt::server::packets::Disconnect& disconnect);
 
     public:
         void sendConnack(uint8_t returnCode, uint8_t flags) const;

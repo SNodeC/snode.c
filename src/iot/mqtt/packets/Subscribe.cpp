@@ -57,7 +57,7 @@ namespace iot::mqtt::packets {
         return packetIdentifier;
     }
 
-    std::list<Topic>& Subscribe::getTopics() {
+    const std::list<Topic>& Subscribe::getTopics() const {
         return topics;
     }
 
