@@ -220,12 +220,15 @@ namespace iot::mqtt::server {
         }
 
         if (connect.getProtocol() != "MQTT") {
+            LOG(TRACE) << "Wrong Protocol: " << connect.getProtocol();
             mqttContext->end(true);
         } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
+            LOG(TRACE) << "Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
-        } else if (connect.getClientId() == "" && !connect.getCleanSession()) {
+        } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
+            LOG(TRACE) << "Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
@@ -276,8 +279,10 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "Retain: " << publish.getRetain();
 
         if (publish.getQoS() > 2) {
+            LOG(TRACE) << "Received invalid QoS: " << publish.getQoS();
             mqttContext->end(true);
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
+            LOG(TRACE) << "Received QoS > 0 but no PackageIdentifier present";
             mqttContext->end(true);
         } else {
             broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS());
@@ -305,6 +310,7 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << puback.getPacketIdentifier();
 
         if (puback.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             broker->pubackReceived(clientId, puback.getPacketIdentifier());
@@ -320,6 +326,7 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrec.getPacketIdentifier();
 
         if (pubrec.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             broker->pubrecReceived(clientId, pubrec.getPacketIdentifier());
@@ -337,6 +344,7 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrel.getPacketIdentifier();
 
         if (pubrel.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             broker->pubrelReceived(clientId, pubrel.getPacketIdentifier());
@@ -354,6 +362,7 @@ namespace iot::mqtt::server {
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubcomp.getPacketIdentifier();
 
         if (pubcomp.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             broker->pubcompReceived(clientId, pubcomp.getPacketIdentifier());
@@ -373,6 +382,7 @@ namespace iot::mqtt::server {
         }
 
         if (subscribe.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             std::list<uint8_t> returnCodes;
@@ -398,6 +408,7 @@ namespace iot::mqtt::server {
         }
 
         if (unsubscribe.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             for (const std::string& topic : unsubscribe.getTopics()) {
