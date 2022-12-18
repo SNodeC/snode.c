@@ -36,7 +36,7 @@ namespace iot::mqtt {
                 flags = MQTT_CONNACK_FLAGS;
                 break;
             case MQTT_PUBLISH:
-                // no value for MQTT_PUBLISH_FLAGS
+                // no flags for MQTT_PUBLISH_FLAGS
                 break;
             case MQTT_PUBACK:
                 flags = MQTT_PUBACK_FLAGS;
