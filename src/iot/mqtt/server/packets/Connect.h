@@ -41,12 +41,16 @@ namespace iot::mqtt::server::packets {
     public:
         Connect(uint32_t remainingLength, uint8_t flags);
 
+        bool isFakedClientId() const;
+
     private:
         std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
         void propagateEvent(iot::mqtt::server::Mqtt* mqtt) override;
 
     private:
         int state = 0;
+
+        bool fakedClientId = false;
     };
 
 } // namespace iot::mqtt::server::packets

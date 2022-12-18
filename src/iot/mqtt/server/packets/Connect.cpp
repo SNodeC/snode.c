@@ -85,6 +85,7 @@ namespace iot::mqtt::server::packets {
 
                 if (clientId.size() == 0) {
                     clientId = utils::Uuid::getUudi();
+                    fakedClientId = true;
                 }
 
                 state++;
@@ -136,6 +137,10 @@ namespace iot::mqtt::server::packets {
 
     void Connect::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
         mqtt->_onConnect(*this);
+    }
+
+    bool Connect::isFakedClientId() const {
+        return fakedClientId;
     }
 
 } // namespace iot::mqtt::server::packets
