@@ -54,7 +54,7 @@ namespace iot::mqtt {
         }
 
     private:
-        void onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
+        void onEvent([[maybe_unused]] const utils::Timeval& currentTime) override {
             event();
         }
 
