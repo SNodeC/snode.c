@@ -61,12 +61,12 @@ namespace iot::mqtt {
         std::function<void(void)> event;
     };
 
-    template <typename SubProtocolT>
+    template <typename WSSubProtocolRoleT>
     class MqttSubProtocol
-        : public SubProtocolT
+        : public WSSubProtocolRoleT
         , public iot::mqtt::MqttContext {
     private:
-        using SubProtocol = SubProtocolT;
+        using WSSubProtocolRole = WSSubProtocolRoleT;
 
     public:
         MqttSubProtocol(web::websocket::SubProtocolContext* subProtocolContext, const std::string& name, iot::mqtt::Mqtt* mqtt);

@@ -57,8 +57,6 @@ namespace iot::mqtt::types {
         virtual void reset(std::size_t size = sizeof(ValueType));
 
     protected:
-        //        iot::mqtt::MqttContext* mqttContext;
-
         std::vector<char> value;
 
         std::size_t length;
