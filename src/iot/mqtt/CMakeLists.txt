@@ -24,6 +24,8 @@ set(MQTT_H
     FixedHeader.h
     Mqtt.h
     MqttContext.h
+    MqttSubProtocol.h
+    MqttSubProtocol.hpp
     SocketContext.h
     Topic.h
 )

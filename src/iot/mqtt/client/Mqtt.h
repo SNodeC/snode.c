@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_SOCKETCONTEXT_H
-#define IOT_MQTT_SERVER_SOCKETCONTEXT_H
+#ifndef IOT_MQTT_CLIENT_SOCKETCONTEXT_H
+#define IOT_MQTT_CLIENT_SOCKETCONTEXT_H
 
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
 // IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
@@ -123,4 +123,4 @@ namespace iot::mqtt::client {
 
 } // namespace iot::mqtt::client
 
-#endif // IOT_MQTT_SERVER_SOCKETCONTEXT_H
+#endif // IOT_MQTT_CLIENT_SOCKETCONTEXT_H
