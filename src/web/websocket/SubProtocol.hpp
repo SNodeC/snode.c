@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "core/socket/SocketConnection.h"
 #include "web/websocket/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,12 +32,12 @@
 namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
-    SubProtocol<SocketContextUpgradeT>::SubProtocol(SubProtocolContext* socketContextUpgrade,
+    SubProtocol<SocketContextUpgradeT>::SubProtocol(SubProtocolContext* subProtocolContext,
                                                     const std::string& name,
                                                     int pingInterval,
                                                     int maxFlyingPings)
         : name(name)
-        , socketContextUpgrade(socketContextUpgrade) {
+        , subProtocolContext(subProtocolContext) {
         if (pingInterval > 0) {
             pingTimer = core::timer::Timer::intervalTimer(
                 [this, maxFlyingPings](const std::function<void()>& stop) -> void {
@@ -52,6 +53,8 @@ namespace web::websocket {
                 },
                 pingInterval);
         }
+
+        subProtocolContext->getSocketConnection()->setTimeout(0);
     }
 
     template <typename SocketContextUpgradeT>
@@ -60,33 +63,28 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgradeT>
-    SubProtocolContext* SubProtocol<SocketContextUpgradeT>::getSubProtocolContext() {
-        return socketContextUpgrade;
-    }
-
-    template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendMessage(const char* message, std::size_t messageLength) const {
-        socketContextUpgrade->sendMessage(2, message, messageLength);
+        subProtocolContext->sendMessage(2, message, messageLength);
     }
 
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendMessage(const std::string& message) const {
-        socketContextUpgrade->sendMessage(1, message.data(), message.length());
+        subProtocolContext->sendMessage(1, message.data(), message.length());
     }
 
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendMessageStart(const char* message, std::size_t messageLength) const {
-        socketContextUpgrade->sendMessageStart(2, message, messageLength);
+        subProtocolContext->sendMessageStart(2, message, messageLength);
     }
 
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendMessageStart(const std::string& message) const {
-        socketContextUpgrade->sendMessageStart(1, message.data(), message.length());
+        subProtocolContext->sendMessageStart(1, message.data(), message.length());
     }
 
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendMessageFrame(const char* message, std::size_t messageLength) const {
-        socketContextUpgrade->sendMessageFrame(message, messageLength);
+        subProtocolContext->sendMessageFrame(message, messageLength);
     }
 
     template <typename SocketContextUpgradeT>
@@ -96,7 +94,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendMessageEnd(const char* message, std::size_t messageLength) const {
-        socketContextUpgrade->sendMessageEnd(message, messageLength);
+        subProtocolContext->sendMessageEnd(message, messageLength);
     }
 
     template <typename SocketContextUpgradeT>
@@ -106,12 +104,12 @@ namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendPing(const char* reason, std::size_t reasonLength) const {
-        socketContextUpgrade->sendPing(reason, reasonLength);
+        subProtocolContext->sendPing(reason, reasonLength);
     }
 
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
-        socketContextUpgrade->sendClose(statusCode, reason, reasonLength);
+        subProtocolContext->sendClose(statusCode, reason, reasonLength);
     }
 
     template <typename SocketContextUpgradeT>

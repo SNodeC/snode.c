@@ -49,7 +49,7 @@ namespace web::websocket {
         using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
-        SubProtocol(SubProtocolContext* socketContextUpgrade, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
+        SubProtocol(SubProtocolContext* subProtocolContext, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
         virtual ~SubProtocol();
 
     public:
@@ -81,13 +81,14 @@ namespace web::websocket {
 
     public:
         const std::string& getName();
-        SubProtocolContext* getSubProtocolContext();
 
     private:
         const std::string name;
 
-        SubProtocolContext* socketContextUpgrade;
+    protected:
+        SubProtocolContext* subProtocolContext;
 
+    private:
         core::timer::Timer pingTimer;
         int flyingPings = 0;
 

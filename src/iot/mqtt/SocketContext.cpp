@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt {
@@ -29,9 +27,6 @@ namespace iot::mqtt {
     SocketContext::SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt)
         : core::socket::SocketContext(socketConnection)
         , iot::mqtt::MqttContext(mqtt) {
-    }
-
-    SocketContext::~SocketContext() {
     }
 
     void SocketContext::onConnected() {
@@ -60,10 +55,6 @@ namespace iot::mqtt {
 
     void SocketContext::send(const char* junk, std::size_t junklen) {
         sendToPeer(junk, junklen);
-    }
-
-    void SocketContext::setKeepAlive(const utils::Timeval& timeout) {
-        setTimeout(timeout);
     }
 
     void SocketContext::end(bool fatal) {

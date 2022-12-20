@@ -66,6 +66,8 @@ namespace iot::mqtt::client {
     public:
         Mqtt() = default;
 
+        ~Mqtt() override;
+
     private:
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
         void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
@@ -99,7 +101,7 @@ namespace iot::mqtt::client {
                          uint8_t willQoS,
                          bool willRetain,
                          const std::string& username,
-                         const std::string& password) const;
+                         const std::string& password);
         void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics) const;
         void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics) const;
         void sendPingreq() const;
@@ -114,6 +116,9 @@ namespace iot::mqtt::client {
         friend class iot::mqtt::client::packets::Pubrec;
         friend class iot::mqtt::client::packets::Puback;
         friend class iot::mqtt::client::packets::Pubrel;
+
+    private:
+        core::timer::Timer pingTimer;
     };
 
 } // namespace iot::mqtt::client

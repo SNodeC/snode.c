@@ -19,10 +19,15 @@
 #ifndef IOT_MQTT_MQTT_H
 #define IOT_MQTT_MQTT_H
 
+#include "core/timer/Timer.h"     // IWYU pragma: export
 #include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
+}
+
+namespace utils {
+    class Timeval;
 }
 
 namespace iot::mqtt {
@@ -33,7 +38,6 @@ namespace iot::mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -43,9 +47,6 @@ namespace iot::mqtt {
     class Mqtt {
     public:
         Mqtt() = default;
-        Mqtt(const Mqtt&) = default;
-
-        Mqtt& operator=(const Mqtt&) = default;
 
         virtual ~Mqtt();
 
@@ -81,11 +82,15 @@ namespace iot::mqtt {
 
         static void printStandardHeader(const iot::mqtt::ControlPacket& packet);
 
+        void setKeepAlive(const utils::Timeval& timeout);
+
     private:
         iot::mqtt::FixedHeader fixedHeader;
         iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
 
         uint16_t packetIdentifier = 0;
+
+        core::timer::Timer keepAliveTimer;
 
         int state = 0;
 

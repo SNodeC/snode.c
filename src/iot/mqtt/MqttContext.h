@@ -47,8 +47,6 @@ namespace iot::mqtt {
         virtual std::size_t receive(char* junk, std::size_t junklen) = 0;
         virtual void send(const char* junk, std::size_t junklen) = 0;
 
-        virtual void setKeepAlive(const utils::Timeval& timeout) = 0;
-
         virtual core::socket::SocketConnection* getSocketConnection() = 0;
 
         virtual void end(bool fatal = false) = 0;

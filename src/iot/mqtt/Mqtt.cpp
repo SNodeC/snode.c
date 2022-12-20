@@ -19,12 +19,14 @@
 #include "Mqtt.h"
 
 #include "MqttContext.h"
+#include "core/socket/SocketConnection.h"
 #include "iot/mqtt/ControlPacketDeserializer.h"
 #include "iot/mqtt/packets/Puback.h"
 #include "iot/mqtt/packets/Pubcomp.h"
 #include "iot/mqtt/packets/Publish.h"
 #include "iot/mqtt/packets/Pubrec.h"
 #include "iot/mqtt/packets/Pubrel.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,6 +44,8 @@ namespace iot::mqtt {
             delete controlPacketDeserializer;
             controlPacketDeserializer = nullptr;
         }
+
+        keepAliveTimer.cancel();
     }
 
     void Mqtt::setMqttContext(MqttContext* mqttContext) {
@@ -103,6 +107,8 @@ namespace iot::mqtt {
                     controlPacketDeserializer = nullptr;
 
                     state = 0;
+
+                    keepAliveTimer.restart();
                 } else if (controlPacketDeserializer->isError()) {
                     LOG(TRACE) << "Control packet has error ... closing connection";
                     mqttContext->end(true);
@@ -203,6 +209,19 @@ namespace iot::mqtt {
         }
 
         return ss.str();
+    }
+
+    void Mqtt::setKeepAlive(const utils::Timeval& timeout) {
+        if (timeout > 0) {
+            keepAliveTimer = core::timer::Timer::singleshotTimer(
+                [this, timeout]() -> void {
+                    LOG(TRACE) << "Keep-alive timer expired. Interval was: " << timeout;
+                    mqttContext->kill();
+                },
+                timeout);
+
+            getSocketConnection()->setTimeout(0);
+        }
     }
 
     uint16_t Mqtt::getPacketIdentifier() {

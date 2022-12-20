@@ -27,10 +27,6 @@ namespace core::socket {
     class SocketConnection;
 }
 
-namespace utils {
-    class Timeval;
-}
-
 namespace iot::mqtt {
     class Mqtt;
 }
@@ -50,8 +46,6 @@ namespace iot::mqtt {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt);
 
-        virtual ~SocketContext() override;
-
     private:
         void onConnected() override;
         std::size_t onReceiveFromPeer() override;
@@ -62,8 +56,6 @@ namespace iot::mqtt {
 
         std::size_t receive(char* junk, std::size_t junklen) override;
         void send(const char* junk, std::size_t junklen) override;
-
-        void setKeepAlive(const utils::Timeval& timeout) override;
 
         void end(bool fatal) override;
         void kill() override;

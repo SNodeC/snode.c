@@ -44,6 +44,10 @@
 
 namespace iot::mqtt::client {
 
+    Mqtt::~Mqtt() {
+        pingTimer.cancel();
+    }
+
     iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
@@ -258,19 +262,26 @@ namespace iot::mqtt::client {
 
     void Mqtt::sendConnect(uint16_t keepAlive,
                            const std::string& clientId,
-
                            bool cleanSession,
                            const std::string& willTopic,
                            const std::string& willMessage,
                            uint8_t willQoS,
                            bool willRetain,
                            const std::string& username,
-                           const std::string& password) const { // Client
+                           const std::string& password) { // Client
         LOG(DEBUG) << "Send CONNECT";
         LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Connect(
             clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password));
+
+        setKeepAlive(keepAlive * 2);
+
+        pingTimer = core::timer::Timer::intervalTimer(
+            [this](void) -> void {
+                sendPingreq();
+            },
+            keepAlive);
     }
 
     void Mqtt::sendSubscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics) const { // Client
