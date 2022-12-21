@@ -16,20 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H
-#define IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H
+#ifndef IOT_MQTT_CLIENT_MQTTSUBPROTOCOL_H
+#define IOT_MQTT_CLIENT_MQTTSUBPROTOCOL_H
 
-#include "iot/mqtt/MqttSubProtocol.hpp"       // IWYU pragma: keep
-#include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
+#include "iot/mqtt/SubProtocol.hpp"           // IWYU pragma: export
+#include "web/websocket/client/SubProtocol.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt::server {
+namespace iot::mqtt::client {
 
-    using MqttSubProtocol = iot::mqtt::MqttSubProtocol<web::websocket::server::SubProtocol>;
+    using SubProtocol = iot::mqtt::SubProtocol<web::websocket::client::SubProtocol>;
 
-} // namespace iot::mqtt::server
+} // namespace iot::mqtt::client
 
-#endif // IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H
+#endif // IOT_MQTT_CLIENT_MQTTSUBPROTOCOL_H

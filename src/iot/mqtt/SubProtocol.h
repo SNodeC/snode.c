@@ -62,15 +62,15 @@ namespace iot::mqtt {
     };
 
     template <typename WSSubProtocolRoleT>
-    class MqttSubProtocol
+    class SubProtocol
         : public WSSubProtocolRoleT
         , public iot::mqtt::MqttContext {
     private:
         using WSSubProtocolRole = WSSubProtocolRoleT;
 
     public:
-        MqttSubProtocol(web::websocket::SubProtocolContext* subProtocolContext, const std::string& name, iot::mqtt::Mqtt* mqtt);
-        ~MqttSubProtocol() override = default;
+        SubProtocol(web::websocket::SubProtocolContext* subProtocolContext, const std::string& name, iot::mqtt::Mqtt* mqtt);
+        ~SubProtocol() override = default;
 
         std::size_t receive(char* junk, std::size_t junklen) override;
         void send(const char* junk, std::size_t junklen) override;

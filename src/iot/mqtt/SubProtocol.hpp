@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/MqttSubProtocol.h" // IWYU pragma: export
+#include "iot/mqtt/SubProtocol.h" // IWYU pragma: export
 #include "iot/mqtt/server/Mqtt.h"
 #include "log/Logger.h"
 #include "web/websocket/SubProtocolContext.h"
@@ -32,9 +32,9 @@
 namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
-    MqttSubProtocol<WSSubProtocolRole>::MqttSubProtocol(web::websocket::SubProtocolContext* subProtocolContext,
-                                                        const std::string& name,
-                                                        iot::mqtt::Mqtt* mqtt)
+    SubProtocol<WSSubProtocolRole>::SubProtocol(web::websocket::SubProtocolContext* subProtocolContext,
+                                                const std::string& name,
+                                                iot::mqtt::Mqtt* mqtt)
         : WSSubProtocolRole(subProtocolContext, name, PING_INTERVAL)
         , iot::mqtt::MqttContext(mqtt)
         , onReceivedFromPeerEvent([this]() -> void {
@@ -43,7 +43,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    std::size_t MqttSubProtocol<WSSubProtocolRole>::receive(char* junk, std::size_t junklen) {
+    std::size_t SubProtocol<WSSubProtocolRole>::receive(char* junk, std::size_t junklen) {
         std::size_t maxReturn = std::min(junklen, size);
 
         std::copy(buffer.data() + cursor, buffer.data() + cursor + maxReturn, junk);
@@ -63,28 +63,28 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::send(const char* junk, std::size_t junklen) {
+    void SubProtocol<WSSubProtocolRole>::send(const char* junk, std::size_t junklen) {
         WSSubProtocolRole::sendMessage(junk, junklen);
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::end([[maybe_unused]] bool fatal) {
+    void SubProtocol<WSSubProtocolRole>::end([[maybe_unused]] bool fatal) {
         WSSubProtocolRole::sendClose();
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::kill() {
+    void SubProtocol<WSSubProtocolRole>::kill() {
         WSSubProtocolRole::sendClose();
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::onConnected() {
+    void SubProtocol<WSSubProtocolRole>::onConnected() {
         VLOG(0) << "WS: Mqtt connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
+    void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == 1) {
             VLOG(0) << "WS: Wrong Opcode: " << opCode;
             this->end(true);
@@ -92,12 +92,12 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::onMessageData(const char* junk, std::size_t junkLen) {
+    void SubProtocol<WSSubProtocolRole>::onMessageData(const char* junk, std::size_t junkLen) {
         data += std::string(junk, junkLen);
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::onMessageEnd() {
+    void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
         std::stringstream ss;
 
         ss << "WS-Message: ";
@@ -123,24 +123,24 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
+    void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
         VLOG(0) << "Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::onDisconnected() {
+    void SubProtocol<WSSubProtocolRole>::onDisconnected() {
         VLOG(0) << "MQTT disconnected:";
         iot::mqtt::MqttContext::onDisconnected();
     }
 
     template <typename WSSubProtocolRole>
-    void MqttSubProtocol<WSSubProtocolRole>::onExit() {
+    void SubProtocol<WSSubProtocolRole>::onExit() {
         VLOG(0) << "MQTT exit:";
         iot::mqtt::MqttContext::onExit();
     }
 
     template <typename WSSubProtocolRole>
-    core::socket::SocketConnection* MqttSubProtocol<WSSubProtocolRole>::getSocketConnection() {
+    core::socket::SocketConnection* SubProtocol<WSSubProtocolRole>::getSocketConnection() {
         return WSSubProtocolRole::subProtocolContext->getSocketConnection();
     }
 
