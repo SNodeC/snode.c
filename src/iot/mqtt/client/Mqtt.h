@@ -102,8 +102,8 @@ namespace iot::mqtt::client {
                          bool willRetain,
                          const std::string& username,
                          const std::string& password);
-        void sendSubscribe(uint16_t packetIdentifier, std::list<Topic>& topics) const;
-        void sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics) const;
+        void sendSubscribe(std::list<Topic>& topics);
+        void sendUnsubscribe(std::list<std::string>& topics);
         void sendPingreq() const;
         void sendDisconnect() const;
 

@@ -284,18 +284,18 @@ namespace iot::mqtt::client {
             keepAlive);
     }
 
-    void Mqtt::sendSubscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics) const { // Client
+    void Mqtt::sendSubscribe(std::list<iot::mqtt::Topic>& topics) { // Client
         LOG(DEBUG) << "Send SUBSCRIBE";
         LOG(DEBUG) << "==============";
 
-        send(iot::mqtt::packets::Subscribe(packetIdentifier, topics));
+        send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
     }
 
-    void Mqtt::sendUnsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics) const { // Client
+    void Mqtt::sendUnsubscribe(std::list<std::string>& topics) { // Client
         LOG(DEBUG) << "Send UNSUBSCRIBE";
         LOG(DEBUG) << "================";
 
-        send(iot::mqtt::packets::Unsubscribe(packetIdentifier, topics));
+        send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
 
     void Mqtt::sendPingreq() const { // Client
