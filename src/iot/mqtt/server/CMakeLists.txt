@@ -6,7 +6,7 @@ add_subdirectory(broker)
 set(MQTT_SERVER_CPP Mqtt.cpp)
 
 set(MQTT_SERVER_H
-    ControlPacketDeserializer.h Mqtt.h MqttSubProtocol.h SharedSocketContextFactory.h
+    ControlPacketDeserializer.h Mqtt.h SharedSocketContextFactory.h
     SharedSocketContextFactory.hpp SocketContextFactory.h
     SocketContextFactory.hpp
 )
