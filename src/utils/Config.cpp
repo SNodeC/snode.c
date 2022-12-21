@@ -108,12 +108,11 @@ namespace utils {
 
         app.get_formatter()->column_width(40);
 
+        app.get_option("--help")->group("General Options");
+
         CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
         allHelpOpt->group("General Options");
-        allHelpOpt->group("General Options");
         allHelpOpt->configurable(false);
-
-        app.get_help_ptr()->group("General Options");
 
         CLI::Option* showConfigFlag = app.add_flag("-s,--show-config", "Show current configuration and exit");
         showConfigFlag->group("General Options");
