@@ -39,11 +39,11 @@ namespace core::socket::stream::tls {
     private:
         using Super = core::socket::stream::SocketClient<SocketClientT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT>;
 
-        using Super::Super;
-
     public:
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+
+        using Super::Super;
 
         explicit SocketClient(const std::string& name, const std::map<std::string, std::any>& options = {{}})
             : SocketClient(

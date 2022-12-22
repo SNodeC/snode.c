@@ -37,11 +37,11 @@ namespace core::socket::stream::legacy {
         using Super =
             core::socket::stream::SocketServer<SocketServerT, core::socket::stream::legacy::SocketAcceptor, SocketContextFactoryT>;
 
-        using Super::Super;
-
     public:
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+
+        using Super::Super;
 
         explicit SocketServer(const std::string& name, const std::map<std::string, std::any>& options = {{}})
             : SocketServer(

@@ -38,11 +38,12 @@ namespace core::socket::stream::tls {
         : public core::socket::stream::SocketServer<SocketServerT, core::socket::stream::tls::SocketAcceptor, SocketContextFactoryT> {
     private:
         using Super = core::socket::stream::SocketServer<SocketServerT, core::socket::stream::tls::SocketAcceptor, SocketContextFactoryT>;
-        using Super::Super;
 
     public:
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+
+        using Super::Super;
 
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,

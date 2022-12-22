@@ -29,7 +29,7 @@ namespace web::websocket {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MAX_FLYING_PINGS 3
-#define PING_INTERVAL 5
+#define PING_INTERVAL 90
 
 namespace apps::websocket::subprotocol::echo::client {
 
