@@ -34,7 +34,6 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
-    using SocketConnection = WebApp::SocketConnection;
     using SocketAddress = WebApp::SocketAddress;
 
     WebApp legacyApp("legacy-jsonserver");
@@ -68,20 +67,6 @@ int main(int argc, char* argv[]) {
 
     legacyApp.post([] APPLICATION(req, res) {
         res.send("Wrong Url");
-    });
-
-    legacyApp.onConnect([](SocketConnection* socketConnection) -> void {
-        VLOG(0) << "OnConnect:";
-
-        VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " + socketConnection->getRemoteAddress().toString();
-    });
-
-    legacyApp.onDisconnect([](SocketConnection* socketConnection) -> void {
-        VLOG(0) << "OnDisconnect:";
-
-        VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " + socketConnection->getRemoteAddress().toString();
     });
 
     return WebApp::start();

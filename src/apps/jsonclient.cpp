@@ -38,22 +38,10 @@ int main(int argc, char* argv[]) {
     using Request = web::http::client::Request;
     using Response = web::http::client::Response;
     using Client = web::http::legacy::in::Client<Request, Response>;
-    using SocketConnection = Client::SocketConnection;
     using SocketAddress = Client::SocketAddress;
 
     Client jsonClient(
         "legacy",
-        [](SocketConnection* socketConnection) -> void {
-            VLOG(0) << "-- OnConnect";
-
-            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
-                           socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
-                           socketConnection->getLocalAddress().toString();
-        },
-        []([[maybe_unused]] SocketConnection* socketConnection) -> void {
-            VLOG(0) << "-- OnConnected";
-        },
         [](Request& request) -> void {
             VLOG(0) << "-- OnRequest";
             request.method = "POST";
@@ -89,14 +77,6 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "-- OnResponseError";
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
-        },
-        [](SocketConnection* socketConnection) -> void {
-            VLOG(0) << "-- OnDisconnect";
-
-            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
-                           socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
-                           socketConnection->getLocalAddress().toString();
         });
 
     jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {

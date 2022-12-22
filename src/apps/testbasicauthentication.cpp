@@ -96,24 +96,6 @@ int main(int argc, char* argv[]) {
                 res.status(404).send("The requested resource is not found.");
             });
 
-            tlsApp.onConnect([](express::tls::in6::WebApp::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "OnConnect:";
-
-                VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
-                               socketConnection->getLocalAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
-                               socketConnection->getRemoteAddress().toString();
-            });
-
-            tlsApp.onDisconnect([](express::tls::in6::WebApp::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "OnDisconnect:";
-
-                VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
-                               socketConnection->getLocalAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
-                               socketConnection->getRemoteAddress().toString();
-            });
-
             tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int errnum) -> void {
                 if (errnum < 0) {
                     PLOG(ERROR) << "OnError";
