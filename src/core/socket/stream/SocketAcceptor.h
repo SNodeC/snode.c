@@ -115,7 +115,7 @@ namespace core::socket::stream {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
-                    VLOG(0) << "Mode: PRIMARY";
+                    VLOG(0) << config->getName() << " mode: PRIMARY";
                     secondarySocket = new SecondarySocket();
                     if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
@@ -128,7 +128,7 @@ namespace core::socket::stream {
                         enable(primarySocket->getFd());
                     }
                 } else {
-                    VLOG(0) << "Mode: STANDALONE";
+                    VLOG(0) << config->getName() << " mode: STANDALONE";
                     onError(config->getLocalAddress(), 0);
                     enable(primarySocket->getFd());
                 }
@@ -142,7 +142,7 @@ namespace core::socket::stream {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else {
-                    VLOG(0) << "Mode: SECONDARY or PROXY";
+                    VLOG(0) << config->getName() << " mode: SECONDARY or PROXY";
                     onError(config->getLocalAddress(), errno);
                     enable(secondarySocket->getFd());
                 }

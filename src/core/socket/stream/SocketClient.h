@@ -82,16 +82,34 @@ namespace core::socket::stream {
             }
         }
 
-        void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
-            _onConnect = onConnect;
+        std::function<void(SocketConnection*)> onConnect(std::function<void(SocketConnection*)>&& onConnect) {
+            std::swap(onConnect, _onConnect);
+            return onConnect;
         }
 
-        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
-            _onConnected = onConnected;
+        std::function<void(SocketConnection*)> onConnected(std::function<void(SocketConnection*)>&& onConnected) {
+            std::swap(onConnected, _onConnected);
+            return onConnected;
         }
 
-        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
-            _onDisconnect = onDisconnect;
+        std::function<void(SocketConnection*)> onDisconnect(std::function<void(SocketConnection*)>&& onDisconnect) {
+            std::swap(onDisconnect, _onDisconnect);
+            return onDisconnect;
+        }
+
+        std::function<void(SocketConnection*)> onConnect(std::function<void(SocketConnection*)>& onConnect) {
+            std::swap(onConnect, _onConnect);
+            return onConnect;
+        }
+
+        std::function<void(SocketConnection*)> onConnected(std::function<void(SocketConnection*)>& onConnected) {
+            std::swap(onConnected, _onConnected);
+            return onConnected;
+        }
+
+        std::function<void(SocketConnection*)> onDisconnect(std::function<void(SocketConnection*)>& onDisconnect) {
+            std::swap(onDisconnect, _onDisconnect);
+            return onDisconnect;
         }
 
         std::shared_ptr<SocketContextFactory> getSocketContextFactory() {

@@ -55,9 +55,7 @@ namespace web::http::client {
                const std::map<std::string, std::any>& options = {{}})
             : Super(
                   name,
-                  [onConnect](SocketConnection* socketConnection) -> void { // onConnect
-                      onConnect(socketConnection);
-                  },
+                  onConnect,
                   [onConnected, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
                       Request& request =
                           dynamic_cast<web::http::client::SocketContext<Request, Response>*>(socketConnection->getSocketContext())
@@ -67,9 +65,7 @@ namespace web::http::client {
                       onConnected(socketConnection);
                       onRequestBegin(request);
                   },
-                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      onDisconnect(socketConnection);
-                  },
+                  onDisconnect,
                   options) {
             Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
             Super::getSocketContextFactory()->setOnResponseError(onResponseError);
@@ -84,6 +80,34 @@ namespace web::http::client {
                const std::map<std::string, std::any>& options = {{}})
             : Client("", onConnect, onConnected, onRequestBegin, onResponseReady, onResponseError, onDisconnect, options) {
         }
+
+        Client(const std::string& name,
+               const std::function<void(Request&)>& onRequestBegin,
+               const std::function<void(Request&, Response&)>& onResponseReady,
+               const std::function<void(int, const std::string&)>& onResponseError,
+               const std::map<std::string, std::any>& options = {{}})
+            : Super(name, options) {
+            Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
+            Super::getSocketContextFactory()->setOnResponseError(onResponseError);
+
+            onConnectedOrig = Super::onConnected([this, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
+                Request& request =
+                    dynamic_cast<web::http::client::SocketContext<Request, Response>*>(socketConnection->getSocketContext())->getRequest();
+                request.setHost(socketConnection->getRemoteAddress().toString());
+
+                onConnectedOrig(socketConnection);
+                onRequestBegin(request);
+            });
+        }
+
+        Client(const std::function<void(Request&)>& onRequestBegin,
+               const std::function<void(Request&, Response&)>& onResponseReady,
+               const std::function<void(int, const std::string&)>& onResponseError,
+               const std::map<std::string, std::any>& options = {{}})
+            : Client("", onRequestBegin, onResponseReady, onResponseError, options) {
+        }
+
+        std::function<void(SocketConnection*)> onConnectedOrig;
     };
 
 } // namespace web::http::client

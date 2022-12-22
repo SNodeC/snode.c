@@ -24,6 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::legacy {
@@ -40,6 +42,35 @@ namespace core::socket::stream::legacy {
     public:
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
+
+        explicit SocketServer(const std::string& name, const std::map<std::string, std::any>& options = {{}})
+            : SocketServer(
+                  name,
+                  [name](SocketConnection* socketConnection) -> void { // onConnect
+                      VLOG(0) << "OnConnect - " << name;
+
+                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
+                  },
+                  [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
+                      VLOG(0) << "OnConnected - " << name;
+                  },
+                  [name](SocketConnection* socketConnection) -> void { // onDisconnect
+                      VLOG(0) << "OnDisconnect - " << name;
+
+                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
+                  },
+                  options) {
+        }
+
+        explicit SocketServer(const std::map<std::string, std::any>& options = {{}})
+            : SocketServer("", options) {
+        }
     };
 
 } // namespace core::socket::stream::legacy

@@ -51,18 +51,7 @@ namespace web::http::server {
                const std::function<void(Request&, Response&)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            : Super(
-                  name,
-                  [onConnect](SocketConnection* socketConnection) -> void { // OnConnect
-                      onConnect(socketConnection);
-                  },
-                  [onConnected](SocketConnection* socketConnection) -> void { // onConnected.
-                      onConnected(socketConnection);
-                  },
-                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      onDisconnect(socketConnection);
-                  },
-                  options) {
+            : Super(name, onConnect, onConnected, onDisconnect, options) {
             Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
@@ -72,6 +61,17 @@ namespace web::http::server {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : Server("", onConnect, onConnected, onRequestReady, onDisconnect, options) {
+        }
+
+        Server(const std::string& name,
+               const std::function<void(Request&, Response&)>& onRequestReady,
+               const std::map<std::string, std::any>& options = {{}})
+            : Super(name, options) {
+            Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
+        }
+
+        Server(const std::function<void(Request&, Response&)>& onRequestReady, const std::map<std::string, std::any>& options = {{}})
+            : Server("", onRequestReady, options) {
         }
 
         using Super::listen;
