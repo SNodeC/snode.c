@@ -90,12 +90,13 @@ namespace web::http::client {
             Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
             Super::getSocketContextFactory()->setOnResponseError(onResponseError);
 
-            onConnectedOrig = Super::onConnected([this, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
+            Super::onConnected([onConnected = this->_onConnected,
+                                onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
                 Request& request =
                     dynamic_cast<web::http::client::SocketContext<Request, Response>*>(socketConnection->getSocketContext())->getRequest();
                 request.setHost(socketConnection->getRemoteAddress().toString());
 
-                onConnectedOrig(socketConnection);
+                onConnected(socketConnection);
                 onRequestBegin(request);
             });
         }
@@ -106,8 +107,6 @@ namespace web::http::client {
                const std::map<std::string, std::any>& options = {{}})
             : Client("", onRequestBegin, onResponseReady, onResponseError, options) {
         }
-
-        std::function<void(SocketConnection*)> onConnectedOrig;
     };
 
 } // namespace web::http::client

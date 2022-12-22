@@ -68,13 +68,13 @@ namespace core::socket::stream::tls {
                                   onConnected(socketConnection);
                                   socketConnection->onConnected();
                               },
-                              [this]() -> void { // onTimeout
+                              [onError = this->onError, config = this->config]() -> void { // onTimeout
                                   LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                                  this->onError(this->config->getRemoteAddress(), ETIMEDOUT);
+                                  onError(config->getRemoteAddress(), ETIMEDOUT);
                               },
-                              [this](int sslErr) -> void { // onError
+                              [onError = this->onError, config = this->config](int sslErr) -> void { // onError
                                   ssl_log("SSL/TLS initial handshake failed", sslErr);
-                                  this->onError(this->config->getRemoteAddress(), -sslErr);
+                                  onError(config->getRemoteAddress(), -sslErr);
                               });
                       } else {
                           socketConnection->close();

@@ -57,33 +57,9 @@ namespace express {
             : WebApp(router)
             , Server(
                   name,
-                  [](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect:";
-
-                      VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
-                  },
-                  [](SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected:";
-
-                      VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
-                  },
                   [rootRoute = this->rootRoute](Request& req,
                                                 Response& res) -> void { // onRequestReady
                       rootRoute->dispatch(Controller(req, res));
-                  },
-                  [](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect:";
-
-                      VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
                   },
                   options) {
         }

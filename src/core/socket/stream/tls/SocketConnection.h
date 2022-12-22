@@ -238,7 +238,7 @@ namespace core::socket::stream::tls {
             }
         }
 
-        SSL* ssl;
+        SSL* ssl = nullptr;
 
         utils::Timeval initTimeout;
         utils::Timeval shutdownTimeout;
