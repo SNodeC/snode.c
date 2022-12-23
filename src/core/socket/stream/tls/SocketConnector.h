@@ -52,7 +52,6 @@ namespace core::socket::stream::tls {
                   socketContextFactory,
                   [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
                       socketConnection->startSSL(this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
-
                       onConnect(socketConnection);
                   },
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect

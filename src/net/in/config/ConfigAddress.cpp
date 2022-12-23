@@ -67,6 +67,12 @@ namespace net::in::config {
         }
     }
 
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
+        hostOpt->default_val(ConfigAddressType::address.host());
+        portOpt->default_val(ConfigAddressType::address.port());
+    }
+
 } // namespace net::in::config
 
 template class net::in::config::ConfigAddress<net::config::ConfigAddressLocal>;

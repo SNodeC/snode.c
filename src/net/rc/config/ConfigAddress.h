@@ -53,6 +53,7 @@ namespace net::rc::config {
         CLI::Option* channelOpt = nullptr;
 
         void updateFromCommandLine() override;
+        void addressDefaultsFromCurrent() override;
 
         std::string host{};
         uint8_t channel{};

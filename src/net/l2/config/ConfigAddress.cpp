@@ -67,6 +67,12 @@ namespace net::l2::config {
         }
     }
 
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
+        hostOpt->default_val(ConfigAddressType::address.address());
+        psmOpt->default_val(ConfigAddressType::address.psm());
+    }
+
 } // namespace net::l2::config
 
 template class net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>;

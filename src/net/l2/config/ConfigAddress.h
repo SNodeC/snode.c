@@ -53,6 +53,7 @@ namespace net::l2::config {
         CLI::Option* psmOpt = nullptr;
 
         void updateFromCommandLine() override;
+        void addressDefaultsFromCurrent() override;
 
         std::string host{};
         uint16_t psm{};

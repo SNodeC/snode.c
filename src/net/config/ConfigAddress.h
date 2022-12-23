@@ -53,6 +53,7 @@ namespace net::config {
 
     private:
         virtual void updateFromCommandLine() = 0;
+        virtual void addressDefaultsFromCurrent() = 0;
 
         bool initialized = false;
     };

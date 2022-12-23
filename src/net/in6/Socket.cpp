@@ -22,7 +22,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#ifndef DUAL_STACK
 #include <netinet/in.h>
+#endif // DUAL_STACK
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,8 +35,10 @@ namespace net::in6 {
     }
 
     void Socket::setSockopt() {
+#ifndef DUAL_STACK
         int one = 1;
         this->setSockopt(IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+#endif // DUAL_STACK
     }
 
 } // namespace net::in6

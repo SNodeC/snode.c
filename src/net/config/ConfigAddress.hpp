@@ -56,6 +56,7 @@ namespace net::config {
         address = localAddress;
         initialized = true;
         ConfigBase::required(false);
+        addressDefaultsFromCurrent();
     }
 
     template <typename SocketAddressT>

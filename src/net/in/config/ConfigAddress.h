@@ -53,6 +53,7 @@ namespace net::in::config {
         CLI::Option* portOpt = nullptr;
 
         void updateFromCommandLine() override;
+        void addressDefaultsFromCurrent() override;
 
         std::string host{};
         uint16_t port{};

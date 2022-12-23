@@ -50,6 +50,7 @@ namespace net::un::config {
         CLI::Option* sunPathOpt = nullptr;
 
         void updateFromCommandLine() override;
+        void addressDefaultsFromCurrent() override;
 
         std::string sunPath{};
     };
