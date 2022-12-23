@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_compile_options(-Wno-covered-switch-default -Wno-undefined-func-template)
+add_compile_options(
+    -Wno-covered-switch-default -Wno-undefined-func-template -Wno-float-equal
+    -Wno-implicit-int-float-conversion
+)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options(-Wno-missing-prototypes)
