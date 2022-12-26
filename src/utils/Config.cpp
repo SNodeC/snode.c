@@ -61,6 +61,7 @@ namespace utils {
     std::string Config::defaultConfDir;
     std::string Config::defaultLogDir;
     std::string Config::defaultPidDir;
+    std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::Formatter>();
 
     bool Config::init(int argc, char* argv[]) {
         Config::argc = argc;
@@ -100,13 +101,17 @@ namespace utils {
             (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
                 ~std::filesystem::perms::others_all);
 
-        app.option_defaults()->configurable();
+        sectionFormatter->label("SUBCOMMAND", "SECTION");
+        sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
+        sectionFormatter->column_width(40);
+
+        app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
+        app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
+        app.get_formatter()->column_width(40);
 
         app.description("Configuration for application " + applicationName);
         app.allow_extras();
         app.allow_config_extras();
-
-        app.get_formatter()->column_width(40);
 
         app.get_option("--help")->group("General Options");
 
@@ -207,7 +212,13 @@ namespace utils {
     }
 
     CLI::App* Config::add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description) {
-        return app.add_subcommand(subcommand_name, subcommand_description);
+        app.require_subcommand(0, app.get_require_subcommand_max() + 1);
+
+        CLI::App* instance = app.add_subcommand(subcommand_name, subcommand_description);
+        instance->formatter(sectionFormatter);
+        instance->configurable();
+
+        return instance;
     }
 
     bool Config::remove_subcommand(CLI::App* subCommand) {

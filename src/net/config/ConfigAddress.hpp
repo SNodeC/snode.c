@@ -33,7 +33,6 @@ namespace net::config {
     ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription) {
         if (!getName().empty()) {
             addressSc = add_subcommand(addressOptionName, addressOptionDescription);
-            addressSc->group("Subcommands");
             initialized = true;
         }
     }

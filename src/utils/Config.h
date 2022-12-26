@@ -24,8 +24,10 @@
 namespace CLI {
     class App;
     class Option;
+    class Formatter;
 } // namespace CLI
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -94,6 +96,8 @@ namespace utils {
         static std::string defaultConfDir;
         static std::string defaultLogDir;
         static std::string defaultPidDir;
+
+        static std::shared_ptr<CLI::Formatter> sectionFormatter;
     };
 
 } // namespace utils

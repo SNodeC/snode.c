@@ -32,7 +32,7 @@ namespace net::config {
         if (!name.empty()) {
             baseSc = utils::Config::add_subcommand(name, "Configuration for instance '" + name + "'");
             baseSc->fallthrough();
-            baseSc->group("Subcommands");
+            baseSc->group("Instances");
             baseSc->configurable(false);
         }
     }
@@ -46,7 +46,10 @@ namespace net::config {
     }
 
     CLI::App* ConfigBase::add_subcommand(const std::string& name, const std::string& description) {
-        return baseSc->add_subcommand(name, description);
+        CLI::App* subCommand = baseSc->add_subcommand(name, description);
+        baseSc->require_subcommand(baseSc->get_require_subcommand_min(), baseSc->get_require_subcommand_max() + 1);
+        subCommand->group("Sections");
+        return subCommand;
     }
 
     CLI::Option* ConfigBase::add_option(const std::string& name, int& variable, const std::string& description) {

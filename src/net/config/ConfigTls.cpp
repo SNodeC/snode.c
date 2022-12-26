@@ -39,7 +39,6 @@ namespace net::config {
     ConfigTls::ConfigTls() {
         if (!getName().empty()) {
             tlsSc = add_subcommand("tls", "Options for SSL/TLS behaviour");
-            tlsSc->group("Subcommands");
 
             certChainFileOpt = tlsSc->add_option("--cert-chain", certChainFile, "Certificate chain file");
             certChainFileOpt->type_name("[PEM file]");
