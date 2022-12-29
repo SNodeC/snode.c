@@ -40,8 +40,6 @@ Router getRouter(const std::string& webRoot) {
 }
 
 int main(int argc, char* argv[]) {
-    logger::Logger::setVerboseLevel(2);
-
     std::string webRoot;
     utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
 

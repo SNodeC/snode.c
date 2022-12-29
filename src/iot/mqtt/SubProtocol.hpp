@@ -79,14 +79,14 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        VLOG(0) << "WS: Mqtt connected:";
+        LOG(INFO) << "WS: Mqtt connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == 1) {
-            VLOG(0) << "WS: Wrong Opcode: " << opCode;
+            LOG(ERROR) << "WS: Wrong Opcode: " << opCode;
             this->end(true);
         }
     }
@@ -111,7 +111,7 @@ namespace iot::mqtt {
             ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
                << " "; // << " | ";
         }
-        VLOG(0) << ss.str();
+        LOG(TRACE) << ss.str();
 
         buffer.insert(buffer.end(), data.begin(), data.end());
         size += data.size();
@@ -124,18 +124,18 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
-        VLOG(0) << "Message error: " << errnum;
+        LOG(ERROR) << "Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
-        VLOG(0) << "MQTT disconnected:";
+        LOG(INFO) << "MQTT disconnected:";
         iot::mqtt::MqttContext::onDisconnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onExit() {
-        VLOG(0) << "MQTT exit:";
+        LOG(INFO) << "MQTT exit:";
         iot::mqtt::MqttContext::onExit();
     }
 

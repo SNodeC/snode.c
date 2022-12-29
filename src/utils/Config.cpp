@@ -61,6 +61,10 @@ namespace utils {
     std::string Config::defaultConfDir;
     std::string Config::defaultLogDir;
     std::string Config::defaultPidDir;
+
+    int Config::logLevel = 0; // Warning. Loglevels [0, 6] 0 ... nothing, 6 ... trace
+    int Config::verboseLevel = 0;
+
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::Formatter>();
 
     bool Config::init(int argc, char* argv[]) {
@@ -112,6 +116,7 @@ namespace utils {
         app.description("Configuration for application " + applicationName);
         app.allow_extras();
         app.allow_config_extras();
+        app.configurable();
 
         app.get_option("--help")->group("General Options");
 
@@ -150,6 +155,16 @@ namespace utils {
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false)
             ->group("General Options");
+
+        CLI::Option* logLevelOpt = app.add_option("--log-level", logLevel, "Log level [0 .. 6]");
+        logLevelOpt->group("General Options");
+        logLevelOpt->default_val(3);
+        logLevelOpt->type_name("level");
+
+        CLI::Option* verboseLevelOpt = app.add_option("--verbose-level", verboseLevel, "Verbosity level [0 .. 10]");
+        verboseLevelOpt->group("General Options");
+        verboseLevelOpt->default_val(0);
+        verboseLevelOpt->type_name("level");
 
         bool ret = parse(); // for stopDaemon but do not act on -h or --help-all
 
@@ -284,6 +299,14 @@ namespace utils {
 
     std::string Config::getApplicationName() {
         return applicationName;
+    }
+
+    int Config::getLogLevel() {
+        return logLevel;
+    }
+
+    int Config::getVerboseLevel() {
+        return verboseLevel;
     }
 
     bool Config::parse(bool stopOnError) {

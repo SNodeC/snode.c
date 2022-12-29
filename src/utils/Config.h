@@ -76,6 +76,8 @@ namespace utils {
                              const std::string& groupName = "Application Options");
 
         static std::string getApplicationName();
+        static int getLogLevel();
+        static int getVerboseLevel();
 
         static bool parse(bool stopOnError = false);
 
@@ -96,6 +98,8 @@ namespace utils {
         static std::string defaultConfDir;
         static std::string defaultLogDir;
         static std::string defaultPidDir;
+        static int logLevel;
+        static int verboseLevel;
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
     };

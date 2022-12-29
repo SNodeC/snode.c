@@ -82,6 +82,9 @@ namespace core {
 
         EventLoop::initialized = utils::Config::init(argc, argv);
 
+        logger::Logger::setLogLevel(utils::Config::getLogLevel());
+        logger::Logger::setVerboseLevel(utils::Config::getVerboseLevel());
+
         return EventLoop::initialized;
     }
 

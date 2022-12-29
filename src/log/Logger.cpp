@@ -30,8 +30,8 @@ namespace logger {
 
     el::Configurations Logger::conf;
 
-    void Logger::init(int argc, char* argv[]) {
-        START_EASYLOGGINGPP(argc, argv);
+    void Logger::init([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+        //        START_EASYLOGGINGPP(argc, argv);
 
         conf.setGlobally(el::ConfigurationType::Enabled, "true");
         conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %level %msg");
@@ -57,7 +57,7 @@ namespace logger {
             el::Loggers::reconfigureLogger("default", conf);
         }
 
-        setLogLevel(6);
+        //        setLogLevel(6);
     }
 
     void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {
@@ -101,8 +101,11 @@ namespace logger {
         el::Loggers::reconfigureLogger("default", conf);
     }
 
-    void Logger::setVerboseLevel(unsigned short level) {
-        el::Loggers::setVerboseLevel(level);
+    void Logger::setVerboseLevel(int level) {
+        VLOG(0) << "--------------------------------------- " << level;
+        if (level >= 0) {
+            el::Loggers::setVerboseLevel(static_cast<el::base::type::VerboseLevel>(level));
+        }
     }
 
     void Logger::logToFile(const std::string& logFile) {
