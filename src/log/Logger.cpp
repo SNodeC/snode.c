@@ -102,7 +102,6 @@ namespace logger {
     }
 
     void Logger::setVerboseLevel(int level) {
-        VLOG(0) << "--------------------------------------- " << level;
         if (level >= 0) {
             el::Loggers::setVerboseLevel(static_cast<el::base::type::VerboseLevel>(level));
         }
