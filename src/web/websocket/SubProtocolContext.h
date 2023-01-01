@@ -56,10 +56,10 @@ namespace web::websocket {
 
         virtual core::socket::SocketConnection* getSocketConnection() = 0;
 
-    private:
-        virtual void sendClose(const char* message, std::size_t messageLength) = 0;
+        enum OpCode { CONTINUATION = 0x00, TEXT = 0x01, BINARY = 0x02, CLOSE = 0x08, PING = 0x09, PONG = 0x0A };
 
     private:
+        virtual void sendClose(const char* message, std::size_t messageLength) = 0;
     };
 
 } // namespace web::websocket

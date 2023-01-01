@@ -30,9 +30,7 @@ namespace logger {
 
     el::Configurations Logger::conf;
 
-    void Logger::init([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
-        //        START_EASYLOGGINGPP(argc, argv);
-
+    void Logger::init() {
         conf.setGlobally(el::ConfigurationType::Enabled, "true");
         conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %level %msg");
         conf.setGlobally(el::ConfigurationType::ToFile, "false");
@@ -46,6 +44,8 @@ namespace logger {
         el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
         el::Loggers::addFlag(el::LoggingFlag::DisablePerformanceTrackingCheckpointComparison);
         el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
+
+        el::Loggers::removeFlag(el::LoggingFlag::AllowVerboseIfModuleNotSpecified);
 
         el::Loggers::reconfigureLogger("default", conf);
 

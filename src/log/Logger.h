@@ -34,7 +34,7 @@ namespace logger {
         ~Logger() = delete;
 
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static void init(int argc, char* argv[]);
+        static void init();
 
         static void setLogLevel(int level);
 

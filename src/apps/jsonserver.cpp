@@ -34,6 +34,8 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
+    //    el::Loggers::setVModules("jsonserver*=0");
+
     using SocketAddress = WebApp::SocketAddress;
 
     WebApp legacyApp("legacy-jsonserver");
@@ -66,6 +68,7 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.post([] APPLICATION(req, res) {
+        VLOG(0) << "############################";
         res.send("Wrong Url");
     });
 

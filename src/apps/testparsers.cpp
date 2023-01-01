@@ -34,8 +34,8 @@
 
 using namespace web::http;
 
-int main(int argc, char* argv[]) {
-    logger::Logger::init(argc, argv);
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+    logger::Logger::init();
 
     server::RequestParser requestParser(
         nullptr,

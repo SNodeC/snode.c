@@ -1,5 +1,6 @@
 #include "utils/CLI11.hpp"
 
+#include <iostream>
 #include <stdexcept>
 #include <string>
 

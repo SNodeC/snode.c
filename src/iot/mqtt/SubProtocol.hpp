@@ -85,7 +85,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
-        if (opCode == 1) {
+        if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
             LOG(ERROR) << "WS: Wrong Opcode: " << opCode;
             this->end(true);
         }

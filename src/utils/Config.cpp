@@ -86,7 +86,8 @@ namespace utils {
         defaultLogDir = homedir + LOGFILEPATH;
         defaultPidDir = homedir + PIDFILEPATH;
 
-        logger::Logger::init(argc, argv);
+        logger::Logger::init();
+
         std::filesystem::create_directories(defaultConfDir);
         std::filesystem::permissions(
             defaultConfDir,

@@ -146,11 +146,11 @@ namespace web::websocket {
             receivedOpCode = opCode;
 
             switch (opCode) {
-                case OpCode::CLOSE:
+                case SubProtocolContext::OpCode::CLOSE:
                     [[fallthrough]];
-                case OpCode::PING:
+                case SubProtocolContext::OpCode::PING:
                     [[fallthrough]];
-                case OpCode::PONG:
+                case SubProtocolContext::OpCode::PONG:
                     break;
                 default:
                     subProtocol->onMessageStart(opCode);
@@ -160,11 +160,11 @@ namespace web::websocket {
 
         void onMessageData(const char* junk, uint64_t junkLen) override {
             switch (receivedOpCode) {
-                case OpCode::CLOSE:
+                case SubProtocolContext::OpCode::CLOSE:
                     [[fallthrough]];
-                case OpCode::PING:
+                case SubProtocolContext::OpCode::PING:
                     [[fallthrough]];
-                case OpCode::PONG:
+                case SubProtocolContext::OpCode::PONG:
                     pongCloseData += std::string(junk, static_cast<std::size_t>(junkLen));
                     break;
                 default:
@@ -182,7 +182,7 @@ namespace web::websocket {
 
         void onMessageEnd() override {
             switch (receivedOpCode) {
-                case OpCode::CLOSE:
+                case SubProtocolContext::OpCode::CLOSE:
                     if (closeSent) { // active close
                         closeSent = false;
                         LOG(INFO) << "Close confirmed from peer";
@@ -192,11 +192,11 @@ namespace web::websocket {
                         pongCloseData.clear();
                     }
                     break;
-                case OpCode::PING:
+                case SubProtocolContext::OpCode::PING:
                     sendPong(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();
                     break;
-                case OpCode::PONG:
+                case SubProtocolContext::OpCode::PONG:
                     subProtocol->onPongReceived();
                     break;
                 default:
@@ -229,7 +229,7 @@ namespace web::websocket {
             subProtocol->onExit();
         }
 
-        /* Facade to SocketProtocol used from WSTransmitter */
+        /* Facade to SocketContext used from WSTransmitter */
         void sendFrameData(uint8_t data) const override {
             if (!closeSent) {
                 sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
@@ -270,7 +270,7 @@ namespace web::websocket {
             }
         }
 
-        /* SocketProtocol */
+        /* SocketContext */
         std::size_t onReceiveFromPeer() override {
             return Receiver::receive();
         }
@@ -284,8 +284,6 @@ namespace web::websocket {
         int receivedOpCode = 0;
 
         std::string pongCloseData;
-
-        enum OpCode { CLOSE = 0x08, PING = 0x09, PONG = 0x0A };
     };
 
 } // namespace web::websocket
