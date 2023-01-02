@@ -9673,26 +9673,21 @@ public:                                                                         
                     }
                     out << to_config(subcom, default_also, write_description, "");
                 } else {
-                    std::string subname;
-
-                    if (app->get_parent() != nullptr) {
-                        subname = app->get_name() + parentSeparatorChar;
-                    }
-                    subname += subcom->get_name();
-                    const auto* p = app->get_parent();
-                    while (p != nullptr && p->get_parent() != nullptr) {
-                        subname = p->get_name() + parentSeparatorChar + subname;
-                        p = p->get_parent();
-                    }
-                    if (!subcom->get_subcommands().empty()) {
-                        out << commentChar << commentLead << subname << "\n";
-                    } else {
-                        for (const Option* opt : subcom->get_options({})) {
-                            if (opt->get_configurable()) {
-                                out << commentChar << commentLead << subname << "\n";
-                                break;
-                            }
+                    if (!prefix.empty() || app->get_parent() == nullptr) {
+                        out << commentChar << commentLead << prefix << subcom->get_name() << "\n";
+                        if (subcom->get_options([](const Option* option) -> bool {
+                                    return option->get_configurable();
+                                }).empty()) {
+                            out << "\n";
                         }
+                    } else {
+                        std::string subname = app->get_name() + parentSeparatorChar + subcom->get_name();
+                        const auto* p = app->get_parent();
+                        while (p->get_parent() != nullptr) {
+                            subname = p->get_name() + parentSeparatorChar + subname;
+                            p = p->get_parent();
+                        }
+                        out << commentChar << commentLead << subname << "\n";
                     }
                     out << to_config(subcom, default_also, write_description, prefix + subcom->get_name() + parentSeparatorChar);
                 }
