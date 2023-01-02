@@ -258,7 +258,6 @@ namespace utils {
             ->disable_flag_override()
             ->trigger_on_parse()
             ->group("Options (generic)");
-        ;
 
         instance
             ->add_flag_callback(
@@ -271,7 +270,6 @@ namespace utils {
             ->disable_flag_override()
             ->trigger_on_parse()
             ->group("Options (generic)");
-        ;
 
         return instance;
     }

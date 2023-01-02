@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 
     // require at most one of the target options
     target->require_option(0, 1);
-    CLI11_PARSE(app, argc, argv);
+    CLI11_PARSE(app, argc, argv)
 
     std::string format_type = (csv) ? std::string("CSV") : ((human) ? "human readable" : "binary");
     std::cout << "Selected " << format_type << " format" << std::endl;
