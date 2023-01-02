@@ -49,6 +49,31 @@ namespace net::config {
         CLI::App* subCommand = baseSc->add_subcommand(name, description);
         baseSc->require_subcommand(baseSc->get_require_subcommand_min(), baseSc->get_require_subcommand_max() + 1);
         subCommand->group("Sections");
+
+        subCommand
+            ->add_flag_callback(
+                "-h,--help",
+                []() {
+                    throw CLI::CallForHelp();
+                },
+                "Print this help message and exit")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse()
+            ->group("General Options");
+
+        subCommand
+            ->add_flag_callback(
+                "--help-all",
+                []() {
+                    throw CLI::CallForAllHelp();
+                },
+                "Expand all help")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse()
+            ->group("General Options");
+
         return subCommand;
     }
 

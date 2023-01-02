@@ -29,8 +29,8 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <filesystem>
+#include <iostream>
 #include <memory>
-#include <ostream>
 #include <pwd.h>
 #include <stdexcept>
 #include <unistd.h>
@@ -114,65 +114,79 @@ namespace utils {
         app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
         app.get_formatter()->column_width(40);
 
-        app.description("Configuration for application " + applicationName);
+        app.description("Configuration for Application " + applicationName);
         app.allow_extras();
         app.allow_config_extras();
         app.configurable();
 
-        app.get_option("--help")->group("General Options");
+        app.set_help_flag();
 
-        CLI::Option* allHelpOpt = app.set_help_all_flag("--help-all", "Expand all help");
-        allHelpOpt->group("General Options");
-        allHelpOpt->configurable(false);
+        app.add_flag_callback(
+               "-h,--help",
+               []() {
+                   throw CLI::CallForHelp();
+               },
+               "Print this help message and exit")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse()
+            ->group("General Options");
 
-        CLI::Option* showConfigFlag = app.add_flag("-s,--show-config", "Show current configuration and exit");
-        showConfigFlag->group("General Options");
-        showConfigFlag->disable_flag_override();
-        showConfigFlag->configurable(false);
+        app.add_flag_callback(
+               "--help-all",
+               []() {
+                   throw CLI::CallForAllHelp();
+               },
+               "Expand all help")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse()
+            ->group("General Options");
 
-        CLI::Option* dumpConfigFlg = app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" +
-                                                      defaultConfDir + "/" + applicationName + ".conf" + "}",
-                                                  outputConfigFile,
-                                                  "Write config file");
-        dumpConfigFlg->group("General Options");
-        dumpConfigFlg->configurable(false);
+        app.add_flag("-d,!-f,--daemonize,!--foreground", startAsDaemon, "Start application as daemon")->group("General Options");
 
-        CLI::Option* logFileOpt = app.add_option("-l,--log-file", logFile, "Log to file");
-        logFileOpt->group("General Options");
-        logFileOpt->default_val(defaultLogDir + "/" + applicationName + ".log");
-        logFileOpt->type_name("");
+        app.add_flag("-k,--kill", "Kill running daemon")->group("General Options")->disable_flag_override()->configurable(false);
 
-        CLI::Option* startAsDaemonOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", startAsDaemon, "Start application as daemon");
-        startAsDaemonOpt->group("General Options");
+        app.add_flag("-s,--show-config", "Show current configuration and exit")
+            ->group("General Options")
+            ->disable_flag_override()
+            ->configurable(false);
 
-        CLI::Option* stopDaemonOpt = app.add_flag("-k,--kill", "Kill running daemon");
-        stopDaemonOpt->group("General Options");
-        stopDaemonOpt->disable_flag_override();
-        stopDaemonOpt->configurable(false);
+        app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" + defaultConfDir + "/" +
+                         applicationName + ".conf" + "}",
+                     outputConfigFile,
+                     "Write config file")
+            ->group("General Options")
+            ->configurable(false);
 
-        CLI::Option* forceLogFileFlag =
-            app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications");
-        forceLogFileFlag->group("General Options");
+        app.add_option("-l,--log-file", logFile, "Log to file")
+            ->group("General Options")
+            ->default_val(defaultLogDir + "/" + applicationName + ".log")
+            ->type_name("");
+
+        app.add_option("--log-level", logLevel, "Log level [0 .. 6]")->group("General Options")->default_val(3)->type_name("level");
+
+        app.add_option("--verbose-level", verboseLevel, "Verbosity level [0 .. 10]")
+            ->group("General Options")
+            ->default_val(0)
+            ->type_name("level");
+
+        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications")->group("General Options");
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false)
             ->group("General Options");
 
-        CLI::Option* logLevelOpt = app.add_option("--log-level", logLevel, "Log level [0 .. 6]");
-        logLevelOpt->group("General Options");
-        logLevelOpt->default_val(3);
-        logLevelOpt->type_name("level");
+        app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian (me@vchrist.at)");
 
-        CLI::Option* verboseLevelOpt = app.add_option("--verbose-level", verboseLevel, "Verbosity level [0 .. 10]");
-        verboseLevelOpt->group("General Options");
-        verboseLevelOpt->default_val(0);
-        verboseLevelOpt->type_name("level");
-
-        bool ret = parse(); // for stopDaemon but do not act on -h or --help-all
+        bool ret = parse(false); // for stopDaemon but do not act on -h or --help-all
 
         if (app["--kill"]->count() > 0) {
             utils::Daemon::stopDaemon(defaultPidDir + "/" + applicationName + ".pid");
 
             ret = false;
+        } else {
+            logger::Logger::setLogLevel(logLevel);
+            logger::Logger::setVerboseLevel(verboseLevel);
         }
 
         return ret;
@@ -233,6 +247,30 @@ namespace utils {
         CLI::App* instance = app.add_subcommand(subcommand_name, subcommand_description);
         instance->formatter(sectionFormatter);
         instance->configurable();
+
+        instance
+            ->add_flag_callback(
+                "-h,--help",
+                []() {
+                    throw CLI::CallForHelp();
+                },
+                "Print this help message and exit")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse()
+            ->group("General Options");
+
+        instance
+            ->add_flag_callback(
+                "--help-all",
+                []() {
+                    throw CLI::CallForAllHelp();
+                },
+                "Expand all help")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse()
+            ->group("General Options");
 
         return instance;
     }
@@ -313,16 +351,18 @@ namespace utils {
     bool Config::parse(bool stopOnError) {
         bool ret = true;
 
-        if (stopOnError) {
-            Config::app.allow_extras(false);
-        }
+        Config::app.allow_extras(!stopOnError);
 
         try {
             Config::app.parse(argc, argv);
         } catch (const CLI::ParseError& e) {
-            if (stopOnError && app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0) {
-                Config::app.exit(e);
-
+            if (stopOnError) {
+                if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp") {
+                    std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl << std::endl;
+                    std::cout << "Command line " << e.get_name() << ": " << e.what() << std::endl;
+                } else {
+                    Config::app.exit(e);
+                }
                 ret = false;
             }
         }

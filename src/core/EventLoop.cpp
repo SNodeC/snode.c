@@ -49,8 +49,8 @@ namespace core {
     static std::string getTickCounterAsString(const el::LogMessage*) {
         std::string tick = std::to_string(EventLoop::getTickCounter());
 
-        if (tick.length() < 10) {
-            tick.insert(0, 10 - tick.length(), '0');
+        if (tick.length() < 13) {
+            tick.insert(0, 13 - tick.length(), '0');
         }
 
         return tick;
@@ -81,9 +81,6 @@ namespace core {
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
         EventLoop::initialized = utils::Config::init(argc, argv);
-
-        logger::Logger::setLogLevel(utils::Config::getLogLevel());
-        logger::Logger::setVerboseLevel(utils::Config::getVerboseLevel());
 
         return EventLoop::initialized;
     }
