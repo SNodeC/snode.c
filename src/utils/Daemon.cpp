@@ -106,7 +106,6 @@ namespace utils {
                 }
             }
         } else {
-            VLOG(0) << "Already running: Not daemonized ... exiting";
             success = false;
         }
 

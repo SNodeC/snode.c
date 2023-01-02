@@ -55,7 +55,6 @@ namespace utils {
     char** Config::argv = nullptr;
     CLI::App Config::app;
     std::string Config::applicationName;
-    bool Config::startAsDaemon = false;
     std::string Config::logFile;
     std::string Config::outputConfigFile;
     std::string Config::defaultConfDir;
@@ -142,7 +141,7 @@ namespace utils {
             ->trigger_on_parse()
             ->group("Options (generic)");
 
-        app.add_flag("-d,!-f,--daemonize,!--foreground", startAsDaemon, "Start application as daemon")->group("Options (generic)");
+        app.add_flag("-d,!-f,--daemonize,!--foreground", "Start application as daemon")->group("Options (generic)");
 
         app.add_flag("-k,--kill", "Kill running daemon")->disable_flag_override()->configurable(false)->group("Options (generic)");
 
@@ -192,7 +191,7 @@ namespace utils {
     }
 
     bool Config::prepare() {
-        bool ret = parse(true);
+        bool ret = parse(app["--show-config"]->count() == 0);
 
         if (ret) {
             if (app["--show-config"]->count() > 0) {
@@ -205,7 +204,7 @@ namespace utils {
                 confFile << app.config_to_str(true, true);
 
                 ret = false;
-            } else if (startAsDaemon) {
+            } else if (app["--daemonize"]->as<bool>()) {
                 VLOG(0) << "Running as daemon";
 
                 ret = utils::Daemon::startDaemon(defaultPidDir + "/" + applicationName + ".pid");
@@ -215,6 +214,8 @@ namespace utils {
                     if (!logFile.empty()) {
                         logger::Logger::logToFile(logFile);
                     }
+                } else {
+                    VLOG(0) << "Daemon already running: Not daemonized ... exiting";
                 }
             } else {
                 VLOG(0) << "Running in foureground";
@@ -229,7 +230,7 @@ namespace utils {
     }
 
     void Config::terminate() {
-        if (startAsDaemon) {
+        if (app["--daemonize"]->as<bool>()) {
             Daemon::erasePidFile(defaultPidDir + "/" + applicationName + ".pid");
         }
 
