@@ -117,7 +117,6 @@ namespace utils {
         app.description("Configuration for Application " + applicationName);
         app.allow_extras();
         app.allow_config_extras();
-        app.configurable();
 
         app.set_help_flag();
 
@@ -130,7 +129,7 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse()
-            ->group("General Options");
+            ->group("Options (generic)");
 
         app.add_flag_callback(
                "--help-all",
@@ -141,40 +140,40 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse()
-            ->group("General Options");
+            ->group("Options (generic)");
 
-        app.add_flag("-d,!-f,--daemonize,!--foreground", startAsDaemon, "Start application as daemon")->group("General Options");
+        app.add_flag("-d,!-f,--daemonize,!--foreground", startAsDaemon, "Start application as daemon")->group("Options (generic)");
 
-        app.add_flag("-k,--kill", "Kill running daemon")->group("General Options")->disable_flag_override()->configurable(false);
+        app.add_flag("-k,--kill", "Kill running daemon")->disable_flag_override()->configurable(false)->group("Options (generic)");
 
         app.add_flag("-s,--show-config", "Show current configuration and exit")
-            ->group("General Options")
             ->disable_flag_override()
-            ->configurable(false);
+            ->configurable(false)
+            ->group("Options (generic)");
 
         app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" + defaultConfDir + "/" +
                          applicationName + ".conf" + "}",
                      outputConfigFile,
                      "Write config file")
-            ->group("General Options")
-            ->configurable(false);
+            ->configurable(false)
+            ->group("Options (generic)");
 
         app.add_option("-l,--log-file", logFile, "Log to file")
-            ->group("General Options")
             ->default_val(defaultLogDir + "/" + applicationName + ".log")
-            ->type_name("");
+            ->type_name("")
+            ->group("Options (generic)");
 
-        app.add_option("--log-level", logLevel, "Log level [0 .. 6]")->group("General Options")->default_val(3)->type_name("level");
+        app.add_option("--log-level", logLevel, "Log level [0 .. 6]")->default_val(3)->type_name("level")->group("Options (generic)");
 
         app.add_option("--verbose-level", verboseLevel, "Verbosity level [0 .. 10]")
-            ->group("General Options")
             ->default_val(0)
-            ->type_name("level");
+            ->type_name("level")
+            ->group("Options (generic)");
 
-        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications")->group("General Options");
+        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications")->group("Options (generic)");
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false)
-            ->group("General Options");
+            ->group("Options (generic)");
 
         app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian (me@vchrist.at)");
 
@@ -246,7 +245,6 @@ namespace utils {
 
         CLI::App* instance = app.add_subcommand(subcommand_name, subcommand_description);
         instance->formatter(sectionFormatter);
-        instance->configurable();
 
         instance
             ->add_flag_callback(
@@ -257,8 +255,7 @@ namespace utils {
                 "Print this help message and exit")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse()
-            ->group("General Options");
+            ->trigger_on_parse();
 
         instance
             ->add_flag_callback(
@@ -269,8 +266,7 @@ namespace utils {
                 "Expand all help")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse()
-            ->group("General Options");
+            ->trigger_on_parse();
 
         return instance;
     }

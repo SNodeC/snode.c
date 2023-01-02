@@ -6,11 +6,10 @@ set(NET-IN6_H Socket.h SocketAddress.h config/ConfigAddress.h)
 
 option(DUAL_STACK "IPv4/IPv6 Dual Stack" true)
 
-
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
 add_library(snodec::net-in6 ALIAS net-in6)
 
-if (${DUAL_STACK})
+if(${DUAL_STACK})
     target_compile_definitions(net-in6 PRIVATE DUAL_STACK=true)
 endif()
 
