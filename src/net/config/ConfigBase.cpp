@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -33,7 +33,6 @@ namespace net::config {
             baseSc = utils::Config::add_subcommand(name, "Configuration for instance '" + name + "'");
             baseSc->fallthrough();
             baseSc->group("Instances");
-            baseSc->configurable(false);
         }
     }
 
@@ -59,8 +58,8 @@ namespace net::config {
                 "Print this help message and exit")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse()
-            ->group("General Options");
+            ->trigger_on_parse();
+        //            ->group("General Options");
 
         subCommand
             ->add_flag_callback(
@@ -71,8 +70,8 @@ namespace net::config {
                 "Expand all help")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse()
-            ->group("General Options");
+            ->trigger_on_parse();
+        //            ->group("General Options");
 
         return subCommand;
     }

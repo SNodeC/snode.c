@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -57,7 +57,7 @@ namespace utils {
                                const std::string& typeName = "[string]",
                                const std::string& default_val = "",
                                bool configurable = true,
-                               const std::string& groupName = "Application Options");
+                               const std::string& groupName = "Options (application specific)");
 
         static void add_option(const std::string& name,
                                int& variable,
@@ -66,14 +66,14 @@ namespace utils {
                                const std::string& typeName = "[int]",
                                int default_val = 0,
                                bool configurable = true,
-                               const std::string& groupName = "Application Options");
+                               const std::string& groupName = "Options (application specific)");
 
         static void add_flag(const std::string& name,
                              bool& variable,
                              const std::string& description,
                              bool required,
                              bool configurable = true,
-                             const std::string& groupName = "Application Options");
+                             const std::string& groupName = "Options (application specific)");
 
         static std::string getApplicationName();
         static int getLogLevel();
