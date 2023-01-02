@@ -256,7 +256,9 @@ namespace utils {
                 "Print this help message and exit")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse();
+            ->trigger_on_parse()
+            ->group("Options (generic)");
+        ;
 
         instance
             ->add_flag_callback(
@@ -267,7 +269,9 @@ namespace utils {
                 "Expand all help")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse();
+            ->trigger_on_parse()
+            ->group("Options (generic)");
+        ;
 
         return instance;
     }

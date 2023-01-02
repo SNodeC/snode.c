@@ -33,7 +33,7 @@ namespace net::config {
 
     template <typename SocketAddress>
     ConfigAddressLocal<SocketAddress>::ConfigAddressLocal()
-        : Super::ConfigAddress("local", "Bind options") {
+        : Super::ConfigAddress("local", "Local side of connection") {
     }
 
     template <typename SocketAddress>

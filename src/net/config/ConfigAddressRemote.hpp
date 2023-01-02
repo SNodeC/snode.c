@@ -33,7 +33,7 @@ namespace net::config {
 
     template <typename SocketAddress>
     ConfigAddressRemote<SocketAddress>::ConfigAddressRemote()
-        : Super::ConfigAddress("remote", "Connect options") {
+        : Super::ConfigAddress("remote", "Remote side of connection") {
     }
 
     template <typename SocketAddress>
