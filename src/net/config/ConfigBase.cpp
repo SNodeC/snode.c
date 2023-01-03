@@ -58,8 +58,8 @@ namespace net::config {
                 "Print this help message and exit")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse()
-            ->group("Options (generic)");
+            ->trigger_on_parse();
+        //  ->group("Options (generic)");
 
         subCommand
             ->add_flag_callback(
@@ -70,8 +70,8 @@ namespace net::config {
                 "Expand all help")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse()
-            ->group("Options (generic)");
+            ->trigger_on_parse();
+        //  ->group("Options (generic)");
 
         return subCommand;
     }
