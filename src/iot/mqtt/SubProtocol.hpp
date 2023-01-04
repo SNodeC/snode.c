@@ -37,7 +37,7 @@ namespace iot::mqtt {
                                                 iot::mqtt::Mqtt* mqtt)
         : WSSubProtocolRole(subProtocolContext, name, PING_INTERVAL)
         , iot::mqtt::MqttContext(mqtt)
-        , onReceivedFromPeerEvent([this]() -> void {
+        , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
             iot::mqtt::MqttContext::onReceiveFromPeer();
         }) {
     }
@@ -88,30 +88,34 @@ namespace iot::mqtt {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
             LOG(ERROR) << "WS: Wrong Opcode: " << opCode;
             this->end(true);
+        } else {
+            LOG(TRACE) << "WS-Message START";
         }
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageData(const char* junk, std::size_t junkLen) {
         data += std::string(junk, junkLen);
-    }
 
-    template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
         std::stringstream ss;
 
-        ss << "WS-Message: ";
+        ss << "WS-Frame data: ";
         unsigned long i = 0;
-        for (char ch : data) {
+        for (char ch : std::string(junk, junkLen)) {
             if (i != 0 && i % 8 == 0 && i != data.size()) {
                 ss << std::endl;
-                ss << "                                            ";
+                ss << "                                                        ";
             }
             ++i;
             ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
                << " "; // << " | ";
         }
         LOG(TRACE) << ss.str();
+    }
+
+    template <typename WSSubProtocolRole>
+    void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
+        LOG(TRACE) << "WS-Message END";
 
         buffer.insert(buffer.end(), data.begin(), data.end());
         size += data.size();

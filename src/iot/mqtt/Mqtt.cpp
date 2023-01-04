@@ -197,7 +197,7 @@ namespace iot::mqtt {
         for (char ch : data) {
             if (i != 0 && i % 8 == 0 && i != data.size()) {
                 ss << std::endl;
-                ss << "                                            ";
+                ss << "                                               ";
             }
             ++i;
             ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))

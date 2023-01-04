@@ -43,9 +43,17 @@ namespace iot::mqtt::server::broker {
 
         std::stringstream messageData;
         const std::string& mes = message.getMessage();
-        std::for_each(mes.begin(), mes.end(), [&messageData](char ch) {
-            messageData << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(ch) << " ";
-        });
+
+        unsigned long i = 0;
+        for (char ch : mes) {
+            if (i != 0 && i % 8 == 0 && i != mes.size()) {
+                messageData << std::endl;
+                messageData << "                                                                  ";
+            }
+            ++i;
+            messageData << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
+                        << " "; // << " | ";
+        }
 
         LOG(TRACE) << "                TopicName: " << message.getTopic();
         LOG(TRACE) << "                Message: " << messageData.str();
