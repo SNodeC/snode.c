@@ -55,13 +55,13 @@ namespace iot::mqtt::server::broker {
         } else {
             std::string::size_type slashPosition = remainingTopicName.find('/');
 
-            std::string topicName = remainingTopicName.substr(0, slashPosition);
+            std::string topicLevel = remainingTopicName.substr(0, slashPosition);
             bool leafFound = slashPosition == std::string::npos;
 
-            remainingTopicName.erase(0, topicName.size() + 1);
+            remainingTopicName.erase(0, topicLevel.size() + 1);
 
-            if (topicTreeNodes.insert({topicName, RetainTreeNode(broker)}).first->second.retain(message, remainingTopicName, leafFound)) {
-                topicTreeNodes.erase(topicName);
+            if (topicTreeNodes.insert({topicLevel, RetainTreeNode(broker)}).first->second.retain(message, remainingTopicName, leafFound)) {
+                topicTreeNodes.erase(topicLevel);
             }
         }
 
@@ -83,19 +83,19 @@ namespace iot::mqtt::server::broker {
         } else {
             std::string::size_type slashPosition = remainingSubscribedTopicName.find('/');
 
-            std::string topicName = remainingSubscribedTopicName.substr(0, slashPosition);
+            std::string topicLevel = remainingSubscribedTopicName.substr(0, slashPosition);
             bool leafFound = slashPosition == std::string::npos;
 
-            remainingSubscribedTopicName.erase(0, topicName.size() + 1);
+            remainingSubscribedTopicName.erase(0, topicLevel.size() + 1);
 
-            auto foundNode = topicTreeNodes.find(topicName);
+            auto foundNode = topicTreeNodes.find(topicLevel);
             if (foundNode != topicTreeNodes.end()) {
                 foundNode->second.publish(clientId, clientQoS, remainingSubscribedTopicName, leafFound);
-            } else if (topicName == "+") {
+            } else if (topicLevel == "+") {
                 for (auto& [notUsed, topicTree] : topicTreeNodes) {
                     topicTree.publish(clientId, clientQoS, remainingSubscribedTopicName, leafFound);
                 }
-            } else if (topicName == "#") {
+            } else if (topicLevel == "#") {
                 publish(clientId, clientQoS);
             }
         }
@@ -110,7 +110,7 @@ namespace iot::mqtt::server::broker {
             LOG(TRACE) << "  ... completed!";
         }
 
-        for (auto& [topicName, topicTree] : topicTreeNodes) {
+        for (auto& [topicLevel, topicTree] : topicTreeNodes) {
             topicTree.publish(clientId, clientQoS);
         }
     }

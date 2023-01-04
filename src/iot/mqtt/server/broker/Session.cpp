@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
-#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -67,9 +66,7 @@ namespace iot::mqtt::server::broker {
                 messageQueue.clear();
             }
 
-            Message queuedMessage(message);
-            queuedMessage.setQoS(std::min(message.getQoS(), qoS));
-            messageQueue.push_back(std::move(queuedMessage));
+            messageQueue.push_back(Message(message, std::min(message.getQoS(), qoS)));
         }
     }
 

@@ -37,15 +37,14 @@ namespace iot::mqtt::server::broker {
     public:
         Message() = default;
         Message(const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain);
-        Message(const Message&) = default;
+        Message(const Message& message, uint8_t qoS);
+        Message(const Message& message) = default;
 
         Message& operator=(const Message&) = default;
 
         const std::string& getTopic() const;
         const std::string& getMessage() const;
         uint8_t getQoS() const;
-
-        void setQoS(uint8_t qoS);
 
         bool getRetain() const;
         bool getDup() const;

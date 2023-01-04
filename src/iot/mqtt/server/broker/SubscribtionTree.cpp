@@ -40,16 +40,16 @@ namespace iot::mqtt::server::broker {
         head.publishRetained(clientId);
     }
 
-    bool SubscribtionTree::subscribe(const std::string& fullTopicName, const std::string& clientId, uint8_t clientQoS) {
-        return head.subscribe(fullTopicName, clientId, clientQoS, fullTopicName, false);
+    bool SubscribtionTree::subscribe(const std::string& topic, const std::string& clientId, uint8_t clientQoS) {
+        return head.subscribe(topic, clientId, clientQoS, topic, false);
     }
 
     void SubscribtionTree::publish(Message&& message) {
         head.publish(message, message.getTopic(), false);
     }
 
-    bool SubscribtionTree::unsubscribe(std::string fullTopicName, const std::string& clientId) {
-        return head.unsubscribe(clientId, fullTopicName, false);
+    bool SubscribtionTree::unsubscribe(std::string topic, const std::string& clientId) {
+        return head.unsubscribe(clientId, topic, false);
     }
 
     bool SubscribtionTree::unsubscribe(const std::string& clientId) {
@@ -65,31 +65,31 @@ namespace iot::mqtt::server::broker {
             broker->publishRetainedMessage(clientId, subscribedTopicName, subscribers[clientId]);
         }
 
-        for (auto& [topicName, subscribtion] : subscribtions) {
+        for (auto& [topic, subscribtion] : subscribtions) {
             subscribtion.publishRetained(clientId);
         }
     }
 
     bool SubscribtionTree::SubscribtionTreeNode::subscribe(
-        const std::string& fullTopicName, const std::string& clientId, uint8_t clientQoS, std::string remainingTopicName, bool leafFound) {
+        const std::string& topic, const std::string& clientId, uint8_t clientQoS, std::string remainingTopicName, bool leafFound) {
         bool success = true;
 
         if (leafFound) {
-            subscribedTopicName = fullTopicName;
+            subscribedTopicName = topic;
             subscribers[clientId] = clientQoS;
         } else {
             std::string::size_type slashPosition = remainingTopicName.find('/');
 
-            std::string topicName = remainingTopicName.substr(0, slashPosition);
+            std::string topic = remainingTopicName.substr(0, slashPosition);
             bool leafFound = slashPosition == std::string::npos;
 
-            if (topicName == "#" && !remainingTopicName.ends_with("#")) {
+            if (topic == "#" && !remainingTopicName.ends_with("#")) {
                 success = false;
             } else {
-                remainingTopicName.erase(0, topicName.size() + 1);
+                remainingTopicName.erase(0, topic.size() + 1);
 
-                success = subscribtions.insert({topicName, SubscribtionTree::SubscribtionTreeNode(broker)})
-                              .first->second.subscribe(fullTopicName, clientId, clientQoS, remainingTopicName, leafFound);
+                success = subscribtions.insert({topic, SubscribtionTree::SubscribtionTreeNode(broker)})
+                              .first->second.subscribe(topic, clientId, clientQoS, remainingTopicName, leafFound);
             }
         }
 
@@ -130,12 +130,12 @@ namespace iot::mqtt::server::broker {
         } else {
             std::string::size_type slashPosition = remainingTopicName.find('/');
 
-            std::string topicName = remainingTopicName.substr(0, slashPosition);
+            std::string topic = remainingTopicName.substr(0, slashPosition);
             bool leafFound = slashPosition == std::string::npos;
 
-            remainingTopicName.erase(0, topicName.size() + 1);
+            remainingTopicName.erase(0, topic.size() + 1);
 
-            auto foundNode = subscribtions.find(topicName);
+            auto foundNode = subscribtions.find(topic);
             if (foundNode != subscribtions.end()) {
                 foundNode->second.publish(message, remainingTopicName, leafFound);
             }
@@ -164,14 +164,14 @@ namespace iot::mqtt::server::broker {
         } else {
             std::string::size_type slashPosition = remainingTopicName.find('/');
 
-            std::string topicName = remainingTopicName.substr(0, slashPosition);
+            std::string topic = remainingTopicName.substr(0, slashPosition);
             bool leafFound = slashPosition == std::string::npos;
 
-            remainingTopicName.erase(0, topicName.size() + 1);
+            remainingTopicName.erase(0, topic.size() + 1);
 
-            if (subscribtions.contains(topicName) &&
-                subscribtions.find(topicName)->second.unsubscribe(clientId, remainingTopicName, leafFound)) {
-                subscribtions.erase(topicName);
+            if (subscribtions.contains(topic) &&
+                subscribtions.find(topic)->second.unsubscribe(clientId, remainingTopicName, leafFound)) {
+                subscribtions.erase(topic);
             }
         }
 
