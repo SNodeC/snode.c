@@ -55,12 +55,8 @@ namespace iot::mqtt::server::broker {
         void unsubscribe(const std::string& clientId);
 
         void publish(const std::string& topic, const std::string& message, uint8_t qoS);
-        void pubackReceived(const std::string& clintId, uint16_t packetIdentifier);
-        void pubrecReceived(const std::string& clintId, uint16_t packetIdentifier);
-        void pubrelReceived(const std::string& clintId, uint16_t packetIdentifier);
-        void pubcompReceived(const std::string& clintId, uint16_t packetIdentifier);
-        uint8_t subscribeReceived(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS);
-        void unsubscribeReceived(const std::string& clientId, const std::string& topic);
+        uint8_t subscribe(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS);
+        void unsubscribe(const std::string& clientId, const std::string& topic);
 
         bool hasSession(const std::string& clientId);
         bool hasActiveSession(const std::string& clientId);
