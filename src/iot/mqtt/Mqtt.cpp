@@ -131,6 +131,10 @@ namespace iot::mqtt {
     void Mqtt::onExit() {
     }
 
+    core::socket::SocketConnection* Mqtt::getSocketConnection() {
+        return mqttContext->getSocketConnection();
+    }
+
     void Mqtt::send(ControlPacket&& controlPacket) const {
         send(controlPacket.serialize());
     }
@@ -150,7 +154,14 @@ namespace iot::mqtt {
         LOG(DEBUG) << "Send PUBLISH";
         LOG(DEBUG) << "============";
 
-        send(iot::mqtt::packets::Publish(qoS == 0 ? 0 : getPacketIdentifier(), topic, message, qoS, dup, retain));
+        uint16_t pId = getPacketIdentifier();
+        iot::mqtt::packets::Publish publish(qoS == 0 ? 0 : pId, topic, message, qoS, dup, retain);
+
+        if (qoS == 2) {
+            packetMap[pId] = publish;
+        }
+
+        send(publish);
     }
 
     void Mqtt::sendPuback(uint16_t packetIdentifier) const { // Server & Client
@@ -179,6 +190,16 @@ namespace iot::mqtt {
         LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Pubcomp(packetIdentifier));
+    }
+
+    void Mqtt::onPubrec(const packets::Pubrec& pubrec) {
+        packetMap.erase(pubrec.getPacketIdentifier());
+        packetIdentifierSet.insert(pubrec.getPacketIdentifier());
+    }
+
+    void Mqtt::onPubcomp(const packets::Pubcomp& pubcomp) {
+        packetMap.erase(pubcomp.getPacketIdentifier());
+        packetIdentifierSet.erase(pubcomp.getPacketIdentifier());
     }
 
     void Mqtt::printStandardHeader(const iot::mqtt::ControlPacket& packet) {
@@ -228,10 +249,6 @@ namespace iot::mqtt {
         }
 
         return packetIdentifier;
-    }
-
-    core::socket::SocketConnection* Mqtt::getSocketConnection() {
-        return mqttContext->getSocketConnection();
     }
 
 } // namespace iot::mqtt

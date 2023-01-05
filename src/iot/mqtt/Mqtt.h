@@ -21,6 +21,7 @@
 
 #include "core/timer/Timer.h"     // IWYU pragma: export
 #include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
+#include "iot/mqtt/packets/Publish.h"
 
 namespace core::socket {
     class SocketConnection;
@@ -32,13 +33,18 @@ namespace utils {
 
 namespace iot::mqtt {
     class ControlPacketDeserializer;
-    class ControlPacket;
     class MqttContext;
+
+    namespace packets {
+        class Pubrec;
+        class Pubcomp;
+    } // namespace packets
 } // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include <map>
+#include <set>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -57,24 +63,29 @@ namespace iot::mqtt {
         virtual void onDisconnected();
         virtual void onExit();
 
+        core::socket::SocketConnection* getSocketConnection();
+
     private:
         virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;
         virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     public:
         void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain);
+
+    protected:
         void sendPuback(uint16_t packetIdentifier) const;
         void sendPubrec(uint16_t packetIdentifier) const;
+
         void sendPubrel(uint16_t packetIdentifier) const;
         void sendPubcomp(uint16_t packetIdentifier) const;
+
+        void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
+        void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
 
         static std::string dataToHexString(const std::vector<char>& data);
 
         uint16_t getPacketIdentifier();
 
-        core::socket::SocketConnection* getSocketConnection();
-
-    protected:
         void send(iot::mqtt::ControlPacket&& controlPacket) const;
         void send(iot::mqtt::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
@@ -92,6 +103,9 @@ namespace iot::mqtt {
         core::timer::Timer keepAliveTimer;
 
         int state = 0;
+
+        std::set<uint16_t> packetIdentifierSet;
+        std::map<uint16_t, iot::mqtt::packets::Publish> packetMap;
 
     protected:
         MqttContext* mqttContext = nullptr;

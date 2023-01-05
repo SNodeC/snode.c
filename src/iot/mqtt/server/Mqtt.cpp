@@ -43,7 +43,6 @@
 
 #include <cstdint>
 #include <iomanip>
-#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -324,8 +323,6 @@ namespace iot::mqtt::server {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            broker->pubackReceived(clientId, puback.getPacketIdentifier());
-
             onPuback(puback);
         }
     }
@@ -340,7 +337,7 @@ namespace iot::mqtt::server {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            broker->pubrecReceived(clientId, pubrec.getPacketIdentifier());
+            Super::onPubrec(pubrec);
 
             sendPubrel(pubrec.getPacketIdentifier());
 
@@ -360,8 +357,6 @@ namespace iot::mqtt::server {
         } else {
             packetIdentifierSet.erase(pubrel.getPacketIdentifier());
 
-            broker->pubrelReceived(clientId, pubrel.getPacketIdentifier());
-
             sendPubcomp(pubrel.getPacketIdentifier());
 
             onPubrel(pubrel);
@@ -378,7 +373,7 @@ namespace iot::mqtt::server {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            broker->pubcompReceived(clientId, pubcomp.getPacketIdentifier());
+            Super::onPubcomp(pubcomp);
 
             onPubcomp(pubcomp);
         }
@@ -400,7 +395,7 @@ namespace iot::mqtt::server {
         } else {
             std::list<uint8_t> returnCodes;
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                uint8_t returnCode = broker->subscribeReceived(clientId, topic.getName(), topic.getQoS());
+                uint8_t returnCode = broker->subscribe(clientId, topic.getName(), topic.getQoS());
                 returnCodes.push_back(returnCode);
             }
 
@@ -425,7 +420,7 @@ namespace iot::mqtt::server {
             mqttContext->end(true);
         } else {
             for (const std::string& topic : unsubscribe.getTopics()) {
-                broker->unsubscribeReceived(clientId, topic);
+                broker->unsubscribe(clientId, topic);
             }
 
             sendUnsuback(unsubscribe.getPacketIdentifier());

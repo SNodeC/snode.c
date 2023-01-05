@@ -40,7 +40,6 @@
 
 #include <iomanip>
 #include <ostream>
-#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
