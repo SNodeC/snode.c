@@ -16,7 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/SocketContextFactory.h" // IWYU pragma: export
+#include "iot/mqtt/server/SharedSocketContextFactory.h" // IWYU pragma: export
+
 #include "iot/mqtt/server/broker/Broker.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -25,13 +26,11 @@
 
 namespace iot::mqtt::server {
 
-    template <typename SocketContext>
-    SocketContextFactory<SocketContext>::SocketContextFactory()
-        : broker(std::make_shared<iot::mqtt::server::broker::Broker>(SUBSCRIBTION_MAX_QOS)) {
+    SharedSocketContextFactory::SharedSocketContextFactory()
+        : broker(iot::mqtt::server::broker::Broker::instance(SUBSCRIBTION_MAX_QOS)) {
     }
 
-    template <typename SocketContext>
-    core::socket::SocketContext* SocketContextFactory<SocketContext>::create(core::socket::SocketConnection* socketConnection) {
+    core::socket::SocketContext* SharedSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
         return create(socketConnection, broker);
     }
 

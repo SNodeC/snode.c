@@ -9675,9 +9675,11 @@ public:                                                                         
                 } else {
                     if (!prefix.empty() || app->get_parent() == nullptr) {
                         out << commentChar << commentLead << prefix << subcom->get_name() << "\n";
-                        if (subcom->get_options([](const Option* option) -> bool {
+                        if (subcom
+                                ->get_options([](const Option* option) -> bool {
                                     return option->get_configurable();
-                                }).empty()) {
+                                })
+                                .empty()) {
                             out << "\n";
                         }
                     } else {

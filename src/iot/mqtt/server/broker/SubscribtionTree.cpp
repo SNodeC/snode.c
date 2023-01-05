@@ -169,8 +169,7 @@ namespace iot::mqtt::server::broker {
 
             remainingTopicName.erase(0, topic.size() + 1);
 
-            if (subscribtions.contains(topic) &&
-                subscribtions.find(topic)->second.unsubscribe(clientId, remainingTopicName, leafFound)) {
+            if (subscribtions.contains(topic) && subscribtions.find(topic)->second.unsubscribe(clientId, remainingTopicName, leafFound)) {
                 subscribtions.erase(topic);
             }
         }

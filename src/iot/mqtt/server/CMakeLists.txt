@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 3.18)
 add_subdirectory(packets)
 add_subdirectory(broker)
 
-set(MQTT_SERVER_CPP Mqtt.cpp)
+set(MQTT_SERVER_CPP Mqtt.cpp SharedSocketContextFactory.cpp
+                    SocketContextFactory.cpp
+)
 
-set(MQTT_SERVER_H
-    ControlPacketDeserializer.h Mqtt.h SharedSocketContextFactory.h
-    SharedSocketContextFactory.hpp SocketContextFactory.h
-    SocketContextFactory.hpp
+set(MQTT_SERVER_H ControlPacketDeserializer.h Mqtt.h
+                  SharedSocketContextFactory.h SocketContextFactory.h
 )
 
 add_library(mqtt-server SHARED ${MQTT_SERVER_CPP} ${MQTT_SERVER_H})

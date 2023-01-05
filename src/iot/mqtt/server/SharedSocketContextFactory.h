@@ -19,21 +19,18 @@
 #ifndef IOT_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H
 #define IOT_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H
 
-#include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
 
 namespace core::socket {
     class SocketConnection;
+    class SocketContext;
 } // namespace core::socket
 
-namespace iot::mqtt::server {
-    class SocketContext;
-
-    namespace broker {
+namespace iot::mqtt {
+    namespace server::broker {
         class Broker;
     }
-
-} // namespace iot::mqtt::server
+} // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,7 +40,7 @@ namespace iot::mqtt::server {
 
 namespace iot::mqtt::server {
 
-    template <typename SocketContextT = iot::mqtt::server::SocketContext>
+    //    template <typename SocketContextT = iot::mqtt::SocketContext>
     class SharedSocketContextFactory : public core::socket::SocketContextFactory {
     public:
         SharedSocketContextFactory();
