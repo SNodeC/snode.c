@@ -37,6 +37,7 @@ namespace iot::mqtt {
 
     namespace packets {
         class Pubrec;
+        class Pubrel;
         class Pubcomp;
     } // namespace packets
 } // namespace iot::mqtt
@@ -79,7 +80,9 @@ namespace iot::mqtt {
         void sendPubrel(uint16_t packetIdentifier) const;
         void sendPubcomp(uint16_t packetIdentifier) const;
 
+        bool onPublish(const iot::mqtt::packets::Publish& publish);
         void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
+        void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
         void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
 
         static std::string dataToHexString(const std::vector<char>& data);
@@ -104,8 +107,9 @@ namespace iot::mqtt {
 
         int state = 0;
 
-        std::set<uint16_t> packetIdentifierSet;
+        std::set<uint16_t> pubrelPacketIdentifierSet;
         std::map<uint16_t, iot::mqtt::packets::Publish> packetMap;
+        std::set<uint16_t> packetIdentifierSet;
 
     protected:
         MqttContext* mqttContext = nullptr;

@@ -192,14 +192,40 @@ namespace iot::mqtt {
         send(iot::mqtt::packets::Pubcomp(packetIdentifier));
     }
 
+    bool Mqtt::onPublish(const packets::Publish& publish) {
+        bool deliver = true;
+        switch (publish.getQoS()) {
+            case 1:
+                sendPuback(publish.getPacketIdentifier());
+
+                break;
+            case 2:
+                sendPubrec(publish.getPacketIdentifier());
+
+                if (packetIdentifierSet.contains(publish.getPacketIdentifier())) {
+                    deliver = false;
+                } else {
+                    packetIdentifierSet.insert(publish.getPacketIdentifier());
+                }
+
+                break;
+        }
+
+        return deliver;
+    }
+
     void Mqtt::onPubrec(const packets::Pubrec& pubrec) {
         packetMap.erase(pubrec.getPacketIdentifier());
-        packetIdentifierSet.insert(pubrec.getPacketIdentifier());
+        pubrelPacketIdentifierSet.insert(pubrec.getPacketIdentifier());
+    }
+
+    void Mqtt::onPubrel(const packets::Pubrel& pubrel) {
+        packetIdentifierSet.erase(pubrel.getPacketIdentifier());
     }
 
     void Mqtt::onPubcomp(const packets::Pubcomp& pubcomp) {
         packetMap.erase(pubcomp.getPacketIdentifier());
-        packetIdentifierSet.erase(pubcomp.getPacketIdentifier());
+        pubrelPacketIdentifierSet.erase(pubcomp.getPacketIdentifier());
     }
 
     void Mqtt::printStandardHeader(const iot::mqtt::ControlPacket& packet) {

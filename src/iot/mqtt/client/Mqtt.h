@@ -55,7 +55,6 @@ namespace iot::mqtt {
 
 #include <cstdint>
 #include <list>
-#include <set>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -108,8 +107,6 @@ namespace iot::mqtt::client {
         void sendUnsubscribe(std::list<std::string>& topics);
         void sendPingreq() const;
         void sendDisconnect() const;
-
-        std::set<uint16_t> packetIdentifierSet;
 
         friend class iot::mqtt::client::packets::Connack;
         friend class iot::mqtt::client::packets::Suback;

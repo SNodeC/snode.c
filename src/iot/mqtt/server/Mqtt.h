@@ -62,7 +62,6 @@ namespace iot::mqtt {
 #include <cstdint>
 #include <list>
 #include <memory>
-#include <set>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -147,8 +146,6 @@ namespace iot::mqtt::server {
         bool cleanSession = false;
 
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
-
-        std::set<uint16_t> packetIdentifierSet;
 
         friend class iot::mqtt::server::packets::Connect;
         friend class iot::mqtt::server::packets::Subscribe;

@@ -153,25 +153,7 @@ namespace iot::mqtt::client {
             LOG(TRACE) << "Received QoS > 0 but no PackageIdentifier present";
             mqttContext->end(true);
         } else {
-            bool deliver = true;
-            switch (publish.getQoS()) {
-                case 1:
-                    sendPuback(publish.getPacketIdentifier());
-
-                    break;
-                case 2:
-                    sendPubrec(publish.getPacketIdentifier());
-
-                    if (packetIdentifierSet.contains(publish.getPacketIdentifier())) {
-                        deliver = false;
-                    } else {
-                        packetIdentifierSet.insert(publish.getPacketIdentifier());
-                    }
-
-                    break;
-            }
-
-            if (deliver) {
+            if (Super::onPublish(publish)) {
                 onPublish(publish);
             }
         }
@@ -201,6 +183,8 @@ namespace iot::mqtt::client {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
+            Super::onPubrec(pubrec);
+
             sendPubrel(pubrec.getPacketIdentifier());
 
             onPubrec(pubrec);
@@ -217,7 +201,7 @@ namespace iot::mqtt::client {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            packetIdentifierSet.erase(pubrel.getPacketIdentifier());
+            Super::onPubrel(pubrel);
 
             sendPubcomp(pubrel.getPacketIdentifier());
 
@@ -235,6 +219,8 @@ namespace iot::mqtt::client {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
+            Super::onPubcomp(pubcomp);
+
             onPubcomp(pubcomp);
         }
     }
