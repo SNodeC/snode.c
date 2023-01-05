@@ -98,18 +98,6 @@ namespace iot::mqtt::client {
     void Mqtt::onPublish([[maybe_unused]] const mqtt::packets::Publish& publish) {
     }
 
-    void Mqtt::onPuback([[maybe_unused]] const mqtt::packets::Puback& puback) {
-    }
-
-    void Mqtt::onPubrec([[maybe_unused]] const mqtt::packets::Pubrec& pubrec) {
-    }
-
-    void Mqtt::onPubrel([[maybe_unused]] const mqtt::packets::Pubrel& pubrel) {
-    }
-
-    void Mqtt::onPubcomp([[maybe_unused]] const mqtt::packets::Pubcomp& pubcomp) {
-    }
-
     void Mqtt::onSuback([[maybe_unused]] const mqtt::packets::Suback& suback) {
     }
 
@@ -139,12 +127,12 @@ namespace iot::mqtt::client {
         LOG(DEBUG) << "Received PUBLISH:";
         LOG(DEBUG) << "=================";
         printStandardHeader(publish);
-        LOG(DEBUG) << "DUP: " << publish.getDup();
-        LOG(DEBUG) << "QoS: " << static_cast<uint16_t>(publish.getQoS());
-        LOG(DEBUG) << "Retain: " << publish.getRetain();
         LOG(DEBUG) << "Topic: " << publish.getTopic();
-        LOG(DEBUG) << "PacketIdentifier: " << publish.getPacketIdentifier();
         LOG(DEBUG) << "Message: " << publish.getMessage();
+        LOG(DEBUG) << "QoS: " << static_cast<uint16_t>(publish.getQoS());
+        LOG(DEBUG) << "PacketIdentifier: " << publish.getPacketIdentifier();
+        LOG(DEBUG) << "DUP: " << publish.getDup();
+        LOG(DEBUG) << "Retain: " << publish.getRetain();
 
         if (publish.getQoS() > 2) {
             LOG(TRACE) << "Received invalid QoS: " << publish.getQoS();
@@ -156,72 +144,6 @@ namespace iot::mqtt::client {
             if (Super::onPublish(publish)) {
                 onPublish(publish);
             }
-        }
-    }
-
-    void Mqtt::_onPuback(const iot::mqtt::client::packets::Puback& puback) {
-        LOG(DEBUG) << "Received PUBACK:";
-        LOG(DEBUG) << "================";
-        printStandardHeader(puback);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << puback.getPacketIdentifier();
-
-        if (puback.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
-            mqttContext->end(true);
-        } else {
-            onPuback(puback);
-        }
-    }
-
-    void Mqtt::_onPubrec(const iot::mqtt::client::packets::Pubrec& pubrec) {
-        LOG(DEBUG) << "Received PUBREC:";
-        LOG(DEBUG) << "================";
-        printStandardHeader(pubrec);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrec.getPacketIdentifier();
-
-        if (pubrec.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
-            mqttContext->end(true);
-        } else {
-            Super::onPubrec(pubrec);
-
-            sendPubrel(pubrec.getPacketIdentifier());
-
-            onPubrec(pubrec);
-        }
-    }
-
-    void Mqtt::_onPubrel(const iot::mqtt::client::packets::Pubrel& pubrel) {
-        LOG(DEBUG) << "Received PUBREL:";
-        LOG(DEBUG) << "================";
-        printStandardHeader(pubrel);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrel.getPacketIdentifier();
-
-        if (pubrel.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
-            mqttContext->end(true);
-        } else {
-            Super::onPubrel(pubrel);
-
-            sendPubcomp(pubrel.getPacketIdentifier());
-
-            onPubrel(pubrel);
-        }
-    }
-
-    void Mqtt::_onPubcomp(const iot::mqtt::client::packets::Pubcomp& pubcomp) {
-        LOG(DEBUG) << "Received PUBCOMP:";
-        LOG(DEBUG) << "=================";
-        printStandardHeader(pubcomp);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubcomp.getPacketIdentifier();
-
-        if (pubcomp.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
-            mqttContext->end(true);
-        } else {
-            Super::onPubcomp(pubcomp);
-
-            onPubcomp(pubcomp);
         }
     }
 

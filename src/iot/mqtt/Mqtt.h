@@ -36,6 +36,7 @@ namespace iot::mqtt {
     class MqttContext;
 
     namespace packets {
+        class Puback;
         class Pubrec;
         class Pubrel;
         class Pubcomp;
@@ -76,14 +77,19 @@ namespace iot::mqtt {
     protected:
         void sendPuback(uint16_t packetIdentifier) const;
         void sendPubrec(uint16_t packetIdentifier) const;
-
         void sendPubrel(uint16_t packetIdentifier) const;
         void sendPubcomp(uint16_t packetIdentifier) const;
 
         bool onPublish(const iot::mqtt::packets::Publish& publish);
-        void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
-        void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
-        void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
+        virtual void onPuback(const iot::mqtt::packets::Puback& puback);
+        virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
+        virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
+        virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
+
+        void _onPuback(const iot::mqtt::packets::Puback& puback);
+        void _onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
+        void _onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
+        void _onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
 
         static std::string dataToHexString(const std::vector<char>& data);
 

@@ -214,18 +214,84 @@ namespace iot::mqtt {
         return deliver;
     }
 
-    void Mqtt::onPubrec(const packets::Pubrec& pubrec) {
-        packetMap.erase(pubrec.getPacketIdentifier());
-        pubrelPacketIdentifierSet.insert(pubrec.getPacketIdentifier());
+    void Mqtt::onPuback([[maybe_unused]] const iot::mqtt::packets::Puback& puback) {
     }
 
-    void Mqtt::onPubrel(const packets::Pubrel& pubrel) {
-        packetIdentifierSet.erase(pubrel.getPacketIdentifier());
+    void Mqtt::onPubrec([[maybe_unused]] const iot::mqtt::packets::Pubrec& pubrec) {
     }
 
-    void Mqtt::onPubcomp(const packets::Pubcomp& pubcomp) {
-        packetMap.erase(pubcomp.getPacketIdentifier());
-        pubrelPacketIdentifierSet.erase(pubcomp.getPacketIdentifier());
+    void Mqtt::onPubrel([[maybe_unused]] const iot::mqtt::packets::Pubrel& pubrel) {
+    }
+
+    void Mqtt::onPubcomp([[maybe_unused]] const iot::mqtt::packets::Pubcomp& pubcomp) {
+    }
+
+    void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
+        LOG(DEBUG) << "Received PUBACK:";
+        LOG(DEBUG) << "================";
+        printStandardHeader(puback);
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << puback.getPacketIdentifier();
+
+        if (puback.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
+            mqttContext->end(true);
+        }
+
+        onPuback(puback);
+    }
+
+    void Mqtt::_onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
+        LOG(DEBUG) << "Received PUBREC:";
+        LOG(DEBUG) << "================";
+        printStandardHeader(pubrec);
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrec.getPacketIdentifier();
+
+        if (pubrec.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
+            mqttContext->end(true);
+        } else {
+            packetMap.erase(pubrec.getPacketIdentifier());
+            pubrelPacketIdentifierSet.insert(pubrec.getPacketIdentifier());
+
+            sendPubrel(pubrec.getPacketIdentifier());
+        }
+
+        onPubrec(pubrec);
+    }
+
+    void Mqtt::_onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
+        LOG(DEBUG) << "Received PUBREL:";
+        LOG(DEBUG) << "================";
+        printStandardHeader(pubrel);
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrel.getPacketIdentifier();
+
+        if (pubrel.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
+            mqttContext->end(true);
+        } else {
+            packetIdentifierSet.erase(pubrel.getPacketIdentifier());
+
+            sendPubcomp(pubrel.getPacketIdentifier());
+        }
+
+        onPubrel(pubrel);
+    }
+
+    void Mqtt::_onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
+        LOG(DEBUG) << "Received PUBCOMP:";
+        LOG(DEBUG) << "=================";
+        printStandardHeader(pubcomp);
+        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubcomp.getPacketIdentifier();
+
+        if (pubcomp.getPacketIdentifier() == 0) {
+            LOG(TRACE) << "PackageIdentifier missing";
+            mqttContext->end(true);
+        } else {
+            packetMap.erase(pubcomp.getPacketIdentifier());
+            pubrelPacketIdentifierSet.erase(pubcomp.getPacketIdentifier());
+        }
+
+        onPubcomp(pubcomp);
     }
 
     void Mqtt::printStandardHeader(const iot::mqtt::ControlPacket& packet) {

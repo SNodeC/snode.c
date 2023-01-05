@@ -29,10 +29,6 @@ namespace iot::mqtt {
         class Connect;
         class Disconnect;
         class Pingreq;
-        class Puback;
-        class Pubcomp;
-        class Pubrec;
-        class Pubrel;
         class Subscribe;
         class Unsubscribe;
 
@@ -84,10 +80,6 @@ namespace iot::mqtt::server {
 
         virtual void onConnect(const iot::mqtt::packets::Connect& connect);
         virtual void onPublish(const iot::mqtt::packets::Publish& publish);
-        virtual void onPuback(const iot::mqtt::packets::Puback& puback);
-        virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
-        virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
-        virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
         virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe);
         virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe);
         virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq);
@@ -95,10 +87,6 @@ namespace iot::mqtt::server {
 
         void _onConnect(const iot::mqtt::server::packets::Connect& connect);
         void _onPublish(const iot::mqtt::server::packets::Publish& publish);
-        void _onPuback(const iot::mqtt::server::packets::Puback& puback);
-        void _onPubrec(const iot::mqtt::server::packets::Pubrec& pubrec);
-        void _onPubrel(const iot::mqtt::server::packets::Pubrel& pubrel);
-        void _onPubcomp(const iot::mqtt::server::packets::Pubcomp& pubcomp);
         void _onSubscribe(const iot::mqtt::server::packets::Subscribe& subscribe);
         void _onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe);
         void _onPingreq(const iot::mqtt::server::packets::Pingreq& pingreq);

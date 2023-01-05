@@ -30,10 +30,6 @@ namespace iot::mqtt {
     namespace packets {
         class Connack;
         class Pingresp;
-        class Puback;
-        class Pubcomp;
-        class Pubrec;
-        class Pubrel;
         class Suback;
         class Unsuback;
 
@@ -75,20 +71,12 @@ namespace iot::mqtt::client {
 
         virtual void onConnack(const iot::mqtt::packets::Connack& connack);
         virtual void onPublish(const iot::mqtt::packets::Publish& publish);
-        virtual void onPuback(const iot::mqtt::packets::Puback& puback);
-        virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
-        virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
-        virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
         virtual void onSuback(const iot::mqtt::packets::Suback& suback);
         virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback);
         virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp);
 
         void _onConnack(const iot::mqtt::client::packets::Connack& connack);
         void _onPublish(const iot::mqtt::client::packets::Publish& publish);
-        void _onPuback(const iot::mqtt::client::packets::Puback& puback);
-        void _onPubrec(const iot::mqtt::client::packets::Pubrec& pubrec);
-        void _onPubrel(const iot::mqtt::client::packets::Pubrel& pubrel);
-        void _onPubcomp(const iot::mqtt::client::packets::Pubcomp& pubcomp);
         void _onSuback(const iot::mqtt::client::packets::Suback& suback);
         void _onUnsuback(const iot::mqtt::client::packets::Unsuback& unsuback);
         void _onPingresp(const iot::mqtt::client::packets::Pingresp& pingresp);
