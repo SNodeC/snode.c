@@ -58,19 +58,7 @@ namespace iot::mqtt::server::broker {
         subscribtionTree.publish(Message(topic, message, qoS, MQTT_DUP_FALSE, MQTT_RETAIN_FALSE));
     }
 
-    void Broker::pubackReceived([[maybe_unused]] const std::string& clintId, [[maybe_unused]] uint16_t packetIdentifier) {
-    }
-
-    void Broker::pubrecReceived([[maybe_unused]] const std::string& clintId, [[maybe_unused]] uint16_t packetIdentifier) {
-    }
-
-    void Broker::pubrelReceived([[maybe_unused]] const std::string& clintId, [[maybe_unused]] uint16_t packetIdentifier) {
-    }
-
-    void Broker::pubcompReceived([[maybe_unused]] const std::string& clintId, [[maybe_unused]] uint16_t packetIdentifier) {
-    }
-
-    uint8_t Broker::subscribeReceived(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS) {
+    uint8_t Broker::subscribe(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS) {
         uint8_t selectedQoS = std::min(subscribtionMaxQoS, suscribedQoS);
         uint8_t returnCode = 0;
 
@@ -85,7 +73,7 @@ namespace iot::mqtt::server::broker {
         return returnCode;
     }
 
-    void Broker::unsubscribeReceived(const std::string& clientId, const std::string& topic) {
+    void Broker::unsubscribe(const std::string& clientId, const std::string& topic) {
         subscribtionTree.unsubscribe(topic, clientId);
     }
 
