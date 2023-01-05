@@ -20,6 +20,8 @@
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
+#include "iot/mqtt/server/packets/Publish.h"
+
 // IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
 namespace iot::mqtt {
@@ -29,7 +31,6 @@ namespace iot::mqtt {
         class Pingreq;
         class Puback;
         class Pubcomp;
-        class Publish;
         class Pubrec;
         class Pubrel;
         class Subscribe;
@@ -48,7 +49,6 @@ namespace iot::mqtt {
             class Pingreq;
             class Puback;
             class Pubcomp;
-            class Publish;
             class Pubrec;
             class Pubrel;
             class Subscribe;
@@ -62,7 +62,7 @@ namespace iot::mqtt {
 #include <cstdint>
 #include <list>
 #include <memory>
-#include <string>
+#include <set>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -71,6 +71,8 @@ namespace iot::mqtt::server {
 
     class Mqtt : public iot::mqtt::Mqtt {
     public:
+        using Super = iot::mqtt::Mqtt;
+
         explicit Mqtt(const std::shared_ptr<iot::mqtt::server::broker::Broker>& broker);
         ~Mqtt() override;
 
@@ -126,8 +128,6 @@ namespace iot::mqtt::server {
         bool getCleanSession() const;
 
     protected:
-        std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
-
         std::string protocol;
         uint8_t level = 0;
         uint8_t connectFlags = 0;
@@ -145,6 +145,10 @@ namespace iot::mqtt::server {
         uint8_t willQoS = 0;
         bool willFlag = false;
         bool cleanSession = false;
+
+        std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
+
+        std::set<uint16_t> packetIdentifierSet;
 
         friend class iot::mqtt::server::packets::Connect;
         friend class iot::mqtt::server::packets::Subscribe;

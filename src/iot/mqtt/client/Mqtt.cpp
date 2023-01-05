@@ -39,6 +39,8 @@
 #include "log/Logger.h"
 
 #include <iomanip>
+#include <ostream>
+#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -118,7 +120,7 @@ namespace iot::mqtt::client {
     void Mqtt::onPingresp([[maybe_unused]] const mqtt::packets::Pingresp& pingresp) {
     }
 
-    void Mqtt::_onConnack(const iot::mqtt::packets::Connack& connack) {
+    void Mqtt::_onConnack(const iot::mqtt::client::packets::Connack& connack) {
         LOG(DEBUG) << "Received Connack:";
         LOG(DEBUG) << "=================";
         printStandardHeader(connack);
@@ -134,7 +136,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPublish(const iot::mqtt::packets::Publish& publish) {
+    void Mqtt::_onPublish(const iot::mqtt::client::packets::Publish& publish) {
         LOG(DEBUG) << "Received PUBLISH:";
         LOG(DEBUG) << "=================";
         printStandardHeader(publish);
@@ -152,20 +154,31 @@ namespace iot::mqtt::client {
             LOG(TRACE) << "Received QoS > 0 but no PackageIdentifier present";
             mqttContext->end(true);
         } else {
+            bool deliver = true;
             switch (publish.getQoS()) {
                 case 1:
                     sendPuback(publish.getPacketIdentifier());
+
                     break;
                 case 2:
                     sendPubrec(publish.getPacketIdentifier());
+
+                    if (packetIdentifierSet.contains(publish.getPacketIdentifier())) {
+                        deliver = false;
+                    } else {
+                        packetIdentifierSet.insert(publish.getPacketIdentifier());
+                    }
+
                     break;
             }
 
-            onPublish(publish);
+            if (deliver) {
+                onPublish(publish);
+            }
         }
     }
 
-    void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
+    void Mqtt::_onPuback(const iot::mqtt::client::packets::Puback& puback) {
         LOG(DEBUG) << "Received PUBACK:";
         LOG(DEBUG) << "================";
         printStandardHeader(puback);
@@ -179,7 +192,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
+    void Mqtt::_onPubrec(const iot::mqtt::client::packets::Pubrec& pubrec) {
         LOG(DEBUG) << "Received PUBREC:";
         LOG(DEBUG) << "================";
         printStandardHeader(pubrec);
@@ -195,7 +208,7 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
+    void Mqtt::_onPubrel(const iot::mqtt::client::packets::Pubrel& pubrel) {
         LOG(DEBUG) << "Received PUBREL:";
         LOG(DEBUG) << "================";
         printStandardHeader(pubrel);
@@ -205,13 +218,15 @@ namespace iot::mqtt::client {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
+            packetIdentifierSet.erase(pubrel.getPacketIdentifier());
+
             sendPubcomp(pubrel.getPacketIdentifier());
 
             onPubrel(pubrel);
         }
     }
 
-    void Mqtt::_onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
+    void Mqtt::_onPubcomp(const iot::mqtt::client::packets::Pubcomp& pubcomp) {
         LOG(DEBUG) << "Received PUBCOMP:";
         LOG(DEBUG) << "=================";
         printStandardHeader(pubcomp);
@@ -225,12 +240,25 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onSuback(const iot::mqtt::packets::Suback& suback) {
+    void Mqtt::_onSuback(const iot::mqtt::client::packets::Suback& suback) {
         LOG(DEBUG) << "Received SUBACK:";
         LOG(DEBUG) << "================";
         printStandardHeader(suback);
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << suback.getPacketIdentifier();
-        //        LOG(DEBUG) << "Return codes: " << suback.getReturnCodes();
+
+        std::stringstream ss;
+        std::list<uint8_t>::size_type i = 0;
+
+        for (uint8_t returnCode : suback.getReturnCodes()) {
+            if (i != 0 && i % 8 == 0 && i != suback.getReturnCodes().size()) {
+                ss << std::endl;
+                ss << "                                                       ";
+            }
+            ++i;
+            ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(returnCode) << " "; // << " | ";
+        }
+
+        LOG(DEBUG) << "Return codes: " << ss.str();
 
         if (suback.getPacketIdentifier() == 0) {
             LOG(TRACE) << "PackageIdentifier missing";
@@ -240,9 +268,10 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onUnsuback(const iot::mqtt::packets::Unsuback& unsuback) {
+    void Mqtt::_onUnsuback(const iot::mqtt::client::packets::Unsuback& unsuback) {
         LOG(DEBUG) << "Received UNSUBACK:";
         LOG(DEBUG) << "==================";
+        printStandardHeader(unsuback);
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsuback.getPacketIdentifier();
 
         if (unsuback.getPacketIdentifier() == 0) {
@@ -253,9 +282,10 @@ namespace iot::mqtt::client {
         }
     }
 
-    void Mqtt::_onPingresp(const iot::mqtt::packets::Pingresp& pingresp) {
+    void Mqtt::_onPingresp(const iot::mqtt::client::packets::Pingresp& pingresp) {
         LOG(DEBUG) << "Received PINGRESP:";
         LOG(DEBUG) << "==================";
+        printStandardHeader(pingresp);
 
         onPingresp(pingresp);
     }

@@ -20,6 +20,8 @@
 #define IOT_MQTT_CLIENT_SOCKETCONTEXT_H
 
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
+#include "iot/mqtt/client/packets/Publish.h"
+
 // IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
 namespace iot::mqtt {
@@ -30,7 +32,6 @@ namespace iot::mqtt {
         class Pingresp;
         class Puback;
         class Pubcomp;
-        class Publish;
         class Pubrec;
         class Pubrel;
         class Suback;
@@ -43,7 +44,6 @@ namespace iot::mqtt {
         class Pingresp;
         class Puback;
         class Pubcomp;
-        class Publish;
         class Pubrec;
         class Pubrel;
         class Suback;
@@ -55,7 +55,7 @@ namespace iot::mqtt {
 
 #include <cstdint>
 #include <list>
-#include <string>
+#include <set>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -64,6 +64,8 @@ namespace iot::mqtt::client {
 
     class Mqtt : public iot::mqtt::Mqtt {
     public:
+        using Super = iot::mqtt::Mqtt;
+
         Mqtt() = default;
 
         ~Mqtt() override;
@@ -82,15 +84,15 @@ namespace iot::mqtt::client {
         virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback);
         virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp);
 
-        void _onConnack(const iot::mqtt::packets::Connack& connack);
-        void _onPublish(const iot::mqtt::packets::Publish& publish);
-        void _onPuback(const iot::mqtt::packets::Puback& puback);
-        void _onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
-        void _onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
-        void _onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
-        void _onSuback(const iot::mqtt::packets::Suback& suback);
-        void _onUnsuback(const iot::mqtt::packets::Unsuback& unsuback);
-        void _onPingresp(const iot::mqtt::packets::Pingresp& pingresp);
+        void _onConnack(const iot::mqtt::client::packets::Connack& connack);
+        void _onPublish(const iot::mqtt::client::packets::Publish& publish);
+        void _onPuback(const iot::mqtt::client::packets::Puback& puback);
+        void _onPubrec(const iot::mqtt::client::packets::Pubrec& pubrec);
+        void _onPubrel(const iot::mqtt::client::packets::Pubrel& pubrel);
+        void _onPubcomp(const iot::mqtt::client::packets::Pubcomp& pubcomp);
+        void _onSuback(const iot::mqtt::client::packets::Suback& suback);
+        void _onUnsuback(const iot::mqtt::client::packets::Unsuback& unsuback);
+        void _onPingresp(const iot::mqtt::client::packets::Pingresp& pingresp);
 
     public:
         void sendConnect(uint16_t keepAlive,
@@ -106,6 +108,8 @@ namespace iot::mqtt::client {
         void sendUnsubscribe(std::list<std::string>& topics);
         void sendPingreq() const;
         void sendDisconnect() const;
+
+        std::set<uint16_t> packetIdentifierSet;
 
         friend class iot::mqtt::client::packets::Connack;
         friend class iot::mqtt::client::packets::Suback;

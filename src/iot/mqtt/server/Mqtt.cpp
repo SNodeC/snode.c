@@ -43,6 +43,7 @@
 
 #include <cstdint>
 #include <iomanip>
+#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -284,21 +285,32 @@ namespace iot::mqtt::server {
             LOG(TRACE) << "Received QoS > 0 but no PackageIdentifier present";
             mqttContext->end(true);
         } else {
-            broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS());
-            if (publish.getRetain()) {
-                broker->retainMessage(publish.getTopic(), publish.getMessage(), publish.getQoS());
-            }
-
+            bool deliver = true;
             switch (publish.getQoS()) {
                 case 1:
                     sendPuback(publish.getPacketIdentifier());
+
                     break;
                 case 2:
                     sendPubrec(publish.getPacketIdentifier());
+
+                    if (packetIdentifierSet.contains(publish.getPacketIdentifier())) {
+                        deliver = false;
+                    } else {
+                        packetIdentifierSet.insert(publish.getPacketIdentifier());
+                    }
+
                     break;
             }
 
-            onPublish(publish);
+            if (deliver) {
+                broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS());
+                if (publish.getRetain()) {
+                    broker->retainMessage(publish.getTopic(), publish.getMessage(), publish.getQoS());
+                }
+
+                onPublish(publish);
+            }
         }
     }
 
@@ -346,6 +358,8 @@ namespace iot::mqtt::server {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
+            packetIdentifierSet.erase(pubrel.getPacketIdentifier());
+
             broker->pubrelReceived(clientId, pubrel.getPacketIdentifier());
 
             sendPubcomp(pubrel.getPacketIdentifier());
