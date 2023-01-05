@@ -39,8 +39,6 @@ namespace iot::mqtt::client::packets {
         : public iot::mqtt::packets::Publish
         , public iot::mqtt::client::ControlPacketDeserializer {
     public:
-        Publish() = default;
-
         Publish(uint32_t remainingLength, uint8_t flags);
 
     private:
