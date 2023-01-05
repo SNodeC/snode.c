@@ -29,7 +29,7 @@ namespace iot::mqtt::packets {
     }
 
     Connack::Connack(uint8_t returncode, uint8_t acknowledgeFlags)
-        : iot::mqtt::ControlPacket(MQTT_CONNACK) {
+        : Connack() {
         this->returnCode = returncode;
         this->acknowledgeFlags = acknowledgeFlags;
     }

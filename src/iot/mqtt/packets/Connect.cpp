@@ -37,7 +37,7 @@ namespace iot::mqtt::packets {
                      bool willRetain,
                      const std::string& username,
                      const std::string& password)
-        : iot::mqtt::ControlPacket(MQTT_CONNECT) {
+        : Connect() {
         this->protocol = "MQTT";
         this->level = MQTT_VERSION_3_1_1;
         this->keepAlive = keepAlive;

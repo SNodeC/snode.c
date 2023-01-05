@@ -29,7 +29,7 @@ namespace iot::mqtt::packets {
     }
 
     Puback::Puback(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBACK) {
+        : Puback() {
         this->packetIdentifier = packetIdentifier;
     }
 

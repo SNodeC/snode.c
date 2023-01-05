@@ -29,7 +29,7 @@ namespace iot::mqtt::packets {
     }
 
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
-        : iot::mqtt::ControlPacket(MQTT_SUBACK) {
+        : Suback() {
         this->packetIdentifier = packetIdentifier;
         this->returnCodes = returnCodes;
     }

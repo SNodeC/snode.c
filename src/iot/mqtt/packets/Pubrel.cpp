@@ -29,7 +29,7 @@ namespace iot::mqtt::packets {
     }
 
     Pubrel::Pubrel(const uint16_t packetIdentifier)
-        : iot::mqtt::ControlPacket(MQTT_PUBREL) {
+        : Pubrel() {
         this->packetIdentifier = packetIdentifier;
     }
 
