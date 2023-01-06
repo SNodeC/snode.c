@@ -20,13 +20,13 @@
 #define IOT_MQTT_SERVER_SOCKETCONTEXT_H
 
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
-#include "iot/mqtt/server/packets/Publish.h"
 
 // IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
 namespace iot::mqtt {
     namespace packets {
         class Connect;
+        class Publish;
         class Disconnect;
         class Pingreq;
         class Subscribe;
@@ -43,6 +43,7 @@ namespace iot::mqtt {
             class Connect;
             class Disconnect;
             class Pingreq;
+            class Publish;
             class Puback;
             class Pubcomp;
             class Pubrec;
@@ -58,6 +59,7 @@ namespace iot::mqtt {
 #include <cstdint>
 #include <list>
 #include <memory>
+#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS

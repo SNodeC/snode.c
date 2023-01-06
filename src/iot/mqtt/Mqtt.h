@@ -21,7 +21,6 @@
 
 #include "core/timer/Timer.h"     // IWYU pragma: export
 #include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
-#include "iot/mqtt/packets/Publish.h"
 
 namespace core::socket {
     class SocketConnection;
@@ -32,11 +31,13 @@ namespace utils {
 }
 
 namespace iot::mqtt {
+    class ControlPacket;
     class ControlPacketDeserializer;
     class MqttContext;
     struct Session;
 
     namespace packets {
+        class Publish;
         class Puback;
         class Pubrec;
         class Pubrel;
@@ -45,6 +46,8 @@ namespace iot::mqtt {
 } // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

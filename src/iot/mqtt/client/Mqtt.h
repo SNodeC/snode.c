@@ -21,7 +21,6 @@
 
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
 #include "iot/mqtt/Session.h"
-#include "iot/mqtt/client/packets/Publish.h"
 
 // IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
@@ -30,6 +29,7 @@ namespace iot::mqtt {
 
     namespace packets {
         class Connack;
+        class Publish;
         class Pingresp;
         class Suback;
         class Unsuback;
@@ -39,6 +39,7 @@ namespace iot::mqtt {
     namespace client::packets {
         class Connack;
         class Pingresp;
+        class Publish;
         class Puback;
         class Pubcomp;
         class Pubrec;
@@ -52,6 +53,7 @@ namespace iot::mqtt {
 
 #include <cstdint>
 #include <list>
+#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS

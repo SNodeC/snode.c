@@ -21,7 +21,6 @@
 
 #include "core/timer/Timer.h" // IWYU pragma: export
 #include "web/websocket/SocketContextUpgrade.h"
-#include "web/websocket/SubProtocolContext.h"
 
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>

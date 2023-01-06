@@ -40,7 +40,6 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::server {
 
-    //    template <typename SocketContextT = iot::mqtt::SocketContext>
     class SharedSocketContextFactory : public core::socket::SocketContextFactory {
     public:
         SharedSocketContextFactory();

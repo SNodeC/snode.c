@@ -36,9 +36,12 @@ namespace iot::mqtt {
 
     struct Session {
     private:
-        std::set<uint16_t> pubrelPacketIdentifierSet;              // cppcheck-suppress unusedStructMember
-        std::map<uint16_t, iot::mqtt::packets::Publish> packetMap; // cppcheck-suppress unusedStructMember
-        std::set<uint16_t> packetIdentifierSet;                    // cppcheck-suppress unusedStructMember
+        // Sender side
+        std::map<uint16_t, iot::mqtt::packets::Publish> publishMap; // cppcheck-suppress unusedStructMember
+        std::set<uint16_t> pubrelPacketIdentifierSet;               // cppcheck-suppress unusedStructMember
+
+        // Receiver side
+        std::set<uint16_t> publishPacketIdentifierSet; // cppcheck-suppress unusedStructMember
 
         friend class iot::mqtt::Mqtt;
     };

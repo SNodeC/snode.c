@@ -21,7 +21,7 @@
 #include "MqttContext.h"
 #include "core/socket/SocketConnection.h"
 #include "iot/mqtt/ControlPacketDeserializer.h"
-#include "iot/mqtt/Session.h" // IWYU pragma: keep
+#include "iot/mqtt/Session.h"
 #include "iot/mqtt/packets/Puback.h"
 #include "iot/mqtt/packets/Pubcomp.h"
 #include "iot/mqtt/packets/Publish.h"
@@ -142,7 +142,7 @@ namespace iot::mqtt {
     void Mqtt::setSession(Session* session) {
         this->session = session;
 
-        for (auto& [packetIdentifier, publish] : session->packetMap) {
+        for (auto& [packetIdentifier, publish] : session->publishMap) {
             LOG(DEBUG) << "Resend PUBLISH";
             LOG(DEBUG) << "==============";
 
@@ -181,7 +181,7 @@ namespace iot::mqtt {
         iot::mqtt::packets::Publish publish(qoS == 0 ? 0 : pId, topic, message, qoS, false, retain);
 
         if (qoS == 2) {
-            session->packetMap[pId] = publish;
+            session->publishMap[pId] = publish;
         }
 
         send(publish);
@@ -225,10 +225,10 @@ namespace iot::mqtt {
             case 2:
                 sendPubrec(publish.getPacketIdentifier());
 
-                if (session->packetIdentifierSet.contains(publish.getPacketIdentifier())) {
+                if (session->publishPacketIdentifierSet.contains(publish.getPacketIdentifier())) {
                     deliver = false;
                 } else {
-                    session->packetIdentifierSet.insert(publish.getPacketIdentifier());
+                    session->publishPacketIdentifierSet.insert(publish.getPacketIdentifier());
                 }
 
                 break;
@@ -273,7 +273,7 @@ namespace iot::mqtt {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            session->packetMap.erase(pubrec.getPacketIdentifier());
+            session->publishMap.erase(pubrec.getPacketIdentifier());
             session->pubrelPacketIdentifierSet.insert(pubrec.getPacketIdentifier());
 
             sendPubrel(pubrec.getPacketIdentifier());
@@ -292,7 +292,7 @@ namespace iot::mqtt {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            session->packetIdentifierSet.erase(pubrel.getPacketIdentifier());
+            session->publishPacketIdentifierSet.erase(pubrel.getPacketIdentifier());
 
             sendPubcomp(pubrel.getPacketIdentifier());
         }
@@ -310,7 +310,7 @@ namespace iot::mqtt {
             LOG(TRACE) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            session->packetMap.erase(pubcomp.getPacketIdentifier());
+            session->publishMap.erase(pubcomp.getPacketIdentifier());
             session->pubrelPacketIdentifierSet.erase(pubcomp.getPacketIdentifier());
         }
 
