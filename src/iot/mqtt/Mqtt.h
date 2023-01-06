@@ -73,7 +73,7 @@ namespace iot::mqtt {
         void setSession(Session* session);
 
     public:
-        void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain);
+        void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
 
     protected:
         void sendPuback(uint16_t packetIdentifier) const;
@@ -108,7 +108,7 @@ namespace iot::mqtt {
         iot::mqtt::FixedHeader fixedHeader;
         iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
 
-        uint16_t packetIdentifier = 0;
+        uint16_t _packetIdentifier = 0;
 
         core::timer::Timer keepAliveTimer;
 

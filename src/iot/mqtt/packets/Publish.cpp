@@ -53,6 +53,10 @@ namespace iot::mqtt::packets {
         return packet;
     }
 
+    void Publish::setDup(bool dup) {
+        this->dup = dup;
+    }
+
     bool Publish::getDup() const {
         return dup;
     }

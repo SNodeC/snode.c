@@ -59,8 +59,7 @@ namespace iot::mqtt::server::broker {
         LOG(TRACE) << "                QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
-            mqtt->sendPublish(
-                message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), message.getDup(), message.getRetain());
+            mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), message.getRetain());
         } else {
             if (message.getQoS() == 0) {
                 messageQueue.clear();

@@ -47,7 +47,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::retainMessage(const std::string& topic, const std::string& message, uint8_t qoS) {
-        retainTree.retain(Message(topic, message, qoS, MQTT_DUP_FALSE, MQTT_RETAIN_TRUE));
+        retainTree.retain(Message(topic, message, qoS, MQTT_RETAIN_TRUE));
     }
 
     void Broker::unsubscribe(const std::string& clientId) {
@@ -55,7 +55,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::publish(const std::string& topic, const std::string& message, uint8_t qoS) {
-        subscribtionTree.publish(Message(topic, message, qoS, MQTT_DUP_FALSE, MQTT_RETAIN_FALSE));
+        subscribtionTree.publish(Message(topic, message, qoS, MQTT_RETAIN_FALSE));
     }
 
     uint8_t Broker::subscribe(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS) {

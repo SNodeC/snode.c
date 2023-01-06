@@ -37,6 +37,7 @@
 #include <map>
 #include <ostream>
 #include <set>
+#include <utility>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -140,6 +141,19 @@ namespace iot::mqtt {
 
     void Mqtt::setSession(Session* session) {
         this->session = session;
+
+        for (auto& [packetIdentifier, publish] : session->packetMap) {
+            LOG(INFO) << "Resend Publish:";
+
+            publish.setDup();
+            send(publish);
+        }
+
+        for (uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
+            LOG(INFO) << "Resend Pubrel:";
+
+            send(iot::mqtt::packets::Pubrel(packetIdentifier));
+        }
     }
 
     void Mqtt::send(ControlPacket&& controlPacket) const {
@@ -156,13 +170,13 @@ namespace iot::mqtt {
         mqttContext->send(data.data(), data.size());
     }
 
-    void Mqtt::sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool dup,
+    void Mqtt::sendPublish(const std::string& topic, const std::string& message, uint8_t qoS,
                            bool retain) { // Server & Client
         LOG(DEBUG) << "Send PUBLISH";
         LOG(DEBUG) << "============";
 
         uint16_t pId = getPacketIdentifier();
-        iot::mqtt::packets::Publish publish(qoS == 0 ? 0 : pId, topic, message, qoS, dup, retain);
+        iot::mqtt::packets::Publish publish(qoS == 0 ? 0 : pId, topic, message, qoS, false, retain);
 
         if (qoS == 2) {
             session->packetMap[pId] = publish;
@@ -341,13 +355,13 @@ namespace iot::mqtt {
     }
 
     uint16_t Mqtt::getPacketIdentifier() {
-        ++packetIdentifier;
+        ++_packetIdentifier;
 
-        if (packetIdentifier == 0) {
-            ++packetIdentifier;
+        if (_packetIdentifier == 0) {
+            ++_packetIdentifier;
         }
 
-        return packetIdentifier;
+        return _packetIdentifier;
     }
 
 } // namespace iot::mqtt
