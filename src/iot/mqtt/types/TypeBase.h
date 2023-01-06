@@ -39,6 +39,7 @@ namespace iot::mqtt::types {
 
     public:
         explicit TypeBase(std::size_t size = sizeof(ValueType));
+        TypeBase(const TypeBase&) = default;
 
         virtual ~TypeBase() = default;
 

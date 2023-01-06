@@ -25,6 +25,7 @@
 #include "iot/mqtt/packets/Suback.h"
 #include "iot/mqtt/packets/Unsuback.h"
 #include "iot/mqtt/server/broker/Broker.h"
+#include "iot/mqtt/server/broker/Session.h"
 #include "iot/mqtt/server/packets/Connect.h"
 #include "iot/mqtt/server/packets/Disconnect.h"
 #include "iot/mqtt/server/packets/Pingreq.h"
@@ -137,10 +138,10 @@ namespace iot::mqtt::server {
             if (cleanSession) {
                 LOG(TRACE) << "  clean Session = " << this;
                 broker->unsubscribe(clientId);
-                broker->newSession(clientId, this);
+                setSession(broker->newSession(clientId, this));
             } else {
                 LOG(TRACE) << "  renew Session = " << this;
-                broker->renewSession(clientId, this);
+                setSession(broker->renewSession(clientId, this));
             }
         } else {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
@@ -148,7 +149,7 @@ namespace iot::mqtt::server {
             LOG(TRACE) << "No session found for ClientId = '" << clientId << "\'";
             LOG(TRACE) << "  new Session = " << this;
 
-            broker->newSession(clientId, this);
+            setSession(broker->newSession(clientId, this));
         }
     }
 

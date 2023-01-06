@@ -20,6 +20,7 @@
 #define IOT_MQTT_CLIENT_SOCKETCONTEXT_H
 
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
+#include "iot/mqtt/Session.h"
 #include "iot/mqtt/client/packets/Publish.h"
 
 // IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
@@ -107,6 +108,8 @@ namespace iot::mqtt::client {
         friend class iot::mqtt::client::packets::Pubrel;
 
     private:
+        iot::mqtt::Session session;
+
         core::timer::Timer pingTimer;
     };
 

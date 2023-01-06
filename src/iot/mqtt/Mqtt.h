@@ -34,6 +34,7 @@ namespace utils {
 namespace iot::mqtt {
     class ControlPacketDeserializer;
     class MqttContext;
+    struct Session;
 
     namespace packets {
         class Puback;
@@ -44,9 +45,6 @@ namespace iot::mqtt {
 } // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <map>
-#include <set>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -70,6 +68,9 @@ namespace iot::mqtt {
     private:
         virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;
         virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
+
+    protected:
+        void setSession(Session* session);
 
     public:
         void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain);
@@ -113,12 +114,9 @@ namespace iot::mqtt {
 
         int state = 0;
 
-        std::set<uint16_t> pubrelPacketIdentifierSet;
-        std::map<uint16_t, iot::mqtt::packets::Publish> packetMap;
-        std::set<uint16_t> packetIdentifierSet;
-
     protected:
         MqttContext* mqttContext = nullptr;
+        Session* session = nullptr;
     };
 
 } // namespace iot::mqtt

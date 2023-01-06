@@ -209,6 +209,8 @@ namespace iot::mqtt::client {
         LOG(DEBUG) << "Send CONNECT";
         LOG(DEBUG) << "============";
 
+        setSession(&session);
+
         send(iot::mqtt::packets::Connect(
             clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password));
 

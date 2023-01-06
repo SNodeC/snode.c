@@ -64,8 +64,8 @@ namespace iot::mqtt::server::broker {
 
         bool isActiveSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
 
-        void newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
-        void renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
+        Session* newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
+        Session* renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
         void retainSession(const std::string& clientId);
         void deleteSession(const std::string& clinetId);
 

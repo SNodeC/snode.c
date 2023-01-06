@@ -14,6 +14,7 @@ set(MQTT_CPP
     FixedHeader.cpp
     Mqtt.cpp
     MqttContext.cpp
+    Session.cpp
     SocketContext.cpp
     Topic.cpp
 )
@@ -24,6 +25,7 @@ set(MQTT_H
     FixedHeader.h
     Mqtt.h
     MqttContext.h
+    Session.h
     SubProtocol.h
     SubProtocol.hpp
     SocketContext.h

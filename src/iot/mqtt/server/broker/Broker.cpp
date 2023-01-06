@@ -93,14 +93,18 @@ namespace iot::mqtt::server::broker {
         return hasSession(clientId) && sessions[clientId].isOwnedBy(mqtt);
     }
 
-    void Broker::newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt) {
+    Session* Broker::newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt) {
         sessions[clientId] = iot::mqtt::server::broker::Session(clientId, mqtt);
+
+        return &sessions[clientId];
     }
 
-    void Broker::renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt) {
+    Session* Broker::renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt) {
         sessions[clientId].renew(mqtt);
         subscribtionTree.publishRetained(clientId);
         sessions[clientId].publishQueued();
+
+        return &sessions[clientId];
     }
 
     void Broker::retainSession(const std::string& clientId) {

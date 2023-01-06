@@ -19,6 +19,7 @@
 #ifndef IOT_MQTT_SERVER_BROKER_SESSION_H
 #define IOT_MQTT_SERVER_BROKER_SESSION_H
 
+#include "iot/mqtt/Session.h"
 #include "iot/mqtt/server/broker/Message.h" // IWYU pragma: export
 
 namespace iot::mqtt::server {
@@ -35,7 +36,7 @@ namespace iot::mqtt::server {
 
 namespace iot::mqtt::server::broker {
 
-    class Session {
+    class Session : public iot::mqtt::Session {
     public:
         Session() = default;
         Session(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);

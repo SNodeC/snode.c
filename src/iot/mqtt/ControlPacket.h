@@ -61,6 +61,7 @@ namespace iot::mqtt {
     class ControlPacket {
     public:
         ControlPacket(uint8_t type);
+        ControlPacket(const ControlPacket&) = default;
 
         virtual ~ControlPacket() = default;
 
