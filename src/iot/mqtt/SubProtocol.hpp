@@ -38,7 +38,7 @@ namespace iot::mqtt {
         : WSSubProtocolRole(subProtocolContext, name, PING_INTERVAL)
         , iot::mqtt::MqttContext(mqtt)
         , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
-            iot::mqtt::MqttContext::onReceiveFromPeer();
+            iot::mqtt::MqttContext::onProcess();
         }) {
     }
 
@@ -122,7 +122,7 @@ namespace iot::mqtt {
         data.clear();
 
         if (buffer.size() > 0) {
-            iot::mqtt::MqttContext::onReceiveFromPeer();
+            iot::mqtt::MqttContext::onProcess();
         }
     }
 
