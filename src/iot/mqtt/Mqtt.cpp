@@ -143,14 +143,16 @@ namespace iot::mqtt {
         this->session = session;
 
         for (auto& [packetIdentifier, publish] : session->packetMap) {
-            LOG(INFO) << "Resend Publish:";
+            LOG(DEBUG) << "Resend PUBLISH";
+            LOG(DEBUG) << "==============";
 
             publish.setDup();
             send(publish);
         }
 
         for (uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
-            LOG(INFO) << "Resend Pubrel:";
+            LOG(DEBUG) << "Resend PUBREL";
+            LOG(DEBUG) << "=============";
 
             send(iot::mqtt::packets::Pubrel(packetIdentifier));
         }
