@@ -42,6 +42,8 @@ namespace iot::mqtt::types {
 
         virtual ~TypeBase() = default;
 
+        TypeBase& operator=(const TypeBase&) = default;
+
         virtual ValueType operator=(const ValueType& value) = 0;
         virtual operator ValueType() const = 0;
 
@@ -59,8 +61,8 @@ namespace iot::mqtt::types {
     protected:
         std::vector<char> value;
 
-        std::size_t length;
-        std::size_t needed;
+        std::size_t length = 0;
+        std::size_t needed = 0;
 
         bool complete = false;
 
