@@ -65,6 +65,10 @@ namespace iot::mqtt::server {
         }
     }
 
+    void Mqtt::onExit() {
+        willFlag = false;
+    }
+
     iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {
         iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
 

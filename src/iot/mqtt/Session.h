@@ -28,20 +28,34 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
+#include <nlohmann/json_fwd.hpp>
 #include <set>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt {
 
-    struct Session {
+    class Session {
+    public:
+        Session() = default;
+        explicit Session(const nlohmann::json& json);
+
+        Session(const Session&) = default;
+
+        Session& operator=(const Session&) = default;
+
+        bool isCleanSession() const;
+
+        nlohmann::json toJson();
+        void fromJson(const nlohmann::json& json);
+
     private:
         // Sender side
-        std::map<uint16_t, iot::mqtt::packets::Publish> publishMap; // cppcheck-suppress unusedStructMember
-        std::set<uint16_t> pubrelPacketIdentifierSet;               // cppcheck-suppress unusedStructMember
+        std::map<uint16_t, iot::mqtt::packets::Publish> publishMap;
+        std::set<uint16_t> pubrelPacketIdentifierSet;
 
         // Receiver side
-        std::set<uint16_t> publishPacketIdentifierSet; // cppcheck-suppress unusedStructMember
+        std::set<uint16_t> publishPacketIdentifierSet;
 
         friend class iot::mqtt::Mqtt;
     };

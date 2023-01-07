@@ -20,6 +20,60 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <nlohmann/json.hpp>
+
+// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace iot::mqtt {} // namespace iot::mqtt
+namespace iot::mqtt {
+
+    Session::Session(const nlohmann::json& json) {
+        fromJson(json);
+    }
+
+    nlohmann::json Session::toJson() {
+        nlohmann::json json;
+
+        nlohmann::json publishMapJson;
+
+        std::vector<nlohmann::json> publishJsonVector;
+        for (auto& [packetIdentifier, publish] : publishMap) {
+            nlohmann::json publishJson;
+
+            publishJson["packet_identifier"] = publish.getPacketIdentifier();
+            publishJson["topic"] = publish.getTopic();
+            publishJson["message"] = publish.getMessage();
+            publishJson["dup"] = publish.getDup();
+            publishJson["qos"] = publish.getQoS();
+            publishJson["retain"] = publish.getRetain();
+
+            publishJsonVector.emplace_back(publishJson);
+        }
+
+        json["publish_map"] = publishJsonVector;
+        json["pubrel_packetidentifier_set"] = pubrelPacketIdentifierSet;
+        json["publish_packetidentifier_set"] = publishPacketIdentifierSet;
+
+        return json;
+    }
+
+    void Session::fromJson(const nlohmann::json& json) {
+        if (!json.empty()) {
+            pubrelPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["pubrel_packetidentifier_set"]);
+            publishPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["publish_packetidentifier_set"]);
+
+            for (auto publishJson : json["publish_map"]) {
+                iot::mqtt::packets::Publish publish(publishJson["packet_identifier"],
+                                                    publishJson["topic"],
+                                                    publishJson["message"],
+                                                    publishJson["qoS"],
+                                                    publishJson["dup"],
+                                                    publishJson["retain"]);
+                publishMap[publishJson["packet_identifier"]] = publish;
+            }
+        }
+    }
+
+} // namespace iot::mqtt

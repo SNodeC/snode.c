@@ -64,7 +64,7 @@ namespace iot::mqtt::client {
     public:
         using Super = iot::mqtt::Mqtt;
 
-        Mqtt() = default;
+        Mqtt();
 
         ~Mqtt() override;
 
@@ -110,6 +110,9 @@ namespace iot::mqtt::client {
         friend class iot::mqtt::client::packets::Pubrel;
 
     private:
+        uint16_t keepAlive;
+
+        std::string sessionStore;
         iot::mqtt::Session session;
 
         core::timer::Timer pingTimer;

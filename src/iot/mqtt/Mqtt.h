@@ -34,7 +34,7 @@ namespace iot::mqtt {
     class ControlPacket;
     class ControlPacketDeserializer;
     class MqttContext;
-    struct Session;
+    class Session;
 
     namespace packets {
         class Publish;

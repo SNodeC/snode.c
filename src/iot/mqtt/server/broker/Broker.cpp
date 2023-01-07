@@ -20,7 +20,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream> // IWYU pragma: keep
+#include <iostream>
+#include <nlohmann/json.hpp>
+
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
+// IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -29,9 +39,40 @@ namespace iot::mqtt::server::broker {
     std::shared_ptr<Broker> Broker::broker;
 
     Broker::Broker(uint8_t subscribtionMaxQoS)
-        : subscribtionMaxQoS(subscribtionMaxQoS)
+        : sessionStore((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "")
+        , subscribtionMaxQoS(subscribtionMaxQoS)
         , subscribtionTree(this)
         , retainTree(this) {
+        nlohmann::json sessionStoreJson;
+
+        std::ifstream sessionStoreFile(sessionStore);
+
+        if (sessionStoreFile.is_open()) {
+            try {
+                sessionStoreFile >> sessionStoreJson;
+                fromJson(sessionStoreJson);
+
+                std::cout << sessionStoreJson.dump(4) << std::endl;
+            } catch (const nlohmann::json::exception& e) {
+                LOG(ERROR) << e.what();
+            }
+            sessionStoreFile.close();
+            std::remove(sessionStore.data());
+        }
+    }
+
+    Broker::~Broker() {
+        if (!sessionStore.empty()) {
+            std::ofstream sessionStoreFile;
+            sessionStoreFile.open(sessionStore);
+            if (sessionStoreFile.is_open()) {
+                sessionStoreFile << toJson();
+                sessionStoreFile.close();
+            }
+        }
+
+        std::cout << "Remaining session store:" << std::endl;
+        std::cout << toJson().dump(4) << std::endl;
     }
 
     std::shared_ptr<Broker> Broker::instance(uint8_t subscribtionMaxQoS) {
@@ -118,6 +159,22 @@ namespace iot::mqtt::server::broker {
 
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS) {
         sessions[clientId].sendPublish(message, qoS);
+    }
+
+    nlohmann::json Broker::toJson() {
+        nlohmann::json json;
+
+        for (auto& [clientId, session] : sessions) {
+            json[clientId] = session.toJson();
+        }
+
+        return json;
+    }
+
+    void Broker::fromJson(const nlohmann::json& json) {
+        for (auto& [clientId, sessionJson] : json.items()) {
+            sessions[clientId] = Session(clientId, sessionJson);
+        }
     }
 
 } // namespace iot::mqtt::server::broker

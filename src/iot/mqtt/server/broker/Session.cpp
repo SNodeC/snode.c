@@ -27,6 +27,8 @@
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
+#include <map>
+#include <nlohmann/json.hpp>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -35,6 +37,17 @@ namespace iot::mqtt::server::broker {
     Session::Session(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt)
         : clientId(clientId)
         , mqtt(mqtt) {
+    }
+
+    Session::Session(const std::string& clientId, const nlohmann::json& sessionJson)
+        : iot::mqtt::Session(sessionJson)
+        , clientId(clientId) {
+        std::vector<nlohmann::json> messageVector = sessionJson["message_queue"];
+
+        for (const nlohmann::json& messageJson : messageVector) {
+            messageQueue.push_back(Message(messageJson["topic"], messageJson["message"], messageJson["qos"], messageJson["retain"]));
+            LOG(TRACE) << "Message: " << messageJson["topic"] << ":" << messageJson["message"];
+        }
     }
 
     void Session::sendPublish(Message& message, uint8_t qoS) {
@@ -93,6 +106,26 @@ namespace iot::mqtt::server::broker {
 
     bool Session::isOwnedBy(const iot::mqtt::server::Mqtt* mqtt) const {
         return this->mqtt == mqtt;
+    }
+
+    nlohmann::json Session::toJson() {
+        nlohmann::json json = iot::mqtt::Session::toJson();
+
+        std::vector<nlohmann::json> messageVector;
+        for (const Message& message : messageQueue) {
+            nlohmann::json messageJson;
+
+            messageJson["topic"] = message.getTopic();
+            messageJson["message"] = message.getMessage();
+            messageJson["qos"] = message.getQoS();
+            messageJson["retain"] = message.getRetain();
+
+            messageVector.emplace_back(messageJson);
+        }
+
+        json["message_queue"] = messageVector;
+
+        return json;
     }
 
 } // namespace iot::mqtt::server::broker

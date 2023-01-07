@@ -22,6 +22,8 @@
 #include "iot/mqtt/Session.h"
 #include "iot/mqtt/server/broker/Message.h" // IWYU pragma: export
 
+#include <nlohmann/json_fwd.hpp>
+
 namespace iot::mqtt::server {
     class Mqtt;
 } // namespace iot::mqtt::server
@@ -39,6 +41,7 @@ namespace iot::mqtt::server::broker {
     class Session : public iot::mqtt::Session {
     public:
         Session() = default;
+        Session(const std::string& clientId, const nlohmann::json& sessionJson);
         Session(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
         Session(const Session&) = default;
 
@@ -54,6 +57,8 @@ namespace iot::mqtt::server::broker {
 
         bool isActive() const;
         bool isOwnedBy(const iot::mqtt::server::Mqtt* mqtt) const;
+
+        nlohmann::json toJson();
 
     private:
         std::string clientId;

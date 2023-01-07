@@ -146,7 +146,6 @@ namespace iot::mqtt {
             LOG(DEBUG) << "Resend PUBLISH";
             LOG(DEBUG) << "==============";
 
-            publish.setDup();
             send(publish);
         }
 
@@ -182,6 +181,7 @@ namespace iot::mqtt {
 
         if (qoS == 2) {
             session->publishMap[pId] = publish;
+            session->publishMap[pId].setDup(true);
         }
 
         send(publish);

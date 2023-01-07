@@ -38,14 +38,50 @@
 
 #include "log/Logger.h"
 
+#include <cstdio>
+#include <cstdlib>
 #include <iomanip>
-#include <ostream>
+#include <iostream>
+#include <nlohmann/json.hpp>
+
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::client {
 
+    Mqtt::Mqtt()
+        : sessionStore((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") {
+        nlohmann::json sessionStoreJson;
+
+        std::ifstream sessionStoreFile(sessionStore);
+
+        if (sessionStoreFile.is_open()) {
+            try {
+                sessionStoreFile >> sessionStoreJson;
+                session.fromJson(sessionStoreJson);
+
+                LOG(INFO) << sessionStoreJson.dump(4) << std::endl;
+            } catch (const nlohmann::json::exception& e) {
+                LOG(ERROR) << e.what();
+            }
+            sessionStoreFile.close();
+            std::remove(sessionStore.data());
+        }
+    }
+
     Mqtt::~Mqtt() {
+        if (!sessionStore.empty()) {
+            std::ofstream sessionStoreFile;
+            sessionStoreFile.open(sessionStore);
+            sessionStoreFile << session.toJson();
+            sessionStoreFile.close();
+            std::remove(sessionStore.data());
+        }
+
+        LOG(INFO) << "Remaining session:" << std::endl;
+        LOG(INFO) << session.toJson().dump(4) << std::endl;
+
         pingTimer.cancel();
     }
 
@@ -119,6 +155,16 @@ namespace iot::mqtt::client {
             LOG(TRACE) << "Negative ack received";
             mqttContext->end(true);
         } else {
+            setSession(&session);
+
+            setKeepAlive(keepAlive * 2);
+
+            pingTimer = core::timer::Timer::intervalTimer(
+                [this](void) -> void {
+                    sendPingreq();
+                },
+                keepAlive);
+
             onConnack(connack);
         }
     }
@@ -209,18 +255,10 @@ namespace iot::mqtt::client {
         LOG(DEBUG) << "Send CONNECT";
         LOG(DEBUG) << "============";
 
-        setSession(&session);
-
         send(iot::mqtt::packets::Connect(
             clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password));
 
-        setKeepAlive(keepAlive * 2);
-
-        pingTimer = core::timer::Timer::intervalTimer(
-            [this](void) -> void {
-                sendPingreq();
-            },
-            keepAlive);
+        this->keepAlive = keepAlive;
     }
 
     void Mqtt::sendSubscribe(std::list<iot::mqtt::Topic>& topics) { // Client
