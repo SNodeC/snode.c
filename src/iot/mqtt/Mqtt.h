@@ -73,7 +73,7 @@ namespace iot::mqtt {
         virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     protected:
-        void setSession(Session* session);
+        void initSession(Session* session, const utils::Timeval& keepAlive);
 
     public:
         void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
@@ -104,8 +104,6 @@ namespace iot::mqtt {
         void send(std::vector<char>&& data) const;
 
         static void printStandardHeader(const iot::mqtt::ControlPacket& packet);
-
-        void setKeepAlive(const utils::Timeval& timeout);
 
     private:
         iot::mqtt::FixedHeader fixedHeader;

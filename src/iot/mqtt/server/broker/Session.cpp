@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <map>
 #include <nlohmann/json.hpp>
+#include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

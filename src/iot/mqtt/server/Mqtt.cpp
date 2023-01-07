@@ -18,7 +18,6 @@
 
 #include "iot/mqtt/server/Mqtt.h"
 
-#include "core/DescriptorEventReceiver.h"
 #include "iot/mqtt/MqttContext.h"
 #include "iot/mqtt/packets/Connack.h"
 #include "iot/mqtt/packets/Pingresp.h"
@@ -125,7 +124,7 @@ namespace iot::mqtt::server {
         dynamic_cast<iot::mqtt::server::ControlPacketDeserializer*>(controlPacketDeserializer)->propagateEvent(this);
     }
 
-    void Mqtt::initSession() {
+    void Mqtt::initSession(const utils::Timeval& keepAlive) {
         if (broker->hasActiveSession(clientId)) {
             LOG(TRACE) << "Existing session found for ClientId = `" << clientId << "'";
             LOG(TRACE) << "  closing";
@@ -142,10 +141,10 @@ namespace iot::mqtt::server {
             if (cleanSession) {
                 LOG(TRACE) << "  clean Session = " << this;
                 broker->unsubscribe(clientId);
-                setSession(broker->newSession(clientId, this));
+                initSession(broker->newSession(clientId, this), keepAlive);
             } else {
                 LOG(TRACE) << "  renew Session = " << this;
-                setSession(broker->renewSession(clientId, this));
+                initSession(broker->renewSession(clientId, this), keepAlive);
             }
         } else {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
@@ -153,7 +152,7 @@ namespace iot::mqtt::server {
             LOG(TRACE) << "No session found for ClientId = '" << clientId << "\'";
             LOG(TRACE) << "  new Session = " << this;
 
-            setSession(broker->newSession(clientId, this));
+            initSession(broker->newSession(clientId, this), keepAlive);
         }
     }
 
@@ -247,13 +246,7 @@ namespace iot::mqtt::server {
             willFlag = connect.getWillFlag();
             cleanSession = connect.getCleanSession();
 
-            if (keepAlive != 0) {
-                setKeepAlive(1.5 * keepAlive);
-            } else {
-                setKeepAlive(core::DescriptorEventReceiver::TIMEOUT::DISABLE); // Or leaf at framework default (default 60 sec)?
-            }
-
-            initSession();
+            initSession(1.5 * keepAlive);
 
             onConnect(connect);
         }

@@ -139,7 +139,7 @@ namespace iot::mqtt {
         return mqttContext->getSocketConnection();
     }
 
-    void Mqtt::setSession(Session* session) {
+    void Mqtt::initSession(Session* session, const utils::Timeval& keepAlive) {
         this->session = session;
 
         for (auto& [packetIdentifier, publish] : session->publishMap) {
@@ -154,6 +154,17 @@ namespace iot::mqtt {
             LOG(DEBUG) << "=============";
 
             send(iot::mqtt::packets::Pubrel(packetIdentifier));
+        }
+
+        if (keepAlive > 0) {
+            keepAliveTimer = core::timer::Timer::singleshotTimer(
+                [this, keepAlive]() -> void {
+                    LOG(TRACE) << "Keep-alive timer expired. Interval was: " << keepAlive;
+                    mqttContext->kill();
+                },
+                keepAlive);
+
+            getSocketConnection()->setTimeout(0);
         }
     }
 
@@ -341,19 +352,6 @@ namespace iot::mqtt {
         }
 
         return ss.str();
-    }
-
-    void Mqtt::setKeepAlive(const utils::Timeval& timeout) {
-        if (timeout > 0) {
-            keepAliveTimer = core::timer::Timer::singleshotTimer(
-                [this, timeout]() -> void {
-                    LOG(TRACE) << "Keep-alive timer expired. Interval was: " << timeout;
-                    mqttContext->kill();
-                },
-                timeout);
-
-            getSocketConnection()->setTimeout(0);
-        }
     }
 
     uint16_t Mqtt::getPacketIdentifier() {

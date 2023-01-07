@@ -32,7 +32,6 @@ namespace iot::mqtt::server {
 
 #include <cstdint>
 #include <deque>
-#include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

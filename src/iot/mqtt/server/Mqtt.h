@@ -54,6 +54,10 @@ namespace iot::mqtt {
     }     // namespace server
 } // namespace iot::mqtt
 
+namespace utils {
+    class Timeval;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
@@ -79,7 +83,8 @@ namespace iot::mqtt::server {
 
         void onExit() override;
 
-        void initSession();
+        using Super::initSession;
+        void initSession(const utils::Timeval& keepAlive);
         void releaseSession();
 
         virtual void onConnect(const iot::mqtt::packets::Connect& connect);
