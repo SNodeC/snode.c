@@ -41,8 +41,8 @@ namespace iot::mqtt::server::broker {
     class Session : public iot::mqtt::Session {
     public:
         Session() = default;
-        Session(const std::string& clientId, const nlohmann::json& sessionJson);
-        Session(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
+        explicit Session(const nlohmann::json& sessionJson);
+        explicit Session(iot::mqtt::server::Mqtt* mqtt);
         Session(const Session&) = default;
 
         Session& operator=(const Session&) = default;
@@ -61,7 +61,6 @@ namespace iot::mqtt::server::broker {
         nlohmann::json toJson();
 
     private:
-        std::string clientId;
         iot::mqtt::server::Mqtt* mqtt = nullptr;
 
         std::deque<Message> messageQueue;

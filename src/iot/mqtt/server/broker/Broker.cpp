@@ -135,14 +135,18 @@ namespace iot::mqtt::server::broker {
     }
 
     Session* Broker::newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt) {
-        sessions[clientId] = iot::mqtt::server::broker::Session(clientId, mqtt);
+        sessions[clientId] = iot::mqtt::server::broker::Session(mqtt);
 
         return &sessions[clientId];
     }
 
     Session* Broker::renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt) {
         sessions[clientId].renew(mqtt);
+
+        LOG(TRACE) << "  Retained: Send Publish: ClientId: " << clientId;
         subscribtionTree.publishRetained(clientId);
+
+        LOG(TRACE) << "  Queued: Send Publish: ClientId: " << clientId;
         sessions[clientId].publishQueued();
 
         return &sessions[clientId];
@@ -158,6 +162,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS) {
+        LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
         sessions[clientId].sendPublish(message, qoS);
     }
 
@@ -173,7 +178,7 @@ namespace iot::mqtt::server::broker {
 
     void Broker::fromJson(const nlohmann::json& json) {
         for (auto& [clientId, sessionJson] : json.items()) {
-            sessions[clientId] = Session(clientId, sessionJson);
+            sessions[clientId] = Session(sessionJson);
         }
     }
 
