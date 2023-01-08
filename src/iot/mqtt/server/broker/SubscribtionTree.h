@@ -28,6 +28,7 @@ namespace iot::mqtt::server::broker {
 
 #include <cstdint>
 #include <map>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -47,10 +48,13 @@ namespace iot::mqtt::server::broker {
         bool unsubscribe(std::string topic, const std::string& clientId);
         bool unsubscribe(const std::string& clientId);
 
+        nlohmann::json toJson() const;
+        void fromJson(const nlohmann::json& json);
+
     private:
-        class SubscribtionTreeNode {
+        class TopicLevel {
         public:
-            explicit SubscribtionTreeNode(iot::mqtt::server::broker::Broker* broker);
+            explicit TopicLevel(iot::mqtt::server::broker::Broker* broker);
 
             void publishRetained(const std::string& clientId);
 
@@ -63,15 +67,20 @@ namespace iot::mqtt::server::broker {
             bool unsubscribe(const std::string& clientId);
 
         private:
-            std::map<std::string, uint8_t> subscribers;
-            std::map<std::string, SubscribtionTreeNode> subscribtions;
+            TopicLevel& fromJson(const nlohmann::json& json);
+            nlohmann::json toJson() const;
 
             std::string subscribedTopicName = "";
+            std::map<std::string, uint8_t> subscribers;
+
+            std::map<std::string, TopicLevel> subTopicLevels;
 
             iot::mqtt::server::broker::Broker* broker;
+
+            friend class SubscribtionTree;
         };
 
-        SubscribtionTreeNode head;
+        TopicLevel head;
     };
 
 } // namespace iot::mqtt::server::broker

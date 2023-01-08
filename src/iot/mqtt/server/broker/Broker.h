@@ -33,7 +33,6 @@ namespace iot::mqtt::server {
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -76,8 +75,6 @@ namespace iot::mqtt::server::broker {
         void sendPublish(const std::string& clientId, Message& message, uint8_t qoS);
 
     private:
-        nlohmann::json toJson();
-
         std::string sessionStoreFileName;
         uint8_t subscribtionMaxQoS;
 

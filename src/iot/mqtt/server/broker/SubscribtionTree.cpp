@@ -25,8 +25,14 @@
 
 #include "log/Logger.h"
 
+#include <nlohmann/json.hpp>
 #include <string>
+#include <type_traits>
 #include <utility>
+
+// IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
+// IWYU pragma: no_include <nlohmann/detail/json_pointer.hpp>
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -56,21 +62,21 @@ namespace iot::mqtt::server::broker {
         return head.unsubscribe(clientId);
     }
 
-    SubscribtionTree::SubscribtionTreeNode::SubscribtionTreeNode(Broker* broker)
+    SubscribtionTree::TopicLevel::TopicLevel(Broker* broker)
         : broker(broker) {
     }
 
-    void SubscribtionTree::SubscribtionTreeNode::publishRetained(const std::string& clientId) {
+    void SubscribtionTree::TopicLevel::publishRetained(const std::string& clientId) {
         if (subscribers.contains(clientId) && !subscribedTopicName.empty()) {
             broker->publishRetainedMessage(clientId, subscribedTopicName, subscribers[clientId]);
         }
 
-        for (auto& [topic, subscribtion] : subscribtions) {
+        for (auto& [topic, subscribtion] : subTopicLevels) {
             subscribtion.publishRetained(clientId);
         }
     }
 
-    bool SubscribtionTree::SubscribtionTreeNode::subscribe(
+    bool SubscribtionTree::TopicLevel::subscribe(
         const std::string& topic, const std::string& clientId, uint8_t clientQoS, std::string remainingTopicName, bool leafFound) {
         bool success = true;
 
@@ -88,7 +94,7 @@ namespace iot::mqtt::server::broker {
             } else {
                 remainingTopicName.erase(0, topic.size() + 1);
 
-                success = subscribtions.insert({topic, SubscribtionTree::SubscribtionTreeNode(broker)})
+                success = subTopicLevels.insert({topic, SubscribtionTree::TopicLevel(broker)})
                               .first->second.subscribe(topic, clientId, clientQoS, remainingTopicName, leafFound);
             }
         }
@@ -96,7 +102,7 @@ namespace iot::mqtt::server::broker {
         return success;
     }
 
-    void SubscribtionTree::SubscribtionTreeNode::publish(Message& message, std::string remainingTopicName, bool leafFound) {
+    void SubscribtionTree::TopicLevel::publish(Message& message, std::string remainingTopicName, bool leafFound) {
         if (leafFound) {
             if (!subscribedTopicName.empty()) {
                 LOG(TRACE) << "Found match:";
@@ -113,8 +119,8 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "... completed!";
             }
 
-            auto nextHashNode = subscribtions.find("#");
-            if (nextHashNode != subscribtions.end()) {
+            auto nextHashNode = subTopicLevels.find("#");
+            if (nextHashNode != subTopicLevels.end()) {
                 LOG(TRACE) << "Found parent match:";
                 LOG(TRACE) << "  Topic: '" << message.getTopic() << "'";
                 LOG(TRACE) << "  Filter: '" << message.getTopic() << "/#'";
@@ -135,18 +141,18 @@ namespace iot::mqtt::server::broker {
 
             remainingTopicName.erase(0, topic.size() + 1);
 
-            auto foundNode = subscribtions.find(topic);
-            if (foundNode != subscribtions.end()) {
+            auto foundNode = subTopicLevels.find(topic);
+            if (foundNode != subTopicLevels.end()) {
                 foundNode->second.publish(message, remainingTopicName, leafFound);
             }
 
-            foundNode = subscribtions.find("+");
-            if (foundNode != subscribtions.end()) {
+            foundNode = subTopicLevels.find("+");
+            if (foundNode != subTopicLevels.end()) {
                 foundNode->second.publish(message, remainingTopicName, leafFound);
             }
 
-            foundNode = subscribtions.find("#");
-            if (foundNode != subscribtions.end()) {
+            foundNode = subTopicLevels.find("#");
+            if (foundNode != subTopicLevels.end()) {
                 LOG(TRACE) << "Found match: Subscribed topic: '" << foundNode->second.subscribedTopicName << "', topic: '"
                            << message.getTopic() << "', Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
@@ -158,7 +164,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    bool SubscribtionTree::SubscribtionTreeNode::unsubscribe(const std::string& clientId, std::string remainingTopicName, bool leafFound) {
+    bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId, std::string remainingTopicName, bool leafFound) {
         if (leafFound) {
             subscribers.erase(clientId);
         } else {
@@ -169,26 +175,72 @@ namespace iot::mqtt::server::broker {
 
             remainingTopicName.erase(0, topic.size() + 1);
 
-            if (subscribtions.contains(topic) && subscribtions.find(topic)->second.unsubscribe(clientId, remainingTopicName, leafFound)) {
-                subscribtions.erase(topic);
+            if (subTopicLevels.contains(topic) && subTopicLevels.find(topic)->second.unsubscribe(clientId, remainingTopicName, leafFound)) {
+                subTopicLevels.erase(topic);
             }
         }
 
-        return subscribers.empty() && subscribtions.empty();
+        return subscribers.empty() && subTopicLevels.empty();
     }
 
-    bool SubscribtionTree::SubscribtionTreeNode::unsubscribe(const std::string& clientId) {
+    bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId) {
         subscribers.erase(clientId);
 
-        for (auto it = subscribtions.begin(); it != subscribtions.end();) {
+        for (auto it = subTopicLevels.begin(); it != subTopicLevels.end();) {
             if (it->second.unsubscribe(clientId)) {
-                it = subscribtions.erase(it);
+                it = subTopicLevels.erase(it);
             } else {
                 ++it;
             }
         }
 
-        return subscribers.empty() && subscribtions.empty();
+        return subscribers.empty() && subTopicLevels.empty();
+    }
+
+    nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
+        nlohmann::json json;
+
+        json["subscribed_topic"] = subscribedTopicName;
+
+        for (auto& [topicLevel, topicLevelValue] : subTopicLevels) {
+            json["topic_level"][topicLevel] = topicLevelValue.toJson();
+        }
+
+        for (auto& [subscribers, qoS] : subscribers) {
+            json["subscribers"][subscribers] = qoS;
+        }
+
+        return json;
+    }
+
+    SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& json) {
+        subscribedTopicName = json.value("subscribed_topic", "");
+
+        if (json.contains("subscribers")) {
+            for (auto& subscriber : json["subscribers"].items()) {
+                subscribers.emplace(subscriber.key(), subscriber.value());
+            }
+        }
+
+        if (json.contains("topic_level")) {
+            for (auto& topicLevelItem : json["topic_level"].items()) {
+                subTopicLevels.emplace(topicLevelItem.key(), TopicLevel(broker).fromJson(topicLevelItem.value()));
+            };
+        }
+
+        return *this;
+    }
+
+    void SubscribtionTree::fromJson(const nlohmann::json& json) {
+        head.subTopicLevels.clear();
+
+        head.fromJson(json);
+    }
+
+    nlohmann::json SubscribtionTree::toJson() const {
+        nlohmann::json json = head.toJson();
+
+        return json;
     }
 
 } // namespace iot::mqtt::server::broker

@@ -51,7 +51,7 @@
 namespace iot::mqtt::client {
 
     Mqtt::Mqtt()
-        : sessionStore((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") {
+        : sessionStore((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
         nlohmann::json sessionStoreJson;
 
         std::ifstream sessionStoreFile(sessionStore);

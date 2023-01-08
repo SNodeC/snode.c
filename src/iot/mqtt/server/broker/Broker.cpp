@@ -41,7 +41,7 @@ namespace iot::mqtt::server::broker {
     std::shared_ptr<Broker> Broker::broker;
 
     Broker::Broker(uint8_t subscribtionMaxQoS)
-        : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "")
+        : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") // NOLINT
         , subscribtionMaxQoS(subscribtionMaxQoS)
         , subscribtionTree(this)
         , retainTree(this) {
@@ -54,10 +54,10 @@ namespace iot::mqtt::server::broker {
                 sessionStoreFile >> sessionStoreJson;
 
                 for (auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
-                    sessionStore[clientId] = Session(sessionJson);
+                    sessionStore[clientId].fromJson(sessionJson);
                 }
-
                 retainTree.fromJson(sessionStoreJson["retain_tree"]);
+                subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
 
                 std::cout << sessionStoreJson.dump(4) << std::endl;
             } catch (const nlohmann::json::exception& e) {
@@ -71,17 +71,20 @@ namespace iot::mqtt::server::broker {
     Broker::~Broker() {
         nlohmann::json json;
 
-        json["session_store"] = toJson();
+        nlohmann::json& jsonSessionStore = json["session_store"];
+
+        for (auto& [clientId, session] : sessionStore) {
+            jsonSessionStore[clientId] = session.toJson();
+        }
         json["retain_tree"] = retainTree.toJson();
+        json["subscribtion_tree"] = subscribtionTree.toJson();
 
-        if (!sessionStore.empty()) {
-            std::ofstream sessionStoreFile;
-            sessionStoreFile.open(sessionStoreFileName);
+        std::ofstream sessionStoreFile;
+        sessionStoreFile.open(sessionStoreFileName);
 
-            if (sessionStoreFile.is_open()) {
-                sessionStoreFile << json.dump();
-                sessionStoreFile.close();
-            }
+        if (sessionStoreFile.is_open()) {
+            sessionStoreFile << json.dump();
+            sessionStoreFile.close();
         }
 
         std::cout << "Persiviert:" << std::endl;
@@ -177,16 +180,6 @@ namespace iot::mqtt::server::broker {
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS) {
         LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
         sessionStore[clientId].sendPublish(message, qoS);
-    }
-
-    nlohmann::json Broker::toJson() {
-        nlohmann::json json;
-
-        for (auto& [clientId, session] : sessionStore) {
-            json[clientId] = session.toJson();
-        }
-
-        return json;
     }
 
 } // namespace iot::mqtt::server::broker

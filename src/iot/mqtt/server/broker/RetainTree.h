@@ -47,35 +47,31 @@ namespace iot::mqtt::server::broker {
         void fromJson(const nlohmann::json& json);
 
     private:
-        class RetainTreeNode {
+        class TopicLevel {
         public:
-            //            RetainTreeNode() = default;
-            explicit RetainTreeNode(iot::mqtt::server::broker::Broker* broker);
-            RetainTreeNode(Message& message,
-                           std::map<std::string, RetainTreeNode>& retainTreeNodes,
-                           iot::mqtt::server::broker::Broker* broker);
+            explicit TopicLevel(iot::mqtt::server::broker::Broker* broker);
+            TopicLevel(Message& message, std::map<std::string, TopicLevel>& retainTreeNodes, iot::mqtt::server::broker::Broker* broker);
 
             bool retain(Message& message, std::string remainingTopicName, bool leafFound);
 
             void publish(const std::string& clientId, uint8_t clientQoS);
 
-            void fromJson(const nlohmann::json& json);
-
         private:
+            TopicLevel& fromJson(const nlohmann::json& json);
             nlohmann::json toJson() const;
 
             void publish(const std::string& clientId, uint8_t clientQoS, std::string remainingSubscribedTopicName, bool leafFound);
 
             Message message;
 
-            std::map<std::string, RetainTreeNode> retainTreeNodes;
+            std::map<std::string, TopicLevel> subTopicLevels;
 
             iot::mqtt::server::broker::Broker* broker = nullptr;
 
             friend class RetainTree;
         };
 
-        RetainTreeNode head;
+        TopicLevel head;
     };
 
 } // namespace iot::mqtt::server::broker

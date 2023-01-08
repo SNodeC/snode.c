@@ -40,7 +40,6 @@ namespace iot::mqtt::server::broker {
     class Session : public iot::mqtt::Session {
     public:
         Session() = default;
-        explicit Session(const nlohmann::json& sessionJson);
         explicit Session(iot::mqtt::server::Mqtt* mqtt);
         Session(const Session&) = default;
 

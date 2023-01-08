@@ -39,17 +39,6 @@ namespace iot::mqtt::server::broker {
         : mqtt(mqtt) {
     }
 
-    Session::Session(const nlohmann::json& sessionJson)
-        : iot::mqtt::Session(sessionJson) {
-        std::vector<nlohmann::json> messageVector = sessionJson["message_queue"];
-
-        for (const nlohmann::json& messageJson : messageVector) {
-            messageQueue.push_back(Message(messageJson));
-
-            LOG(TRACE) << "Message: " << messageJson["topic"] << ":" << messageJson["message"];
-        }
-    }
-
     void Session::sendPublish(Message& message, uint8_t qoS) {
         std::stringstream messageData;
         const std::string& mes = message.getMessage();

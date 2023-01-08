@@ -46,11 +46,11 @@ namespace iot::mqtt::server::broker {
         head.publish(clientId, clientQoS, subscribedTopicName, false);
     }
 
-    RetainTree::RetainTreeNode::RetainTreeNode(iot::mqtt::server::broker::Broker* broker)
+    RetainTree::TopicLevel::TopicLevel(iot::mqtt::server::broker::Broker* broker)
         : broker(broker) {
     }
 
-    bool RetainTree::RetainTreeNode::retain(Message& message, std::string remainingTopicName, bool leafFound) {
+    bool RetainTree::TopicLevel::retain(Message& message, std::string remainingTopicName, bool leafFound) {
         if (leafFound) {
             if (!message.getTopic().empty()) {
                 LOG(TRACE) << "Retaining: " << message.getTopic() << " - " << message.getMessage();
@@ -64,15 +64,15 @@ namespace iot::mqtt::server::broker {
 
             remainingTopicName.erase(0, topicLevel.size() + 1);
 
-            if (retainTreeNodes.insert({topicLevel, RetainTreeNode(broker)}).first->second.retain(message, remainingTopicName, leafFound)) {
-                retainTreeNodes.erase(topicLevel);
+            if (subTopicLevels.insert({topicLevel, TopicLevel(broker)}).first->second.retain(message, remainingTopicName, leafFound)) {
+                subTopicLevels.erase(topicLevel);
             }
         }
 
-        return this->message.getMessage().empty() && retainTreeNodes.empty();
+        return this->message.getMessage().empty() && subTopicLevels.empty();
     }
 
-    void RetainTree::RetainTreeNode::publish(const std::string& clientId,
+    void RetainTree::TopicLevel::publish(const std::string& clientId,
                                              uint8_t clientQoS,
                                              std::string remainingSubscribedTopicName,
                                              bool leafFound) {
@@ -92,11 +92,11 @@ namespace iot::mqtt::server::broker {
 
             remainingSubscribedTopicName.erase(0, topicLevel.size() + 1);
 
-            auto foundNode = retainTreeNodes.find(topicLevel);
-            if (foundNode != retainTreeNodes.end()) {
+            auto foundNode = subTopicLevels.find(topicLevel);
+            if (foundNode != subTopicLevels.end()) {
                 foundNode->second.publish(clientId, clientQoS, remainingSubscribedTopicName, leafFound);
             } else if (topicLevel == "+") {
-                for (auto& [notUsed, topicTree] : retainTreeNodes) {
+                for (auto& [notUsed, topicTree] : subTopicLevels) {
                     topicTree.publish(clientId, clientQoS, remainingSubscribedTopicName, leafFound);
                 }
             } else if (topicLevel == "#") {
@@ -105,7 +105,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    void RetainTree::RetainTreeNode::publish(const std::string& clientId, uint8_t clientQoS) {
+    void RetainTree::TopicLevel::publish(const std::string& clientId, uint8_t clientQoS) {
         if (!message.getTopic().empty()) {
             LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                        << static_cast<uint16_t>(message.getQoS());
@@ -114,42 +114,40 @@ namespace iot::mqtt::server::broker {
             LOG(TRACE) << "  ... completed!";
         }
 
-        for (auto& [topicLevel, topicTree] : retainTreeNodes) {
+        for (auto& [topicLevel, topicTree] : subTopicLevels) {
             topicTree.publish(clientId, clientQoS);
         }
     }
 
-    nlohmann::json RetainTree::RetainTreeNode::toJson() const {
+    nlohmann::json RetainTree::TopicLevel::toJson() const {
         nlohmann::json json;
 
         if (!message.getMessage().empty()) {
             json["message"] = message.toJson();
         }
 
-        for (auto& [topicLevel, retainTreeNode] : retainTreeNodes) {
-            json["topic_level"][topicLevel] = retainTreeNode.toJson();
+        for (auto& [topicLevel, topicLevelValue] : subTopicLevels) {
+            json["topic_level"][topicLevel] = topicLevelValue.toJson();
         }
 
         return json;
     }
 
-    void RetainTree::RetainTreeNode::fromJson(const nlohmann::json& json) {
-        if (json.contains("message")) {
-            this->message = Message(json["message"]);
-        }
+    RetainTree::TopicLevel& RetainTree::TopicLevel::fromJson(const nlohmann::json& json) {
+        message.fromJson(json.value("message", nlohmann::json()));
 
         if (json.contains("topic_level")) {
             for (auto& topicLevelItem : json["topic_level"].items()) {
-                RetainTreeNode subTree(broker);
-
-                subTree.fromJson(topicLevelItem.value());
-
-                retainTreeNodes.emplace(topicLevelItem.key(), subTree);
+                subTopicLevels.emplace(topicLevelItem.key(), TopicLevel(broker).fromJson(topicLevelItem.value()));
             };
         }
+
+        return *this;
     }
 
     void RetainTree::fromJson(const nlohmann::json& json) {
+        head.subTopicLevels.clear();
+
         head.fromJson(json);
     }
 
