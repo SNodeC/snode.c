@@ -145,6 +145,7 @@ namespace iot::mqtt::server {
             } else {
                 LOG(TRACE) << "  renew Session = " << this;
                 initSession(broker->renewSession(clientId, this), keepAlive);
+                broker->restartSession(clientId);
             }
         } else {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);

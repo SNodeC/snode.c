@@ -44,7 +44,8 @@ namespace iot::mqtt::server::broker {
         std::vector<nlohmann::json> messageVector = sessionJson["message_queue"];
 
         for (const nlohmann::json& messageJson : messageVector) {
-            messageQueue.push_back(Message(messageJson["topic"], messageJson["message"], messageJson["qos"], messageJson["retain"]));
+            messageQueue.push_back(Message(messageJson));
+
             LOG(TRACE) << "Message: " << messageJson["topic"] << ":" << messageJson["message"];
         }
     }
@@ -89,8 +90,10 @@ namespace iot::mqtt::server::broker {
         messageQueue.clear();
     }
 
-    void Session::renew(iot::mqtt::server::Mqtt* mqtt) {
+    Session* Session::renew(iot::mqtt::server::Mqtt* mqtt) {
         this->mqtt = mqtt;
+
+        return this;
     }
 
     void Session::retain() {
@@ -110,14 +113,7 @@ namespace iot::mqtt::server::broker {
 
         std::vector<nlohmann::json> messageVector;
         for (const Message& message : messageQueue) {
-            nlohmann::json messageJson;
-
-            messageJson["topic"] = message.getTopic();
-            messageJson["message"] = message.getMessage();
-            messageJson["qos"] = message.getQoS();
-            messageJson["retain"] = message.getRetain();
-
-            messageVector.emplace_back(messageJson);
+            messageVector.emplace_back(message.toJson());
         }
 
         json["message_queue"] = messageVector;

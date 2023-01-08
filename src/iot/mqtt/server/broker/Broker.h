@@ -69,6 +69,7 @@ namespace iot::mqtt::server::broker {
 
         Session* newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
         Session* renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
+        void restartSession(const std::string& clientId);
         void retainSession(const std::string& clientId);
         void deleteSession(const std::string& clinetId);
 
@@ -76,15 +77,14 @@ namespace iot::mqtt::server::broker {
 
     private:
         nlohmann::json toJson();
-        void fromJson(const nlohmann::json& json);
 
-        std::string sessionStore;
+        std::string sessionStoreFileName;
         uint8_t subscribtionMaxQoS;
 
         iot::mqtt::server::broker::SubscribtionTree subscribtionTree;
         iot::mqtt::server::broker::RetainTree retainTree;
 
-        std::map<std::string, iot::mqtt::server::broker::Session> sessions;
+        std::map<std::string, iot::mqtt::server::broker::Session> sessionStore;
 
         static std::shared_ptr<Broker> broker;
     };

@@ -50,7 +50,7 @@ namespace iot::mqtt::server::broker {
 
         void publishQueued();
 
-        void renew(iot::mqtt::server::Mqtt* mqtt);
+        Session* renew(iot::mqtt::server::Mqtt* mqtt);
 
         void retain();
 

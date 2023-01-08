@@ -20,6 +20,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>
+#include <nlohmann/json.hpp>
+
+// IWYU pragma: no_include <nlohmann/detail/json_pointer.hpp>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::server::broker {
@@ -29,6 +34,10 @@ namespace iot::mqtt::server::broker {
         , message(message)
         , qoS(qoS)
         , retain(retain) {
+    }
+
+    Message::Message(const nlohmann::json& messageJson)
+        : Message(messageJson["topic"], messageJson["message"], messageJson["qos"], messageJson["retain"]) {
     }
 
     Message::Message(const Message& message, uint8_t qoS)
@@ -50,6 +59,17 @@ namespace iot::mqtt::server::broker {
 
     bool Message::getRetain() const {
         return retain;
+    }
+
+    nlohmann::json Message::toJson() const {
+        nlohmann::json messageJson;
+
+        messageJson["topic"] = topic;
+        messageJson["message"] = message;
+        messageJson["qos"] = qoS;
+        messageJson["retain"] = retain;
+
+        return messageJson;
     }
 
 } // namespace iot::mqtt::server::broker

@@ -29,6 +29,7 @@ namespace iot::mqtt::server::broker {
 
 #include <cstdint>
 #include <map>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -42,22 +43,36 @@ namespace iot::mqtt::server::broker {
         void retain(Message&& message);
         void publish(std::string subscribedTopicName, const std::string& clientId, uint8_t clientQoS);
 
+        nlohmann::json toJson() const;
+        void fromJson(const nlohmann::json& json);
+
     private:
         class RetainTreeNode {
         public:
+            //            RetainTreeNode() = default;
             explicit RetainTreeNode(iot::mqtt::server::broker::Broker* broker);
+            RetainTreeNode(Message& message,
+                           std::map<std::string, RetainTreeNode>& retainTreeNodes,
+                           iot::mqtt::server::broker::Broker* broker);
 
             bool retain(Message& message, std::string remainingTopicName, bool leafFound);
 
-            void publish(const std::string& clientId, uint8_t clientQoS, std::string remainingSubscribedTopicName, bool leafFound);
             void publish(const std::string& clientId, uint8_t clientQoS);
 
+            void fromJson(const nlohmann::json& json);
+
         private:
+            nlohmann::json toJson() const;
+
+            void publish(const std::string& clientId, uint8_t clientQoS, std::string remainingSubscribedTopicName, bool leafFound);
+
             Message message;
 
-            std::map<std::string, RetainTreeNode> topicTreeNodes;
+            std::map<std::string, RetainTreeNode> retainTreeNodes;
 
-            iot::mqtt::server::broker::Broker* broker;
+            iot::mqtt::server::broker::Broker* broker = nullptr;
+
+            friend class RetainTree;
         };
 
         RetainTreeNode head;

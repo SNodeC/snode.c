@@ -24,7 +24,11 @@
 
 #include "log/Logger.h"
 
+#include <nlohmann/json.hpp>
+#include <type_traits>
 #include <utility>
+
+// IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -60,12 +64,12 @@ namespace iot::mqtt::server::broker {
 
             remainingTopicName.erase(0, topicLevel.size() + 1);
 
-            if (topicTreeNodes.insert({topicLevel, RetainTreeNode(broker)}).first->second.retain(message, remainingTopicName, leafFound)) {
-                topicTreeNodes.erase(topicLevel);
+            if (retainTreeNodes.insert({topicLevel, RetainTreeNode(broker)}).first->second.retain(message, remainingTopicName, leafFound)) {
+                retainTreeNodes.erase(topicLevel);
             }
         }
 
-        return this->message.getMessage().empty() && topicTreeNodes.empty();
+        return this->message.getMessage().empty() && retainTreeNodes.empty();
     }
 
     void RetainTree::RetainTreeNode::publish(const std::string& clientId,
@@ -88,11 +92,11 @@ namespace iot::mqtt::server::broker {
 
             remainingSubscribedTopicName.erase(0, topicLevel.size() + 1);
 
-            auto foundNode = topicTreeNodes.find(topicLevel);
-            if (foundNode != topicTreeNodes.end()) {
+            auto foundNode = retainTreeNodes.find(topicLevel);
+            if (foundNode != retainTreeNodes.end()) {
                 foundNode->second.publish(clientId, clientQoS, remainingSubscribedTopicName, leafFound);
             } else if (topicLevel == "+") {
-                for (auto& [notUsed, topicTree] : topicTreeNodes) {
+                for (auto& [notUsed, topicTree] : retainTreeNodes) {
                     topicTree.publish(clientId, clientQoS, remainingSubscribedTopicName, leafFound);
                 }
             } else if (topicLevel == "#") {
@@ -110,9 +114,49 @@ namespace iot::mqtt::server::broker {
             LOG(TRACE) << "  ... completed!";
         }
 
-        for (auto& [topicLevel, topicTree] : topicTreeNodes) {
+        for (auto& [topicLevel, topicTree] : retainTreeNodes) {
             topicTree.publish(clientId, clientQoS);
         }
+    }
+
+    nlohmann::json RetainTree::RetainTreeNode::toJson() const {
+        nlohmann::json json;
+
+        if (!message.getMessage().empty()) {
+            json["message"] = message.toJson();
+        }
+
+        for (auto& [topicLevel, retainTreeNode] : retainTreeNodes) {
+            json["topic_level"][topicLevel] = retainTreeNode.toJson();
+        }
+
+        return json;
+    }
+
+    void RetainTree::RetainTreeNode::fromJson(const nlohmann::json& json) {
+        if (json.contains("message")) {
+            this->message = Message(json["message"]);
+        }
+
+        if (json.contains("topic_level")) {
+            for (auto& topicLevelItem : json["topic_level"].items()) {
+                RetainTreeNode subTree(broker);
+
+                subTree.fromJson(topicLevelItem.value());
+
+                retainTreeNodes.emplace(topicLevelItem.key(), subTree);
+            };
+        }
+    }
+
+    void RetainTree::fromJson(const nlohmann::json& json) {
+        head.fromJson(json);
+    }
+
+    nlohmann::json RetainTree::toJson() const {
+        nlohmann::json json = head.toJson();
+
+        return json;
     }
 
 } // namespace iot::mqtt::server::broker

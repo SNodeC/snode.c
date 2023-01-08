@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -36,6 +37,7 @@ namespace iot::mqtt::server::broker {
     class Message {
     public:
         Message() = default;
+        explicit Message(const nlohmann::json& messageJson);
         Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
         Message(const Message& message, uint8_t qoS);
         Message(const Message& message) = default;
@@ -47,6 +49,8 @@ namespace iot::mqtt::server::broker {
         uint8_t getQoS() const;
 
         bool getRetain() const;
+
+        nlohmann::json toJson() const;
 
     private:
         std::string topic;
