@@ -117,7 +117,7 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) {
-        dynamic_cast<iot::mqtt::server::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this);
+        static_cast<iot::mqtt::server::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this);
     }
 
     void Mqtt::initSession(const utils::Timeval& keepAlive) {

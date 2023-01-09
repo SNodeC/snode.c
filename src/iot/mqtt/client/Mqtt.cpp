@@ -126,7 +126,7 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) {
-        dynamic_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this);
+        static_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this);
     }
 
     void Mqtt::onConnack([[maybe_unused]] const mqtt::packets::Connack& connack) {
