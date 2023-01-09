@@ -51,7 +51,7 @@ namespace iot::mqtt::server::broker {
         bool getRetain() const;
 
         nlohmann::json toJson() const;
-        void fromJson(const nlohmann::json& messageJson);
+        Message& fromJson(const nlohmann::json& messageJson);
 
     private:
         std::string topic;

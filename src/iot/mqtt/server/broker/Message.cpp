@@ -72,13 +72,15 @@ namespace iot::mqtt::server::broker {
         return messageJson;
     }
 
-    void Message::fromJson(const nlohmann::json& messageJson) {
+    Message& Message::fromJson(const nlohmann::json& messageJson) {
         if (!messageJson.empty()) {
             topic = messageJson["topic"];
             message = messageJson["message"];
             qoS = messageJson["qos"];
             retain = messageJson["retain"];
         }
+
+        return *this;
     }
 
 } // namespace iot::mqtt::server::broker
