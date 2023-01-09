@@ -69,26 +69,27 @@ namespace iot::mqtt::server::broker {
     }
 
     Broker::~Broker() {
-        nlohmann::json json;
+        nlohmann::json sessionStoreJson;
 
-        nlohmann::json& jsonSessionStore = json["session_store"];
+        nlohmann::json& jsonSessionStore = sessionStoreJson["session_store"];
 
         for (auto& [clientId, session] : sessionStore) {
             jsonSessionStore[clientId] = session.toJson();
         }
-        json["retain_tree"] = retainTree.toJson();
-        json["subscribtion_tree"] = subscribtionTree.toJson();
+        sessionStoreJson["retain_tree"] = retainTree.toJson();
+        sessionStoreJson["subscribtion_tree"] = subscribtionTree.toJson();
 
         std::ofstream sessionStoreFile;
         sessionStoreFile.open(sessionStoreFileName);
 
         if (sessionStoreFile.is_open()) {
-            sessionStoreFile << json.dump();
+            std::cout << "Perseveration of ";
+            sessionStoreFile << sessionStoreJson;
             sessionStoreFile.close();
         }
 
-        std::cout << "Persiviert:" << std::endl;
-        std::cout << json.dump(4) << std::endl;
+        std::cout << "Sessionstore:" << std::endl;
+        std::cout << sessionStoreJson.dump(4) << std::endl;
     }
 
     std::shared_ptr<Broker> Broker::instance(uint8_t subscribtionMaxQoS) {

@@ -213,17 +213,17 @@ namespace iot::mqtt::server::broker {
         return json;
     }
 
-    SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& json) {
-        subscribedTopicName = json.value("subscribed_topic", "");
+    SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& sessionTreeJson) {
+        subscribedTopicName = sessionTreeJson.value("subscribed_topic", "");
 
-        if (json.contains("subscribers")) {
-            for (auto& subscriber : json["subscribers"].items()) {
+        if (sessionTreeJson.contains("subscribers")) {
+            for (auto& subscriber : sessionTreeJson["subscribers"].items()) {
                 subscribers.emplace(subscriber.key(), subscriber.value());
             }
         }
 
-        if (json.contains("topic_level")) {
-            for (auto& topicLevelItem : json["topic_level"].items()) {
+        if (sessionTreeJson.contains("topic_level")) {
+            for (auto& topicLevelItem : sessionTreeJson["topic_level"].items()) {
                 subTopicLevels.emplace(topicLevelItem.key(), TopicLevel(broker).fromJson(topicLevelItem.value()));
             };
         }
@@ -231,16 +231,16 @@ namespace iot::mqtt::server::broker {
         return *this;
     }
 
-    void SubscribtionTree::fromJson(const nlohmann::json& json) {
-        head.subTopicLevels.clear();
+    void SubscribtionTree::fromJson(const nlohmann::json& sessionTreeJson) {
+        if (!sessionTreeJson.empty()) {
+            head.subTopicLevels.clear();
 
-        head.fromJson(json);
+            head.fromJson(sessionTreeJson);
+        }
     }
 
     nlohmann::json SubscribtionTree::toJson() const {
-        nlohmann::json json = head.toJson();
-
-        return json;
+        return head.toJson();
     }
 
 } // namespace iot::mqtt::server::broker

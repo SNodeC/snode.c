@@ -73,13 +73,14 @@ namespace iot::mqtt::client {
     Mqtt::~Mqtt() {
         if (!sessionStore.empty()) {
             std::ofstream sessionStoreFile;
-            sessionStoreFile.open(sessionStore);
-            sessionStoreFile << session.toJson();
-            sessionStoreFile.close();
-            std::remove(sessionStore.data());
+            if (sessionStoreFile.is_open()) {
+                std::cout << "Perseveration of ";
+                sessionStoreFile << session.toJson();
+                sessionStoreFile.close();
+            }
         }
 
-        LOG(INFO) << "Remaining session:" << std::endl;
+        LOG(INFO) << "Session:" << std::endl;
         LOG(INFO) << session.toJson().dump(4) << std::endl;
 
         pingTimer.cancel();

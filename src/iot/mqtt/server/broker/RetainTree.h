@@ -44,7 +44,7 @@ namespace iot::mqtt::server::broker {
         void publish(std::string subscribedTopicName, const std::string& clientId, uint8_t clientQoS);
 
         nlohmann::json toJson() const;
-        void fromJson(const nlohmann::json& json);
+        void fromJson(const nlohmann::json& retainTreeJson);
 
     private:
         class TopicLevel {
@@ -57,7 +57,7 @@ namespace iot::mqtt::server::broker {
             void publish(const std::string& clientId, uint8_t clientQoS);
 
         private:
-            TopicLevel& fromJson(const nlohmann::json& json);
+            TopicLevel& fromJson(const nlohmann::json& retainTreeJson);
             nlohmann::json toJson() const;
 
             void publish(const std::string& clientId, uint8_t clientQoS, std::string remainingSubscribedTopicName, bool leafFound);
