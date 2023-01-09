@@ -56,12 +56,11 @@ namespace iot::mqtt::server::broker {
         public:
             explicit TopicLevel(iot::mqtt::server::broker::Broker* broker);
 
-            void publishRetained(const std::string& clientId);
+            void publishRetained(const std::string& clientId, const std::string& topicLevel);
 
-            bool subscribe(
-                const std::string& topic, const std::string& clientId, uint8_t clientQoS, std::string remainingTopicName, bool leafFound);
+            bool subscribe(const std::string& clientId, uint8_t clientQoS, std::string remainingTopicName, bool leafFound);
 
-            void publish(Message& message, std::string remainingTopicName, bool leafFound);
+            void publish(Message& message, const std::string& topicLevel, std::string remainingTopicName, bool leafFound);
 
             bool unsubscribe(const std::string& clientId, std::string remainingTopicName, bool leafFound);
             bool unsubscribe(const std::string& clientId);
@@ -70,7 +69,6 @@ namespace iot::mqtt::server::broker {
             TopicLevel& fromJson(const nlohmann::json& sessionTreeJson);
             nlohmann::json toJson() const;
 
-            std::string subscribedTopicName = "";
             std::map<std::string, uint8_t> subscribers;
 
             std::map<std::string, TopicLevel> subTopicLevels;
