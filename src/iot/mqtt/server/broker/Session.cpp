@@ -31,6 +31,8 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
+// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace iot::mqtt::server::broker {
@@ -108,6 +110,14 @@ namespace iot::mqtt::server::broker {
         json["message_queue"] = messageVector;
 
         return json;
+    }
+
+    void Session::fromJson(const nlohmann::json& sessionJson) {
+        for (const nlohmann::json& messageJson : sessionJson["message_queue"]) {
+            messageQueue.push_back(Message().fromJson(messageJson));
+        }
+
+        iot::mqtt::Session::fromJson(sessionJson);
     }
 
 } // namespace iot::mqtt::server::broker
