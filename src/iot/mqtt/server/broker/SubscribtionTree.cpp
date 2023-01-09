@@ -223,7 +223,7 @@ namespace iot::mqtt::server::broker {
         if (sessionTreeJson.contains("topic_filter")) {
             for (auto& topicLevelItem : sessionTreeJson["topic_filter"].items()) {
                 subTopicLevels.emplace(topicLevelItem.key(), TopicLevel(broker).fromJson(topicLevelItem.value()));
-            };
+            }
         }
 
         return *this;

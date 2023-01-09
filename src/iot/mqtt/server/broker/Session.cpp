@@ -114,7 +114,7 @@ namespace iot::mqtt::server::broker {
 
     void Session::fromJson(const nlohmann::json& sessionJson) {
         for (const nlohmann::json& messageJson : sessionJson["message_queue"]) {
-            messageQueue.push_back(Message().fromJson(messageJson));
+            messageQueue.emplace_back(Message().fromJson(messageJson));
         }
 
         iot::mqtt::Session::fromJson(sessionJson);

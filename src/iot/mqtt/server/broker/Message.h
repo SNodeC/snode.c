@@ -37,7 +37,6 @@ namespace iot::mqtt::server::broker {
     class Message {
     public:
         Message() = default;
-        explicit Message(const nlohmann::json& messageJson);
         Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
         Message(const Message& message, uint8_t qoS);
         Message(const Message& message) = default;

@@ -36,10 +36,6 @@ namespace iot::mqtt::server::broker {
         , retain(retain) {
     }
 
-    Message::Message(const nlohmann::json& messageJson)
-        : Message(messageJson["topic"], messageJson["message"], messageJson["qos"], messageJson["retain"]) {
-    }
-
     Message::Message(const Message& message, uint8_t qoS)
         : Message(message) {
         this->qoS = qoS;
