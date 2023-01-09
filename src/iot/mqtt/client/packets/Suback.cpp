@@ -65,7 +65,7 @@ namespace iot::mqtt::client::packets {
         return consumed;
     }
 
-    void Suback::propagateEvent(iot::mqtt::client::Mqtt* socketContext) {
+    void Suback::deliverPacket(iot::mqtt::client::Mqtt* socketContext) {
         socketContext->_onSuback(*this);
     }
 

@@ -39,7 +39,7 @@ namespace iot::mqtt::server::packets {
         return 0;
     }
 
-    void Pingreq::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+    void Pingreq::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
         mqtt->_onPingreq(*this);
     }
 

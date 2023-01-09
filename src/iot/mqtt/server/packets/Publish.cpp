@@ -73,7 +73,7 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Publish::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+    void Publish::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
         mqtt->_onPublish(*this);
     }
 

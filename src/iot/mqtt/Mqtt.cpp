@@ -105,7 +105,7 @@ namespace iot::mqtt {
                 consumed += controlPacketDeserializer->deserialize(mqttContext);
 
                 if (controlPacketDeserializer->isComplete()) {
-                    propagateEvent(controlPacketDeserializer);
+                    deliverPacket(controlPacketDeserializer);
 
                     delete controlPacketDeserializer;
                     controlPacketDeserializer = nullptr;

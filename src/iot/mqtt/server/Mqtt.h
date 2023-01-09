@@ -79,7 +79,7 @@ namespace iot::mqtt::server {
 
     private:
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
-        void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
+        void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
         void onExit() override;
 

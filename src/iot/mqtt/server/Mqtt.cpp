@@ -56,11 +56,7 @@ namespace iot::mqtt::server {
         releaseSession();
 
         if (willFlag) {
-            broker->publish(willTopic, willMessage, willQoS);
-
-            if (willRetain) {
-                broker->retainMessage(willTopic, willMessage, willQoS);
-            }
+            broker->publish(willTopic, willMessage, willQoS, willRetain);
         }
     }
 
@@ -120,8 +116,8 @@ namespace iot::mqtt::server {
         return controlPacketDeserializer;
     }
 
-    void Mqtt::propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) {
-        dynamic_cast<iot::mqtt::server::ControlPacketDeserializer*>(controlPacketDeserializer)->propagateEvent(this);
+    void Mqtt::deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) {
+        dynamic_cast<iot::mqtt::server::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this);
     }
 
     void Mqtt::initSession(const utils::Timeval& keepAlive) {
@@ -272,10 +268,7 @@ namespace iot::mqtt::server {
             mqttContext->end(true);
         } else {
             if (Super::onPublish(publish)) {
-                broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS());
-                if (publish.getRetain()) {
-                    broker->retainMessage(publish.getTopic(), publish.getMessage(), publish.getQoS());
-                }
+                broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
 
                 onPublish(publish);
             }

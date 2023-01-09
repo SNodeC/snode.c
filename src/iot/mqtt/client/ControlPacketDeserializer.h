@@ -35,7 +35,7 @@ namespace iot::mqtt::client {
     public:
         using iot::mqtt::ControlPacketDeserializer::ControlPacketDeserializer;
 
-        virtual void propagateEvent(iot::mqtt::client::Mqtt* socketContext) = 0;
+        virtual void deliverPacket(iot::mqtt::client::Mqtt* socketContext) = 0;
     };
 
 } // namespace iot::mqtt::client

@@ -76,7 +76,7 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Subscribe::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+    void Subscribe::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
         mqtt->_onSubscribe(*this);
     }
 

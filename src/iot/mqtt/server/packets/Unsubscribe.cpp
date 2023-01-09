@@ -64,7 +64,7 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Unsubscribe::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+    void Unsubscribe::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
         mqtt->_onUnsubscribe(*this);
     }
 

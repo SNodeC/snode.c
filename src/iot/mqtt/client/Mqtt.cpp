@@ -125,8 +125,8 @@ namespace iot::mqtt::client {
         return currentPacket;
     }
 
-    void Mqtt::propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) {
-        dynamic_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->propagateEvent(this);
+    void Mqtt::deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) {
+        dynamic_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this);
     }
 
     void Mqtt::onConnack([[maybe_unused]] const mqtt::packets::Connack& connack) {

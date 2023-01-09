@@ -135,7 +135,7 @@ namespace iot::mqtt::server::packets {
         return consumed;
     }
 
-    void Connect::propagateEvent(iot::mqtt::server::Mqtt* mqtt) {
+    void Connect::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
         mqtt->_onConnect(*this);
     }
 

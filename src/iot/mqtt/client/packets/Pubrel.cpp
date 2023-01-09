@@ -41,7 +41,7 @@ namespace iot::mqtt::client::packets {
         return consumed;
     }
 
-    void Pubrel::propagateEvent(iot::mqtt::client::Mqtt* socketContext) {
+    void Pubrel::deliverPacket(iot::mqtt::client::Mqtt* socketContext) {
         socketContext->_onPubrel(*this);
     }
 

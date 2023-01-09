@@ -70,7 +70,7 @@ namespace iot::mqtt {
 
     private:
         virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;
-        virtual void propagateEvent(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
+        virtual void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     protected:
         void initSession(Session* session, const utils::Timeval& keepAlive);
@@ -115,9 +115,10 @@ namespace iot::mqtt {
 
         int state = 0;
 
+        Session* session = nullptr;
+
     protected:
         MqttContext* mqttContext = nullptr;
-        Session* session = nullptr;
     };
 
 } // namespace iot::mqtt

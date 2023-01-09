@@ -43,7 +43,7 @@ namespace iot::mqtt::server::packets {
 
     private:
         std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
-        void propagateEvent(iot::mqtt::server::Mqtt* socketContext) override;
+        void deliverPacket(iot::mqtt::server::Mqtt* socketContext) override;
     };
 
 } // namespace iot::mqtt::server::packets

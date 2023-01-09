@@ -61,7 +61,7 @@ namespace iot::mqtt::client::packets {
         return consumed;
     }
 
-    void Connack::propagateEvent(iot::mqtt::client::Mqtt* socketContext) {
+    void Connack::deliverPacket(iot::mqtt::client::Mqtt* socketContext) {
         socketContext->_onConnack(*this);
     }
 
