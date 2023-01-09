@@ -37,8 +37,16 @@ namespace iot::mqtt {
                                                 iot::mqtt::Mqtt* mqtt)
         : WSSubProtocolRole(subProtocolContext, name, PING_INTERVAL)
         , iot::mqtt::MqttContext(mqtt)
-        , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
+        , onData([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
             iot::mqtt::MqttContext::onProcess();
+
+            if (size > 0) {
+                onData.publish();
+            } else {
+                buffer.clear();
+                cursor = 0;
+                size = 0;
+            }
         }) {
     }
 
@@ -50,14 +58,6 @@ namespace iot::mqtt {
 
         cursor += maxReturn;
         size -= maxReturn;
-
-        if (size > 0) {
-            onReceivedFromPeerEvent.publish();
-        } else {
-            buffer.clear();
-            cursor = 0;
-            size = 0;
-        }
 
         return maxReturn;
     }
@@ -122,7 +122,7 @@ namespace iot::mqtt {
         data.clear();
 
         if (buffer.size() > 0) {
-            iot::mqtt::MqttContext::onProcess();
+            onData.publish();
         }
     }
 

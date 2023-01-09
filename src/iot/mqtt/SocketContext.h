@@ -20,7 +20,6 @@
 #define IOT_MQTT_SOCKETCONTEXT_H
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
-#include "iot/mqtt/FixedHeader.h"      // IWYU pragma: export
 #include "iot/mqtt/MqttContext.h"
 
 namespace core::socket {
@@ -32,9 +31,6 @@ namespace iot::mqtt {
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstdint>
-#include <vector>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

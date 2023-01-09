@@ -36,25 +36,36 @@ namespace iot::mqtt::server::broker {
         , retain(retain) {
     }
 
-    Message::Message(const Message& message, uint8_t qoS)
-        : Message(message) {
-        this->qoS = qoS;
-    }
-
     const std::string& Message::getTopic() const {
         return topic;
+    }
+
+    void Message::setTopic(const std::string& newTopic) {
+        topic = newTopic;
     }
 
     const std::string& Message::getMessage() const {
         return message;
     }
 
+    void Message::setMessage(const std::string& newMessage) {
+        message = newMessage;
+    }
+
     uint8_t Message::getQoS() const {
         return qoS;
     }
 
+    void Message::setQoS(uint8_t newQoS) {
+        qoS = newQoS;
+    }
+
     bool Message::getRetain() const {
         return retain;
+    }
+
+    void Message::setRetain(bool newRetain) {
+        retain = newRetain;
     }
 
     nlohmann::json Message::toJson() const {
