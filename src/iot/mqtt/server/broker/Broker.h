@@ -52,7 +52,7 @@ namespace iot::mqtt::server::broker {
 
         static std::shared_ptr<Broker> instance(uint8_t subscribtionMaxQoS);
 
-        void reappeare(const std::string& clientId, uint8_t clientQoS, const std::string& topic);
+        void appear(const std::string& clientId, uint8_t clientQoS, const std::string& topic);
         void unsubscribe(const std::string& clientId);
 
         void publish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);

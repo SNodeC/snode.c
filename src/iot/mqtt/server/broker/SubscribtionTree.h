@@ -39,7 +39,7 @@ namespace iot::mqtt::server::broker {
     public:
         explicit SubscribtionTree(iot::mqtt::server::broker::Broker* broker);
 
-        void reappear(const std::string& clientId);
+        void appear(const std::string& clientId);
 
         bool subscribe(const std::string& topic, const std::string& clientId, uint8_t clientQoS);
 
@@ -56,7 +56,7 @@ namespace iot::mqtt::server::broker {
         public:
             explicit TopicLevel(iot::mqtt::server::broker::Broker* broker);
 
-            void reappear(const std::string& clientId, const std::string& topicLevel);
+            void appear(const std::string& clientId, const std::string& topicLevel);
 
             bool subscribe(const std::string& clientId, uint8_t clientQoS, std::string remainingTopicName, bool leafFound);
 

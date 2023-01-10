@@ -95,8 +95,8 @@ namespace iot::mqtt::server::broker {
         return broker;
     }
 
-    void Broker::reappeare(const std::string& clientId, uint8_t clientQoS, const std::string& topic) {
-        retainTree.publish(clientId, clientQoS, topic);
+    void Broker::appear(const std::string& clientId, uint8_t clientQoS, const std::string& topic) {
+        retainTree.appear(topic, clientId, clientQoS);
     }
 
     void Broker::unsubscribe(const std::string& clientId) {
@@ -112,13 +112,13 @@ namespace iot::mqtt::server::broker {
     }
 
     uint8_t Broker::subscribe(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS) {
-        uint8_t selectedQoS = std::min(subscribtionMaxQoS, suscribedQoS);
+        uint8_t qoS = std::min(subscribtionMaxQoS, suscribedQoS);
         uint8_t returnCode = 0;
 
-        if (subscribtionTree.subscribe(topic, clientId, selectedQoS)) {
-            retainTree.publish(clientId, selectedQoS, topic);
+        if (subscribtionTree.subscribe(topic, clientId, qoS)) {
+            retainTree.appear(topic, clientId, qoS);
 
-            returnCode = SUBSCRIBTION_SUCCESS | selectedQoS;
+            returnCode = SUBSCRIBTION_SUCCESS | qoS;
         } else {
             returnCode = SUBSCRIBTION_FAILURE;
         }
@@ -158,7 +158,7 @@ namespace iot::mqtt::server::broker {
 
     void Broker::restartSession(const std::string& clientId) {
         LOG(TRACE) << "  Retained: Send Publish: ClientId: " << clientId;
-        subscribtionTree.reappear(clientId);
+        subscribtionTree.appear(clientId);
 
         LOG(TRACE) << "  Queued: Send Publish: ClientId: " << clientId;
         sessionStore[clientId].publishQueued();

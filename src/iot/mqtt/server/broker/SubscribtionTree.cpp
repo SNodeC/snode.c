@@ -42,8 +42,8 @@ namespace iot::mqtt::server::broker {
         : head(broker) {
     }
 
-    void SubscribtionTree::reappear(const std::string& clientId) {
-        head.reappear(clientId, "");
+    void SubscribtionTree::appear(const std::string& clientId) {
+        head.appear(clientId, "");
     }
 
     bool SubscribtionTree::subscribe(const std::string& topic, const std::string& clientId, uint8_t clientQoS) {
@@ -66,13 +66,13 @@ namespace iot::mqtt::server::broker {
         : broker(broker) {
     }
 
-    void SubscribtionTree::TopicLevel::reappear(const std::string& clientId, const std::string& topicLevel) {
+    void SubscribtionTree::TopicLevel::appear(const std::string& clientId, const std::string& topicLevel) {
         if (subscribers.contains(clientId) && !topicLevel.empty()) {
-            broker->reappeare(clientId, subscribers[clientId], topicLevel);
+            broker->appear(clientId, subscribers[clientId], topicLevel);
         }
 
         for (auto& [topicLevel, subscribtion] : subTopicLevels) {
-            subscribtion.reappear(clientId, topicLevel);
+            subscribtion.appear(clientId, topicLevel);
         }
     }
 
@@ -90,7 +90,7 @@ namespace iot::mqtt::server::broker {
             std::string topic = remainingTopicName.substr(0, slashPosition);
             bool leafFound = slashPosition == std::string::npos;
 
-            if (topic == "#" && !remainingTopicName.ends_with("#")) {
+            if (topic == "#" && !remainingTopicName.ends_with('#')) {
                 success = false;
             } else {
                 remainingTopicName.erase(0, topic.size() + 1);
