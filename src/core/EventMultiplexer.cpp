@@ -95,7 +95,7 @@ namespace core {
         if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
             utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
 
-            activeEventCount = multiplex(nextTimeout);
+            activeEventCount = monitorDescriptors(nextTimeout);
 
             if (activeEventCount < 0 && errno != EINTR) {
                 tickStatus = TickStatus::ERROR;

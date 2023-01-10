@@ -39,7 +39,7 @@ namespace core::select {
               new core::select::DescriptorEventPublisher("EXCEPT", fdSets[core::DescriptorEventReceiver::DISP_TYPE::EX])) {
     }
 
-    int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
+    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut) {
         return core::system::select(getMaxFd() + 1,
                                     &fdSets[core::DescriptorEventReceiver::DISP_TYPE::RD].get(),
                                     &fdSets[core::DescriptorEventReceiver::DISP_TYPE::WR].get(),

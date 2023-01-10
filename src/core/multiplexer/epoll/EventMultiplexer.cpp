@@ -51,7 +51,7 @@ namespace core::epoll {
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::DescriptorEventReceiver::DISP_TYPE::EX], &event);
     }
 
-    int EventMultiplexer::multiplex(utils::Timeval& tickTimeout) {
+    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout) {
         return core::system::epoll_wait(epfd, ePollEvents, 3, tickTimeout.ms());
     }
 

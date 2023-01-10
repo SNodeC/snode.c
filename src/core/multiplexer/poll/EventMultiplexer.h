@@ -70,7 +70,7 @@ namespace core::poll {
         ~EventMultiplexer() override = default;
 
     private:
-        int multiplex(utils::Timeval& tickTimeOut) override;
+        int monitorDescriptors(utils::Timeval& tickTimeOut) override;
         void publishActiveEvents() override;
 
     private:

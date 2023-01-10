@@ -96,7 +96,7 @@ namespace core {
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
+        virtual int monitorDescriptors(utils::Timeval& tickTimeOut) = 0;
         void publishActiveEvents(const utils::Timeval& currentTime);
         virtual void publishActiveEvents() = 0;
         void releaseExpiredResources(const utils::Timeval& currentTime);

@@ -38,7 +38,7 @@ namespace core::select {
         ~EventMultiplexer() override = default;
 
     private:
-        int multiplex(utils::Timeval& tickTimeOut) override;
+        int monitorDescriptors(utils::Timeval& tickTimeOut) override;
         void publishActiveEvents() override;
 
         FdSet fdSets[3];

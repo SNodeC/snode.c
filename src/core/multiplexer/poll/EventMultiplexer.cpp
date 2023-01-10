@@ -132,7 +132,7 @@ namespace core::poll {
               new core::poll::DescriptorEventPublisher("EXCEPT", pollFdsManager, POLLPRI, POLLPRI)) {
     }
 
-    int EventMultiplexer::multiplex(utils::Timeval& tickTimeOut) {
+    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut) {
         return core::system::poll(pollFdsManager.getEvents(), pollFdsManager.getCurrentSize(), tickTimeOut.ms());
     }
 
