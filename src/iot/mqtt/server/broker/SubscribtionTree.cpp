@@ -42,8 +42,8 @@ namespace iot::mqtt::server::broker {
         : head(broker) {
     }
 
-    void SubscribtionTree::publishRetained(const std::string& clientId) {
-        head.publishRetained(clientId, "");
+    void SubscribtionTree::reappear(const std::string& clientId) {
+        head.reappear(clientId, "");
     }
 
     bool SubscribtionTree::subscribe(const std::string& topic, const std::string& clientId, uint8_t clientQoS) {
@@ -66,13 +66,13 @@ namespace iot::mqtt::server::broker {
         : broker(broker) {
     }
 
-    void SubscribtionTree::TopicLevel::publishRetained(const std::string& clientId, const std::string& topicLevel) {
+    void SubscribtionTree::TopicLevel::reappear(const std::string& clientId, const std::string& topicLevel) {
         if (subscribers.contains(clientId) && !topicLevel.empty()) {
-            broker->publishRetainedMessage(clientId, topicLevel, subscribers[clientId]);
+            broker->reappeare(clientId, subscribers[clientId], topicLevel);
         }
 
         for (auto& [topicLevel, subscribtion] : subTopicLevels) {
-            subscribtion.publishRetained(clientId, topicLevel);
+            subscribtion.reappear(clientId, topicLevel);
         }
     }
 
@@ -214,6 +214,9 @@ namespace iot::mqtt::server::broker {
     }
 
     SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& sessionTreeJson) {
+        subscribers.clear();
+        subTopicLevels.clear();
+
         if (sessionTreeJson.contains("subscribers")) {
             for (auto& subscriber : sessionTreeJson["subscribers"].items()) {
                 subscribers.emplace(subscriber.key(), subscriber.value());
@@ -231,8 +234,6 @@ namespace iot::mqtt::server::broker {
 
     void SubscribtionTree::fromJson(const nlohmann::json& sessionTreeJson) {
         if (!sessionTreeJson.empty()) {
-            head.subTopicLevels.clear();
-
             head.fromJson(sessionTreeJson);
         }
     }

@@ -38,8 +38,6 @@
 
 namespace iot::mqtt::server::broker {
 
-    std::shared_ptr<Broker> Broker::broker;
-
     Broker::Broker(uint8_t subscribtionMaxQoS)
         : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") // NOLINT
         , subscribtionMaxQoS(subscribtionMaxQoS)
@@ -79,8 +77,7 @@ namespace iot::mqtt::server::broker {
         sessionStoreJson["retain_tree"] = retainTree.toJson();
         sessionStoreJson["subscribtion_tree"] = subscribtionTree.toJson();
 
-        std::ofstream sessionStoreFile;
-        sessionStoreFile.open(sessionStoreFileName);
+        std::ofstream sessionStoreFile(sessionStoreFileName);
 
         if (sessionStoreFile.is_open()) {
             std::cout << "Perseveration of ";
@@ -93,15 +90,13 @@ namespace iot::mqtt::server::broker {
     }
 
     std::shared_ptr<Broker> Broker::instance(uint8_t subscribtionMaxQoS) {
-        if (!broker) {
-            broker = std::make_shared<Broker>(subscribtionMaxQoS);
-        }
+        static std::shared_ptr<Broker> broker = std::make_shared<Broker>(subscribtionMaxQoS);
 
         return broker;
     }
 
-    void Broker::publishRetainedMessage(const std::string& clientId, const std::string& topic, uint8_t clientQoS) {
-        retainTree.publish(topic, clientId, clientQoS);
+    void Broker::reappeare(const std::string& clientId, uint8_t clientQoS, const std::string& topic) {
+        retainTree.publish(clientId, clientQoS, topic);
     }
 
     void Broker::unsubscribe(const std::string& clientId) {
@@ -121,7 +116,7 @@ namespace iot::mqtt::server::broker {
         uint8_t returnCode = 0;
 
         if (subscribtionTree.subscribe(topic, clientId, selectedQoS)) {
-            retainTree.publish(topic, clientId, selectedQoS);
+            retainTree.publish(clientId, selectedQoS, topic);
 
             returnCode = SUBSCRIBTION_SUCCESS | selectedQoS;
         } else {
@@ -163,7 +158,7 @@ namespace iot::mqtt::server::broker {
 
     void Broker::restartSession(const std::string& clientId) {
         LOG(TRACE) << "  Retained: Send Publish: ClientId: " << clientId;
-        subscribtionTree.publishRetained(clientId);
+        subscribtionTree.reappear(clientId);
 
         LOG(TRACE) << "  Queued: Send Publish: ClientId: " << clientId;
         sessionStore[clientId].publishQueued();

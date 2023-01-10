@@ -61,7 +61,7 @@ namespace iot::mqtt::client {
                 sessionStoreFile >> sessionStoreJson;
                 session.fromJson(sessionStoreJson);
 
-                LOG(INFO) << sessionStoreJson.dump(4) << std::endl;
+                LOG(INFO) << sessionStoreJson.dump(4);
             } catch (const nlohmann::json::exception& e) {
                 LOG(ERROR) << e.what();
             }
@@ -72,16 +72,20 @@ namespace iot::mqtt::client {
 
     Mqtt::~Mqtt() {
         if (!sessionStore.empty()) {
-            std::ofstream sessionStoreFile;
+            std::ofstream sessionStoreFile(sessionStore);
+
             if (sessionStoreFile.is_open()) {
-                std::cout << "Perseveration of ";
+                LOG(INFO) << "Perseveration of Session: " << session.toJson().dump(4);
                 sessionStoreFile << session.toJson();
                 sessionStoreFile.close();
+            } else {
+                LOG(INFO) << "Session:";
+                LOG(INFO) << session.toJson().dump(4);
             }
+        } else {
+            LOG(INFO) << "Session:";
+            LOG(INFO) << session.toJson().dump(4);
         }
-
-        LOG(INFO) << "Session:" << std::endl;
-        LOG(INFO) << session.toJson().dump(4) << std::endl;
 
         pingTimer.cancel();
     }

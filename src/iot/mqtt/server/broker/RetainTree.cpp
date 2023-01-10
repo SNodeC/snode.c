@@ -42,8 +42,8 @@ namespace iot::mqtt::server::broker {
         head.retain(message, message.getTopic(), false);
     }
 
-    void RetainTree::publish(std::string subscribedTopicName, const std::string& clientId, uint8_t clientQoS) {
-        head.publish(clientId, clientQoS, subscribedTopicName, false);
+    void RetainTree::publish(const std::string& clientId, uint8_t qoS, const std::string& topic) {
+        head.publish(clientId, qoS, topic);
     }
 
     RetainTree::TopicLevel::TopicLevel(iot::mqtt::server::broker::Broker* broker)
@@ -70,6 +70,10 @@ namespace iot::mqtt::server::broker {
         }
 
         return this->message.getMessage().empty() && subTopicLevels.empty();
+    }
+
+    void RetainTree::TopicLevel::publish(const std::string& clientId, uint8_t clientQoS, const std::string& topic) {
+        publish(clientId, clientQoS, topic, false);
     }
 
     void RetainTree::TopicLevel::publish(const std::string& clientId,
@@ -134,6 +138,8 @@ namespace iot::mqtt::server::broker {
     }
 
     RetainTree::TopicLevel& RetainTree::TopicLevel::fromJson(const nlohmann::json& retainTreeJson) {
+        subTopicLevels.clear();
+
         message.fromJson(retainTreeJson.value("message", nlohmann::json()));
 
         if (retainTreeJson.contains("topic_level")) {
@@ -147,8 +153,6 @@ namespace iot::mqtt::server::broker {
 
     void RetainTree::fromJson(const nlohmann::json& retainTreeJson) {
         if (!retainTreeJson.empty()) {
-            head.subTopicLevels.clear();
-
             head.fromJson(retainTreeJson);
         }
     }

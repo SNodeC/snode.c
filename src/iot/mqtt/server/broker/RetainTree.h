@@ -41,7 +41,7 @@ namespace iot::mqtt::server::broker {
         explicit RetainTree(iot::mqtt::server::broker::Broker* broker);
 
         void retain(Message&& message);
-        void publish(std::string subscribedTopicName, const std::string& clientId, uint8_t clientQoS);
+        void publish(const std::string& clientId, uint8_t qoS, const std::string &topic);
 
         nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& retainTreeJson);
@@ -54,12 +54,13 @@ namespace iot::mqtt::server::broker {
 
             bool retain(Message& message, std::string remainingTopicName, bool leafFound);
 
-            void publish(const std::string& clientId, uint8_t clientQoS);
+            void publish(const std::string& clientId, uint8_t clientQoS, const std::string& topic);
 
-        private:
             TopicLevel& fromJson(const nlohmann::json& retainTreeJson);
             nlohmann::json toJson() const;
 
+        private:
+            void publish(const std::string& clientId, uint8_t clientQoS);
             void publish(const std::string& clientId, uint8_t clientQoS, std::string remainingSubscribedTopicName, bool leafFound);
 
             Message message;
@@ -67,8 +68,6 @@ namespace iot::mqtt::server::broker {
             std::map<std::string, TopicLevel> subTopicLevels;
 
             iot::mqtt::server::broker::Broker* broker = nullptr;
-
-            friend class RetainTree;
         };
 
         TopicLevel head;
