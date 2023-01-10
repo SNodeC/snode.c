@@ -41,7 +41,7 @@ namespace iot::mqtt::server::broker {
 
         void appear(const std::string& clientId);
 
-        bool subscribe(const std::string& topic, const std::string& clientId, uint8_t clientQoS);
+        bool subscribe(const std::string& topic, const std::string& clientId, uint8_t qoS);
 
         void publish(Message&& message);
 
@@ -49,29 +49,29 @@ namespace iot::mqtt::server::broker {
         bool unsubscribe(const std::string& clientId);
 
         nlohmann::json toJson() const;
-        void fromJson(const nlohmann::json& sessionTreeJson);
+        void fromJson(const nlohmann::json& json);
 
     private:
         class TopicLevel {
         public:
             explicit TopicLevel(iot::mqtt::server::broker::Broker* broker);
 
-            void appear(const std::string& clientId, const std::string& topicLevel);
+            void appear(const std::string& clientId, const std::string& topic);
 
-            bool subscribe(const std::string& clientId, uint8_t clientQoS, std::string remainingTopicName, bool leafFound);
+            bool subscribe(const std::string& clientId, uint8_t qoS, std::string topic, bool leafFound);
 
-            void publish(Message& message, const std::string& topicLevel, std::string remainingTopicName, bool leafFound);
+            void publish(Message& message, std::string topic, bool leafFound);
 
-            bool unsubscribe(const std::string& clientId, std::string remainingTopicName, bool leafFound);
+            bool unsubscribe(const std::string& clientId, std::string topic, bool leafFound);
             bool unsubscribe(const std::string& clientId);
 
-            TopicLevel& fromJson(const nlohmann::json& sessionTreeJson);
+            TopicLevel& fromJson(const nlohmann::json& json);
             nlohmann::json toJson() const;
 
         private:
             std::map<std::string, uint8_t> subscribers;
 
-            std::map<std::string, TopicLevel> subTopicLevels;
+            std::map<std::string, TopicLevel> topicLevels;
 
             iot::mqtt::server::broker::Broker* broker;
         };

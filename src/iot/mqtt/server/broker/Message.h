@@ -38,16 +38,16 @@ namespace iot::mqtt::server::broker {
         Message& operator=(const Message&) = default;
 
         const std::string& getTopic() const;
-        void setTopic(const std::string& newTopic);
+        void setTopic(const std::string& topic);
 
         const std::string& getMessage() const;
-        void setMessage(const std::string& newMessage);
+        void setMessage(const std::string& message);
 
         uint8_t getQoS() const;
-        void setQoS(uint8_t newQoS);
+        void setQoS(uint8_t qoS);
 
         nlohmann::json toJson() const;
-        Message& fromJson(const nlohmann::json& messageJson);
+        Message& fromJson(const nlohmann::json& json);
 
     private:
         std::string topic;

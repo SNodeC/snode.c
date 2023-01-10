@@ -46,17 +46,17 @@ namespace iot::mqtt::server::broker {
 
     class Broker {
     public:
-        explicit Broker(uint8_t subscribtionMaxQoS);
+        explicit Broker(uint8_t maxQoS);
 
         ~Broker();
 
-        static std::shared_ptr<Broker> instance(uint8_t subscribtionMaxQoS);
+        static std::shared_ptr<Broker> instance(uint8_t maxQoS);
 
-        void appear(const std::string& clientId, uint8_t clientQoS, const std::string& topic);
+        void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
         void unsubscribe(const std::string& clientId);
 
         void publish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
-        uint8_t subscribe(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS);
+        uint8_t subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS);
         void unsubscribe(const std::string& clientId, const std::string& topic);
 
         bool hasSession(const std::string& clientId);
@@ -75,7 +75,7 @@ namespace iot::mqtt::server::broker {
 
     private:
         std::string sessionStoreFileName;
-        uint8_t subscribtionMaxQoS;
+        uint8_t maxQoS;
 
         iot::mqtt::server::broker::SubscribtionTree subscribtionTree;
         iot::mqtt::server::broker::RetainTree retainTree;

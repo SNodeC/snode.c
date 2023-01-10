@@ -57,7 +57,7 @@ namespace iot::mqtt::server::broker {
         bool isOwnedBy(const iot::mqtt::server::Mqtt* mqtt) const;
 
         nlohmann::json toJson();
-        void fromJson(const nlohmann::json& sessionJson);
+        void fromJson(const nlohmann::json& json);
 
     private:
         iot::mqtt::server::Mqtt* mqtt = nullptr;

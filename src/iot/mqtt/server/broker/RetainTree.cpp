@@ -42,68 +42,65 @@ namespace iot::mqtt::server::broker {
         head.retain(message, message.getTopic(), false);
     }
 
-    void RetainTree::appear(const std::string& topic, const std::string& clientId, uint8_t qoS) {
-        head.appear(topic, clientId, qoS);
+    void RetainTree::appear(const std::string& clientId, const std::string& topic, uint8_t qoS) {
+        head.appear(clientId, topic, qoS);
     }
 
     RetainTree::TopicLevel::TopicLevel(iot::mqtt::server::broker::Broker* broker)
         : broker(broker) {
     }
 
-    bool RetainTree::TopicLevel::retain(Message& message, std::string remainingTopicName, bool appeared) {
+    bool RetainTree::TopicLevel::retain(Message& message, std::string topic, bool appeared) {
         if (appeared) {
             if (!message.getTopic().empty()) {
                 LOG(TRACE) << "Retaining: " << message.getTopic() << " - " << message.getMessage();
                 this->message = message;
             }
         } else {
-            std::string::size_type slashPosition = remainingTopicName.find('/');
+            std::string::size_type slashPosition = topic.find('/');
 
-            std::string topicLevel = remainingTopicName.substr(0, slashPosition);
+            std::string topicLevel = topic.substr(0, slashPosition);
             bool appeared = slashPosition == std::string::npos;
 
-            remainingTopicName.erase(0, topicLevel.size() + 1);
+            topic.erase(0, topicLevel.size() + 1);
 
-            if (subTopicLevels.insert({topicLevel, TopicLevel(broker)}).first->second.retain(message, remainingTopicName, appeared)) {
+            if (subTopicLevels.insert({topicLevel, TopicLevel(broker)}).first->second.retain(message, topic, appeared)) {
                 subTopicLevels.erase(topicLevel);
             }
         }
 
         return this->message.getMessage().empty() && subTopicLevels.empty();
     }
-    void RetainTree::TopicLevel::appear(const std::string& topic, const std::string& clientId, uint8_t clientQoS) {
-        appear(topic, clientId, clientQoS, false);
+    void RetainTree::TopicLevel::appear(const std::string& clientId, const std::string& topic, uint8_t qoS) {
+        appear(clientId, topic, qoS, false);
     }
 
-    void RetainTree::TopicLevel::appear(std::string remainingSubscribedTopicNameconst,
-                                        const std::string& clientId,
-                                        uint8_t clientQoS,
-                                        bool appeared) {
+    void RetainTree::TopicLevel::appear(const std::string& clientId, std::string topic, uint8_t qoS, bool appeared) {
         if (appeared) {
             if (!message.getMessage().empty()) {
                 LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                            << static_cast<uint16_t>(message.getQoS());
                 LOG(TRACE) << "  distribute message ...";
-                broker->sendPublish(clientId, message, clientQoS, true);
+                broker->sendPublish(clientId, message, qoS, true);
                 LOG(TRACE) << "  ... completed!";
             }
         } else {
-            std::string::size_type slashPosition = remainingSubscribedTopicNameconst.find('/');
+            std::string::size_type slashPosition = topic.find('/');
 
-            std::string topicLevel = remainingSubscribedTopicNameconst.substr(0, slashPosition);
+            std::string topicLevel = topic.substr(0, slashPosition);
             bool leafFound = slashPosition == std::string::npos;
 
-            remainingSubscribedTopicNameconst.erase(0, topicLevel.size() + 1);
+            topic.erase(0, topicLevel.size() + 1);
 
             auto foundNode = subTopicLevels.find(topicLevel);
             if (foundNode != subTopicLevels.end()) {
-                foundNode->second.appear(remainingSubscribedTopicNameconst, clientId, clientQoS, leafFound);
+                foundNode->second.appear(clientId, topic, qoS, leafFound);
             } else if (topicLevel == "+") {
                 for (auto& [notUsed, topicTree] : subTopicLevels) {
-                    topicTree.appear(remainingSubscribedTopicNameconst, clientId, clientQoS, leafFound);
+                    topicTree.appear(clientId, topic, qoS, leafFound);
                 }
             } else if (topicLevel == "#") {
-                appear(clientId, clientQoS);
+                appear(clientId, qoS);
             }
         }
     }
@@ -123,26 +120,26 @@ namespace iot::mqtt::server::broker {
     }
 
     nlohmann::json RetainTree::TopicLevel::toJson() const {
-        nlohmann::json retainTreeJson;
+        nlohmann::json json;
 
         if (!message.getMessage().empty()) {
-            retainTreeJson["message"] = message.toJson();
+            json["message"] = message.toJson();
         }
 
         for (auto& [topicLevel, topicLevelValue] : subTopicLevels) {
-            retainTreeJson["topic_level"][topicLevel] = topicLevelValue.toJson();
+            json["topic_level"][topicLevel] = topicLevelValue.toJson();
         }
 
-        return retainTreeJson;
+        return json;
     }
 
-    RetainTree::TopicLevel& RetainTree::TopicLevel::fromJson(const nlohmann::json& retainTreeJson) {
+    RetainTree::TopicLevel& RetainTree::TopicLevel::fromJson(const nlohmann::json& json) {
         subTopicLevels.clear();
 
-        message.fromJson(retainTreeJson.value("message", nlohmann::json()));
+        message.fromJson(json.value("message", nlohmann::json()));
 
-        if (retainTreeJson.contains("topic_level")) {
-            for (auto& topicLevelItem : retainTreeJson["topic_level"].items()) {
+        if (json.contains("topic_level")) {
+            for (auto& topicLevelItem : json["topic_level"].items()) {
                 subTopicLevels.emplace(topicLevelItem.key(), TopicLevel(broker).fromJson(topicLevelItem.value()));
             }
         }
@@ -150,9 +147,9 @@ namespace iot::mqtt::server::broker {
         return *this;
     }
 
-    void RetainTree::fromJson(const nlohmann::json& retainTreeJson) {
-        if (!retainTreeJson.empty()) {
-            head.fromJson(retainTreeJson);
+    void RetainTree::fromJson(const nlohmann::json& json) {
+        if (!json.empty()) {
+            head.fromJson(json);
         }
     }
 

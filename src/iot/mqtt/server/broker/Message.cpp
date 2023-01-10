@@ -39,41 +39,41 @@ namespace iot::mqtt::server::broker {
         return topic;
     }
 
-    void Message::setTopic(const std::string& newTopic) {
-        topic = newTopic;
+    void Message::setTopic(const std::string& topic) {
+        this->topic = topic;
     }
 
     const std::string& Message::getMessage() const {
         return message;
     }
 
-    void Message::setMessage(const std::string& newMessage) {
-        message = newMessage;
+    void Message::setMessage(const std::string& message) {
+        this->message = message;
     }
 
     uint8_t Message::getQoS() const {
         return qoS;
     }
 
-    void Message::setQoS(uint8_t newQoS) {
-        qoS = newQoS;
+    void Message::setQoS(uint8_t qoS) {
+        this->qoS = qoS;
     }
 
     nlohmann::json Message::toJson() const {
-        nlohmann::json messageJson;
+        nlohmann::json json;
 
-        messageJson["topic"] = topic;
-        messageJson["message"] = message;
-        messageJson["qos"] = qoS;
+        json["topic"] = topic;
+        json["message"] = message;
+        json["qos"] = qoS;
 
-        return messageJson;
+        return json;
     }
 
-    Message& Message::fromJson(const nlohmann::json& messageJson) {
-        if (!messageJson.empty()) {
-            topic = messageJson["topic"];
-            message = messageJson["message"];
-            qoS = messageJson["qos"];
+    Message& Message::fromJson(const nlohmann::json& json) {
+        if (!json.empty()) {
+            topic = json["topic"];
+            message = json["message"];
+            qoS = json["qos"];
         }
 
         return *this;

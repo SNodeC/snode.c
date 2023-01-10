@@ -38,9 +38,9 @@
 
 namespace iot::mqtt::server::broker {
 
-    Broker::Broker(uint8_t subscribtionMaxQoS)
+    Broker::Broker(uint8_t maxQoS)
         : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") // NOLINT
-        , subscribtionMaxQoS(subscribtionMaxQoS)
+        , maxQoS(maxQoS)
         , subscribtionTree(this)
         , retainTree(this) {
         nlohmann::json sessionStoreJson;
@@ -89,14 +89,14 @@ namespace iot::mqtt::server::broker {
         std::cout << sessionStoreJson.dump(4) << std::endl;
     }
 
-    std::shared_ptr<Broker> Broker::instance(uint8_t subscribtionMaxQoS) {
-        static std::shared_ptr<Broker> broker = std::make_shared<Broker>(subscribtionMaxQoS);
+    std::shared_ptr<Broker> Broker::instance(uint8_t maxQoS) {
+        static std::shared_ptr<Broker> broker = std::make_shared<Broker>(maxQoS);
 
         return broker;
     }
 
-    void Broker::appear(const std::string& clientId, uint8_t clientQoS, const std::string& topic) {
-        retainTree.appear(topic, clientId, clientQoS);
+    void Broker::appear(const std::string& clientId, const std::string& topic, uint8_t qoS) {
+        retainTree.appear(clientId, topic, qoS);
     }
 
     void Broker::unsubscribe(const std::string& clientId) {
@@ -111,12 +111,12 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    uint8_t Broker::subscribe(const std::string& clientId, const std::string& topic, uint8_t suscribedQoS) {
-        uint8_t qoS = std::min(subscribtionMaxQoS, suscribedQoS);
+    uint8_t Broker::subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS) {
+        qoS = std::min(maxQoS, qoS);
         uint8_t returnCode = 0;
 
         if (subscribtionTree.subscribe(topic, clientId, qoS)) {
-            retainTree.appear(topic, clientId, qoS);
+            retainTree.appear(clientId, topic, qoS);
 
             returnCode = SUBSCRIBTION_SUCCESS | qoS;
         } else {

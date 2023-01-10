@@ -41,27 +41,26 @@ namespace iot::mqtt::server::broker {
         explicit RetainTree(iot::mqtt::server::broker::Broker* broker);
 
         void retain(Message&& message);
-        void appear(const std::string& topic, const std::string& clientId, uint8_t qoS);
+        void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
 
         nlohmann::json toJson() const;
-        void fromJson(const nlohmann::json& retainTreeJson);
+        void fromJson(const nlohmann::json& json);
 
     private:
         class TopicLevel {
         public:
             explicit TopicLevel(iot::mqtt::server::broker::Broker* broker);
-            TopicLevel(Message& message, std::map<std::string, TopicLevel>& retainTreeNodes, iot::mqtt::server::broker::Broker* broker);
 
-            bool retain(Message& message, std::string remainingTopicName, bool leafFound);
+            bool retain(Message& message, std::string topic, bool leafFound);
 
-            void appear(const std::string& topic, const std::string& clientId, uint8_t clientQoS);
+            void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
 
-            TopicLevel& fromJson(const nlohmann::json& retainTreeJson);
+            TopicLevel& fromJson(const nlohmann::json& json);
             nlohmann::json toJson() const;
 
         private:
             void appear(const std::string& clientId, uint8_t clientQoS);
-            void appear(std::string remainingSubscribedTopicNameconst, const std::string& clientId, uint8_t clientQoS, bool appeared);
+            void appear(const std::string& clientId, std::string topic, uint8_t qoS, bool appeared);
 
             Message message;
 
