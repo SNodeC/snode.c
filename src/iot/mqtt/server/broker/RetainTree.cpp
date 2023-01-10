@@ -81,7 +81,7 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                            << static_cast<uint16_t>(message.getQoS());
                 LOG(TRACE) << "  distribute message ...";
-                broker->sendPublish(clientId, message, clientQoS);
+                broker->sendPublish(clientId, message, clientQoS, true);
                 LOG(TRACE) << "  ... completed!";
             }
         } else {
@@ -110,7 +110,7 @@ namespace iot::mqtt::server::broker {
             LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                        << static_cast<uint16_t>(message.getQoS());
             LOG(TRACE) << "  distribute message ...";
-            broker->sendPublish(clientId, message, clientQoS);
+            broker->sendPublish(clientId, message, clientQoS, true);
             LOG(TRACE) << "  ... completed!";
         }
 

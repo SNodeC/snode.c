@@ -27,17 +27,12 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#define MQTT_DUP_FALSE false
-#define MQTT_DUP_TRUE true
-#define MQTT_RETAIN_FALSE false
-#define MQTT_RETAIN_TRUE true
-
 namespace iot::mqtt::server::broker {
 
     class Message {
     public:
         Message() = default;
-        Message(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
+        Message(const std::string& topic, const std::string& message, uint8_t qoS);
         Message(const Message& message) = default;
 
         Message& operator=(const Message&) = default;
@@ -51,9 +46,6 @@ namespace iot::mqtt::server::broker {
         uint8_t getQoS() const;
         void setQoS(uint8_t newQoS);
 
-        bool getRetain() const;
-        void setRetain(bool newRetain);
-
         nlohmann::json toJson() const;
         Message& fromJson(const nlohmann::json& messageJson);
 
@@ -61,7 +53,6 @@ namespace iot::mqtt::server::broker {
         std::string topic;
         std::string message;
         uint8_t qoS = 0;
-        bool retain = false;
     };
 
 } // namespace iot::mqtt::server::broker

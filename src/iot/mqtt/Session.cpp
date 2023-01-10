@@ -68,7 +68,7 @@ namespace iot::mqtt {
                 iot::mqtt::packets::Publish publish(publishJson["packet_identifier"],
                                                     publishJson["topic"],
                                                     publishJson["message"],
-                                                    publishJson["qoS"],
+                                                    publishJson["qos"],
                                                     publishJson["dup"],
                                                     publishJson["retain"]);
                 publishMap[publishJson["packet_identifier"]] = publish;

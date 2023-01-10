@@ -109,10 +109,10 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::publish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain) {
-        subscribtionTree.publish(Message(topic, message, qoS, retain));
+        subscribtionTree.publish(Message(topic, message, qoS));
 
         if (retain) {
-            retainTree.retain(Message(topic, message, qoS, retain));
+            retainTree.retain(Message(topic, message, qoS));
         }
     }
 
@@ -178,9 +178,9 @@ namespace iot::mqtt::server::broker {
         sessionStore.erase(clientId);
     }
 
-    void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS) {
+    void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain) {
         LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
-        sessionStore[clientId].sendPublish(message, qoS);
+        sessionStore[clientId].sendPublish(message, qoS, retain);
     }
 
 } // namespace iot::mqtt::server::broker

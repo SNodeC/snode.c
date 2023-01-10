@@ -187,15 +187,13 @@ namespace iot::mqtt {
         LOG(DEBUG) << "Send PUBLISH";
         LOG(DEBUG) << "============";
 
-        uint16_t pId = getPacketIdentifier();
-        iot::mqtt::packets::Publish publish(qoS == 0 ? 0 : pId, topic, message, qoS, false, retain);
+        uint16_t pId = qoS != 0 ? getPacketIdentifier() : 0;
+
+        send(iot::mqtt::packets::Publish(pId, topic, message, qoS, false, retain));
 
         if (qoS == 2) {
-            session->publishMap[pId] = publish;
-            session->publishMap[pId].setDup(true);
+            session->publishMap.emplace(pId, iot::mqtt::packets::Publish(pId, topic, message, qoS, true, retain));
         }
-
-        send(publish);
     }
 
     void Mqtt::sendPuback(uint16_t packetIdentifier) const { // Server & Client

@@ -115,7 +115,7 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : subscribers) {
-                    broker->sendPublish(clientId, message, clientQoS);
+                    broker->sendPublish(clientId, message, clientQoS, false);
                 }
 
                 LOG(TRACE) << "... completed!";
@@ -130,7 +130,7 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Distribute Publish for math ...";
 
                 for (auto& [clientId, clientQoS] : nextHashNode->second.subscribers) {
-                    broker->sendPublish(clientId, message, clientQoS);
+                    broker->sendPublish(clientId, message, clientQoS, false);
                 }
 
                 LOG(TRACE) << "... completed!";
@@ -159,7 +159,7 @@ namespace iot::mqtt::server::broker {
                            << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
                 for (auto& [clientId, clientQoS] : foundNode->second.subscribers) {
-                    broker->sendPublish(clientId, message, clientQoS);
+                    broker->sendPublish(clientId, message, clientQoS, false);
                 }
                 LOG(TRACE) << "... completed!";
             }

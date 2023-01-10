@@ -46,7 +46,6 @@ namespace iot::mqtt::packets {
         std::vector<char> serializeVP() const override;
 
     public:
-        void setDup(bool dup = true);
         bool getDup() const;
         uint8_t getQoS() const;
         uint16_t getPacketIdentifier() const;

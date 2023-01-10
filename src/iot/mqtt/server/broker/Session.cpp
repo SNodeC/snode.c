@@ -41,7 +41,7 @@ namespace iot::mqtt::server::broker {
         : mqtt(mqtt) {
     }
 
-    void Session::sendPublish(Message& message, uint8_t qoS) {
+    void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
         std::stringstream messageData;
         const std::string& mes = message.getMessage();
 
@@ -61,7 +61,7 @@ namespace iot::mqtt::server::broker {
         LOG(TRACE) << "                QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
-            mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), message.getRetain());
+            mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain);
         } else {
             if (message.getQoS() == 0) {
                 messageQueue.clear();
@@ -75,7 +75,7 @@ namespace iot::mqtt::server::broker {
     void Session::publishQueued() {
         LOG(TRACE) << "    send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
-            sendPublish(message, message.getQoS());
+            sendPublish(message, message.getQoS(), false);
         }
         LOG(TRACE) << "    ... done";
 
