@@ -92,7 +92,7 @@ namespace database::mariadb {
 
     MariaDBCommandSequence& MariaDBConnection::execute_async(MariaDBCommandSequence&& commandSequence) {
         if (currentCommand == nullptr && commandSequenceQueue.empty()) {
-            commandStartEvent.publish();
+            commandStartEvent.span();
         }
 
         commandSequenceQueue.emplace_back(std::move(commandSequence));
@@ -201,7 +201,7 @@ namespace database::mariadb {
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                     commandCompleted();
                 }
-                commandStartEvent.publish();
+                commandStartEvent.span();
             }
         } else {
             currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
@@ -244,11 +244,11 @@ namespace database::mariadb {
     }
 
     MariaDBCommandStartEvent::~MariaDBCommandStartEvent() {
-        core::EventReceiver::unPublish();
+        core::EventReceiver::relax();
     }
 
-    void MariaDBCommandStartEvent::publish() {
-        core::EventReceiver::publish();
+    void MariaDBCommandStartEvent::span() {
+        core::EventReceiver::span();
     }
 
     void MariaDBCommandStartEvent::onEvent(const utils::Timeval& currentTime) {

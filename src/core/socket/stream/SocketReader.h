@@ -86,7 +86,7 @@ namespace core::socket::stream {
                     if (!isSuspended()) {
                         suspend();
                     }
-                    publish();
+                    span();
                 } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
                     if (isSuspended()) {
                         resume();
@@ -96,7 +96,7 @@ namespace core::socket::stream {
                     onError(errno);
                 }
             } else {
-                publish();
+                span();
             }
 
             return size;

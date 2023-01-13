@@ -126,7 +126,7 @@ namespace core::socket::stream::tls {
             TLSHandshake::doHandshake(
                 ssl,
                 [onSuccess, this]() -> void { // onSuccess
-                    SocketReader::publish();
+                    SocketReader::span();
                     onSuccess();
                 },
                 [onTimeout, this]() -> void { // onTimeout

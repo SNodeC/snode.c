@@ -26,7 +26,7 @@ void TowerCalculator::calculate() {
 
         std::cout << std::endl << "Starting calculation with value = " << currentValue << std::endl;
 
-        publish();
+        span();
     }
 }
 
@@ -41,7 +41,7 @@ void TowerCalculator::onEvent([[maybe_unused]] const utils::Timeval& currentTime
             } else {
                 state = State::DIVIDE;
             }
-            publish();
+            span();
             break;
         case State::DIVIDE:
             if (divisor < 10) {
@@ -52,7 +52,7 @@ void TowerCalculator::onEvent([[maybe_unused]] const utils::Timeval& currentTime
             } else {
                 state = State::WAITING;
             }
-            publish();
+            span();
             break;
         case State::WAITING:
             calculate();

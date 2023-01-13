@@ -113,15 +113,14 @@ namespace iot::mqtt::server::broker {
 
             LOG(TRACE) << "... completed!";
 
-            auto nextHashNode = topicLevels.find("#");
-            if (nextHashNode != topicLevels.end()) {
+            auto nextHashLevel = topicLevels.find("#");
+            if (nextHashLevel != topicLevels.end()) {
                 LOG(TRACE) << "Found parent match:";
                 LOG(TRACE) << "  Topic: '" << message.getTopic() << "'";
-                LOG(TRACE) << "  Filter: '" << message.getTopic() << "/#'";
                 LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish for math ...";
 
-                for (auto& [clientId, clientQoS] : nextHashNode->second.subscribers) {
+                for (auto& [clientId, clientQoS] : nextHashLevel->second.subscribers) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
 

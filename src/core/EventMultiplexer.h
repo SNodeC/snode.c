@@ -79,8 +79,8 @@ namespace core {
         DescriptorEventPublisher& getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType);
         TimerEventPublisher& getTimerEventPublisher();
 
-        void publish(core::Event* event);
-        void unPublish(core::Event* event);
+        void span(core::Event* event);
+        void relax(core::Event* event);
 
         TickStatus tick(const utils::Timeval& tickTimeOut);
         void exit();

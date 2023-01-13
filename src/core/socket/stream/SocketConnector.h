@@ -72,7 +72,7 @@ namespace core::socket::stream {
             , onError(onError)
             , options(options)
             , config(config) {
-            InitConnectEventReceiver::publish();
+            InitConnectEventReceiver::span();
         }
 
         ~SocketConnector() override {

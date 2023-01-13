@@ -31,6 +31,7 @@ namespace CLI {
 #include "utils/Timeval.h"
 
 #include <cstdint>
+#include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -64,9 +65,6 @@ namespace net::config {
         bool getUseDefaultCaDir() const;
         void setUseDefaultCaDir();
 
-        const std::string& getSni() const;
-        void setSni(const std::string& newSni);
-
         bool getForceSni() const;
         void setForceSni();
 
@@ -76,19 +74,16 @@ namespace net::config {
         const uint64_t& getSslTlsOptions() const;
         void setSslTlsOptions(uint64_t newSslTlsOptions);
 
-        void disableSni();
-        void disableForceSni();
+    protected:
+        CLI::App* tlsSc = nullptr;
 
     private:
-        CLI::App* tlsSc = nullptr;
         CLI::Option* certChainFileOpt;
         CLI::Option* certKeyFileOpt;
         CLI::Option* certKeyPasswordOpt;
         CLI::Option* caFileOpt;
         CLI::Option* caDirOpt;
         CLI::Option* useDefaultCaDirFlg;
-        CLI::Option* sniOpt;
-        CLI::Option* forceSniFlg;
         CLI::Option* cipherListOpt;
         CLI::Option* sslTlsOptionsOpt;
 
@@ -101,13 +96,13 @@ namespace net::config {
         std::string caFile;
         std::string caDir;
         bool useDefaultCaDir = false;
-        std::string sni;
-        bool forceSni = false;
         std::string cipherList;
         uint64_t sslTlsOptions = 0;
 
         utils::Timeval initTimeout;
         utils::Timeval shutdownTimeout;
+
+        std::map<std::string, std::map<std::string, std::string>> sniCerts;
     };
 
 } // namespace net::config

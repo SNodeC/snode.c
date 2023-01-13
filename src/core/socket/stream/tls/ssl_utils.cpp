@@ -21,7 +21,8 @@
 #include "core/socket/stream/tls/ssl_utils.h"
 
 #include "log/Logger.h"
-#include "net/config/ConfigTls.h"
+#include "net/config/ConfigTlsClient.h" // IWYU pragma: keep
+#include "net/config/ConfigTlsServer.h" // IWYU pragma: keep
 
 #include <cerrno>
 #include <cstdint>
@@ -38,6 +39,12 @@
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <bits/utility.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+using ssl_option_t = uint64_t;
+#else
+using ssl_option_t = uint32_t;
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -85,12 +92,6 @@ namespace core::socket::stream::tls {
 
         return preverify_ok;
     }
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    using ssl_option_t = uint64_t;
-#else
-    using ssl_option_t = uint32_t;
-#endif
 
     struct SslConfig {
         explicit SslConfig(bool server)
@@ -197,29 +198,33 @@ namespace core::socket::stream::tls {
         return ctx;
     }
 
-    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTls>& configTls, bool server) {
-        return ssl_ctx_new(SslConfig(server, configTls));
+    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsServer>& configTls) {
+        return ssl_ctx_new(SslConfig(true, configTls));
     }
 
-    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
-        SslConfig sslConfig(server);
+    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsClient>& configTls) {
+        return ssl_ctx_new(SslConfig(false, configTls));
+    }
 
-        for (auto& [name, value] : options) {
-            if (name == "CertChain") {
-                sslConfig.certChain = std::any_cast<const char*>(value);
-            } else if (name == "CertChainKey") {
-                sslConfig.certChainKey = std::any_cast<const char*>(value);
-            } else if (name == "Password") {
-                sslConfig.password = std::any_cast<const char*>(value);
-            } else if (name == "CaFile") {
-                sslConfig.caFile = std::any_cast<const char*>(value);
-            } else if (name == "CaDir") {
-                sslConfig.caDir = std::any_cast<const char*>(value);
-            } else if (name == "UseDefaultCaDir") {
+    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& sniCert) {
+        SslConfig sslConfig(true);
+
+        for (auto& [key, value] : sniCert) {
+            if (key == "CertChain") {
+                sslConfig.certChain = std::any_cast<const std::string&>(value);
+            } else if (key == "CertChainKey") {
+                sslConfig.certChainKey = std::any_cast<const std::string&>(value);
+            } else if (key == "CertKeyPassword") {
+                sslConfig.password = std::any_cast<const std::string&>(value);
+            } else if (key == "CaFile") {
+                sslConfig.caFile = std::any_cast<const std::string&>(value);
+            } else if (key == "CaDir") {
+                sslConfig.caDir = std::any_cast<const std::string&>(value);
+            } else if (key == "UseDefaultCaDir") {
                 sslConfig.useDefaultCaDir = std::any_cast<bool>(value);
-            } else if (name == "CipherList") {
-                sslConfig.cipherList = std::any_cast<const char*>(value);
-            } else if (name == "SslOptions") {
+            } else if (key == "CipherList") {
+                sslConfig.cipherList = std::any_cast<const std::string&>(value);
+            } else if (key == "SslOptions") {
                 sslConfig.sslOptions = std::any_cast<ssl_option_t>(value);
             }
         }
@@ -244,7 +249,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTls>& configTls) {
+    void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTlsClient>& configTls) {
         if (!configTls->getSni().empty()) {
             SSL_set_tlsext_host_name(ssl, configTls->getSni().data());
         }

@@ -70,14 +70,6 @@ namespace net::config {
         opt->required();
     }
 
-    template <typename SocketAddress>
-    void ConfigAddress<SocketAddress>::require(CLI::Option* opt1, CLI::Option* opt2) {
-        addressSc->required();
-        ConfigBase::required();
-        opt1->required();
-        opt2->required();
-    }
-
 } // namespace net::config
 
 #endif // NET_CONFIG_CONFIGADDRESS_HPP

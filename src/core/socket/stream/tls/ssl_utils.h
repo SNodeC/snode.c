@@ -20,8 +20,9 @@
 #define CORE_SOCKET_STREAM_TLS_SSL_UTILS_H
 
 namespace net::config {
-    class ConfigTls;
-}
+    class ConfigTlsClient;
+    class ConfigTlsServer;
+} // namespace net::config
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,12 +44,13 @@ namespace net::config {
 namespace core::socket::stream::tls {
 
     //    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig);
-    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTls>& configTls, bool server = false);
-    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server = false);
+    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsServer>& configTls);
+    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsClient>& configTls);
+    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& sniCert);
     void ssl_ctx_free(SSL_CTX* ctx);
 
     void ssl_set_sni(SSL* ssl, std::map<std::string, std::any>& options);
-    void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTls>& configTls);
+    void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTlsClient>& configTls);
     SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx);
     std::set<std::string> ssl_get_sans(SSL_CTX* sslCtx);
     std::string ssl_get_servername_from_client_hello(SSL* ssl);

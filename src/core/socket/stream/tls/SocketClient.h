@@ -126,6 +126,10 @@ namespace core::socket::stream::tls {
         explicit SocketClient(const std::map<std::string, std::any>& options = {{}})
             : SocketClient("", options) {
         }
+
+        void setSni(const std::string& sniName) {
+            Super::config->setSni(sniName);
+        }
     };
 
 } // namespace core::socket::stream::tls

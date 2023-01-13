@@ -65,7 +65,7 @@ namespace core::poll {
             if ((pollFd.events & events) != 0 && (pollFd.revents & revents) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
-                eventReceiver->publish();
+                eventReceiver->span();
                 count++;
             }
         }

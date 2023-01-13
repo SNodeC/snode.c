@@ -46,7 +46,8 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
-        ConfigAddressType::require(hostOpt, portOpt);
+        ConfigAddressType::require(hostOpt);
+        ConfigAddressType::require(portOpt);
         hostOpt->default_val("");
         portOpt->default_val("");
     }

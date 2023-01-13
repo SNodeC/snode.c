@@ -83,7 +83,7 @@ namespace core::socket::stream {
             , onError(onError)
             , options(options)
             , config(config) {
-            InitAcceptEventReceiver::publish();
+            InitAcceptEventReceiver::span();
         }
 
         ~SocketAcceptor() override {

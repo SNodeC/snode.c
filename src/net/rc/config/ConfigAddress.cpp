@@ -46,7 +46,8 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
-        ConfigAddressType::require(hostOpt, channelOpt);
+        ConfigAddressType::require(hostOpt);
+        ConfigAddressType::require(channelOpt);
         hostOpt->default_val("");
         channelOpt->default_val("");
     }

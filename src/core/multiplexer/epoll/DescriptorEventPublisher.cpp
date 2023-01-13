@@ -120,7 +120,7 @@ namespace core::epoll {
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (eventReceiver != nullptr) {
                 eventCounter++;
-                eventReceiver->publish();
+                eventReceiver->span();
             }
         }
 

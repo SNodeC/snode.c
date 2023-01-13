@@ -47,9 +47,9 @@ namespace database::mariadb {
         MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
         ~MariaDBCommandStartEvent() override;
 
-        using core::EventReceiver::publish;
+        using core::EventReceiver::span;
 
-        void publish();
+        void span();
 
     private:
         void onEvent(const utils::Timeval& currentTime) override;

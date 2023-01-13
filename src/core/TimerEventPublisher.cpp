@@ -48,7 +48,7 @@ namespace core {
     void TimerEventPublisher::publishActiveEvents(const utils::Timeval& currentTime) {
         for (TimerEventReceiver* timerEventReceiver : timerList) {
             if (timerEventReceiver->getTimeout() <= currentTime) {
-                timerEventReceiver->publish();
+                timerEventReceiver->span();
             } else {
                 break;
             }

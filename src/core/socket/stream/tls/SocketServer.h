@@ -50,14 +50,7 @@ namespace core::socket::stream::tls {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : Super(name, onConnect, onConnected, onDisconnect, options)
-            , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-                for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
-                    ssl_ctx_free(sniSslCtx);
-                }
-                delete sniSslCtxs;
-            }) {
-            Super::_options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
+            : Super(name, onConnect, onConnected, onDisconnect, options) {
         }
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
@@ -140,16 +133,8 @@ namespace core::socket::stream::tls {
             : SocketServer("", options) {
         }
 
-    public:
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& sniCert) {
-            SSL_CTX* sslCtx = ssl_ctx_new(sniCert, true);
-
-            if (sslCtx != nullptr) {
-                sniSslCtxs->insert_or_assign(domain, sslCtx);
-                VLOG(2) << "SSL_CTX for domain '" << domain << "' installed";
-            } else {
-                VLOG(2) << "Can not create SSL_CTX for SNI '" << domain << "'";
-            }
+            Super::config->getSniCerts().insert_or_assign(domain, sniCert);
         }
 
         void addSniCerts(const std::map<std::string, std::map<std::string, std::any>>& sniCerts) {
@@ -158,7 +143,7 @@ namespace core::socket::stream::tls {
             }
         }
 
-        std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
+        //        std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
     };
 
 } // namespace core::socket::stream::tls

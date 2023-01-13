@@ -6,8 +6,14 @@ add_compile_options(
 )
 
 set(NET_CPP
-    config/ConfigBase.cpp config/ConfigCluster.cpp config/ConfigConnection.cpp
-    config/ConfigLegacy.cpp config/ConfigListen.cpp config/ConfigTls.cpp
+    config/ConfigBase.cpp
+    config/ConfigCluster.cpp
+    config/ConfigConnection.cpp
+    config/ConfigLegacy.cpp
+    config/ConfigListen.cpp
+    config/ConfigTls.cpp
+    config/ConfigTlsServer.cpp
+    config/ConfigTlsClient.cpp
 )
 
 set(NET_H
@@ -29,6 +35,8 @@ set(NET_H
     config/ConfigLegacy.h
     config/ConfigListen.h
     config/ConfigTls.h
+    config/ConfigTlsServer.h
+    config/ConfigTlsClient.h
     dgram/PeerSocket.h
     dgram/PeerSocket.hpp
     stream/ClientSocket.h

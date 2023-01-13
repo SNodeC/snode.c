@@ -36,7 +36,7 @@ namespace core::file {
         open(fd);
         Source::connect(sink);
 
-        publish();
+        span();
     }
 
     FileReader* FileReader::connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
@@ -64,7 +64,7 @@ namespace core::file {
 
             if (ret > 0) {
                 if (send(junk, static_cast<std::size_t>(ret)) >= 0) {
-                    publish();
+                    span();
                 } else {
                     delete this;
                 }
@@ -85,7 +85,7 @@ namespace core::file {
 
     void FileReader::resume() {
         suspended = false;
-        publish();
+        span();
     }
 
     bool FileReader::isSuspended() {

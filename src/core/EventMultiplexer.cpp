@@ -56,11 +56,11 @@ namespace core {
         return *timerEventPublisher;
     }
 
-    void EventMultiplexer::publish(Event* event) {
+    void EventMultiplexer::span(Event* event) {
         eventQueue.insert(event);
     }
 
-    void EventMultiplexer::unPublish(Event* event) {
+    void EventMultiplexer::relax(Event* event) {
         eventQueue.remove(event);
     }
 

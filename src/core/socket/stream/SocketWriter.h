@@ -82,7 +82,7 @@ namespace core::socket::stream {
                         if (writeBuffer.capacity() > writeBuffer.size() * 2) {
                             writeBuffer.shrink_to_fit();
                         }
-                        publish();
+                        span();
                     } else {
                         writeBuffer.shrink_to_fit();
 

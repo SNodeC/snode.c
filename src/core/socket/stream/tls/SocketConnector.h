@@ -97,7 +97,7 @@ namespace core::socket::stream::tls {
         }
 
         void initConnectEvent() override {
-            ctx = ssl_ctx_new(Super::config, false);
+            ctx = ssl_ctx_new(Super::config);
 
             if (ctx == nullptr) {
                 Super::onError(Super::config->getRemoteAddress(), errno);

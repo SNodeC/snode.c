@@ -22,7 +22,12 @@
 
 #include "utils/CLI11.hpp"
 
+#include <any>
+#include <iostream>
 #include <stdexcept>
+#include <type_traits>
+
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -52,9 +57,9 @@ namespace net::config {
             caDirOpt->type_name("[Path]");
             useDefaultCaDirFlg =
                 tlsSc->add_flag("--use-default-ca-cert-dir{true}", useDefaultCaDir, "Use default CA-certificate directory");
-            sniOpt = tlsSc->add_option("--sni", sni, "Server Name Indication");
-            sniOpt->type_name("[Hostname or IP]");
-            forceSniFlg = tlsSc->add_flag("--force-sni{true}", forceSni, "Force using of the Server Name Indication");
+            //            sniOpt = tlsSc->add_option("--sni", sni, "Server Name Indication");
+            //            sniOpt->type_name("[Hostname or IP]");
+            //            forceSniFlg = tlsSc->add_flag("--force-sni{true}", forceSni, "Force using of the Server Name Indication");
             cipherListOpt = tlsSc->add_option("--cipher-list", cipherList, "Cipher list");
             cipherListOpt->type_name("[Cipher List]");
             sslTlsOptionsOpt = tlsSc->add_option("--tls-options", sslTlsOptions, "OR combined SSL/TLS options");
@@ -121,22 +126,6 @@ namespace net::config {
         useDefaultCaDir = true;
     }
 
-    const std::string& ConfigTls::getSni() const {
-        return sni;
-    }
-
-    void ConfigTls::setSni(const std::string& newSni) {
-        sni = newSni;
-    }
-
-    bool ConfigTls::getForceSni() const {
-        return forceSni;
-    }
-
-    void ConfigTls::setForceSni() {
-        forceSni = true;
-    }
-
     const std::string& ConfigTls::getCipherList() const {
         return cipherList;
     }
@@ -151,18 +140,6 @@ namespace net::config {
 
     void ConfigTls::setSslTlsOptions(uint64_t newSslTlsOptions) {
         sslTlsOptions = newSslTlsOptions;
-    }
-
-    void ConfigTls::disableSni() {
-        if (tlsSc != nullptr) {
-            tlsSc->remove_option(sniOpt);
-        }
-    }
-
-    void ConfigTls::disableForceSni() {
-        if (tlsSc != nullptr) {
-            tlsSc->remove_option(forceSniFlg);
-        }
     }
 
     const utils::Timeval& ConfigTls::getInitTimeout() const {

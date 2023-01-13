@@ -20,7 +20,6 @@
 #define CORE_DESCRIPTOREVENTPUBLISHER_H
 
 namespace core {
-    class Event;
     class DescriptorEventReceiver;
 } // namespace core
 
@@ -50,8 +49,6 @@ namespace core {
 
     public:
         virtual ~DescriptorEventPublisher() = default;
-
-        void publish(Event* event);
 
         void enable(DescriptorEventReceiver* descriptorEventReceiver);
         void disable(DescriptorEventReceiver* descriptorEventReceiver);

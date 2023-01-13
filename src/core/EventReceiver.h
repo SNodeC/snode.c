@@ -43,8 +43,8 @@ namespace core {
         virtual ~EventReceiver() = default;
 
     public:
-        void publish();
-        void unPublish();
+        void span();
+        void relax();
 
         virtual void onEvent(const utils::Timeval& currentTime) = 0;
 

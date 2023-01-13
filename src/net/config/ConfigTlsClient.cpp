@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,32 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/EventReceiver.h"
+#include "net/config/ConfigTlsClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include "utils/CLI11.hpp"
 
-namespace core {
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-    EventReceiver::EventReceiver(const std::string& name)
-        : event(this, name) {
+namespace net::config {
+
+    ConfigTlsClient::ConfigTlsClient() {
+        if (!getName().empty()) {
+            sniOpt = tlsSc->add_option("--sni", sni, "Server Name Indication");
+            sniOpt->type_name("[Hostname or IP]");
+        }
     }
 
-    void EventReceiver::destruct() {
-        delete this;
+    std::string ConfigTlsClient::getSni() const {
+        return sni;
     }
 
-    void EventReceiver::span() {
-        event.span();
+    void ConfigTlsClient::setSni(const std::string& sni) {
+        this->sni = sni;
     }
 
-    void EventReceiver::relax() {
-        event.relax();
-    }
-
-    const std::string& EventReceiver::getName() const {
-        return event.getName();
-    }
-
-} // namespace core
+} // namespace net::config

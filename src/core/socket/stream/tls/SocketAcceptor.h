@@ -89,27 +89,48 @@ namespace core::socket::stream::tls {
                   },
                   onError,
                   options,
-                  config)
-            , sniSslCtxs(std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second)) {
+                  config) {
         }
 
         ~SocketAcceptor() override {
             if (masterSslCtx != nullptr) {
                 ssl_ctx_free(masterSslCtx);
             }
+
+            for (const auto& [domain, ctx] : sniSslCtxs) {
+                ssl_ctx_free(ctx);
+            }
         }
 
     private:
         void initAcceptEvent() override {
-            masterSslCtx = ssl_ctx_new(Super::config, true);
+            masterSslCtx = ssl_ctx_new(Super::config);
 
             if (masterSslCtx == nullptr) {
                 Super::onError(Super::config->getLocalAddress(), EINVAL);
                 Super::destruct();
             } else {
                 masterSslCtxDomains = ssl_get_sans(masterSslCtx);
+
                 SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
                 forceSni = Super::config->getForceSni();
+
+                LOG(INFO) << "SSL_CTX (master) installed";
+
+                for (const auto& [domain, sniCertConf] : Super::config->getSniCerts()) {
+                    SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
+
+                    if (sniSslCtx != nullptr) {
+                        if (sniSslCtxs.contains(domain)) {
+                            ssl_ctx_free(sniSslCtxs[domain]);
+                        }
+                        sniSslCtxs.insert_or_assign(domain, sniSslCtx);
+
+                        LOG(INFO) << "SSL_CTX for domain '" << domain << "' installed";
+                    } else {
+                        LOG(INFO) << "Can not create SSL_CTX for SNI '" << domain << "'";
+                    }
+                }
 
                 Super::initAcceptEvent();
             }
@@ -141,12 +162,12 @@ namespace core::socket::stream::tls {
             LOG(INFO) << "Search for sni = '" << serverNameIndication << "' in sni certificates";
 
             std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
-                sniSslCtxs->begin(), sniSslCtxs->end(), [&serverNameIndication](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
+                sniSslCtxs.begin(), sniSslCtxs.end(), [&serverNameIndication](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
                     LOG(TRACE) << "  .. " << sniPair.first.c_str();
                     return match(sniPair.first.c_str(), serverNameIndication.c_str());
                 });
 
-            if (sniPairIt != sniSslCtxs->end()) {
+            if (sniPairIt != sniSslCtxs.end()) {
                 LOG(INFO) << "found: " << sniPairIt->first;
                 sniCtx = sniPairIt->second;
             } else {
@@ -229,7 +250,7 @@ namespace core::socket::stream::tls {
         SSL_CTX* masterSslCtx = nullptr;
         std::set<std::string> masterSslCtxDomains;
 
-        std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
+        std::map<std::string, SSL_CTX*> sniSslCtxs;
         bool forceSni = false;
     };
 

@@ -42,7 +42,6 @@ namespace net::config {
         void setAddress(const SocketAddress& address);
 
         void require(CLI::Option* opt);
-        void require(CLI::Option* opt1, CLI::Option* opt2);
 
         bool isInitialized() const;
 

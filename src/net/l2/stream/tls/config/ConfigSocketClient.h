@@ -19,7 +19,7 @@
 #ifndef NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/config/ConfigTls.h"                    // IWYU pragma: export
+#include "net/config/ConfigTlsClient.h"              // IWYU pragma: export
 #include "net/l2/stream/config/ConfigSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,11 +32,10 @@ namespace net::l2::stream::tls::config {
 
     class ConfigSocketClient
         : public net::l2::stream::config::ConfigSocketClient
-        , public net::config::ConfigTls {
+        , public net::config::ConfigTlsClient {
     public:
         explicit ConfigSocketClient(const std::string& name)
             : net::config::ConfigBase(name) {
-            ConfigTls::disableForceSni();
         }
     };
 

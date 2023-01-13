@@ -19,7 +19,7 @@
 #ifndef NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigTls.h"                    // IWYU pragma: export
+#include "net/config/ConfigTlsServer.h"              // IWYU pragma: export
 #include "net/in/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,11 +32,10 @@ namespace net::in::stream::tls::config {
 
     class ConfigSocketServer
         : public net::in::stream::config::ConfigSocketServer
-        , public net::config::ConfigTls {
+        , public net::config::ConfigTlsServer {
     public:
         explicit ConfigSocketServer(const std::string& name)
             : net::config::ConfigBase(name) {
-            ConfigTls::disableSni();
         }
     };
 

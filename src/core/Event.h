@@ -41,8 +41,8 @@ namespace core {
 
         ~Event();
 
-        void publish();
-        void unPublish();
+        void span();
+        void relax();
 
         const std::string& getName() const;
 

@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,29 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
-#define NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
+#ifndef NET_CONFIG_CONFIGTLSCLIENT_H
+#define NET_CONFIG_CONFIGTLSCLIENT_H
 
-#include "net/config/ConfigTlsServer.h"              // IWYU pragma: export
-#include "net/l2/stream/config/ConfigSocketServer.h" // IWYU pragma: export
+#include "net/config/ConfigTls.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+namespace CLI {
+    class Option;
+} // namespace CLI
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net::l2::stream::tls::config {
+namespace net::config {
 
-    class ConfigSocketServer
-        : public net::l2::stream::config::ConfigSocketServer
-        , public net::config::ConfigTlsServer {
+    class ConfigTlsClient : public ConfigTls {
     public:
-        explicit ConfigSocketServer(const std::string& name)
-            : net::config::ConfigBase(name) {
-        }
+        ConfigTlsClient();
+
+        std::string getSni() const;
+        void setSni(const std::string& sni);
+
+    private:
+        CLI::Option* sniOpt;
+
+        std::string sni;
     };
 
-} // namespace net::l2::stream::tls::config
+} // namespace net::config
 
-#endif // NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
+#endif // NET_CONFIG_CONFIGTLSCLIENT_H

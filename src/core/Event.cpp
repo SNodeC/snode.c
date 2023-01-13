@@ -34,21 +34,21 @@ namespace core {
 
     Event::~Event() {
         if (published) {
-            unPublish();
+            relax();
         }
     }
 
-    void Event::publish() {
+    void Event::span() {
         if (!published) {
             published = true;
-            core::EventLoop::instance().getEventMultiplexer().publish(this);
+            core::EventLoop::instance().getEventMultiplexer().span(this);
         }
     }
 
-    void Event::unPublish() {
+    void Event::relax() {
         if (published) {
             published = false;
-            core::EventLoop::instance().getEventMultiplexer().unPublish(this);
+            core::EventLoop::instance().getEventMultiplexer().relax(this);
         }
     }
 

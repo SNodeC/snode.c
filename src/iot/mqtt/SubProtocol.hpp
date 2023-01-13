@@ -41,7 +41,7 @@ namespace iot::mqtt {
             iot::mqtt::MqttContext::onProcess();
 
             if (size > 0) {
-                onData.publish();
+                onData.span();
             } else {
                 buffer.clear();
                 cursor = 0;
@@ -122,7 +122,7 @@ namespace iot::mqtt {
         data.clear();
 
         if (buffer.size() > 0) {
-            onData.publish();
+            onData.span();
         }
     }
 

@@ -83,7 +83,7 @@ namespace core::select {
             if (fdSet.isSet(fd)) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
-                eventReceiver->publish();
+                eventReceiver->span();
                 count++;
             }
         }
