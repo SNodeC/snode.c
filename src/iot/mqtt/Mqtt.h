@@ -84,12 +84,13 @@ namespace iot::mqtt {
         void sendPubrel(uint16_t packetIdentifier) const;
         void sendPubcomp(uint16_t packetIdentifier) const;
 
-        bool onPublish(const iot::mqtt::packets::Publish& publish);
+        virtual void onPublish(const iot::mqtt::packets::Publish& publish);
         virtual void onPuback(const iot::mqtt::packets::Puback& puback);
         virtual void onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
         virtual void onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
         virtual void onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
 
+        bool _onPublish(const iot::mqtt::packets::Publish& publish);
         void _onPuback(const iot::mqtt::packets::Puback& puback);
         void _onPubrec(const iot::mqtt::packets::Pubrec& pubrec);
         void _onPubrel(const iot::mqtt::packets::Pubrel& pubrel);

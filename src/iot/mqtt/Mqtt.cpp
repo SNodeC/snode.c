@@ -224,26 +224,7 @@ namespace iot::mqtt {
         send(iot::mqtt::packets::Pubcomp(packetIdentifier));
     }
 
-    bool Mqtt::onPublish(const packets::Publish& publish) {
-        bool deliver = true;
-        switch (publish.getQoS()) {
-            case 1:
-                sendPuback(publish.getPacketIdentifier());
-
-                break;
-            case 2:
-                sendPubrec(publish.getPacketIdentifier());
-
-                if (session->publishPacketIdentifierSet.contains(publish.getPacketIdentifier())) {
-                    deliver = false;
-                } else {
-                    session->publishPacketIdentifierSet.insert(publish.getPacketIdentifier());
-                }
-
-                break;
-        }
-
-        return deliver;
+    void Mqtt::onPublish([[maybe_unused]] const packets::Publish& publish) {
     }
 
     void Mqtt::onPuback([[maybe_unused]] const iot::mqtt::packets::Puback& puback) {
@@ -258,6 +239,46 @@ namespace iot::mqtt {
     void Mqtt::onPubcomp([[maybe_unused]] const iot::mqtt::packets::Pubcomp& pubcomp) {
     }
 
+    bool Mqtt::_onPublish(const packets::Publish& publish) {
+        bool deliver = true;
+        LOG(DEBUG) << "=================";
+        printStandardHeader(publish);
+        LOG(DEBUG) << "Topic: " << publish.getTopic();
+        LOG(DEBUG) << "Message: " << publish.getMessage();
+        LOG(DEBUG) << "QoS: " << static_cast<uint16_t>(publish.getQoS());
+        LOG(DEBUG) << "PacketIdentifier: " << publish.getPacketIdentifier();
+        LOG(DEBUG) << "DUP: " << publish.getDup();
+        LOG(DEBUG) << "Retain: " << publish.getRetain();
+
+        if (publish.getQoS() > 2) {
+            LOG(TRACE) << "Received invalid QoS: " << publish.getQoS();
+            mqttContext->end(true);
+            deliver = false;
+        } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
+            LOG(TRACE) << "Received QoS > 0 but no PackageIdentifier present";
+            mqttContext->end(true);
+            deliver = false;
+        } else {
+            switch (publish.getQoS()) {
+                case 1:
+                    sendPuback(publish.getPacketIdentifier());
+
+                    break;
+                case 2:
+                    sendPubrec(publish.getPacketIdentifier());
+
+                    if (session->publishPacketIdentifierSet.contains(publish.getPacketIdentifier())) {
+                        deliver = false;
+                    } else {
+                        session->publishPacketIdentifierSet.insert(publish.getPacketIdentifier());
+                    }
+
+                    break;
+            }
+        }
+
+        return deliver;
+    }
     void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
         LOG(DEBUG) << "Received PUBACK:";
         LOG(DEBUG) << "================";

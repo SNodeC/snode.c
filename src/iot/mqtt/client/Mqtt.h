@@ -73,7 +73,6 @@ namespace iot::mqtt::client {
         void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
         virtual void onConnack(const iot::mqtt::packets::Connack& connack);
-        virtual void onPublish(const iot::mqtt::packets::Publish& publish);
         virtual void onSuback(const iot::mqtt::packets::Suback& suback);
         virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback);
         virtual void onPingresp(const iot::mqtt::packets::Pingresp& pingresp);

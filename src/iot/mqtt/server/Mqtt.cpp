@@ -168,9 +168,6 @@ namespace iot::mqtt::server {
     void Mqtt::onConnect([[maybe_unused]] const iot::mqtt::packets::Connect& connect) {
     }
 
-    void Mqtt::onPublish([[maybe_unused]] const iot::mqtt::packets::Publish& publish) {
-    }
-
     void Mqtt::onSubscribe([[maybe_unused]] const iot::mqtt::packets::Subscribe& subscribe) {
     }
 
@@ -251,27 +248,11 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onPublish(const iot::mqtt::server::packets::Publish& publish) {
         LOG(DEBUG) << "Received PUBLISH: " << clientId;
-        LOG(DEBUG) << "=================";
-        printStandardHeader(publish);
-        LOG(DEBUG) << "Topic: " << publish.getTopic();
-        LOG(DEBUG) << "Message: " << publish.getMessage();
-        LOG(DEBUG) << "QoS: " << static_cast<uint16_t>(publish.getQoS());
-        LOG(DEBUG) << "PacketIdentifier: " << publish.getPacketIdentifier();
-        LOG(DEBUG) << "DUP: " << publish.getDup();
-        LOG(DEBUG) << "Retain: " << publish.getRetain();
 
-        if (publish.getQoS() > 2) {
-            LOG(TRACE) << "Received invalid QoS: " << publish.getQoS();
-            mqttContext->end(true);
-        } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
-            LOG(TRACE) << "Received QoS > 0 but no PackageIdentifier present";
-            mqttContext->end(true);
-        } else {
-            if (Super::onPublish(publish)) {
-                broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
+        if (Super::_onPublish(publish)) {
+            broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
 
-                onPublish(publish);
-            }
+            onPublish(publish);
         }
     }
 

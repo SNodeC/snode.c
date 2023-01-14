@@ -88,7 +88,6 @@ namespace iot::mqtt::server {
         void releaseSession();
 
         virtual void onConnect(const iot::mqtt::packets::Connect& connect);
-        virtual void onPublish(const iot::mqtt::packets::Publish& publish);
         virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe);
         virtual void onUnsubscribe(const iot::mqtt::packets::Unsubscribe& unsubscribe);
         virtual void onPingreq(const iot::mqtt::packets::Pingreq& pingreq);
