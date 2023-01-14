@@ -34,8 +34,8 @@ namespace net::un::stream::config {
     class ConfigSocketServer
         : public net::config::ConfigListen
         , public net::un::config::ConfigAddress<net::config::ConfigAddressLocal>
-        , public net::config::ConfigCluster
-        , public net::config::ConfigConnection {
+        , public net::config::ConfigConnection
+        , public net::config::ConfigCluster {
     public:
         ConfigSocketServer();
     };

@@ -34,8 +34,8 @@ namespace net::l2::stream::config {
     class ConfigSocketServer
         : public net::config::ConfigListen
         , public net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>
-        , public net::config::ConfigCluster
-        , public net::config::ConfigConnection {
+        , public net::config::ConfigConnection
+        , public net::config::ConfigCluster {
     public:
         ConfigSocketServer();
     };
