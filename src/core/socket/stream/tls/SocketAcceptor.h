@@ -106,10 +106,7 @@ namespace core::socket::stream::tls {
         void initAcceptEvent() override {
             masterSslCtx = ssl_ctx_new(Super::config);
 
-            if (masterSslCtx == nullptr) {
-                Super::onError(Super::config->getLocalAddress(), EINVAL);
-                Super::destruct();
-            } else {
+            if (masterSslCtx != nullptr) {
                 masterSslCtxDomains = ssl_get_sans(masterSslCtx);
 
                 SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
@@ -133,6 +130,9 @@ namespace core::socket::stream::tls {
                 }
 
                 Super::initAcceptEvent();
+            } else {
+                Super::onError(Super::config->getLocalAddress(), EINVAL);
+                Super::destruct();
             }
         }
 

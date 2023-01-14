@@ -22,10 +22,7 @@
 
 #include "utils/CLI11.hpp"
 
-#include <any>
-#include <iostream>
 #include <stdexcept>
-#include <type_traits>
 
 // IWYU pragma: no_include <bits/utility.h>
 
@@ -46,9 +43,9 @@ namespace net::config {
             tlsSc = add_subcommand("tls", "Options for SSL/TLS behaviour");
 
             certChainFileOpt = tlsSc->add_option("--cert-chain", certChainFile, "Certificate chain file");
-            certChainFileOpt->type_name("[PEM file]");
+            certChainFileOpt->type_name("[PEM file]")->check(CLI::ExistingFile);
             certKeyFileOpt = tlsSc->add_option("--cert-key", certKeyFile, "Certificate key file");
-            certKeyFileOpt->type_name("[PEM file]");
+            certKeyFileOpt->type_name("[PEM file]")->check(CLI::ExistingFile);
             certKeyPasswordOpt = tlsSc->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file");
             certKeyPasswordOpt->type_name("[Password]");
             caFileOpt = tlsSc->add_option("--ca-cert-file", caFile, "CA-certificate file");
@@ -57,9 +54,6 @@ namespace net::config {
             caDirOpt->type_name("[Path]");
             useDefaultCaDirFlg =
                 tlsSc->add_flag("--use-default-ca-cert-dir{true}", useDefaultCaDir, "Use default CA-certificate directory");
-            //            sniOpt = tlsSc->add_option("--sni", sni, "Server Name Indication");
-            //            sniOpt->type_name("[Hostname or IP]");
-            //            forceSniFlg = tlsSc->add_flag("--force-sni{true}", forceSni, "Force using of the Server Name Indication");
             cipherListOpt = tlsSc->add_option("--cipher-list", cipherList, "Cipher list");
             cipherListOpt->type_name("[Cipher List]");
             sslTlsOptionsOpt = tlsSc->add_option("--tls-options", sslTlsOptions, "OR combined SSL/TLS options");

@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -44,31 +44,34 @@ namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer() {
         if (!getName().empty()) {
-            forceSniFlg = tlsSc->add_flag("--force-sni{true}", forceSni, "Force using of the Server Name Indication");
+            sniCertsOpt = tlsSc
+                              ->add_option("--sni-cert",
+                                           sniCerts,
+                                           "SNI Certificates:\n"
+                                           "servername = SNI name of the virtual server\n"
+                                           "<key> = {\n"
+                                           "          CertChain -> value = PEM file,\n"
+                                           "          CertKey -> value = PEM file,\n"
+                                           "          CertKeyPassword -> value = TEXT,\n"
+                                           "          CaCertFile -> value = PEM file,\n"
+                                           "          CaCertDir -> value = Path,\n"
+                                           "          UseDefaultCaDir -> value = true|false,\n"
+                                           "          SslOptions -> value = int\n"
+                                           "        }")
+                              ->type_name("{servername, {<key>, value} [, ...]} {%% ...}");
 
-            sniCertsOpt =
-                tlsSc
-                    ->add_option("--sni-cert",
-                                 sniCerts,
-                                 "SNI Certificates:\n"
-                                 "<servername> = SNI name of the (virtual) server\n"
-                                 "<key> = CertChain [value = PEM file],\n"
-                                 "        CertKey [value = PEM file],\n"
-                                 "        CertKeyPassword [value = Password],\n"
-                                 "        CaFile [value = PEM file],\n"
-                                 "        CaDir [value = Path],\n"
-                                 "        UseDefaultCaDir [value = true|false],\n"
-                                 "        SslOptions [value = int]")
-                    ->type_name("[servername, <key>, value, [<key>, value, ...] %% servername, <key>, value, [<key>, value, ...] %%");
+            forceSniFlg = tlsSc->add_flag("--force-sni{true}", forceSni, "Force using of the Server Name Indication");
+            forceSniFlg->type_name("[true|false]");
+            forceSniFlg->default_val(false);
 
             tlsSc->final_callback([this](void) -> void {
                 std::list<std::string> vaultyDomainConfigs;
 
                 for (const auto& [domain, sniMap] : sniCerts) {
                     for (auto& [key, value] : sniMap) {
-                        if (key != "CertChain" && key != "CertChainKey" && key != "CertKeyPassword" && key != "CaFile" && key != "CaDir" &&
-                            key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
-                            LOG(ERROR) << "Adding SNI-Cert: Domain: " << domain << " - wrong Key: " << key;
+                        if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
+                            key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
+                            LOG(ERROR) << "Configuring SNI-Cert for domain: " << domain << " failed: Wrong Key: " << key;
                             vaultyDomainConfigs.push_back(domain);
                         }
                     }

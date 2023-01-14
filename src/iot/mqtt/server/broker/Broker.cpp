@@ -27,7 +27,6 @@
 #include <cstdlib>
 #include <fstream> // IWYU pragma: keep
 #include <initializer_list>
-#include <iostream>
 #include <nlohmann/json.hpp>
 #include <vector>
 
@@ -51,13 +50,15 @@ namespace iot::mqtt::server::broker {
             try {
                 sessionStoreFile >> sessionStoreJson;
 
-                for (auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
-                    sessionStore[clientId].fromJson(sessionJson);
+                if (!sessionStoreJson.empty()) {
+                    for (auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
+                        sessionStore[clientId].fromJson(sessionJson);
+                    }
+                    retainTree.fromJson(sessionStoreJson["retain_tree"]);
+                    subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
+                } else {
+                    LOG(INFO) << "Starting with empty session";
                 }
-                retainTree.fromJson(sessionStoreJson["retain_tree"]);
-                subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
-
-                std::cout << sessionStoreJson.dump(4) << std::endl;
             } catch (const nlohmann::json::exception& e) {
                 LOG(ERROR) << e.what();
             }
@@ -80,13 +81,9 @@ namespace iot::mqtt::server::broker {
         std::ofstream sessionStoreFile(sessionStoreFileName);
 
         if (sessionStoreFile.is_open()) {
-            std::cout << "Perseveration of ";
             sessionStoreFile << sessionStoreJson;
             sessionStoreFile.close();
         }
-
-        std::cout << "Sessionstore:" << std::endl;
-        std::cout << sessionStoreJson.dump(4) << std::endl;
     }
 
     std::shared_ptr<Broker> Broker::instance(uint8_t maxQoS) {

@@ -26,7 +26,6 @@
 namespace iot::mqtt {
     namespace packets {
         class Connect;
-        class Publish;
         class Disconnect;
         class Pingreq;
         class Subscribe;

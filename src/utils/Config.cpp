@@ -172,7 +172,8 @@ namespace utils {
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
         //  ->group("Options (generic)");
 
-        app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian (me@vchrist.at)");
+        app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian\n"
+                   "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
 
         bool ret = parse(false); // for stopDaemon but do not act on -h or --help-all
 
@@ -355,8 +356,8 @@ namespace utils {
         } catch (const CLI::ParseError& e) {
             if (stopOnError) {
                 if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp") {
-                    std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl << std::endl;
-                    std::cout << "Command line " << e.get_name() << ": " << e.what() << std::endl;
+                    std::cout << "Command line error: " << e.what() << std::endl << std::endl;
+                    std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
                 } else {
                     Config::app.exit(e);
                 }

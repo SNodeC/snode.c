@@ -29,7 +29,6 @@ namespace iot::mqtt {
 
     namespace packets {
         class Connack;
-        class Publish;
         class Pingresp;
         class Suback;
         class Unsuback;

@@ -212,13 +212,13 @@ namespace core::socket::stream::tls {
         for (auto& [key, value] : sniCert) {
             if (key == "CertChain") {
                 sslConfig.certChain = std::any_cast<const std::string&>(value);
-            } else if (key == "CertChainKey") {
+            } else if (key == "CertKey") {
                 sslConfig.certChainKey = std::any_cast<const std::string&>(value);
             } else if (key == "CertKeyPassword") {
                 sslConfig.password = std::any_cast<const std::string&>(value);
-            } else if (key == "CaFile") {
+            } else if (key == "CaCertFile") {
                 sslConfig.caFile = std::any_cast<const std::string&>(value);
-            } else if (key == "CaDir") {
+            } else if (key == "CaCertDir") {
                 sslConfig.caDir = std::any_cast<const std::string&>(value);
             } else if (key == "UseDefaultCaDir") {
                 sslConfig.useDefaultCaDir = std::any_cast<bool>(value);
