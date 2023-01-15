@@ -55,28 +55,25 @@ namespace core::socket::stream {
         SocketClient(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect,
-                     const std::map<std::string, std::any>& options = {{}})
+                     const std::function<void(SocketConnection*)>& onDisconnect)
             : Super(name)
             , socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
-            , _onDisconnect(onDisconnect)
-            , _options(options) {
+            , _onDisconnect(onDisconnect) {
         }
 
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect,
-                     const std::map<std::string, std::any>& options = {{}})
-            : SocketClient("", onConnect, onConnected, onDisconnect, options) {
+                     const std::function<void(SocketConnection*)>& onDisconnect)
+            : SocketClient("", onConnect, onConnected, onDisconnect) {
         }
 
         using Super::connect;
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const override {
             if (Super::config->isRemoteInitialized()) {
-                new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, _options, Super::config);
+                new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, Super::config);
             } else {
                 LOG(ERROR) << "Parameterless connect with anonymous client instance";
             }
@@ -105,8 +102,6 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> _onConnect;
         std::function<void(SocketConnection*)> _onConnected;
         std::function<void(SocketConnection*)> _onDisconnect;
-
-        std::map<std::string, std::any> _options;
     };
 
 } // namespace core::socket::stream

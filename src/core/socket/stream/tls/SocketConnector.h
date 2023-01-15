@@ -46,7 +46,6 @@ namespace core::socket::stream::tls {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::function<void(const SocketAddress&, int)>& onError,
-                        const std::map<std::string, std::any>& options,
                         const std::shared_ptr<Config>& config)
             : Super(
                   socketContextFactory,
@@ -86,7 +85,6 @@ namespace core::socket::stream::tls {
                       onDisconnect(socketConnection);
                   },
                   onError,
-                  options,
                   config) {
         }
 

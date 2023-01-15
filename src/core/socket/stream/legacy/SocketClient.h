@@ -43,7 +43,7 @@ namespace core::socket::stream::legacy {
 
         using Super::Super;
 
-        explicit SocketClient(const std::string& name, const std::map<std::string, std::any>& options = {{}})
+        explicit SocketClient(const std::string& name)
             : SocketClient(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
@@ -64,12 +64,11 @@ namespace core::socket::stream::legacy {
                                      socketConnection->getLocalAddress().toString();
                       VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
-                  },
-                  options) {
+                  }) {
         }
 
-        explicit SocketClient(const std::map<std::string, std::any>& options = {{}})
-            : SocketClient("", options) {
+        explicit SocketClient()
+            : SocketClient("") {
         }
     };
 

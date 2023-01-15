@@ -49,29 +49,25 @@ namespace web::http::server {
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&, Response&)>& onRequestReady,
-               const std::function<void(SocketConnection*)>& onDisconnect,
-               const std::map<std::string, std::any>& options = {{}})
-            : Super(name, onConnect, onConnected, onDisconnect, options) {
+               const std::function<void(SocketConnection*)>& onDisconnect)
+            : Super(name, onConnect, onConnected, onDisconnect) {
             Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
         Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&, Response&)>& onRequestReady,
-               const std::function<void(SocketConnection*)>& onDisconnect,
-               const std::map<std::string, std::any>& options = {{}})
-            : Server("", onConnect, onConnected, onRequestReady, onDisconnect, options) {
+               const std::function<void(SocketConnection*)>& onDisconnect)
+            : Server("", onConnect, onConnected, onRequestReady, onDisconnect) {
         }
 
-        Server(const std::string& name,
-               const std::function<void(Request&, Response&)>& onRequestReady,
-               const std::map<std::string, std::any>& options = {{}})
-            : Super(name, options) {
+        Server(const std::string& name, const std::function<void(Request&, Response&)>& onRequestReady)
+            : Super(name) {
             Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
-        Server(const std::function<void(Request&, Response&)>& onRequestReady, const std::map<std::string, std::any>& options = {{}})
-            : Server("", onRequestReady, options) {
+        Server(const std::function<void(Request&, Response&)>& onRequestReady)
+            : Server("", onRequestReady) {
         }
 
         using Super::listen;

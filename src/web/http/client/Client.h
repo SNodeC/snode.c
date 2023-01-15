@@ -51,8 +51,7 @@ namespace web::http::client {
                const std::function<void(Request&)>& onRequestBegin,
                const std::function<void(Request&, Response&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError,
-               const std::function<void(SocketConnection*)>& onDisconnect,
-               const std::map<std::string, std::any>& options = {{}})
+               const std::function<void(SocketConnection*)>& onDisconnect)
             : Super(
                   name,
                   onConnect,
@@ -65,8 +64,7 @@ namespace web::http::client {
                       onConnected(socketConnection);
                       onRequestBegin(request);
                   },
-                  onDisconnect,
-                  options) {
+                  onDisconnect) {
             Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
             Super::getSocketContextFactory()->setOnResponseError(onResponseError);
         }
@@ -76,17 +74,15 @@ namespace web::http::client {
                const std::function<void(Request&)>& onRequestBegin,
                const std::function<void(Request&, Response&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError,
-               const std::function<void(SocketConnection*)>& onDisconnect,
-               const std::map<std::string, std::any>& options = {{}})
-            : Client("", onConnect, onConnected, onRequestBegin, onResponseReady, onResponseError, onDisconnect, options) {
+               const std::function<void(SocketConnection*)>& onDisconnect)
+            : Client("", onConnect, onConnected, onRequestBegin, onResponseReady, onResponseError, onDisconnect) {
         }
 
         Client(const std::string& name,
                const std::function<void(Request&)>& onRequestBegin,
                const std::function<void(Request&, Response&)>& onResponseReady,
-               const std::function<void(int, const std::string&)>& onResponseError,
-               const std::map<std::string, std::any>& options = {{}})
-            : Super(name, options) {
+               const std::function<void(int, const std::string&)>& onResponseError)
+            : Super(name) {
             Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
             Super::getSocketContextFactory()->setOnResponseError(onResponseError);
 
@@ -103,9 +99,8 @@ namespace web::http::client {
 
         Client(const std::function<void(Request&)>& onRequestBegin,
                const std::function<void(Request&, Response&)>& onResponseReady,
-               const std::function<void(int, const std::string&)>& onResponseError,
-               const std::map<std::string, std::any>& options = {{}})
-            : Client("", onRequestBegin, onResponseReady, onResponseError, options) {
+               const std::function<void(int, const std::string&)>& onResponseError)
+            : Client("", onRequestBegin, onResponseReady, onResponseError) {
         }
     };
 

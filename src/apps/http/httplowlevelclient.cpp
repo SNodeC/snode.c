@@ -259,8 +259,7 @@ namespace legacy {
                                socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
-            },
-            {{}});
+            });
 
         SocketAddress remoteAddress("localhost", 8080);
 
