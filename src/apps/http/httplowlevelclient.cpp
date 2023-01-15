@@ -26,6 +26,7 @@
 #include "net/in/stream/tls/SocketClient.h"
 #include "web/http/client/ResponseParser.h"
 
+#include <map>
 #include <openssl/asn1.h>
 #include <openssl/crypto.h>
 #include <openssl/obj_mac.h>

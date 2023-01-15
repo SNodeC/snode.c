@@ -34,7 +34,6 @@
 #include "log/Logger.h"
 
 #include <iomanip>
-#include <map>
 #include <ostream>
 #include <set>
 #include <utility>

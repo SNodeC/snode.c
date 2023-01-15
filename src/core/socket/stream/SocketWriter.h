@@ -121,6 +121,8 @@ namespace core::socket::stream {
         virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
             errno = 0;
 
+            LOG(TRACE) << "Do syscall shutdonw(WR)";
+
             Socket::shutdown(Socket::SHUT::WR);
 
             onShutdown(errno);
@@ -131,6 +133,7 @@ namespace core::socket::stream {
                 this->onShutdown = onShutdown;
                 if (writeBuffer.empty()) {
                     shutdownInProgress = true;
+                    LOG(TRACE) << "Initiating shutdown process";
                     doWriteShutdown(onShutdown);
                 } else {
                     markShutdown = true;

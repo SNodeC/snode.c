@@ -28,9 +28,7 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
 
