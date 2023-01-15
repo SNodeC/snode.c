@@ -115,17 +115,19 @@ namespace core::socket::stream::tls {
                 LOG(INFO) << "SSL_CTX (master) installed";
 
                 for (const auto& [domain, sniCertConf] : Super::config->getSniCerts()) {
-                    SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
+                    if (!domain.empty()) {
+                        SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
 
-                    if (sniSslCtx != nullptr) {
-                        if (sniSslCtxs.contains(domain)) {
-                            ssl_ctx_free(sniSslCtxs[domain]);
+                        if (sniSslCtx != nullptr) {
+                            if (sniSslCtxs.contains(domain)) {
+                                ssl_ctx_free(sniSslCtxs[domain]);
+                            }
+                            sniSslCtxs.insert_or_assign(domain, sniSslCtx);
+
+                            LOG(INFO) << "SSL_CTX for domain '" << domain << "' installed";
+                        } else {
+                            LOG(INFO) << "Can not create SSL_CTX for SNI '" << domain << "'";
                         }
-                        sniSslCtxs.insert_or_assign(domain, sniSslCtx);
-
-                        LOG(INFO) << "SSL_CTX for domain '" << domain << "' installed";
-                    } else {
-                        LOG(INFO) << "Can not create SSL_CTX for SNI '" << domain << "'";
                     }
                 }
 

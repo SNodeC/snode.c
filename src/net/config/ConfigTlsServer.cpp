@@ -59,21 +59,26 @@ namespace net::config {
                                            "          SslOptions -> value = int\n"
                                            "        }")
                               ->type_name("{servername, {<key>, value} [, ...]} {%% ...}");
+            sniCertsOpt->take_all();
 
-            forceSniFlg = tlsSc->add_flag("--force-sni{true}", forceSni, "Force using of the Server Name Indication");
+            forceSniFlg = tlsSc->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication");
             forceSniFlg->type_name("[true|false]");
-            forceSniFlg->default_val(false);
+            forceSniFlg->default_val("false");
 
             tlsSc->final_callback([this](void) -> void {
                 std::list<std::string> vaultyDomainConfigs;
 
                 for (const auto& [domain, sniMap] : sniCerts) {
-                    for (auto& [key, value] : sniMap) {
-                        if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
-                            key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
-                            LOG(ERROR) << "Configuring SNI-Cert for domain: " << domain << " failed: Wrong Key: " << key;
-                            vaultyDomainConfigs.push_back(domain);
+                    if (!domain.empty()) {
+                        for (auto& [key, value] : sniMap) {
+                            if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
+                                key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
+                                LOG(ERROR) << "Configuring SNI-Cert for domain: " << domain << " failed: Wrong Key: " << key;
+                                vaultyDomainConfigs.push_back(domain);
+                            }
                         }
+                    } else {
+                        vaultyDomainConfigs.push_back(domain);
                     }
                 }
 
@@ -88,8 +93,8 @@ namespace net::config {
         return forceSni;
     }
 
-    void ConfigTlsServer::setForceSni() {
-        forceSni = true;
+    void ConfigTlsServer::setForceSni(bool forceSni) {
+        this->forceSni = forceSni;
     }
 
     std::map<std::string, std::map<std::string, std::any>> ConfigTlsServer::getSniCerts() const {

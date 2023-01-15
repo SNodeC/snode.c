@@ -39,7 +39,7 @@ namespace net::config {
         ConfigTlsServer();
 
         bool getForceSni() const;
-        void setForceSni();
+        void setForceSni(bool forceSni = true);
 
         std::map<std::string, std::map<std::string, std::any>> getSniCerts() const;
         void setSniCerts(const std::map<std::string, std::map<std::string, std::any>>& newSniCerts);
