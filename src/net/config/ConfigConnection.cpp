@@ -50,24 +50,24 @@ namespace net::config {
         if (!getName().empty()) {
             connectionSc = add_subcommand("connection", "Options for established connections");
 
-            readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, "Read timeout");
-            readTimeoutOpt->type_name("[sec]");
+            readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, "Read timeout in seconds");
+            //            readTimeoutOpt->type_name("sec");
             readTimeoutOpt->default_val(DEFAULT_READTIMEOUT);
 
-            writeTimeoutOpt = connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout");
-            writeTimeoutOpt->type_name("[sec]");
+            writeTimeoutOpt = connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout in seconds");
+            //            writeTimeoutOpt->type_name("sec");
             writeTimeoutOpt->default_val(DEFAULT_WRITETIMEOUT);
 
             readBlockSizeOpt = connectionSc->add_option("--read-block-size", readBlockSize, "Read block size");
-            readBlockSizeOpt->type_name("[bytes]");
+            readBlockSizeOpt->type_name("std::size_t");
             readBlockSizeOpt->default_val(DEFAULT_READBLOCKSIZE);
 
             writeBlockSizeOpt = connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size");
-            writeBlockSizeOpt->type_name("[bytes]");
+            writeBlockSizeOpt->type_name("std::size_t");
             writeBlockSizeOpt->default_val(DEFAULT_WRITEBLOCKSIZE);
 
             terminateTimeoutOpt = connectionSc->add_option("--terminate-timeout", terminateTimeout, "Terminate timeout");
-            terminateTimeoutOpt->type_name("[sec]");
+            terminateTimeoutOpt->type_name("sec");
             terminateTimeoutOpt->default_val(DEFAULT_TERMINATETIMEOUT);
         } else {
             readTimeout = DEFAULT_READTIMEOUT;

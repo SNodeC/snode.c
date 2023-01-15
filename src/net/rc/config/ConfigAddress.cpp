@@ -33,11 +33,11 @@ namespace net::rc::config {
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
         if (!net::config::ConfigBase::getName().empty()) {
             hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Bluetooth address");
-            hostOpt->type_name("[bt address]");
+            hostOpt->type_name("xx:xx:xx:xx:xx:xx");
             hostOpt->default_val("00:00:00:00:00:00");
 
             channelOpt = ConfigAddressType::addressSc->add_option("--channel", channel, "Channel number");
-            channelOpt->type_name("[uint8_t]");
+            channelOpt->type_name("uint_8");
             channelOpt->default_val(0);
         }
         ConfigAddressType::address.setAddress("00:00:00:00:00:00");
@@ -46,16 +46,15 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
+        channelRequired();
         ConfigAddressType::require(hostOpt);
-        ConfigAddressType::require(channelOpt);
-        hostOpt->default_val("");
-        channelOpt->default_val("");
+        host = "";
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::channelRequired() {
         ConfigAddressType::require(channelOpt);
-        channelOpt->default_val("");
+        channel = 0;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

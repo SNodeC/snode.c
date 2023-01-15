@@ -68,6 +68,7 @@ namespace net::config {
         addressSc->required();
         ConfigBase::required();
         opt->required();
+        opt->default_str("");
     }
 
 } // namespace net::config

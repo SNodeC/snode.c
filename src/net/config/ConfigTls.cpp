@@ -22,6 +22,7 @@
 
 #include "utils/CLI11.hpp"
 
+#include <functional>
 #include <stdexcept>
 
 // IWYU pragma: no_include <bits/utility.h>
@@ -38,40 +39,53 @@
 
 namespace net::config {
 
+    struct EmptyValidator : public CLI::Validator {
+        EmptyValidator() {
+            name_ = "EMPTY";
+            func_ = [](const std::string& str) {
+                if (!str.empty())
+                    return std::string("String is not empty");
+                else
+                    return std::string();
+            };
+        }
+    };
+    //    const EmptyValidator EmptyValidator;
+
     ConfigTls::ConfigTls() {
         if (!getName().empty()) {
             tlsSc = add_subcommand("tls", "Options for SSL/TLS behaviour");
 
             certChainFileOpt = tlsSc->add_option("--cert-chain", certChainFile, "Certificate chain file");
-            certChainFileOpt->type_name("[PEM file]")->check(CLI::ExistingFile);
+            certChainFileOpt->type_name("PEM")->check(CLI::ExistingFile);
 
             certKeyFileOpt = tlsSc->add_option("--cert-key", certKeyFile, "Certificate key file");
-            certKeyFileOpt->type_name("[PEM file]")->check(CLI::ExistingFile);
+            certKeyFileOpt->type_name("PEM")->check(CLI::ExistingFile);
 
             certKeyPasswordOpt = tlsSc->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file");
-            certKeyPasswordOpt->type_name("[Password]");
 
             caFileOpt = tlsSc->add_option("--ca-cert-file", caFile, "CA-certificate file");
-            caFileOpt->type_name("[PEM file]");
+            caFileOpt->type_name("PEM")->check(CLI::ExistingFile);
 
+            EmptyValidator EmptyValidator;
             caDirOpt = tlsSc->add_option("--ca-cert-dir", caDir, "CA-certificate directory");
-            caDirOpt->type_name("[Path]");
+            caDirOpt->type_name("PEM_container")->check(CLI::ExistingDirectory | EmptyValidator);
 
             useDefaultCaDirFlg = tlsSc->add_flag("--use-default-ca-cert-dir", useDefaultCaDir, "Use default CA-certificate directory");
             useDefaultCaDirFlg->default_val("false");
 
             cipherListOpt = tlsSc->add_option("--cipher-list", cipherList, "Cipher list");
-            cipherListOpt->type_name("[Cipher List]");
+            cipherListOpt->type_name("cipher_list");
 
             sslTlsOptionsOpt = tlsSc->add_option("--tls-options", sslTlsOptions, "OR combined SSL/TLS options");
-            sslTlsOptionsOpt->type_name("[int]");
+            sslTlsOptionsOpt->type_name("uint64_t");
 
-            initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout");
-            initTimeoutOpt->type_name("[sec]");
+            initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout in seconds");
+            //            initTimeoutOpt->type_name("sec");
             initTimeoutOpt->default_val(DEFAULT_INITTIMEOUT);
 
-            shutdownTimeoutOpt = tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout");
-            shutdownTimeoutOpt->type_name("[sec]");
+            shutdownTimeoutOpt = tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout in seconds");
+            //            shutdownTimeoutOpt->type_name("sec");
             shutdownTimeoutOpt->default_val(DEFAULT_SHUTDOWNTIMEOUT);
         } else {
             initTimeout = DEFAULT_INITTIMEOUT;

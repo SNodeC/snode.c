@@ -37,8 +37,8 @@ namespace net::config {
             clusterSc->configurable(false);
 
             modeOpt = clusterSc->add_option("--mode", mode, "Clustering mode");
-            modeOpt->type_name("[" + std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
-                               std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY]");
+            modeOpt->type_name(std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
+                               std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY");
             modeOpt->default_val(MODE::STANDALONE);
             modeOpt->configurable(false);
         }

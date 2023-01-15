@@ -33,11 +33,11 @@ namespace net::l2::config {
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
         if (!net::config::ConfigBase::getName().empty()) {
             hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Bluetooth address");
-            hostOpt->type_name("[bt address]");
+            hostOpt->type_name("xx:xx:xx:xx:xx:xx");
             hostOpt->default_val("00:00:00:00:00:00");
 
             psmOpt = ConfigAddressType::addressSc->add_option("--psm", psm, "Protocol service multiplexer");
-            psmOpt->type_name("[uint16_t]");
+            psmOpt->type_name("uint_16");
             psmOpt->default_val(0);
         }
         ConfigAddressType::address.setAddress("00:00:00:00:00:00");
@@ -46,16 +46,15 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
+        psmRequired();
         ConfigAddressType::require(hostOpt);
-        ConfigAddressType::require(psmOpt);
-        hostOpt->default_val("");
-        psmOpt->default_val("");
+        host = "";
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::psmRequired() {
         ConfigAddressType::require(psmOpt);
-        psmOpt->default_val("");
+        psm = 0;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

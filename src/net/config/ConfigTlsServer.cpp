@@ -48,22 +48,21 @@ namespace net::config {
             sniCertsOpt = tlsSc
                               ->add_option("--sni-cert",
                                            sniCerts,
-                                           "SNI Certificates:\n"
-                                           "servername = SNI name of the virtual server\n"
+                                           "Server Name Indication (SNI) Certificates:\n"
+                                           "sni = SNI of the virtual server\n"
                                            "<key> = {\n"
-                                           "          CertChain -> value = PEM file,\n"
-                                           "          CertKey -> value = PEM file,\n"
-                                           "          CertKeyPassword -> value = TEXT,\n"
-                                           "          CaCertFile -> value = PEM file,\n"
-                                           "          CaCertDir -> value = Path,\n"
-                                           "          UseDefaultCaDir -> value = true|false,\n"
-                                           "          SslOptions -> value = int\n"
+                                           "          \"CertChain\" -> value = PEM:FILE,\n"
+                                           "          \"CertKey\" -> value = PEM:FILE,\n"
+                                           "          \"CertKeyPassword\" -> value = TEXT,\n"
+                                           "          \"CaCertFile\" -> value = PEM:FILE,\n"
+                                           "          \"CaCertDir\" -> value = PEM_container:DIR,\n"
+                                           "          \"UseDefaultCaDir\" -> value = true|false,\n"
+                                           "          \"SslOptions\" -> value = uint64_t\n"
                                            "        }")
-                              ->type_name("{servername <key> value {<key> value} ...} {%% ...}")
+                              ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
                               ->take_all();
 
             forceSniFlg = tlsSc->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication");
-            forceSniFlg->type_name("[true|false]");
             forceSniFlg->default_val("false");
 
             tlsSc->final_callback([this](void) -> void {

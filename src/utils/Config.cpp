@@ -160,9 +160,9 @@ namespace utils {
 
         app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications")->default_val("false");
 
-        app.add_option("--log-level", logLevel, "Log level [0 .. 6]")->default_val(3)->type_name("level");
+        app.add_option("--log-level", logLevel, "Log level")->default_val(3)->type_name("([0-6])");
 
-        app.add_option("--verbose-level", verboseLevel, "Verbosity level [0 .. 10]")->default_val(0)->type_name("level");
+        app.add_option("--verbose-level", verboseLevel, "Verbosity level")->default_val(0)->type_name("([0-9]|10)");
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
 
