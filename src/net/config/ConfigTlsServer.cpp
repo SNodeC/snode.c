@@ -24,9 +24,7 @@
 #include "utils/CLI11.hpp"
 
 #include <any>
-#include <cstdint>
 #include <list>
-#include <openssl/opensslv.h>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -34,12 +32,6 @@
 // IWYU pragma: no_include <bits/utility.h>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-using ssl_option_t = uint64_t;
-#else
-using ssl_option_t = uint32_t;
-#endif
 
 namespace net::config {
 

@@ -32,8 +32,15 @@ namespace CLI {
 
 #include <cstdint>
 #include <map>
+#include <openssl/opensslv.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+using ssl_option_t = uint64_t;
+#else
+using ssl_option_t = uint32_t;
+#endif
 
 namespace net::config {
 
@@ -97,7 +104,7 @@ namespace net::config {
         std::string caDir;
         bool useDefaultCaDir = false;
         std::string cipherList;
-        uint64_t sslTlsOptions = 0;
+        ssl_option_t sslTlsOptions = 0;
 
         utils::Timeval initTimeout;
         utils::Timeval shutdownTimeout;
