@@ -54,23 +54,23 @@ namespace net::config {
         const utils::Timeval& getShutdownTimeout() const;
         void setShutdownTimeout(const utils::Timeval& newShutdownTimeout);
 
-        const std::string& getCertChainFile() const;
-        void setCertChainFile(const std::string& newCertChainFile);
+        const std::string& getCertChain() const;
+        void setCertChain(const std::string& newCertChain);
 
-        const std::string& getCertKeyFile() const;
-        void setCertKeyFile(const std::string& newCertKeyFile);
+        const std::string& getCertKey() const;
+        void setCertKey(const std::string& newCertKey);
 
         const std::string& getCertKeyPassword() const;
         void setCertKeyPassword(const std::string& newCertKeyPassword);
 
-        const std::string& getCaFile() const;
-        void setCaFile(const std::string& newCaFile);
+        const std::string& getCaCertFile() const;
+        void setCaCertFile(const std::string& newCaCertFile);
 
-        const std::string& getCaDir() const;
-        void setCaDir(const std::string& newCaDir);
+        const std::string& getCaCertDir() const;
+        void setCaCertDir(const std::string& newCaCertDir);
 
-        bool getUseDefaultCaDir() const;
-        void setUseDefaultCaDir();
+        bool getUseDefaultCaCertDir() const;
+        void setUseDefaultCaCertDir();
 
         bool getForceSni() const;
         void setForceSni();
@@ -85,26 +85,17 @@ namespace net::config {
         CLI::App* tlsSc = nullptr;
 
     private:
-        CLI::Option* certChainFileOpt;
-        CLI::Option* certKeyFileOpt;
-        CLI::Option* certKeyPasswordOpt;
-        CLI::Option* caFileOpt;
-        CLI::Option* caDirOpt;
-        CLI::Option* useDefaultCaDirFlg;
-        CLI::Option* cipherListOpt;
-        CLI::Option* sslTlsOptionsOpt;
-
         CLI::Option* initTimeoutOpt = nullptr;
         CLI::Option* shutdownTimeoutOpt = nullptr;
 
-        std::string certChainFile;
-        std::string certKeyFile;
+        std::string certChain;
+        std::string certKey;
         std::string certKeyPassword;
-        std::string caFile;
-        std::string caDir;
-        bool useDefaultCaDir = false;
+        std::string caCertFile;
+        std::string caCertDir;
+        bool useDefaultCaCertDir = false;
         std::string cipherList;
-        ssl_option_t sslTlsOptions = 0;
+        ssl_option_t tlsOptions = 0;
 
         utils::Timeval initTimeout;
         utils::Timeval shutdownTimeout;

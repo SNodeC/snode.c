@@ -59,54 +59,52 @@ namespace net::config {
 
             EmptyValidator EmptyValidator;
 
-            certChainFileOpt = tlsSc->add_option("--cert-chain", certChainFile, "Certificate chain file");
-            certChainFileOpt->type_name("PEM")->check(CLI::ExistingFile | EmptyValidator);
+            tlsSc->add_option("--cert-chain", certChain, "Certificate chain file")
+                ->type_name("PEM")
+                ->check(CLI::ExistingFile | EmptyValidator);
 
-            certKeyFileOpt = tlsSc->add_option("--cert-key", certKeyFile, "Certificate key file");
-            certKeyFileOpt->type_name("PEM")->check(CLI::ExistingFile | EmptyValidator);
+            tlsSc->add_option("--cert-key", certKey, "Certificate key file")->type_name("PEM")->check(CLI::ExistingFile | EmptyValidator);
 
-            certKeyPasswordOpt = tlsSc->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file");
+            tlsSc->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file");
 
-            caFileOpt = tlsSc->add_option("--ca-cert-file", caFile, "CA-certificate file");
-            caFileOpt->type_name("PEM")->check(CLI::ExistingFile | EmptyValidator);
+            tlsSc->add_option("--ca-cert-file", caCertFile, "CA-certificate file")
+                ->type_name("PEM")
+                ->check(CLI::ExistingFile | EmptyValidator);
 
-            caDirOpt = tlsSc->add_option("--ca-cert-dir", caDir, "CA-certificate directory");
-            caDirOpt->type_name("PEM_container")->check(CLI::ExistingDirectory | EmptyValidator);
+            tlsSc->add_option("--ca-cert-dir", caCertDir, "CA-certificate directory")
+                ->type_name("PEM_container")
+                ->check(CLI::ExistingDirectory | EmptyValidator);
 
-            useDefaultCaDirFlg = tlsSc->add_flag("--use-default-ca-cert-dir", useDefaultCaDir, "Use default CA-certificate directory");
-            useDefaultCaDirFlg->default_val("false");
+            tlsSc->add_flag("--use-default-ca-cert-dir", useDefaultCaCertDir, "Use default CA-certificate directory")->default_val("false");
 
-            cipherListOpt = tlsSc->add_option("--cipher-list", cipherList, "Cipher list");
-            cipherListOpt->type_name("cipher_list");
+            tlsSc->add_option("--cipher-list", cipherList, "Cipher list")->type_name("cipher_list");
 
-            sslTlsOptionsOpt = tlsSc->add_option("--tls-options", sslTlsOptions, "OR combined SSL/TLS options");
-            sslTlsOptionsOpt->type_name("uint64_t");
+            tlsSc->add_option("--tls-options", tlsOptions, "OR combined SSL/TLS options")->type_name("uint64_t");
 
-            initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout in seconds");
-            initTimeoutOpt->default_val(DEFAULT_INITTIMEOUT);
+            tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout in seconds")->default_val(DEFAULT_INITTIMEOUT);
 
-            shutdownTimeoutOpt = tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout in seconds");
-            shutdownTimeoutOpt->default_val(DEFAULT_SHUTDOWNTIMEOUT);
+            tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout in seconds")
+                ->default_val(DEFAULT_SHUTDOWNTIMEOUT);
         } else {
             initTimeout = DEFAULT_INITTIMEOUT;
             shutdownTimeout = DEFAULT_SHUTDOWNTIMEOUT;
         }
     }
 
-    const std::string& ConfigTls::getCertChainFile() const {
-        return certChainFile;
+    const std::string& ConfigTls::getCertChain() const {
+        return certChain;
     }
 
-    void ConfigTls::setCertChainFile(const std::string& newCertChainFile) {
-        certChainFile = newCertChainFile;
+    void ConfigTls::setCertChain(const std::string& newCertChain) {
+        certChain = newCertChain;
     }
 
-    const std::string& ConfigTls::getCertKeyFile() const {
-        return certKeyFile;
+    const std::string& ConfigTls::getCertKey() const {
+        return certKey;
     }
 
-    void ConfigTls::setCertKeyFile(const std::string& newCertKeyFile) {
-        certKeyFile = newCertKeyFile;
+    void ConfigTls::setCertKey(const std::string& newCertKey) {
+        certKey = newCertKey;
     }
 
     const std::string& ConfigTls::getCertKeyPassword() const {
@@ -117,28 +115,28 @@ namespace net::config {
         certKeyPassword = newCertKeyPassword;
     }
 
-    const std::string& ConfigTls::getCaFile() const {
-        return caFile;
+    const std::string& ConfigTls::getCaCertFile() const {
+        return caCertFile;
     }
 
-    void ConfigTls::setCaFile(const std::string& newCaFile) {
-        caFile = newCaFile;
+    void ConfigTls::setCaCertFile(const std::string& newCaCertFile) {
+        caCertFile = newCaCertFile;
     }
 
-    const std::string& ConfigTls::getCaDir() const {
-        return caDir;
+    const std::string& ConfigTls::getCaCertDir() const {
+        return caCertDir;
     }
 
-    void ConfigTls::setCaDir(const std::string& newCaDir) {
-        caDir = newCaDir;
+    void ConfigTls::setCaCertDir(const std::string& newCaCertDir) {
+        caCertDir = newCaCertDir;
     }
 
-    bool ConfigTls::getUseDefaultCaDir() const {
-        return useDefaultCaDir;
+    bool ConfigTls::getUseDefaultCaCertDir() const {
+        return useDefaultCaCertDir;
     }
 
-    void ConfigTls::setUseDefaultCaDir() {
-        useDefaultCaDir = true;
+    void ConfigTls::setUseDefaultCaCertDir() {
+        useDefaultCaCertDir = true;
     }
 
     const std::string& ConfigTls::getCipherList() const {
@@ -150,11 +148,11 @@ namespace net::config {
     }
 
     const uint64_t& ConfigTls::getSslTlsOptions() const {
-        return sslTlsOptions;
+        return tlsOptions;
     }
 
     void ConfigTls::setSslTlsOptions(uint64_t newSslTlsOptions) {
-        sslTlsOptions = newSslTlsOptions;
+        tlsOptions = newSslTlsOptions;
     }
 
     const utils::Timeval& ConfigTls::getInitTimeout() const {

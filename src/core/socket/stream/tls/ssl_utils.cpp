@@ -98,12 +98,12 @@ namespace core::socket::stream::tls {
             : server(server) {
         }
         SslConfig(bool server, const std::shared_ptr<net::config::ConfigTls>& configTls)
-            : certChain(configTls->getCertChainFile())
-            , certChainKey(configTls->getCertKeyFile())
+            : certChain(configTls->getCertChain())
+            , certChainKey(configTls->getCertKey())
             , password(configTls->getCertKeyPassword())
-            , caFile(configTls->getCaFile())
-            , caDir(configTls->getCaDir())
-            , useDefaultCaDir(configTls->getUseDefaultCaDir())
+            , caFile(configTls->getCaCertFile())
+            , caDir(configTls->getCaCertDir())
+            , useDefaultCaDir(configTls->getUseDefaultCaCertDir())
             , cipherList(configTls->getCipherList())
             , sslOptions(static_cast<ssl_option_t>(configTls->getSslTlsOptions()))
             , server(server) {
