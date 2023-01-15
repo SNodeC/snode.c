@@ -6,7 +6,7 @@ add_compile_options(
 )
 
 set(NET_CPP
-    config/ConfigBase.cpp
+    config/ConfigInstance.cpp
     config/ConfigCluster.cpp
     config/ConfigConnection.cpp
     config/ConfigLegacy.cpp
@@ -29,7 +29,7 @@ set(NET_H
     config/ConfigAddressLocal.hpp
     config/ConfigAddressRemote.h
     config/ConfigAddressRemote.hpp
-    config/ConfigBase.h
+    config/ConfigInstance.h
     config/ConfigCluster.h
     config/ConfigConnection.h
     config/ConfigLegacy.h

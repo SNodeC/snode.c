@@ -40,34 +40,36 @@
 namespace net::config {
 
     struct EmptyValidator : public CLI::Validator {
-        EmptyValidator() {
-            name_ = "EMPTY";
-            func_ = [](const std::string& str) {
-                if (!str.empty())
-                    return std::string("String is not empty");
-                else
-                    return std::string();
-            };
-        }
+        EmptyValidator();
     };
-    //    const EmptyValidator EmptyValidator;
+
+    EmptyValidator::EmptyValidator() {
+        name_ = "EMPTY";
+        func_ = [](const std::string& str) {
+            if (!str.empty())
+                return std::string("String is not empty");
+            else
+                return std::string();
+        };
+    }
 
     ConfigTls::ConfigTls() {
         if (!getName().empty()) {
-            tlsSc = add_subcommand("tls", "Options for SSL/TLS behaviour");
+            tlsSc = add_section("tls", "Options for SSL/TLS behaviour");
+
+            EmptyValidator EmptyValidator;
 
             certChainFileOpt = tlsSc->add_option("--cert-chain", certChainFile, "Certificate chain file");
-            certChainFileOpt->type_name("PEM")->check(CLI::ExistingFile);
+            certChainFileOpt->type_name("PEM")->check(CLI::ExistingFile | EmptyValidator);
 
             certKeyFileOpt = tlsSc->add_option("--cert-key", certKeyFile, "Certificate key file");
-            certKeyFileOpt->type_name("PEM")->check(CLI::ExistingFile);
+            certKeyFileOpt->type_name("PEM")->check(CLI::ExistingFile | EmptyValidator);
 
             certKeyPasswordOpt = tlsSc->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file");
 
             caFileOpt = tlsSc->add_option("--ca-cert-file", caFile, "CA-certificate file");
-            caFileOpt->type_name("PEM")->check(CLI::ExistingFile);
+            caFileOpt->type_name("PEM")->check(CLI::ExistingFile | EmptyValidator);
 
-            EmptyValidator EmptyValidator;
             caDirOpt = tlsSc->add_option("--ca-cert-dir", caDir, "CA-certificate directory");
             caDirOpt->type_name("PEM_container")->check(CLI::ExistingDirectory | EmptyValidator);
 
@@ -81,11 +83,9 @@ namespace net::config {
             sslTlsOptionsOpt->type_name("uint64_t");
 
             initTimeoutOpt = tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout in seconds");
-            //            initTimeoutOpt->type_name("sec");
             initTimeoutOpt->default_val(DEFAULT_INITTIMEOUT);
 
             shutdownTimeoutOpt = tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout in seconds");
-            //            shutdownTimeoutOpt->type_name("sec");
             shutdownTimeoutOpt->default_val(DEFAULT_SHUTDOWNTIMEOUT);
         } else {
             initTimeout = DEFAULT_INITTIMEOUT;

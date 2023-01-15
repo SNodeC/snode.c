@@ -30,7 +30,7 @@ namespace net::config {
 
     ConfigCluster::ConfigCluster() {
         if (!getName().empty()) {
-            clusterSc = add_subcommand("cluster", "Options for clustering");
+            clusterSc = add_section("cluster", "Options for clustering");
             clusterSc->preparse_callback([this]([[maybe_unused]] std::size_t num) -> void {
                 mode = MODE::PRIMARY;
             });

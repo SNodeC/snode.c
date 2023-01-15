@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGBASE_H
-#define NET_CONFIG_CONFIGBASE_H
+#ifndef NET_CONFIG_CONFIGINSTANCE_H
+#define NET_CONFIG_CONFIGINSTANCE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,20 +32,20 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigBase {
+    class ConfigInstance {
     public:
-        ConfigBase() = default;
-        explicit ConfigBase(const std::string& name);
-        ConfigBase(const ConfigBase&) = delete;
+        ConfigInstance() = default;
+        explicit ConfigInstance(const std::string& name);
+        ConfigInstance(const ConfigInstance&) = delete;
 
-        ConfigBase& operator=(const ConfigBase&) = delete;
+        ConfigInstance& operator=(const ConfigInstance&) = delete;
 
-        virtual ~ConfigBase();
+        virtual ~ConfigInstance();
 
         const std::string& getName() const;
 
         // protected:
-        CLI::App* add_subcommand(const std::string& name, const std::string& description = "");
+        CLI::App* add_section(const std::string& name, const std::string& description = "");
         CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
         CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
         CLI::Option* add_flag(const std::string& name, const std::string& description = "");
@@ -56,11 +56,11 @@ namespace net::config {
         void parse();
 
     private:
-        CLI::App* baseSc = nullptr;
+        CLI::App* instanceSc = nullptr;
 
         const std::string name;
     };
 
 } // namespace net::config
 
-#endif // NET_CONFIG_CONFIGBASE_H
+#endif // NET_CONFIG_CONFIGINSTANCE_H

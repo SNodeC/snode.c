@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/ConfigBase.h"
+#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,26 +27,26 @@
 
 namespace net::config {
 
-    ConfigBase::ConfigBase(const std::string& name)
+    ConfigInstance::ConfigInstance(const std::string& name)
         : name(name) {
         if (!name.empty()) {
-            baseSc = utils::Config::add_subcommand(name, "Configuration for instance '" + name + "'");
-            baseSc->fallthrough();
-            baseSc->group("Instances");
+            instanceSc = utils::Config::add_subcommand(name, "Configuration for instance '" + name + "'");
+            instanceSc->fallthrough();
+            instanceSc->group("Instances");
         }
     }
 
-    ConfigBase::~ConfigBase() {
-        utils::Config::remove_subcommand(baseSc);
+    ConfigInstance::~ConfigInstance() {
+        utils::Config::remove_subcommand(instanceSc);
     }
 
-    const std::string& ConfigBase::getName() const {
+    const std::string& ConfigInstance::getName() const {
         return name;
     }
 
-    CLI::App* ConfigBase::add_subcommand(const std::string& name, const std::string& description) {
-        CLI::App* subCommand = baseSc->add_subcommand(name, description);
-        baseSc->require_subcommand(baseSc->get_require_subcommand_min(), baseSc->get_require_subcommand_max() + 1);
+    CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {
+        CLI::App* subCommand = instanceSc->add_subcommand(name, description);
+        instanceSc->require_subcommand(instanceSc->get_require_subcommand_min(), instanceSc->get_require_subcommand_max() + 1);
         subCommand->group("Sections");
 
         subCommand
@@ -74,25 +74,25 @@ namespace net::config {
         return subCommand;
     }
 
-    CLI::Option* ConfigBase::add_option(const std::string& name, int& variable, const std::string& description) {
-        return baseSc->add_option(name, variable, description);
+    CLI::Option* ConfigInstance::add_option(const std::string& name, int& variable, const std::string& description) {
+        return instanceSc->add_option(name, variable, description);
     }
 
-    CLI::Option* ConfigBase::add_option(const std::string& name, std::string& variable, const std::string& description) {
-        return baseSc->add_option(name, variable, description);
+    CLI::Option* ConfigInstance::add_option(const std::string& name, std::string& variable, const std::string& description) {
+        return instanceSc->add_option(name, variable, description);
     }
 
-    CLI::Option* ConfigBase::add_flag(const std::string& name, const std::string& description) {
-        return baseSc->add_flag(name, description);
+    CLI::Option* ConfigInstance::add_flag(const std::string& name, const std::string& description) {
+        return instanceSc->add_flag(name, description);
     }
 
-    void ConfigBase::required(bool reqired) {
-        if (baseSc != nullptr) {
-            baseSc->required(reqired);
+    void ConfigInstance::required(bool reqired) {
+        if (instanceSc != nullptr) {
+            instanceSc->required(reqired);
         }
     }
 
-    void ConfigBase::parse() {
+    void ConfigInstance::parse() {
         utils::Config::parse();
     }
 

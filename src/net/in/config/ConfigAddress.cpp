@@ -31,7 +31,7 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        if (!net::config::ConfigBase::getName().empty()) {
+        if (!net::config::ConfigInstance::getName().empty()) {
             hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Host name or IPv4 address");
             hostOpt->type_name("hostname|IPv4");
             hostOpt->default_val("0.0.0.0");

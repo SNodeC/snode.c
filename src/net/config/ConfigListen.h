@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGLISTEN_H
 #define NET_CONFIG_CONFIGLISTEN_H
 
-#include "net/config/ConfigBase.h" // IWYU pragma: export
+#include "net/config/ConfigInstance.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigListen : virtual public ConfigBase {
+    class ConfigListen : virtual public ConfigInstance {
     public:
         ConfigListen();
 

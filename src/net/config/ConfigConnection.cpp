@@ -48,14 +48,12 @@ namespace net::config {
 
     ConfigConnection::ConfigConnection() {
         if (!getName().empty()) {
-            connectionSc = add_subcommand("connection", "Options for established connections");
+            connectionSc = add_section("connection", "Options for established connections");
 
             readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, "Read timeout in seconds");
-            //            readTimeoutOpt->type_name("sec");
             readTimeoutOpt->default_val(DEFAULT_READTIMEOUT);
 
             writeTimeoutOpt = connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout in seconds");
-            //            writeTimeoutOpt->type_name("sec");
             writeTimeoutOpt->default_val(DEFAULT_WRITETIMEOUT);
 
             readBlockSizeOpt = connectionSc->add_option("--read-block-size", readBlockSize, "Read block size");

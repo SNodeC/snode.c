@@ -32,7 +32,7 @@ namespace net::config {
     template <typename SocketAddress>
     ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription) {
         if (!getName().empty()) {
-            addressSc = add_subcommand(addressOptionName, addressOptionDescription);
+            addressSc = add_section(addressOptionName, addressOptionDescription);
             initialized = true;
         }
     }
@@ -54,7 +54,7 @@ namespace net::config {
     void ConfigAddress<SocketAddress>::setAddress(const SocketAddress& localAddress) {
         address = localAddress;
         initialized = true;
-        ConfigBase::required(false);
+        ConfigInstance::required(false);
         addressDefaultsFromCurrent();
     }
 
@@ -66,7 +66,7 @@ namespace net::config {
     template <typename SocketAddress>
     void ConfigAddress<SocketAddress>::require(CLI::Option* opt) {
         addressSc->required();
-        ConfigBase::required();
+        ConfigInstance::required();
         opt->required();
         opt->default_str("");
     }
