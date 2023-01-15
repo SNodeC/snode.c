@@ -96,7 +96,15 @@ namespace core::socket::stream::tls {
             }
 
             for (const auto& [domain, ctx] : sniSslCtxs) {
-                ssl_ctx_free(ctx);
+                if (ctx != nullptr) {
+                    ssl_ctx_free(ctx);
+
+                    std::for_each(sniSslCtxs.begin(), sniSslCtxs.end(), [sslCtx = ctx](auto& sniSslCtxsItem) -> void {
+                        if (sniSslCtxsItem.second == sslCtx) {
+                            sniSslCtxsItem.second = nullptr;
+                        }
+                    });
+                }
             }
         }
 
@@ -122,9 +130,15 @@ namespace core::socket::stream::tls {
                             }
                             sniSslCtxs.insert_or_assign(domain, sniSslCtx);
 
-                            LOG(INFO) << "SSL_CTX for domain '" << domain << "' installed";
+                            LOG(INFO) << "SSL_CTX for server name indication (sni) '" << domain << "' installed";
+
+                            for (const std::string& san : ssl_get_sans(sniSslCtx)) {
+                                sniSslCtxs.insert({san, sniSslCtx});
+
+                                LOG(INFO) << "SSL_CTX for subject alternative name (san) '" << san << "' installed";
+                            }
                         } else {
-                            LOG(INFO) << "Can not create SSL_CTX for SNI '" << domain << "'";
+                            LOG(INFO) << "Can not create SSL_CTX for server name indication (sni) '" << domain << "'";
                         }
                     }
                 }
