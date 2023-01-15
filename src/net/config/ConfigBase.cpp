@@ -59,7 +59,6 @@ namespace net::config {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
-        //  ->group("Options (generic)");
 
         subCommand
             ->add_flag_callback(
@@ -71,7 +70,6 @@ namespace net::config {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
-        //  ->group("Options (generic)");
 
         return subCommand;
     }

@@ -128,7 +128,6 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
-        //   ->group("Options (generic)");
 
         app.add_flag_callback(
                "--help-all",
@@ -139,38 +138,31 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
-        //  ->group("Options (generic)");
 
         app.add_flag("-d,!-f,--daemonize,!--foreground", "Start application as daemon");
-        //  ->group("Options (generic)");
 
         app.add_flag("-k,--kill", "Kill running daemon")->disable_flag_override()->configurable(false);
-        //  ->group("Options (generic)");
 
         app.add_flag("-s,--show-config", "Show current configuration and exit")->disable_flag_override()->configurable(false);
-        //  ->group("Options (generic)");
 
         app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" + defaultConfDir + "/" +
                          applicationName + ".conf" + "}",
                      outputConfigFile,
                      "Write config file")
             ->configurable(false);
-        //  ->group("Options (generic)");
 
-        app.add_option("-l,--log-file", logFile, "Log to file")->default_val(defaultLogDir + "/" + applicationName + ".log")->type_name("");
-        //  ->group("Options (generic)");
+        app.add_option("-l,--log-file", logFile, "Log to file")
+            ->default_val(defaultLogDir + "/" + applicationName + ".log")
+            ->type_name("")
+            ->always_capture_default();
 
         app.add_option("--log-level", logLevel, "Log level [0 .. 6]")->default_val(3)->type_name("level");
-        //  ->group("Options (generic)");
 
         app.add_option("--verbose-level", verboseLevel, "Verbosity level [0 .. 10]")->default_val(0)->type_name("level");
-        //  ->group("Options (generic)");
 
-        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications");
-        //  ->group("Options (generic)");
+        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications")->default_val("false");
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
-        //  ->group("Options (generic)");
 
         app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian\n"
                    "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
@@ -256,7 +248,6 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
-        //  ->group("Options (generic)");
 
         instance
             ->add_flag_callback(
@@ -268,7 +259,6 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
-        //  ->group("Options (generic)");
 
         return instance;
     }

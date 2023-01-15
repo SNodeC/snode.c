@@ -49,7 +49,6 @@ namespace core::socket::stream::tls {
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& sniCert);
     void ssl_ctx_free(SSL_CTX* ctx);
 
-    void ssl_set_sni(SSL* ssl, std::map<std::string, std::any>& options);
     void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTlsClient>& configTls);
     SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx);
     std::set<std::string> ssl_get_sans(SSL_CTX* sslCtx);

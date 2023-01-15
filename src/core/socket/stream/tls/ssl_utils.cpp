@@ -145,7 +145,8 @@ namespace core::socket::stream::tls {
                 if (!SSL_CTX_load_verify_locations(ctx,
                                                    !sslConfig.caFile.empty() ? sslConfig.caFile.c_str() : nullptr,
                                                    !sslConfig.caDir.empty() ? sslConfig.caDir.c_str() : nullptr)) {
-                    ssl_log_error("Can not load CA file or non default CA directory");
+                    ssl_log_error("Can not load CA file or non default CA directory: CA-File " + sslConfig.caFile + " : CA-Dir " +
+                                  sslConfig.caDir);
                     sslErr = true;
                 }
             }
@@ -162,7 +163,7 @@ namespace core::socket::stream::tls {
                 }
                 if (!sslConfig.certChain.empty()) {
                     if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.certChain.c_str()) != 1) {
-                        ssl_log_error("Can not load certificate chain");
+                        ssl_log_error("Can not load certificate chain: " + sslConfig.certChain);
                         sslErr = true;
                     } else if (!sslConfig.certChainKey.empty()) {
                         if (!sslConfig.password.empty()) {
@@ -170,10 +171,10 @@ namespace core::socket::stream::tls {
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(sslConfig.password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
-                            ssl_log_error("Can not load private key");
+                            ssl_log_error("Can not load private key: " + sslConfig.certChainKey);
                             sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
-                            ssl_log_error("Private key not consistent with CA files");
+                            ssl_log_error("Private key not consistent with CA files: " + sslConfig.certChainKey);
                             sslErr = true;
                         }
                     }
@@ -252,12 +253,6 @@ namespace core::socket::stream::tls {
     void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTlsClient>& configTls) {
         if (!configTls->getSni().empty()) {
             SSL_set_tlsext_host_name(ssl, configTls->getSni().data());
-        }
-    }
-
-    void ssl_set_sni(SSL* ssl, std::map<std::string, std::any>& options) {
-        if (options.contains("SNI")) {
-            SSL_set_tlsext_host_name(ssl, std::any_cast<const char*>(options["SNI"]));
         }
     }
 
