@@ -28,8 +28,7 @@ namespace net::config {
 
     ConfigTlsClient::ConfigTlsClient() {
         if (!getName().empty()) {
-            sniOpt = tlsSc->add_option("--sni", sni, "Server Name Indication");
-            sniOpt->type_name("sni");
+            tlsSc->add_option("--sni", sni, "Server Name Indication")->type_name("sni");
         }
     }
 

@@ -37,27 +37,26 @@ namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer() {
         if (!getName().empty()) {
-            sniCertsOpt = tlsSc
-                              ->add_option("--sni-cert",
-                                           sniCerts,
-                                           "Server Name Indication (SNI) Certificates:\n"
-                                           "sni = SNI of the virtual server\n"
-                                           "<key> = {\n"
-                                           "          \"CertChain\" -> value = PEM:FILE,\n"
-                                           "          \"CertKey\" -> value = PEM:FILE,\n"
-                                           "          \"CertKeyPassword\" -> value = TEXT,\n"
-                                           "          \"CaCertFile\" -> value = PEM:FILE,\n"
-                                           "          \"CaCertDir\" -> value = PEM_container:DIR,\n"
-                                           "          \"UseDefaultCaDir\" -> value = true|false,\n"
-                                           "          \"SslOptions\" -> value = uint64_t\n"
-                                           "        }")
-                              ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
-                              ->take_all();
+            CLI::Option* sniCertsOpt = tlsSc
+                                           ->add_option("--sni-cert",
+                                                        sniCerts,
+                                                        "Server Name Indication (SNI) Certificates:\n"
+                                                        "sni = SNI of the virtual server\n"
+                                                        "<key> = {\n"
+                                                        "          \"CertChain\" -> value = PEM:FILE,\n"
+                                                        "          \"CertKey\" -> value = PEM:FILE,\n"
+                                                        "          \"CertKeyPassword\" -> value = TEXT,\n"
+                                                        "          \"CaCertFile\" -> value = PEM:FILE,\n"
+                                                        "          \"CaCertDir\" -> value = PEM_container:DIR,\n"
+                                                        "          \"UseDefaultCaDir\" -> value = true|false,\n"
+                                                        "          \"SslOptions\" -> value = uint64_t\n"
+                                                        "        }")
+                                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
+                                           ->take_all();
 
-            forceSniFlg = tlsSc->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication");
-            forceSniFlg->default_val("false");
+            tlsSc->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication")->default_val("false");
 
-            tlsSc->final_callback([this](void) -> void {
+            tlsSc->final_callback([this, sniCertsOpt](void) -> void {
                 std::list<std::string> vaultyDomainConfigs;
 
                 for (const auto& [domain, sniMap] : sniCerts) {

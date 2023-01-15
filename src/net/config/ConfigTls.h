@@ -25,7 +25,6 @@
 
 namespace CLI {
     class App;
-    class Option;
 } // namespace CLI
 
 #include "utils/Timeval.h"
@@ -85,9 +84,6 @@ namespace net::config {
         CLI::App* tlsSc = nullptr;
 
     private:
-        CLI::Option* initTimeoutOpt = nullptr;
-        CLI::Option* shutdownTimeoutOpt = nullptr;
-
         std::string certChain;
         std::string certKey;
         std::string certKeyPassword;

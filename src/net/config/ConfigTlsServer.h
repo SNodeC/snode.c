@@ -26,10 +26,6 @@
 #include <any>
 #include <map>
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace net::config {
@@ -45,10 +41,7 @@ namespace net::config {
         void setSniCerts(const std::map<std::string, std::map<std::string, std::any>>& newSniCerts);
 
     private:
-        CLI::Option* forceSniFlg;
         bool forceSni = false;
-
-        CLI::Option* sniCertsOpt;
         std::map<std::string, std::map<std::string, std::any>> sniCerts;
     };
 
