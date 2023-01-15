@@ -151,16 +151,18 @@ namespace utils {
                      "Write config file")
             ->configurable(false);
 
-        app.add_option("-l,--log-file", logFile, "Log to file")
+        app.add_flag("-l{" + defaultLogDir + "/" + applicationName + ".log" + "},--log-file{" + defaultLogDir + "/" + applicationName +
+                         ".log" + "}",
+                     logFile,
+                     "Logfile path")
             ->default_val(defaultLogDir + "/" + applicationName + ".log")
-            ->type_name("")
-            ->always_capture_default();
+            ->type_name("");
+
+        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications")->default_val("false");
 
         app.add_option("--log-level", logLevel, "Log level [0 .. 6]")->default_val(3)->type_name("level");
 
         app.add_option("--verbose-level", verboseLevel, "Verbosity level [0 .. 10]")->default_val(0)->type_name("level");
-
-        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications")->default_val("false");
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
 
@@ -211,7 +213,9 @@ namespace utils {
             } else {
                 VLOG(0) << "Running in foureground";
 
-                if (app["--enforce-log-file"]->count() > 0) {
+                if (app["--enforce-log-file"]->as<bool>()) {
+                    VLOG(0) << "Writing logs to file " << logFile;
+
                     logger::Logger::logToFile(logFile);
                 }
             }
