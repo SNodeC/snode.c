@@ -29,6 +29,7 @@
 #include <openssl/opensslv.h>
 #include <stdexcept>
 #include <type_traits>
+#include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
 
@@ -58,19 +59,18 @@ namespace net::config {
                                            "          UseDefaultCaDir -> value = true|false,\n"
                                            "          SslOptions -> value = int\n"
                                            "        }")
-                              ->type_name("{servername <key> value {<key> value} ...} {%% ...}");
-            sniCertsOpt->take_all();
+                              ->type_name("{servername <key> value {<key> value} ...} {%% ...}")
+                              ->take_all();
 
             forceSniFlg = tlsSc->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication");
             forceSniFlg->type_name("[true|false]");
             forceSniFlg->default_val("false");
 
             tlsSc->final_callback([this](void) -> void {
-                VLOG(0) << "Final Callback";
                 std::list<std::string> vaultyDomainConfigs;
 
                 for (const auto& [domain, sniMap] : sniCerts) {
-                    if (!domain.empty()) {
+                    if (!sniMap.begin()->first.empty()) {
                         for (auto& [key, value] : sniMap) {
                             if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
                                 key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
@@ -79,7 +79,8 @@ namespace net::config {
                             }
                         }
                     } else {
-                        vaultyDomainConfigs.push_back(domain);
+                        sniCertsOpt->clear();
+                        break;
                     }
                 }
 

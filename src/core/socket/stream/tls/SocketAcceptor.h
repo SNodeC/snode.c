@@ -120,21 +120,23 @@ namespace core::socket::stream::tls {
                 LOG(INFO) << "SSL_CTX (master) installed";
 
                 for (const auto& [domain, sniCertConf] : Super::config->getSniCerts()) {
-                    if (!domain.empty()) {
+                    if (!sniCertConf.empty()) {
                         SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
 
                         if (sniSslCtx != nullptr) {
-                            if (sniSslCtxs.contains(domain)) {
-                                ssl_ctx_free(sniSslCtxs[domain]);
-                            }
-                            sniSslCtxs.insert_or_assign(domain, sniSslCtx);
+                            if (!domain.empty()) {
+                                if (sniSslCtxs.contains(domain)) {
+                                    ssl_ctx_free(sniSslCtxs[domain]);
+                                }
+                                sniSslCtxs.insert_or_assign(domain, sniSslCtx);
 
-                            LOG(INFO) << "SSL_CTX for server name indication (sni) '(dom)" << domain << "' installed";
+                                LOG(INFO) << "SSL_CTX for (dom)'" << domain << "' as server name indication (sni) installed";
+                            }
 
                             for (const std::string& san : ssl_get_sans(sniSslCtx)) {
                                 sniSslCtxs.insert({san, sniSslCtx});
 
-                                LOG(INFO) << "SSL_CTX for server name indication (sni) '(san)" << san << "' installed";
+                                LOG(INFO) << "SSL_CTX for (san)'" << san << "' as server name indication (sni) installed";
                             }
                         } else {
                             LOG(INFO) << "Can not create SSL_CTX for domain '" << domain << "'";
