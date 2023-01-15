@@ -27,9 +27,8 @@
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
 
-#include <map>
-#include <memory>
-#include <set>
+#include <map> // IWYU pragma: export
+#include <set> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -113,7 +112,7 @@ namespace core::socket::stream::tls {
             masterSslCtx = ssl_ctx_new(Super::config);
 
             if (masterSslCtx != nullptr) {
-                masterSslCtxDomains = ssl_get_sans(masterSslCtx);
+                masterSslCtxSans = ssl_get_sans(masterSslCtx);
 
                 SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
                 forceSni = Super::config->getForceSni();
@@ -130,15 +129,15 @@ namespace core::socket::stream::tls {
                             }
                             sniSslCtxs.insert_or_assign(domain, sniSslCtx);
 
-                            LOG(INFO) << "SSL_CTX for server name indication (sni) '" << domain << "' installed";
+                            LOG(INFO) << "SSL_CTX for server name indication (sni) '(dom)" << domain << "' installed";
 
                             for (const std::string& san : ssl_get_sans(sniSslCtx)) {
                                 sniSslCtxs.insert({san, sniSslCtx});
 
-                                LOG(INFO) << "SSL_CTX for subject alternative name (san) '" << san << "' installed";
+                                LOG(INFO) << "SSL_CTX for server name indication (sni) '(san)" << san << "' installed";
                             }
                         } else {
-                            LOG(INFO) << "Can not create SSL_CTX for server name indication (sni) '" << domain << "'";
+                            LOG(INFO) << "Can not create SSL_CTX for domain '" << domain << "'";
                         }
                     }
                 }
@@ -155,12 +154,12 @@ namespace core::socket::stream::tls {
 
             LOG(INFO) << "Search for sni = '" << serverNameIndication << "' in master certificate";
 
-            std::set<std::string>::iterator masterSniIt = std::find_if(
-                masterSslCtxDomains.begin(), masterSslCtxDomains.end(), [&serverNameIndication](const std::string& sni) -> bool {
+            std::set<std::string>::iterator masterSniIt =
+                std::find_if(masterSslCtxSans.begin(), masterSslCtxSans.end(), [&serverNameIndication](const std::string& sni) -> bool {
                     LOG(TRACE) << "  .. " << sni.c_str();
                     return match(sni.c_str(), serverNameIndication.c_str());
                 });
-            if (masterSniIt != masterSslCtxDomains.end()) {
+            if (masterSniIt != masterSslCtxSans.end()) {
                 LOG(INFO) << "found: " << *masterSniIt;
                 sniSslCtx = masterSslCtx;
             } else {
@@ -262,7 +261,7 @@ namespace core::socket::stream::tls {
         }
 
         SSL_CTX* masterSslCtx = nullptr;
-        std::set<std::string> masterSslCtxDomains;
+        std::set<std::string> masterSslCtxSans;
 
         std::map<std::string, SSL_CTX*> sniSslCtxs;
         bool forceSni = false;

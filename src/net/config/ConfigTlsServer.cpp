@@ -58,7 +58,7 @@ namespace net::config {
                                            "          UseDefaultCaDir -> value = true|false,\n"
                                            "          SslOptions -> value = int\n"
                                            "        }")
-                              ->type_name("{servername, {<key>, value} [, ...]} {%% ...}");
+                              ->type_name("{servername <key> value {<key> value} ...} {%% ...}");
             sniCertsOpt->take_all();
 
             forceSniFlg = tlsSc->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication");
@@ -66,6 +66,7 @@ namespace net::config {
             forceSniFlg->default_val("false");
 
             tlsSc->final_callback([this](void) -> void {
+                VLOG(0) << "Final Callback";
                 std::list<std::string> vaultyDomainConfigs;
 
                 for (const auto& [domain, sniMap] : sniCerts) {
