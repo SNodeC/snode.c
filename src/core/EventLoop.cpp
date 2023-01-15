@@ -151,7 +151,7 @@ namespace core {
                         LOG(INFO) << "EventLoop: No Observer - exiting";
                         break;
                     case TickStatus::ERROR:
-                        PLOG(ERROR) << "EventPublisher::publish()";
+                        PLOG(ERROR) << "EventPublisher::span()";
                         break;
                 }
 
