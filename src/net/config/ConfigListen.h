@@ -23,10 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
@@ -42,9 +38,6 @@ namespace net::config {
         void setAcceptsPerTick(int newAcceptsPerTickSet);
 
     private:
-        CLI::Option* backlogOpt = nullptr;
-        CLI::Option* acceptsPerTickOpt = nullptr;
-
         int backlog = 0;
         int acceptsPerTick = 1;
     };

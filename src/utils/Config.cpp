@@ -236,10 +236,10 @@ namespace utils {
         }
     }
 
-    CLI::App* Config::add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description) {
+    CLI::App* Config::add_instance(const std::string& name, const std::string& description) {
         app.require_subcommand(0, app.get_require_subcommand_max() + 1);
 
-        CLI::App* instance = app.add_subcommand(subcommand_name, subcommand_description);
+        CLI::App* instance = app.add_subcommand(name, description);
         instance->formatter(sectionFormatter);
 
         instance
@@ -267,8 +267,8 @@ namespace utils {
         return instance;
     }
 
-    bool Config::remove_subcommand(CLI::App* subCommand) {
-        return app.remove_subcommand(subCommand);
+    bool Config::remove_instance(CLI::App* instance) {
+        return app.remove_subcommand(instance);
     }
 
     void Config::add_option(const std::string& name,

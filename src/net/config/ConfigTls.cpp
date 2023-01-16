@@ -54,7 +54,7 @@ namespace net::config {
     }
 
     ConfigTls::ConfigTls() {
-        if (!getName().empty()) {
+        if (!getInstanceName().empty()) {
             tlsSc = add_section("tls", "Options for SSL/TLS behaviour");
 
             EmptyValidator EmptyValidator;

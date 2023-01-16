@@ -46,9 +46,9 @@ namespace utils {
         static bool prepare();
         static void terminate();
 
-        static CLI::App* add_subcommand(const std::string& subcommand_name, const std::string& subcommand_description);
+        static CLI::App* add_instance(const std::string& name, const std::string& description);
 
-        static bool remove_subcommand(CLI::App* subCommand);
+        static bool remove_instance(CLI::App* instance);
 
         static void add_option(const std::string& name,
                                std::string& variable,

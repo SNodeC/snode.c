@@ -25,7 +25,7 @@
 namespace net::in6::stream::config {
 
     ConfigSocketServer::ConfigSocketServer() {
-        if (!getName().empty()) {
+        if (!getInstanceName().empty()) {
             net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
         }
     }

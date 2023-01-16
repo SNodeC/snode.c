@@ -30,17 +30,17 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& name)
         : name(name) {
         if (!name.empty()) {
-            instanceSc = utils::Config::add_subcommand(name, "Configuration for instance '" + name + "'");
+            instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'");
             instanceSc->fallthrough();
             instanceSc->group("Instances");
         }
     }
 
     ConfigInstance::~ConfigInstance() {
-        utils::Config::remove_subcommand(instanceSc);
+        utils::Config::remove_instance(instanceSc);
     }
 
-    const std::string& ConfigInstance::getName() const {
+    const std::string& ConfigInstance::getInstanceName() const {
         return name;
     }
 
@@ -90,10 +90,6 @@ namespace net::config {
         if (instanceSc != nullptr) {
             instanceSc->required(reqired);
         }
-    }
-
-    void ConfigInstance::parse() {
-        utils::Config::parse();
     }
 
 } // namespace net::config

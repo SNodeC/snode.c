@@ -31,7 +31,7 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        if (!net::config::ConfigInstance::getName().empty()) {
+        if (!net::config::ConfigInstance::getInstanceName().empty()) {
             hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Bluetooth address");
             hostOpt->type_name("xx:xx:xx:xx:xx:xx");
             hostOpt->default_val("00:00:00:00:00:00");

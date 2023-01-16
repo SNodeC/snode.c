@@ -23,7 +23,6 @@
 
 namespace CLI {
     class App;
-    class Option;
 } // namespace CLI
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,7 +42,6 @@ namespace net::config {
 
     private:
         CLI::App* clusterSc = nullptr;
-        CLI::Option* modeOpt = nullptr;
 
         MODE mode = MODE::STANDALONE;
     };

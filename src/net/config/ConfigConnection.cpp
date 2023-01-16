@@ -47,26 +47,24 @@
 namespace net::config {
 
     ConfigConnection::ConfigConnection() {
-        if (!getName().empty()) {
+        if (!getInstanceName().empty()) {
             connectionSc = add_section("connection", "Options for established connections");
 
-            readTimeoutOpt = connectionSc->add_option("--read-timeout", readTimeout, "Read timeout in seconds");
-            readTimeoutOpt->default_val(DEFAULT_READTIMEOUT);
+            connectionSc->add_option("--read-timeout", readTimeout, "Read timeout in seconds")->default_val(DEFAULT_READTIMEOUT);
 
-            writeTimeoutOpt = connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout in seconds");
-            writeTimeoutOpt->default_val(DEFAULT_WRITETIMEOUT);
+            connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout in seconds")->default_val(DEFAULT_WRITETIMEOUT);
 
-            readBlockSizeOpt = connectionSc->add_option("--read-block-size", readBlockSize, "Read block size");
-            readBlockSizeOpt->type_name("std::size_t");
-            readBlockSizeOpt->default_val(DEFAULT_READBLOCKSIZE);
+            connectionSc->add_option("--read-block-size", readBlockSize, "Read block size")
+                ->type_name("std::size_t")
+                ->default_val(DEFAULT_READBLOCKSIZE);
 
-            writeBlockSizeOpt = connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size");
-            writeBlockSizeOpt->type_name("std::size_t");
-            writeBlockSizeOpt->default_val(DEFAULT_WRITEBLOCKSIZE);
+            connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size")
+                ->type_name("std::size_t")
+                ->default_val(DEFAULT_WRITEBLOCKSIZE);
 
-            terminateTimeoutOpt = connectionSc->add_option("--terminate-timeout", terminateTimeout, "Terminate timeout");
-            terminateTimeoutOpt->type_name("sec");
-            terminateTimeoutOpt->default_val(DEFAULT_TERMINATETIMEOUT);
+            connectionSc->add_option("--terminate-timeout", terminateTimeout, "Terminate timeout")
+                ->type_name("sec")
+                ->default_val(DEFAULT_TERMINATETIMEOUT);
         } else {
             readTimeout = DEFAULT_READTIMEOUT;
             writeTimeout = DEFAULT_WRITETIMEOUT;

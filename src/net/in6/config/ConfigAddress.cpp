@@ -31,7 +31,7 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        if (!net::config::ConfigInstance::getName().empty()) {
+        if (!net::config::ConfigInstance::getInstanceName().empty()) {
             hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Host name or IPv6 address");
             hostOpt->type_name("hostname|IPv6");
             hostOpt->default_val("::");

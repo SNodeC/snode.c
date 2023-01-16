@@ -42,7 +42,7 @@ namespace net::config {
 
         virtual ~ConfigInstance();
 
-        const std::string& getName() const;
+        const std::string& getInstanceName() const;
 
         // protected:
         CLI::App* add_section(const std::string& name, const std::string& description = "");
@@ -51,9 +51,6 @@ namespace net::config {
         CLI::Option* add_flag(const std::string& name, const std::string& description = "");
 
         void required(bool req = true);
-
-    public:
-        void parse();
 
     private:
         CLI::App* instanceSc = nullptr;

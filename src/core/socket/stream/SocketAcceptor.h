@@ -111,12 +111,12 @@ namespace core::socket::stream {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
-                    VLOG(0) << config->getName() << " mode: PRIMARY";
+                    VLOG(0) << config->getInstanceName() << " mode: PRIMARY";
                     secondarySocket = new SecondarySocket();
                     if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
-                    } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getName())) < 0) {
+                    } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
@@ -124,7 +124,7 @@ namespace core::socket::stream {
                         enable(primarySocket->getFd());
                     }
                 } else {
-                    VLOG(0) << config->getName() << " mode: STANDALONE";
+                    VLOG(0) << config->getInstanceName() << " mode: STANDALONE";
                     onError(config->getLocalAddress(), 0);
                     enable(primarySocket->getFd());
                 }
@@ -134,11 +134,11 @@ namespace core::socket::stream {
                 if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getName())) < 0) {
+                } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else {
-                    VLOG(0) << config->getName() << " mode: SECONDARY or PROXY";
+                    VLOG(0) << config->getInstanceName() << " mode: SECONDARY or PROXY";
                     onError(config->getLocalAddress(), errno);
                     enable(secondarySocket->getFd());
                 }
@@ -162,7 +162,8 @@ namespace core::socket::stream {
                         } else {
                             // Send descriptor to SECONDARY
                             VLOG(0) << "Sending to secondary";
-                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getName()), socket.getFd());
+                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName()),
+                                                    socket.getFd());
                             SecondarySocket::SocketAddress address;
                         }
                     } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {

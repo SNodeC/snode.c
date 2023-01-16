@@ -31,7 +31,7 @@ namespace net::config {
 
     template <typename SocketAddress>
     ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription) {
-        if (!getName().empty()) {
+        if (!getInstanceName().empty()) {
             addressSc = add_section(addressOptionName, addressOptionDescription);
             initialized = true;
         }

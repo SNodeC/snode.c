@@ -25,7 +25,6 @@
 
 namespace CLI {
     class App;
-    class Option;
 } // namespace CLI
 
 #include "utils/Timeval.h"
@@ -56,13 +55,6 @@ namespace net::config {
 
     private:
         CLI::App* connectionSc = nullptr;
-        CLI::Option* readTimeoutOpt = nullptr;
-        CLI::Option* writeTimeoutOpt = nullptr;
-
-        CLI::Option* readBlockSizeOpt = nullptr;
-        CLI::Option* writeBlockSizeOpt = nullptr;
-
-        CLI::Option* terminateTimeoutOpt = nullptr;
 
         utils::Timeval readTimeout;
         utils::Timeval writeTimeout;

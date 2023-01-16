@@ -36,7 +36,7 @@
 namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer() {
-        if (!getName().empty()) {
+        if (!getInstanceName().empty()) {
             CLI::Option* sniCertsOpt = tlsSc
                                            ->add_option("--sni-cert",
                                                         sniCerts,

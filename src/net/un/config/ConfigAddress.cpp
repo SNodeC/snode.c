@@ -33,11 +33,11 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        if (!net::config::ConfigInstance::getName().empty()) {
+        if (!net::config::ConfigInstance::getInstanceName().empty()) {
             sunPathOpt = ConfigAddressType::addressSc->add_option("--path", sunPath, "Unix domain socket");
             sunPathOpt->type_name("sun_path:FILE");
-            sunPathOpt->default_val(std::string('\0' + net::config::ConfigInstance::getName() + "_" + std::to_string(getpid())));
-            ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigInstance::getName() + "_" + std::to_string(getpid())));
+            sunPathOpt->default_val(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid())));
+            ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid())));
         }
     }
 

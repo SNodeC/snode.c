@@ -25,7 +25,7 @@
 namespace net::in6::stream::config {
 
     ConfigSocketClient::ConfigSocketClient() {
-        if (!getName().empty()) {
+        if (!getInstanceName().empty()) {
             net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
         }
     }

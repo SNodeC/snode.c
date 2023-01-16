@@ -25,7 +25,7 @@
 namespace net::un::stream::config {
 
     ConfigSocketServer::ConfigSocketServer() {
-        if (!getName().empty()) {
+        if (!getInstanceName().empty()) {
             net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
         }
     }
