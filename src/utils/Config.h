@@ -79,9 +79,9 @@ namespace utils {
         static int getLogLevel();
         static int getVerboseLevel();
 
-        static bool parse(bool stopOnError = false);
-
     private:
+        static bool parse(bool stopOnError);
+
         static CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
         static CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
         static CLI::Option* add_flag(const std::string& name, const std::string& description = "");

@@ -239,8 +239,7 @@ namespace utils {
     CLI::App* Config::add_instance(const std::string& name, const std::string& description) {
         app.require_subcommand(0, app.get_require_subcommand_max() + 1);
 
-        CLI::App* instance = app.add_subcommand(name, description);
-        instance->formatter(sectionFormatter);
+        CLI::App* instance = app.add_subcommand(name, description)->formatter(sectionFormatter);
 
         instance
             ->add_flag_callback(
