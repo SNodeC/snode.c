@@ -36,9 +36,14 @@ namespace net::config {
 
     ConfigListen::ConfigListen() {
         if (!getInstanceName().empty()) {
-            add_option("--backlog", backlog, "Listen backlog")->type_name("int")->default_val(DEFAULT_BACKLOG);
+            add_option("--backlog", backlog, "Listen backlog") //
+                ->type_name("int")                             //
+                ->default_val(DEFAULT_BACKLOG);
 
-            add_option("--accepts-per-tick", acceptsPerTick, "Accepts per tick")->type_name("int")->default_val(DEFAULT_ACCEPTSPERTICK);
+            add_option("--accepts-per-tick", acceptsPerTick, "Accepts per tick") //
+                ->type_name("int")                                               //
+                ->default_val(DEFAULT_ACCEPTSPERTICK);
+
         } else {
             backlog = DEFAULT_BACKLOG;
             acceptsPerTick = DEFAULT_ACCEPTSPERTICK;

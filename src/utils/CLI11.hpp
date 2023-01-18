@@ -2772,6 +2772,8 @@ public:                                                                         
         uint8_t maximumLayers{255};
         /// the separator used to separator parent layers
         char parentSeparatorChar{'.'};
+        /// the character used as prefix for default value options
+        std::string defaultAlsoPrefixString{""};
         /// Specify the configuration index to use for arrayed sections
         int16_t configIndex{-1};
         /// Specify the configuration section that should be used
@@ -2816,6 +2818,12 @@ public:                                                                         
         /// Specify the separator to use for parent layers
         ConfigBase* parentSeparator(char sep) {
             parentSeparatorChar = sep;
+            return this;
+        }
+
+        /// Specify the character used as prefix for default value options
+        ConfigBase* defaultAlsoPrefix(const std::string prefix) {
+            defaultAlsoPrefixString = prefix;
             return this;
         }
         /// get a reference to the configuration section
@@ -9625,6 +9633,7 @@ public:                                                                         
                         detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, characterQuote);
 
                     if (value.empty() && default_also) {
+                        name = defaultAlsoPrefixString + name;
                         if (!opt->get_default_str().empty()) {
                             value = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote);
                         } else if (opt->get_expected_min() == 0) {

@@ -18,6 +18,8 @@
 
 #include "net/config/ConfigCluster.h"
 
+#include "utils/ResetValidator.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -30,21 +32,23 @@ namespace net::config {
 
     ConfigCluster::ConfigCluster() {
         if (!getInstanceName().empty()) {
-            clusterSc = add_section("cluster", "Options for clustering");
-            clusterSc->preparse_callback([this]([[maybe_unused]] std::size_t num) -> void {
-                mode = MODE::PRIMARY;
-            });
-            clusterSc->configurable(false);
+            clusterSc = add_section("cluster", "Options for clustering") //
+                            ->preparse_callback([this]([[maybe_unused]] std::size_t num) -> void {
+                                mode = MODE::PRIMARY;
+                            }) //
+                            ->configurable(false);
 
-            clusterSc->add_option("--mode", mode, "Clustering mode")
+            clusterSc
+                ->add_option("--mode", mode, "Clustering mode") //
                 ->type_name(std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
-                            std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY")
-                ->default_val(MODE::STANDALONE)
-                ->configurable(false);
+                            std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY") //
+                ->default_val(MODE::STANDALONE)                                                                            //
+                ->configurable(false)                                                                                      //
+                ->check(utils::ResetValidator(clusterSc->get_option("--mode")));
         }
     }
 
-    int ConfigCluster::getClusterMode() const {
+    ConfigCluster::MODE ConfigCluster::getClusterMode() const {
         return mode;
     }
 

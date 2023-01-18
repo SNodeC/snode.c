@@ -18,6 +18,8 @@
 
 #include "net/config/ConfigConnection.h"
 
+#include "utils/ResetValidator.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -50,21 +52,32 @@ namespace net::config {
         if (!getInstanceName().empty()) {
             connectionSc = add_section("connection", "Options for established connections");
 
-            connectionSc->add_option("--read-timeout", readTimeout, "Read timeout in seconds")->default_val(DEFAULT_READTIMEOUT);
+            connectionSc
+                ->add_option("--read-timeout", readTimeout, "Read timeout in seconds") //
+                ->default_val(DEFAULT_READTIMEOUT)                                     //
+                ->check(utils::ResetValidator(connectionSc->get_option("--read-timeout")));
 
-            connectionSc->add_option("--write-timeout", writeTimeout, "Write timeout in seconds")->default_val(DEFAULT_WRITETIMEOUT);
+            connectionSc
+                ->add_option("--write-timeout", writeTimeout, "Write timeout in seconds") //
+                ->default_val(DEFAULT_WRITETIMEOUT)                                       //
+                ->check(utils::ResetValidator(connectionSc->get_option("--write-timeout")));
 
-            connectionSc->add_option("--read-block-size", readBlockSize, "Read block size")
-                ->type_name("std::size_t")
-                ->default_val(DEFAULT_READBLOCKSIZE);
+            connectionSc
+                ->add_option("--read-block-size", readBlockSize, "Read block size") //
+                ->type_name("std::size_t")                                          //
+                ->default_val(DEFAULT_READBLOCKSIZE)                                //
+                ->check(utils::ResetValidator(connectionSc->get_option("--read-block-size")));
 
-            connectionSc->add_option("--write-block-size", writeBlockSize, "Write block size")
-                ->type_name("std::size_t")
-                ->default_val(DEFAULT_WRITEBLOCKSIZE);
+            connectionSc
+                ->add_option("--write-block-size", writeBlockSize, "Write block size") //
+                ->type_name("std::size_t")                                             //
+                ->default_val(DEFAULT_WRITEBLOCKSIZE)                                  //
+                ->check(utils::ResetValidator(connectionSc->get_option("--write-block-size")));
 
             connectionSc->add_option("--terminate-timeout", terminateTimeout, "Terminate timeout")
                 ->type_name("sec")
-                ->default_val(DEFAULT_TERMINATETIMEOUT);
+                ->default_val(DEFAULT_TERMINATETIMEOUT)
+                ->check(utils::ResetValidator(connectionSc->get_option("--terminate-timeout")));
         } else {
             readTimeout = DEFAULT_READTIMEOUT;
             writeTimeout = DEFAULT_WRITETIMEOUT;

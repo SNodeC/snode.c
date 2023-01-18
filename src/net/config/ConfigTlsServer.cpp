@@ -18,6 +18,8 @@
 
 #include "net/config/ConfigTlsServer.h"
 
+#include "utils/ResetValidator.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -37,47 +39,52 @@ namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer() {
         if (!getInstanceName().empty()) {
-            CLI::Option* sniCertsOpt = tlsSc
-                                           ->add_option("--sni-cert",
-                                                        sniCerts,
-                                                        "Server Name Indication (SNI) Certificates:\n"
-                                                        "sni = SNI of the virtual server\n"
-                                                        "<key> = {\n"
-                                                        "          \"CertChain\" -> value = PEM:FILE,\n"
-                                                        "          \"CertKey\" -> value = PEM:FILE,\n"
-                                                        "          \"CertKeyPassword\" -> value = TEXT,\n"
-                                                        "          \"CaCertFile\" -> value = PEM:FILE,\n"
-                                                        "          \"CaCertDir\" -> value = PEM_container:DIR,\n"
-                                                        "          \"UseDefaultCaDir\" -> value = true|false,\n"
-                                                        "          \"SslOptions\" -> value = uint64_t\n"
-                                                        "        }")
-                                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
-                                           ->take_all();
+            CLI::Option* sniCertsOpt = //
+                tlsSc                  //
+                    ->add_option("--sni-cert",
+                                 sniCerts,
+                                 "Server Name Indication (SNI) Certificates:\n"
+                                 "sni = SNI of the virtual server\n"
+                                 "<key> = {\n"
+                                 "          \"CertChain\" -> value = PEM:FILE,\n"
+                                 "          \"CertKey\" -> value = PEM:FILE,\n"
+                                 "          \"CertKeyPassword\" -> value = TEXT,\n"
+                                 "          \"CaCertFile\" -> value = PEM:FILE,\n"
+                                 "          \"CaCertDir\" -> value = PEM_container:DIR,\n"
+                                 "          \"UseDefaultCaDir\" -> value = true|false,\n"
+                                 "          \"SslOptions\" -> value = uint64_t\n"
+                                 "        }")                                                               //
+                    ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}") //
+                    ->take_all();
 
-            tlsSc->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication")->default_val("false");
+            tlsSc                                                                                //
+                ->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication") //
+                ->default_val("false")                                                           //
+                ->check(utils::ResetValidator(tlsSc->get_option("--force-sni")));
 
-            tlsSc->final_callback([this, sniCertsOpt](void) -> void {
-                std::list<std::string> vaultyDomainConfigs;
+            tlsSc //
+                ->final_callback([this, sniCertsOpt](void) -> void {
+                    std::list<std::string> vaultyDomainConfigs;
 
-                for (const auto& [domain, sniMap] : sniCerts) {
-                    if (!sniMap.begin()->first.empty()) {
-                        for (auto& [key, value] : sniMap) {
-                            if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
-                                key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
-                                LOG(ERROR) << "Configuring SNI-Cert for domain: " << domain << " failed: Wrong Key: " << key;
-                                vaultyDomainConfigs.push_back(domain);
+                    for (const auto& [domain, sniMap] : sniCerts) {
+                        if (!sniMap.begin()->first.empty()) {
+                            for (auto& [key, value] : sniMap) {
+                                if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
+                                    key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
+                                    LOG(ERROR) << "Configuring SNI-Cert for domain: " << domain << " failed: Wrong Key: " << key;
+                                    vaultyDomainConfigs.push_back(domain);
+                                }
                             }
+                        } else {
+                            sniCertsOpt->clear();
+                            break;
                         }
-                    } else {
-                        sniCertsOpt->clear();
-                        break;
                     }
-                }
 
-                for (const std::string& domain : vaultyDomainConfigs) {
-                    sniCerts.erase(domain);
-                }
-            });
+                    for (const std::string& domain : vaultyDomainConfigs) {
+                        sniCerts.erase(domain);
+                    }
+                });
         }
     }
 
@@ -89,7 +96,7 @@ namespace net::config {
         this->forceSni = forceSni;
     }
 
-    std::map<std::string, std::map<std::string, std::any>> ConfigTlsServer::getSniCerts() const {
+    std::map<std::string, std::map<std::string, std::any>>& ConfigTlsServer::getSniCerts() {
         return sniCerts;
     }
 

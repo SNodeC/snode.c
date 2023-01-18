@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/ResetValidator.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -32,13 +33,19 @@ namespace net::in6::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
         if (!net::config::ConfigInstance::getInstanceName().empty()) {
-            hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Host name or IPv6 address");
-            hostOpt->type_name("hostname|IPv6");
-            hostOpt->default_val("::");
+            hostOpt = //
+                ConfigAddressType::addressSc
+                    ->add_option("--host", host, "Host name or IPv6 address") //
+                    ->type_name("hostname|IPv6")                              //
+                    ->default_val("::")                                       //
+                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--host")));
 
-            portOpt = ConfigAddressType::addressSc->add_option("--port", port, "Port number");
-            portOpt->type_name("uint_16");
-            portOpt->default_val(0);
+            portOpt = //
+                ConfigAddressType::addressSc
+                    ->add_option("--port", port, "Port number") //
+                    ->type_name("uint_16")                      //
+                    ->default_val(0)                            //
+                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--port")));
         }
         ConfigAddressType::address.setHost("::");
         ConfigAddressType::address.setPort(0);

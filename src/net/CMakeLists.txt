@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 add_compile_options(
-    -Wno-covered-switch-default -Wno-float-equal
-    -Wno-implicit-int-float-conversion -Wno-undefined-func-template
+    -Wno-float-equal
 )
 
 set(NET_CPP

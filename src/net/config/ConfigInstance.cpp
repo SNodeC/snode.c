@@ -22,6 +22,7 @@
 
 #include "utils/CLI11.hpp"
 #include "utils/Config.h"
+#include "utils/ResetValidator.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,9 +31,9 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& name)
         : name(name) {
         if (!name.empty()) {
-            instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'");
-            instanceSc->fallthrough();
-            instanceSc->group("Instances");
+            instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'") //
+                             ->fallthrough()                                                            //
+                             ->group("Instances");
         }
     }
 
@@ -45,50 +46,59 @@ namespace net::config {
     }
 
     CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {
-        CLI::App* subCommand = instanceSc->add_subcommand(name, description);
-        instanceSc->require_subcommand(instanceSc->get_require_subcommand_min(), instanceSc->get_require_subcommand_max() + 1);
-        subCommand->group("Sections");
+        CLI::App* subCommand = instanceSc                              //
+                                   ->add_subcommand(name, description) //
+                                   ->group("Sections");
 
-        subCommand
+        subCommand //
             ->add_flag_callback(
                 "-h,--help",
                 []() {
                     throw CLI::CallForHelp();
                 },
-                "Print this help message and exit")
-            ->configurable(false)
-            ->disable_flag_override()
+                "Print this help message and exit") //
+            ->configurable(false)                   //
+            ->disable_flag_override()               //
             ->trigger_on_parse();
 
-        subCommand
+        subCommand //
             ->add_flag_callback(
                 "--help-all",
                 []() {
                     throw CLI::CallForAllHelp();
                 },
-                "Expand all help")
-            ->configurable(false)
-            ->disable_flag_override()
+                "Expand all help")    //
+            ->configurable(false)     //
+            ->disable_flag_override() //
             ->trigger_on_parse();
+
+        instanceSc->require_subcommand(instanceSc->get_require_subcommand_min(), instanceSc->get_require_subcommand_max() + 1);
 
         return subCommand;
     }
 
     CLI::Option* ConfigInstance::add_option(const std::string& name, int& variable, const std::string& description) {
-        return instanceSc->add_option(name, variable, description);
+        return instanceSc                             //
+            ->add_option(name, variable, description) //
+            ->check(utils::ResetValidator(instanceSc->get_option(name)));
     }
 
     CLI::Option* ConfigInstance::add_option(const std::string& name, std::string& variable, const std::string& description) {
-        return instanceSc->add_option(name, variable, description);
+        return instanceSc                             //
+            ->add_option(name, variable, description) //
+            ->check(utils::ResetValidator(instanceSc->get_option(name)));
     }
 
     CLI::Option* ConfigInstance::add_flag(const std::string& name, const std::string& description) {
-        return instanceSc->add_flag(name, description);
+        return instanceSc                 //
+            ->add_flag(name, description) //
+            ->check(utils::ResetValidator(instanceSc->get_option(name)));
     }
 
     void ConfigInstance::required(bool reqired) {
         if (instanceSc != nullptr) {
-            instanceSc->required(reqired);
+            instanceSc //
+                ->required(reqired);
         }
     }
 

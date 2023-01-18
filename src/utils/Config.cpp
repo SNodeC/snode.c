@@ -20,6 +20,7 @@
 
 #include "utils/CLI11.hpp"
 #include "utils/Daemon.h"
+#include "utils/ResetValidator.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -111,9 +112,17 @@ namespace utils {
 
         app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
         app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
-        app.get_formatter()->column_width(40);
+        app.get_formatter()->column_width(45);
 
-        app.description("Configuration for Application " + applicationName);
+        app.get_config_formatter_base()->defaultAlsoPrefix("#");
+
+        app.description("Configuration for Application " + applicationName +
+                        "\n"
+                        "Options with default values are commented");
+
+        app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian\n"
+                   "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
+
         app.allow_extras();
         app.allow_config_extras();
 
@@ -124,9 +133,9 @@ namespace utils {
                []() {
                    throw CLI::CallForHelp();
                },
-               "Print this help message and exit")
-            ->configurable(false)
-            ->disable_flag_override()
+               "Print this help message and exit") //
+            ->configurable(false)                  //
+            ->disable_flag_override()              //
             ->trigger_on_parse();
 
         app.add_flag_callback(
@@ -134,42 +143,55 @@ namespace utils {
                []() {
                    throw CLI::CallForAllHelp();
                },
-               "Expand all help")
-            ->configurable(false)
-            ->disable_flag_override()
+               "Expand all help")     //
+            ->configurable(false)     //
+            ->disable_flag_override() //
             ->trigger_on_parse();
 
-        app.add_flag("-d,!-f,--daemonize,!--foreground", "Start application as daemon");
+        app.add_flag("-d,!-f,--daemonize,!--foreground", "Start application as daemon") //
+            ->default_val("false")                                                      //
+            ->check(utils::ResetValidator(app.get_option("--foreground")));
 
-        app.add_flag("-k,--kill", "Kill running daemon")->disable_flag_override()->configurable(false);
+        app.add_flag("-k,--kill", "Kill running daemon") //
+            ->configurable(false)                        //
+            ->disable_flag_override();
 
-        app.add_flag("-s,--show-config", "Show current configuration and exit")->disable_flag_override()->configurable(false);
+        app.add_flag("-s,--show-config", "Show current configuration and exit") //
+            ->configurable(false)                                               //
+            ->disable_flag_override();
 
         app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" + defaultConfDir + "/" +
                          applicationName + ".conf" + "}",
                      outputConfigFile,
-                     "Write config file")
+                     "Write config file") //
             ->configurable(false);
 
         app.add_flag("-l{" + defaultLogDir + "/" + applicationName + ".log" + "},--log-file{" + defaultLogDir + "/" + applicationName +
                          ".log" + "}",
                      logFile,
-                     "Logfile path")
-            ->default_val(defaultLogDir + "/" + applicationName + ".log")
-            ->type_name("");
+                     "Logfile path")                                      //
+            ->default_val(defaultLogDir + "/" + applicationName + ".log") //
+            ->check(utils::ResetValidator(app.get_option("--log-file")));
 
-        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications")->default_val("false");
+        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications") //
+            ->default_val("false")                                                                           //
+            ->check(utils::ResetValidator(app.get_option("--enforce-log-file")));
 
-        app.add_option("--log-level", logLevel, "Log level")->default_val(3)->type_name("([0-6])");
+        app.add_option("--log-level", logLevel, "Log level") //
+            ->default_val(3)                                 //
+            ->type_name("level")                             //
+            ->check(CLI::Range(0, 6) & utils::ResetValidator(app.get_option("--log-level")));
 
-        app.add_option("--verbose-level", verboseLevel, "Verbosity level")->default_val(0)->type_name("([0-9]|10)");
+        app.add_option("--verbose-level", verboseLevel, "Verbose level")
+            ->default_val(0)     //
+            ->type_name("level") //
+            ->check(CLI::Range(0, 10) & utils::ResetValidator(app.get_option("--verbose-level")));
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
 
-        app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian\n"
-                   "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
+        bool ret = true;
 
-        bool ret = parse(false); // for stopDaemon but do not act on -h or --help-all
+        ret = parse(false); // for stopDaemon but do not act on -h or --help-all
 
         if (app["--kill"]->count() > 0) {
             utils::Daemon::stopDaemon(defaultPidDir + "/" + applicationName + ".pid");
@@ -188,14 +210,20 @@ namespace utils {
 
         if (ret) {
             if (app["--show-config"]->count() > 0) {
-                VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
-
+                try {
+                    VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
+                } catch (CLI::ValidationError& e) {
+                    LOG(ERROR) << e.what();
+                }
                 ret = false;
             } else if (app["--write-config"]->count() > 0) {
                 VLOG(0) << "Write config file " << outputConfigFile;
                 std::ofstream confFile(outputConfigFile);
-                confFile << app.config_to_str(true, true);
-
+                try {
+                    confFile << app.config_to_str(true, true);
+                } catch (CLI::ValidationError& e) {
+                    LOG(ERROR) << e.what();
+                }
                 ret = false;
             } else if (app["--daemonize"]->as<bool>()) {
                 VLOG(0) << "Running as daemon";
@@ -247,9 +275,9 @@ namespace utils {
                 []() {
                     throw CLI::CallForHelp();
                 },
-                "Print this help message and exit")
-            ->configurable(false)
-            ->disable_flag_override()
+                "Print this help message and exit") //
+            ->configurable(false)                   //
+            ->disable_flag_override()               //
             ->trigger_on_parse();
 
         instance
@@ -258,9 +286,9 @@ namespace utils {
                 []() {
                     throw CLI::CallForAllHelp();
                 },
-                "Expand all help")
-            ->configurable(false)
-            ->disable_flag_override()
+                "Expand all help")    //
+            ->configurable(false)     //
+            ->disable_flag_override() //
             ->trigger_on_parse();
 
         return instance;
@@ -278,11 +306,11 @@ namespace utils {
                             const std::string& default_val,
                             bool configurable,
                             const std::string& groupName) {
-        add_option(name, variable, description)
-            ->required(required)
-            ->default_val(default_val)
-            ->type_name(typeName)
-            ->configurable(configurable)
+        add_option(name, variable, description) //
+            ->required(required)                //
+            ->default_val(default_val)          //
+            ->type_name(typeName)               //
+            ->configurable(configurable)        //
             ->group(groupName);
     }
 
@@ -294,11 +322,11 @@ namespace utils {
                             int default_val,
                             bool configurable,
                             const std::string& groupName) {
-        add_option(name, variable, description)
-            ->required(required)
-            ->default_val(default_val)
-            ->type_name(typeName)
-            ->configurable(configurable)
+        add_option(name, variable, description) //
+            ->required(required)                //
+            ->default_val(default_val)          //
+            ->type_name(typeName)               //
+            ->configurable(configurable)        //
             ->group(groupName);
     }
 
@@ -308,7 +336,10 @@ namespace utils {
                           bool required,
                           bool configurable,
                           const std::string& groupName) {
-        add_flag(name, variable, description)->required(required)->configurable(configurable)->group(groupName);
+        add_flag(name, variable, description) //
+            ->required(required)              //
+            ->configurable(configurable)      //
+            ->group(groupName);
     }
 
     CLI::Option* Config::add_option(const std::string& name, int& variable, const std::string& description) {

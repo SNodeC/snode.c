@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/ResetValidator.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -32,13 +33,19 @@ namespace net::rc::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
         if (!net::config::ConfigInstance::getInstanceName().empty()) {
-            hostOpt = ConfigAddressType::addressSc->add_option("--host", host, "Bluetooth address");
-            hostOpt->type_name("xx:xx:xx:xx:xx:xx");
-            hostOpt->default_val("00:00:00:00:00:00");
+            hostOpt = //
+                ConfigAddressType::addressSc
+                    ->add_option("--host", host, "Bluetooth address") //
+                    ->type_name("xx:xx:xx:xx:xx:xx")                  //
+                    ->default_val("00:00:00:00:00:00")                //
+                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--host")));
 
-            channelOpt = ConfigAddressType::addressSc->add_option("--channel", channel, "Channel number");
-            channelOpt->type_name("uint_8");
-            channelOpt->default_val(0);
+            channelOpt = //
+                ConfigAddressType::addressSc
+                    ->add_option("--channel", channel, "Channel number") //
+                    ->type_name("uint_8")                                //
+                    ->default_val(0)                                     //
+                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--channel")));
         }
         ConfigAddressType::address.setAddress("00:00:00:00:00:00");
         ConfigAddressType::address.setChannel(0);

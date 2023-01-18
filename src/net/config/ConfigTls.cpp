@@ -18,6 +18,8 @@
 
 #include "net/config/ConfigTls.h"
 
+#include "utils/ResetValidator.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -57,34 +59,56 @@ namespace net::config {
         if (!getInstanceName().empty()) {
             tlsSc = add_section("tls", "Options for SSL/TLS behaviour");
 
-            EmptyValidator EmptyValidator;
+            EmptyValidator emptyValidator;
 
-            tlsSc->add_option("--cert-chain", certChain, "Certificate chain file")
-                ->type_name("PEM")
-                ->check(CLI::ExistingFile | EmptyValidator);
+            tlsSc                                                                 //
+                ->add_option("--cert-chain", certChain, "Certificate chain file") //
+                ->type_name("PEM")                                                //
+                ->check(CLI::ExistingFile | emptyValidator | utils::ResetValidator(tlsSc->get_option("--cert-chain")));
 
-            tlsSc->add_option("--cert-key", certKey, "Certificate key file")->type_name("PEM")->check(CLI::ExistingFile | EmptyValidator);
+            tlsSc                                                           //
+                ->add_option("--cert-key", certKey, "Certificate key file") //
+                ->type_name("PEM")                                          //
+                ->check(CLI::ExistingFile | emptyValidator | utils::ResetValidator(tlsSc->get_option("--cert-key")));
 
-            tlsSc->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file");
+            tlsSc                                                                                             //
+                ->add_option("--cert-key-password", certKeyPassword, "Password for the certificate key file") //
+                ->check(utils::ResetValidator(tlsSc->get_option("--cert-key-password")));
 
-            tlsSc->add_option("--ca-cert-file", caCertFile, "CA-certificate file")
-                ->type_name("PEM")
-                ->check(CLI::ExistingFile | EmptyValidator);
+            tlsSc                                                                 //
+                ->add_option("--ca-cert-file", caCertFile, "CA-certificate file") //
+                ->type_name("PEM")                                                //
+                ->check(CLI::ExistingFile | emptyValidator | utils::ResetValidator(tlsSc->get_option("--ca-cert-file")));
 
-            tlsSc->add_option("--ca-cert-dir", caCertDir, "CA-certificate directory")
-                ->type_name("PEM_container")
-                ->check(CLI::ExistingDirectory | EmptyValidator);
+            tlsSc                                                                    //
+                ->add_option("--ca-cert-dir", caCertDir, "CA-certificate directory") //
+                ->type_name("PEM_container")                                         //
+                ->check(CLI::ExistingDirectory | emptyValidator | utils::ResetValidator(tlsSc->get_option("--ca-cert-dir")));
 
-            tlsSc->add_flag("--use-default-ca-cert-dir", useDefaultCaCertDir, "Use default CA-certificate directory")->default_val("false");
+            tlsSc                                                                                                    //
+                ->add_flag("--use-default-ca-cert-dir", useDefaultCaCertDir, "Use default CA-certificate directory") //
+                ->default_val("false")                                                                               //
+                ->check(utils::ResetValidator(tlsSc->get_option("--use-default-ca-cert-dir")));
 
-            tlsSc->add_option("--cipher-list", cipherList, "Cipher list")->type_name("cipher_list");
+            tlsSc                                                        //
+                ->add_option("--cipher-list", cipherList, "Cipher list") //
+                ->type_name("cipher_list")                               //
+                ->check(utils::ResetValidator(tlsSc->get_option("--cipher-list")));
 
-            tlsSc->add_option("--tls-options", tlsOptions, "OR combined SSL/TLS options")->type_name("uint64_t");
+            tlsSc                                                                        //
+                ->add_option("--tls-options", tlsOptions, "OR combined SSL/TLS options") //
+                ->type_name("uint64_t")                                                  //
+                ->check(utils::ResetValidator(tlsSc->get_option("--tls-options")));
 
-            tlsSc->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout in seconds")->default_val(DEFAULT_INITTIMEOUT);
+            tlsSc                                                                                        //
+                ->add_option("--init-timeout", initTimeout, "SSL/TLS initialization timeout in seconds") //
+                ->default_val(DEFAULT_INITTIMEOUT)                                                       //
+                ->check(utils::ResetValidator(tlsSc->get_option("--init-timeout")));
 
-            tlsSc->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout in seconds")
-                ->default_val(DEFAULT_SHUTDOWNTIMEOUT);
+            tlsSc                                                                                          //
+                ->add_option("--shutdown-timeout", shutdownTimeout, "SSL/TLS shutdown timeout in seconds") //
+                ->default_val(DEFAULT_SHUTDOWNTIMEOUT)                                                     //
+                ->check(utils::ResetValidator(tlsSc->get_option("--shutdown-timeout")));
         } else {
             initTimeout = DEFAULT_INITTIMEOUT;
             shutdownTimeout = DEFAULT_SHUTDOWNTIMEOUT;

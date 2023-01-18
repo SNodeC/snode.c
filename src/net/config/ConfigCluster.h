@@ -37,7 +37,7 @@ namespace net::config {
 
         enum MODE { STANDALONE, PRIMARY, SECONDARY, PROXY };
 
-        int getClusterMode() const;
+        MODE getClusterMode() const;
         void setClusterMode(MODE newMode);
 
     private:

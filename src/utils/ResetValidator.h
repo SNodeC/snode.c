@@ -16,9 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/ConfigTlsClient.h"
-
-#include "utils/ResetValidator.h"
+#ifndef UTILS_RESETVALIDATOR_H
+#define UTILS_RESETVALIDATOR_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,23 +25,13 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net::config {
+namespace utils {
 
-    ConfigTlsClient::ConfigTlsClient() {
-        if (!getInstanceName().empty()) {
-            tlsSc                                                    //
-                ->add_option("--sni", sni, "Server Name Indication") //
-                ->type_name("sni")                                   //
-                ->check(utils::ResetValidator(tlsSc->get_option("--sni")));
-        }
-    }
+    class ResetValidator : public CLI::Validator {
+    public:
+        explicit ResetValidator(CLI::Option* option);
+    };
 
-    std::string ConfigTlsClient::getSni() const {
-        return sni;
-    }
+} // namespace utils
 
-    void ConfigTlsClient::setSni(const std::string& sni) {
-        this->sni = sni;
-    }
-
-} // namespace net::config
+#endif // UTILS_RESETVALIDATOR_H

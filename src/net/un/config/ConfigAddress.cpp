@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/ResetValidator.h"
 
 #include <unistd.h>
 
@@ -34,11 +35,15 @@ namespace net::un::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
         if (!net::config::ConfigInstance::getInstanceName().empty()) {
-            sunPathOpt = ConfigAddressType::addressSc->add_option("--path", sunPath, "Unix domain socket");
-            sunPathOpt->type_name("sun_path:FILE");
-            sunPathOpt->default_val(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid())));
-            ConfigAddressType::address.setSunPath(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid())));
+            sunPathOpt = //
+                ConfigAddressType::addressSc
+                    ->add_option("--path", sunPath, "Unix domain socket")                                                              //
+                    ->type_name("sun_path:FILE")                                                                                       //
+                    ->default_val(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid()))) //
+                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--path")));
         }
+        ConfigAddressType::address.setSunPath(
+            std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid())));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
