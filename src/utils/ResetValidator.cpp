@@ -34,7 +34,7 @@ namespace utils {
         func_ = [option](const std::string& str) {
             if (option->get_default_str() == str) {
                 LOG(INFO) << "Reseting option " << option->get_single_name() << " to its default [" << option->get_default_str() << "]";
-                option->take_first()->clear();
+                option->take_all()->clear();
             }
             return std::string{};
         };
