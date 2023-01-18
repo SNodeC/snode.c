@@ -171,11 +171,11 @@ namespace net::config {
         cipherList = newCipherList;
     }
 
-    const uint64_t& ConfigTls::getSslTlsOptions() const {
+    const ssl_option_t& ConfigTls::getSslTlsOptions() const {
         return tlsOptions;
     }
 
-    void ConfigTls::setSslTlsOptions(uint64_t newSslTlsOptions) {
+    void ConfigTls::setSslTlsOptions(ssl_option_t newSslTlsOptions) {
         tlsOptions = newSslTlsOptions;
     }
 

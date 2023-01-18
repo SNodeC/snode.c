@@ -77,8 +77,8 @@ namespace net::config {
         const std::string& getCipherList() const;
         void setCipherList(const std::string& newCipherList);
 
-        const uint64_t& getSslTlsOptions() const;
-        void setSslTlsOptions(uint64_t newSslTlsOptions);
+        const ssl_option_t& getSslTlsOptions() const;
+        void setSslTlsOptions(ssl_option_t newSslTlsOptions);
 
     protected:
         CLI::App* tlsSc = nullptr;
