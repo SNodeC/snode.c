@@ -114,7 +114,7 @@ namespace utils {
         app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
         app.get_formatter()->column_width(45);
 
-        app.get_config_formatter_base()->defaultAlsoPrefix("#");
+        app.get_config_formatter_base()->defaultAlsoPrefix('#');
 
         app.description("Configuration for Application " + applicationName +
                         "\n"
