@@ -36,11 +36,15 @@ int main(int argc, char* argv[]) {
     WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
 
 #if (STREAM_TYPE == TLS)
-//    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-//        {"snodec.home.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}},
-//        {"www.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}}}};
+    std::string cert = "/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem";
+    std::string key = "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem";
+    std::string pass = "snode.c";
 
-//    webApp.addSniCerts(sniCerts);
+    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
+        {"snodec.home.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
+        {"www.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
+
+    webApp.addSniCerts(sniCerts);
 #endif
 
     webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
