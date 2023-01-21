@@ -110,7 +110,7 @@ namespace iot::mqtt::client {
     private:
         uint16_t keepAlive;
 
-        std::string sessionStore;
+        std::string sessionStoreFileName;
         iot::mqtt::Session session;
 
         core::timer::Timer pingTimer;

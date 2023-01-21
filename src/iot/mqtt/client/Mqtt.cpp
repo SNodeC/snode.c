@@ -51,10 +51,10 @@
 namespace iot::mqtt::client {
 
     Mqtt::Mqtt()
-        : sessionStore((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
+        : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
         nlohmann::json sessionStoreJson;
 
-        std::ifstream sessionStoreFile(sessionStore);
+        std::ifstream sessionStoreFile(sessionStoreFileName);
 
         if (sessionStoreFile.is_open()) {
             try {
@@ -66,17 +66,22 @@ namespace iot::mqtt::client {
                 LOG(ERROR) << e.what();
             }
             sessionStoreFile.close();
-            std::remove(sessionStore.data());
+            std::remove(sessionStoreFileName.data());
         }
     }
 
     Mqtt::~Mqtt() {
-        if (!sessionStore.empty()) {
-            std::ofstream sessionStoreFile(sessionStore);
+        if (!sessionStoreFileName.empty()) {
+            nlohmann::json json = session.toJson();
 
-            if (sessionStoreFile.is_open()) {
-                LOG(INFO) << "Perseveration of Session: " << session.toJson().dump(4);
-                sessionStoreFile << session.toJson();
+            if (!json.empty()) {
+                std::ofstream sessionStoreFile(sessionStoreFileName);
+
+                if (sessionStoreFile.is_open()) {
+                    LOG(INFO) << "Perseveration of Session: " << session.toJson().dump(4);
+                    sessionStoreFile << json;
+                }
+
                 sessionStoreFile.close();
             } else {
                 LOG(INFO) << "Session:";

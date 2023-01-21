@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <nlohmann/json.hpp>
+#include <utility>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
@@ -36,13 +37,11 @@ namespace iot::mqtt {
     nlohmann::json Session::toJson() {
         nlohmann::json json;
 
-        nlohmann::json publishMapJson;
-
         std::vector<nlohmann::json> publishJsonVector;
         for (auto& [packetIdentifier, publish] : publishMap) {
             nlohmann::json publishJson;
 
-            publishJson["packet_identifier"] = publish.getPacketIdentifier();
+            publishJson["packet_identifier"] = packetIdentifier;
             publishJson["topic"] = publish.getTopic();
             publishJson["message"] = publish.getMessage();
             publishJson["dup"] = publish.getDup();
@@ -52,9 +51,15 @@ namespace iot::mqtt {
             publishJsonVector.emplace_back(publishJson);
         }
 
-        json["publish_map"] = publishJsonVector;
-        json["pubrel_packetidentifier_set"] = pubrelPacketIdentifierSet;
-        json["publish_packetidentifier_set"] = publishPacketIdentifierSet;
+        if (!publishJsonVector.empty()) {
+            json["publish_map"] = publishJsonVector;
+        }
+        if (!pubrelPacketIdentifierSet.empty()) {
+            json["pubrel_packetidentifier_set"] = pubrelPacketIdentifierSet;
+        }
+        if (!publishPacketIdentifierSet.empty()) {
+            json["publish_packetidentifier_set"] = publishPacketIdentifierSet;
+        }
 
         return json;
     }
