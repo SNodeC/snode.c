@@ -60,8 +60,12 @@ namespace iot::mqtt::server::broker {
                     LOG(INFO) << "Starting with empty session";
                 }
             } catch (const nlohmann::json::exception& e) {
+                LOG(ERROR) << "Reading session store file " << sessionStoreFileName;
                 LOG(ERROR) << e.what();
+
+                LOG(INFO) << "Starting with empty session";
             }
+
             sessionStoreFile.close();
             std::remove(sessionStoreFileName.data());
         }
