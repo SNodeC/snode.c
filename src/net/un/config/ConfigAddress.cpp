@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/PreserveErrno.h"
 #include "utils/ResetValidator.h"
 
 #include <unistd.h>
@@ -55,11 +56,15 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+        utils::PreserveErrno preserveErrno;
+
         return SocketAddress(sunPathOpt->as<std::string>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        utils::PreserveErrno preserveErrno;
+
         sunPathOpt->default_val(socketAddress.address())->clear();
 
         Super::initialized();

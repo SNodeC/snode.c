@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/PreserveErrno.h"
 #include "utils/ResetValidator.h"
 
 #include <cstdint>
@@ -62,11 +63,15 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+        utils::PreserveErrno preserveErrno;
+
         return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        utils::PreserveErrno preserveErrno;
+
         hostOpt->default_val(socketAddress.host())->clear();
         portOpt->default_val(socketAddress.port())->clear();
 

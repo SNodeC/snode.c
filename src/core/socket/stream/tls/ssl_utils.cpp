@@ -23,6 +23,7 @@
 #include "log/Logger.h"
 #include "net/config/ConfigTlsClient.h" // IWYU pragma: keep
 #include "net/config/ConfigTlsServer.h" // IWYU pragma: keep
+#include "utils/PreserveErrno.h"
 
 #include <cerrno>
 #include <cstdint>
@@ -329,7 +330,8 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log(const std::string& message, int sslErr) {
-        int errnum = errno;
+        utils::PreserveErrno preserveErrno;
+
         switch (sslErr) {
             case SSL_ERROR_NONE:
                 [[fallthrough]];
@@ -347,7 +349,6 @@ namespace core::socket::stream::tls {
                 ssl_log_warning(message);
                 break;
         }
-        errno = errnum;
     }
 
     void ssl_log_error(const std::string& message) {

@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_compile_options(
-    -Wno-float-equal
-)
+add_compile_options(-Wno-float-equal)
 
 set(NET_CPP
     config/ConfigInstance.cpp

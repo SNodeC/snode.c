@@ -140,7 +140,9 @@ namespace core::socket::stream::tls {
             }
         }
 
-        //        std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
+        void forceSni() {
+            Super::config->setForceSni();
+        }
     };
 
 } // namespace core::socket::stream::tls
