@@ -54,7 +54,7 @@ namespace net::config {
     void ConfigAddress<SocketAddress>::require(CLI::Option* opt) {
         addressSc->required();
         ConfigInstance::required();
-        opt->required()->default_str("")->clear();
+        opt->default_str("")->required()->clear();
     }
 
 } // namespace net::config

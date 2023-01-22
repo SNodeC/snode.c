@@ -63,7 +63,10 @@ namespace iot::mqtt::client {
 
                 LOG(INFO) << sessionStoreJson.dump(4);
             } catch (const nlohmann::json::exception& e) {
+                LOG(ERROR) << "Reading session store file " << sessionStoreFileName;
                 LOG(ERROR) << e.what();
+
+                LOG(INFO) << "Starting with empty session";
             }
             sessionStoreFile.close();
             std::remove(sessionStoreFileName.data());

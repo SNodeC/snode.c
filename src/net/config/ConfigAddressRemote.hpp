@@ -49,6 +49,8 @@ namespace net::config {
     template <typename SocketAddress>
     void ConfigAddressRemote<SocketAddress>::setRemoteAddress(const SocketAddress& remoteAddress) {
         setAddress(remoteAddress);
+
+        Super::initialized();
     }
 
 } // namespace net::config

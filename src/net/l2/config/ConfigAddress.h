@@ -34,10 +34,9 @@ namespace CLI {
 
 namespace net::l2::config {
 
-    using SocketAddress = net::l2::SocketAddress;
-
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddress : public ConfigAddressTypeT<SocketAddress> {
+    class ConfigAddress : public ConfigAddressTypeT<net::l2::SocketAddress> {
+        using SocketAddress = net::l2::SocketAddress;
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     public:
@@ -48,7 +47,7 @@ namespace net::l2::config {
         void psmRequired();
 
     private:
-        SocketAddress getAddress() final;
+        SocketAddress getAddress() const final;
         void setAddress(const SocketAddress& socketAddress) final;
 
         CLI::Option* hostOpt = nullptr;

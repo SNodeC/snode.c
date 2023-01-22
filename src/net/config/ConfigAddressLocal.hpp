@@ -49,6 +49,8 @@ namespace net::config {
     template <typename SocketAddress>
     void ConfigAddressLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
         setAddress(localAddress);
+
+        Super::initialized();
     }
 
 } // namespace net::config

@@ -34,10 +34,9 @@ namespace CLI {
 
 namespace net::rc::config {
 
-    using SocketAddress = net::rc::SocketAddress;
-
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddress : public ConfigAddressTypeT<SocketAddress> {
+    class ConfigAddress : public ConfigAddressTypeT<net::rc::SocketAddress> {
+        using SocketAddress = net::rc::SocketAddress;
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     public:
@@ -48,7 +47,7 @@ namespace net::rc::config {
         void channelRequired();
 
     private:
-        SocketAddress getAddress() final;
+        SocketAddress getAddress() const final;
         void setAddress(const SocketAddress& socketAddress) final;
 
         CLI::Option* hostOpt = nullptr;

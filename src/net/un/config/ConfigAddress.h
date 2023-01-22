@@ -34,10 +34,9 @@ namespace CLI {
 
 namespace net::un::config {
 
-    using SocketAddress = net::un::SocketAddress;
-
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddress : public ConfigAddressTypeT<SocketAddress> {
+    class ConfigAddress : public ConfigAddressTypeT<net::un::SocketAddress> {
+        using SocketAddress = net::un::SocketAddress;
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     public:
@@ -48,7 +47,7 @@ namespace net::un::config {
         void sunPathRequired();
 
     private:
-        SocketAddress getAddress() final;
+        SocketAddress getAddress() const final;
         void setAddress(const SocketAddress& socketAddress) final;
 
         CLI::Option* sunPathOpt = nullptr;

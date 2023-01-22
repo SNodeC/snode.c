@@ -62,7 +62,7 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
         return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
@@ -72,10 +72,8 @@ namespace net::in6::config {
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
         utils::PreserveErrno preserveErrno;
 
-        hostOpt->default_val(socketAddress.host())->clear();
-        portOpt->default_val(socketAddress.port())->clear();
-
-        Super::initialized();
+        hostOpt->default_val(socketAddress.host())->required(false)->clear();
+        portOpt->default_val(socketAddress.port())->required(false)->clear();
     }
 
 } // namespace net::in6::config

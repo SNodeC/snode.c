@@ -34,10 +34,9 @@ namespace CLI {
 
 namespace net::in6::config {
 
-    using SocketAddress = net::in6::SocketAddress;
-
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddress : public ConfigAddressTypeT<SocketAddress> {
+    class ConfigAddress : public ConfigAddressTypeT<net::in6::SocketAddress> {
+        using SocketAddress = net::in6::SocketAddress;
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     public:
@@ -48,7 +47,7 @@ namespace net::in6::config {
         void portRequired();
 
     private:
-        SocketAddress getAddress() final;
+        SocketAddress getAddress() const final;
         void setAddress(const SocketAddress& socketAddress) final;
 
         CLI::Option* hostOpt = nullptr;

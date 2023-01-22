@@ -62,7 +62,7 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
         return SocketAddress(hostOpt->as<std::string>(), channelOpt->as<uint8_t>());
@@ -72,10 +72,8 @@ namespace net::rc::config {
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
         utils::PreserveErrno preserveErrno;
 
-        hostOpt->default_val(socketAddress.address())->clear();
-        channelOpt->default_val(socketAddress.channel())->clear();
-
-        Super::initialized();
+        hostOpt->default_val(socketAddress.address())->required(false)->clear();
+        channelOpt->default_val(socketAddress.channel())->required(false)->clear();
     }
 
 } // namespace net::rc::config

@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
     app.get_config_formatter_base()->defaultAlsoPrefix('#');
 
     CLI::App* tlsSub = app.add_subcommand("tls", "SNI Certificate");
+    tlsSub->required();
 
     CLI::App* sniCertSub = tlsSub->add_subcommand("snicert", "Domain for SNI certificate");
     sniCertSub->required();
@@ -30,14 +31,16 @@ int main(int argc, char** argv) {
     sniOpt->type_name("[FQDN with Wildcards]");
     sniOpt->default_val("Test SNIName");
 
-    sniOpt->required();
+    //    sniOpt->required();
 
-    sniCertSub->disabled();
+    // tlsSub->disabled();
 
     sniOpt->default_val("Hihihi");
     //    sniOpt->add_result("hihihi");
 
-    CLI11_PARSE(app, argc, argv)
+    //    CLI11_PARSE(app, argc, argv)
+
+    app.parse(argc, argv);
 
     std::cout << app.config_to_str(true, true) << std::endl;
 

@@ -29,7 +29,7 @@ namespace utils {
 
     class PreserveErrno {
     public:
-        PreserveErrno(int errnum = errno);
+        explicit PreserveErrno(int errnum = errno);
 
         ~PreserveErrno();
 

@@ -62,7 +62,7 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
         return SocketAddress(hostOpt->as<std::string>(), psmOpt->as<uint16_t>());
@@ -72,10 +72,8 @@ namespace net::l2::config {
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
         utils::PreserveErrno preserveErrno;
 
-        hostOpt->default_val(socketAddress.address())->clear();
-        psmOpt->default_val(socketAddress.psm())->clear();
-
-        Super::initialized();
+        hostOpt->default_val(socketAddress.address())->required(false)->clear();
+        psmOpt->default_val(socketAddress.psm())->required(false)->clear();
     }
 
 } // namespace net::l2::config
