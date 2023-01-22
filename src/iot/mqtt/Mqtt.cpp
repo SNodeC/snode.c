@@ -27,11 +27,11 @@
 #include "iot/mqtt/packets/Publish.h"
 #include "iot/mqtt/packets/Pubrec.h"
 #include "iot/mqtt/packets/Pubrel.h"
-#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/Timeval.h"
 
 #include <iomanip>
 #include <ostream>

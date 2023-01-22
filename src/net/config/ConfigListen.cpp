@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/ResetValidator.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,35 +36,33 @@
 namespace net::config {
 
     ConfigListen::ConfigListen() {
-        if (!getInstanceName().empty()) {
-            add_option("--backlog", backlog, "Listen backlog") //
-                ->type_name("int")                             //
-                ->default_val(DEFAULT_BACKLOG);
+        backlogOpt = instanceSc
+                         ->add_option("--backlog", "Listen backlog") //
+                         ->type_name("int")                          //
+                         ->default_val(DEFAULT_BACKLOG)              //
+                         ->check(utils::ResetValidator(backlogOpt));
 
-            add_option("--accepts-per-tick", acceptsPerTick, "Accepts per tick") //
-                ->type_name("int")                                               //
-                ->default_val(DEFAULT_ACCEPTSPERTICK);
-
-        } else {
-            backlog = DEFAULT_BACKLOG;
-            acceptsPerTick = DEFAULT_ACCEPTSPERTICK;
-        }
+        acceptsPerTickOpt = instanceSc
+                                ->add_option("--accepts-per-tick", "Accepts per tick") //
+                                ->type_name("int")                                     //
+                                ->default_val(DEFAULT_ACCEPTSPERTICK)                  //
+                                ->check(utils::ResetValidator(acceptsPerTickOpt));
     }
 
     int ConfigListen::getBacklog() const {
-        return backlog;
+        return backlogOpt->as<int>();
     }
 
     void ConfigListen::setBacklog(int newBacklog) {
-        backlog = newBacklog;
+        backlogOpt->default_val(newBacklog)->clear();
     }
 
     int ConfigListen::getAcceptsPerTick() const {
-        return acceptsPerTick;
+        return acceptsPerTickOpt->as<int>();
     }
 
     void ConfigListen::setAcceptsPerTick(int newAcceptsPerTick) {
-        acceptsPerTick = newAcceptsPerTick;
+        acceptsPerTickOpt->default_val(newAcceptsPerTick)->clear();
     }
 
 } // namespace net::config

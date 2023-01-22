@@ -22,7 +22,6 @@
 
 #include "utils/CLI11.hpp"
 #include "utils/Config.h"
-#include "utils/ResetValidator.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,11 +29,11 @@ namespace net::config {
 
     ConfigInstance::ConfigInstance(const std::string& name)
         : name(name) {
-        if (!name.empty()) {
-            instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'") //
-                             ->fallthrough()                                                            //
-                             ->group("Instances");
-        }
+        instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'") //
+                         ->fallthrough()                                                            //
+                         ->group("Instances");
+
+        instanceSc->disabled(getInstanceName().empty());
     }
 
     ConfigInstance::~ConfigInstance() {
@@ -75,24 +74,6 @@ namespace net::config {
         instanceSc->require_subcommand(instanceSc->get_require_subcommand_min(), instanceSc->get_require_subcommand_max() + 1);
 
         return subCommand;
-    }
-
-    CLI::Option* ConfigInstance::add_option(const std::string& name, int& variable, const std::string& description) {
-        return instanceSc                             //
-            ->add_option(name, variable, description) //
-            ->check(utils::ResetValidator(instanceSc->get_option(name)));
-    }
-
-    CLI::Option* ConfigInstance::add_option(const std::string& name, std::string& variable, const std::string& description) {
-        return instanceSc                             //
-            ->add_option(name, variable, description) //
-            ->check(utils::ResetValidator(instanceSc->get_option(name)));
-    }
-
-    CLI::Option* ConfigInstance::add_flag(const std::string& name, const std::string& description) {
-        return instanceSc                 //
-            ->add_flag(name, description) //
-            ->check(utils::ResetValidator(instanceSc->get_option(name)));
     }
 
     void ConfigInstance::required(bool reqired) {

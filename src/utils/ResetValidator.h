@@ -29,7 +29,7 @@ namespace utils {
 
     class ResetValidator : public CLI::Validator {
     public:
-        explicit ResetValidator(CLI::Option* option);
+        explicit ResetValidator(CLI::Option*& option);
     };
 
 } // namespace utils

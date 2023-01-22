@@ -1,16 +1,24 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_compile_options(
-    -Wno-float-equal
-)
+add_compile_options(-Wno-float-equal)
 
-set(UTILS_CPP Config.cpp Daemon.cpp ResetValidator.cpp Timeval.cpp Uuid.cpp base64.cpp sha1.cpp)
+set(UTILS_CPP
+    Config.cpp
+    Daemon.cpp
+    PreserveErrno.cpp
+    ResetValidator.cpp
+    Timeval.cpp
+    Uuid.cpp
+    base64.cpp
+    sha1.cpp
+)
 
 set(UTILS_H
     AttributeInjector.h
     CLI11.hpp
     Config.h
     Daemon.h
+    PreserveErrno.h
     ResetValidator.h
     Timeval.h
     Uuid.h

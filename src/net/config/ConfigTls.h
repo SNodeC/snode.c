@@ -25,12 +25,12 @@
 
 namespace CLI {
     class App;
+    class Option;
 } // namespace CLI
 
 #include "utils/Timeval.h"
 
 #include <cstdint>
-#include <map>
 #include <openssl/opensslv.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -47,56 +47,53 @@ namespace net::config {
     public:
         ConfigTls();
 
-        const utils::Timeval& getInitTimeout() const;
+        utils::Timeval getInitTimeout() const;
         void setInitTimeout(const utils::Timeval& newInitTimeout);
 
-        const utils::Timeval& getShutdownTimeout() const;
+        utils::Timeval getShutdownTimeout() const;
         void setShutdownTimeout(const utils::Timeval& newShutdownTimeout);
 
-        const std::string& getCertChain() const;
+        std::string getCertChain() const;
         void setCertChain(const std::string& newCertChain);
 
-        const std::string& getCertKey() const;
+        std::string getCertKey() const;
         void setCertKey(const std::string& newCertKey);
 
-        const std::string& getCertKeyPassword() const;
+        std::string getCertKeyPassword() const;
         void setCertKeyPassword(const std::string& newCertKeyPassword);
 
-        const std::string& getCaCertFile() const;
+        std::string getCaCertFile() const;
         void setCaCertFile(const std::string& newCaCertFile);
 
-        const std::string& getCaCertDir() const;
+        std::string getCaCertDir() const;
         void setCaCertDir(const std::string& newCaCertDir);
 
         bool getUseDefaultCaCertDir() const;
-        void setUseDefaultCaCertDir();
+        void setUseDefaultCaCertDir(bool set = true);
 
         bool getForceSni() const;
         void setForceSni();
 
-        const std::string& getCipherList() const;
+        std::string getCipherList() const;
         void setCipherList(const std::string& newCipherList);
 
-        const ssl_option_t& getSslTlsOptions() const;
+        ssl_option_t getSslTlsOptions() const;
         void setSslTlsOptions(ssl_option_t newSslTlsOptions);
 
     protected:
         CLI::App* tlsSc = nullptr;
 
     private:
-        std::string certChain;
-        std::string certKey;
-        std::string certKeyPassword;
-        std::string caCertFile;
-        std::string caCertDir;
-        bool useDefaultCaCertDir = false;
-        std::string cipherList;
-        ssl_option_t tlsOptions = 0;
-
-        utils::Timeval initTimeout;
-        utils::Timeval shutdownTimeout;
-
-        std::map<std::string, std::map<std::string, std::string>> sniCerts;
+        CLI::Option* certChainOpt = nullptr;
+        CLI::Option* certKeyOpt = nullptr;
+        CLI::Option* certKeyPasswordOpt = nullptr;
+        CLI::Option* caCertFileOpt = nullptr;
+        CLI::Option* caCertDirOpt = nullptr;
+        CLI::Option* useDefaultCaCertDirOpt = nullptr;
+        CLI::Option* cipherListOpt = nullptr;
+        CLI::Option* tlsOptionsOpt = nullptr;
+        CLI::Option* initTimeoutOpt = nullptr;
+        CLI::Option* shutdownTimeoutOpt = nullptr;
     };
 
 } // namespace net::config

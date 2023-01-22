@@ -16,30 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/ConfigTlsClient.h"
+#include "PreserveErrno.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-#include "utils/ResetValidator.h"
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net::config {
+namespace utils {
 
-    ConfigTlsClient::ConfigTlsClient() {
-        sniOpt = tlsSc                                               //
-                     ->add_option("--sni", "Server Name Indication") //
-                     ->type_name("sni")                              //
-                     ->check(utils::ResetValidator(sniOpt));
+    PreserveErrno::PreserveErrno(int errnum)
+        : errnum(errnum) {
     }
 
-    std::string ConfigTlsClient::getSni() const {
-        return sniOpt->as<std::string>();
+    PreserveErrno::~PreserveErrno() {
+        errno = errnum;
     }
 
-    void ConfigTlsClient::setSni(const std::string& sni) {
-        sniOpt->default_val(sni)->clear();
-    }
-
-} // namespace net::config
+} // namespace utils

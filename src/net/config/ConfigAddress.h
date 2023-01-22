@@ -38,9 +38,10 @@ namespace net::config {
     protected:
         ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription);
 
-        const SocketAddress& getAddress();
-        void setAddress(const SocketAddress& address);
+        virtual SocketAddress getAddress() = 0;
+        virtual void setAddress(const SocketAddress& address) = 0;
 
+        void initialized();
         void require(CLI::Option* opt);
 
         bool isInitialized() const;
@@ -48,11 +49,7 @@ namespace net::config {
         CLI::App* addressSc = nullptr;
         SocketAddress address;
 
-    private:
-        virtual void updateFromCommandLine() = 0;
-        virtual void addressDefaultsFromCurrent() = 0;
-
-        bool initialized = false;
+        bool _initialized = false;
     };
 
 } // namespace net::config

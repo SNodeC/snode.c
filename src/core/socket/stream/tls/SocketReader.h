@@ -26,6 +26,7 @@
 
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
+#include "utils/PreserveErrno.h"
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -55,7 +56,8 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_WANT_WRITE: {
-                        int tmpErrno = errno;
+                        utils::PreserveErrno preserveErrno;
+
                         LOG(INFO) << "SSL/TLS start renegotiation on read";
                         doSSLHandshake(
                             []() -> void {
@@ -67,7 +69,6 @@ namespace core::socket::stream::tls {
                             [](int ssl_err) -> void {
                                 ssl_log("SSL/TLS renegotiation", ssl_err);
                             });
-                        errno = tmpErrno;
                     }
                         ret = -1;
                         break;
@@ -78,11 +79,11 @@ namespace core::socket::stream::tls {
                         ret = 0;
                         break;
                     case SSL_ERROR_SYSCALL: {
-                        int tmpErrno = errno;
+                        utils::PreserveErrno preserveErrno;
+
                         SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
                         VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
                         doReadShutdown();
-                        errno = tmpErrno;
                     }
                         ret = -1;
                         break;

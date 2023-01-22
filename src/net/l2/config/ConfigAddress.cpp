@@ -24,7 +24,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/PreserveErrno.h"
 #include "utils/ResetValidator.h"
+
+#include <cstdint>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -32,52 +35,47 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        if (!net::config::ConfigInstance::getInstanceName().empty()) {
-            hostOpt = //
-                ConfigAddressType::addressSc
-                    ->add_option("--host", host, "Bluetooth address") //
-                    ->type_name("xx:xx:xx:xx:xx:xx")                  //
-                    ->default_val("00:00:00:00:00:00")                //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--host")));
+        hostOpt = //
+            Super::addressSc
+                ->add_option("--host", "Bluetooth address") //
+                ->type_name("xx:xx:xx:xx:xx:xx")            //
+                ->default_val("00:00:00:00:00:00")          //
+                ->check(utils::ResetValidator(hostOpt));
 
-            psmOpt = //
-                ConfigAddressType::addressSc
-                    ->add_option("--psm", psm, "Protocol service multiplexer") //
-                    ->type_name("uint_16")                                     //
-                    ->default_val(0)                                           //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--psm")));
-        }
-        ConfigAddressType::address.setAddress("00:00:00:00:00:00");
-        ConfigAddressType::address.setPsm(0);
+        psmOpt = //
+            Super::addressSc
+                ->add_option("--psm", "Protocol service multiplexer") //
+                ->type_name("uint16_t")                               //
+                ->default_val(0)                                      //
+                ->check(utils::ResetValidator(psmOpt));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
         psmRequired();
-        ConfigAddressType::require(hostOpt);
-        host = "";
+        Super::require(hostOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::psmRequired() {
-        ConfigAddressType::require(psmOpt);
-        psm = 0;
+        Super::require(psmOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
-        if (hostOpt->count() > 0) {
-            ConfigAddressType::address.setAddress(host);
-        }
-        if (psmOpt->count() > 0) {
-            ConfigAddressType::address.setPsm(psm);
-        }
+    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+        utils::PreserveErrno preserveErrno;
+
+        return SocketAddress(hostOpt->as<std::string>(), psmOpt->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
-        hostOpt->default_val(ConfigAddressType::address.address());
-        psmOpt->default_val(ConfigAddressType::address.psm());
+    void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        utils::PreserveErrno preserveErrno;
+
+        hostOpt->default_val(socketAddress.address())->clear();
+        psmOpt->default_val(socketAddress.psm())->clear();
+
+        Super::initialized();
     }
 
 } // namespace net::l2::config

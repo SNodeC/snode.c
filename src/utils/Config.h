@@ -92,6 +92,7 @@ namespace utils {
         static char** argv;
         static CLI::App app;
         static std::string applicationName;
+
         static std::string outputConfigFile;
         static std::string logFile;
         static std::string defaultConfDir;
@@ -99,6 +100,12 @@ namespace utils {
         static std::string defaultPidDir;
         static int logLevel;
         static int verboseLevel;
+
+        static CLI::Option* daemonizeOpt;
+        static CLI::Option* logFileOpt;
+        static CLI::Option* enforceLogFileOpt;
+        static CLI::Option* logLevelOpt;
+        static CLI::Option* verboseLevelOpt;
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
     };

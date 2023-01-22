@@ -16,44 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGINSTANCE_H
-#define NET_CONFIG_CONFIGINSTANCE_H
+#ifndef UTILS_PRESERVEERRNO_H
+#define UTILS_PRESERVEERRNO_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-} // namespace CLI
+#include <cerrno>
 
-#include <string> // IWYU pragma: export
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace utils {
 
-namespace net::config {
-
-    class ConfigInstance {
+    class PreserveErrno {
     public:
-        ConfigInstance() = default;
-        explicit ConfigInstance(const std::string& name);
-        ConfigInstance(const ConfigInstance&) = delete;
+        PreserveErrno(int errnum = errno);
 
-        ConfigInstance& operator=(const ConfigInstance&) = delete;
-
-        virtual ~ConfigInstance();
-
-        const std::string& getInstanceName() const;
-
-    protected:
-        CLI::App* add_section(const std::string& name, const std::string& description = "");
-
-        void required(bool req = true);
-
-        CLI::App* instanceSc = nullptr;
+        ~PreserveErrno();
 
     private:
-        const std::string name;
+        int errnum;
     };
 
-} // namespace net::config
+} // namespace utils
 
-#endif // NET_CONFIG_CONFIGINSTANCE_H
+#endif // UTILS_PRESERVEERRNO_H

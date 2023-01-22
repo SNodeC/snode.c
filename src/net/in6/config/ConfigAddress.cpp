@@ -24,7 +24,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/PreserveErrno.h"
 #include "utils/ResetValidator.h"
+
+#include <cstdint>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -32,52 +35,47 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        if (!net::config::ConfigInstance::getInstanceName().empty()) {
-            hostOpt = //
-                ConfigAddressType::addressSc
-                    ->add_option("--host", host, "Host name or IPv6 address") //
-                    ->type_name("hostname|IPv6")                              //
-                    ->default_val("::")                                       //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--host")));
+        hostOpt = //
+            Super::addressSc
+                ->add_option("--host", "Host name or IPv6 address") //
+                ->type_name("hostname|IPv6")                        //
+                ->default_val("::")                                 //
+                ->check(utils::ResetValidator(hostOpt));
 
-            portOpt = //
-                ConfigAddressType::addressSc
-                    ->add_option("--port", port, "Port number") //
-                    ->type_name("uint_16")                      //
-                    ->default_val(0)                            //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--port")));
-        }
-        ConfigAddressType::address.setHost("::");
-        ConfigAddressType::address.setPort(0);
+        portOpt = //
+            Super::addressSc
+                ->add_option("--port", "Port number") //
+                ->type_name("uint16_t")               //
+                ->default_val(0)                      //
+                ->check(utils::ResetValidator(portOpt));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
         portRequired();
-        ConfigAddressType::require(hostOpt);
-        host = "";
+        Super::require(hostOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::portRequired() {
-        ConfigAddressType::require(portOpt);
-        port = 0;
+        Super::require(portOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
-        if (hostOpt->count() > 0) {
-            ConfigAddressType::address.setHost(host);
-        }
-        if (portOpt->count() > 0) {
-            ConfigAddressType::address.setPort(port);
-        }
+    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+        utils::PreserveErrno preserveErrno;
+
+        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
-        hostOpt->default_val(ConfigAddressType::address.host());
-        portOpt->default_val(ConfigAddressType::address.port());
+    void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        utils::PreserveErrno preserveErrno;
+
+        hostOpt->default_val(socketAddress.host())->clear();
+        portOpt->default_val(socketAddress.port())->clear();
+
+        Super::initialized();
     }
 
 } // namespace net::in6::config

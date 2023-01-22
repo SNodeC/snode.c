@@ -43,8 +43,13 @@ namespace net::config {
     public:
         bool isLocalInitialized();
 
-        const SocketAddress& getLocalAddress();
+        SocketAddress getLocalAddress();
         void setLocalAddress(const SocketAddress& localAddress);
+
+    private:
+        using Super::getAddress;
+        using Super::isInitialized;
+        using Super::setAddress;
     };
 
 } // namespace net::config
