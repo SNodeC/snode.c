@@ -30,16 +30,15 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include <cstdint>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::config {
 
+    using SocketAddress = net::l2::SocketAddress;
+
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddress : public ConfigAddressTypeT<net::l2::SocketAddress> {
-        using SocketAddress = net::l2::SocketAddress;
-        using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
+    class ConfigAddress : public ConfigAddressTypeT<SocketAddress> {
+        using Super = ConfigAddressTypeT<SocketAddress>;
 
     public:
         ConfigAddress();
@@ -49,14 +48,11 @@ namespace net::l2::config {
         void psmRequired();
 
     private:
+        SocketAddress getAddress() final;
+        void setAddress(const SocketAddress& socketAddress) final;
+
         CLI::Option* hostOpt = nullptr;
         CLI::Option* psmOpt = nullptr;
-
-        void updateFromCommandLine() override;
-        void addressDefaultsFromCurrent() override;
-
-        std::string host{};
-        uint16_t psm{};
     };
 
 } // namespace net::l2::config

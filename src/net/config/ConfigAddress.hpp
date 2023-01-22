@@ -31,45 +31,30 @@ namespace net::config {
 
     template <typename SocketAddress>
     ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription) {
-        if (!getInstanceName().empty()) {
-            addressSc = add_section(addressOptionName, addressOptionDescription);
-            initialized = true;
-        }
+        addressSc = add_section(addressOptionName, addressOptionDescription);
+        addressSc->disabled(getInstanceName().empty());
+
+        _initialized = !getInstanceName().empty();
     }
 
     template <typename SocketAddress>
-    const SocketAddress& ConfigAddress<SocketAddress>::getAddress() {
-        int errnum = errno;
-
-        if (addressSc != nullptr) {
-            updateFromCommandLine();
-        }
-
-        errno = errnum;
-
-        return address;
+    bool ConfigAddress<SocketAddress>::isInitialized() const {
+        return _initialized;
     }
 
     template <typename SocketAddress>
-    void ConfigAddress<SocketAddress>::setAddress(const SocketAddress& address) {
-        this->address = address;
-        initialized = true;
-        ConfigInstance::required(false);
+    void ConfigAddress<SocketAddress>::initialized() {
         addressSc->required(false);
-        addressDefaultsFromCurrent();
-    }
+        ConfigInstance::required(false);
 
-    template <typename SocketAddressT>
-    bool ConfigAddress<SocketAddressT>::isInitialized() const {
-        return initialized;
+        _initialized = true;
     }
 
     template <typename SocketAddress>
     void ConfigAddress<SocketAddress>::require(CLI::Option* opt) {
         addressSc->required();
         ConfigInstance::required();
-        opt->required();
-        opt->default_str("");
+        opt->required()->default_str("")->clear();
     }
 
 } // namespace net::config

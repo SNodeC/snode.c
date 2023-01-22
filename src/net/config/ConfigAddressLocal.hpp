@@ -42,7 +42,7 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    const SocketAddress& ConfigAddressLocal<SocketAddress>::getLocalAddress() {
+    SocketAddress ConfigAddressLocal<SocketAddress>::getLocalAddress() {
         return getAddress();
     }
 

@@ -30,16 +30,15 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include <cstdint>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::config {
 
+    using SocketAddress = net::in6::SocketAddress;
+
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddress : public ConfigAddressTypeT<net::in6::SocketAddress> {
-        using SocketAddress = net::in6::SocketAddress;
-        using ConfigAddressType = ConfigAddressTypeT<SocketAddress>;
+    class ConfigAddress : public ConfigAddressTypeT<SocketAddress> {
+        using Super = ConfigAddressTypeT<SocketAddress>;
 
     public:
         explicit ConfigAddress();
@@ -49,14 +48,11 @@ namespace net::in6::config {
         void portRequired();
 
     private:
+        SocketAddress getAddress() final;
+        void setAddress(const SocketAddress& socketAddress) final;
+
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
-
-        void updateFromCommandLine() override;
-        void addressDefaultsFromCurrent() override;
-
-        std::string host{};
-        uint16_t port{};
     };
 
 } // namespace net::in6::config

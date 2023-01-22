@@ -26,64 +26,51 @@
 #include "utils/CLI11.hpp"
 #include "utils/ResetValidator.h"
 
+#include <cstdint>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        if (!net::config::ConfigInstance::getInstanceName().empty()) {
-            hostOpt = //
-                ConfigAddressType::addressSc
-                    ->add_option("--host", host, "Bluetooth address") //
-                    ->type_name("xx:xx:xx:xx:xx:xx")                  //
-                    ->default_val("00:00:00:00:00:00")                //
-                    ->check(utils::ResetValidator(hostOpt));
+        hostOpt = //
+            Super::addressSc
+                ->add_option("--host", "Bluetooth address") //
+                ->type_name("xx:xx:xx:xx:xx:xx")            //
+                ->default_val("00:00:00:00:00:00")          //
+                ->check(utils::ResetValidator(hostOpt));
 
-            channelOpt = //
-                ConfigAddressType::addressSc
-                    ->add_option("--channel", channel, "Channel number") //
-                    ->type_name("uint_8")                                //
-                    ->default_val(0)                                     //
-                    ->check(utils::ResetValidator(channelOpt));
-        }
-        ConfigAddressType::address.setAddress("00:00:00:00:00:00");
-        ConfigAddressType::address.setChannel(0);
+        channelOpt = //
+            Super::addressSc
+                ->add_option("--channel", "Channel number") //
+                ->type_name("uint8_t")                      //
+                ->default_val(0)                            //
+                ->check(utils::ResetValidator(channelOpt));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::required() {
         channelRequired();
-        ConfigAddressType::require(hostOpt);
-        host = "";
+        Super::require(hostOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::channelRequired() {
-        ConfigAddressType::require(channelOpt);
-        channel = 0;
+        Super::require(channelOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
-        if (hostOpt->count() > 0) {
-            ConfigAddressType::address.setAddress(host);
-        }
-        if (channelOpt->count() > 0) {
-            ConfigAddressType::address.setChannel(channel);
-        }
+    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+        return SocketAddress(hostOpt->as<std::string>(), channelOpt->as<uint8_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
-        hostOpt //
-            ->default_val(ConfigAddressType::address.address())
-            ->required(false)
-            ->clear();
-        channelOpt //
-            ->default_val(ConfigAddressType::address.channel())
-            ->required(false)
-            ->clear();
+    void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        hostOpt->default_val(socketAddress.address())->clear();
+        channelOpt->default_val(socketAddress.channel())->clear();
+
+        Super::initialized();
     }
 
 } // namespace net::rc::config

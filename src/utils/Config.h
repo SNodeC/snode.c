@@ -92,6 +92,7 @@ namespace utils {
         static char** argv;
         static CLI::App app;
         static std::string applicationName;
+
         static std::string outputConfigFile;
         static std::string logFile;
         static std::string defaultConfDir;

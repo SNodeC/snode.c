@@ -18,11 +18,10 @@
 
 #include "net/config/ConfigCluster.h"
 
-#include "utils/ResetValidator.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/ResetValidator.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

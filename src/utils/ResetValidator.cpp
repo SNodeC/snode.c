@@ -32,10 +32,9 @@ namespace utils {
     ResetValidator::ResetValidator(CLI::Option*& option) {
         name_ = "RESET";
         func_ = [&option](const std::string& str) {
-            VLOG(0) << "--------------- " << option->get_single_name() << " - " << str << " - " << option->get_default_str();
             if (option->get_default_str() == str) {
-                LOG(INFO) << "Reseting option " << option->get_single_name() << " to its default [" << option->get_default_str() << "]";
-                option->take_all()->clear();
+                LOG(TRACE) << "Reseting option " << option->get_single_name() << " to its default [" << option->get_default_str() << "]";
+                option->required(false)->take_all()->clear();
             }
             return std::string{};
         };

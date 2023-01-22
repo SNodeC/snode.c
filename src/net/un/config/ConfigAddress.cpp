@@ -34,17 +34,12 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        if (!net::config::ConfigInstance::getInstanceName().empty()) {
-            sunPathOpt = //
-                ConfigAddressType::addressSc
-                    ->add_option("--path", sunPath, "Unix domain socket")                                                              //
-                    ->type_name("sun_path:FILE")                                                                                       //
-                    ->default_val(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid()))) //
-                    ->check(utils::ResetValidator(sunPathOpt));
-        }
-
-        ConfigAddressType::address.setSunPath(
-            std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid())));
+        sunPathOpt = //
+            Super::addressSc
+                ->add_option("--path", "Unix domain socket")                                                                       //
+                ->type_name("sun_path:FILE")                                                                                       //
+                ->default_val(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid()))) //
+                ->check(utils::ResetValidator(sunPathOpt));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -54,24 +49,20 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::sunPathRequired() {
-        ConfigAddressType::require(sunPathOpt);
-        ConfigAddressType::address.setSunPath("");
-        sunPath = "";
+        Super::require(sunPathOpt);
+        Super::address.setSunPath("");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::updateFromCommandLine() {
-        if (sunPathOpt->count() > 0) {
-            ConfigAddressType::address.setSunPath(sunPath);
-        }
+    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() {
+        return SocketAddress(sunPathOpt->as<std::string>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
-        sunPathOpt //
-            ->default_val(ConfigAddressType::address.address())
-            ->required(false)
-            ->clear();
+    void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        sunPathOpt->default_val(socketAddress.address())->clear();
+
+        Super::initialized();
     }
 
 } // namespace net::un::config
