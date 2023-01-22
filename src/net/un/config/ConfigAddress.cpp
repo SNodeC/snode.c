@@ -40,8 +40,9 @@ namespace net::un::config {
                     ->add_option("--path", sunPath, "Unix domain socket")                                                              //
                     ->type_name("sun_path:FILE")                                                                                       //
                     ->default_val(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid()))) //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--path")));
+                    ->check(utils::ResetValidator(sunPathOpt));
         }
+
         ConfigAddressType::address.setSunPath(
             std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid())));
     }

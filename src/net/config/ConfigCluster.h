@@ -23,6 +23,7 @@
 
 namespace CLI {
     class App;
+    class Option;
 } // namespace CLI
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -37,13 +38,13 @@ namespace net::config {
 
         enum MODE { STANDALONE, PRIMARY, SECONDARY, PROXY };
 
-        MODE getClusterMode() const;
-        void setClusterMode(MODE newMode);
+        ConfigCluster::MODE getClusterMode() const;
+        void setClusterMode(ConfigCluster::MODE newMode);
 
     private:
         CLI::App* clusterSc = nullptr;
 
-        MODE mode = MODE::STANDALONE;
+        CLI::Option* modeOpt = nullptr;
     };
 
 } // namespace net::config

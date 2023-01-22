@@ -18,31 +18,28 @@
 
 #include "net/config/ConfigTlsClient.h"
 
-#include "utils/ResetValidator.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
+#include "utils/ResetValidator.h"
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace net::config {
 
     ConfigTlsClient::ConfigTlsClient() {
-        if (!getInstanceName().empty()) {
-            tlsSc                                                    //
-                ->add_option("--sni", sni, "Server Name Indication") //
-                ->type_name("sni")                                   //
-                ->check(utils::ResetValidator(tlsSc->get_option("--sni")));
-        }
+        sniOpt = tlsSc                                               //
+                     ->add_option("--sni", "Server Name Indication") //
+                     ->type_name("sni")                              //
+                     ->check(utils::ResetValidator(sniOpt));
     }
 
     std::string ConfigTlsClient::getSni() const {
-        return sni;
+        return sniOpt->as<std::string>();
     }
 
     void ConfigTlsClient::setSni(const std::string& sni) {
-        tlsSc->get_option("--sni")->default_val(sni)->clear();
+        sniOpt->default_val(sni)->clear();
     }
 
 } // namespace net::config

@@ -62,6 +62,12 @@ namespace utils {
     std::string Config::defaultLogDir;
     std::string Config::defaultPidDir;
 
+    CLI::Option* Config::daemonizeOpt = nullptr;
+    CLI::Option* Config::logFileOpt = nullptr;
+    CLI::Option* Config::enforceLogFileOpt = nullptr;
+    CLI::Option* Config::logLevelOpt = nullptr;
+    CLI::Option* Config::verboseLevelOpt = nullptr;
+
     int Config::logLevel = 0; // Warning. Loglevels [0, 6] 0 ... nothing, 6 ... trace
     int Config::verboseLevel = 0;
 
@@ -148,9 +154,9 @@ namespace utils {
             ->disable_flag_override() //
             ->trigger_on_parse();
 
-        app.add_flag("-d,!-f,--daemonize,!--foreground", "Start application as daemon") //
-            ->default_val("false")                                                      //
-            ->check(utils::ResetValidator(app.get_option("--foreground")));
+        daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", "Start application as daemon") //
+                           ->default_val("false")                                                      //
+                           ->check(utils::ResetValidator(daemonizeOpt));
 
         app.add_flag("-k,--kill", "Kill running daemon") //
             ->configurable(false)                        //
@@ -166,26 +172,26 @@ namespace utils {
                      "Write config file") //
             ->configurable(false);
 
-        app.add_flag("-l{" + defaultLogDir + "/" + applicationName + ".log" + "},--log-file{" + defaultLogDir + "/" + applicationName +
-                         ".log" + "}",
-                     logFile,
-                     "Logfile path")                                      //
-            ->default_val(defaultLogDir + "/" + applicationName + ".log") //
-            ->check(utils::ResetValidator(app.get_option("--log-file")));
+        logFileOpt = app.add_flag("-l{" + defaultLogDir + "/" + applicationName + ".log" + "},--log-file{" + defaultLogDir + "/" +
+                                      applicationName + ".log" + "}",
+                                  logFile,
+                                  "Logfile path")                                      //
+                         ->default_val(defaultLogDir + "/" + applicationName + ".log") //
+                         ->check(utils::ResetValidator(logFileOpt));
 
-        app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications") //
-            ->default_val("false")                                                                           //
-            ->check(utils::ResetValidator(app.get_option("--enforce-log-file")));
+        enforceLogFileOpt = app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications") //
+                                ->default_val("false")                                                                           //
+                                ->check(utils::ResetValidator(enforceLogFileOpt));
 
-        app.add_option("--log-level", logLevel, "Log level") //
-            ->default_val(3)                                 //
-            ->type_name("level")                             //
-            ->check(CLI::Range(0, 6) & utils::ResetValidator(app.get_option("--log-level")));
+        logLevelOpt = app.add_option("--log-level", logLevel, "Log level") //
+                          ->default_val(3)                                 //
+                          ->type_name("level")                             //
+                          ->check(CLI::Range(0, 6) & utils::ResetValidator(logLevelOpt));
 
-        app.add_option("--verbose-level", verboseLevel, "Verbose level")
-            ->default_val(0)     //
-            ->type_name("level") //
-            ->check(CLI::Range(0, 10) & utils::ResetValidator(app.get_option("--verbose-level")));
+        verboseLevelOpt = app.add_option("--verbose-level", verboseLevel, "Verbose level")
+                              ->default_val(0)     //
+                              ->type_name("level") //
+                              ->check(CLI::Range(0, 10) & utils::ResetValidator(verboseLevelOpt));
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
 

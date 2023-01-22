@@ -38,14 +38,14 @@ namespace net::in::config {
                     ->add_option("--host", host, "Host name or IPv4 address") //
                     ->type_name("hostname|IPv4")                              //
                     ->default_val("0.0.0.0")                                  //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--host")));
+                    ->check(utils::ResetValidator(hostOpt));
 
             portOpt = //
                 ConfigAddressType::addressSc
                     ->add_option("--port", port, "Port number") //
                     ->type_name("uint16_t")                     //
                     ->default_val(0)                            //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--port")));
+                    ->check(utils::ResetValidator(portOpt));
         }
         ConfigAddressType::address.setHost("0.0.0.0");
         ConfigAddressType::address.setPort(0);

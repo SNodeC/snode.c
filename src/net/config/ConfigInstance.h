@@ -23,7 +23,6 @@
 
 namespace CLI {
     class App;
-    class Option;
 } // namespace CLI
 
 #include <string> // IWYU pragma: export
@@ -44,17 +43,14 @@ namespace net::config {
 
         const std::string& getInstanceName() const;
 
-        // protected:
+    protected:
         CLI::App* add_section(const std::string& name, const std::string& description = "");
-        CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
-        CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
-        CLI::Option* add_flag(const std::string& name, const std::string& description = "");
 
         void required(bool req = true);
 
-    private:
         CLI::App* instanceSc = nullptr;
 
+    private:
         const std::string name;
     };
 

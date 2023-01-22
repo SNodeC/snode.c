@@ -100,6 +100,12 @@ namespace utils {
         static int logLevel;
         static int verboseLevel;
 
+        static CLI::Option* daemonizeOpt;
+        static CLI::Option* logFileOpt;
+        static CLI::Option* enforceLogFileOpt;
+        static CLI::Option* logLevelOpt;
+        static CLI::Option* verboseLevelOpt;
+
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
     };
 

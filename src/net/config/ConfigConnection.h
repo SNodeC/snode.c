@@ -25,6 +25,7 @@
 
 namespace CLI {
     class App;
+    class Option;
 } // namespace CLI
 
 #include "utils/Timeval.h"
@@ -45,22 +46,22 @@ namespace net::config {
         void setWriteTimeout(const utils::Timeval& newWriteTimeoutSet);
 
         std::size_t getReadBlockSize() const;
-        void setReadBlockSize(std::size_t newReadBlockSizeSet);
+        void setReadBlockSize(std::size_t newReadBlockSize);
 
         std::size_t getWriteBlockSize() const;
-        void setWriteBlockSize(std::size_t newWriteBlockSizeSet);
+        void setWriteBlockSize(std::size_t newWriteBlockSize);
 
         utils::Timeval getTerminateTimeout() const;
-        void setTerminateTimeout(const utils::Timeval& newTerminateTimeoutSet);
+        void setTerminateTimeout(const utils::Timeval& newTerminateTimeout);
 
     private:
         CLI::App* connectionSc = nullptr;
 
-        utils::Timeval readTimeout;
-        utils::Timeval writeTimeout;
-        std::size_t readBlockSize;
-        std::size_t writeBlockSize;
-        utils::Timeval terminateTimeout;
+        CLI::Option* readTimeoutOpt = nullptr;
+        CLI::Option* writeTimeoutOpt = nullptr;
+        CLI::Option* readBlockSizeOpt = nullptr;
+        CLI::Option* writeBlockSizeOpt = nullptr;
+        CLI::Option* terminateTimeoutOpt = nullptr;
     };
 
 } // namespace net::config

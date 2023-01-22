@@ -38,14 +38,14 @@ namespace net::rc::config {
                     ->add_option("--host", host, "Bluetooth address") //
                     ->type_name("xx:xx:xx:xx:xx:xx")                  //
                     ->default_val("00:00:00:00:00:00")                //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--host")));
+                    ->check(utils::ResetValidator(hostOpt));
 
             channelOpt = //
                 ConfigAddressType::addressSc
                     ->add_option("--channel", channel, "Channel number") //
                     ->type_name("uint_8")                                //
                     ->default_val(0)                                     //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--channel")));
+                    ->check(utils::ResetValidator(channelOpt));
         }
         ConfigAddressType::address.setAddress("00:00:00:00:00:00");
         ConfigAddressType::address.setChannel(0);

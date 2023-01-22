@@ -38,14 +38,14 @@ namespace net::l2::config {
                     ->add_option("--host", host, "Bluetooth address") //
                     ->type_name("xx:xx:xx:xx:xx:xx")                  //
                     ->default_val("00:00:00:00:00:00")                //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--host")));
+                    ->check(utils::ResetValidator(hostOpt));
 
             psmOpt = //
                 ConfigAddressType::addressSc
                     ->add_option("--psm", psm, "Protocol service multiplexer") //
                     ->type_name("uint_16")                                     //
                     ->default_val(0)                                           //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--psm")));
+                    ->check(utils::ResetValidator(psmOpt));
         }
         ConfigAddressType::address.setAddress("00:00:00:00:00:00");
         ConfigAddressType::address.setPsm(0);

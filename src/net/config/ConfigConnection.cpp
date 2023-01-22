@@ -49,82 +49,76 @@
 namespace net::config {
 
     ConfigConnection::ConfigConnection() {
-        if (!getInstanceName().empty()) {
-            connectionSc = add_section("connection", "Options for established connections");
+        connectionSc = add_section("connection", "Options for established connections");
+        connectionSc->disabled(getInstanceName().empty());
 
-            connectionSc
-                ->add_option("--read-timeout", readTimeout, "Read timeout in seconds") //
-                ->default_val(DEFAULT_READTIMEOUT)                                     //
-                ->check(utils::ResetValidator(connectionSc->get_option("--read-timeout")));
+        readTimeoutOpt = connectionSc
+                             ->add_option("--read-timeout", "Read timeout in seconds") //
+                             ->default_val(DEFAULT_READTIMEOUT)                        //
+                             ->check(utils::ResetValidator(readTimeoutOpt));
 
-            connectionSc
-                ->add_option("--write-timeout", writeTimeout, "Write timeout in seconds") //
-                ->default_val(DEFAULT_WRITETIMEOUT)                                       //
-                ->check(utils::ResetValidator(connectionSc->get_option("--write-timeout")));
+        writeTimeoutOpt = connectionSc
+                              ->add_option("--write-timeout", "Write timeout in seconds") //
+                              ->default_val(DEFAULT_WRITETIMEOUT)                         //
+                              ->check(utils::ResetValidator(writeTimeoutOpt));
 
-            connectionSc
-                ->add_option("--read-block-size", readBlockSize, "Read block size") //
-                ->type_name("std::size_t")                                          //
-                ->default_val(DEFAULT_READBLOCKSIZE)                                //
-                ->check(utils::ResetValidator(connectionSc->get_option("--read-block-size")));
+        readBlockSizeOpt = connectionSc
+                               ->add_option("--read-block-size", "Read block size") //
+                               ->type_name("std::size_t")                           //
+                               ->default_val(DEFAULT_READBLOCKSIZE)                 //
+                               ->check(utils::ResetValidator(readBlockSizeOpt));
 
-            connectionSc
-                ->add_option("--write-block-size", writeBlockSize, "Write block size") //
-                ->type_name("std::size_t")                                             //
-                ->default_val(DEFAULT_WRITEBLOCKSIZE)                                  //
-                ->check(utils::ResetValidator(connectionSc->get_option("--write-block-size")));
+        writeBlockSizeOpt = connectionSc
+                                ->add_option("--write-block-size", "Write block size") //
+                                ->type_name("std::size_t")                             //
+                                ->default_val(DEFAULT_WRITEBLOCKSIZE)                  //
+                                ->check(utils::ResetValidator(writeBlockSizeOpt));
 
-            connectionSc->add_option("--terminate-timeout", terminateTimeout, "Terminate timeout")
-                ->type_name("sec")
-                ->default_val(DEFAULT_TERMINATETIMEOUT)
-                ->check(utils::ResetValidator(connectionSc->get_option("--terminate-timeout")));
-        } else {
-            readTimeout = DEFAULT_READTIMEOUT;
-            writeTimeout = DEFAULT_WRITETIMEOUT;
-            readBlockSize = DEFAULT_READBLOCKSIZE;
-            writeBlockSize = DEFAULT_WRITEBLOCKSIZE;
-            terminateTimeout = DEFAULT_TERMINATETIMEOUT;
-        }
+        terminateTimeoutOpt = connectionSc
+                                  ->add_option("--terminate-timeout", "Terminate timeout") //
+                                  ->type_name("sec")                                       //
+                                  ->default_val(DEFAULT_TERMINATETIMEOUT)                  //
+                                  ->check(utils::ResetValidator(terminateTimeoutOpt));
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {
-        return readTimeout;
+        return readTimeoutOpt->as<utils::Timeval>();
     }
 
     void ConfigConnection::setReadTimeout(const utils::Timeval& newReadTimeoutSet) {
-        readTimeout = newReadTimeoutSet;
+        readTimeoutOpt->default_val(newReadTimeoutSet)->clear();
     }
 
     utils::Timeval ConfigConnection::getWriteTimeout() const {
-        return writeTimeout;
+        return writeTimeoutOpt->as<utils::Timeval>();
     }
 
     void ConfigConnection::setWriteTimeout(const utils::Timeval& newWriteTimeoutSet) {
-        writeTimeout = newWriteTimeoutSet;
+        writeTimeoutOpt->default_val(newWriteTimeoutSet)->clear();
     }
 
     std::size_t ConfigConnection::getReadBlockSize() const {
-        return readBlockSize;
+        return readBlockSizeOpt->as<std::size_t>();
     }
 
-    void ConfigConnection::setReadBlockSize(std::size_t newReadBlockSizeSet) {
-        readBlockSize = newReadBlockSizeSet;
+    void ConfigConnection::setReadBlockSize(std::size_t newReadBlockSize) {
+        readBlockSizeOpt->default_val(newReadBlockSize);
     }
 
     std::size_t ConfigConnection::getWriteBlockSize() const {
-        return writeBlockSize;
+        return writeBlockSizeOpt->as<std::size_t>();
     }
 
-    void ConfigConnection::setWriteBlockSize(std::size_t newWriteBlockSizeSet) {
-        writeBlockSize = newWriteBlockSizeSet;
+    void ConfigConnection::setWriteBlockSize(std::size_t newWriteBlockSize) {
+        writeBlockSizeOpt->default_val(newWriteBlockSize)->clear();
     }
 
     utils::Timeval ConfigConnection::getTerminateTimeout() const {
-        return terminateTimeout;
+        return terminateTimeoutOpt->as<utils::Timeval>();
     }
 
-    void ConfigConnection::setTerminateTimeout(const utils::Timeval& newTerminateTimeoutSet) {
-        terminateTimeout = newTerminateTimeoutSet;
+    void ConfigConnection::setTerminateTimeout(const utils::Timeval& newTerminateTimeout) {
+        terminateTimeoutOpt->default_val(newTerminateTimeout);
     }
 
 } // namespace net::config

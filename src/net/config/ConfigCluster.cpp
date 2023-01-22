@@ -24,36 +24,30 @@
 
 #include "utils/CLI11.hpp"
 
-#include <cstddef>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
 
     ConfigCluster::ConfigCluster() {
-        if (!getInstanceName().empty()) {
-            clusterSc = add_section("cluster", "Options for clustering") //
-                            ->preparse_callback([this]([[maybe_unused]] std::size_t num) -> void {
-                                mode = MODE::PRIMARY;
-                            }) //
-                            ->configurable(false);
+        clusterSc = add_section("cluster", "Options for clustering") //
+                        ->configurable(false);
+        clusterSc->disabled(getInstanceName().empty());
 
-            clusterSc
-                ->add_option("--mode", mode, "Clustering mode") //
-                ->type_name(std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
-                            std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY") //
-                ->default_val(MODE::STANDALONE)                                                                            //
-                ->configurable(false)                                                                                      //
-                ->check(utils::ResetValidator(clusterSc->get_option("--mode")));
-        }
+        modeOpt = clusterSc
+                      ->add_option("--mode", "Clustering mode") //
+                      ->type_name(std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
+                                  std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY") //
+                      ->configurable(false)
+                      ->default_val(MODE::STANDALONE) //
+                      ->check(utils::ResetValidator(modeOpt));
     }
 
     ConfigCluster::MODE ConfigCluster::getClusterMode() const {
-        return mode;
+        return modeOpt->as<MODE>();
     }
 
-    void ConfigCluster::setClusterMode(MODE newMode) {
-        mode = newMode;
+    void ConfigCluster::setClusterMode(ConfigCluster::MODE newMode) {
+        modeOpt->default_val(newMode)->clear();
     }
 
 } // namespace net::config

@@ -23,6 +23,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace CLI {
+    class Option;
+}
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace net::config {
@@ -35,7 +39,7 @@ namespace net::config {
         void setSni(const std::string& sni);
 
     private:
-        std::string sni;
+        CLI::Option* sniOpt = nullptr;
     };
 
 } // namespace net::config

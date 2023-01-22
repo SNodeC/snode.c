@@ -38,14 +38,14 @@ namespace net::in6::config {
                     ->add_option("--host", host, "Host name or IPv6 address") //
                     ->type_name("hostname|IPv6")                              //
                     ->default_val("::")                                       //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--host")));
+                    ->check(utils::ResetValidator(hostOpt));
 
             portOpt = //
                 ConfigAddressType::addressSc
                     ->add_option("--port", port, "Port number") //
                     ->type_name("uint_16")                      //
                     ->default_val(0)                            //
-                    ->check(utils::ResetValidator(ConfigAddressType::addressSc->get_option("--port")));
+                    ->check(utils::ResetValidator(portOpt));
         }
         ConfigAddressType::address.setHost("::");
         ConfigAddressType::address.setPort(0);
