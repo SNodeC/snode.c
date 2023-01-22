@@ -76,8 +76,14 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
-        hostOpt->default_val(ConfigAddressType::address.address());
-        psmOpt->default_val(ConfigAddressType::address.psm());
+        hostOpt //
+            ->default_val(ConfigAddressType::address.address())
+            ->required(false)
+            ->clear();
+        psmOpt //
+            ->default_val(ConfigAddressType::address.psm())
+            ->required(false)
+            ->clear();
     }
 
 } // namespace net::l2::config

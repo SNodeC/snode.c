@@ -42,7 +42,7 @@ namespace net::config {
     }
 
     void ConfigTlsClient::setSni(const std::string& sni) {
-        this->sni = sni;
+        tlsSc->get_option("--sni")->default_val(sni)->clear();
     }
 
 } // namespace net::config

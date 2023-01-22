@@ -38,17 +38,17 @@ namespace net::config {
 
     template <typename SocketAddress>
     bool ConfigAddressLocal<SocketAddress>::isLocalInitialized() {
-        return Super::isInitialized();
+        return isInitialized();
     }
 
     template <typename SocketAddress>
     const SocketAddress& ConfigAddressLocal<SocketAddress>::getLocalAddress() {
-        return Super::getAddress();
+        return getAddress();
     }
 
     template <typename SocketAddress>
     void ConfigAddressLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
-        Super::setAddress(localAddress);
+        setAddress(localAddress);
     }
 
 } // namespace net::config

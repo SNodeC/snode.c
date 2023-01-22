@@ -45,6 +45,11 @@ namespace net::config {
 
         const SocketAddress& getLocalAddress();
         void setLocalAddress(const SocketAddress& localAddress);
+
+    private:
+        using Super::getAddress;
+        using Super::isInitialized;
+        using Super::setAddress;
     };
 
 } // namespace net::config

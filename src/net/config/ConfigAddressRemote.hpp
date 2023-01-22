@@ -38,17 +38,17 @@ namespace net::config {
 
     template <typename SocketAddress>
     bool ConfigAddressRemote<SocketAddress>::isRemoteInitialized() {
-        return Super::isInitialized();
+        return isInitialized();
     }
 
     template <typename SocketAddress>
     const SocketAddress& ConfigAddressRemote<SocketAddress>::getRemoteAddress() {
-        return Super::getAddress();
+        return getAddress();
     }
 
     template <typename SocketAddress>
     void ConfigAddressRemote<SocketAddress>::setRemoteAddress(const SocketAddress& remoteAddress) {
-        Super::setAddress(remoteAddress);
+        setAddress(remoteAddress);
     }
 
 } // namespace net::config

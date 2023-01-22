@@ -76,8 +76,14 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
-        hostOpt->default_val(ConfigAddressType::address.host());
-        portOpt->default_val(ConfigAddressType::address.port());
+        hostOpt //
+            ->default_val(ConfigAddressType::address.host())
+            ->required(false)
+            ->clear();
+        portOpt //
+            ->default_val(ConfigAddressType::address.port())
+            ->required(false)
+            ->clear();
     }
 
 } // namespace net::in6::config

@@ -67,7 +67,10 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::addressDefaultsFromCurrent() {
-        sunPathOpt->default_val(ConfigAddressType::address.address());
+        sunPathOpt //
+            ->default_val(ConfigAddressType::address.address())
+            ->required(false)
+            ->clear();
     }
 
 } // namespace net::un::config

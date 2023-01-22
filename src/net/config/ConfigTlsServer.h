@@ -41,7 +41,6 @@ namespace net::config {
         void setSniCerts(const std::map<std::string, std::map<std::string, std::any>>& newSniCerts);
 
     private:
-        bool forceSni = false;
         std::map<std::string, std::map<std::string, std::any>> sniCerts;
     };
 

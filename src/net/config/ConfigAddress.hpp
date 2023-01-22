@@ -51,10 +51,11 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    void ConfigAddress<SocketAddress>::setAddress(const SocketAddress& localAddress) {
-        address = localAddress;
+    void ConfigAddress<SocketAddress>::setAddress(const SocketAddress& address) {
+        this->address = address;
         initialized = true;
         ConfigInstance::required(false);
+        addressSc->required(false);
         addressDefaultsFromCurrent();
     }
 

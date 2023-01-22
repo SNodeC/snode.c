@@ -57,9 +57,9 @@ namespace net::config {
                     ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}") //
                     ->take_all();
 
-            tlsSc                                                                                //
-                ->add_flag("--force-sni", forceSni, "Force using of the Server Name Indication") //
-                ->default_val("false")                                                           //
+            tlsSc                                                                      //
+                ->add_flag("--force-sni", "Force using of the Server Name Indication") //
+                ->default_val("false")                                                 //
                 ->check(utils::ResetValidator(tlsSc->get_option("--force-sni")));
 
             tlsSc //
@@ -89,11 +89,11 @@ namespace net::config {
     }
 
     bool ConfigTlsServer::getForceSni() const {
-        return forceSni;
+        return tlsSc->get_option("--force-sni")->as<bool>();
     }
 
     void ConfigTlsServer::setForceSni(bool forceSni) {
-        this->forceSni = forceSni;
+        tlsSc->get_option("--force-sni")->default_val(forceSni ? "true" : "false")->clear();
     }
 
     std::map<std::string, std::map<std::string, std::any>>& ConfigTlsServer::getSniCerts() {
