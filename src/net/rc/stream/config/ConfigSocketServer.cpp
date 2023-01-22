@@ -25,9 +25,7 @@
 namespace net::rc::stream::config {
 
     ConfigSocketServer::ConfigSocketServer() {
-        if (!getInstanceName().empty()) {
-            net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
-        }
+        net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
     }
 
 } // namespace net::rc::stream::config

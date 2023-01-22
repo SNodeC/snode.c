@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <functional>
 #include <string>
 
@@ -33,7 +31,6 @@ namespace utils {
         name_ = "RESET";
         func_ = [&option](const std::string& str) {
             if (option->get_default_str() == str) {
-                LOG(TRACE) << "Reseting option " << option->get_single_name() << " to its default [" << option->get_default_str() << "]";
                 option->required(false)->take_all()->clear();
             }
             return std::string{};

@@ -19,9 +19,15 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "express/legacy/in6/WebApp.h"
+#include "express/tls/in6/WebApp.h"
+
+//
+
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VHost.h"
-#include "express/tls/in6/WebApp.h"
+
+//
+
 #include "log/Logger.h"
 #include "utils/Config.h"
 

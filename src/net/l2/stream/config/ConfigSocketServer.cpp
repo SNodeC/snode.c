@@ -25,9 +25,7 @@
 namespace net::l2::stream::config {
 
     ConfigSocketServer::ConfigSocketServer() {
-        if (!getInstanceName().empty()) {
-            net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
-        }
+        net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
     }
 
 } // namespace net::l2::stream::config

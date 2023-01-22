@@ -25,9 +25,7 @@
 namespace net::un::stream::config {
 
     ConfigSocketClient::ConfigSocketClient() {
-        if (!getInstanceName().empty()) {
-            net::un::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
-        }
+        net::un::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
     }
 
 } // namespace net::un::stream::config
