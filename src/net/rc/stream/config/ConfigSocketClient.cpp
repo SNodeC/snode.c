@@ -25,7 +25,8 @@
 namespace net::rc::stream::config {
 
     ConfigSocketClient::ConfigSocketClient() {
-        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
+        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
+        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::channelRequired();
     }
 
 } // namespace net::rc::stream::config

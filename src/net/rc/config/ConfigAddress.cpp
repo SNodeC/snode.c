@@ -51,8 +51,7 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::required() {
-        channelRequired();
+    void ConfigAddress<ConfigAddressType>::hostRequired() {
         Super::require(hostOpt);
     }
 

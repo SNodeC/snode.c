@@ -51,8 +51,7 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::required() {
-        psmRequired();
+    void ConfigAddress<ConfigAddressType>::hostRequired() {
         Super::require(hostOpt);
     }
 

@@ -43,7 +43,6 @@ namespace net::un::config {
         ConfigAddress();
 
     protected:
-        void required();
         void sunPathRequired();
 
     private:

@@ -43,7 +43,7 @@ namespace net::l2::config {
         ConfigAddress();
 
     protected:
-        void required();
+        void hostRequired();
         void psmRequired();
 
     private:

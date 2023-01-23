@@ -47,7 +47,6 @@ namespace net::config {
         bool isInitialized() const;
 
         CLI::App* addressSc = nullptr;
-        SocketAddress address;
 
         bool _initialized = false;
     };

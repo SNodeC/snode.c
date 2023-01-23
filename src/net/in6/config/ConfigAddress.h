@@ -43,7 +43,7 @@ namespace net::in6::config {
         explicit ConfigAddress();
 
     protected:
-        void required();
+        void hostRequired();
         void portRequired();
 
     private:

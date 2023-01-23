@@ -51,8 +51,7 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::required() {
-        portRequired();
+    void ConfigAddress<ConfigAddressType>::hostRequired() {
         Super::require(hostOpt);
     }
 

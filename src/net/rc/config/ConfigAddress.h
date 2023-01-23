@@ -43,7 +43,7 @@ namespace net::rc::config {
         ConfigAddress();
 
     protected:
-        void required();
+        void hostRequired();
         void channelRequired();
 
     private:

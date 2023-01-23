@@ -25,7 +25,8 @@
 namespace net::l2::stream::config {
 
     ConfigSocketClient::ConfigSocketClient() {
-        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::required();
+        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
+        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::psmRequired();
     }
 
 } // namespace net::l2::stream::config

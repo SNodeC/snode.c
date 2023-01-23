@@ -44,14 +44,8 @@ namespace net::un::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::required() {
-        sunPathRequired();
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::sunPathRequired() {
         Super::require(sunPathOpt);
-        Super::address.setSunPath("");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
