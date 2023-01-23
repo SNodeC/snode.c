@@ -66,17 +66,23 @@ namespace iot::mqtt {
 
     void Session::fromJson(const nlohmann::json& json) {
         if (!json.empty()) {
-            pubrelPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["pubrel_packetidentifier_set"]);
-            publishPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["publish_packetidentifier_set"]);
+            if (json.contains("pubrel_packetidentifier_set")) {
+                pubrelPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["pubrel_packetidentifier_set"]);
+            }
+            if (json.contains("publish_packetidentifier_set")) {
+                publishPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["publish_packetidentifier_set"]);
+            }
 
-            for (auto publishJson : json["publish_map"]) {
-                iot::mqtt::packets::Publish publish(publishJson["packet_identifier"],
-                                                    publishJson["topic"],
-                                                    publishJson["message"],
-                                                    publishJson["qos"],
-                                                    publishJson["dup"],
-                                                    publishJson["retain"]);
-                publishMap[publishJson["packet_identifier"]] = publish;
+            if (json.contains("publish_map")) {
+                for (auto publishJson : json["publish_map"]) {
+                    iot::mqtt::packets::Publish publish(publishJson["packet_identifier"],
+                                                        publishJson["topic"],
+                                                        publishJson["message"],
+                                                        publishJson["qos"],
+                                                        publishJson["dup"],
+                                                        publishJson["retain"]);
+                    publishMap[publishJson["packet_identifier"]] = publish;
+                }
             }
         }
     }
