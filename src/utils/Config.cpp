@@ -120,11 +120,16 @@ namespace utils {
         app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
         app.get_formatter()->column_width(45);
 
+        app.configurable(false);
+
         app.get_config_formatter_base()->defaultAlsoPrefix('#');
 
-        app.description("Configuration for Application " + applicationName +
-                        "\n"
-                        "Options with default values are commented");
+        app.description("#################################################################\n\n"
+                        " Configuration for Application '" +
+                        applicationName +
+                        "'\n"
+                        " Options with default values are commented in the config file\n\n"
+                        "#################################################################");
 
         app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian\n"
                    "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
@@ -258,6 +263,29 @@ namespace utils {
         return ret;
     }
 
+    bool Config::parse(bool stopOnError) {
+        bool ret = true;
+
+        Config::app.allow_extras(!stopOnError);
+        std::cout << "Allow extras: " << Config::app.get_allow_extras();
+
+        try {
+            Config::app.parse(argc, argv);
+        } catch (const CLI::ParseError& e) {
+            if (stopOnError) {
+                if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp") {
+                    std::cout << "Command line error: " << e.what() << std::endl << std::endl;
+                    std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+                } else {
+                    Config::app.exit(e);
+                }
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
     void Config::terminate() {
         if (app["--daemonize"]->as<bool>()) {
             Daemon::erasePidFile(defaultPidDir + "/" + applicationName + ".pid");
@@ -271,9 +299,17 @@ namespace utils {
     }
 
     CLI::App* Config::add_instance(const std::string& name, const std::string& description) {
-        app.require_subcommand(0, app.get_require_subcommand_max() + 1);
+        CLI::App* instance = app.add_subcommand(name, description) //
+                                 ->configurable(false)
+                                 ->formatter(sectionFormatter)
+                                 ->fallthrough()
+                                 ->group(name.empty() ? "" : "Instances")
+                                 ->disabled(name.empty())
+                                 ->silent(name.empty());
 
-        CLI::App* instance = app.add_subcommand(name, description)->formatter(sectionFormatter);
+        instance //
+            ->option_defaults()
+            ->configurable(!name.empty());
 
         instance
             ->add_flag_callback(
@@ -374,28 +410,6 @@ namespace utils {
 
     int Config::getVerboseLevel() {
         return verboseLevel;
-    }
-
-    bool Config::parse(bool stopOnError) {
-        bool ret = true;
-
-        Config::app.allow_extras(!stopOnError);
-
-        try {
-            Config::app.parse(argc, argv);
-        } catch (const CLI::ParseError& e) {
-            if (stopOnError) {
-                if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp") {
-                    std::cout << "Command line error: " << e.what() << std::endl << std::endl;
-                    std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
-                } else {
-                    Config::app.exit(e);
-                }
-                ret = false;
-            }
-        }
-
-        return ret;
     }
 
 } // namespace utils

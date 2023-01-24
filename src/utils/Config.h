@@ -57,7 +57,7 @@ namespace utils {
                                const std::string& typeName = "[string]",
                                const std::string& default_val = "",
                                bool configurable = true,
-                               const std::string& groupName = "Options (application specific)");
+                               const std::string& groupName = "Application specific settings");
 
         static void add_option(const std::string& name,
                                int& variable,
@@ -66,14 +66,14 @@ namespace utils {
                                const std::string& typeName = "[int]",
                                int default_val = 0,
                                bool configurable = true,
-                               const std::string& groupName = "Options (application specific)");
+                               const std::string& groupName = "Application specific settings");
 
         static void add_flag(const std::string& name,
                              bool& variable,
                              const std::string& description,
                              bool required,
                              bool configurable = true,
-                             const std::string& groupName = "Options (application specific)");
+                             const std::string& groupName = "Application specific settings");
 
         static std::string getApplicationName();
         static int getLogLevel();
