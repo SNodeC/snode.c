@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_compile_options(-Wno-float-equal)
+add_compile_options(-Wno-float-equal -Wno-covered-switch-default -Wno-undefined-func-template)
 
 set(NET_CPP
     config/ConfigInstance.cpp

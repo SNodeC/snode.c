@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_compile_options(-Wno-float-equal)
+add_compile_options(-Wno-float-equal -Wno-covered-switch-default)
 
 set(UTILS_CPP
     Config.cpp
