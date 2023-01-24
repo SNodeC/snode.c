@@ -88,11 +88,12 @@ namespace web::http::client {
 
             Super::onConnected([onConnected = this->_onConnected,
                                 onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
+                onConnected(socketConnection);
+
                 Request& request =
                     dynamic_cast<web::http::client::SocketContext<Request, Response>*>(socketConnection->getSocketContext())->getRequest();
                 request.setHost(socketConnection->getRemoteAddress().toString());
 
-                onConnected(socketConnection);
                 onRequestBegin(request);
             });
         }

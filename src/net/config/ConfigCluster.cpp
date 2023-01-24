@@ -28,9 +28,7 @@
 namespace net::config {
 
     ConfigCluster::ConfigCluster() {
-        clusterSc = add_section("cluster", "Options for clustering") //
-                        ->configurable(false);
-        clusterSc->disabled(getInstanceName().empty());
+        clusterSc = add_section("cluster", "Options for clustering");
 
         modeOpt = clusterSc
                       ->add_option("--mode", "Clustering mode") //

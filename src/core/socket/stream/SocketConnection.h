@@ -53,7 +53,7 @@ namespace core::socket::stream {
 
     protected:
         SocketConnection(int fd,
-                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+                         [[maybe_unused]] const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void()>& onDisconnect,

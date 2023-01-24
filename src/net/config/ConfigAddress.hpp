@@ -32,7 +32,6 @@ namespace net::config {
     template <typename SocketAddress>
     ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription) {
         addressSc = add_section(addressOptionName, addressOptionDescription);
-        addressSc->disabled(getInstanceName().empty());
 
         _initialized = !getInstanceName().empty();
     }

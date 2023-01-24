@@ -49,7 +49,6 @@ namespace net::config {
 
     ConfigConnection::ConfigConnection() {
         connectionSc = add_section("connection", "Options for established connections");
-        connectionSc->disabled(getInstanceName().empty());
 
         readTimeoutOpt = connectionSc
                              ->add_option("--read-timeout", "Read timeout in seconds") //

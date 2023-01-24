@@ -29,11 +29,7 @@ namespace net::config {
 
     ConfigInstance::ConfigInstance(const std::string& name)
         : name(name) {
-        instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'") //
-                         ->fallthrough()                                                            //
-                         ->group("Instances");
-
-        instanceSc->disabled(getInstanceName().empty());
+        instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'");
     }
 
     ConfigInstance::~ConfigInstance() {
@@ -45,11 +41,18 @@ namespace net::config {
     }
 
     CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {
-        CLI::App* subCommand = instanceSc                              //
-                                   ->add_subcommand(name, description) //
-                                   ->group("Sections");
+        CLI::App* sectionSc = instanceSc                                                        //
+                                  ->add_subcommand(this->name.empty() ? "" : name, description) //
+                                  ->configurable(false)                                         //
+                                  ->group(this->name.empty() ? "" : "Sections")                 //
+                                  ->disabled(this->name.empty())                                //
+                                  ->silent(this->name.empty());
 
-        subCommand //
+        sectionSc               //
+            ->option_defaults() //
+            ->configurable(!this->name.empty());
+
+        sectionSc //
             ->add_flag_callback(
                 "-h,--help",
                 []() {
@@ -60,7 +63,7 @@ namespace net::config {
             ->disable_flag_override()               //
             ->trigger_on_parse();
 
-        subCommand //
+        sectionSc //
             ->add_flag_callback(
                 "--help-all",
                 []() {
@@ -71,9 +74,7 @@ namespace net::config {
             ->disable_flag_override() //
             ->trigger_on_parse();
 
-        instanceSc->require_subcommand(instanceSc->get_require_subcommand_min(), instanceSc->get_require_subcommand_max() + 1);
-
-        return subCommand;
+        return sectionSc;
     }
 
     void ConfigInstance::required(bool reqired) {

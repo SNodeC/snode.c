@@ -51,9 +51,8 @@ namespace net::config {
                              "          \"CaCertDir\" -> value = PEM_container:DIR,\n"
                              "          \"UseDefaultCaDir\" -> value = true|false,\n"
                              "          \"SslOptions\" -> value = uint64_t\n"
-                             "        }")                                                               //
-                ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}") //
-                ->take_all();
+                             "        }") //
+                ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}");
 
         forceSniOpt = tlsSc                                                                      //
                           ->add_flag("--force-sni", "Force using of the Server Name Indication") //
@@ -65,7 +64,10 @@ namespace net::config {
                 std::list<std::string> vaultyDomainConfigs;
 
                 for (const auto& [domain, sniMap] : sniCerts) {
-                    if (!sniMap.begin()->first.empty()) {
+                    if (sniMap.begin()->first.empty()) {
+                        sniCertsOpt->clear();
+                        break;
+                    } else {
                         for (auto& [key, value] : sniMap) {
                             if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
                                 key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
@@ -73,9 +75,6 @@ namespace net::config {
                                 vaultyDomainConfigs.push_back(domain);
                             }
                         }
-                    } else {
-                        sniCertsOpt->clear();
-                        break;
                     }
                 }
 
