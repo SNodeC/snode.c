@@ -125,10 +125,10 @@ namespace utils {
         app.get_config_formatter_base()->defaultAlsoPrefix('#');
 
         app.description("#################################################################\n\n"
-                        " Configuration for Application '" +
+                        "Configuration for Application '" +
                         applicationName +
                         "'\n"
-                        " Options with default values are commented in the config file\n\n"
+                        "Options with default values are commented in the config file\n\n"
                         "#################################################################");
 
         app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian\n"
@@ -197,6 +197,8 @@ namespace utils {
                               ->default_val(0)     //
                               ->type_name("level") //
                               ->check(CLI::Range(0, 10) & utils::ResetValidator(verboseLevelOpt));
+
+        app.set_version_flag("--version", "1.0.0");
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
 
@@ -267,13 +269,12 @@ namespace utils {
         bool ret = true;
 
         Config::app.allow_extras(!stopOnError);
-        std::cout << "Allow extras: " << Config::app.get_allow_extras();
 
         try {
             Config::app.parse(argc, argv);
         } catch (const CLI::ParseError& e) {
             if (stopOnError) {
-                if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp") {
+                if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp" && e.get_name() != "CallForVersion") {
                     std::cout << "Command line error: " << e.what() << std::endl << std::endl;
                     std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
                 } else {
