@@ -72,6 +72,7 @@ namespace net::config {
                               ValueTypeT defaultValue,
                               const CLI::Validator& additionalValidator);
 
+        void required(CLI::Option* opt, bool req = true);
         void required(bool req = true);
 
     protected:

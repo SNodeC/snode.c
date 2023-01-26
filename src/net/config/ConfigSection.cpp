@@ -31,6 +31,16 @@ namespace net::config {
         section = add_section(name, description);
     }
 
+    ConfigSection::ConfigSection([[maybe_unused]] ConfigInstance* instance,
+                                 [[maybe_unused]] const std::string& name,
+                                 [[maybe_unused]] const std::string& description) {
+    }
+
+    void ConfigSection::required(CLI::Option* opt, bool req) {
+        opt->default_str("")->required()->clear();
+        required(req);
+    }
+
     void ConfigSection::required(bool req) {
         section //
             ->required(req)

@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
@@ -48,8 +46,7 @@ namespace net::config {
 
     template <typename SocketAddress>
     void ConfigAddress<SocketAddress>::require(CLI::Option* opt) {
-        required();
-        opt->default_str("")->required()->clear();
+        required(opt);
     }
 
 } // namespace net::config

@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp" // IWYU pragma: export
+#include "utils/CLI11.hpp"
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

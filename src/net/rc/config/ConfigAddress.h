@@ -47,6 +47,8 @@ namespace net::rc::config {
         void channelRequired();
 
     private:
+        using Super::required;
+
         SocketAddress getAddress() const final;
         void setAddress(const SocketAddress& socketAddress) final;
 

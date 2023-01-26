@@ -47,6 +47,8 @@ namespace net::in::config {
         void portRequired();
 
     private:
+        using Super::required;
+
         SocketAddress getAddress() const final;
         void setAddress(const SocketAddress& socketAddress) final;
 

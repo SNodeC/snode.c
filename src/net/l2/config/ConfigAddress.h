@@ -47,6 +47,8 @@ namespace net::l2::config {
         void psmRequired();
 
     private:
+        using Super::required;
+
         SocketAddress getAddress() const final;
         void setAddress(const SocketAddress& socketAddress) final;
 

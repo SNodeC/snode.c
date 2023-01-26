@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
+
 #include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
