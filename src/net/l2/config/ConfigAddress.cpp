@@ -20,14 +20,14 @@
 
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
 #include "utils/PreserveErrno.h"
-#include "utils/ResetValidator.h"
 
 #include <cstdint>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,19 +35,8 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        hostOpt = //
-            Super::addressSc
-                ->add_option("--host", "Bluetooth address") //
-                ->type_name("xx:xx:xx:xx:xx:xx")            //
-                ->default_val("00:00:00:00:00:00")          //
-                ->check(utils::ResetValidator(hostOpt));
-
-        psmOpt = //
-            Super::addressSc
-                ->add_option("--psm", "Protocol service multiplexer") //
-                ->type_name("uint16_t")                               //
-                ->default_val(0)                                      //
-                ->check(utils::ResetValidator(psmOpt));
+        hostOpt = Super::add_option("--host", "Bluetooth address", "xx:xx:xx:xx:xx:xx", "00:00:00:00:00:00");
+        psmOpt = Super::add_option("--psm", "Protocol service multiplexer", "uint16_t", 0);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

@@ -160,8 +160,8 @@ namespace utils {
             ->trigger_on_parse();
 
         daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", "Start application as daemon") //
-                           ->default_val("false")                                                      //
-                           ->check(utils::ResetValidator(daemonizeOpt));
+                           ->default_val("false");                                                     //
+        daemonizeOpt->check(utils::ResetValidator(daemonizeOpt));
 
         app.add_flag("-k,--kill", "Kill running daemon") //
             ->configurable(false)                        //
@@ -180,23 +180,23 @@ namespace utils {
         logFileOpt = app.add_flag("-l{" + defaultLogDir + "/" + applicationName + ".log" + "},--log-file{" + defaultLogDir + "/" +
                                       applicationName + ".log" + "}",
                                   logFile,
-                                  "Logfile path")                                      //
-                         ->default_val(defaultLogDir + "/" + applicationName + ".log") //
-                         ->check(utils::ResetValidator(logFileOpt));
+                                  "Logfile path") //
+                         ->default_val(defaultLogDir + "/" + applicationName + ".log");
+        logFileOpt->check(utils::ResetValidator(logFileOpt));
 
         enforceLogFileOpt = app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications") //
-                                ->default_val("false")                                                                           //
-                                ->check(utils::ResetValidator(enforceLogFileOpt));
+                                ->default_val("false");                                                                          //
+        enforceLogFileOpt->check(utils::ResetValidator(enforceLogFileOpt));
 
         logLevelOpt = app.add_option("--log-level", logLevel, "Log level") //
                           ->default_val(3)                                 //
-                          ->type_name("level")                             //
-                          ->check(CLI::Range(0, 6) & utils::ResetValidator(logLevelOpt));
+                          ->type_name("level");
+        logLevelOpt->check(CLI::Range(0, 6) & utils::ResetValidator(logLevelOpt));
 
-        verboseLevelOpt = app.add_option("--verbose-level", verboseLevel, "Verbose level")
-                              ->default_val(0)     //
-                              ->type_name("level") //
-                              ->check(CLI::Range(0, 10) & utils::ResetValidator(verboseLevelOpt));
+        verboseLevelOpt = app.add_option("--verbose-level", verboseLevel, "Verbose level") //
+                              ->default_val(0)                                             //
+                              ->type_name("level");
+        verboseLevelOpt->check(CLI::Range(0, 10) & utils::ResetValidator(verboseLevelOpt));
 
         app.set_version_flag("--version", "1.0.0");
 

@@ -18,10 +18,11 @@
 
 #include "net/config/ConfigConnection.h"
 
+#include "net/config/ConfigSection.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-#include "utils/ResetValidator.h"
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -47,36 +48,13 @@
 
 namespace net::config {
 
-    ConfigConnection::ConfigConnection() {
-        connectionSc = add_section("connection", "Options for established connections");
-
-        readTimeoutOpt = connectionSc
-                             ->add_option("--read-timeout", "Read timeout in seconds") //
-                             ->default_val(DEFAULT_READTIMEOUT)                        //
-                             ->check(utils::ResetValidator(readTimeoutOpt));
-
-        writeTimeoutOpt = connectionSc
-                              ->add_option("--write-timeout", "Write timeout in seconds") //
-                              ->default_val(DEFAULT_WRITETIMEOUT)                         //
-                              ->check(utils::ResetValidator(writeTimeoutOpt));
-
-        readBlockSizeOpt = connectionSc
-                               ->add_option("--read-block-size", "Read block size") //
-                               ->type_name("std::size_t")                           //
-                               ->default_val(DEFAULT_READBLOCKSIZE)                 //
-                               ->check(utils::ResetValidator(readBlockSizeOpt));
-
-        writeBlockSizeOpt = connectionSc
-                                ->add_option("--write-block-size", "Write block size") //
-                                ->type_name("std::size_t")                             //
-                                ->default_val(DEFAULT_WRITEBLOCKSIZE)                  //
-                                ->check(utils::ResetValidator(writeBlockSizeOpt));
-
-        terminateTimeoutOpt = connectionSc
-                                  ->add_option("--terminate-timeout", "Terminate timeout") //
-                                  ->type_name("sec")                                       //
-                                  ->default_val(DEFAULT_TERMINATETIMEOUT)                  //
-                                  ->check(utils::ResetValidator(terminateTimeoutOpt));
+    ConfigConnection::ConfigConnection()
+        : net::config::ConfigSection("connection", "Options for established connections") {
+        readTimeoutOpt = add_option("--read-timeout", "Read timeout in seconds", "sec", DEFAULT_READTIMEOUT);
+        writeTimeoutOpt = add_option("--write-timeout", "Write timeout in seconds", "sec", DEFAULT_WRITETIMEOUT);
+        readBlockSizeOpt = add_option("--read-block-size", "Read block size", "std::size_t", DEFAULT_READBLOCKSIZE);
+        writeBlockSizeOpt = add_option("--write-block-size", "Write block size", "std::size_t", DEFAULT_WRITEBLOCKSIZE);
+        terminateTimeoutOpt = add_option("--terminate-timeout", "Terminate timeout", "sec", DEFAULT_TERMINATETIMEOUT);
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {

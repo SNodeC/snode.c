@@ -19,10 +19,9 @@
 #ifndef NET_CONFIG_CONFIGCLUSTER_H
 #define NET_CONFIG_CONFIGCLUSTER_H
 
-#include "net/config/ConfigInstance.h" // IWYU pragma: export
+#include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace CLI {
-    class App;
     class Option;
 } // namespace CLI
 
@@ -32,7 +31,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigCluster : virtual public ConfigInstance {
+    class ConfigCluster : public ConfigSection {
     public:
         ConfigCluster();
 
@@ -42,8 +41,6 @@ namespace net::config {
         void setClusterMode(ConfigCluster::MODE newMode);
 
     private:
-        CLI::App* clusterSc = nullptr;
-
         CLI::Option* modeOpt = nullptr;
     };
 

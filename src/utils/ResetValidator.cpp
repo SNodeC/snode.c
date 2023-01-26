@@ -27,10 +27,10 @@
 
 namespace utils {
 
-    ResetValidator::ResetValidator(CLI::Option*& option) {
+    ResetValidator::ResetValidator(CLI::Option* option) {
         name_ = "RESET";
 
-        func_ = [&option](const std::string& str) {
+        func_ = [option](const std::string& str) {
             if (option->get_default_str() == str && !option->results().empty()) {
                 option->required(false)->take_all()->clear();
             }

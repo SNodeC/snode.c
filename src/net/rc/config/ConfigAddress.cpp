@@ -20,14 +20,14 @@
 
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
 #include "utils/PreserveErrno.h"
-#include "utils/ResetValidator.h"
 
 #include <cstdint>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,19 +35,8 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        hostOpt = //
-            Super::addressSc
-                ->add_option("--host", "Bluetooth address") //
-                ->type_name("xx:xx:xx:xx:xx:xx")            //
-                ->default_val("00:00:00:00:00:00")          //
-                ->check(utils::ResetValidator(hostOpt));
-
-        channelOpt = //
-            Super::addressSc
-                ->add_option("--channel", "Channel number") //
-                ->type_name("uint8_t")                      //
-                ->default_val(0)                            //
-                ->check(utils::ResetValidator(channelOpt));
+        hostOpt = Super::add_option("--host", "Bluetooth address", "xx:xx:xx:xx:xx:xx", "00:00:00:00:00:00");
+        channelOpt = Super::add_option("--channel", "Channel number", "uint8_t", 0);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

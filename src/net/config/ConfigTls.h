@@ -19,12 +19,11 @@
 #ifndef NET_CONFIG_CONFIGTLS_H
 #define NET_CONFIG_CONFIGTLS_H
 
-#include "net/config/ConfigInstance.h" // IWYU pragma: export
+#include "net/config/ConfigSection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
-    class App;
     class Option;
 } // namespace CLI
 
@@ -32,6 +31,7 @@ namespace CLI {
 
 #include <cstdint>
 #include <openssl/opensslv.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,7 +43,7 @@ using ssl_option_t = uint32_t;
 
 namespace net::config {
 
-    class ConfigTls : virtual public ConfigInstance {
+    class ConfigTls : public ConfigSection {
     public:
         ConfigTls();
 
@@ -79,9 +79,6 @@ namespace net::config {
 
         ssl_option_t getSslTlsOptions() const;
         void setSslTlsOptions(ssl_option_t newSslTlsOptions);
-
-    protected:
-        CLI::App* tlsSc = nullptr;
 
     private:
         CLI::Option* certChainOpt = nullptr;

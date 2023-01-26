@@ -25,6 +25,7 @@
 
 #include <any>
 #include <map>
+#include <string>
 
 namespace CLI {
     class Option;

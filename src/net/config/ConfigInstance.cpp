@@ -41,11 +41,11 @@ namespace net::config {
     }
 
     CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {
-        CLI::App* sectionSc = instanceSc                                                        //
-                                  ->add_subcommand(this->name.empty() ? "" : name, description) //
-                                  ->configurable(false)                                         //
-                                  ->group(this->name.empty() ? "" : "Sections")                 //
-                                  ->disabled(this->name.empty())                                //
+        CLI::App* sectionSc = instanceSc                                        //
+                                  ->add_subcommand(name, description)           //
+                                  ->configurable(false)                         //
+                                  ->group(this->name.empty() ? "" : "Sections") //
+                                  ->disabled(this->name.empty())                //
                                   ->silent(this->name.empty());
 
         sectionSc               //

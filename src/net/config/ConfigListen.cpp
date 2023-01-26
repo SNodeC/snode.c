@@ -18,10 +18,11 @@
 
 #include "net/config/ConfigListen.h"
 
+#include "net/config/ConfigSection.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-#include "utils/ResetValidator.h"
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,18 +36,10 @@
 
 namespace net::config {
 
-    ConfigListen::ConfigListen() {
-        backlogOpt = instanceSc
-                         ->add_option("--backlog", "Listen backlog") //
-                         ->type_name("int")                          //
-                         ->default_val(DEFAULT_BACKLOG)              //
-                         ->check(utils::ResetValidator(backlogOpt));
-
-        acceptsPerTickOpt = instanceSc
-                                ->add_option("--accepts-per-tick", "Accepts per tick") //
-                                ->type_name("int")                                     //
-                                ->default_val(DEFAULT_ACCEPTSPERTICK)                  //
-                                ->check(utils::ResetValidator(acceptsPerTickOpt));
+    ConfigListen::ConfigListen()
+        : net::config::ConfigSection("accept", "Options for listen() and accept()") {
+        backlogOpt = add_option("--backlog", "Listen backlog", "int", DEFAULT_BACKLOG);
+        acceptsPerTickOpt = add_option("--accepts-per-tick", "Accepts per tick", "int", DEFAULT_ACCEPTSPERTICK);
     }
 
     int ConfigListen::getBacklog() const {

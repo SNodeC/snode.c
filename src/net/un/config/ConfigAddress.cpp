@@ -20,13 +20,13 @@
 
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
 #include "utils/PreserveErrno.h"
-#include "utils/ResetValidator.h"
 
+#include <string>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -35,12 +35,10 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress() {
-        sunPathOpt = //
-            Super::addressSc
-                ->add_option("--path", "Unix domain socket")                                                                       //
-                ->type_name("sun_path:FILE")                                                                                       //
-                ->default_val(std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid()))) //
-                ->check(utils::ResetValidator(sunPathOpt));
+        sunPathOpt = Super::add_option("--path",
+                                       "Unix domain socket",
+                                       "sun_path:FILE",
+                                       std::string('\0' + net::config::ConfigInstance::getInstanceName() + "_" + std::to_string(getpid())));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
