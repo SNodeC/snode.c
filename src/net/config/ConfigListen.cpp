@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-
 #include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -39,7 +37,7 @@
 namespace net::config {
 
     ConfigListen::ConfigListen()
-        : net::config::ConfigSection("accept", "Options for listen() and accept()") {
+        : net::config::ConfigSection(this, "accept", "Options for listen() and accept()") {
         backlogOpt = add_option("--backlog", "Listen backlog", "int", DEFAULT_BACKLOG);
         acceptsPerTickOpt = add_option("--accepts-per-tick", "Accepts per tick", "int", DEFAULT_ACCEPTSPERTICK);
     }

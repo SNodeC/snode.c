@@ -18,6 +18,8 @@
 
 #include "net/config/ConfigSection.h"
 
+#include "net/config/ConfigInstance.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
@@ -27,13 +29,9 @@
 
 namespace net::config {
 
-    ConfigSection::ConfigSection(const std::string& name, const std::string& description) {
-        section = add_section(name, description);
-    }
-
-    ConfigSection::ConfigSection([[maybe_unused]] ConfigInstance* instance,
-                                 [[maybe_unused]] const std::string& name,
-                                 [[maybe_unused]] const std::string& description) {
+    ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description)
+        : instance(instance) {
+        section = instance->add_section(name, description);
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {

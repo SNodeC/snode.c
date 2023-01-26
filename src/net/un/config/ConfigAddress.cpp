@@ -43,7 +43,7 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::sunPathRequired() {
-        Super::require(sunPathOpt);
+        Super::required(sunPathOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

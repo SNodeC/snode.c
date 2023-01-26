@@ -43,15 +43,16 @@ namespace net::config {
 
         const std::string& getInstanceName() const;
 
-    protected:
+    private:
         CLI::App* add_section(const std::string& name, const std::string& description);
 
         void required(bool req = true);
 
-    private:
         CLI::App* instanceSc = nullptr;
 
         const std::string name;
+
+        friend class ConfigSection;
     };
 
 } // namespace net::config

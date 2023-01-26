@@ -19,13 +19,13 @@
 #ifndef NET_CONFIG_CONFIGSECTION_H
 #define NET_CONFIG_CONFIGSECTION_H
 
-#include "net/config/ConfigInstance.h" // IWYU pragma: export
+namespace net::config {
+    class ConfigInstance;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
-
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace CLI {
     class App;
@@ -33,12 +33,14 @@ namespace CLI {
     class Validator;
 } // namespace CLI
 
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+
 namespace net::config {
 
-    class ConfigSection : public virtual net::config::ConfigInstance {
+    class ConfigSection {
     public:
         ConfigSection() = default;
-        ConfigSection(const std::string& name, const std::string& description);
+        ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description);
 
     protected:
         CLI::Option* add_option(const std::string& name, const std::string& description, const std::string& typeName);
@@ -74,6 +76,9 @@ namespace net::config {
 
         void required(CLI::Option* opt, bool req = true);
         void required(bool req = true);
+
+    private:
+        ConfigInstance* instance = nullptr;
 
     protected:
         CLI::App* section = nullptr;

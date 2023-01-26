@@ -19,6 +19,7 @@
 #ifndef NET_CONFIG_CONFIGTLS_H
 #define NET_CONFIG_CONFIGTLS_H
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,7 +44,9 @@ using ssl_option_t = uint32_t;
 
 namespace net::config {
 
-    class ConfigTls : public ConfigSection {
+    class ConfigTls
+        : public virtual net::config::ConfigInstance
+        , public ConfigSection {
     public:
         ConfigTls();
 

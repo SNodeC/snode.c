@@ -41,12 +41,12 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::require(hostOpt);
+        Super::required(hostOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::portRequired() {
-        Super::require(portOpt);
+        Super::required(portOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

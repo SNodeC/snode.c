@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -31,7 +29,7 @@
 namespace net::config {
 
     ConfigCluster::ConfigCluster()
-        : net::config::ConfigSection("cluster", "Options for clustering") {
+        : net::config::ConfigSection(this, "cluster", "Options for clustering") {
         modeOpt = add_option("--mode",
                              "Clustering mode",
                              std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +

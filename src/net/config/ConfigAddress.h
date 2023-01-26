@@ -19,7 +19,8 @@
 #ifndef NET_CONFIG_CONFIGADDRESS_H
 #define NET_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigSection.h" // IWYU pragma: export
+#include "net/config/ConfigInstance.h" // IWYU pragma: export
+#include "net/config/ConfigSection.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,7 +33,9 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddress : protected ConfigSection {
+    class ConfigAddress
+        : public virtual net::config::ConfigInstance
+        , protected ConfigSection {
         using SocketAddress = SocketAddressT;
 
     protected:
@@ -42,7 +45,7 @@ namespace net::config {
         virtual void setAddress(const SocketAddress& address) = 0;
 
         void initialized();
-        void require(CLI::Option* opt);
+        void required(CLI::Option* opt);
 
         bool isInitialized() const;
 

@@ -41,12 +41,12 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::require(hostOpt);
+        Super::required(hostOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::psmRequired() {
-        Super::require(psmOpt);
+        Super::required(psmOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

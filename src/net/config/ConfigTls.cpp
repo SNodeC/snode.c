@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
-
 #include <functional>
 #include <stdexcept>
 
@@ -56,7 +54,7 @@ namespace net::config {
     }
 
     ConfigTls::ConfigTls()
-        : ConfigSection("tls", "Options for  SSL/TLS behaviour") {
+        : ConfigSection(this, "tls", "Options for  SSL/TLS behaviour") {
         EmptyValidator emptyValidator;
 
         certChainOpt = add_option("--cert-chain", "Certificate chain file", "PEM", "", CLI::ExistingFile | emptyValidator);

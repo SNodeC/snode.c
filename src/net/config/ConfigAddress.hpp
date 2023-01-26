@@ -29,7 +29,7 @@ namespace net::config {
 
     template <typename SocketAddress>
     ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription)
-        : net::config::ConfigSection(addressOptionName, addressOptionDescription) {
+        : net::config::ConfigSection(this, addressOptionName, addressOptionDescription) {
         _initialized = !getInstanceName().empty();
     }
 
@@ -40,13 +40,13 @@ namespace net::config {
 
     template <typename SocketAddress>
     void ConfigAddress<SocketAddress>::initialized() {
-        required(false);
+        ConfigSection::required(false);
         _initialized = true;
     }
 
     template <typename SocketAddress>
-    void ConfigAddress<SocketAddress>::require(CLI::Option* opt) {
-        required(opt);
+    void ConfigAddress<SocketAddress>::required(CLI::Option* opt) {
+        ConfigSection::required(opt);
     }
 
 } // namespace net::config

@@ -41,12 +41,12 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::require(hostOpt);
+        Super::required(hostOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::channelRequired() {
-        Super::require(channelOpt);
+        Super::required(channelOpt);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
