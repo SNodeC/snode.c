@@ -21,13 +21,17 @@
 
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
 
-    class ConfigLegacy : virtual public ConfigSection {
+    class ConfigLegacy : public ConfigSection {
     public:
         explicit ConfigLegacy(ConfigInstance* instance);
     };

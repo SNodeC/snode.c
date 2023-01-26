@@ -19,6 +19,10 @@
 #ifndef NET_CONFIG_CONFIGCLUSTER_H
 #define NET_CONFIG_CONFIGCLUSTER_H
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace CLI {

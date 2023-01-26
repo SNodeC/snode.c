@@ -21,6 +21,9 @@
 
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
+namespace net::config {
+    class ConfigInstance;
+}
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
