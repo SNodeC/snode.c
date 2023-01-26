@@ -27,7 +27,7 @@
 namespace net::config {
 
     ConfigLegacy::ConfigLegacy(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, "legacy", "Options for legacy behaviour") {
+        : net::config::ConfigSection(instance, "legacy", "Options for legacy behaviour", true) {
     }
 
 } // namespace net::config

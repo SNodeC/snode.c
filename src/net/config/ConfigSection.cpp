@@ -29,9 +29,13 @@
 
 namespace net::config {
 
-    ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description)
+    ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description, bool hidden)
         : instance(instance) {
         section = instance->add_section(name, description);
+
+        if (hidden) {
+            section->group("");
+        }
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {

@@ -39,8 +39,7 @@ namespace net::config {
 
     class ConfigSection {
     public:
-        ConfigSection() = default;
-        ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description);
+        ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description, bool hidden = false);
 
     protected:
         CLI::Option* add_option(const std::string& name, const std::string& description, const std::string& typeName);

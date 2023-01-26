@@ -21,6 +21,10 @@
 
 #include "net/config/ConfigTls.h" // IWYU pragma: export
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
