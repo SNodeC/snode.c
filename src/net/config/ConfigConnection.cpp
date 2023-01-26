@@ -48,8 +48,8 @@
 
 namespace net::config {
 
-    ConfigConnection::ConfigConnection()
-        : net::config::ConfigSection(this, "connection", "Options for established connections") {
+    ConfigConnection::ConfigConnection(ConfigInstance* instance)
+        : net::config::ConfigSection(instance, "connection", "Options for established connections") {
         readTimeoutOpt = add_option("--read-timeout", "Read timeout in seconds", "sec", DEFAULT_READTIMEOUT);
         writeTimeoutOpt = add_option("--write-timeout", "Write timeout in seconds", "sec", DEFAULT_WRITETIMEOUT);
         readBlockSizeOpt = add_option("--read-block-size", "Read block size", "std::size_t", DEFAULT_READBLOCKSIZE);

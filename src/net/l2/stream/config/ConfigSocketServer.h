@@ -25,6 +25,10 @@
 #include "net/config/ConfigListen.h"
 #include "net/l2/config/ConfigAddress.h"
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,7 +41,7 @@ namespace net::l2::stream::config {
         , public net::config::ConfigConnection
         , public net::config::ConfigCluster {
     public:
-        ConfigSocketServer();
+        explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };
 
 } // namespace net::l2::stream::config

@@ -37,7 +37,7 @@ namespace net::config {
 
     class ConfigTlsServer : public ConfigTls {
     public:
-        ConfigTlsServer();
+        explicit ConfigTlsServer(ConfigInstance* instance);
 
         bool getForceSni() const;
         void setForceSni(bool forceSni = true);

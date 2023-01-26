@@ -34,7 +34,8 @@
 namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress() {
+    ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
+        : Super(instance) {
         hostOpt = Super::add_option("--host", "Host name or IPv6 address", "hostname|IPv6", "::");
         portOpt = Super::add_option("--port", "Port number", "uint16_t", 0);
     }

@@ -31,8 +31,8 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote()
-        : Super::ConfigAddress("remote", "Remote side of connection") {
+    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote(ConfigInstance* instance)
+        : Super::ConfigAddress(instance, "remote", "Remote side of connection") {
     }
 
     template <typename SocketAddress>

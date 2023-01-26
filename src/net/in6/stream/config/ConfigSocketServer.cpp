@@ -24,7 +24,11 @@
 
 namespace net::in6::stream::config {
 
-    ConfigSocketServer::ConfigSocketServer() {
+    ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
+        : net::config::ConfigListen(instance)
+        , net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>(instance)
+        , net::config::ConfigConnection(instance)
+        , net::config::ConfigCluster(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
     }
 

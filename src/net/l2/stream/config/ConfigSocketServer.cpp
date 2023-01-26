@@ -24,7 +24,11 @@
 
 namespace net::l2::stream::config {
 
-    ConfigSocketServer::ConfigSocketServer() {
+    ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
+        : net::config::ConfigListen(instance)
+        , net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>(instance)
+        , net::config::ConfigConnection(instance)
+        , net::config::ConfigCluster(instance) {
         net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
     }
 

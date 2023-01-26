@@ -31,8 +31,8 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal()
-        : Super::ConfigAddress("local", "Local side of connection") {
+    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(ConfigInstance* instance)
+        : Super::ConfigAddress(instance, "local", "Local side of connection") {
     }
 
     template <typename SocketAddress>

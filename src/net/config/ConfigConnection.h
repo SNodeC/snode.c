@@ -19,7 +19,6 @@
 #ifndef NET_CONFIG_CONFIGCONN_H
 #define NET_CONFIG_CONFIGCONN_H
 
-#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,11 +33,9 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigConnection
-        : public virtual net::config::ConfigInstance
-        , public ConfigSection {
+    class ConfigConnection : public ConfigSection {
     public:
-        ConfigConnection();
+        explicit ConfigConnection(ConfigInstance* instance);
 
     public:
         utils::Timeval getReadTimeout() const;

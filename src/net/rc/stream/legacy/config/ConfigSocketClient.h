@@ -19,6 +19,7 @@
 #ifndef NET_RC_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_RC_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigLegacy.h"
 #include "net/rc/stream/config/ConfigSocketClient.h"
 
@@ -31,11 +32,14 @@
 namespace net::rc::stream::legacy::config {
 
     class ConfigSocketClient
-        : public net::rc::stream::config::ConfigSocketClient
+        : public net::config::ConfigInstance
+        , public net::rc::stream::config::ConfigSocketClient
         , public net::config::ConfigLegacy {
     public:
         explicit ConfigSocketClient(const std::string& name)
-            : net::config::ConfigInstance(name) {
+            : net::config::ConfigInstance(name)
+            , net::rc::stream::config::ConfigSocketClient(this)
+            , net::config::ConfigLegacy(this) {
         }
     };
 

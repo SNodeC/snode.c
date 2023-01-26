@@ -19,6 +19,7 @@
 #ifndef NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigTlsServer.h"              // IWYU pragma: export
 #include "net/in/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 
@@ -31,11 +32,14 @@
 namespace net::in::stream::tls::config {
 
     class ConfigSocketServer
-        : public net::in::stream::config::ConfigSocketServer
+        : public net::config::ConfigInstance
+        , public net::in::stream::config::ConfigSocketServer
         , public net::config::ConfigTlsServer {
     public:
         explicit ConfigSocketServer(const std::string& name)
-            : net::config::ConfigInstance(name) {
+            : net::config::ConfigInstance(name)
+            , net::in::stream::config::ConfigSocketServer(this)
+            , net::config::ConfigTlsServer(this) {
         }
     };
 

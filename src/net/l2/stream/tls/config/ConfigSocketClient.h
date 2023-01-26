@@ -19,6 +19,7 @@
 #ifndef NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigTlsClient.h"              // IWYU pragma: export
 #include "net/l2/stream/config/ConfigSocketClient.h" // IWYU pragma: export
 
@@ -31,11 +32,14 @@
 namespace net::l2::stream::tls::config {
 
     class ConfigSocketClient
-        : public net::l2::stream::config::ConfigSocketClient
+        : public net::config::ConfigInstance
+        , public net::l2::stream::config::ConfigSocketClient
         , public net::config::ConfigTlsClient {
     public:
         explicit ConfigSocketClient(const std::string& name)
-            : net::config::ConfigInstance(name) {
+            : net::config::ConfigInstance(name)
+            , net::l2::stream::config::ConfigSocketClient(this)
+            , net::config::ConfigTlsClient(this) {
         }
     };
 

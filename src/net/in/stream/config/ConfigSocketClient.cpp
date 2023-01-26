@@ -24,7 +24,10 @@
 
 namespace net::in::stream::config {
 
-    ConfigSocketClient::ConfigSocketClient() {
+    ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
+        : net::in::config::ConfigAddress<net::config::ConfigAddressRemote>(instance)
+        , net::in::config::ConfigAddress<net::config::ConfigAddressLocal>(instance)
+        , net::config::ConfigConnection(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
     }

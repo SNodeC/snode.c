@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGLEGACY_H
 #define NET_CONFIG_CONFIGLEGACY_H
 
-#include "net/config/ConfigInstance.h" // IWYU pragma: export
+#include "net/config/ConfigSection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,10 @@
 
 namespace net::config {
 
-    class ConfigLegacy : virtual public ConfigInstance {};
+    class ConfigLegacy : virtual public ConfigSection {
+    public:
+        explicit ConfigLegacy(ConfigInstance* instance);
+    };
 
 } // namespace net::config
 

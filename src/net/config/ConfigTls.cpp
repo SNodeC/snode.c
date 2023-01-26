@@ -53,8 +53,8 @@ namespace net::config {
         };
     }
 
-    ConfigTls::ConfigTls()
-        : ConfigSection(this, "tls", "Options for  SSL/TLS behaviour") {
+    ConfigTls::ConfigTls(ConfigInstance* instance)
+        : ConfigSection(instance, "tls", "Options for SSL/TLS behaviour") {
         EmptyValidator emptyValidator;
 
         certChainOpt = add_option("--cert-chain", "Certificate chain file", "PEM", "", CLI::ExistingFile | emptyValidator);

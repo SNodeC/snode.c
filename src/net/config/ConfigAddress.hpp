@@ -20,6 +20,7 @@
 #define NET_CONFIG_CONFIGADDRESS_HPP
 
 #include "net/config/ConfigAddress.h" // IWYU pragma: export
+#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,9 +29,11 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddress<SocketAddress>::ConfigAddress(const std::string& addressOptionName, const std::string& addressOptionDescription)
-        : net::config::ConfigSection(this, addressOptionName, addressOptionDescription) {
-        _initialized = !getInstanceName().empty();
+    ConfigAddress<SocketAddress>::ConfigAddress(ConfigInstance* instance,
+                                                const std::string& addressOptionName,
+                                                const std::string& addressOptionDescription)
+        : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
+        _initialized = !instance->getInstanceName().empty();
     }
 
     template <typename SocketAddress>

@@ -28,8 +28,8 @@
 
 namespace net::config {
 
-    ConfigCluster::ConfigCluster()
-        : net::config::ConfigSection(this, "cluster", "Options for clustering") {
+    ConfigCluster::ConfigCluster(ConfigInstance* instance)
+        : net::config::ConfigSection(instance, "cluster", "Options for clustering") {
         modeOpt = add_option("--mode",
                              "Clustering mode",
                              std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +

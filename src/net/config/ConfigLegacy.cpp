@@ -22,4 +22,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::config {} // namespace net::config
+namespace net::config {
+
+    ConfigLegacy::ConfigLegacy(ConfigInstance* instance)
+        : net::config::ConfigSection(instance, "legacy", "Options for legacy behaviour") {
+    }
+
+} // namespace net::config

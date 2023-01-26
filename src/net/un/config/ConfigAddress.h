@@ -21,6 +21,10 @@
 
 #include "net/un/SocketAddress.h"
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 // IWYU pragma: no_include "net/config/ConfigAddressLocal.hpp"
 // IWYU pragma: no_include "net/config/ConfigAddressRemote.hpp"
 
@@ -40,7 +44,7 @@ namespace net::un::config {
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     public:
-        ConfigAddress();
+        explicit ConfigAddress(net::config::ConfigInstance* instance);
 
     protected:
         void sunPathRequired();

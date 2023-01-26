@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGADDRESSREMOTE_H
 #define NET_CONFIG_CONFIGADDRESSREMOTE_H
 
-#include "net/config/ConfigAddress.h"
+#include "net/config/ConfigAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,7 +38,7 @@ namespace net::config {
         using SocketAddress = SocketAddressT;
 
     protected:
-        ConfigAddressRemote();
+        explicit ConfigAddressRemote(ConfigInstance* instance);
 
     public:
         bool isRemoteInitialized();

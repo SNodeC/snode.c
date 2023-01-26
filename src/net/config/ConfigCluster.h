@@ -19,7 +19,6 @@
 #ifndef NET_CONFIG_CONFIGCLUSTER_H
 #define NET_CONFIG_CONFIGCLUSTER_H
 
-#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace CLI {
@@ -32,11 +31,9 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigCluster
-        : public virtual net::config::ConfigInstance
-        , public ConfigSection {
+    class ConfigCluster : public ConfigSection {
     public:
-        ConfigCluster();
+        explicit ConfigCluster(ConfigInstance* instance);
 
         enum MODE { STANDALONE, PRIMARY, SECONDARY, PROXY };
 

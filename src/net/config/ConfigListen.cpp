@@ -36,8 +36,8 @@
 
 namespace net::config {
 
-    ConfigListen::ConfigListen()
-        : net::config::ConfigSection(this, "accept", "Options for listen() and accept()") {
+    ConfigListen::ConfigListen(ConfigInstance* instance)
+        : net::config::ConfigSection(instance, "accept", "Options for listen() and accept()") {
         backlogOpt = add_option("--backlog", "Listen backlog", "int", DEFAULT_BACKLOG);
         acceptsPerTickOpt = add_option("--accepts-per-tick", "Accepts per tick", "int", DEFAULT_ACCEPTSPERTICK);
     }

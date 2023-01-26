@@ -35,7 +35,7 @@ namespace net::config {
 
     class ConfigTlsClient : public ConfigTls {
     public:
-        ConfigTlsClient();
+        explicit ConfigTlsClient(ConfigInstance* instance);
 
         std::string getSni() const;
         void setSni(const std::string& sni);
