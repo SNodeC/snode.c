@@ -20,6 +20,7 @@
 
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
