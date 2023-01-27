@@ -19,9 +19,10 @@
 #ifndef NET_RC_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_RC_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/stream/config/tls/ConfigSocketClient.hpp"
-//
 #include "net/rc/stream/config/ConfigSocketClient.h"
+#include "net/stream/config/tls/ConfigSocketClient.h"
+
+// IWYU pragma: no_include "net/stream/config/tls/ConfigSocketClient.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

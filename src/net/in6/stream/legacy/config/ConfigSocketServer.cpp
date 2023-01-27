@@ -16,29 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
-#define NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
+#include "net/in6/stream/legacy/config/ConfigSocketServer.h"
 
-#include "net/l2/stream/config/ConfigSocketClient.h"
-#include "net/stream/config/tls/ConfigSocketClient.hpp"
-
-// IWYU pragma: no_include "net/stream/config/tls/ConfigSocketClient.hpp"
+#include "net/stream/config/legacy/ConfigSocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace net::in6::stream::legacy::config {} // namespace net::in6::stream::legacy::config
 
-namespace net::l2::stream::tls::config {
-
-    class ConfigSocketClient : public net::stream::config::tls::ConfigSocketClient<net::l2::stream::config::ConfigSocketClient> {
-    public:
-        explicit ConfigSocketClient(const std::string& name)
-            : net::stream::config::tls::ConfigSocketClient<net::l2::stream::config::ConfigSocketClient>(name) {
-        }
-    };
-
-} // namespace net::l2::stream::tls::config
-
-#endif // NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
+template class net::stream::config::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer>;

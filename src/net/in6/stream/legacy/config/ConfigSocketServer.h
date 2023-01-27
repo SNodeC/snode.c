@@ -19,9 +19,10 @@
 #ifndef NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/stream/config/legacy/ConfigSocketServer.hpp"
-//
 #include "net/in6/stream/config/ConfigSocketServer.h"
+#include "net/stream/config/legacy/ConfigSocketServer.h"
+
+// IWYU pragma: no_include "net/stream/config/legacy/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

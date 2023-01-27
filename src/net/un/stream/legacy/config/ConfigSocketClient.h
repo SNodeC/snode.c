@@ -19,9 +19,10 @@
 #ifndef NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/stream/config/legacy/ConfigSocketClient.hpp"
-//
+#include "net/stream/config/legacy/ConfigSocketClient.h"
 #include "net/un/stream/config/ConfigSocketClient.h"
+
+// IWYU pragma: no_include "net/stream/config/legacy/ConfigSocketClient.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

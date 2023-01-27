@@ -23,6 +23,7 @@
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace net::stream::config {
+
     template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
     ConfigSocketServer<ConfigAddress>::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::config::ConfigListen(instance)
@@ -30,4 +31,5 @@ namespace net::stream::config {
         , net::config::ConfigConnection(instance)
         , net::config::ConfigCluster(instance) {
     }
+
 } // namespace net::stream::config

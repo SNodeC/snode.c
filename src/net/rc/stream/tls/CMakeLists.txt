@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-RC-STREAM-TLS_CPP SocketClient.cpp SocketServer.cpp)
+set(NET-RC-STREAM-TLS_CPP
+    SocketClient.cpp SocketServer.cpp config/ConfigSocketClient.cpp
+    config/ConfigSocketServer.cpp
+)
 
 set(NET-RC-STREAM-TLS_H SocketClient.h SocketServer.h
                         config/ConfigSocketClient.h config/ConfigSocketServer.h
