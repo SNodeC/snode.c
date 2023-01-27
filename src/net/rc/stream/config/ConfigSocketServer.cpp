@@ -18,6 +18,8 @@
 
 #include "net/rc/stream/config/ConfigSocketServer.h"
 
+#include "net/stream/config/ConfigSocketServer.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -25,10 +27,7 @@
 namespace net::rc::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::ConfigListen(instance)
-        , net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>(instance)
-        , net::config::ConfigConnection(instance)
-        , net::config::ConfigCluster(instance) {
+        : net::stream::config::ConfigSocketServer<net::rc::config::ConfigAddress>(instance) {
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
     }
 

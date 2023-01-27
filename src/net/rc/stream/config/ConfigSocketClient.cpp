@@ -18,6 +18,8 @@
 
 #include "net/rc/stream/config/ConfigSocketClient.h"
 
+#include "net/stream/config/ConfigSocketClient.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -25,9 +27,7 @@
 namespace net::rc::stream::config {
 
     ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>(instance)
-        , net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>(instance)
-        , net::config::ConfigConnection(instance) {
+        : net::stream::config::ConfigSocketClient<net::rc::config::ConfigAddress>(instance) {
         net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::channelRequired();
     }

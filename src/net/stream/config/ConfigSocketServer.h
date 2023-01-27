@@ -16,12 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
-#define NET_IN6_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
+#ifndef NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
+#define NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/stream/config/ConfigSocketClient.h"
-//
-#include "net/in6/config/ConfigAddress.h"
+#include "net/config/ConfigAddressLocal.h" // IWYU pragma: export
+#include "net/config/ConfigCluster.h"
+#include "net/config/ConfigConnection.h"
+#include "net/config/ConfigListen.h"
 
 namespace net::config {
     class ConfigInstance;
@@ -29,15 +30,20 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net::in6::stream::config {
+namespace net::stream::config {
 
-    class ConfigSocketClient : public net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress> {
+    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressT>
+    class ConfigSocketServer
+        : public net::config::ConfigListen
+        , public ConfigAddressT<net::config::ConfigAddressLocal>
+        , public net::config::ConfigConnection
+        , public net::config::ConfigCluster {
     public:
-        explicit ConfigSocketClient(net::config::ConfigInstance* instance);
+        explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };
 
-} // namespace net::in6::stream::config
+} // namespace net::stream::config
 
-#endif // NET_IN6_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
+#endif // NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H

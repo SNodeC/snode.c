@@ -18,6 +18,8 @@
 
 #include "net/in6/stream/config/ConfigSocketServer.h"
 
+#include "net/stream/config/ConfigSocketServer.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -25,10 +27,7 @@
 namespace net::in6::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::ConfigListen(instance)
-        , net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>(instance)
-        , net::config::ConfigConnection(instance)
-        , net::config::ConfigCluster(instance) {
+        : net::stream::config::ConfigSocketServer<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
     }
 

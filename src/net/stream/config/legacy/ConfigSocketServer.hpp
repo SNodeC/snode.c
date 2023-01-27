@@ -16,28 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
-#define NET_IN6_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
-
-#include "net/stream/config/tls/ConfigSocketClient.hpp"
-//
-#include "net/in6/stream/config/ConfigSocketClient.h"
+#include "net/stream/config/legacy/ConfigSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace net::stream::config::legacy {
 
-namespace net::in6::stream::tls::config {
+    template <typename ConfigSocketServerBase>
+    ConfigSocketServer<ConfigSocketServerBase>::ConfigSocketServer(const std::string& name)
+        : net::config::ConfigInstance(name)
+        , ConfigSocketServerBase(this)
+        , net::config::ConfigLegacy(this) {
+    }
 
-    class ConfigSocketClient : public net::stream::config::tls::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient> {
-    public:
-        explicit ConfigSocketClient(const std::string& name)
-            : net::stream::config::tls::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>(name) {
-        }
-    };
-
-} // namespace net::in6::stream::tls::config
-
-#endif // NET_IN6_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
+} // namespace net::stream::config::legacy

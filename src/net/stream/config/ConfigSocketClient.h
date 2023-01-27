@@ -16,28 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
-#define NET_IN6_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
+#ifndef NET_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
+#define NET_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/stream/config/tls/ConfigSocketClient.hpp"
-//
-#include "net/in6/stream/config/ConfigSocketClient.h"
+#include "net/config/ConfigAddressLocal.h"  // IWYU pragma: export
+#include "net/config/ConfigAddressRemote.h" // IWYU pragma: export
+#include "net/config/ConfigConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace net::stream::config {
 
-namespace net::in6::stream::tls::config {
-
-    class ConfigSocketClient : public net::stream::config::tls::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient> {
+    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressT>
+    class ConfigSocketClient
+        : public ConfigAddressT<net::config::ConfigAddressRemote>
+        , public ConfigAddressT<net::config::ConfigAddressLocal>
+        , public net::config::ConfigConnection {
     public:
-        explicit ConfigSocketClient(const std::string& name)
-            : net::stream::config::tls::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>(name) {
-        }
+        explicit ConfigSocketClient(net::config::ConfigInstance* instance);
     };
 
-} // namespace net::in6::stream::tls::config
+} // namespace net::stream::config
 
-#endif // NET_IN6_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
+#endif // NET_STREAM_CONFIG_CONFIGSOCKETCLIENT_H

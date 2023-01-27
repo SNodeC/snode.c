@@ -19,9 +19,9 @@
 #ifndef NET_RC_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_RC_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigInstance.h"
-#include "net/config/ConfigTlsServer.h"              // IWYU pragma: export
-#include "net/rc/stream/config/ConfigSocketServer.h" // IWYU pragma: export
+#include "net/stream/config/tls/ConfigSocketServer.hpp"
+//
+#include "net/rc/stream/config/ConfigSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,15 +31,10 @@
 
 namespace net::rc::stream::tls::config {
 
-    class ConfigSocketServer
-        : public net::config::ConfigInstance
-        , public net::rc::stream::config::ConfigSocketServer
-        , public net::config::ConfigTlsServer {
+    class ConfigSocketServer : public net::stream::config::tls::ConfigSocketServer<net::rc::stream::config::ConfigSocketServer> {
     public:
         explicit ConfigSocketServer(const std::string& name)
-            : net::config::ConfigInstance(name)
-            , net::rc::stream::config::ConfigSocketServer(this)
-            , net::config::ConfigTlsServer(this) {
+            : net::stream::config::tls::ConfigSocketServer<net::rc::stream::config::ConfigSocketServer>(name) {
         }
     };
 

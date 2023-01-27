@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_compile_options(-Wno-float-equal -Wno-covered-switch-default -Wno-undefined-func-template)
+add_compile_options(
+    -Wno-float-equal -Wno-covered-switch-default -Wno-undefined-func-template
+)
 
 set(NET_CPP
     config/ConfigInstance.cpp
@@ -47,6 +49,18 @@ set(NET_H
     stream/SocketClient.hpp
     stream/SocketServer.h
     stream/SocketServer.hpp
+    stream/config/ConfigSocketClient.h
+    stream/config/ConfigSocketClient.hpp
+    stream/config/ConfigSocketServer.h
+    stream/config/ConfigSocketServer.hpp
+    stream/config/legacy/ConfigSocketClient.h
+    stream/config/legacy/ConfigSocketClient.hpp
+    stream/config/legacy/ConfigSocketServer.h
+    stream/config/legacy/ConfigSocketServer.hpp
+    stream/config/tls/ConfigSocketClient.h
+    stream/config/tls/ConfigSocketClient.hpp
+    stream/config/tls/ConfigSocketServer.h
+    stream/config/tls/ConfigSocketServer.hpp
 )
 
 add_library(net SHARED ${NET_CPP} ${NET_H})

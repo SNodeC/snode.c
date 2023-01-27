@@ -19,10 +19,8 @@
 #ifndef NET_L2_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_L2_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigAddressLocal.h"
-#include "net/config/ConfigCluster.h"
-#include "net/config/ConfigConnection.h"
-#include "net/config/ConfigListen.h"
+#include "net/stream/config/ConfigSocketServer.h"
+//
 #include "net/l2/config/ConfigAddress.h"
 
 namespace net::config {
@@ -35,11 +33,7 @@ namespace net::config {
 
 namespace net::l2::stream::config {
 
-    class ConfigSocketServer
-        : public net::config::ConfigListen
-        , public net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>
-        , public net::config::ConfigConnection
-        , public net::config::ConfigCluster {
+    class ConfigSocketServer : public net::stream::config::ConfigSocketServer<net::l2::config::ConfigAddress> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };

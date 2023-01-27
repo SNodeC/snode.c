@@ -18,6 +18,8 @@
 
 #include "net/un/stream/config/ConfigSocketClient.h"
 
+#include "net/stream/config/ConfigSocketClient.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -25,9 +27,7 @@
 namespace net::un::stream::config {
 
     ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : net::un::config::ConfigAddress<net::config::ConfigAddressRemote>(instance)
-        , net::un::config::ConfigAddress<net::config::ConfigAddressLocal>(instance)
-        , net::config::ConfigConnection(instance) {
+        : net::stream::config::ConfigSocketClient<net::un::config::ConfigAddress>(instance) {
         net::un::config::ConfigAddress<net::config::ConfigAddressRemote>::sunPathRequired();
     }
 
