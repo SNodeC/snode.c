@@ -118,7 +118,7 @@ namespace utils {
 
         app.configurable(false);
 
-        app.get_config_formatter_base()->defaultAlsoPrefix('#');
+        app.get_config_formatter_base()->commentDefaults();
 
         app.description("#################################################################\n\n"
                         "Configuration for Application '" +
@@ -230,8 +230,7 @@ namespace utils {
     }
 
     bool Config::prepare() {
-        bool ret = parse(app["--show-config"]->count() == 0);
-        VLOG(0) << "#####: " << app["--daemonize"]->as<std::string>();
+        bool ret = parse(app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0);
 
         if (ret) {
             std::string logFile = logFileOpt->as<std::string>();

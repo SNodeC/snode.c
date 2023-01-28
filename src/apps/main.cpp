@@ -17,7 +17,7 @@ using ssl_option_t = uint32_t;
 int main(int argc, char** argv) {
     CLI::App app("data output specification");
     app.set_help_all_flag("--help-all", "Expand all help");
-    app.get_config_formatter_base()->defaultAlsoPrefix('#');
+    app.get_config_formatter_base()->commentDefaults();
 
     CLI::App* tlsSub = app.add_subcommand("tls", "SNI Certificate");
     tlsSub->required();
