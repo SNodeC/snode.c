@@ -110,13 +110,16 @@ namespace utils {
 
         sectionFormatter->label("SUBCOMMAND", "SECTION");
         sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
-        sectionFormatter->column_width(40);
+        sectionFormatter->column_width(43);
+
+        app.configurable(false);
+        app.allow_extras();
+        app.allow_config_extras();
+        app.set_help_flag();
 
         app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
         app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
         app.get_formatter()->column_width(45);
-
-        app.configurable(false);
 
         app.get_config_formatter_base()->commentDefaults();
 
@@ -129,11 +132,6 @@ namespace utils {
 
         app.footer("Application powered by SNode.C (C) 2019-2023 Volker Christian\n"
                    "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
-
-        app.allow_extras();
-        app.allow_config_extras();
-
-        app.set_help_flag();
 
         app.add_flag_callback(
                "-h,--help",
@@ -181,6 +179,7 @@ namespace utils {
                                                applicationName + ".log" + "}",
                                            utils::ResetToDefault(logFileOpt),
                                            "Logfile path") //
+                         ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
                          ->default_val(defaultLogDir + "/" + applicationName + ".log")
                          ->force_callback();
 
@@ -212,8 +211,6 @@ namespace utils {
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
 
         bool ret = true;
-
-        app.prefix_command();
 
         ret = parse(false); // for stopDaemon but do not act on -h or --help-all
 
@@ -280,7 +277,7 @@ namespace utils {
     bool Config::parse(bool stopOnError) {
         bool ret = true;
 
-        Config::app.allow_extras(!stopOnError);
+        Config::app.allow_extras(!stopOnError)->allow_config_extras(!stopOnError);
 
         try {
             Config::app.parse(argc, argv);
@@ -314,6 +311,7 @@ namespace utils {
     CLI::App* Config::add_instance(const std::string& name, const std::string& description) {
         CLI::App* instance = app.add_subcommand(name, description) //
                                  ->configurable(false)
+                                 ->allow_extras(false)
                                  ->formatter(sectionFormatter)
                                  ->fallthrough()
                                  ->group(name.empty() ? "" : "Instances")
