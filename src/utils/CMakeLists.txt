@@ -6,7 +6,7 @@ set(UTILS_CPP
     Config.cpp
     Daemon.cpp
     PreserveErrno.cpp
-    ResetValidator.cpp
+    ResetToDefault.cpp
     Timeval.cpp
     Uuid.cpp
     base64.cpp
@@ -19,7 +19,7 @@ set(UTILS_H
     Config.h
     Daemon.h
     PreserveErrno.h
-    ResetValidator.h
+    ResetToDefault.h
     Timeval.h
     Uuid.h
     base64.h

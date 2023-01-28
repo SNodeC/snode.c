@@ -20,7 +20,7 @@
 
 #include "utils/CLI11.hpp"
 #include "utils/Daemon.h"
-#include "utils/ResetValidator.h"
+#include "utils/ResetToDefault.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,8 +56,7 @@ namespace utils {
     char** Config::argv = nullptr;
     CLI::App Config::app;
     std::string Config::applicationName;
-    std::string Config::logFile;
-    std::string Config::outputConfigFile;
+
     std::string Config::defaultConfDir;
     std::string Config::defaultLogDir;
     std::string Config::defaultPidDir;
@@ -67,9 +66,6 @@ namespace utils {
     CLI::Option* Config::enforceLogFileOpt = nullptr;
     CLI::Option* Config::logLevelOpt = nullptr;
     CLI::Option* Config::verboseLevelOpt = nullptr;
-
-    int Config::logLevel = 0; // Warning. Loglevels [0, 6] 0 ... nothing, 6 ... trace
-    int Config::verboseLevel = 0;
 
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::Formatter>();
 
@@ -159,9 +155,14 @@ namespace utils {
             ->disable_flag_override() //
             ->trigger_on_parse();
 
-        daemonizeOpt = app.add_flag("-d,!-f,--daemonize,!--foreground", "Start application as daemon") //
-                           ->default_val("false");                                                     //
-        daemonizeOpt->check(utils::ResetValidator(daemonizeOpt));
+        daemonizeOpt = app.add_flag_function("-d,!-f,--daemonize,!--foreground",
+                                             utils::ResetToDefault(daemonizeOpt),
+                                             "Start application as daemon") //
+                           ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
+                           ->default_val("false")
+                           ->type_name("bool")
+                           ->check(CLI::TypeValidator<bool>())
+                           ->force_callback();
 
         app.add_flag("-k,--kill", "Kill running daemon") //
             ->configurable(false)                        //
@@ -173,36 +174,46 @@ namespace utils {
 
         app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" + defaultConfDir + "/" +
                          applicationName + ".conf" + "}",
-                     outputConfigFile,
                      "Write config file") //
             ->configurable(false);
 
-        logFileOpt = app.add_flag("-l{" + defaultLogDir + "/" + applicationName + ".log" + "},--log-file{" + defaultLogDir + "/" +
-                                      applicationName + ".log" + "}",
-                                  logFile,
-                                  "Logfile path") //
-                         ->default_val(defaultLogDir + "/" + applicationName + ".log");
-        logFileOpt->check(utils::ResetValidator(logFileOpt));
+        logFileOpt = app.add_flag_function("-l{" + defaultLogDir + "/" + applicationName + ".log" + "},--log-file{" + defaultLogDir + "/" +
+                                               applicationName + ".log" + "}",
+                                           utils::ResetToDefault(logFileOpt),
+                                           "Logfile path") //
+                         ->default_val(defaultLogDir + "/" + applicationName + ".log")
+                         ->force_callback();
 
-        enforceLogFileOpt = app.add_flag("-e,--enforce-log-file", "Enforce writing of logs to file for foreground applications") //
-                                ->default_val("false");                                                                          //
-        enforceLogFileOpt->check(utils::ResetValidator(enforceLogFileOpt));
+        enforceLogFileOpt = app.add_flag_function("-e,--enforce-log-file",
+                                                  utils::ResetToDefault(enforceLogFileOpt),
+                                                  "Enforce writing of logs to file for foreground applications") //
+                                ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
+                                ->default_val("false")
+                                ->type_name("bool")
+                                ->check(CLI::TypeValidator<bool>())
+                                ->force_callback();
 
-        logLevelOpt = app.add_option("--log-level", logLevel, "Log level") //
-                          ->default_val(3)                                 //
-                          ->type_name("level");
-        logLevelOpt->check(CLI::Range(0, 6) & utils::ResetValidator(logLevelOpt));
+        logLevelOpt = app.add_option_function<std::string>("--log-level",
+                                                           utils::ResetToDefault(logLevelOpt),
+                                                           "Log level") //
+                          ->default_val(3)
+                          ->type_name("level")
+                          ->check(CLI::Range(0, 6))
+                          ->force_callback();
 
-        verboseLevelOpt = app.add_option("--verbose-level", verboseLevel, "Verbose level") //
-                              ->default_val(0)                                             //
-                              ->type_name("level");
-        verboseLevelOpt->check(CLI::Range(0, 10) & utils::ResetValidator(verboseLevelOpt));
+        verboseLevelOpt = app.add_option_function<std::string>("--verbose-level", utils::ResetToDefault(logFileOpt), "Verbose level") //
+                              ->default_val(0)                                                                                        //
+                              ->type_name("level")
+                              ->check(CLI::Range(0, 10))
+                              ->force_callback();
 
         app.set_version_flag("--version", "1.0.0");
 
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
 
         bool ret = true;
+
+        app.prefix_command();
 
         ret = parse(false); // for stopDaemon but do not act on -h or --help-all
 
@@ -211,8 +222,8 @@ namespace utils {
 
             ret = false;
         } else {
-            logger::Logger::setLogLevel(logLevel);
-            logger::Logger::setVerboseLevel(verboseLevel);
+            logger::Logger::setLogLevel(logLevelOpt->as<int>());
+            logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
         }
 
         return ret;
@@ -220,8 +231,10 @@ namespace utils {
 
     bool Config::prepare() {
         bool ret = parse(app["--show-config"]->count() == 0);
+        VLOG(0) << "#####: " << app["--daemonize"]->as<std::string>();
 
         if (ret) {
+            std::string logFile = logFileOpt->as<std::string>();
             if (app["--show-config"]->count() > 0) {
                 try {
                     VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
@@ -230,8 +243,8 @@ namespace utils {
                 }
                 ret = false;
             } else if (app["--write-config"]->count() > 0) {
-                VLOG(0) << "Write config file " << outputConfigFile;
-                std::ofstream confFile(outputConfigFile);
+                VLOG(0) << "Write config file " << app["--write-config"]->as<std::string>();
+                std::ofstream confFile(app["--write-config"]->as<std::string>());
                 try {
                     confFile << app.config_to_str(true, true);
                 } catch (CLI::ValidationError& e) {
@@ -406,11 +419,11 @@ namespace utils {
     }
 
     int Config::getLogLevel() {
-        return logLevel;
+        return logLevelOpt->as<int>();
     }
 
     int Config::getVerboseLevel() {
-        return verboseLevel;
+        return verboseLevelOpt->as<int>();
     }
 
 } // namespace utils

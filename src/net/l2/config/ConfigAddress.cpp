@@ -36,8 +36,8 @@ namespace net::l2::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        hostOpt = Super::add_option("--host", "Bluetooth address", "xx:xx:xx:xx:xx:xx", "00:00:00:00:00:00");
-        psmOpt = Super::add_option("--psm", "Protocol service multiplexer", "uint16_t", 0);
+        Super::add_option(hostOpt, "--host", "Bluetooth address", "xx:xx:xx:xx:xx:xx", "00:00:00:00:00:00");
+        Super::add_option(psmOpt, "--psm", "Protocol service multiplexer", "uint16_t", 0);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

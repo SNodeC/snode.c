@@ -37,10 +37,11 @@ namespace net::un::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        sunPathOpt = Super::add_option("--path",
-                                       "Unix domain socket",
-                                       "sun_path:FILE",
-                                       std::string('\0' + instance->getInstanceName() + "_" + std::to_string(getpid())));
+        Super::add_option(sunPathOpt,
+                          "--path",
+                          "Unix domain socket",
+                          "sun_path:FILE",
+                          std::string('\0' + instance->getInstanceName() + "_" + std::to_string(getpid())));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

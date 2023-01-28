@@ -27,34 +27,38 @@
 namespace net::config {
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_option(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           ValueType defaultValue) {
-        CLI::Option* option = add_option(name, description, typeName);
-        return option->default_val(defaultValue);
+    CLI::Option* ConfigSection::add_option(
+        CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
+        return add_option(opt, name, description, typeName) //
+            ->default_val(defaultValue);
     }
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_option(const std::string& name,
+    CLI::Option* ConfigSection::add_option(CLI::Option*& opt,
+                                           const std::string& name,
                                            const std::string& description,
                                            const std::string& typeName,
                                            ValueType defaultValue,
                                            const CLI::Validator& additionalValidator) {
-        return add_option(name, description, typeName, defaultValue)->check(additionalValidator);
+        return add_option(opt, name, description, typeName, defaultValue) //
+            ->check(additionalValidator);
     }
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_flag(const std::string& name, const std::string& description, ValueType defaultValue) {
-        return add_flag(name, description)->default_val(defaultValue);
+    CLI::Option*
+    ConfigSection::add_flag(CLI::Option*& opt, const std::string& name, const std::string& description, ValueType defaultValue) {
+        return add_flag(opt, name, description) //
+            ->default_val(defaultValue);
     }
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_flag(const std::string& name,
+    CLI::Option* ConfigSection::add_flag(CLI::Option*& opt,
+                                         const std::string& name,
                                          const std::string& description,
                                          ValueType defaultValue,
                                          const CLI::Validator& additionalValidator) {
-        return add_flag(name, description, defaultValue)->check(additionalValidator);
+        return add_flag(opt, name, description, defaultValue) //
+            ->check(additionalValidator);
     }
 
 } // namespace net::config

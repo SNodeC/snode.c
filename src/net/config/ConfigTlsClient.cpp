@@ -28,7 +28,7 @@ namespace net::config {
 
     ConfigTlsClient::ConfigTlsClient(ConfigInstance* instance)
         : ConfigTls(instance) {
-        sniOpt = add_option("--sni", "Server Name Indication", "sni");
+        sniOpt = add_option(sniOpt, "--sni", "Server Name Indication", "sni");
     }
 
     std::string ConfigTlsClient::getSni() const {

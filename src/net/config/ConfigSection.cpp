@@ -23,7 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
-#include "utils/ResetValidator.h"
+#include "utils/ResetToDefault.h"
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -31,7 +31,8 @@ namespace net::config {
 
     ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description, bool hidden)
         : instance(instance) {
-        section = instance->add_section(name, description);
+        section = instance //
+                      ->add_section(name, description);
 
         if (hidden) {
             section->group("");
@@ -39,7 +40,10 @@ namespace net::config {
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {
-        opt->default_str("")->required()->clear();
+        opt //
+            ->default_str("")
+            ->required()
+            ->clear();
         required(req);
     }
 
@@ -50,35 +54,40 @@ namespace net::config {
             ->required(req);
     }
 
-    CLI::Option* ConfigSection::add_option(const std::string& name, const std::string& description, const std::string& typeName) {
-        CLI::Option* option = section->add_option(name, description);
+    CLI::Option*
+    ConfigSection::add_option(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName) {
+        opt = section //
+                  ->add_option_function<std::string>(name, utils::ResetToDefault(opt), description)
+                  ->force_callback();
 
         if (!typeName.empty()) {
-            option //
-                ->type_name(typeName);
+            opt->type_name(typeName);
         }
-        option //
-            ->check(utils::ResetValidator(option));
 
-        return option;
+        return opt;
     }
 
-    CLI::Option* ConfigSection::add_option(const std::string& name,
+    CLI::Option* ConfigSection::add_option(CLI::Option*& opt,
+                                           const std::string& name,
                                            const std::string& description,
                                            const std::string& typeName,
                                            const CLI::Validator& additionalValidator) {
-        return add_option(name, description, typeName)->check(additionalValidator);
+        return add_option(opt, name, description, typeName) //
+            ->check(additionalValidator);
     }
 
-    CLI::Option* ConfigSection::add_flag(const std::string& name, const std::string& description) {
-        CLI::Option* flag = section->add_flag(name, description);
-        return flag //
-            ->check(utils::ResetValidator(flag));
+    CLI::Option* ConfigSection::add_flag(CLI::Option*& opt, const std::string& name, const std::string& description) {
+        return opt = section //
+                         ->add_flag_function(name, utils::ResetToDefault(opt), description)
+                         ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
     }
 
-    CLI::Option*
-    ConfigSection::add_flag(const std::string& name, const std::string& description, const CLI::Validator& additionalValidator) {
-        return add_flag(name, description)->check(additionalValidator);
+    CLI::Option* ConfigSection::add_flag(CLI::Option*& opt,
+                                         const std::string& name,
+                                         const std::string& description,
+                                         const CLI::Validator& additionalValidator) {
+        return add_flag(opt, name, description) //
+            ->check(additionalValidator);
     }
 
 } // namespace net::config

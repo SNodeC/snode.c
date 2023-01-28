@@ -57,17 +57,21 @@ namespace net::config {
         : ConfigSection(instance, "tls", "Options for SSL/TLS behaviour") {
         EmptyValidator emptyValidator;
 
-        certChainOpt = add_option("--cert-chain", "Certificate chain file", "PEM", "", CLI::ExistingFile | emptyValidator);
-        certKeyOpt = add_option("--cert-key", "Certificate key file", "PEM", "", CLI::ExistingFile | emptyValidator);
-        certKeyPasswordOpt = add_option("--cert-key-password", "Password for the certificate key file", "TEXT", "");
-        caCertFileOpt = add_option("--ca-cert-file", "CA-certificate file", "PEM", "", CLI::ExistingFile | emptyValidator);
-        caCertDirOpt =
-            add_option("--ca-cert-dir", "CA-certificate directory", "PEM_container", "", CLI::ExistingDirectory | emptyValidator);
-        useDefaultCaCertDirOpt = add_flag("--use-default-ca-cert-dir", "Use default CA-certificate directory", "false");
-        cipherListOpt = add_option("--cipher-list", "Cipher list", "cipher_list", "");
-        tlsOptionsOpt = add_option("--tls-options", "OR combined SSL/TLS options", "uint64_t", 0);
-        initTimeoutOpt = add_option("--init-timeout", "SSL/TLS initialization timeout in seconds", "sec", DEFAULT_INITTIMEOUT);
-        shutdownTimeoutOpt = add_option("--shutdown-timeout", "SSL/TLS shutdown timeout in seconds", "sec", DEFAULT_SHUTDOWNTIMEOUT);
+        add_option(certChainOpt, "--cert-chain", "Certificate chain file", "PEM", "", CLI::ExistingFile | emptyValidator);
+        add_option(certKeyOpt, "--cert-key", "Certificate key file", "PEM", "", CLI::ExistingFile | emptyValidator);
+        add_option(certKeyPasswordOpt, "--cert-key-password", "Password for the certificate key file", "TEXT", "");
+        add_option(caCertFileOpt, "--ca-cert-file", "CA-certificate file", "PEM", "", CLI::ExistingFile | emptyValidator);
+        add_option(caCertDirOpt, "--ca-cert-dir", "CA-certificate directory", "PEM_container", "", CLI::ExistingDirectory | emptyValidator);
+        add_flag(useDefaultCaCertDirOpt,
+                 "--use-default-ca-cert-dir",
+                 "Use default CA-certificate directory",
+                 "false",
+                 CLI::TypeValidator<bool>())
+            ->type_name("bool");
+        add_option(cipherListOpt, "--cipher-list", "Cipher list", "cipher_list", "");
+        add_option(tlsOptionsOpt, "--tls-options", "OR combined SSL/TLS options", "uint64_t", 0);
+        add_option(initTimeoutOpt, "--init-timeout", "SSL/TLS initialization timeout in seconds", "sec", DEFAULT_INITTIMEOUT);
+        add_option(shutdownTimeoutOpt, "--shutdown-timeout", "SSL/TLS shutdown timeout in seconds", "sec", DEFAULT_SHUTDOWNTIMEOUT);
     }
 
     std::string ConfigTls::getCertChain() const {

@@ -21,15 +21,27 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
+#include <cstdint>
+#include <string>
+
+namespace CLI {
+    class Option;
+}
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace utils {
 
-    class ResetValidator : public CLI::Validator {
+    class ResetToDefault {
     public:
-        explicit ResetValidator(CLI::Option* option);
+        explicit ResetToDefault(CLI::Option*& option);
+
+        void operator()(const std::string& value);
+
+        void operator()(std::int64_t count);
+
+    private:
+        CLI::Option*& option;
     };
 
 } // namespace utils

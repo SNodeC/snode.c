@@ -42,33 +42,40 @@ namespace net::config {
         ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description, bool hidden = false);
 
     protected:
-        CLI::Option* add_option(const std::string& name, const std::string& description, const std::string& typeName);
+        CLI::Option* add_option(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName);
 
-        CLI::Option* add_option(const std::string& name,
+        CLI::Option* add_option(CLI::Option*& opt,
+                                const std::string& name,
                                 const std::string& description,
                                 const std::string& typeName,
                                 const CLI::Validator& additionalValidator);
 
         template <typename ValueTypeT>
-        CLI::Option*
-        add_option(const std::string& name, const std::string& description, const std::string& typeName, ValueTypeT defaultValue);
+        CLI::Option* add_option(CLI::Option*& opt,
+                                const std::string& name,
+                                const std::string& description,
+                                const std::string& typeName,
+                                ValueTypeT defaultValue);
 
         template <typename ValueTypeT>
-        CLI::Option* add_option(const std::string& name,
+        CLI::Option* add_option(CLI::Option*& opt,
+                                const std::string& name,
                                 const std::string& description,
                                 const std::string& typeName,
                                 ValueTypeT defaultValue,
                                 const CLI::Validator& additionalValidator);
 
-        CLI::Option* add_flag(const std::string& name, const std::string& description);
+        CLI::Option* add_flag(CLI::Option*& opt, const std::string& name, const std::string& description);
 
-        CLI::Option* add_flag(const std::string& name, const std::string& description, const CLI::Validator& additionalValidator);
-
-        template <typename ValueTypeT>
-        CLI::Option* add_flag(const std::string& name, const std::string& description, ValueTypeT defaultValue);
+        CLI::Option*
+        add_flag(CLI::Option*& opt, const std::string& name, const std::string& description, const CLI::Validator& additionalValidator);
 
         template <typename ValueTypeT>
-        CLI::Option* add_flag(const std::string& name,
+        CLI::Option* add_flag(CLI::Option*& opt, const std::string& name, const std::string& description, ValueTypeT defaultValue);
+
+        template <typename ValueTypeT>
+        CLI::Option* add_flag(CLI::Option*& opt,
+                              const std::string& name,
                               const std::string& description,
                               ValueTypeT defaultValue,
                               const CLI::Validator& additionalValidator);

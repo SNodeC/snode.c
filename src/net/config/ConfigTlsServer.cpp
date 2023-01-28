@@ -18,10 +18,11 @@
 
 #include "net/config/ConfigTlsServer.h"
 
+#include "net/config/ConfigSection.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "utils/CLI11.hpp"
 
 #include <any>
 #include <list>
@@ -53,7 +54,8 @@ namespace net::config {
                                        "        }") //
                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}");
 
-        forceSniOpt = add_flag("--force-sni{true}", "Force using of the Server Name Indication", "false");
+        add_flag(forceSniOpt, "--force-sni", "Force using of the Server Name Indication", "false", CLI::TypeValidator<bool>())
+            ->type_name("bool");
 
         section->final_callback([this](void) -> void {
             std::list<std::string> vaultyDomainConfigs;

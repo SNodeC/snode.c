@@ -50,11 +50,11 @@ namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
         : net::config::ConfigSection(instance, "connection", "Options for established connections") {
-        readTimeoutOpt = add_option("--read-timeout", "Read timeout in seconds", "sec", DEFAULT_READTIMEOUT);
-        writeTimeoutOpt = add_option("--write-timeout", "Write timeout in seconds", "sec", DEFAULT_WRITETIMEOUT);
-        readBlockSizeOpt = add_option("--read-block-size", "Read block size", "std::size_t", DEFAULT_READBLOCKSIZE);
-        writeBlockSizeOpt = add_option("--write-block-size", "Write block size", "std::size_t", DEFAULT_WRITEBLOCKSIZE);
-        terminateTimeoutOpt = add_option("--terminate-timeout", "Terminate timeout", "sec", DEFAULT_TERMINATETIMEOUT);
+        add_option(readTimeoutOpt, "--read-timeout", "Read timeout in seconds", "sec", DEFAULT_READTIMEOUT);
+        add_option(writeTimeoutOpt, "--write-timeout", "Write timeout in seconds", "sec", DEFAULT_WRITETIMEOUT);
+        add_option(readBlockSizeOpt, "--read-block-size", "Read block size", "std::size_t", DEFAULT_READBLOCKSIZE);
+        add_option(writeBlockSizeOpt, "--write-block-size", "Write block size", "std::size_t", DEFAULT_WRITEBLOCKSIZE);
+        add_option(terminateTimeoutOpt, "--terminate-timeout", "Terminate timeout", "sec", DEFAULT_TERMINATETIMEOUT);
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {

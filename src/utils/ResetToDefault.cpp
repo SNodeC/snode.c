@@ -16,26 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ResetValidator.h"
+#include "ResetToDefault.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
+#include "utils/CLI11.hpp"
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace utils {
 
-    ResetValidator::ResetValidator(CLI::Option* option) {
-        name_ = "RESET";
+    ResetToDefault::ResetToDefault(CLI::Option*& option)
+        : option(option) {
+    }
 
-        func_ = [option](const std::string& str) {
-            if (option->get_default_str() == str && !option->results().empty()) {
-                option->required(false)->take_all()->clear();
-            }
-            return std::string{};
-        };
+    void ResetToDefault::operator()(const std::string& value) {
+        if (value == option->get_default_str()) {
+            option->required(false)->take_all()->clear();
+        }
+    }
+
+    void ResetToDefault::operator()([[maybe_unused]] int64_t count) {
+        if (option->as<std::string>() == option->get_default_str()) {
+            option->required(false)->take_all()->clear();
+        }
     }
 
 } // namespace utils
