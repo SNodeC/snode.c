@@ -63,8 +63,8 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRoleT>
     class SubProtocol
-        : public WSSubProtocolRoleT
-        , public iot::mqtt::MqttContext {
+        : private WSSubProtocolRoleT
+        , private iot::mqtt::MqttContext {
     private:
         using WSSubProtocolRole = WSSubProtocolRoleT;
 

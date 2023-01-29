@@ -38,7 +38,7 @@ namespace iot::mqtt {
 
     class SocketContext
         : public core::socket::SocketContext
-        , public iot::mqtt::MqttContext {
+        , private iot::mqtt::MqttContext {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt);
 
