@@ -44,7 +44,7 @@ namespace net::l2::config {
                           "Protocol service multiplexer",
                           "psm",
                           0,
-                          CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
+                          CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()) | CLI::IsMember({""}));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

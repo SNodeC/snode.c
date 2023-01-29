@@ -38,7 +38,7 @@ namespace net::rc::config {
         : Super(instance) {
         Super::add_option(
             hostOpt, "--host", "Bluetooth address", "xx:xx:xx:xx:xx:xx", "00:00:00:00:00:00", CLI::TypeValidator<std::string>());
-        Super::add_option(channelOpt, "--channel", "Channel number", "channel", 0, CLI::Range(0, 255));
+        Super::add_option(channelOpt, "--channel", "Channel number", "channel", 0, CLI::Range(0, 255) | CLI::IsMember({""}));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

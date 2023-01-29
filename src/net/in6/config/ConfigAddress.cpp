@@ -43,7 +43,7 @@ namespace net::in6::config {
                           "Port number",
                           "port",
                           0,
-                          CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
+                          CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()) | CLI::IsMember({""}));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
