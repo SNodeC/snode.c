@@ -50,20 +50,21 @@ namespace iot::mqtt::server::broker {
             try {
                 sessionStoreFile >> sessionStoreJson;
 
-                if (!sessionStoreJson.empty()) {
-                    for (auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
-                        sessionStore[clientId].fromJson(sessionJson);
-                    }
-                    retainTree.fromJson(sessionStoreJson["retain_tree"]);
-                    subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
-                } else {
-                    LOG(INFO) << "Starting with empty session";
+                for (auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
+                    sessionStore[clientId].fromJson(sessionJson);
                 }
+                retainTree.fromJson(sessionStoreJson["retain_tree"]);
+                subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
+
             } catch (const nlohmann::json::exception& e) {
                 LOG(ERROR) << "Reading session store file " << sessionStoreFileName;
                 LOG(ERROR) << e.what();
 
                 LOG(INFO) << "Starting with empty session";
+
+                sessionStore.clear();
+                retainTree.clear();
+                subscribtionTree.clear();
             }
 
             sessionStoreFile.close();
@@ -72,21 +73,36 @@ namespace iot::mqtt::server::broker {
     }
 
     Broker::~Broker() {
-        nlohmann::json sessionStoreJson;
+        if (!sessionStoreFileName.empty()) {
+            nlohmann::json sessionStoreJson;
 
-        nlohmann::json& jsonSessionStore = sessionStoreJson["session_store"];
+            for (auto& [clientId, session] : sessionStore) {
+                sessionStoreJson["session_store"][clientId] = session.toJson();
+            }
+            sessionStoreJson["retain_tree"] = retainTree.toJson();
+            sessionStoreJson["subscribtion_tree"] = subscribtionTree.toJson();
 
-        for (auto& [clientId, session] : sessionStore) {
-            jsonSessionStore[clientId] = session.toJson();
-        }
-        sessionStoreJson["retain_tree"] = retainTree.toJson();
-        sessionStoreJson["subscribtion_tree"] = subscribtionTree.toJson();
+            if (sessionStoreJson["session_store"].empty()) {
+                sessionStoreJson.erase("session_store");
+            }
+            if (sessionStoreJson["retain_tree"].empty()) {
+                sessionStoreJson.erase("retain_tree");
+            }
+            if (sessionStoreJson["subscribtion_tree"].empty()) {
+                sessionStoreJson.erase("subscribtion_tree");
+            }
 
-        std::ofstream sessionStoreFile(sessionStoreFileName);
+            std::ofstream sessionStoreFile(sessionStoreFileName);
 
-        if (sessionStoreFile.is_open()) {
-            sessionStoreFile << sessionStoreJson;
-            sessionStoreFile.close();
+            if (sessionStoreFile.is_open()) {
+                if (!sessionStoreJson.empty()) {
+                    sessionStoreFile << sessionStoreJson;
+                }
+
+                sessionStoreFile.close();
+            }
+        } else {
+            LOG(INFO) << "Session not saved: Sessionstore filename empty";
         }
     }
 

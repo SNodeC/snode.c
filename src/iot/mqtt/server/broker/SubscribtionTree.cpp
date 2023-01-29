@@ -223,6 +223,10 @@ namespace iot::mqtt::server::broker {
         return *this;
     }
 
+    void SubscribtionTree::TopicLevel::clear() {
+        *this = TopicLevel(broker);
+    }
+
     void SubscribtionTree::fromJson(const nlohmann::json& json) {
         if (!json.empty()) {
             head.fromJson(json);

@@ -49,6 +49,10 @@ namespace iot::mqtt {
         nlohmann::json toJson();
         void fromJson(const nlohmann::json& json);
 
+        void clear() {
+            *this = Session();
+        }
+
     private:
         // Sender side
         std::map<uint16_t, iot::mqtt::packets::Publish> publishMap;

@@ -52,7 +52,6 @@ namespace iot::mqtt::client {
 
     Mqtt::Mqtt()
         : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
-
         std::ifstream sessionStoreFile(sessionStoreFileName);
 
         if (sessionStoreFile.is_open()) {
@@ -60,14 +59,17 @@ namespace iot::mqtt::client {
                 nlohmann::json sessionStoreJson;
 
                 sessionStoreFile >> sessionStoreJson;
+                LOG(INFO) << sessionStoreJson.dump(4);
+
                 session.fromJson(sessionStoreJson);
 
-                LOG(INFO) << sessionStoreJson.dump(4);
             } catch (const nlohmann::json::exception& e) {
                 LOG(ERROR) << "Reading session store file " << sessionStoreFileName;
                 LOG(ERROR) << e.what();
 
                 LOG(INFO) << "Starting with empty session";
+
+                session.clear();
             }
             sessionStoreFile.close();
             std::remove(sessionStoreFileName.data());
@@ -76,24 +78,19 @@ namespace iot::mqtt::client {
 
     Mqtt::~Mqtt() {
         if (!sessionStoreFileName.empty()) {
-            nlohmann::json json = session.toJson();
+            nlohmann::json sessionJson = session.toJson();
 
-            if (!json.empty()) {
-                std::ofstream sessionStoreFile(sessionStoreFileName);
+            std::ofstream sessionStoreFile(sessionStoreFileName);
 
-                if (sessionStoreFile.is_open()) {
-                    LOG(INFO) << "Perseveration of Session: " << session.toJson().dump(4);
-                    sessionStoreFile << json;
+            if (sessionStoreFile.is_open()) {
+                if (!sessionJson.empty()) {
+                    sessionStoreFile << sessionJson;
                 }
 
                 sessionStoreFile.close();
-            } else {
-                LOG(INFO) << "Session:";
-                LOG(INFO) << session.toJson().dump(4);
             }
         } else {
-            LOG(INFO) << "Session:";
-            LOG(INFO) << session.toJson().dump(4);
+            LOG(INFO) << "Session not saved: Sessionstore filename empty";
         }
 
         pingTimer.cancel();
