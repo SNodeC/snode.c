@@ -55,12 +55,11 @@ namespace net::config {
                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}");
 
         add_flag(forceSniOpt,
-                 "--sni-mandatory,!--sni-optional",
+                 "--sni-required,!--sni-optional",
                  "Force using of the Server Name Indication",
                  "false",
-                 CLI::TypeValidator<bool>()) //
-            ->type_name("bool")
-            ->disable_flag_override();
+                 CLI::TypeValidator<bool>() & !CLI::Number) //
+            ->type_name("bool");
 
         section->final_callback([this](void) -> void {
             std::list<std::string> vaultyDomainConfigs;
