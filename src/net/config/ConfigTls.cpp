@@ -88,11 +88,12 @@ namespace net::config {
                    "",
                    CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER") | emptyValidator);
         add_flag(useDefaultCaCertDirOpt,
-                 "--ca-use-default-cert-dir",
+                 "--ca-use-default-cert-dir,!--ca-ignore-default-cert-dir",
                  "Use default CA-certificate directory",
                  "false",
                  CLI::TypeValidator<bool>())
-            ->type_name("bool");
+            ->type_name("bool")
+            ->disable_flag_override();
         add_option(cipherListOpt, "--cipher-list", "Cipher list", "cipher_list", "");
         add_option(tlsOptionsOpt, "--tls-options", "OR combined SSL/TLS options", "options", 0, CLI::NonNegativeNumber);
         add_option(initTimeoutOpt,

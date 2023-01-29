@@ -38,7 +38,7 @@ namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
         : ConfigTls(instance) {
-        sniCertsOpt = section
+        sniCertsOpt = section //
                           ->add_option("--sni-cert",
                                        sniCerts,
                                        "Server Name Indication (SNI) Certificates:\n"
@@ -54,14 +54,20 @@ namespace net::config {
                                        "        }") //
                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}");
 
-        add_flag(forceSniOpt, "--force-sni", "Force using of the Server Name Indication", "false", CLI::TypeValidator<bool>())
-            ->type_name("bool");
+        add_flag(forceSniOpt,
+                 "--sni-mandatory,!--sni-optional",
+                 "Force using of the Server Name Indication",
+                 "false",
+                 CLI::TypeValidator<bool>()) //
+            ->type_name("bool")
+            ->disable_flag_override();
 
         section->final_callback([this](void) -> void {
             std::list<std::string> vaultyDomainConfigs;
             for (const auto& [domain, sniMap] : sniCerts) {
                 if (sniMap.begin()->first.empty()) {
-                    sniCertsOpt->clear();
+                    sniCertsOpt //
+                        ->clear();
                     break;
                 } else {
                     for (auto& [key, value] : sniMap) {
