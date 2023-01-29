@@ -141,6 +141,7 @@ namespace iot::mqtt {
     void SubProtocol<WSSubProtocolRole>::onExit() {
         LOG(INFO) << "MQTT exit:";
         iot::mqtt::MqttContext::onExit();
+        this->sendClose();
     }
 
     template <typename WSSubProtocolRole>
