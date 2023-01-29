@@ -110,7 +110,7 @@ namespace utils {
 
         sectionFormatter->label("SUBCOMMAND", "SECTION");
         sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
-        sectionFormatter->column_width(43);
+        sectionFormatter->column_width(53);
 
         app.configurable(false);
         app.allow_extras();
@@ -119,7 +119,7 @@ namespace utils {
 
         app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
         app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
-        app.get_formatter()->column_width(45);
+        app.get_formatter()->column_width(53);
 
         app.get_config_formatter_base()->commentDefaults();
 
@@ -170,17 +170,21 @@ namespace utils {
             ->configurable(false)                                               //
             ->disable_flag_override();
 
-        app.add_flag("-w{" + defaultConfDir + "/" + applicationName + ".conf" + "},--write-config{" + defaultConfDir + "/" +
-                         applicationName + ".conf" + "}",
-                     "Write config file") //
-            ->configurable(false);
+        app.add_option("-w,--write-config") //
+            ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
+            ->configurable(false)
+            ->default_val(defaultConfDir + "/" + applicationName + ".conf")
+            ->type_name("[configfile]")
+            ->check(!CLI::ExistingDirectory)
+            ->expected(0, 1);
 
-        logFileOpt = app.add_flag_function("-l{" + defaultLogDir + "/" + applicationName + ".log" + "},--log-file{" + defaultLogDir + "/" +
-                                               applicationName + ".log" + "}",
-                                           utils::ResetToDefault(logFileOpt),
-                                           "Logfile path") //
+        logFileOpt = app.add_option_function<std::string>("-l,--log-file",
+                                                          utils::ResetToDefault(logFileOpt),
+                                                          "Logfile path") //
                          ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
                          ->default_val(defaultLogDir + "/" + applicationName + ".log")
+                         ->type_name("logfile")
+                         ->check(!CLI::ExistingDirectory)
                          ->force_callback();
 
         enforceLogFileOpt = app.add_flag_function("-e,--enforce-log-file",
@@ -230,7 +234,6 @@ namespace utils {
         bool ret = parse(app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0);
 
         if (ret) {
-            std::string logFile = logFileOpt->as<std::string>();
             if (app["--show-config"]->count() > 0) {
                 try {
                     VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
@@ -254,6 +257,8 @@ namespace utils {
 
                 if (ret) {
                     logger::Logger::quiet();
+
+                    std::string logFile = logFileOpt->as<std::string>();
                     if (!logFile.empty()) {
                         logger::Logger::logToFile(logFile);
                     }
@@ -261,9 +266,8 @@ namespace utils {
                     VLOG(0) << "Daemon already running: Not daemonized ... exiting";
                 }
             } else {
-                VLOG(0) << "Running in foureground";
-
                 if (app["--enforce-log-file"]->as<bool>()) {
+                    std::string logFile = logFileOpt->as<std::string>();
                     VLOG(0) << "Writing logs to file " << logFile;
 
                     logger::Logger::logToFile(logFile);
@@ -281,6 +285,13 @@ namespace utils {
 
         try {
             Config::app.parse(argc, argv);
+        } catch (const CLI::ConfigError& e) {
+            if (stopOnError) {
+                std::cout << "Command line error: " << e.what() << std::endl;
+                std::cout << "Rewrite the config file by appending -w [config file] to your command line." << std::endl;
+                std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+                ret = false;
+            }
         } catch (const CLI::ParseError& e) {
             if (stopOnError) {
                 if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp" && e.get_name() != "CallForVersion") {
