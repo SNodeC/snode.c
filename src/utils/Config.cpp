@@ -289,7 +289,7 @@ namespace utils {
             Config::app.parse(argc, argv);
         } catch (const CLI::ConfigError& e) {
             if (stopOnError) {
-                std::cout << "Command line or config file  error: " << e.what() << std::endl;
+                std::cout << "Command line or config file error: " << e.what() << std::endl;
                 std::cout << "Rewrite the config file by appending -w [config file] to your command line." << std::endl;
                 std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
                 ret = false;
@@ -297,7 +297,7 @@ namespace utils {
         } catch (const CLI::ParseError& e) {
             if (stopOnError) {
                 if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp" && e.get_name() != "CallForVersion") {
-                    std::cout << "Command line or config file  error: " << e.what() << std::endl << std::endl;
+                    std::cout << "Command line or config file error: " << e.what() << std::endl << std::endl;
                     std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
                 } else {
                     Config::app.exit(e);
