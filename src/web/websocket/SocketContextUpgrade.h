@@ -52,7 +52,7 @@ namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
-        , protected web::websocket::SubProtocolContext {
+        , private web::websocket::SubProtocolContext {
     public:
         SocketContextUpgrade() = delete;
         SocketContextUpgrade(const SocketContextUpgrade&) = delete;

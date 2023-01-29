@@ -36,8 +36,8 @@ namespace core::socket {
 namespace web::websocket {
 
     class SubProtocolContext
-        : public Receiver
-        , public Transmitter {
+        : protected Receiver
+        , protected Transmitter {
     public:
         SubProtocolContext(bool role);
         SubProtocolContext(const SubProtocolContext&) = delete;
