@@ -25,6 +25,7 @@
 
 #include "log/Logger.h"
 
+#include <filesystem>
 #include <list>
 #include <map>
 #include <string>
@@ -54,30 +55,35 @@ namespace web::websocket {
             for (const std::string& searchPath : searchPaths) {
                 std::string libFile = searchPath + "/libsnodec-websocket-" + subProtocolName + ".so";
 
-                void* handle = core::DynamicLoader::dlOpen(libFile, RTLD_LAZY | RTLD_LOCAL);
+                std::error_code errorCode;
+                if (std::filesystem::is_regular_file(libFile, errorCode)) {
+                    void* handle = core::DynamicLoader::dlOpen(libFile, RTLD_LAZY | RTLD_LOCAL);
 
-                if (handle != nullptr) {
-                    std::string subProtocolFactoryFunctionName =
-                        subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory";
-                    SubProtocolFactory* (*getSubProtocolFactory)() =
-                        reinterpret_cast<SubProtocolFactory* (*) ()>(core::DynamicLoader::dlSym(handle, subProtocolFactoryFunctionName));
-                    if (getSubProtocolFactory != nullptr) {
-                        subProtocolFactory = getSubProtocolFactory();
-                        if (subProtocolFactory != nullptr) {
-                            subProtocolFactory->setHandle(handle);
-                            VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
-                            break;
+                    if (handle != nullptr) {
+                        std::string subProtocolFactoryFunctionName =
+                            subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory";
+                        SubProtocolFactory* (*getSubProtocolFactory)() = reinterpret_cast<SubProtocolFactory* (*) ()>(
+                            core::DynamicLoader::dlSym(handle, subProtocolFactoryFunctionName));
+                        if (getSubProtocolFactory != nullptr) {
+                            subProtocolFactory = getSubProtocolFactory();
+                            if (subProtocolFactory != nullptr) {
+                                subProtocolFactory->setHandle(handle);
+                                VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
+                                break;
+                            }
+                            VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
+                            core::DynamicLoader::dlClose(handle);
+
+                        } else {
+                            VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
+                                    << "\" in plugin failed: " << core::DynamicLoader::dlError();
+                            core::DynamicLoader::dlClose(handle);
                         }
-                        VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
-                        core::DynamicLoader::dlClose(handle);
-
                     } else {
-                        VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
-                                << "\" in plugin failed: " << core::DynamicLoader::dlError();
-                        core::DynamicLoader::dlClose(handle);
+                        VLOG(0) << "Error dlopen: " << libFile;
                     }
                 } else {
-                    VLOG(0) << "Error dlopen: " << libFile;
+                    VLOG(0) << "Error dlopen: " << libFile << ": " << errorCode.message();
                 }
             }
 
