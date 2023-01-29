@@ -73,6 +73,8 @@ namespace apps::websocket::subprotocol::echo::server {
 
     void Echo::onExit() {
         VLOG(0) << "Echo exit:";
+
+        sendClose();
     }
 
 } // namespace apps::websocket::subprotocol::echo::server
