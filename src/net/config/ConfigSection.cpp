@@ -39,12 +39,12 @@ namespace net::config {
         }
     }
 
-    void ConfigSection::required(CLI::Option* opt, bool req) {
+    void ConfigSection::required(CLI::Option* opt) {
         opt //
             ->default_str("")
             ->required()
             ->clear();
-        required(req);
+        required();
     }
 
     void ConfigSection::required(bool req) {

@@ -36,9 +36,9 @@ namespace net::stream::config {
 
     template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressT>
     class ConfigSocketServer
-        : public net::config::ConfigListen
-        , public ConfigAddressT<net::config::ConfigAddressLocal>
+        : public ConfigAddressT<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection
+        , public net::config::ConfigListen
         , public net::config::ConfigCluster {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);

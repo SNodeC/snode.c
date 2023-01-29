@@ -44,13 +44,13 @@ namespace net::config {
                                        "Server Name Indication (SNI) Certificates:\n"
                                        "sni = SNI of the virtual server\n"
                                        "<key> = {\n"
-                                       "          \"CertChain\" -> value = PEM:FILE,\n"
-                                       "          \"CertKey\" -> value = PEM:FILE,\n"
-                                       "          \"CertKeyPassword\" -> value = TEXT,\n"
-                                       "          \"CaCertFile\" -> value = PEM:FILE,\n"
-                                       "          \"CaCertDir\" -> value = PEM_container:DIR,\n"
-                                       "          \"UseDefaultCaDir\" -> value = true|false,\n"
-                                       "          \"SslOptions\" -> value = uint64_t\n"
+                                       "          \"CertChain\" -> value:PEM-FILE,\n"
+                                       "          \"CertKey\" -> value:PEM-FILE,\n"
+                                       "          \"CertKeyPassword\" -> value:TEXT,\n"
+                                       "          \"CaCertFile\" -> value:PEM-FILE,\n"
+                                       "          \"CaCertDir\" -> value:PEM-CONTAINER:DIR,\n"
+                                       "          \"UseDefaultCaDir\" -> value:BOOLEAN [false],\n"
+                                       "          \"SslOptions\" -> value:POSITIV\n"
                                        "        }") //
                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}");
 

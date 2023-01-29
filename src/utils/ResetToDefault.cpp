@@ -31,14 +31,18 @@ namespace utils {
     }
 
     void ResetToDefault::operator()(const std::string& value) {
-        if (value == option->get_default_str()) {
-            option->required(false)->take_all()->clear();
+        if (option != nullptr) {
+            if (value == option->get_default_str()) {
+                option->take_all()->clear();
+            }
         }
     }
 
     void ResetToDefault::operator()([[maybe_unused]] int64_t count) {
-        if (option->as<std::string>() == option->get_default_str()) {
-            option->required(false)->take_all()->clear();
+        if (option != nullptr) {
+            if (option->as<std::string>() == option->get_default_str()) {
+                option->take_all()->clear();
+            }
         }
     }
 

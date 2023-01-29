@@ -39,8 +39,8 @@ namespace net::un::config {
         : Super(instance) {
         Super::add_option(sunPathOpt,
                           "--path",
-                          "Unix domain socket",
-                          "sun_path:FILE",
+                          "Unix domain socket file",
+                          "filename:FILE",
                           std::string('\0' + instance->getInstanceName() + "_" + std::to_string(getpid())));
     }
 

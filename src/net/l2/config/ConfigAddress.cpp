@@ -27,6 +27,7 @@
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
+#include <limits>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -36,8 +37,14 @@ namespace net::l2::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        Super::add_option(hostOpt, "--host", "Bluetooth address", "xx:xx:xx:xx:xx:xx", "00:00:00:00:00:00");
-        Super::add_option(psmOpt, "--psm", "Protocol service multiplexer", "uint16_t", 0);
+        Super::add_option(
+            hostOpt, "--host", "Bluetooth address", "xx:xx:xx:xx:xx:xx", "00:00:00:00:00:00", CLI::TypeValidator<std::string>());
+        Super::add_option(psmOpt,
+                          "--psm",
+                          "Protocol service multiplexer",
+                          "psm",
+                          0,
+                          CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

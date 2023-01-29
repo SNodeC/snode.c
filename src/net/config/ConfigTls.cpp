@@ -57,21 +57,56 @@ namespace net::config {
         : ConfigSection(instance, "tls", "Options for SSL/TLS behaviour") {
         EmptyValidator emptyValidator;
 
-        add_option(certChainOpt, "--cert-chain", "Certificate chain file", "PEM", "", CLI::ExistingFile | emptyValidator);
-        add_option(certKeyOpt, "--cert-key", "Certificate key file", "PEM", "", CLI::ExistingFile | emptyValidator);
-        add_option(certKeyPasswordOpt, "--cert-key-password", "Password for the certificate key file", "TEXT", "");
-        add_option(caCertFileOpt, "--ca-cert-file", "CA-certificate file", "PEM", "", CLI::ExistingFile | emptyValidator);
-        add_option(caCertDirOpt, "--ca-cert-dir", "CA-certificate directory", "PEM_container", "", CLI::ExistingDirectory | emptyValidator);
+        add_option(certChainOpt,
+                   "--cert-chain",
+                   "Certificate chain file",
+                   "filename",
+                   "",
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | emptyValidator);
+        add_option(certKeyOpt,
+                   "--cert-key",
+                   "Certificate key file",
+                   "filename",
+                   "",
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | emptyValidator);
+        add_option(certKeyPasswordOpt,
+                   "--cert-key-password",
+                   "Password for the certificate key file",
+                   "password",
+                   "",
+                   CLI::TypeValidator<std::string>());
+        add_option(caCertFileOpt,
+                   "--ca-cert-file",
+                   "CA-certificate file",
+                   "filename",
+                   "",
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | emptyValidator);
+        add_option(caCertDirOpt,
+                   "--ca-cert-dir",
+                   "CA-certificate directory",
+                   "directory",
+                   "",
+                   CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER") | emptyValidator);
         add_flag(useDefaultCaCertDirOpt,
-                 "--use-default-ca-cert-dir",
+                 "--ca-use-default-cert-dir",
                  "Use default CA-certificate directory",
                  "false",
                  CLI::TypeValidator<bool>())
             ->type_name("bool");
         add_option(cipherListOpt, "--cipher-list", "Cipher list", "cipher_list", "");
-        add_option(tlsOptionsOpt, "--tls-options", "OR combined SSL/TLS options", "uint64_t", 0);
-        add_option(initTimeoutOpt, "--init-timeout", "SSL/TLS initialization timeout in seconds", "sec", DEFAULT_INITTIMEOUT);
-        add_option(shutdownTimeoutOpt, "--shutdown-timeout", "SSL/TLS shutdown timeout in seconds", "sec", DEFAULT_SHUTDOWNTIMEOUT);
+        add_option(tlsOptionsOpt, "--tls-options", "OR combined SSL/TLS options", "options", 0, CLI::NonNegativeNumber);
+        add_option(initTimeoutOpt,
+                   "--init-timeout",
+                   "SSL/TLS initialization timeout in seconds",
+                   "timeout",
+                   DEFAULT_INITTIMEOUT,
+                   CLI::PositiveNumber);
+        add_option(shutdownTimeoutOpt,
+                   "--shutdown-timeout",
+                   "SSL/TLS shutdown timeout in seconds",
+                   "timeout",
+                   DEFAULT_SHUTDOWNTIMEOUT,
+                   CLI::PositiveNumber);
     }
 
     std::string ConfigTls::getCertChain() const {

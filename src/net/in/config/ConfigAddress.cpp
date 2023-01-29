@@ -27,6 +27,7 @@
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
+#include <limits>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -36,8 +37,13 @@ namespace net::in::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        Super::add_option(hostOpt, "--host", "Host name or IPv4 address", "hostname|IPv4", "0.0.0.0");
-        Super::add_option(portOpt, "--port", "Port number", "uint16_t", 0);
+        Super::add_option(hostOpt, "--host", "Host name or IPv4 address", "hostname|IPv4", "0.0.0.0", CLI::TypeValidator<std::string>());
+        Super::add_option(portOpt,
+                          "--port",
+                          "Port number",
+                          "port",
+                          0,
+                          CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

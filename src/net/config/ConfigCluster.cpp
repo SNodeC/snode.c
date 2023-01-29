@@ -36,7 +36,9 @@ namespace net::config {
                    std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
                        std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY",
                    MODE::STANDALONE)
-            ->configurable(false);
+            ->configurable(false)
+            ->type_name("mode")
+            ->check(CLI::Range(STANDALONE, PROXY));
     }
 
     ConfigCluster::MODE ConfigCluster::getClusterMode() const {

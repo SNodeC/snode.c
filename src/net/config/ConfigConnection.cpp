@@ -50,11 +50,12 @@ namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
         : net::config::ConfigSection(instance, "connection", "Options for established connections") {
-        add_option(readTimeoutOpt, "--read-timeout", "Read timeout in seconds", "sec", DEFAULT_READTIMEOUT);
-        add_option(writeTimeoutOpt, "--write-timeout", "Write timeout in seconds", "sec", DEFAULT_WRITETIMEOUT);
-        add_option(readBlockSizeOpt, "--read-block-size", "Read block size", "std::size_t", DEFAULT_READBLOCKSIZE);
-        add_option(writeBlockSizeOpt, "--write-block-size", "Write block size", "std::size_t", DEFAULT_WRITEBLOCKSIZE);
-        add_option(terminateTimeoutOpt, "--terminate-timeout", "Terminate timeout", "sec", DEFAULT_TERMINATETIMEOUT);
+        add_option(readTimeoutOpt, "--read-timeout", "Read timeout in seconds", "timeout", DEFAULT_READTIMEOUT, CLI::PositiveNumber);
+        add_option(writeTimeoutOpt, "--write-timeout", "Write timeout in seconds", "timeout", DEFAULT_WRITETIMEOUT, CLI::PositiveNumber);
+        add_option(readBlockSizeOpt, "--read-block-size", "Read block size", "size", DEFAULT_READBLOCKSIZE, CLI::PositiveNumber);
+        add_option(writeBlockSizeOpt, "--write-block-size", "Write block size", "size", DEFAULT_WRITEBLOCKSIZE, CLI::PositiveNumber);
+        add_option(
+            terminateTimeoutOpt, "--terminate-timeout", "Terminate timeout", "timeout", DEFAULT_TERMINATETIMEOUT, CLI::PositiveNumber);
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {

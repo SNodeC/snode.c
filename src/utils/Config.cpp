@@ -320,7 +320,8 @@ namespace utils {
 
         instance //
             ->option_defaults()
-            ->configurable(!name.empty());
+            ->configurable(!name.empty())
+            ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
 
         instance
             ->add_flag_callback(
