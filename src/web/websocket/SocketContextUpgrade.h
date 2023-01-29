@@ -127,14 +127,16 @@ namespace web::websocket {
         }
 
         void sendClose(const char* message, std::size_t messageLength) override {
-            LOG(INFO) << "Sending close to peer";
+            if (!closeSent) {
+                LOG(INFO) << "Sending close to peer";
 
-            sendMessage(8, message, messageLength);
-            shutdownWrite();
+                sendMessage(8, message, messageLength);
+                shutdownWrite();
 
-            setTimeout(CLOSE_SOCKET_TIMEOUT);
+                setTimeout(CLOSE_SOCKET_TIMEOUT);
 
-            closeSent = true;
+                closeSent = true;
+            }
         }
 
         core::socket::SocketConnection* getSocketConnection() override {
