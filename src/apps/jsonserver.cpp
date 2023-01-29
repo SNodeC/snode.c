@@ -68,7 +68,6 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.post([] APPLICATION(req, res) {
-        VLOG(0) << "############################";
         res.send("Wrong Url");
     });
 

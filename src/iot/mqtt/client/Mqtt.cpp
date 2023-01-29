@@ -52,12 +52,13 @@ namespace iot::mqtt::client {
 
     Mqtt::Mqtt()
         : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
-        nlohmann::json sessionStoreJson;
 
         std::ifstream sessionStoreFile(sessionStoreFileName);
 
         if (sessionStoreFile.is_open()) {
             try {
+                nlohmann::json sessionStoreJson;
+
                 sessionStoreFile >> sessionStoreJson;
                 session.fromJson(sessionStoreJson);
 
