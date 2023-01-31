@@ -193,12 +193,12 @@ namespace iot::mqtt::server::broker {
     nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
         nlohmann::json json;
 
-        for (auto& [topicLevel, topicLevelValue] : topicLevels) {
-            json["topic_filter"][topicLevel] = topicLevelValue.toJson();
+        for (const auto& [topicLevelName, topicLevel] : topicLevels) {
+            json["topic_filter"][topicLevelName] = topicLevel.toJson();
         }
 
-        for (auto& [subscribers, qoS] : subscribers) {
-            json["subscribers"][subscribers] = qoS;
+        for (const auto& [subscriber, qoS] : subscribers) {
+            json["subscribers"][subscriber] = qoS;
         }
 
         return json;
@@ -209,13 +209,13 @@ namespace iot::mqtt::server::broker {
         topicLevels.clear();
 
         if (json.contains("subscribers")) {
-            for (auto& subscriber : json["subscribers"].items()) {
+            for (const auto& subscriber : json["subscribers"].items()) {
                 subscribers.emplace(subscriber.key(), subscriber.value());
             }
         }
 
         if (json.contains("topic_filter")) {
-            for (auto& topicLevelItem : json["topic_filter"].items()) {
+            for (const auto& topicLevelItem : json["topic_filter"].items()) {
                 topicLevels.emplace(topicLevelItem.key(), TopicLevel(broker).fromJson(topicLevelItem.value()));
             }
         }

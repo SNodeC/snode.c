@@ -56,7 +56,7 @@ namespace iot::mqtt::server::broker {
         message.fromJson(json.value("message", nlohmann::json()));
 
         if (json.contains("topic_level")) {
-            for (auto& topicLevelItem : json["topic_level"].items()) {
+            for (const auto& topicLevelItem : json["topic_level"].items()) {
                 subTopicLevels.emplace(topicLevelItem.key(), TopicLevel(broker).fromJson(topicLevelItem.value()));
             }
         }

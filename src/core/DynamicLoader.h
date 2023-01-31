@@ -24,6 +24,7 @@
 #include "core/system/dlfcn.h" // IWYU pragma: keep
 
 #include <cstddef>
+#include <list>
 #include <map>
 #include <string>
 
@@ -57,6 +58,7 @@ namespace core {
 
         static std::map<void*, Library> dlOpenedLibraries;
         static std::map<void*, std::size_t> registeredForDlClose;
+        static std::list<void*> closeHandles;
 
         friend class EventLoop;
         friend class EventMultiplexer;

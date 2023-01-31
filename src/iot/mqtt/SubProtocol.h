@@ -32,12 +32,12 @@ namespace iot::mqtt::server {
 }
 
 #include "core/EventReceiver.h"
-#include "core/socket/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/SocketConnection.h"
 #include "iot/mqtt/MqttContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // IWYU pragma: export
+#include <cstddef>
 #include <functional>
 #include <string>
 #include <vector>
@@ -63,7 +63,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRoleT>
     class SubProtocol
-        : private WSSubProtocolRoleT
+        : public WSSubProtocolRoleT
         , private iot::mqtt::MqttContext {
     private:
         using WSSubProtocolRole = WSSubProtocolRoleT;

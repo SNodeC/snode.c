@@ -26,7 +26,7 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // IWYU pragma: export
-#include <cstdint> // IWYU pragma: export
+#include <cstdint>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

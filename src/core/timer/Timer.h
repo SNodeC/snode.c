@@ -19,11 +19,11 @@
 #ifndef NET_TIMER_TIMER_H
 #define NET_TIMER_TIMER_H
 
-#include "core/Timer.h"
+#include "core/Timer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
+#include "utils/Timeval.h" // IWYU pragma: export
 
 namespace core {
     class TimerEventReceiver;
@@ -37,13 +37,11 @@ namespace core::timer {
 
     class Timer : public core::Timer {
     public:
-        Timer(const Timer&) = delete;
+        using core::Timer::Timer;
 
         Timer& operator=(const Timer&) = delete;
 
-        using core::Timer::Timer;
-
-        Timer& operator=(Timer&& timer) noexcept;
+        Timer& operator=(Timer&& timer) noexcept = default;
 
         static Timer intervalTimer(const std::function<void(const std::function<void()>& stop)>& dispatcher, const utils::Timeval& timeout);
 

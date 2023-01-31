@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_RESPONSE_H
 #define WEB_HTTP_CLIENT_RESPONSE_H
 
-#include "web/http/CookieOptions.h"
+#include "web/http/CookieOptions.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

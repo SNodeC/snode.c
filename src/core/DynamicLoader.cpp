@@ -31,6 +31,7 @@ namespace core {
 
     std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
     std::map<void*, std::size_t> DynamicLoader::registeredForDlClose;
+    std::list<void*> DynamicLoader::closeHandles;
 
     void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
         void* handle = nullptr;
@@ -59,6 +60,7 @@ namespace core {
                 VLOG(0) << "dlCloseDelayed: " << dlOpenedLibraries[handle].fileName;
 
                 registeredForDlClose[handle]++;
+                closeHandles.push_back(handle);
             } else {
                 VLOG(0) << "dlCloseDelayed: Handle" << handle << " not opened using dlOpen.";
             }
@@ -113,7 +115,14 @@ namespace core {
     }
 
     void DynamicLoader::execDlCloseDeleyed() {
-        for (auto& [handle, refCount] : registeredForDlClose) {
+        char* err = dlerror();
+        if (err != nullptr) {
+            VLOG(0) << "$$$$$$$$$: " << err;
+        }
+
+        for (void* handle : closeHandles) {
+            std::size_t refCount = registeredForDlClose[handle];
+            //            for (auto& [handle, refCount] : registeredForDlClose) {
             do {
                 int ret = execDlClose(handle);
 
@@ -121,9 +130,11 @@ namespace core {
                     VLOG(0) << "Error execDeleyedDlClose: " << DynamicLoader::dlError();
                 }
             } while (--refCount > 0);
+            //            }
         }
 
         registeredForDlClose.clear();
+        closeHandles.clear();
     }
 
     void DynamicLoader::execDlCloseAll() {

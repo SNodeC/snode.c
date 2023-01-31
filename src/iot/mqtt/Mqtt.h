@@ -26,10 +26,6 @@ namespace core::socket {
     class SocketConnection;
 }
 
-namespace utils {
-    class Timeval;
-}
-
 namespace iot::mqtt {
     class ControlPacket;
     class ControlPacketDeserializer;

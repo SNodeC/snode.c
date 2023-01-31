@@ -24,17 +24,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <type_traits>
-#include <utility>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
-
-    Timer& Timer::operator=(Timer&& timer) noexcept {
-        core::Timer::operator=(std::move(timer));
-        return *this;
-    }
 
     Timer Timer::singleshotTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout) {
         return Timer(new SingleshotTimer(dispatcher, timeout));
