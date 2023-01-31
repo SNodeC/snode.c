@@ -115,11 +115,6 @@ namespace core {
     }
 
     void DynamicLoader::execDlCloseDeleyed() {
-        char* err = dlerror();
-        if (err != nullptr) {
-            VLOG(0) << "$$$$$$$$$: " << err;
-        }
-
         for (void* handle : closeHandles) {
             std::size_t refCount = registeredForDlClose[handle];
             //            for (auto& [handle, refCount] : registeredForDlClose) {
