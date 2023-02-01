@@ -41,15 +41,15 @@ namespace net::config {
     }
 
     CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {
-        CLI::App* sectionSc = instanceSc                                        //
-                                  ->add_subcommand(name, description)           //
-                                  ->configurable(false)                         //
-                                  ->group(this->name.empty() ? "" : "Sections") //
-                                  ->disabled(this->name.empty())                //
+        CLI::App* sectionSc = instanceSc //
+                                  ->add_subcommand(name, description)
+                                  ->configurable(false)
+                                  ->group(this->name.empty() ? "" : "Sections")
+                                  ->disabled(this->name.empty())
                                   ->silent(this->name.empty());
 
-        sectionSc               //
-            ->option_defaults() //
+        sectionSc //
+            ->option_defaults()
             ->configurable(!this->name.empty());
 
         sectionSc //
@@ -58,9 +58,9 @@ namespace net::config {
                 []() {
                     throw CLI::CallForHelp();
                 },
-                "Print this help message and exit") //
-            ->configurable(false)                   //
-            ->disable_flag_override()               //
+                "Print this help message and exit")
+            ->configurable(false)
+            ->disable_flag_override()
             ->trigger_on_parse();
 
         sectionSc //
@@ -69,9 +69,9 @@ namespace net::config {
                 []() {
                     throw CLI::CallForAllHelp();
                 },
-                "Expand all help")    //
-            ->configurable(false)     //
-            ->disable_flag_override() //
+                "Expand all help")
+            ->configurable(false)
+            ->disable_flag_override()
             ->trigger_on_parse();
 
         return sectionSc;

@@ -53,14 +53,18 @@ namespace net::un::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(sunPathOpt->as<std::string>());
+        return SocketAddress(sunPathOpt //
+                                 ->as<std::string>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
         utils::PreserveErrno preserveErrno;
 
-        sunPathOpt->default_val(socketAddress.address())->required(false)->clear();
+        sunPathOpt //
+            ->default_val(socketAddress.address())
+            ->required(false)
+            ->clear();
     }
 
 } // namespace net::un::config

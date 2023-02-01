@@ -55,15 +55,24 @@ namespace net::rc::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(hostOpt->as<std::string>(), channelOpt->as<uint8_t>());
+        return SocketAddress(hostOpt //
+                                 ->as<std::string>(),
+                             channelOpt //
+                                 ->as<uint8_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
         utils::PreserveErrno preserveErrno;
 
-        hostOpt->default_val(socketAddress.address())->required(false)->clear();
-        channelOpt->default_val(socketAddress.channel())->required(false)->clear();
+        hostOpt //
+            ->default_val(socketAddress.address())
+            ->required(false)
+            ->clear();
+        channelOpt //
+            ->default_val(socketAddress.channel())
+            ->required(false)
+            ->clear();
     }
 
 } // namespace net::rc::config

@@ -32,11 +32,14 @@ namespace net::config {
     }
 
     std::string ConfigTlsClient::getSni() const {
-        return sniOpt->as<std::string>();
+        return sniOpt //
+            ->as<std::string>();
     }
 
     void ConfigTlsClient::setSni(const std::string& sni) {
-        sniOpt->default_val(sni)->clear();
+        sniOpt //
+            ->default_val(sni)
+            ->clear();
     }
 
 } // namespace net::config

@@ -35,18 +35,21 @@ namespace net::config {
                    "Clustering mode",
                    std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
                        std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY",
-                   MODE::STANDALONE)
+                   MODE::STANDALONE) //
             ->configurable(false)
             ->type_name("mode")
             ->check(CLI::Range(STANDALONE, PROXY));
     }
 
     ConfigCluster::MODE ConfigCluster::getClusterMode() const {
-        return modeOpt->as<MODE>();
+        return modeOpt //
+            ->as<MODE>();
     }
 
     void ConfigCluster::setClusterMode(ConfigCluster::MODE newMode) {
-        modeOpt->default_val(newMode)->clear();
+        modeOpt //
+            ->default_val(newMode)
+            ->clear();
     }
 
 } // namespace net::config

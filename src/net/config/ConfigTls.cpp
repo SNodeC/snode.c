@@ -92,67 +92,91 @@ namespace net::config {
     }
 
     std::string ConfigTls::getCertChain() const {
-        return certChainOpt->as<std::string>();
+        return certChainOpt //
+            ->as<std::string>();
     }
 
     void ConfigTls::setCertChain(const std::string& newCertChain) {
-        certChainOpt->default_val(newCertChain)->clear();
+        certChainOpt //
+            ->default_val(newCertChain)
+            ->clear();
     }
 
     std::string ConfigTls::getCertKey() const {
-        return certKeyOpt->as<std::string>();
+        return certKeyOpt //
+            ->as<std::string>();
     }
 
     void ConfigTls::setCertKey(const std::string& newCertKey) {
-        certKeyOpt->default_val(newCertKey)->clear();
+        certKeyOpt //
+            ->default_val(newCertKey)
+            ->clear();
     }
 
     std::string ConfigTls::getCertKeyPassword() const {
-        return certKeyPasswordOpt->as<std::string>();
+        return certKeyPasswordOpt //
+            ->as<std::string>();
     }
 
     void ConfigTls::setCertKeyPassword(const std::string& newCertKeyPassword) {
-        certKeyPasswordOpt->default_val(newCertKeyPassword)->clear();
+        certKeyPasswordOpt //
+            ->default_val(newCertKeyPassword)
+            ->clear();
     }
 
     std::string ConfigTls::getCaCertFile() const {
-        return caCertFileOpt->as<std::string>();
+        return caCertFileOpt //
+            ->as<std::string>();
     }
 
     void ConfigTls::setCaCertFile(const std::string& newCaCertFile) {
-        caCertFileOpt->default_val(newCaCertFile)->clear();
+        caCertFileOpt //
+            ->default_val(newCaCertFile)
+            ->clear();
     }
 
     std::string ConfigTls::getCaCertDir() const {
-        return caCertDirOpt->as<std::string>();
+        return caCertDirOpt //
+            ->as<std::string>();
     }
 
     void ConfigTls::setCaCertDir(const std::string& newCaCertDir) {
-        caCertDirOpt->default_val(newCaCertDir)->clear();
+        caCertDirOpt //
+            ->default_val(newCaCertDir)
+            ->clear();
     }
 
     bool ConfigTls::getUseDefaultCaCertDir() const {
-        return useDefaultCaCertDirOpt->as<bool>();
+        return useDefaultCaCertDirOpt //
+            ->as<bool>();
     }
 
     void ConfigTls::setUseDefaultCaCertDir(bool set) {
-        useDefaultCaCertDirOpt->default_val(set ? "true" : "false")->clear();
+        useDefaultCaCertDirOpt //
+            ->default_val(set ? "true" : "false")
+            ->clear();
     }
 
     std::string ConfigTls::getCipherList() const {
-        return cipherListOpt->as<std::string>();
+        return cipherListOpt //
+            ->as<std::string>();
     }
 
     void ConfigTls::setCipherList(const std::string& newCipherList) {
-        cipherListOpt->default_val(newCipherList)->clear();
+        cipherListOpt //
+            ->default_val(newCipherList)
+            ->clear();
     }
 
     ssl_option_t ConfigTls::getSslTlsOptions() const {
-        return tlsOptionsOpt->as<ssl_option_t>();
+        return tlsOptionsOpt //
+            ->as<ssl_option_t>();
     }
 
     void ConfigTls::setSslTlsOptions(ssl_option_t newSslTlsOptions) {
-        tlsOptionsOpt->default_val(newSslTlsOptions)->clear();
+        tlsOptionsOpt //
+            ->default_val(newSslTlsOptions)
+            ->clear();
     }
 
     utils::Timeval ConfigTls::getInitTimeout() const {
@@ -160,15 +184,20 @@ namespace net::config {
     }
 
     void ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
-        initTimeoutOpt->default_val(newInitTimeout)->clear();
+        initTimeoutOpt //
+            ->default_val(newInitTimeout)
+            ->clear();
     }
 
     utils::Timeval ConfigTls::getShutdownTimeout() const {
-        return shutdownTimeoutOpt->as<utils::Timeval>();
+        return shutdownTimeoutOpt //
+            ->as<utils::Timeval>();
     }
 
     void ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
-        shutdownTimeoutOpt->default_val(newShutdownTimeout)->clear();
+        shutdownTimeoutOpt //
+            ->default_val(newShutdownTimeout)
+            ->clear();
     }
 
 } // namespace net::config

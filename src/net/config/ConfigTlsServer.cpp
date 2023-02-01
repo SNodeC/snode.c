@@ -87,11 +87,14 @@ namespace net::config {
     }
 
     bool ConfigTlsServer::getForceSni() const {
-        return forceSniOpt->as<bool>();
+        return forceSniOpt //
+            ->as<bool>();
     }
 
     void ConfigTlsServer::setForceSni(bool forceSni) {
-        forceSniOpt->default_val(forceSni ? "true" : "false")->clear();
+        forceSniOpt //
+            ->default_val(forceSni ? "true" : "false")
+            ->clear();
     }
 
     std::map<std::string, std::map<std::string, std::any>>& ConfigTlsServer::getSniCerts() {

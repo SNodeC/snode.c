@@ -61,15 +61,24 @@ namespace net::l2::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(hostOpt->as<std::string>(), psmOpt->as<uint16_t>());
+        return SocketAddress(hostOpt //
+                                 ->as<std::string>(),
+                             psmOpt //
+                                 ->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
         utils::PreserveErrno preserveErrno;
 
-        hostOpt->default_val(socketAddress.address())->required(false)->clear();
-        psmOpt->default_val(socketAddress.psm())->required(false)->clear();
+        hostOpt //
+            ->default_val(socketAddress.address())
+            ->required(false)
+            ->clear();
+        psmOpt //
+            ->default_val(socketAddress.psm())
+            ->required(false)
+            ->clear();
     }
 
 } // namespace net::l2::config

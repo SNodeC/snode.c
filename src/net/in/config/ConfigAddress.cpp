@@ -60,15 +60,24 @@ namespace net::in::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
+        return SocketAddress(hostOpt //
+                                 ->as<std::string>(),
+                             portOpt //
+                                 ->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
         utils::PreserveErrno preserveErrno;
 
-        hostOpt->default_val(socketAddress.host())->required(false)->clear();
-        portOpt->default_val(socketAddress.port())->required(false)->clear();
+        hostOpt //
+            ->default_val(socketAddress.host())
+            ->required(false)
+            ->clear();
+        portOpt //
+            ->default_val(socketAddress.port())
+            ->required(false)
+            ->clear();
     }
 
 } // namespace net::in::config

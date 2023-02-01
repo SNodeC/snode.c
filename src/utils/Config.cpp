@@ -161,8 +161,8 @@ namespace utils {
                    throw CLI::CallForHelp();
                },
                "Print this help message and exit") //
-            ->configurable(false)                  //
-            ->disable_flag_override()              //
+            ->configurable(false)
+            ->disable_flag_override()
             ->trigger_on_parse();
 
         app.add_flag_callback(
@@ -170,9 +170,9 @@ namespace utils {
                []() {
                    throw CLI::CallForAllHelp();
                },
-               "Expand all help")     //
-            ->configurable(false)     //
-            ->disable_flag_override() //
+               "Expand all help") //
+            ->configurable(false)
+            ->disable_flag_override()
             ->trigger_on_parse();
 
         app.add_flag_callback(
@@ -180,9 +180,9 @@ namespace utils {
                []() {
                    throw CallForCommandline(&app, false);
                },
-               "Print a template command line showing required options only and exit")
+               "Print a template command line showing required options only and exit") //
             ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
-            ->configurable(false) //
+            ->configurable(false)
             ->disable_flag_override();
 
         app.add_flag_callback(
@@ -190,9 +190,9 @@ namespace utils {
                []() {
                    throw CallForCommandline(&app, true);
                },
-               "Print a template command line showing all possible options and exit")
+               "Print a template command line showing all possible options and exit") //
             ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
-            ->configurable(false) //
+            ->configurable(false)
             ->disable_flag_override();
 
         daemonizeOpt = app.add_flag_function("-d,!-f,--daemonize,!--foreground",
@@ -205,14 +205,14 @@ namespace utils {
                            ->force_callback();
 
         app.add_flag("-k,--kill", "Kill running daemon") //
-            ->configurable(false)                        //
+            ->configurable(false)
             ->disable_flag_override();
 
         app.add_flag("-s,--show-config", "Show current configuration and exit") //
-            ->configurable(false)                                               //
+            ->configurable(false)
             ->disable_flag_override();
 
-        app.add_option("-w,--write-config") //
+        app.add_option("-w,--write-config", "Write config file and exit") //
             ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
             ->configurable(false)
             ->default_val(defaultConfDir + "/" + applicationName + ".conf")
@@ -247,7 +247,7 @@ namespace utils {
                           ->force_callback();
 
         verboseLevelOpt = app.add_option_function<std::string>("--verbose-level", utils::ResetToDefault(logFileOpt), "Verbose level") //
-                              ->default_val(0)                                                                                        //
+                              ->default_val(0)
                               ->type_name("level")
                               ->check(CLI::Range(0, 10))
                               ->force_callback();
@@ -322,6 +322,7 @@ namespace utils {
         return ret;
     }
 
+    void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, bool defaultsAlso);
     void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, bool defaultsAlso) {
         std::vector<CLI::Option*> appOptions = app->get_options();
 
@@ -354,6 +355,7 @@ namespace utils {
         }
     }
 
+    std::string createCommandLineOptions(CLI::App* app, bool defaultsAlso);
     std::string createCommandLineOptions(CLI::App* app, bool defaultsAlso) {
         std::stringstream optionOut;
 
@@ -369,7 +371,7 @@ namespace utils {
     }
 
     void createCommandLineTemplate(std::stringstream& out, CLI::App* app, bool defaultsAlso);
-
+    std::string createCommandLineSubcommands(CLI::App* app, bool defaultsAlso);
     std::string createCommandLineSubcommands(CLI::App* app, bool defaultsAlso) {
         std::stringstream subcommandOut;
 
@@ -397,6 +399,7 @@ namespace utils {
         }
     }
 
+    std::string createCommandLineTemplate(CLI::App* app, bool defaultsAlso);
     std::string createCommandLineTemplate(CLI::App* app, bool defaultsAlso) {
         std::stringstream out;
 

@@ -35,7 +35,8 @@ namespace net::config {
                       ->add_section(name, description);
 
         if (hidden) {
-            section->group("");
+            section //
+                ->group("");
         }
     }
 
@@ -61,7 +62,8 @@ namespace net::config {
                   ->force_callback();
 
         if (!typeName.empty()) {
-            opt->type_name(typeName);
+            opt //
+                ->type_name(typeName);
         }
 
         return opt;
