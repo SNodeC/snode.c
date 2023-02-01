@@ -359,7 +359,13 @@ namespace utils {
 
         createCommandLineOptions(optionOut, app, defaultsAlso);
 
-        return optionOut.str();
+        std::string optionString = optionOut.str();
+
+        if (optionString.back() == ' ') {
+            optionString.pop_back();
+        }
+
+        return optionString;
     }
 
     void createCommandLineTemplate(std::stringstream& out, CLI::App* app, bool defaultsAlso);
@@ -381,7 +387,7 @@ namespace utils {
         std::string outString;
 
         outString = createCommandLineOptions(app, defaultsAlso);
-        if (!outString.empty() && outString.back() != ' ') {
+        if (!outString.empty()) {
             outString += " ";
         }
         outString += createCommandLineSubcommands(app, defaultsAlso);

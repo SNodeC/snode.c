@@ -72,7 +72,7 @@ namespace net::config {
                  "--ca-use-default-cert-dir,!--ca-ignore-default-cert-dir",
                  "Use default CA-certificate directory",
                  "false",
-                 CLI::TypeValidator<bool>() & !CLI::Number)
+                 CLI::TypeValidator<bool>() & !CLI::Number) // cppcheck-suppress clarifyCondition
             ->type_name("bool");
         add_option(cipherListOpt, "--cipher-list", "Cipher list", "cipher_list", "");
         add_option(
