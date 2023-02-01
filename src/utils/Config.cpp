@@ -417,11 +417,13 @@ namespace utils {
             if (stopOnError) {
                 if (e.getDefaultsAlso()) {
                     std::cout << "Below is a full template command line" << std::endl;
-                    std::cout << "* Required options show the value <REQUIRED>" << std::endl;
-                    std::cout << "* All other options showing either their default or current value" << std::endl << std::endl;
+                    std::cout << "* Required but not yet configured options show the value <REQUIRED>" << std::endl;
+                    std::cout << "* All other options showing either their default or current configured value" << std::endl << std::endl;
                 } else {
                     std::cout << "Below is a minimal template command line" << std::endl;
-                    std::cout << "* Only required options are showen" << std::endl << std::endl;
+                    std::cout << "* Only required options are showen" << std::endl;
+                    std::cout << "* Required but not yet configured options show the value <REQUIRED>" << std::endl;
+                    std::cout << "* All other options show their current configured value" << std::endl << std::endl;
                 }
                 std::cout << createCommandLineTemplate(e.getApp(), e.getDefaultsAlso()) << std::endl;
                 ret = false;
