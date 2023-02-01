@@ -50,7 +50,8 @@ namespace net::config {
                                        "          \"UseDefaultCaDir\" -> value:BOOLEAN [false],\n"
                                        "          \"SslOptions\" -> value:POSITIV\n"
                                        "        }") //
-                          ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}");
+                          ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
+                          ->default_val("\"\" \"\" \"\" \"\"");
 
         add_flag(forceSniOpt,
                  "--sni-required,!--sni-optional",
