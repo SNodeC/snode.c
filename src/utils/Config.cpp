@@ -35,6 +35,7 @@
 #include <pwd.h>
 #include <stdexcept>
 #include <unistd.h>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -68,6 +69,27 @@ namespace utils {
     CLI::Option* Config::verboseLevelOpt = nullptr;
 
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::Formatter>();
+
+    class CallForCommandline : public CLI::Error {
+    public:
+        CallForCommandline(CLI::App* app, bool defaultsAlso)
+            : CLI::Error("CallForCommandline", "Call for a template command line is requested.")
+            , app(app)
+            , defaultsAlso(defaultsAlso) {
+        }
+
+        CLI::App* getApp() const {
+            return app;
+        }
+
+        bool getDefaultsAlso() const {
+            return defaultsAlso;
+        }
+
+    private:
+        CLI::App* app;
+        bool defaultsAlso;
+    };
 
     bool Config::init(int argc, char* argv[]) {
         Config::argc = argc;
@@ -149,6 +171,28 @@ namespace utils {
                    throw CLI::CallForAllHelp();
                },
                "Expand all help")     //
+            ->configurable(false)     //
+            ->disable_flag_override() //
+            ->trigger_on_parse();
+
+        app.add_flag_callback(
+               "--commandline",
+               []() {
+                   throw CallForCommandline(&app, false);
+               },
+               "Print a template command line showing required options only and exit")
+            ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
+            ->configurable(false)     //
+            ->disable_flag_override() //
+            ->trigger_on_parse();
+
+        app.add_flag_callback(
+               "--commandline-long",
+               []() {
+                   throw CallForCommandline(&app, true);
+               },
+               "Print a template command line showing all possible options and exit")
+            ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
             ->configurable(false)     //
             ->disable_flag_override() //
             ->trigger_on_parse();
@@ -280,6 +324,80 @@ namespace utils {
         return ret;
     }
 
+    void createOptions(std::stringstream& optionOut, CLI::App* app, bool defaultsAlso) {
+        std::vector<CLI::Option*> appOptions = app->get_options();
+
+        if (!appOptions.empty()) {
+            for (const CLI::Option* option : appOptions) {
+                if (option->get_configurable()) {
+                    std::string value;
+
+                    if (option->reduced_results().size() > 0) {
+                        value = option->reduced_results()[0];
+                    } else if (option->get_default_str().empty()) {
+                        if (option->get_required()) {
+                            value = "<REQUIRED>";
+                        } else {
+                            value = defaultsAlso ? "[EMPTY]" : "";
+                        }
+                    } else {
+                        value = defaultsAlso ? "[" + option->get_default_str() + "]" : "";
+                    }
+
+                    if (!value.empty()) {
+                        if (option->get_expected_min() == 0) {
+                            optionOut << "--" << option->get_single_name()
+                                      << "{" + option->get_flag_value(option->get_single_name(), "") + "}"
+                                      << "=" << value << " ";
+                        } else {
+                            optionOut << "--" << option->get_single_name() << " " << value << " ";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    std::string createOptions(CLI::App* app, bool defaultsAlso) {
+        std::stringstream optionOut;
+
+        createOptions(optionOut, app, defaultsAlso);
+
+        return optionOut.str();
+    }
+
+    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, bool defaultsAlso) {
+        std::stringstream optionOut;
+
+        optionOut << createOptions(app, defaultsAlso);
+
+        std::vector<CLI::App*> appSubcommands = app->get_subcommands({});
+        if (!appSubcommands.empty()) {
+            for (CLI::App* subcommand : appSubcommands) {
+                createCommandLineTemplate(optionOut, subcommand, defaultsAlso);
+            }
+        }
+
+        if (!optionOut.str().empty()) {
+            out << app->get_name() << " " << optionOut.str();
+        }
+    }
+
+    std::string createCommandLineTemplate(CLI::App* app, bool defaultsAlso) {
+        std::stringstream out;
+
+        createCommandLineTemplate(out, app, defaultsAlso);
+
+        std::string outString = out.str();
+
+        while (app->get_parent() != nullptr) {
+            app = app->get_parent();
+            outString = app->get_name() + " " + createOptions(app, false) + outString;
+        }
+
+        return outString;
+    }
+
     bool Config::parse(bool stopOnError) {
         bool ret = true;
 
@@ -287,11 +405,29 @@ namespace utils {
 
         try {
             Config::app.parse(argc, argv);
+        } catch (const CallForCommandline& e) {
+            if (stopOnError) {
+                if (e.getDefaultsAlso()) {
+                    std::cout << "Below is a full template command line" << std::endl;
+                    std::cout << "* Required options show the value <REQUIRED>" << std::endl;
+                    std::cout << "* Defaulted options show their default value enclosed in \"[\" and \"]\"" << std::endl;
+                    std::cout << "* Non-defaulted options show the value [EMPTY]" << std::endl << std::endl;
+                } else {
+                    std::cout << "Below is a minimal template command line" << std::endl;
+                    std::cout << "* Only required options are showen" << std::endl << std::endl;
+                }
+                std::cout << createCommandLineTemplate(e.getApp(), e.getDefaultsAlso()) << std::endl;
+                ret = false;
+            }
+        } catch (const CLI::ConversionError& e) {
+            std::cout << "Command line or config file error: " << e.what() << std::endl << std::endl;
+            std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+            ret = false;
         } catch (const CLI::ConfigError& e) {
             if (stopOnError) {
                 std::cout << "Command line or config file error: " << e.what() << std::endl;
-                std::cout << "Rewrite the config file by appending -w [config file] to your command line." << std::endl;
-                std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+                std::cout << "Rewrite the config file by appending -w [config file] to your command line." << std::endl << std::endl;
+                std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
                 ret = false;
             }
         } catch (const CLI::ParseError& e) {
@@ -307,7 +443,7 @@ namespace utils {
         }
 
         return ret;
-    }
+    } // namespace utils
 
     void Config::terminate() {
         if (app["--daemonize"]->as<bool>()) {
@@ -336,7 +472,7 @@ namespace utils {
             ->configurable(!name.empty())
             ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
 
-        instance
+        instance //
             ->add_flag_callback(
                 "-h,--help",
                 []() {
@@ -347,15 +483,39 @@ namespace utils {
             ->disable_flag_override()               //
             ->trigger_on_parse();
 
-        instance
+        instance //
             ->add_flag_callback(
                 "--help-all",
                 []() {
                     throw CLI::CallForAllHelp();
                 },
-                "Expand all help")    //
-            ->configurable(false)     //
-            ->disable_flag_override() //
+                "Expand all help")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse();
+
+        instance //
+            ->add_flag_callback(
+                "--commandline",
+                [instance]() {
+                    throw CallForCommandline(instance, false);
+                },
+                "Print a template command line showing required options only and exit")
+            ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse();
+
+        instance //
+            ->add_flag_callback(
+                "--commandline-long",
+                [instance]() {
+                    throw CallForCommandline(instance, true);
+                },
+                "Print a template command line showing all possible options and exit")
+            ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
+            ->configurable(false)
+            ->disable_flag_override()
             ->trigger_on_parse();
 
         return instance;
@@ -410,19 +570,19 @@ namespace utils {
     }
 
     CLI::Option* Config::add_option(const std::string& name, int& variable, const std::string& description) {
-        return app.add_option(name, variable, description);
+        return app.add_option(name, variable, description)->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
     }
 
     CLI::Option* Config::add_option(const std::string& name, std::string& variable, const std::string& description) {
-        return app.add_option(name, variable, description);
+        return app.add_option(name, variable, description)->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
     }
 
     CLI::Option* Config::add_flag(const std::string& name, const std::string& description) {
-        return app.add_flag(name, description);
+        return app.add_flag(name, description)->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
     }
 
     CLI::Option* Config::add_flag(const std::string& name, bool& variable, const std::string& description) {
-        return app.add_flag(name, variable, description);
+        return app.add_flag(name, variable, description)->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
     }
 
     std::string Config::getApplicationName() {
