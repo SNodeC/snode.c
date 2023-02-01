@@ -182,9 +182,8 @@ namespace utils {
                },
                "Print a template command line showing required options only and exit")
             ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
-            ->configurable(false)     //
-            ->disable_flag_override() //
-            ->trigger_on_parse();
+            ->configurable(false) //
+            ->disable_flag_override();
 
         app.add_flag_callback(
                "--commandline-long",
@@ -193,9 +192,8 @@ namespace utils {
                },
                "Print a template command line showing all possible options and exit")
             ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
-            ->configurable(false)     //
-            ->disable_flag_override() //
-            ->trigger_on_parse();
+            ->configurable(false) //
+            ->disable_flag_override();
 
         daemonizeOpt = app.add_flag_function("-d,!-f,--daemonize,!--foreground",
                                              utils::ResetToDefault(daemonizeOpt),
@@ -324,7 +322,7 @@ namespace utils {
         return ret;
     }
 
-    void createOptions(std::stringstream& optionOut, CLI::App* app, bool defaultsAlso) {
+    void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, bool defaultsAlso) {
         std::vector<CLI::Option*> appOptions = app->get_options();
 
         if (!appOptions.empty()) {
@@ -332,23 +330,21 @@ namespace utils {
                 if (option->get_configurable()) {
                     std::string value;
 
-                    if (option->reduced_results().size() > 0) {
+                    if (option->reduced_results().size() > 0 && (option->get_required() || defaultsAlso)) {
                         value = option->reduced_results()[0];
-                    } else if (option->get_default_str().empty()) {
+                    } else if (!option->get_default_str().empty()) {
+                        value = defaultsAlso ? option->get_default_str() : "";
+                    } else {
                         if (option->get_required()) {
                             value = "<REQUIRED>";
                         } else {
-                            value = defaultsAlso ? "[EMPTY]" : "";
+                            value = defaultsAlso ? "\"\"" : "";
                         }
-                    } else {
-                        value = defaultsAlso ? "[" + option->get_default_str() + "]" : "";
                     }
 
                     if (!value.empty()) {
                         if (option->get_expected_min() == 0) {
-                            optionOut << "--" << option->get_single_name()
-                                      << "{" + option->get_flag_value(option->get_single_name(), "") + "}"
-                                      << "=" << value << " ";
+                            optionOut << "--" << option->get_single_name() << "=" << value << " ";
                         } else {
                             optionOut << "--" << option->get_single_name() << " " << value << " ";
                         }
@@ -358,28 +354,40 @@ namespace utils {
         }
     }
 
-    std::string createOptions(CLI::App* app, bool defaultsAlso) {
+    std::string createCommandLineOptions(CLI::App* app, bool defaultsAlso) {
         std::stringstream optionOut;
 
-        createOptions(optionOut, app, defaultsAlso);
+        createCommandLineOptions(optionOut, app, defaultsAlso);
 
         return optionOut.str();
     }
 
-    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, bool defaultsAlso) {
-        std::stringstream optionOut;
+    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, bool defaultsAlso);
 
-        optionOut << createOptions(app, defaultsAlso);
+    std::string createCommandLineSubcommands(CLI::App* app, bool defaultsAlso) {
+        std::stringstream subcommandOut;
 
         std::vector<CLI::App*> appSubcommands = app->get_subcommands({});
         if (!appSubcommands.empty()) {
             for (CLI::App* subcommand : appSubcommands) {
-                createCommandLineTemplate(optionOut, subcommand, defaultsAlso);
+                createCommandLineTemplate(subcommandOut, subcommand, defaultsAlso);
             }
         }
 
-        if (!optionOut.str().empty()) {
-            out << app->get_name() << " " << optionOut.str();
+        return subcommandOut.str();
+    }
+
+    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, bool defaultsAlso) {
+        std::string outString;
+
+        outString = createCommandLineOptions(app, defaultsAlso);
+        if (!outString.empty() && outString.back() != ' ') {
+            outString += " ";
+        }
+        outString += createCommandLineSubcommands(app, defaultsAlso);
+
+        if (!outString.empty()) {
+            out << app->get_name() << " " << outString;
         }
     }
 
@@ -392,7 +400,7 @@ namespace utils {
 
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
-            outString = app->get_name() + " " + createOptions(app, false) + outString;
+            outString = app->get_name() + " " + createCommandLineOptions(app, false) + outString;
         }
 
         return outString;
@@ -410,8 +418,7 @@ namespace utils {
                 if (e.getDefaultsAlso()) {
                     std::cout << "Below is a full template command line" << std::endl;
                     std::cout << "* Required options show the value <REQUIRED>" << std::endl;
-                    std::cout << "* Defaulted options show their default value enclosed in \"[\" and \"]\"" << std::endl;
-                    std::cout << "* Non-defaulted options show the value [EMPTY]" << std::endl << std::endl;
+                    std::cout << "* All other options showing either their default or current value" << std::endl << std::endl;
                 } else {
                     std::cout << "Below is a minimal template command line" << std::endl;
                     std::cout << "* Only required options are showen" << std::endl << std::endl;
@@ -503,8 +510,7 @@ namespace utils {
                 "Print a template command line showing required options only and exit")
             ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
             ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
+            ->disable_flag_override();
 
         instance //
             ->add_flag_callback(
@@ -515,8 +521,7 @@ namespace utils {
                 "Print a template command line showing all possible options and exit")
             ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
             ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
+            ->disable_flag_override();
 
         return instance;
     }
