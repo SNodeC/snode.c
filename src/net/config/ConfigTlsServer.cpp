@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <any>
 #include <list>
 #include <stdexcept>
@@ -58,7 +56,7 @@ namespace net::config {
                  "--sni-required,!--sni-optional",
                  "Force using of the Server Name Indication",
                  "false",
-                 CLI::TypeValidator<bool>() & !CLI::Number) //
+                 CLI::TypeValidator<bool>() & !CLI::Number) // cppcheck-suppress clarifyCondition
             ->type_name("bool");
 
         section->final_callback([this](void) -> void {
@@ -72,8 +70,10 @@ namespace net::config {
                     for (auto& [key, value] : sniMap) {
                         if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
                             key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
-                            LOG(ERROR) << "Configuring SNI-Cert for domain: " << domain << " failed: Wrong Key: " << key;
-                            vaultyDomainConfigs.push_back(domain);
+                            vaultyDomainConfigs.push_back(key);
+                            throw CLI::ConversionError("'" + key + "' of option '--" + section->get_parent()->get_name() + "." +
+                                                           section->get_name() + ".sni-cert'",
+                                                       "<key>");
                         }
                     }
                 }
