@@ -92,15 +92,17 @@ namespace core {
         int getMaxFd();
 
     private:
+        void spanActiveEvents(const utils::Timeval& currentTime);
+        void executeEventQueue(const utils::Timeval& currentTime);
         void checkTimedOutEvents(const utils::Timeval& currentTime);
+        void releaseExpiredResources(const utils::Timeval& currentTime);
+        TickStatus waitForEvents(const utils::Timeval &tickTimeOut, const utils::Timeval& currentTime);
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
+        virtual void spanActiveEvents() = 0;
+
         virtual int monitorDescriptors(utils::Timeval& tickTimeOut) = 0;
-        void publishActiveEvents(const utils::Timeval& currentTime);
-        virtual void publishActiveEvents() = 0;
-        void releaseExpiredResources(const utils::Timeval& currentTime);
-        void executeEventQueue(const utils::Timeval& currentTime);
 
     protected:
 #define DISP_COUNT 3

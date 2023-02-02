@@ -83,25 +83,15 @@ namespace core {
     }
 
     TickStatus EventMultiplexer::tick(const utils::Timeval& tickTimeOut) {
-        TickStatus tickStatus = TickStatus::SUCCESS;
-
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
-        publishActiveEvents(currentTime);
-        executeEventQueue(currentTime);
-        checkTimedOutEvents(currentTime);
-        releaseExpiredResources(currentTime);
+        TickStatus tickStatus = waitForEvents(tickTimeOut, currentTime);
 
-        if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
-            utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
-
-            activeEventCount = monitorDescriptors(nextTimeout);
-
-            if (activeEventCount < 0 && errno != EINTR) {
-                tickStatus = TickStatus::ERROR;
-            }
-        } else {
-            tickStatus = TickStatus::NO_OBSERVER;
+        if (tickStatus == TickStatus::SUCCESS) {
+            spanActiveEvents(currentTime);
+            executeEventQueue(currentTime);
+            checkTimedOutEvents(currentTime);
+            releaseExpiredResources(currentTime);
         }
 
         return tickStatus;
@@ -124,6 +114,47 @@ namespace core {
         eventQueue.deleteEvents();
     }
 
+    void EventMultiplexer::spanActiveEvents(const utils::Timeval& currentTime) {
+        timerEventPublisher->spanActiveEvents(currentTime);
+        spanActiveEvents();
+    }
+
+    void EventMultiplexer::executeEventQueue(const utils::Timeval& currentTime) {
+        eventQueue.execute(currentTime);
+    }
+
+    void EventMultiplexer::checkTimedOutEvents(const utils::Timeval& currentTime) {
+        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+            descriptorEventPublisher->checkTimedOutEvents(currentTime);
+        }
+    }
+
+    void EventMultiplexer::releaseExpiredResources(const utils::Timeval& currentTime) {
+        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+            descriptorEventPublisher->releaseDisabledEvents(currentTime);
+        }
+        timerEventPublisher->unobserveDisableEvents();
+        DynamicLoader::execDlCloseDeleyed();
+    }
+
+    TickStatus EventMultiplexer::waitForEvents(const utils::Timeval& tickTimeOut, const utils::Timeval& currentTime) {
+        TickStatus tickStatus = TickStatus::SUCCESS;
+
+        if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
+            utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
+
+            activeEventCount = monitorDescriptors(nextTimeout);
+
+            if (activeEventCount < 0 && errno != EINTR) {
+                tickStatus = TickStatus::ERROR;
+            }
+        } else {
+            tickStatus = TickStatus::NO_OBSERVER;
+        }
+
+        return tickStatus;
+    }
+
     utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
@@ -138,29 +169,6 @@ namespace core {
         }
 
         return nextTimeout;
-    }
-
-    void EventMultiplexer::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->checkTimedOutEvents(currentTime);
-        }
-    }
-
-    void EventMultiplexer::publishActiveEvents(const utils::Timeval& currentTime) {
-        timerEventPublisher->publishActiveEvents(currentTime);
-        publishActiveEvents();
-    }
-
-    void EventMultiplexer::releaseExpiredResources(const utils::Timeval& currentTime) {
-        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->releaseDisabledEvents(currentTime);
-        }
-        timerEventPublisher->unobserveDisableEvents();
-        DynamicLoader::execDlCloseDeleyed();
-    }
-
-    void EventMultiplexer::executeEventQueue(const utils::Timeval& currentTime) {
-        eventQueue.execute(currentTime);
     }
 
     EventMultiplexer::EventQueue::EventQueue()
