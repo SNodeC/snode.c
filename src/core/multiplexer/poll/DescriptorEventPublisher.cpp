@@ -52,7 +52,7 @@ namespace core::poll {
         pollFds.muxOff(eventReceiver, events);
     }
 
-    int DescriptorEventPublisher::publishActiveEvents() {
+    int DescriptorEventPublisher::spanActiveEvents() {
         int count = 0;
 
         pollfd* pollfds = pollFds.getEvents();

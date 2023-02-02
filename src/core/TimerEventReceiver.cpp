@@ -50,8 +50,12 @@ namespace core {
         }
     }
 
-    utils::Timeval TimerEventReceiver::getTimeout() const {
+    utils::Timeval TimerEventReceiver::getTimeoutAbsolut() const {
         return absoluteTimeout;
+    }
+
+    utils::Timeval TimerEventReceiver::getTimeoutRelative(const utils::Timeval& currentTime) const {
+        return absoluteTimeout > currentTime ? absoluteTimeout - currentTime : 0;
     }
 
     void TimerEventReceiver::updateTimeout() {
@@ -73,7 +77,7 @@ namespace core {
     }
 
     void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
-        LOG(INFO) << "Timer: Dispatch delta = " << (currentTime - getTimeout()).msd() << " ms";
+        LOG(TRACE) << "Timer: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).msd() << " ms";
 
         dispatchEvent();
     }

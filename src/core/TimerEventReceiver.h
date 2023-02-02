@@ -48,7 +48,8 @@ namespace core {
         TimerEventReceiver(const std::string& name, const utils::Timeval& delay);
         ~TimerEventReceiver() override;
 
-        utils::Timeval getTimeout() const;
+        utils::Timeval getTimeoutAbsolut() const;
+        utils::Timeval getTimeoutRelative(const utils::Timeval& currentTime) const;
 
         void enable();
         void update();

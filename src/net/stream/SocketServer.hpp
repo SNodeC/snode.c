@@ -25,10 +25,10 @@
 
 namespace net::stream {
 
-    template <typename Socket, typename Config>
-    void SocketServer<Socket, Config>::listen(const SocketAddress& localAddress,
-                                              int backlog,
-                                              const std::function<void(const SocketAddress&, int)>& onError) const {
+    template <typename ServerSocket, typename Config>
+    void SocketServer<ServerSocket, Config>::listen(const SocketAddress& localAddress,
+                                                    int backlog,
+                                                    const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->setLocalAddress(localAddress);
         Super::config->setBacklog(backlog);
 

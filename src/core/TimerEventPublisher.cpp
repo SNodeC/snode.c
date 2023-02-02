@@ -33,21 +33,15 @@ namespace core {
         utils::Timeval nextTimeout({LONG_MAX, 0});
 
         if (!timerList.empty()) {
-            nextTimeout = (*(timerList.begin()))->getTimeout();
-
-            if (nextTimeout < currentTime) {
-                nextTimeout = 0;
-            } else {
-                nextTimeout -= currentTime;
-            }
+            nextTimeout = (*(timerList.begin()))->getTimeoutRelative(currentTime);
         }
 
         return nextTimeout;
     }
 
-    void TimerEventPublisher::publishActiveEvents(const utils::Timeval& currentTime) {
+    void TimerEventPublisher::spanActiveEvents(const utils::Timeval& currentTime) {
         for (TimerEventReceiver* timerEventReceiver : timerList) {
-            if (timerEventReceiver->getTimeout() <= currentTime) {
+            if (timerEventReceiver->getTimeoutAbsolut() <= currentTime) {
                 timerEventReceiver->span();
             } else {
                 break;
@@ -91,7 +85,7 @@ namespace core {
     }
 
     bool TimerEventPublisher::timernode_lt::operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
-        return t1->getTimeout() < t2->getTimeout();
+        return t1->getTimeoutAbsolut() < t2->getTimeoutAbsolut();
     }
 
 } // namespace core

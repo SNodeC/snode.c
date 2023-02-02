@@ -47,10 +47,10 @@ namespace core::select {
                                     &tickTimeOut);
     }
 
-    void EventMultiplexer::publishActiveEvents() {
+    void EventMultiplexer::spanActiveEvents() {
         if (activeEventCount > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-                descriptorEventPublisher->publishActiveEvents();
+                descriptorEventPublisher->spanActiveEvents();
             }
         }
     }

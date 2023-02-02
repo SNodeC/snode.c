@@ -31,7 +31,7 @@
 
 namespace net::stream {
 
-    template <typename SocketT, typename ConfigT>
+    template <typename ClientSocketT, typename ConfigT>
     class SocketClient : public net::SocketConfig<ConfigT> {
     protected:
         using Super = net::SocketConfig<ConfigT>;
@@ -40,7 +40,7 @@ namespace net::stream {
         using Super::Super;
 
         using Config = ConfigT;
-        using Socket = SocketT;
+        using Socket = ClientSocketT;
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketClient() = default;

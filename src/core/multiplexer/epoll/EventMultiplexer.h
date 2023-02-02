@@ -40,7 +40,7 @@ namespace core::epoll {
 
     private:
         int monitorDescriptors(utils::Timeval& tickTimeout) override;
-        void publishActiveEvents() override;
+        void spanActiveEvents() override;
 
         int epfd;
 

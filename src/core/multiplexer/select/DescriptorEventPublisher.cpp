@@ -76,7 +76,7 @@ namespace core::select {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    int DescriptorEventPublisher::publishActiveEvents() {
+    int DescriptorEventPublisher::spanActiveEvents() {
         int count = 0;
 
         for (const auto& [fd, eventReceivers] : observedEventReceivers) {
