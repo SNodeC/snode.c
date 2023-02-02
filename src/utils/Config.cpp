@@ -409,7 +409,7 @@ namespace utils {
 
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
-            outString = app->get_name() + " " + createCommandLineOptions(app, false) + outString;
+            outString = app->get_name() + " " + createCommandLineOptions(app, false) + " " + outString;
         }
 
         return outString;
