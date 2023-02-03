@@ -42,10 +42,10 @@ namespace core::socket::stream {
         , protected core::eventreceiver::ConnectEventReceiver {
     private:
         using SocketClient = SocketClientT;
-        using PrimarySocket = typename SocketClient::Socket;
+        using PhysicalSocket = typename SocketClient::PhysicalSocket;
 
     protected:
-        using SocketConnection = SocketConnectionT<PrimarySocket>;
+        using SocketConnection = SocketConnectionT<PhysicalSocket>;
         using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<SocketClient, SocketConnection>;
 
     public:
@@ -79,8 +79,8 @@ namespace core::socket::stream {
 
     protected:
         void initConnectEvent() override {
-            socket = new PrimarySocket();
-            if (socket->open(PrimarySocket::Flags::NONBLOCK) < 0) {
+            socket = new PhysicalSocket();
+            if (socket->open(PhysicalSocket::Flags::NONBLOCK) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else if (socket->bind(config->getLocalAddress()) < 0) {
@@ -129,7 +129,7 @@ namespace core::socket::stream {
             destruct();
         }
 
-        PrimarySocket* socket = nullptr;
+        PhysicalSocket* socket = nullptr;
 
         SocketConnectionFactory socketConnectionFactory;
 

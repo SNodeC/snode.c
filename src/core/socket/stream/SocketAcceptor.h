@@ -46,16 +46,16 @@ namespace core::socket::stream {
         , protected core::eventreceiver::AcceptEventReceiver {
     private:
         using SocketServer = SocketServerT;
-        using PrimarySocket = typename SocketServer::Socket;
+        using PrimaryPhysicalSocket = typename SocketServer::PhysicalSocket;
         using SecondarySocket = net::un::dgram::Socket;
 
     protected:
-        using SocketConnection = SocketConnectionT<PrimarySocket>;
+        using SocketConnection = SocketConnectionT<PrimaryPhysicalSocket>;
         using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<SocketServer, SocketConnection>;
 
     public:
         using Config = typename SocketServer::Config;
-        using SocketAddress = typename PrimarySocket::SocketAddress;
+        using SocketAddress = typename PrimaryPhysicalSocket::SocketAddress;
 
         /** Sequence diagramm of res.upgrade(req).
         @startuml
@@ -83,11 +83,11 @@ namespace core::socket::stream {
         }
 
         ~SocketAcceptor() override {
-            if (secondarySocket != nullptr) {
-                delete secondarySocket;
+            if (secondaryPhysicalSocket != nullptr) {
+                delete secondaryPhysicalSocket;
             }
-            if (primarySocket != nullptr) {
-                delete primarySocket;
+            if (primaryPhysicalSocket != nullptr) {
+                delete primaryPhysicalSocket;
             }
         }
 
@@ -95,52 +95,52 @@ namespace core::socket::stream {
         void initAcceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
-                primarySocket = new PrimarySocket();
-                if (primarySocket->open(PrimarySocket::Flags::NONBLOCK) < 0) {
+                primaryPhysicalSocket = new PrimaryPhysicalSocket();
+                if (primaryPhysicalSocket->open(PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
 #if !defined(NDEBUG)
-                } else if (primarySocket->reuseAddress() < 0) {
+                } else if (primaryPhysicalSocket->reuseAddress() < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
 #endif // !defined(NDEBUG)
-                } else if (primarySocket->bind(config->getLocalAddress()) < 0) {
+                } else if (primaryPhysicalSocket->bind(config->getLocalAddress()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (primarySocket->listen(config->getBacklog()) < 0) {
+                } else if (primaryPhysicalSocket->listen(config->getBacklog()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                     VLOG(0) << config->getInstanceName() << " mode: PRIMARY";
-                    secondarySocket = new SecondarySocket();
-                    if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
+                    secondaryPhysicalSocket = new SecondarySocket();
+                    if (secondaryPhysicalSocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
-                    } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) < 0) {
+                    } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
                         onError(config->getLocalAddress(), 0);
-                        enable(primarySocket->getFd());
+                        enable(primaryPhysicalSocket->getFd());
                     }
                 } else {
                     VLOG(0) << config->getInstanceName() << " mode: STANDALONE";
                     onError(config->getLocalAddress(), 0);
-                    enable(primarySocket->getFd());
+                    enable(primaryPhysicalSocket->getFd());
                 }
             } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
                        config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
-                secondarySocket = new SecondarySocket();
-                if (secondarySocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
+                secondaryPhysicalSocket = new SecondarySocket();
+                if (secondaryPhysicalSocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (secondarySocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) < 0) {
+                } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else {
                     VLOG(0) << config->getInstanceName() << " mode: SECONDARY or PROXY";
                     onError(config->getLocalAddress(), errno);
-                    enable(secondarySocket->getFd());
+                    enable(secondaryPhysicalSocket->getFd());
                 }
             }
         }
@@ -149,20 +149,20 @@ namespace core::socket::stream {
         void acceptEvent() override {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
-                PrimarySocket socket;
+                PrimaryPhysicalSocket socket;
 
                 int acceptsPerTick = config->getAcceptsPerTick();
 
                 do {
                     SocketAddress remoteAddress{};
-                    socket = primarySocket->accept4(remoteAddress, SOCK_NONBLOCK);
+                    socket = primaryPhysicalSocket->accept4(remoteAddress, SOCK_NONBLOCK);
                     if (socket.isValid()) {
                         if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE) {
                             socketConnectionFactory.create(socket, config);
                         } else {
                             // Send descriptor to SECONDARY
                             VLOG(0) << "Sending to secondary";
-                            secondarySocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName()),
+                            secondaryPhysicalSocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName()),
                                                     socket.getFd());
                             SecondarySocket::SocketAddress address;
                         }
@@ -175,8 +175,8 @@ namespace core::socket::stream {
                 // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
                 int fd = -1;
 
-                if (secondarySocket->recvFd(&fd) >= 0) {
-                    PrimarySocket socket(fd);
+                if (secondaryPhysicalSocket->recvFd(&fd) >= 0) {
+                    PrimaryPhysicalSocket socket(fd);
 
                     if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY) {
                         socketConnectionFactory.create(socket, config);
@@ -198,15 +198,15 @@ namespace core::socket::stream {
         int reuseAddress() {
             int sockopt = 1;
 
-            return primarySocket->setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
+            return primaryPhysicalSocket->setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
         }
 
         void unobservedEvent() override {
             destruct();
         }
 
-        PrimarySocket* primarySocket = nullptr;
-        SecondarySocket* secondarySocket = nullptr;
+        PrimaryPhysicalSocket* primaryPhysicalSocket = nullptr;
+        SecondarySocket* secondaryPhysicalSocket = nullptr;
 
         SocketConnectionFactory socketConnectionFactory;
 

@@ -38,7 +38,7 @@ namespace core::socket::stream {
     class SocketConnectionFactory {
     private:
         using SocketRole = SocketRoleT;
-        using Socket = typename SocketRoleT::Socket;
+        using PhysicalSocket = typename SocketRoleT::PhysicalSocket;
 
     protected:
         using SocketConnection = SocketConnectionT;
@@ -55,9 +55,9 @@ namespace core::socket::stream {
         }
 
         using Config = typename SocketRole::Config;
-        using SocketAddress = typename Socket::SocketAddress;
+        using SocketAddress = typename PhysicalSocket::SocketAddress;
 
-        void create(Socket& socket, const std::shared_ptr<Config>& config) {
+        void create(PhysicalSocket& socket, const std::shared_ptr<Config>& config) {
             if (socket.isValid()) {
                 socket.dontClose();
                 SocketAddress localAddress{};

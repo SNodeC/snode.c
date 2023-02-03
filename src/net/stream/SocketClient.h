@@ -40,8 +40,8 @@ namespace net::stream {
         using Super::Super;
 
         using Config = ConfigT;
-        using Socket = ClientSocketT;
-        using SocketAddress = typename Socket::SocketAddress;
+        using PhysicalSocket = ClientSocketT;
+        using SocketAddress = typename PhysicalSocket::SocketAddress;
 
         SocketClient() = default;
         SocketClient(const SocketClient&) = default;
