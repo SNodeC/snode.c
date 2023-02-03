@@ -19,7 +19,7 @@
 #ifndef NET_IN_STREAM_SOCKETSERVER_H
 #define NET_IN_STREAM_SOCKETSERVER_H
 
-#include "net/in/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/in/stream/PhysicalServerSocket.h" // IWYU pragma: export
 #include "net/stream/SocketServer.h"    // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

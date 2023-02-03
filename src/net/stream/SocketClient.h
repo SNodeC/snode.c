@@ -19,7 +19,7 @@
 #ifndef NET_STREAM_SOCKETCLIENT_H
 #define NET_STREAM_SOCKETCLIENT_H
 
-#include "net/SocketConfig.h" // IWYU pragma: export
+#include "net/LogicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,16 +31,16 @@
 
 namespace net::stream {
 
-    template <typename ClientSocketT, typename ConfigT>
-    class SocketClient : public net::SocketConfig<ConfigT> {
+    template <typename PhysicalClientSocketT, typename ConfigT>
+    class SocketClient : public net::LogicalSocket<ConfigT> {
     protected:
-        using Super = net::SocketConfig<ConfigT>;
+        using Super = net::LogicalSocket<ConfigT>;
 
     public:
         using Super::Super;
 
         using Config = ConfigT;
-        using PhysicalSocket = ClientSocketT;
+        using PhysicalSocket = PhysicalClientSocketT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
         SocketClient() = default;

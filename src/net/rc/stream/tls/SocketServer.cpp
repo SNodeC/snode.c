@@ -26,4 +26,4 @@
 
 template class net::rc::stream::SocketServer<net::rc::stream::tls::config::ConfigSocketServer>;
 template class net::stream::SocketServer<net::rc::stream::ServerSocket, net::rc::stream::tls::config::ConfigSocketServer>;
-template class net::SocketConfig<net::rc::stream::tls::config::ConfigSocketServer>;
+template class net::LogicalSocket<net::rc::stream::tls::config::ConfigSocketServer>;

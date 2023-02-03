@@ -52,7 +52,7 @@ namespace core::socket {
         socketConnection->setTimeout(timeout);
     }
 
-    Socket& SocketContext::getSocket() {
+    PhysicalSocket& SocketContext::getSocket() {
         return socketConnection->getSocket();
     }
 

@@ -19,7 +19,7 @@
 #ifndef NET_DGRAM_PEERSOCKET_H
 #define NET_DGRAM_PEERSOCKET_H
 
-#include "net/SocketConfig.h" // IWYU pragma: export
+#include "net/LogicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,9 +32,9 @@
 namespace net::dgram {
 
     template <typename ConfigT, typename SocketT>
-    class PeerSocket : public SocketConfig<ConfigT> {
+    class PeerSocket : public LogicalSocket<ConfigT> {
     protected:
-        using Super = SocketConfig<ConfigT>;
+        using Super = LogicalSocket<ConfigT>;
 
         virtual ~PeerSocket() = default;
 

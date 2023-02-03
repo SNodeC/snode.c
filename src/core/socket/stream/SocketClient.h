@@ -32,7 +32,7 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketClientT, template <typename ClientSocket> class SocketConnectorT, typename SocketContextFactoryT>
+    template <typename SocketClientT, template <typename PhysicalClientSocket> class SocketConnectorT, typename SocketContextFactoryT>
     class SocketClient : public SocketClientT {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml

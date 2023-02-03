@@ -19,7 +19,7 @@
 #ifndef NET_STREAM_SOCKETSERVER_H
 #define NET_STREAM_SOCKETSERVER_H
 
-#include "net/SocketConfig.h" // IWYU pragma: export
+#include "net/LogicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,9 +32,9 @@
 namespace net::stream {
 
     template <typename ServerSocketT, typename ConfigT>
-    class SocketServer : public net::SocketConfig<ConfigT> {
+    class SocketServer : public net::LogicalSocket<ConfigT> {
     protected:
-        using Super = SocketConfig<ConfigT>;
+        using Super = LogicalSocket<ConfigT>;
 
     public:
         using Super::Super;
