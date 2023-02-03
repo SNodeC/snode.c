@@ -52,7 +52,7 @@ namespace core::socket {
     public:
         core::socket::SocketContext* getSocketContext();
 
-        virtual PhysicalSocket& getSocket() = 0;
+        virtual PhysicalSocket& getPhysicalSocket() = 0;
 
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;

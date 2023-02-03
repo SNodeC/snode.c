@@ -19,10 +19,10 @@
 #ifndef NET_RC_SOCKET_H
 #define NET_RC_SOCKET_H
 
-#include "net/PhysicalSocket.h"           // IWYU pragma: export
+#include "net/PhysicalSocket.h"   // IWYU pragma: export
 #include "net/rc/SocketAddress.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/Socket.hpp"
+// IWYU pragma: no_include "net/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

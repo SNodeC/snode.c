@@ -31,7 +31,7 @@
 
 namespace net::stream {
 
-    template <typename ServerSocketT, typename ConfigT>
+    template <typename PhysicalServerSocketT, typename ConfigT>
     class SocketServer : public net::LogicalSocket<ConfigT> {
     protected:
         using Super = LogicalSocket<ConfigT>;
@@ -40,7 +40,7 @@ namespace net::stream {
         using Super::Super;
 
         using Config = ConfigT;
-        using PhysicalSocket = ServerSocketT;
+        using PhysicalSocket = PhysicalServerSocketT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
         SocketServer() = default;

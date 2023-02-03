@@ -52,8 +52,8 @@ namespace core::socket {
         socketConnection->setTimeout(timeout);
     }
 
-    PhysicalSocket& SocketContext::getSocket() {
-        return socketConnection->getSocket();
+    PhysicalSocket& SocketContext::getPhysicalSocket() {
+        return socketConnection->getPhysicalSocket();
     }
 
     void SocketContext::onConnected() {

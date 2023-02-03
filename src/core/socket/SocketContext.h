@@ -46,7 +46,7 @@ namespace core::socket {
         virtual ~SocketContext() = default;
 
         void setTimeout(const utils::Timeval& timeout);
-        PhysicalSocket& getSocket();
+        PhysicalSocket& getPhysicalSocket();
 
         void sendToPeer(const char* junk, std::size_t junkLen) const;
         void sendToPeer(const std::string& data) const;

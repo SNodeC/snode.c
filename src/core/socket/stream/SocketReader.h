@@ -35,15 +35,15 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketT>
+    template <typename PhysicalSocketT>
     class SocketReader
         : public core::eventreceiver::ReadEventReceiver
-        , virtual public SocketT {
+        , virtual public PhysicalSocketT {
     public:
         SocketReader() = delete;
 
     protected:
-        using Socket = SocketT;
+        using PhysicalSocket = PhysicalSocketT;
 
         explicit SocketReader(const std::function<void(int)>& onError,
                               const utils::Timeval& timeout,
@@ -121,7 +121,7 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
-                Socket::shutdown(Socket::SHUT::RD);
+                PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
                 shutdownTriggered = true;
             }
         }

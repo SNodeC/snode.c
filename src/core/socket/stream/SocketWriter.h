@@ -35,15 +35,15 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketT>
+    template <typename PhysicalSocketT>
     class SocketWriter
         : public core::eventreceiver::WriteEventReceiver
-        , virtual public SocketT {
+        , virtual public PhysicalSocketT {
     public:
         SocketWriter() = delete;
 
     protected:
-        using Socket = SocketT;
+        using PhysicalSocket = PhysicalSocketT;
 
         explicit SocketWriter(const std::function<void(int)>& onError,
                               const utils::Timeval& timeout,
@@ -121,7 +121,7 @@ namespace core::socket::stream {
 
             LOG(TRACE) << "Do syscall shutdonw(WR)";
 
-            Socket::shutdown(Socket::SHUT::WR);
+            PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
 
             onShutdown(errno);
         }
