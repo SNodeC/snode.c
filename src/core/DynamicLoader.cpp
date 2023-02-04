@@ -117,7 +117,7 @@ namespace core {
     void DynamicLoader::execDlCloseDeleyed() {
         for (void* handle : closeHandles) {
             std::size_t refCount = registeredForDlClose[handle];
-            //            for (auto& [handle, refCount] : registeredForDlClose) {
+
             do {
                 int ret = execDlClose(handle);
 
@@ -125,7 +125,6 @@ namespace core {
                     VLOG(0) << "Error execDeleyedDlClose: " << DynamicLoader::dlError();
                 }
             } while (--refCount > 0);
-            //            }
         }
 
         registeredForDlClose.clear();
