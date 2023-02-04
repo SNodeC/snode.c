@@ -52,10 +52,6 @@ namespace core::socket {
         socketConnection->setTimeout(timeout);
     }
 
-    PhysicalSocket& SocketContext::getPhysicalSocket() {
-        return socketConnection->getPhysicalSocket();
-    }
-
     void SocketContext::onConnected() {
         LOG(INFO) << "Protocol connected";
     }

@@ -49,7 +49,6 @@ namespace core::socket::stream {
         using PhysicalSocket = PhysicalSocketT;
         using SocketReader = SocketReaderT<PhysicalSocket>;
         using SocketWriter = SocketWriterT<PhysicalSocket>;
-
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
     public:
@@ -137,10 +136,6 @@ namespace core::socket::stream {
 
         const SocketAddress& getLocalAddress() const override {
             return localAddress;
-        }
-
-        PhysicalSocket& getPhysicalSocket() override {
-            return *this;
         }
 
         std::size_t readFromPeer(char* junk, std::size_t junkLen) final {

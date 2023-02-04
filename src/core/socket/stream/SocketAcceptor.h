@@ -20,9 +20,9 @@
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
+#include "core/socket/PhysicalSocketOption.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
 #include "net/config/ConfigCluster.h"
-#include "net/config/ConfigPhysicalSocket.h"
 #include "net/un/dgram/Socket.h"
 
 namespace core::socket {
@@ -94,11 +94,10 @@ namespace core::socket::stream {
 
     protected:
         void initAcceptEvent() override {
-            if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
-                config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
+            if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE ||
+                config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
                 primaryPhysicalSocket = new PrimaryPhysicalSocket();
-                if (primaryPhysicalSocket->open(config->net::config::ConfigPhysicalSocket::getSocketOptions(),
-                                                PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
+                if (primaryPhysicalSocket->open(config->getSocketOptions(), PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else if (primaryPhysicalSocket->bind(config->getLocalAddress()) < 0) {
@@ -107,7 +106,7 @@ namespace core::socket::stream {
                 } else if (primaryPhysicalSocket->listen(config->getBacklog()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
+                } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
                     VLOG(0) << config->getInstanceName() << " mode: PRIMARY";
                     secondaryPhysicalSocket = new SecondarySocket();
                     if (secondaryPhysicalSocket->open(std::vector<core::socket::PhysicalSocketOption>(), SecondarySocket::Flags::NONBLOCK) <
@@ -127,8 +126,8 @@ namespace core::socket::stream {
                     onError(config->getLocalAddress(), 0);
                     enable(primaryPhysicalSocket->getFd());
                 }
-            } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
-                       config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
+            } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
+                       config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
                 secondaryPhysicalSocket = new SecondarySocket();
                 if (secondaryPhysicalSocket->open(std::vector<core::socket::PhysicalSocketOption>(), SecondarySocket::Flags::NONBLOCK) <
                     0) {
@@ -148,8 +147,8 @@ namespace core::socket::stream {
 
     private:
         void acceptEvent() override {
-            if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
-                config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
+            if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE ||
+                config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
                 PrimaryPhysicalSocket socket;
 
                 int acceptsPerTick = config->getAcceptsPerTick();
@@ -158,7 +157,7 @@ namespace core::socket::stream {
                     SocketAddress remoteAddress{};
                     socket = primaryPhysicalSocket->accept4(remoteAddress, SOCK_NONBLOCK);
                     if (socket.isValid()) {
-                        if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE) {
+                        if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE) {
                             socketConnectionFactory.create(socket, config);
                         } else {
                             // Send descriptor to SECONDARY
@@ -171,15 +170,15 @@ namespace core::socket::stream {
                         PLOG(ERROR) << "accept";
                     }
                 } while (--acceptsPerTick > 0 && socket.isValid());
-            } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
-                       config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
+            } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
+                       config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
                 // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
                 int fd = -1;
 
                 if (secondaryPhysicalSocket->recvFd(&fd) >= 0) {
                     PrimaryPhysicalSocket socket(fd);
 
-                    if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY) {
+                    if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY) {
                         socketConnectionFactory.create(socket, config);
                     } else { // PROXY
                         // Send to SECONDARY (TERTIARY)

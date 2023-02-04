@@ -24,7 +24,6 @@ namespace utils {
 } // namespace utils
 
 namespace core::socket {
-    class PhysicalSocket;
     class SocketConnection;
     class SocketContextFactory;
 } // namespace core::socket
@@ -46,7 +45,6 @@ namespace core::socket {
         virtual ~SocketContext() = default;
 
         void setTimeout(const utils::Timeval& timeout);
-        PhysicalSocket& getPhysicalSocket();
 
         void sendToPeer(const char* junk, std::size_t junkLen) const;
         void sendToPeer(const std::string& data) const;

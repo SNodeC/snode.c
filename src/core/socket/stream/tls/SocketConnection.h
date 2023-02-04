@@ -43,7 +43,6 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::
             SocketConnection<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
 
-    private:
         using PhysicalSocket = PhysicalSocketT;
         using SocketReader = typename Super::SocketReader;
         using SocketWriter = typename Super::SocketWriter;

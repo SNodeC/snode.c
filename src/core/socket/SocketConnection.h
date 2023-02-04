@@ -27,7 +27,6 @@ namespace core::socket {
     class SocketAddress;
     class SocketContextFactory;
     class SocketContext;
-    class PhysicalSocket;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -51,8 +50,6 @@ namespace core::socket {
 
     public:
         core::socket::SocketContext* getSocketContext();
-
-        virtual PhysicalSocket& getPhysicalSocket() = 0;
 
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
