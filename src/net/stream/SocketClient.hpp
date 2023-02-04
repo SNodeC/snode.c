@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/SocketConfig.hpp"
+#include "net/LogicalSocket.hpp"
 #include "net/stream/SocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -25,8 +25,8 @@
 
 namespace net::stream {
 
-    template <typename ClientSocket, typename Config>
-    void SocketClient<ClientSocket, Config>::connect(const SocketAddress& remoteAddress,
+    template <typename PhysicalClientSocket, typename Config>
+    void SocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
                                                      const SocketAddress& localAddress,
                                                      const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->setLocalAddress(localAddress);
@@ -34,8 +34,8 @@ namespace net::stream {
         connect(remoteAddress, onError);
     }
 
-    template <typename ClientSocket, typename Config>
-    void SocketClient<ClientSocket, Config>::connect(const SocketAddress& remoteAddress,
+    template <typename PhysicalClientSocket, typename Config>
+    void SocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
                                                      const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->setRemoteAddress(remoteAddress);
 

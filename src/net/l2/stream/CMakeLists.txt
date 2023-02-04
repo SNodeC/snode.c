@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(NET-L2-STREAM_CPP
-    ClientSocket.cpp ServerSocket.cpp Socket.cpp config/ConfigSocketClient.cpp
+    PhysicalClientSocket.cpp PhysicalServerSocket.cpp PhysicalSocket.cpp config/ConfigSocketClient.cpp
     config/ConfigSocketServer.cpp
 )
 
 set(NET-L2-STREAM_H
-    ClientSocket.cpp
-    ServerSocket.cpp
+    PhysicalClientSocket.cpp
+    PhysicalServerSocket.cpp
     SocketClient.h
     SocketClient.hpp
     SocketServer.h
     SocketServer.hpp
-    Socket.h
+    PhysicalSocket.h
     config/ConfigSocketClient.h
     config/ConfigSocketServer.h
 )

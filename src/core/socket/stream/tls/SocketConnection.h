@@ -35,16 +35,16 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename SocketT>
+    template <typename PhysicalSocketT>
     class SocketConnection
         : public core::socket::stream::
-              SocketConnection<SocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter> {
+              SocketConnection<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter> {
     private:
         using Super = core::socket::stream::
-            SocketConnection<SocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
+            SocketConnection<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
 
     private:
-        using Socket = SocketT;
+        using PhysicalSocket = PhysicalSocketT;
         using SocketReader = typename Super::SocketReader;
         using SocketWriter = typename Super::SocketWriter;
 
@@ -90,7 +90,7 @@ namespace core::socket::stream::tls {
                 ssl = SSL_new(ctx);
 
                 if (ssl != nullptr) {
-                    if (SSL_set_fd(ssl, Socket::getFd()) == 1) {
+                    if (SSL_set_fd(ssl, PhysicalSocket::getFd()) == 1) {
                         SocketReader::ssl = ssl;
                         SocketWriter::ssl = ssl;
                     } else {
@@ -246,7 +246,7 @@ namespace core::socket::stream::tls {
         template <typename ServerSocket>
         friend class SocketAcceptor;
 
-        template <typename ClientSocket>
+        template <typename PhysicalClientSocket>
         friend class SocketConnector;
     };
 

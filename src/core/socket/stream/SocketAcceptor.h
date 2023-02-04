@@ -40,7 +40,7 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename SocketServerT, template <typename SocketT> class SocketConnectionT>
+    template <typename SocketServerT, template <typename PhysicalServerSocketT> class SocketConnectionT>
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {

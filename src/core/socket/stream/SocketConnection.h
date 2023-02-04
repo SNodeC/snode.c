@@ -34,19 +34,23 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketT, template <typename Socket> class SocketReaderT, template <typename Socket> class SocketWriterT>
+    template <typename PhysicalSocketT,
+              template <typename PhysicalSocket>
+              class SocketReaderT,
+              template <typename PhysicalSocket>
+              class SocketWriterT>
     class SocketConnection
         : protected core::socket::SocketConnection
-        , protected SocketReaderT<SocketT>
-        , protected SocketWriterT<SocketT> {
+        , protected SocketReaderT<PhysicalSocketT>
+        , protected SocketWriterT<PhysicalSocketT> {
     protected:
         using Super = core::socket::SocketConnection;
 
-        using Socket = SocketT;
-        using SocketReader = SocketReaderT<Socket>;
-        using SocketWriter = SocketWriterT<Socket>;
+        using PhysicalSocket = PhysicalSocketT;
+        using SocketReader = SocketReaderT<PhysicalSocket>;
+        using SocketWriter = SocketWriterT<PhysicalSocket>;
 
-        using SocketAddress = typename Socket::SocketAddress;
+        using SocketAddress = typename PhysicalSocket::SocketAddress;
 
     public:
         SocketConnection() = delete;
@@ -135,7 +139,7 @@ namespace core::socket::stream {
             return localAddress;
         }
 
-        Socket& getSocket() override {
+        PhysicalSocket& getPhysicalSocket() override {
             return *this;
         }
 

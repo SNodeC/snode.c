@@ -31,16 +31,16 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename SocketT>
+    template <typename PhysicalSocketT>
     class SocketConnection
         : public core::socket::stream::
-              SocketConnection<SocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter> {
+              SocketConnection<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter> {
     private:
         using Super = core::socket::stream::
-            SocketConnection<SocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter>;
+            SocketConnection<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter>;
 
     private:
-        using Socket = SocketT;
+        using Socket = PhysicalSocketT;
         using SocketReader = typename Super::SocketReader;
         using SocketWriter = typename Super::SocketWriter;
 

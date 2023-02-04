@@ -35,10 +35,10 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename SocketT>
-    class SocketReader : public core::socket::stream::SocketReader<SocketT> {
+    template <typename PhysicalSocketT>
+    class SocketReader : public core::socket::stream::SocketReader<PhysicalSocketT> {
     private:
-        using Super = core::socket::stream::SocketReader<SocketT>;
+        using Super = core::socket::stream::SocketReader<PhysicalSocketT>;
         using Super::Super;
 
         ssize_t read(char* junk, std::size_t junkLen) override {

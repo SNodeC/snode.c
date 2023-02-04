@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/SocketConfig.hpp"
+#include "net/LogicalSocket.hpp"
 #include "net/stream/SocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -25,10 +25,10 @@
 
 namespace net::stream {
 
-    template <typename ServerSocket, typename Config>
-    void SocketServer<ServerSocket, Config>::listen(const SocketAddress& localAddress,
-                                                    int backlog,
-                                                    const std::function<void(const SocketAddress&, int)>& onError) const {
+    template <typename PhysicalServerSocket, typename Config>
+    void SocketServer<PhysicalServerSocket, Config>::listen(const SocketAddress& localAddress,
+                                                            int backlog,
+                                                            const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->setLocalAddress(localAddress);
         Super::config->setBacklog(backlog);
 

@@ -17,12 +17,12 @@ set(NET_CPP
 )
 
 set(NET_H
-    Socket.h
-    Socket.hpp
+    LogicalSocket.h
+    LogicalSocket.hpp
+    PhysicalSocket.h
+    PhysicalSocket.hpp
     SocketAddress.h
     SocketAddress.hpp
-    SocketConfig.h
-    SocketConfig.hpp
     config/ConfigAddress.h
     config/ConfigAddress.hpp
     config/ConfigAddressLocal.h
@@ -41,10 +41,10 @@ set(NET_H
     config/ConfigTlsClient.h
     dgram/PeerSocket.h
     dgram/PeerSocket.hpp
-    stream/ClientSocket.h
-    stream/ClientSocket.hpp
-    stream/ServerSocket.h
-    stream/ServerSocket.hpp
+    stream/PhysicalClientSocket.h
+    stream/PhysicalClientSocket.hpp
+    stream/PhysicalServerSocket.h
+    stream/PhysicalServerSocket.hpp
     stream/SocketClient.h
     stream/SocketClient.hpp
     stream/SocketServer.h
