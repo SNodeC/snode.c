@@ -34,13 +34,6 @@ namespace net::in6 {
         : Super(PF_INET6, type, protocol) {
     }
 
-    void PhysicalSocket::setSockopt() {
-#ifndef DUAL_STACK
-        int one = 1;
-        this->setSockopt(IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
-#endif // DUAL_STACK
-    }
-
 } // namespace net::in6
 
 template class net::PhysicalSocket<net::in6::SocketAddress>;

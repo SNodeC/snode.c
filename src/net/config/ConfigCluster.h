@@ -35,7 +35,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigCluster : public ConfigSection {
+    class ConfigCluster : protected ConfigSection {
     public:
         explicit ConfigCluster(ConfigInstance* instance);
 

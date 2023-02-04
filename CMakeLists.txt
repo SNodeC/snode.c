@@ -22,7 +22,8 @@ include(CPack)
 add_custom_target(
     chown ALL
     COMMAND sudo chown -R $ENV{user}:$ENV{user} ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Make sure binary directory is writeable"
+    COMMENT
+        "Make sure binary directory is writeable: ${CMAKE_CURRENT_BINARY_DIR}"
 )
 
 add_subdirectory(src)

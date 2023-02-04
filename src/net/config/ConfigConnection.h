@@ -36,7 +36,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigConnection : public ConfigSection {
+    class ConfigConnection : protected ConfigSection {
     public:
         explicit ConfigConnection(ConfigInstance* instance);
 

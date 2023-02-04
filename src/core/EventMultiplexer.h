@@ -96,7 +96,7 @@ namespace core {
         void executeEventQueue(const utils::Timeval& currentTime);
         void checkTimedOutEvents(const utils::Timeval& currentTime);
         void releaseExpiredResources(const utils::Timeval& currentTime);
-        TickStatus waitForEvents(const utils::Timeval &tickTimeOut, const utils::Timeval& currentTime);
+        TickStatus waitForEvents(const utils::Timeval& tickTimeOut, const utils::Timeval& currentTime);
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 

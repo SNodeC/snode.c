@@ -18,6 +18,8 @@
 
 #include "core/socket/PhysicalSocket.h"
 
+#include "core/socket/PhysicalSocketOption.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -54,35 +56,26 @@ namespace core::socket {
         return *this;
     }
 
-    int PhysicalSocket::create(Flags flags) const {
-        return core::system::socket(domain, type | flags, protocol);
-    }
-
-    int PhysicalSocket::open(Flags flags) {
-        int ret = Descriptor::open(create(flags));
+    int PhysicalSocket::open(const std::vector<PhysicalSocketOption>& socketOptions, Flags flags) {
+        int ret = Super::open(core::system::socket(domain, type | flags, protocol));
 
         if (ret >= 0) {
-            setSockopt();
+            for (const PhysicalSocketOption& socketOption : socketOptions) {
+                int sockopt = 1;
+                int setSockoptRet = setSockopt(socketOption.optLevel, socketOption.optName, &sockopt, sizeof(sockopt));
+
+                ret = (ret >= 0 && setSockoptRet < 0) ? setSockoptRet : ret;
+                if (ret < 0) {
+                    break;
+                }
+            }
         }
 
         return ret;
     }
 
-    void PhysicalSocket::setSockopt() {
-    }
-
     bool PhysicalSocket::isValid() const {
         return getFd() >= 0;
-    }
-
-    int PhysicalSocket::reuseAddress() const {
-        int sockopt = 1;
-        return setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
-    }
-
-    int PhysicalSocket::reusePort() const {
-        int sockopt = 1;
-        return setSockopt(SOL_SOCKET, SO_REUSEPORT, &sockopt, sizeof(sockopt));
     }
 
     int PhysicalSocket::getSockError() const {
@@ -93,16 +86,16 @@ namespace core::socket {
         return err < 0 ? err : cErrno;
     }
 
+    void PhysicalSocket::shutdown(SHUT how) {
+        core::system::shutdown(getFd(), how);
+    }
+
     int PhysicalSocket::setSockopt(int level, int optname, const void* optval, socklen_t optlen) const {
         return core::system::setsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
     }
 
     int PhysicalSocket::getSockopt(int level, int optname, void* optval, socklen_t* optlen) const {
         return core::system::getsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
-    }
-
-    void PhysicalSocket::shutdown(SHUT how) {
-        core::system::shutdown(getFd(), how);
     }
 
 } // namespace core::socket

@@ -28,7 +28,8 @@ namespace net::stream::config {
     ConfigSocketClient<ConfigAddress>::ConfigSocketClient(net::config::ConfigInstance* instance)
         : ConfigAddress<net::config::ConfigAddressRemote>(instance)
         , ConfigAddress<net::config::ConfigAddressLocal>(instance)
-        , net::config::ConfigConnection(instance) {
+        , net::config::ConfigConnection(instance)
+        , net::config::ConfigPhysicalSocket(instance) {
     }
 
 } // namespace net::stream::config

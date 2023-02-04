@@ -16,9 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/config/ConfigSection.hpp"
 #include "net/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <sys/socket.h>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -28,8 +31,17 @@ namespace net::stream::config {
     ConfigSocketServer<ConfigAddress>::ConfigSocketServer(net::config::ConfigInstance* instance)
         : ConfigAddress<net::config::ConfigAddressLocal>(instance)
         , net::config::ConfigConnection(instance)
+        , net::config::ConfigPhysicalSocket(instance)
         , net::config::ConfigListen(instance)
         , net::config::ConfigCluster(instance) {
+        add_socket_option(reuseSocketOpt,
+                          "--reuse-address",
+                          SOL_SOCKET,
+                          SO_REUSEADDR,
+                          "Reuse socket address",
+                          "bool",
+                          "false",
+                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
     }
 
 } // namespace net::stream::config

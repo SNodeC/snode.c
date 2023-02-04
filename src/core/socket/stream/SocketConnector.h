@@ -21,6 +21,7 @@
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
+#include "net/config/ConfigPhysicalSocket.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -80,7 +81,7 @@ namespace core::socket::stream {
     protected:
         void initConnectEvent() override {
             socket = new PhysicalSocket();
-            if (socket->open(PhysicalSocket::Flags::NONBLOCK) < 0) {
+            if (socket->open(config->net::config::ConfigPhysicalSocket::getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else if (socket->bind(config->getLocalAddress()) < 0) {
@@ -90,6 +91,7 @@ namespace core::socket::stream {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else {
+                onError(config->getRemoteAddress(), 0);
                 enable(socket->getFd());
             }
         }

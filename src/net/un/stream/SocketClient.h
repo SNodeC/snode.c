@@ -19,7 +19,7 @@
 #ifndef NET_UN_STREAM_SOCKETCLIENT_H
 #define NET_UN_STREAM_SOCKETCLIENT_H
 
-#include "net/stream/SocketClient.h"    // IWYU pragma: export
+#include "net/stream/SocketClient.h"            // IWYU pragma: export
 #include "net/un/stream/PhysicalClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

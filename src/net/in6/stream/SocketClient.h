@@ -20,7 +20,7 @@
 #define NET_IN6_STREAM_SOCKETCLIENT_H
 
 #include "net/in6/stream/PhysicalClientSocket.h" // IWYU pragma: export
-#include "net/stream/SocketClient.h"     // IWYU pragma: export
+#include "net/stream/SocketClient.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -22,6 +22,7 @@
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
 #include "net/config/ConfigCluster.h"
+#include "net/config/ConfigPhysicalSocket.h"
 #include "net/un/dgram/Socket.h"
 
 namespace core::socket {
@@ -96,14 +97,10 @@ namespace core::socket::stream {
             if (config->getClusterMode() == net::config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                 primaryPhysicalSocket = new PrimaryPhysicalSocket();
-                if (primaryPhysicalSocket->open(PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
+                if (primaryPhysicalSocket->open(config->net::config::ConfigPhysicalSocket::getSocketOptions(),
+                                                PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-#if !defined(NDEBUG)
-                } else if (primaryPhysicalSocket->reuseAddress() < 0) {
-                    onError(config->getLocalAddress(), errno);
-                    destruct();
-#endif // !defined(NDEBUG)
                 } else if (primaryPhysicalSocket->bind(config->getLocalAddress()) < 0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
@@ -113,10 +110,12 @@ namespace core::socket::stream {
                 } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::PRIMARY) {
                     VLOG(0) << config->getInstanceName() << " mode: PRIMARY";
                     secondaryPhysicalSocket = new SecondarySocket();
-                    if (secondaryPhysicalSocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
+                    if (secondaryPhysicalSocket->open(std::vector<core::socket::PhysicalSocketOption>(), SecondarySocket::Flags::NONBLOCK) <
+                        0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
-                    } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) < 0) {
+                    } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) <
+                               0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
@@ -131,10 +130,12 @@ namespace core::socket::stream {
             } else if (config->getClusterMode() == net::config::ConfigCluster::MODE::SECONDARY ||
                        config->getClusterMode() == net::config::ConfigCluster::MODE::PROXY) {
                 secondaryPhysicalSocket = new SecondarySocket();
-                if (secondaryPhysicalSocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
+                if (secondaryPhysicalSocket->open(std::vector<core::socket::PhysicalSocketOption>(), SecondarySocket::Flags::NONBLOCK) <
+                    0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
-                } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) < 0) {
+                } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) <
+                           0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();
                 } else {
@@ -163,7 +164,7 @@ namespace core::socket::stream {
                             // Send descriptor to SECONDARY
                             VLOG(0) << "Sending to secondary";
                             secondaryPhysicalSocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName()),
-                                                    socket.getFd());
+                                                            socket.getFd());
                             SecondarySocket::SocketAddress address;
                         }
                     } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {

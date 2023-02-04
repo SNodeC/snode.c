@@ -10,6 +10,7 @@ set(NET_CPP
     config/ConfigConnection.cpp
     config/ConfigLegacy.cpp
     config/ConfigListen.cpp
+    config/ConfigPhysicalSocket.cpp
     config/ConfigSection.cpp
     config/ConfigTls.cpp
     config/ConfigTlsServer.cpp
@@ -34,6 +35,7 @@ set(NET_H
     config/ConfigConnection.h
     config/ConfigLegacy.h
     config/ConfigListen.h
+    config/ConfigPhysicalSocket.h
     config/ConfigSection.h
     config/ConfigSection.hpp
     config/ConfigTls.h

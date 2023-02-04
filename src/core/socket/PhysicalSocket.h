@@ -21,9 +21,15 @@
 
 #include "core/Descriptor.h"
 
+namespace core::socket {
+    struct PhysicalSocketOption;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/socket.h"
+
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -31,6 +37,8 @@ namespace core::socket {
 
     class PhysicalSocket : public core::Descriptor {
     public:
+        using Super = core::Descriptor;
+
         PhysicalSocket();
         PhysicalSocket(int fd); // cppcheck-suppress noExplicitConstructor
         PhysicalSocket(int domain, int type, int protocol);
@@ -41,27 +49,22 @@ namespace core::socket {
 
         enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
 
-    protected:
-        int create(Flags flags) const;
-
-        virtual void setSockopt();
-
     public:
-        int open(Flags flags = Flags::NONE);
+        int open(const std::vector<PhysicalSocketOption>& socketOptions, Flags flags = Flags::NONE);
 
         bool isValid() const;
 
-        int reuseAddress() const;
-        int reusePort() const;
-
         int getSockError() const;
-
-        int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const;
-        int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const;
 
         enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
         void shutdown(SHUT how);
+
+    private:
+        using Super::open;
+
+        int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const;
+        int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const;
 
     private:
         int domain{};

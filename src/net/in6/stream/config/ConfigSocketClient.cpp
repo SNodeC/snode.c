@@ -22,6 +22,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
+
+#include <netinet/in.h>
+#include <stdexcept>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::stream::config {
@@ -30,6 +36,15 @@ namespace net::in6::stream::config {
         : net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
+
+        add_socket_option(dualStack,
+                          "--ipv6-only",
+                          IPPROTO_IPV6,
+                          IPV6_V6ONLY,
+                          "Turn of IPv6 dual stack mode",
+                          "bool",
+                          "false",
+                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
     }
 
 } // namespace net::in6::stream::config

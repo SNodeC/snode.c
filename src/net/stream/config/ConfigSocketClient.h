@@ -22,6 +22,7 @@
 #include "net/config/ConfigAddressLocal.h"  // IWYU pragma: export
 #include "net/config/ConfigAddressRemote.h" // IWYU pragma: export
 #include "net/config/ConfigConnection.h"
+#include "net/config/ConfigPhysicalSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,7 +34,8 @@ namespace net::stream::config {
     class ConfigSocketClient
         : public ConfigAddressT<net::config::ConfigAddressRemote>
         , public ConfigAddressT<net::config::ConfigAddressLocal>
-        , public net::config::ConfigConnection {
+        , public net::config::ConfigConnection
+        , public net::config::ConfigPhysicalSocket {
     public:
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
     };

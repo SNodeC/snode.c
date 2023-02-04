@@ -39,11 +39,6 @@ namespace net::in6 {
         using Super::operator=;
 
         PhysicalSocket(int type, int protocol);
-
-        using Super::setSockopt;
-
-    private:
-        void setSockopt() override;
     };
 
 } // namespace net::in6

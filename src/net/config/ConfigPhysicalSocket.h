@@ -16,9 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGLISTEN_H
-#define NET_CONFIG_CONFIGLISTEN_H
+#ifndef NET_CONFIG_CONFIGPHYSICALSOCKET_H
+#define NET_CONFIG_CONFIGPHYSICALSOCKET_H
 
+#include "core/socket/PhysicalSocketOption.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace net::config {
@@ -27,29 +28,38 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+#include <vector>
+
 namespace CLI {
     class Option;
+    class Validator;
 } // namespace CLI
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace net::config {
 
-    class ConfigListen : protected ConfigSection {
+    class ConfigPhysicalSocket : protected ConfigSection {
     public:
-        explicit ConfigListen(ConfigInstance* instance);
+        explicit ConfigPhysicalSocket(ConfigInstance* instance);
 
-        int getBacklog() const;
-        void setBacklog(int newBacklog);
+        const std::vector<core::socket::PhysicalSocketOption>& getSocketOptions();
 
-        int getAcceptsPerTick() const;
-        void setAcceptsPerTick(int newAcceptsPerTickSet);
+    protected:
+        CLI::Option* add_socket_option(CLI::Option*& opt,
+                                       const std::string& name,
+                                       int optLevel,
+                                       int optName,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       const std::string& defaultValue,
+                                       const CLI::Validator& validator);
 
     private:
-        CLI::Option* backlogOpt = nullptr;
-        CLI::Option* acceptsPerTickOpt = nullptr;
+        std::vector<core::socket::PhysicalSocketOption> socketOptions;
     };
 
 } // namespace net::config
 
-#endif // NET_CONFIG_CONFIGLISTEN_H
+#endif // NET_CONFIG_CONFIGPHYSICALSOCKET_H

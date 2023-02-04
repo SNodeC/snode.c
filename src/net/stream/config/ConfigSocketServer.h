@@ -23,6 +23,7 @@
 #include "net/config/ConfigCluster.h"
 #include "net/config/ConfigConnection.h"
 #include "net/config/ConfigListen.h"
+#include "net/config/ConfigPhysicalSocket.h"
 
 namespace net::config {
     class ConfigInstance;
@@ -38,10 +39,13 @@ namespace net::stream::config {
     class ConfigSocketServer
         : public ConfigAddressT<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection
+        , public net::config::ConfigPhysicalSocket
         , public net::config::ConfigListen
         , public net::config::ConfigCluster {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+
+        CLI::Option* reuseSocketOpt = nullptr;
     };
 
 } // namespace net::stream::config

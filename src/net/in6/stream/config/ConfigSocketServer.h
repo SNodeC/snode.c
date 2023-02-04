@@ -29,6 +29,10 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace CLI {
+    class Option;
+}
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::stream::config {
@@ -36,6 +40,9 @@ namespace net::in6::stream::config {
     class ConfigSocketServer : public net::stream::config::ConfigSocketServer<net::in6::config::ConfigAddress> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+
+    private:
+        CLI::Option* dualStack = nullptr;
     };
 
 } // namespace net::in6::stream::config

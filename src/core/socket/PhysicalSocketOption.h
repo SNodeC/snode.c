@@ -16,26 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGLEGACY_H
-#define NET_CONFIG_CONFIGLEGACY_H
-
-#include "net/config/ConfigSection.h" // IWYU pragma: export
-
-namespace net::config {
-    class ConfigInstance;
-}
+#ifndef CORE_SOCKET_PHYSICALSOCKETOPTIONS_H
+#define CORE_SOCKET_PHYSICALSOCKETOPTIONS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net::config {
+namespace core::socket {
 
-    class ConfigLegacy : protected ConfigSection {
-    public:
-        explicit ConfigLegacy(ConfigInstance* instance);
+    struct PhysicalSocketOption {
+        PhysicalSocketOption(int optLevel, int optName);
+
+        int optLevel;
+        int optName;
     };
 
-} // namespace net::config
+} // namespace core::socket
 
-#endif // NET_CONFIG_CONFIGLEGACY_H
+#endif // CORE_SOCKET_PHYSICALSOCKETOPTIONS_H

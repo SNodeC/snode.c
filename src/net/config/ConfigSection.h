@@ -25,6 +25,8 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
+#include <functional>
 #include <string>
 
 namespace CLI {
@@ -79,6 +81,36 @@ namespace net::config {
                               const std::string& description,
                               ValueTypeT defaultValue,
                               const CLI::Validator& additionalValidator);
+
+        CLI::Option* add_flag_function(CLI::Option*& opt,
+                                       const std::string& name,
+                                       const std::function<void(int64_t)>& callback,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       const std::string& defaultValue);
+
+        CLI::Option* add_flag_function(CLI::Option*& opt,
+                                       const std::string& name,
+                                       const std::function<void(int64_t)>& callback,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       const std::string& defaultValue,
+                                       const CLI::Validator& validator);
+
+        CLI::Option* add_flag_callback(CLI::Option*& opt,
+                                       const std::string& name,
+                                       const std::function<void()>& callback,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       const std::string& defaultValue);
+
+        CLI::Option* add_flag_callback(CLI::Option*& opt,
+                                       const std::string& name,
+                                       const std::function<void()>& callback,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       const std::string& defaultValue,
+                                       const CLI::Validator& validator);
 
         void required(CLI::Option* opt);
         void required(bool req = true);

@@ -47,7 +47,7 @@ using ssl_option_t = uint32_t;
 
 namespace net::config {
 
-    class ConfigTls : public ConfigSection {
+    class ConfigTls : protected ConfigSection {
     public:
         explicit ConfigTls(ConfigInstance* instance);
 

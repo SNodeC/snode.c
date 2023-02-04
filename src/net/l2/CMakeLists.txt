@@ -5,7 +5,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-    set(NET-L2_CPP PhysicalSocket.cpp SocketAddress.cpp config/ConfigAddress.cpp)
+    set(NET-L2_CPP PhysicalSocket.cpp SocketAddress.cpp
+                   config/ConfigAddress.cpp
+    )
 
     set(NET-L2_H PhysicalSocket.h SocketAddress.h config/ConfigAddress.h)
 
