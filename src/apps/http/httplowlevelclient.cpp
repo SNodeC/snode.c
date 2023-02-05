@@ -19,8 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/SNodeC.h"
-#include "core/socket/stream/SocketContextFactory.h"
 #include "core/socket/stream/SocketContext.h"
+#include "core/socket/stream/SocketContextFactory.h"
 #include "log/Logger.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/tls/SocketClient.h"

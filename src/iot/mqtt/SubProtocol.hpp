@@ -145,7 +145,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    core::socket::stream::SocketConnection *SubProtocol<WSSubProtocolRole>::getSocketConnection() {
+    core::socket::stream::SocketConnection* SubProtocol<WSSubProtocolRole>::getSocketConnection() {
         return WSSubProtocolRole::subProtocolContext->getSocketConnection();
     }
 

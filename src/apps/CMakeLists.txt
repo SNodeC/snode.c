@@ -68,8 +68,8 @@ install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testparser testparsers.cpp)
 target_link_libraries(
-    testparser PRIVATE snodec::http-server snodec::http-client snodec::core snodec::core-socket-stream
-                       snodec::logger
+    testparser PRIVATE snodec::http-server snodec::http-client snodec::core
+                       snodec::core-socket-stream snodec::logger
 )
 set_target_properties(
     testparser PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
