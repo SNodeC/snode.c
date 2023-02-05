@@ -22,7 +22,7 @@
 #include "core/socket/SocketContextFactory.h"
 
 namespace core::socket {
-    class SocketContext;
+    class SocketContext1;
     class SocketConnection;
 } // namespace core::socket
 
@@ -70,7 +70,7 @@ namespace web::http {
         virtual SocketContextUpgrade<Request, Response>*
         create(core::socket::SocketConnection* socketConnection, Request* request, Response* response) = 0;
 
-        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) final;
+        core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) final;
     };
 
 } // namespace web::http

@@ -56,7 +56,7 @@ namespace iot::mqtt_fast {
 
 namespace iot::mqtt_fast {
 
-    class SocketContext : public core::socket::SocketContext {
+    class SocketContext : public core::socket::SocketContext1 {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 

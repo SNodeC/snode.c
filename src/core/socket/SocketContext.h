@@ -37,12 +37,12 @@ namespace core::socket {
 
 namespace core::socket {
 
-    class SocketContext {
+    class SocketContext1 {
     protected:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        explicit SocketContext1(core::socket::SocketConnection* socketConnection);
 
     public:
-        virtual ~SocketContext() = default;
+        virtual ~SocketContext1() = default;
 
         void setTimeout(const utils::Timeval& timeout);
 
@@ -50,15 +50,11 @@ namespace core::socket {
         void sendToPeer(const std::string& data) const;
         std::size_t readFromPeer(char* junk, std::size_t junklen) const;
 
-        void shutdownRead();
-        void shutdownWrite(bool forceClose = false);
-        void shutdown(bool forceClose = false);
-
         void close();
 
         core::socket::SocketConnection* getSocketConnection() const;
 
-        SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
+        SocketContext1* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
     private:
         virtual void onConnected();
@@ -68,7 +64,7 @@ namespace core::socket {
         virtual std::size_t onReceiveFromPeer() = 0;
         virtual void onExit();
 
-    private:
+    protected:
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
 

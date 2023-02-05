@@ -26,7 +26,7 @@ namespace utils {
 namespace core::socket {
     class SocketAddress;
     class SocketContextFactory;
-    class SocketContext;
+    class SocketContext1;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -49,7 +49,7 @@ namespace core::socket {
         virtual ~SocketConnection();
 
     public:
-        core::socket::SocketContext* getSocketContext();
+        core::socket::SocketContext1* getSocketContext();
 
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
@@ -68,7 +68,7 @@ namespace core::socket {
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-        core::socket::SocketContext* setSocketContext(core::socket::SocketContextFactory* socketContextFactory);
+        core::socket::SocketContext1* setSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
     public: // will be called class SocketContext
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
@@ -76,11 +76,11 @@ namespace core::socket {
 
         virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
-        core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
+        core::socket::SocketContext1* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
     protected:
-        core::socket::SocketContext* socketContext = nullptr;
-        core::socket::SocketContext* newSocketContext = nullptr;
+        core::socket::SocketContext1* socketContext = nullptr;
+        core::socket::SocketContext1* newSocketContext = nullptr;
     };
 
 } // namespace core::socket

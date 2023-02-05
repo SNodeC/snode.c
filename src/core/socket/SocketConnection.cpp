@@ -33,14 +33,6 @@ namespace core::socket {
         delete socketContext;
     }
 
-    void SocketConnection::onConnected() {
-        socketContext->onConnected();
-    }
-
-    void SocketConnection::onDisconnected() {
-        socketContext->onDisconnected();
-    }
-
     void SocketConnection::onWriteError(int errnum) {
         socketContext->onWriteError(errnum);
     }
@@ -49,15 +41,23 @@ namespace core::socket {
         socketContext->onReadError(errnum);
     }
 
-    core::socket::SocketContext* SocketConnection::getSocketContext() {
+    core::socket::SocketContext1* SocketConnection::getSocketContext() {
         return socketContext;
     }
 
-    core::socket::SocketContext* SocketConnection::setSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+    void SocketConnection::onConnected() {
+        socketContext->onConnected();
+    }
+
+    void SocketConnection::onDisconnected() {
+        socketContext->onDisconnected();
+    }
+
+    core::socket::SocketContext1* SocketConnection::setSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         return socketContext = socketContextFactory->create(this);
     }
 
-    core::socket::SocketContext* SocketConnection::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+    core::socket::SocketContext1* SocketConnection::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         newSocketContext = socketContextFactory->create(this);
 
         if (newSocketContext == nullptr) {

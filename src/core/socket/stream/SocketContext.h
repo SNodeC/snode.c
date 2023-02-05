@@ -16,32 +16,46 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SOCKETCONTEXTFACTORY_H
-#define CORE_SOCKET_SOCKETCONTEXTFACTORY_H
+#ifndef CORE_SOCKET_STREAM_SOCKETCONTEXT_H
+#define CORE_SOCKET_STREAM_SOCKETCONTEXT_H
+
+#include "core/socket/SocketContext.h" // IWYU pragma: export
 
 namespace core::socket {
-    class SocketContext1;
     class SocketConnection;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include <cstddef> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace core::socket::stream {
 
-    class SocketContextFactory {
+    class SocketContext : public core::socket::SocketContext1 {
+    private:
+        using Super = core::socket::SocketContext1;
+
     protected:
-        SocketContextFactory() = default;
-
-        virtual ~SocketContextFactory() = default;
+        explicit SocketContext(core::socket::SocketConnection* socketConnection);
 
     public:
-        virtual core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) = 0;
+        virtual ~SocketContext() = default;
+
+        void shutdownRead();
+        void shutdownWrite(bool forceClose = false);
+        void shutdown(bool forceClose = false);
+
+    private:
+        //        virtual void onConnected();
+        //        virtual void onDisconnected();
+
+    private:
+        virtual void onWriteError(int errnum) override;
+        virtual void onReadError(int errnum) override;
     };
 
-} // namespace core::socket
+} // namespace core::socket::stream
 
-#endif // CORE_SOCKET_SOCKETCONTEXTFACTORY_H
+#endif // CORE_SOCKET_STREAM_SOCKETCONTEXT_H

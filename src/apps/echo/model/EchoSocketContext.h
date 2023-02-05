@@ -19,8 +19,8 @@
 #ifndef APPS_MODEL_ECHOSOCKETCONTEXT_H
 #define APPS_MODEL_ECHOSOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
+#include "core/socket/stream/SocketContext.h"
 
 namespace core::socket {
     class SocketConnection;
@@ -32,7 +32,7 @@ namespace core::socket {
 
 namespace apps::echo::model {
 
-    class EchoSocketContext : public core::socket::SocketContext {
+    class EchoSocketContext : public core::socket::stream::SocketContext {
     public:
         enum class Role { SERVER, CLIENT };
 
@@ -49,12 +49,12 @@ namespace apps::echo::model {
 
     class EchoServerSocketContextFactory : public core::socket::SocketContextFactory {
     private:
-        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
+        core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) override;
     };
 
     class EchoClientSocketContextFactory : public core::socket::SocketContextFactory {
     private:
-        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
+        core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) override;
     };
 
 } // namespace apps::echo::model

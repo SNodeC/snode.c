@@ -22,7 +22,7 @@
 #include "iot/mqtt-fast/types/TypeBase.h"
 
 namespace core::socket {
-    class SocketContext;
+    class SocketContext1;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,7 +36,7 @@ namespace iot::mqtt_fast::types {
 
     class Int_1 : public iot::mqtt_fast::types::TypeBase {
     public:
-        explicit Int_1(core::socket::SocketContext* socketContext = nullptr);
+        explicit Int_1(core::socket::SocketContext1* socketContext = nullptr);
 
         std::size_t construct() override;
 

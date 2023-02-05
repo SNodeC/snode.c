@@ -19,8 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/SNodeC.h"
-#include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
+#include "core/socket/stream/SocketContext.h"
 #include "log/Logger.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/tls/SocketClient.h"
@@ -52,7 +52,7 @@ namespace web::http {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-static web::http::client::ResponseParser* getResponseParser(core::socket::SocketContext* socketContext) {
+static web::http::client::ResponseParser* getResponseParser(core::socket::stream::SocketContext* socketContext) {
     web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
         socketContext,
         [](void) -> void {
@@ -90,10 +90,10 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::Socket
     return responseParser;
 }
 
-class SimpleSocketProtocol : public core::socket::SocketContext {
+class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
     explicit SimpleSocketProtocol(core::socket::SocketConnection* socketConnection)
-        : core::socket::SocketContext(socketConnection) {
+        : core::socket::stream::SocketContext(socketConnection) {
         responseParser = getResponseParser(this);
     }
 
@@ -128,7 +128,7 @@ private:
 
 class SimpleSocketProtocolFactory : public core::socket::SocketContextFactory {
 private:
-    core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
+    core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

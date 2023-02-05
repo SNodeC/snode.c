@@ -28,75 +28,60 @@
 
 namespace core::socket {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
+    SocketContext1::SocketContext1(core::socket::SocketConnection* socketConnection)
         : socketConnection(socketConnection) {
     }
 
-    void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) const {
+    void SocketContext1::sendToPeer(const char* junk, std::size_t junkLen) const {
         socketConnection->sendToPeer(junk, junkLen);
     }
 
-    void SocketContext::sendToPeer(const std::string& data) const {
+    void SocketContext1::sendToPeer(const std::string& data) const {
         sendToPeer(data.data(), data.length());
     }
 
-    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) const {
+    std::size_t SocketContext1::readFromPeer(char* junk, std::size_t junklen) const {
         return socketConnection->readFromPeer(junk, junklen);
     }
 
-    SocketContext* SocketContext::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+    SocketContext1* SocketContext1::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 
-    void SocketContext::setTimeout(const utils::Timeval& timeout) {
+    void SocketContext1::setTimeout(const utils::Timeval& timeout) {
         socketConnection->setTimeout(timeout);
     }
 
-    void SocketContext::onConnected() {
+    void SocketContext1::onConnected() {
         LOG(INFO) << "Protocol connected";
     }
 
-    void SocketContext::onExit() {
-        LOG(INFO) << "Protocol exit";
-    }
-
-    void SocketContext::onDisconnected() {
+    void SocketContext1::onDisconnected() {
         LOG(INFO) << "Protocol disconnected";
     }
 
-    void SocketContext::shutdownRead() {
-        socketConnection->shutdownRead();
+    void SocketContext1::onExit() {
+        LOG(INFO) << "Protocol exit";
     }
 
-    void SocketContext::shutdownWrite(bool forceClose) {
-        socketConnection->shutdownWrite(forceClose);
-    }
-
-    void SocketContext::shutdown(bool forceClose) {
-        shutdownRead();
-        shutdownWrite(forceClose);
-    }
-
-    void SocketContext::close() {
+    void SocketContext1::close() {
         socketConnection->close();
     }
 
-    void SocketContext::onWriteError(int errnum) {
+    void SocketContext1::onWriteError(int errnum) {
         if (errnum != 0) {
             PLOG(ERROR) << "OnWriteError: " << errnum;
         }
-        shutdownRead();
     }
 
-    void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown. Override this method in case your protocol still
-                                                  // wants to send data after peers sending side has closed the connection.
+    void SocketContext1::onReadError(int errnum) { // By default we do a cross-shutdown. Override this method in case your protocol still
+                                                   // wants to send data after peers sending side has closed the connection.
         if (errnum != 0) {
             PLOG(ERROR) << "OnReadError: " << errnum;
         }
-        shutdownWrite();
     }
 
-    core::socket::SocketConnection* SocketContext::getSocketConnection() const {
+    core::socket::SocketConnection* SocketContext1::getSocketConnection() const {
         return socketConnection;
     }
 

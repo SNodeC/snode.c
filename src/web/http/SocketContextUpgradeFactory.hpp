@@ -32,7 +32,7 @@ namespace web::http {
     }
 
     template <typename Request, typename Response>
-    core::socket::SocketContext* SocketContextUpgradeFactory<Request, Response>::create(core::socket::SocketConnection* socketConnection) {
+    core::socket::SocketContext1* SocketContextUpgradeFactory<Request, Response>::create(core::socket::SocketConnection* socketConnection) {
         SocketContextUpgrade<Request, Response>* socketContext = create(socketConnection, request, response);
 
         checkRefCount();

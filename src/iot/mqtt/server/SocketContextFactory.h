@@ -23,7 +23,7 @@
 
 namespace core::socket {
     class SocketConnection;
-    class SocketContext;
+    class SocketContext1;
 } // namespace core::socket
 
 namespace iot::mqtt {
@@ -45,10 +45,10 @@ namespace iot::mqtt::server {
         SocketContextFactory();
 
     private:
-        virtual core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection,
-                                                    std::shared_ptr<iot::mqtt::server::broker::Broker>& broker) = 0;
+        virtual core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection,
+                                                     std::shared_ptr<iot::mqtt::server::broker::Broker>& broker) = 0;
 
-        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) final;
+        core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) final;
 
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
     };

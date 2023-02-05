@@ -29,7 +29,7 @@
 namespace apps::echo::model {
 
     EchoSocketContext::EchoSocketContext(core::socket::SocketConnection* socketConnection, Role role)
-        : core::socket::SocketContext(socketConnection)
+        : core::socket::stream::SocketContext(socketConnection)
         , role(role) {
     }
 
@@ -59,11 +59,11 @@ namespace apps::echo::model {
         return ret;
     }
 
-    core::socket::SocketContext* EchoServerSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
+    core::socket::SocketContext1* EchoServerSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
         return new EchoSocketContext(socketConnection, EchoSocketContext::Role::SERVER);
     }
 
-    core::socket::SocketContext* EchoClientSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
+    core::socket::SocketContext1* EchoClientSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
         return new EchoSocketContext(socketConnection, EchoSocketContext::Role::CLIENT);
     }
 

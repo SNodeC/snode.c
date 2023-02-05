@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_SOCKETCONTEXT_H
 #define IOT_MQTT_SOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h" // IWYU pragma: export
+#include "core/socket/stream/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt/MqttContext.h"
 
 namespace core::socket {
@@ -37,7 +37,7 @@ namespace iot::mqtt {
 namespace iot::mqtt {
 
     class SocketContext
-        : public core::socket::SocketContext
+        : public core::socket::stream::SocketContext
         , private iot::mqtt::MqttContext {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt);

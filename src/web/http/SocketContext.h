@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXT_H
 #define WEB_HTTP_SOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h"
+#include "core/socket/stream/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,14 +27,14 @@
 
 namespace web::http {
 
-    class SocketContext : public core::socket::SocketContext {
+    class SocketContext : public core::socket::stream::SocketContext {
     public:
         SocketContext(const SocketContext&) = delete;
 
         SocketContext& operator=(const SocketContext&) = delete;
 
     private:
-        using Super = core::socket::SocketContext;
+        using Super = core::socket::stream::SocketContext;
         using Super::Super;
 
     protected:
