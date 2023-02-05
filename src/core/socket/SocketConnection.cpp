@@ -41,18 +41,6 @@ namespace core::socket {
         socketContext->onReadError(errnum);
     }
 
-    core::socket::SocketContext1* SocketConnection::getSocketContext() {
-        return socketContext;
-    }
-
-    void SocketConnection::onConnected() {
-        socketContext->onConnected();
-    }
-
-    void SocketConnection::onDisconnected() {
-        socketContext->onDisconnected();
-    }
-
     core::socket::SocketContext1* SocketConnection::setSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         return socketContext = socketContextFactory->create(this);
     }

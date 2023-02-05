@@ -56,7 +56,7 @@ namespace core::socket::stream {
 
     protected:
         SocketConnection(int fd,
-                         [[maybe_unused]] const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void()>& onDisconnect,
@@ -97,8 +97,6 @@ namespace core::socket::stream {
         }
 
     public:
-        using Super::getSocketContext;
-
         void close() final {
             if (SocketWriter::isEnabled()) {
                 SocketWriter::disable();
@@ -160,6 +158,15 @@ namespace core::socket::stream {
 
         void sendToPeer(const std::string& data) final {
             sendToPeer(data.data(), data.size());
+        }
+
+    protected:
+        void onConnected() {
+            socketContext->onConnected();
+        }
+
+        void onDisconnected() {
+            socketContext->onDisconnected();
         }
 
     private:

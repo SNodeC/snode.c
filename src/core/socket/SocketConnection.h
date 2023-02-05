@@ -49,8 +49,6 @@ namespace core::socket {
         virtual ~SocketConnection();
 
     public:
-        core::socket::SocketContext1* getSocketContext();
-
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
 
@@ -62,9 +60,6 @@ namespace core::socket {
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
     protected: // must be callable from subclasses
-        void onConnected();
-        void onDisconnected();
-
         void onWriteError(int errnum);
         void onReadError(int errnum);
 

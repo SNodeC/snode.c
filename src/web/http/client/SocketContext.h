@@ -52,6 +52,7 @@ namespace web::http::client {
 
     public:
         SocketContext(core::socket::SocketConnection* socketConnection,
+                      const std::function<void(Request&)>& onRequestBegin,
                       const std::function<void(Request&, Response&)>& onResponse,
                       const std::function<void(int, const std::string&)>& onError);
 
@@ -69,6 +70,8 @@ namespace web::http::client {
 
         void onConnected() override;
         void onDisconnected() override;
+
+        std::function<void(Request&)> onRequestBegin;
 
         Request request;
         Response response;

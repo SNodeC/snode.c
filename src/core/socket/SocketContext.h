@@ -56,7 +56,7 @@ namespace core::socket {
 
         SocketContext1* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
-    private:
+    public: // *************************************
         virtual void onConnected();
         virtual void onDisconnected();
 

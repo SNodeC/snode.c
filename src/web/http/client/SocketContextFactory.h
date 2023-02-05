@@ -47,10 +47,15 @@ namespace web::http::client {
 
     private:
         core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) override {
-            return new web::http::client::SocketContext<Request, Response>(socketConnection, onResponseReady, onResponseError);
+            return new web::http::client::SocketContext<Request, Response>(
+                socketConnection, onRequestBegin, onResponseReady, onResponseError);
         }
 
     public:
+        void setOnRequestBegin(const std::function<void(Request&)>& onRequestBegin) {
+            this->onRequestBegin = onRequestBegin;
+        }
+
         void setOnResponseReady(const std::function<void(Request&, Response&)>& onResponseReady) {
             this->onResponseReady = onResponseReady;
         }
@@ -60,6 +65,7 @@ namespace web::http::client {
         }
 
     private:
+        std::function<void(Request&)> onRequestBegin;
         std::function<void(Request&, Response&)> onResponseReady;
         std::function<void(int, const std::string&)> onResponseError;
     };
