@@ -128,7 +128,7 @@ private:
 
 class SimpleSocketProtocolFactory : public core::socket::SocketContextFactory {
 private:
-    core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) override {
+    core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

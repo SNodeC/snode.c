@@ -20,8 +20,10 @@
 #define CORE_SOCKET_SOCKETCONTEXTFACTORY_H
 
 namespace core::socket {
-    class SocketContext1;
     class SocketConnection;
+    namespace stream {
+        class SocketContext;
+    }
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,7 +41,7 @@ namespace core::socket {
         virtual ~SocketContextFactory() = default;
 
     public:
-        virtual core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) = 0;
+        virtual core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) = 0;
     };
 
 } // namespace core::socket

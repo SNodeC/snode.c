@@ -18,8 +18,6 @@
 
 #include "core/socket/SocketContext.h"
 
-#include "core/socket/SocketConnection.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -28,44 +26,8 @@
 
 namespace core::socket {
 
-    SocketContext1::SocketContext1(core::socket::SocketConnection* socketConnection)
-        : socketConnection(socketConnection) {
-    }
-
-    void SocketContext1::sendToPeer(const char* junk, std::size_t junkLen) const {
-        socketConnection->sendToPeer(junk, junkLen);
-    }
-
     void SocketContext1::sendToPeer(const std::string& data) const {
         sendToPeer(data.data(), data.length());
-    }
-
-    std::size_t SocketContext1::readFromPeer(char* junk, std::size_t junklen) const {
-        return socketConnection->readFromPeer(junk, junklen);
-    }
-
-    SocketContext1* SocketContext1::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
-        return socketConnection->switchSocketContext(socketContextFactory);
-    }
-
-    void SocketContext1::setTimeout(const utils::Timeval& timeout) {
-        socketConnection->setTimeout(timeout);
-    }
-
-    void SocketContext1::onConnected() {
-        LOG(INFO) << "Protocol connected";
-    }
-
-    void SocketContext1::onDisconnected() {
-        LOG(INFO) << "Protocol disconnected";
-    }
-
-    void SocketContext1::onExit() {
-        LOG(INFO) << "Protocol exit";
-    }
-
-    void SocketContext1::close() {
-        socketConnection->close();
     }
 
     void SocketContext1::onWriteError(int errnum) {
@@ -81,8 +43,8 @@ namespace core::socket {
         }
     }
 
-    core::socket::SocketConnection* SocketContext1::getSocketConnection() const {
-        return socketConnection;
+    void SocketContext1::onExit() {
+        LOG(INFO) << "Protocol exit";
     }
 
 } // namespace core::socket

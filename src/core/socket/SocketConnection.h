@@ -26,7 +26,9 @@ namespace utils {
 namespace core::socket {
     class SocketAddress;
     class SocketContextFactory;
-    class SocketContext1;
+    namespace stream {
+        class SocketContext;
+    }
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -49,6 +51,11 @@ namespace core::socket {
         virtual ~SocketConnection();
 
     public:
+        virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
+        virtual void sendToPeer(const std::string& data) = 0;
+
+        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
+
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
 
@@ -60,22 +67,21 @@ namespace core::socket {
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
     protected: // must be callable from subclasses
+        void onConnected();
+        void onDisconnected();
+
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-        core::socket::SocketContext1* setSocketContext(core::socket::SocketContextFactory* socketContextFactory);
+        core::socket::stream::SocketContext* setSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
-    public: // will be called class SocketContext
-        virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
-        virtual void sendToPeer(const std::string& data) = 0;
-
-        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
-
-        core::socket::SocketContext1* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
+        core::socket::stream::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
     protected:
-        core::socket::SocketContext1* socketContext = nullptr;
-        core::socket::SocketContext1* newSocketContext = nullptr;
+        core::socket::stream::SocketContext* socketContext = nullptr;
+        core::socket::stream::SocketContext* newSocketContext = nullptr;
+
+        friend class core::socket::stream::SocketContext;
     };
 
 } // namespace core::socket

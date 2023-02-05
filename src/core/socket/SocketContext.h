@@ -25,7 +25,6 @@ namespace utils {
 
 namespace core::socket {
     class SocketConnection;
-    class SocketContextFactory;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,26 +38,18 @@ namespace core::socket {
 
     class SocketContext1 {
     protected:
-        explicit SocketContext1(core::socket::SocketConnection* socketConnection);
+        SocketContext1() = default;
 
     public:
         virtual ~SocketContext1() = default;
 
-        void setTimeout(const utils::Timeval& timeout);
+        virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
-        void sendToPeer(const char* junk, std::size_t junkLen) const;
+        virtual void sendToPeer(const char* junk, std::size_t junkLen) const = 0;
         void sendToPeer(const std::string& data) const;
-        std::size_t readFromPeer(char* junk, std::size_t junklen) const;
+        virtual std::size_t readFromPeer(char* junk, std::size_t junklen) const = 0;
 
-        void close();
-
-        core::socket::SocketConnection* getSocketConnection() const;
-
-        SocketContext1* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
-
-    public: // *************************************
-        virtual void onConnected();
-        virtual void onDisconnected();
+        virtual void close() = 0;
 
     public:
         virtual std::size_t onReceiveFromPeer() = 0;
@@ -67,8 +58,6 @@ namespace core::socket {
     protected:
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
-
-        core::socket::SocketConnection* socketConnection;
 
         friend class core::socket::SocketConnection;
     };

@@ -46,7 +46,7 @@ namespace web::http::client {
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
     private:
-        core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) override {
+        core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
             return new web::http::client::SocketContext<Request, Response>(
                 socketConnection, onRequestBegin, onResponseReady, onResponseError);
         }

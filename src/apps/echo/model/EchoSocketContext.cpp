@@ -59,11 +59,11 @@ namespace apps::echo::model {
         return ret;
     }
 
-    core::socket::SocketContext1* EchoServerSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
+    core::socket::stream::SocketContext* EchoServerSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
         return new EchoSocketContext(socketConnection, EchoSocketContext::Role::SERVER);
     }
 
-    core::socket::SocketContext1* EchoClientSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
+    core::socket::stream::SocketContext* EchoClientSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
         return new EchoSocketContext(socketConnection, EchoSocketContext::Role::CLIENT);
     }
 

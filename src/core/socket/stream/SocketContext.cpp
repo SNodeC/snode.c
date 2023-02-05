@@ -22,12 +22,46 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
 
     SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
-        : Super(socketConnection) {
+        : socketConnection(socketConnection) {
+    }
+
+    core::socket::stream::SocketContext* SocketContext::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+        return socketConnection->switchSocketContext(socketContextFactory);
+    }
+
+    core::socket::SocketConnection* SocketContext::getSocketConnection() const {
+        return socketConnection;
+    }
+
+    void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) const {
+        socketConnection->sendToPeer(junk, junkLen);
+    }
+
+    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) const {
+        return socketConnection->readFromPeer(junk, junklen);
+    }
+
+    void SocketContext::setTimeout(const utils::Timeval& timeout) {
+        socketConnection->setTimeout(timeout);
+    }
+
+    void SocketContext::close() {
+        socketConnection->close();
+    }
+
+    void SocketContext::onConnected() {
+        LOG(INFO) << "Protocol connected";
+    }
+
+    void SocketContext::onDisconnected() {
+        LOG(INFO) << "Protocol disconnected";
     }
 
     void SocketContext::shutdownRead() {

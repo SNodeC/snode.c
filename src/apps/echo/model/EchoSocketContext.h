@@ -49,12 +49,12 @@ namespace apps::echo::model {
 
     class EchoServerSocketContextFactory : public core::socket::SocketContextFactory {
     private:
-        core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) override;
+        core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
     };
 
     class EchoClientSocketContextFactory : public core::socket::SocketContextFactory {
     private:
-        core::socket::SocketContext1* create(core::socket::SocketConnection* socketConnection) override;
+        core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
     };
 
 } // namespace apps::echo::model

@@ -19,7 +19,7 @@
 #ifndef IOT_MQTTFAST_SOCKETCONTEXT_H
 #define IOT_MQTTFAST_SOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h" // IWYU pragma: export
+#include "core/socket/stream/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt-fast/ControlPacketFactory.h"
 #include "iot/mqtt-fast/Topic.h"               // IWYU pragma: export
 #include "iot/mqtt-fast/packets/Connack.h"     // IWYU pragma: export
@@ -56,7 +56,7 @@ namespace iot::mqtt_fast {
 
 namespace iot::mqtt_fast {
 
-    class SocketContext : public core::socket::SocketContext1 {
+    class SocketContext : public core::socket::stream::SocketContext {
     public:
         explicit SocketContext(core::socket::SocketConnection* socketConnection);
 

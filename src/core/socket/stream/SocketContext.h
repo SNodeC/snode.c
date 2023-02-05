@@ -21,8 +21,13 @@
 
 #include "core/socket/SocketContext.h" // IWYU pragma: export
 
+namespace utils {
+    class Timeval;
+} // namespace utils
+
 namespace core::socket {
     class SocketConnection;
+    class SocketContextFactory;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,17 +48,32 @@ namespace core::socket::stream {
     public:
         virtual ~SocketContext() = default;
 
+        using Super::sendToPeer;
+
+        void sendToPeer(const char* junk, std::size_t junkLen) const override;
+        std::size_t readFromPeer(char* junk, std::size_t junklen) const override;
+
+        void setTimeout(const utils::Timeval& timeout) override;
+
         void shutdownRead();
         void shutdownWrite(bool forceClose = false);
         void shutdown(bool forceClose = false);
+        void close() override;
+
+        core::socket::SocketConnection* getSocketConnection() const;
+        core::socket::stream::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
     private:
-        //        virtual void onConnected();
-        //        virtual void onDisconnected();
+        virtual void onConnected();
+        virtual void onDisconnected();
 
-    private:
         virtual void onWriteError(int errnum) override;
         virtual void onReadError(int errnum) override;
+
+    protected:
+        core::socket::SocketConnection* socketConnection;
+
+        friend class core::socket::SocketConnection;
     };
 
 } // namespace core::socket::stream

@@ -18,8 +18,8 @@
 
 #include "core/socket/SocketConnection.h"
 
-#include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
+#include "core/socket/stream/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,6 +33,14 @@ namespace core::socket {
         delete socketContext;
     }
 
+    void SocketConnection::onConnected() {
+        socketContext->onConnected();
+    }
+
+    void SocketConnection::onDisconnected() {
+        socketContext->onDisconnected();
+    }
+
     void SocketConnection::onWriteError(int errnum) {
         socketContext->onWriteError(errnum);
     }
@@ -41,11 +49,11 @@ namespace core::socket {
         socketContext->onReadError(errnum);
     }
 
-    core::socket::SocketContext1* SocketConnection::setSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+    core::socket::stream::SocketContext* SocketConnection::setSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         return socketContext = socketContextFactory->create(this);
     }
 
-    core::socket::SocketContext1* SocketConnection::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+    core::socket::stream::SocketContext* SocketConnection::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         newSocketContext = socketContextFactory->create(this);
 
         if (newSocketContext == nullptr) {
