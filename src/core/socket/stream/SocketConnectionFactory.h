@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTIONESTABLISHER_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTIONESTABLISHER_H
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketContextFactory;
 }
 
@@ -44,7 +44,7 @@ namespace core::socket::stream {
         using SocketConnection = SocketConnectionT;
 
     public:
-        SocketConnectionFactory(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnectionFactory(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                                 const std::function<void(SocketConnection*)>& onConnect,
                                 const std::function<void(SocketConnection*)>& onConnected,
                                 const std::function<void(SocketConnection*)>& onDisconnect)
@@ -82,7 +82,7 @@ namespace core::socket::stream {
         }
 
     protected:
-        std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
+        std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;
 
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onConnected;

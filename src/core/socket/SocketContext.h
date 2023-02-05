@@ -23,11 +23,6 @@ namespace utils {
     class Timeval;
 } // namespace utils
 
-namespace core::socket {
-    class SocketConnection;
-    class SocketContextFactory;
-} // namespace core::socket
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // IWYU pragma: export
@@ -37,44 +32,28 @@ namespace core::socket {
 
 namespace core::socket {
 
-    class SocketContext {
+    class SocketContext1 {
     protected:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        SocketContext1() = default;
 
     public:
-        virtual ~SocketContext() = default;
+        virtual ~SocketContext1() = default;
 
-        void setTimeout(const utils::Timeval& timeout);
+        virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
-        void sendToPeer(const char* junk, std::size_t junkLen) const;
+        virtual void sendToPeer(const char* junk, std::size_t junkLen) const = 0;
         void sendToPeer(const std::string& data) const;
-        std::size_t readFromPeer(char* junk, std::size_t junklen) const;
+        virtual std::size_t readFromPeer(char* junk, std::size_t junklen) const = 0;
 
-        void shutdownRead();
-        void shutdownWrite(bool forceClose = false);
-        void shutdown(bool forceClose = false);
+        virtual void close() = 0;
 
-        void close();
-
-        core::socket::SocketConnection* getSocketConnection() const;
-
-        SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
-
-    private:
-        virtual void onConnected();
-        virtual void onDisconnected();
-
-    public:
+    protected:
         virtual std::size_t onReceiveFromPeer() = 0;
+
         virtual void onExit();
 
-    private:
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
-
-        core::socket::SocketConnection* socketConnection;
-
-        friend class core::socket::SocketConnection;
     };
 
 } // namespace core::socket

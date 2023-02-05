@@ -20,13 +20,20 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/SocketContext.h"
+#include "core/socket/stream/SocketContext.h"
+
+namespace core::socket::stream {
+    class SocketContextFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace utils {
+    class Timeval;
+}
+
 #include "log/Logger.h"
 
-#include <cstddef>
 #include <functional>
 #include <memory>
 
@@ -34,13 +41,24 @@
 
 namespace core::socket::stream {
 
+    class SocketConnection : public core::socket::SocketConnection {
+    public:
+        core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
+
+    protected:
+        core::socket::stream::SocketContext* setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
+
+        core::socket::stream::SocketContext* socketContext = nullptr;
+        core::socket::stream::SocketContext* newSocketContext = nullptr;
+    };
+
     template <typename PhysicalSocketT,
               template <typename PhysicalSocket>
               class SocketReaderT,
               template <typename PhysicalSocket>
               class SocketWriterT>
-    class SocketConnection
-        : protected core::socket::SocketConnection
+    class SocketConnectionT
+        : protected SocketConnection
         , protected SocketReaderT<PhysicalSocketT>
         , protected SocketWriterT<PhysicalSocketT> {
     protected:
@@ -52,19 +70,19 @@ namespace core::socket::stream {
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
     public:
-        SocketConnection() = delete;
+        SocketConnectionT() = delete;
 
     protected:
-        SocketConnection(int fd,
-                         [[maybe_unused]] const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
-                         const SocketAddress& localAddress,
-                         const SocketAddress& remoteAddress,
-                         const std::function<void()>& onDisconnect,
-                         const utils::Timeval& readTimeout,
-                         const utils::Timeval& writeTimeout,
-                         std::size_t readBlockSize,
-                         std::size_t writeBlockSize,
-                         const utils::Timeval& terminateTimeout)
+        SocketConnectionT(int fd,
+                          const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
+                          const SocketAddress& localAddress,
+                          const SocketAddress& remoteAddress,
+                          const std::function<void()>& onDisconnect,
+                          const utils::Timeval& readTimeout,
+                          const utils::Timeval& writeTimeout,
+                          std::size_t readBlockSize,
+                          std::size_t writeBlockSize,
+                          const utils::Timeval& terminateTimeout)
             : SocketReader(
                   [this](int errnum) -> void {
                       onReadError(errnum);
@@ -82,7 +100,7 @@ namespace core::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            SocketConnection::Descriptor::open(fd);
+            SocketConnectionT::Descriptor::open(fd);
 
             setSocketContext(socketContextFactory.get());
 
@@ -91,14 +109,14 @@ namespace core::socket::stream {
             SocketWriter::suspend();
         }
 
-        ~SocketConnection() override {
+        ~SocketConnectionT() override {
             onDisconnected();
             onDisconnect();
+
+            delete socketContext;
         }
 
     public:
-        using Super::getSocketContext;
-
         void close() final {
             if (SocketWriter::isEnabled()) {
                 SocketWriter::disable();
@@ -150,6 +168,8 @@ namespace core::socket::stream {
             return ret;
         }
 
+        using Super::sendToPeer;
+
         void sendToPeer(const char* junk, std::size_t junkLen) final {
             if (newSocketContext == nullptr) {
                 SocketWriter::sendToPeer(junk, junkLen);
@@ -158,8 +178,19 @@ namespace core::socket::stream {
             }
         }
 
-        void sendToPeer(const std::string& data) final {
-            sendToPeer(data.data(), data.size());
+        void onWriteError(int errnum) {
+            socketContext->onWriteError(errnum);
+        }
+        void onReadError(int errnum) {
+            socketContext->onReadError(errnum);
+        }
+
+        void onConnected() {
+            socketContext->onConnected();
+        }
+
+        void onDisconnected() {
+            socketContext->onDisconnected();
         }
 
     private:
@@ -198,6 +229,7 @@ namespace core::socket::stream {
             delete this;
         }
 
+    protected: // must be callable from subclasses
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
 

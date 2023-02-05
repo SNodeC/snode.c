@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(CORE_SOCKET_STREAM_CPP)
+set(CORE_SOCKET_STREAM_CPP SocketContext.cpp SocketConnection.cpp)
 
 set(CORE_SOCKET_STREAM_H
     SocketAcceptor.h
@@ -8,12 +8,14 @@ set(CORE_SOCKET_STREAM_H
     SocketConnection.h
     SocketConnectionFactory.h
     SocketConnector.h
+    SocketContext.h
+    SocketContextFactory.h
     SocketReader.h
     SocketServer.h
     SocketWriter.h
 )
 
-add_library(core-socket-stream INTERFACE)
+add_library(core-socket-stream SHARED ${CORE_SOCKET_STREAM_CPP} ${CORE_SOCKET_STREAM_H})
 add_library(snodec::core-socket-stream ALIAS core-socket-stream)
 
 target_include_directories(
@@ -23,7 +25,7 @@ target_include_directories(
               "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(core-socket-stream INTERFACE core-socket net-un-dgram)
+target_link_libraries(core-socket-stream PUBLIC core-socket net-un-dgram)
 
 install(
     TARGETS core-socket-stream

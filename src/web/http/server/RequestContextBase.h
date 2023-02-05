@@ -25,7 +25,7 @@ namespace web::http {
 
 } // namespace web::http
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketContextFactory;
 }
 
@@ -45,7 +45,7 @@ namespace web::http::server {
 
         void socketContextGone();
 
-        void switchSocketContext(core::socket::SocketContextFactory* socketContextUpgradeFactory);
+        void switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeerCompleted();

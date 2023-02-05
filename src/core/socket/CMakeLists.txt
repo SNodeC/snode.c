@@ -5,7 +5,7 @@ set(CORE_SOCKET_CPP PhysicalSocket.cpp PhysicalSocketOption.cpp
 )
 
 set(CORE_SOCKET_H PhysicalSocket.h PhysicalSocketOption.h SocketConnection.h
-                  SocketContext.h SocketContextFactory.h
+                  SocketContext.h
 )
 
 add_library(core-socket SHARED ${CORE_SOCKET_CPP} ${CORE_SOCKET_H})

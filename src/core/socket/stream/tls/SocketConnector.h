@@ -41,7 +41,7 @@ namespace core::socket::stream::tls {
     public:
         using SocketConnection = typename Super::SocketConnection;
 
-        SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnector(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,

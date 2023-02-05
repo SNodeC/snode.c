@@ -75,7 +75,7 @@ namespace web::websocket {
     protected:
         enum class Role { SERVER, CLIENT };
 
-        SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
+        SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
                              web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory,
                              Role role)
@@ -139,7 +139,7 @@ namespace web::websocket {
             }
         }
 
-        core::socket::SocketConnection* getSocketConnection() override {
+        core::socket::stream::SocketConnection* getSocketConnection() override {
             return Super::getSocketConnection();
         }
 

@@ -19,18 +19,17 @@
 #ifndef IOT_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H
 #define IOT_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H
 
-#include "core/socket/SocketContextFactory.h"
+#include "core/socket/stream/SocketContextFactory.h"
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
     class SocketContext;
-} // namespace core::socket
+} // namespace core::socket::stream
 
-namespace iot::mqtt {
-    namespace server::broker {
-        class Broker;
-    }
-} // namespace iot::mqtt
+namespace iot::mqtt::server::broker {
+    class Broker;
+
+} // namespace iot::mqtt::server::broker
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,15 +39,15 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::server {
 
-    class SharedSocketContextFactory : public core::socket::SocketContextFactory {
+    class SharedSocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         SharedSocketContextFactory();
 
     private:
-        virtual core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection,
-                                                    std::shared_ptr<iot::mqtt::server::broker::Broker>& broker) = 0;
+        virtual core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection,
+                                                            std::shared_ptr<iot::mqtt::server::broker::Broker>& broker) = 0;
 
-        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) final;
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
 
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
     };

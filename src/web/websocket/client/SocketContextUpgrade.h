@@ -21,9 +21,9 @@
 
 #include "web/websocket/SocketContextUpgrade.h"
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
-} // namespace core::socket
+} // namespace core::socket::stream
 
 namespace web {
     namespace http::client {
@@ -52,7 +52,7 @@ namespace web::websocket::client {
         : public web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response> {
     public:
         SocketContextUpgrade(
-            core::socket::SocketConnection* socketConnection,
+            core::socket::stream::SocketConnection* socketConnection,
             web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
             web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory);
 
@@ -62,7 +62,7 @@ namespace web::websocket::client {
     public:
         static SocketContextUpgrade*
         create(web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
-               core::socket::SocketConnection* socketConnection,
+               core::socket::stream::SocketConnection* socketConnection,
                const std::string& subProtocolName);
     };
 

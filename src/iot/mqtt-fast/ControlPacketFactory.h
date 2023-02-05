@@ -24,7 +24,7 @@
 #include "iot/mqtt-fast/types/Int_V.h"
 
 namespace core::socket {
-    class SocketContext;
+    class SocketContext1;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,7 +38,7 @@ namespace iot::mqtt_fast {
 
     class ControlPacketFactory {
     public:
-        explicit ControlPacketFactory(core::socket::SocketContext* socketContext);
+        explicit ControlPacketFactory(core::socket::SocketContext1* socketContext);
 
         std::size_t construct();
         bool isComplete();

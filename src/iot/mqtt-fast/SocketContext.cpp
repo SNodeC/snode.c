@@ -33,8 +33,8 @@
 
 namespace iot::mqtt_fast {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
-        : core::socket::SocketContext(socketConnection)
+    SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection)
+        : core::socket::stream::SocketContext(socketConnection)
         , controlPacketFactory(this) {
     }
 

@@ -19,12 +19,14 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "core/socket/SocketContextFactory.h"
+#include "core/socket/stream/SocketContextFactory.h"
 
-namespace core::socket {
-    class SocketContext;
+namespace core::socket::stream {
     class SocketConnection;
-} // namespace core::socket
+    namespace stream {
+        class SocketContext;
+    }
+} // namespace core::socket::stream
 
 namespace web::http {
     template <typename RequestT, typename ResponseT>
@@ -40,7 +42,7 @@ namespace web::http {
 namespace web::http {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextUpgradeFactory : public core::socket::SocketContextFactory {
+    class SocketContextUpgradeFactory : public core::socket::stream::SocketContextFactory {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -68,9 +70,9 @@ namespace web::http {
         Response* response = nullptr;
 
         virtual SocketContextUpgrade<Request, Response>*
-        create(core::socket::SocketConnection* socketConnection, Request* request, Response* response) = 0;
+        create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
 
-        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) final;
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
     };
 
 } // namespace web::http

@@ -24,7 +24,7 @@
 
 namespace iot::mqtt_fast::types {
 
-    Int_V::Int_V(core::socket::SocketContext* socketContext)
+    Int_V::Int_V(core::socket::SocketContext1* socketContext)
         : iot::mqtt_fast::types::TypeBase(socketContext) {
     }
 

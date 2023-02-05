@@ -16,34 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SOCKETCONTEXT_H
-#define WEB_HTTP_SOCKETCONTEXT_H
+#include "core/socket/stream/SocketConnection.h"
 
-#include "core/socket/stream/SocketContext.h"
+#include "core/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace web::http {
+namespace core::socket::stream {
 
-    class SocketContext : public core::socket::stream::SocketContext {
-    public:
-        SocketContext(const SocketContext&) = delete;
+    core::socket::stream::SocketContext*
+    core::socket::stream::SocketConnection::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
+        newSocketContext = socketContextFactory->create(this);
 
-        SocketContext& operator=(const SocketContext&) = delete;
+        if (newSocketContext == nullptr) {
+            VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
+        }
 
-    private:
-        using Super = core::socket::stream::SocketContext;
-        using Super::Super;
+        return newSocketContext;
+    }
 
-    protected:
-        std::size_t onReceiveFromPeer() override = 0;
+    SocketContext* SocketConnection::setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
+        return socketContext = socketContextFactory->create(this);
+    }
 
-    public:
-        virtual void sendToPeerCompleted() = 0;
-    };
-
-} // namespace web::http
-
-#endif // WEB_HTTP_SOCKETCONTEXT_H
+} // namespace core::socket::stream

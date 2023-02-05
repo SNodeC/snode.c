@@ -24,8 +24,8 @@
 
 namespace iot::mqtt {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt)
-        : core::socket::SocketContext(socketConnection)
+    SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection, Mqtt* mqtt)
+        : core::socket::stream::SocketContext(socketConnection)
         , iot::mqtt::MqttContext(mqtt) {
     }
 
@@ -41,8 +41,8 @@ namespace iot::mqtt {
         iot::mqtt::MqttContext::onExit();
     }
 
-    core::socket::SocketConnection* SocketContext::getSocketConnection() {
-        return core::socket::SocketContext::getSocketConnection();
+    core::socket::stream::SocketConnection* SocketContext::getSocketConnection() {
+        return core::socket::stream::SocketContext::getSocketConnection();
     }
 
     std::size_t SocketContext::onReceiveFromPeer() {

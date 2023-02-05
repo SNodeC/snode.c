@@ -23,9 +23,9 @@
 #include "web/http/server/RequestContextBase.h"
 #include "web/http/server/RequestParser.h"
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
-} // namespace core::socket
+} // namespace core::socket::stream
 
 namespace web::http::server {
     class Request;
@@ -71,7 +71,8 @@ namespace web::http::server {
         };
 
     public:
-        SocketContext(core::socket::SocketConnection* socketConnection, const std::function<void(Request&, Response&)>& onRequestReady);
+        SocketContext(core::socket::stream::SocketConnection* socketConnection,
+                      const std::function<void(Request&, Response&)>& onRequestReady);
 
     protected:
         ~SocketContext() override;

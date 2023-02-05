@@ -52,19 +52,8 @@ namespace web::http::client {
                const std::function<void(Request&, Response&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect)
-            : Super(
-                  name,
-                  onConnect,
-                  [onConnected, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
-                      Request& request =
-                          dynamic_cast<web::http::client::SocketContext<Request, Response>*>(socketConnection->getSocketContext())
-                              ->getRequest();
-                      request.setHost(socketConnection->getRemoteAddress().toString());
-
-                      onConnected(socketConnection);
-                      onRequestBegin(request);
-                  },
-                  onDisconnect) {
+            : Super(name, onConnect, onConnected, onDisconnect) {
+            Super::getSocketContextFactory()->setOnRequestBegin(onRequestBegin);
             Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
             Super::getSocketContextFactory()->setOnResponseError(onResponseError);
         }
@@ -83,19 +72,9 @@ namespace web::http::client {
                const std::function<void(Request&, Response&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError)
             : Super(name) {
+            Super::getSocketContextFactory()->setOnRequestBegin(onRequestBegin);
             Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
             Super::getSocketContextFactory()->setOnResponseError(onResponseError);
-
-            Super::onConnected([onConnected = this->_onConnected,
-                                onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
-                onConnected(socketConnection);
-
-                Request& request =
-                    dynamic_cast<web::http::client::SocketContext<Request, Response>*>(socketConnection->getSocketContext())->getRequest();
-                request.setHost(socketConnection->getRemoteAddress().toString());
-
-                onRequestBegin(request);
-            });
         }
 
         Client(const std::function<void(Request&)>& onRequestBegin,

@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "core/socket/SocketAddress.h"
+#include "core/socket/SocketConnection.h"
 #include "web/http/client/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,10 +31,12 @@
 namespace web::http::client {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(core::socket::SocketConnection* socketConnection,
+    SocketContext<Request, Response>::SocketContext(core::socket::stream::SocketConnection* socketConnection,
+                                                    const std::function<void(Request&)>& onRequestBegin,
                                                     const std::function<void(Request&, Response&)>& onResponse,
                                                     const std::function<void(int, const std::string&)>& onError)
         : Super(socketConnection)
+        , onRequestBegin(onRequestBegin)
         , request(this)
         , response(this)
         , parser(
@@ -92,6 +96,10 @@ namespace web::http::client {
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::SocketContext::onConnected() {
         VLOG(0) << "HTTP connected";
+
+        request.setHost(socketConnection->getRemoteAddress().toString());
+
+        onRequestBegin(request);
     }
 
     template <typename Request, typename Response>

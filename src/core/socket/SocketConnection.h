@@ -25,8 +25,6 @@ namespace utils {
 
 namespace core::socket {
     class SocketAddress;
-    class SocketContextFactory;
-    class SocketContext;
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,16 +38,19 @@ namespace core::socket {
 
     class SocketConnection {
     public:
-        SocketConnection(const core::socket::SocketConnection&) = delete;
+        SocketConnection(const SocketConnection&) = delete;
 
-        SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
+        SocketConnection& operator=(const SocketConnection&) = delete;
 
     protected:
         SocketConnection() = default;
-        virtual ~SocketConnection();
+        virtual ~SocketConnection() = default;
 
     public:
-        core::socket::SocketContext* getSocketContext();
+        virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
+        void sendToPeer(const std::string& data);
+
+        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
@@ -60,27 +61,6 @@ namespace core::socket {
         virtual void shutdownWrite(bool forceClose) = 0;
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
-
-    protected: // must be callable from subclasses
-        void onConnected();
-        void onDisconnected();
-
-        void onWriteError(int errnum);
-        void onReadError(int errnum);
-
-        core::socket::SocketContext* setSocketContext(core::socket::SocketContextFactory* socketContextFactory);
-
-    public: // will be called class SocketContext
-        virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
-        virtual void sendToPeer(const std::string& data) = 0;
-
-        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
-
-        core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
-
-    protected:
-        core::socket::SocketContext* socketContext = nullptr;
-        core::socket::SocketContext* newSocketContext = nullptr;
     };
 
 } // namespace core::socket

@@ -26,7 +26,7 @@
 
 namespace iot::mqtt_fast {
 
-    ControlPacketFactory::ControlPacketFactory(core::socket::SocketContext* socketContext)
+    ControlPacketFactory::ControlPacketFactory(core::socket::SocketContext1* socketContext)
         : typeFlags(socketContext)
         , remainingLength(socketContext)
         , data(socketContext) {

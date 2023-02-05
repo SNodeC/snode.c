@@ -34,10 +34,10 @@ namespace core::socket::stream::legacy {
     template <typename PhysicalSocketT>
     class SocketConnection
         : public core::socket::stream::
-              SocketConnection<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter> {
+              SocketConnectionT<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter> {
     private:
         using Super = core::socket::stream::
-            SocketConnection<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter>;
+            SocketConnectionT<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter>;
 
     private:
         using Socket = PhysicalSocketT;
@@ -48,7 +48,7 @@ namespace core::socket::stream::legacy {
         using SocketAddress = typename Super::SocketAddress;
 
         SocketConnection(int fd,
-                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+                         const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(SocketConnection*)>& onDisconnect,

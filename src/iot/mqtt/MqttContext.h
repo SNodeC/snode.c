@@ -19,7 +19,7 @@
 #ifndef IOT_MQTT_MQTTCONTEXT_H
 #define IOT_MQTT_MQTTCONTEXT_H
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
 }
 
@@ -47,7 +47,7 @@ namespace iot::mqtt {
         virtual std::size_t receive(char* junk, std::size_t junklen) = 0;
         virtual void send(const char* junk, std::size_t junklen) = 0;
 
-        virtual core::socket::SocketConnection* getSocketConnection() = 0;
+        virtual core::socket::stream::SocketConnection* getSocketConnection() = 0;
 
         virtual void end(bool fatal = false) = 0;
         virtual void kill() = 0;

@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTFACTORY_H
 
-#include "core/socket/SocketContextFactory.h"
+#include "core/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 namespace web::http {
 
     template <template <typename RequestT, typename ResponseT> class SocketContextT, typename RequestT, typename ResponseT>
-    class SocketContextFactory : public core::socket::SocketContextFactory {
+    class SocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;

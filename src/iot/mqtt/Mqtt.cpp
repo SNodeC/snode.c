@@ -19,7 +19,7 @@
 #include "Mqtt.h"
 
 #include "MqttContext.h"
-#include "core/socket/SocketConnection.h"
+#include "core/socket/stream/SocketConnection.h"
 #include "iot/mqtt/ControlPacketDeserializer.h"
 #include "iot/mqtt/Session.h"
 #include "iot/mqtt/packets/Puback.h"
@@ -133,7 +133,7 @@ namespace iot::mqtt {
     void Mqtt::onExit() {
     }
 
-    core::socket::SocketConnection* Mqtt::getSocketConnection() {
+    core::socket::stream::SocketConnection* Mqtt::getSocketConnection() {
         return mqttContext->getSocketConnection();
     }
 

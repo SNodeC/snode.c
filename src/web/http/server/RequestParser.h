@@ -21,9 +21,9 @@
 
 #include "web/http/Parser.h" // IWYU pragma: export
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketContext;
-} // namespace core::socket
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,7 +39,7 @@ namespace web::http::server {
     class RequestParser : public web::http::Parser {
     public:
         RequestParser(
-            core::socket::SocketContext* socketContext,
+            core::socket::stream::SocketContext* socketContext,
             const std::function<void(void)>& onStart,
             const std::function<void(std::string&, std::string&, std::string&, int, int, std::map<std::string, std::string>&)>& onRequest,
             const std::function<void(std::map<std::string, std::string>&, std::map<std::string, std::string>&)>& onHeader,

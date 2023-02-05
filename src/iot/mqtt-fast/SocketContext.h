@@ -19,7 +19,7 @@
 #ifndef IOT_MQTTFAST_SOCKETCONTEXT_H
 #define IOT_MQTTFAST_SOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h" // IWYU pragma: export
+#include "core/socket/stream/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt-fast/ControlPacketFactory.h"
 #include "iot/mqtt-fast/Topic.h"               // IWYU pragma: export
 #include "iot/mqtt-fast/packets/Connack.h"     // IWYU pragma: export
@@ -37,7 +37,7 @@
 #include "iot/mqtt-fast/packets/Unsuback.h"    // IWYU pragma: export
 #include "iot/mqtt-fast/packets/Unsubscribe.h" // IWYU pragma: export
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
 }
 
@@ -56,9 +56,9 @@ namespace iot::mqtt_fast {
 
 namespace iot::mqtt_fast {
 
-    class SocketContext : public core::socket::SocketContext {
+    class SocketContext : public core::socket::stream::SocketContext {
     public:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);
 
         void sendConnect(const std::string& clientId);
         void sendConnack(uint8_t returnCode, uint8_t flags);

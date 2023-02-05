@@ -30,7 +30,7 @@ namespace iot::mqtt::server {
         : broker(iot::mqtt::server::broker::Broker::instance(SUBSCRIBTION_MAX_QOS)) {
     }
 
-    core::socket::SocketContext* SharedSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
+    core::socket::stream::SocketContext* SharedSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
         return create(socketConnection, broker);
     }
 

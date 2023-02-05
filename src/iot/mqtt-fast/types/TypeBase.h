@@ -20,7 +20,7 @@
 #define IOT_MQTTFAST_TYPES_TYPESBASE_H
 
 namespace core::socket {
-    class SocketContext;
+    class SocketContext1;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,7 +33,7 @@ namespace iot::mqtt_fast::types {
 
     class TypeBase {
     public:
-        TypeBase(core::socket::SocketContext* socketContext);
+        TypeBase(core::socket::SocketContext1* socketContext);
 
         TypeBase(const TypeBase&) = delete;
         TypeBase(TypeBase&&) = default;
@@ -52,7 +52,7 @@ namespace iot::mqtt_fast::types {
         std::size_t read(char* buf, std::size_t count);
         virtual void reset();
 
-        core::socket::SocketContext* socketContext;
+        core::socket::SocketContext1* socketContext;
 
         bool completed = false;
         bool error = false;
