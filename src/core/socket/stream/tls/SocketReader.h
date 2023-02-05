@@ -74,7 +74,7 @@ namespace core::socket::stream::tls {
                         break;
                     case SSL_ERROR_ZERO_RETURN: // received close_notify
                         SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
-                        doReadShutdown();
+                        doWriteShutdown();
                         errno = 0;
                         ret = 0;
                         break;
@@ -83,7 +83,7 @@ namespace core::socket::stream::tls {
 
                         SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
                         VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
-                        doReadShutdown();
+                        doWriteShutdown();
                     }
                         ret = -1;
                         break;
@@ -99,7 +99,7 @@ namespace core::socket::stream::tls {
         }
 
     protected:
-        virtual void doReadShutdown() = 0;
+        virtual void doWriteShutdown() = 0;
 
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,

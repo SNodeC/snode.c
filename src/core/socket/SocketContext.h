@@ -32,12 +32,12 @@ namespace utils {
 
 namespace core::socket {
 
-    class SocketContext1 {
+    class SocketContext {
     protected:
-        SocketContext1() = default;
+        SocketContext() = default;
 
     public:
-        virtual ~SocketContext1() = default;
+        virtual ~SocketContext() = default;
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 

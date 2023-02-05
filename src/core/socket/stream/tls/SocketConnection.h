@@ -188,7 +188,9 @@ namespace core::socket::stream::tls {
                 shutdownTimeout);
         }
 
-        void doReadShutdown() override {
+        using SocketWriter::doWriteShutdown;
+
+        void doWriteShutdown() override {
             if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                 VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
                 if (SocketWriter::isEnabled()) {

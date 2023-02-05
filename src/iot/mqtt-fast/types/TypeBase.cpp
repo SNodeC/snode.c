@@ -26,7 +26,7 @@
 
 namespace iot::mqtt_fast::types {
 
-    TypeBase::TypeBase(core::socket::SocketContext1* socketContext)
+    TypeBase::TypeBase(core::socket::SocketContext* socketContext)
         : socketContext(socketContext) {
     }
 

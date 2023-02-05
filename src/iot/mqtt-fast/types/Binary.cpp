@@ -26,7 +26,7 @@
 
 namespace iot::mqtt_fast::types {
 
-    Binary::Binary(core::socket::SocketContext1* socketContext)
+    Binary::Binary(core::socket::SocketContext* socketContext)
         : iot::mqtt_fast::types::TypeBase(socketContext) {
     }
 

@@ -39,9 +39,9 @@ namespace core::socket::stream {
 
 namespace core::socket::stream {
 
-    class SocketContext : public core::socket::SocketContext1 {
+    class SocketContext : public core::socket::SocketContext {
     private:
-        using Super = core::socket::SocketContext1;
+        using Super = core::socket::SocketContext;
 
     protected:
         explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);

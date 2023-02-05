@@ -26,24 +26,24 @@
 
 namespace core::socket {
 
-    void SocketContext1::sendToPeer(const std::string& data) const {
+    void SocketContext::sendToPeer(const std::string& data) const {
         sendToPeer(data.data(), data.length());
     }
 
-    void SocketContext1::onWriteError(int errnum) {
+    void SocketContext::onWriteError(int errnum) {
         if (errnum != 0) {
             PLOG(ERROR) << "OnWriteError: " << errnum;
         }
     }
 
-    void SocketContext1::onReadError(int errnum) { // By default we do a cross-shutdown. Override this method in case your protocol still
+    void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown. Override this method in case your protocol still
                                                    // wants to send data after peers sending side has closed the connection.
         if (errnum != 0) {
             PLOG(ERROR) << "OnReadError: " << errnum;
         }
     }
 
-    void SocketContext1::onExit() {
+    void SocketContext::onExit() {
         LOG(INFO) << "Protocol exit";
     }
 
