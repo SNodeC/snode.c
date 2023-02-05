@@ -33,9 +33,9 @@
 namespace net::rc::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::stream::SocketServer<net::rc::stream::ServerSocket, ConfigT> {
+    class SocketServer : public net::stream::SocketServer<net::rc::stream::PhysicalServerSocket, ConfigT> {
     private:
-        using Super = net::stream::SocketServer<net::rc::stream::ServerSocket, ConfigT>;
+        using Super = net::stream::SocketServer<net::rc::stream::PhysicalServerSocket, ConfigT>;
 
     protected:
         explicit SocketServer(const std::string& name);

@@ -37,7 +37,7 @@ namespace core::socket {
 
 namespace core::socket::stream {
 
-    template <typename SocketClientT, template <typename PhysicalClientSocketT> class SocketConnectionT>
+    template <typename SocketClientT, template <typename PhysicalSocket> class SocketConnectionT>
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
@@ -73,26 +73,26 @@ namespace core::socket::stream {
         }
 
         ~SocketConnector() override {
-            if (socket != nullptr) {
-                delete socket;
+            if (physicalSocket != nullptr) {
+                delete physicalSocket;
             }
         }
 
     protected:
         void initConnectEvent() override {
-            socket = new PhysicalSocket();
-            if (socket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+            physicalSocket = new PhysicalSocket();
+            if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
-            } else if (socket->bind(config->getLocalAddress()) < 0) {
+            } else if (physicalSocket->bind(config->getLocalAddress()) < 0) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
-            } else if (socket->connect(config->getRemoteAddress()) < 0 && !socket->connectInProgress(errno)) {
+            } else if (physicalSocket->connect(config->getRemoteAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
                 onError(config->getRemoteAddress(), errno);
                 destruct();
             } else {
                 onError(config->getRemoteAddress(), 0);
-                enable(socket->getFd());
+                enable(physicalSocket->getFd());
             }
         }
 
@@ -100,11 +100,11 @@ namespace core::socket::stream {
         void connectEvent() override {
             int cErrno = -1;
 
-            if ((cErrno = socket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
-                if (!socket->connectInProgress(cErrno)) {
+            if ((cErrno = physicalSocket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
+                if (!physicalSocket->connectInProgress(cErrno)) {
                     if (cErrno == 0) {
                         disable();
-                        socketConnectionFactory.create(*socket, config);
+                        socketConnectionFactory.create(*physicalSocket, config);
                         errno = errno == 0 ? cErrno : errno;
                         onError(config->getRemoteAddress(), errno);
                     } else {
@@ -131,7 +131,7 @@ namespace core::socket::stream {
             destruct();
         }
 
-        PhysicalSocket* socket = nullptr;
+        PhysicalSocket* physicalSocket = nullptr;
 
         SocketConnectionFactory socketConnectionFactory;
 

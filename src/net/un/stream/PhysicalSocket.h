@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_SOCKET_H
-#define NET_UN_STREAM_SOCKET_H
+#ifndef NET_UN_STREAM_PHYSICALSOCKET_H
+#define NET_UN_STREAM_PHYSICALSOCKET_H
 
 #include "net/un/PhysicalSocket.h.h" // IWYU pragma: export
 
@@ -40,4 +40,4 @@ namespace net::un::stream {
 
 } // namespace net::un::stream
 
-#endif // NET_UN_STREAM_SOCKET_H
+#endif // NET_UN_STREAM_PHYSICALSOCKET_H

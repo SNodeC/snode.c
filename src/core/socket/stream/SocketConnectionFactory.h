@@ -57,13 +57,13 @@ namespace core::socket::stream {
         using Config = typename SocketRole::Config;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
-        void create(PhysicalSocket& socket, const std::shared_ptr<Config>& config) {
-            if (socket.isValid()) {
-                socket.dontClose();
+        void create(PhysicalSocket& physicalSocket, const std::shared_ptr<Config>& config) {
+            if (physicalSocket.isValid()) {
+                physicalSocket.dontClose();
                 SocketAddress localAddress{};
                 SocketAddress remoteAddress{};
-                if (socket.getSockname(localAddress) == 0 && socket.getPeername(remoteAddress) == 0) {
-                    SocketConnection* socketConnection = new SocketConnection(socket.getFd(),
+                if (physicalSocket.getSockname(localAddress) == 0 && physicalSocket.getPeername(remoteAddress) == 0) {
+                    SocketConnection* socketConnection = new SocketConnection(physicalSocket.getFd(),
                                                                               socketContextFactory,
                                                                               SocketAddress(localAddress),
                                                                               SocketAddress(remoteAddress),

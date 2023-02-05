@@ -32,7 +32,7 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketServerT, template <typename ServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
+    template <typename SocketServerT, template <typename PhysicalServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
     class SocketServer : public SocketServerT {
     private:
         using Super = SocketServerT;

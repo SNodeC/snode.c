@@ -242,7 +242,7 @@ namespace core::socket::stream::tls {
         utils::Timeval initTimeout;
         utils::Timeval shutdownTimeout;
 
-        template <typename ServerSocket>
+        template <typename PhysicalServerSocket>
         friend class SocketAcceptor;
 
         template <typename PhysicalClientSocket>

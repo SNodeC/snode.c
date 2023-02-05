@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_SERVERSOCKET_H
-#define NET_L2_STREAM_SERVERSOCKET_H
+#ifndef NET_L2_STREAM_PHYSICALSERVERSOCKET_H
+#define NET_L2_STREAM_PHYSICALSERVERSOCKET_H
 
 #include "net/l2/stream/PhysicalSocket.h" // IWYU pragma: export
 #include "net/stream/PhysicalServerSocket.h"
@@ -30,7 +30,7 @@
 
 namespace net::l2::stream {
 
-    class ServerSocket : public net::stream::PhysicalServerSocket<net::l2::stream::PhysicalSocket> {
+    class PhysicalServerSocket : public net::stream::PhysicalServerSocket<net::l2::stream::PhysicalSocket> {
     private:
         using Super = net::stream::PhysicalServerSocket<net::l2::stream::PhysicalSocket>;
 
@@ -41,4 +41,4 @@ namespace net::l2::stream {
 
 } // namespace net::l2::stream
 
-#endif // NET_L2_STREAM_SERVERSOCKET_H
+#endif // NET_L2_STREAM_PHYSICALSERVERSOCKET_H

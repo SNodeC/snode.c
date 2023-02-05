@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_SOCKET_H
-#define NET_IN_STREAM_SOCKET_H
+#ifndef NET_IN_STREAM_PHYSICALSOCKET_H
+#define NET_IN_STREAM_PHYSICALSOCKET_H
 
 #include "net/in/PhysicalSocket.h" // IWYU pragma: export
 
@@ -40,4 +40,4 @@ namespace net::in::stream {
 
 } // namespace net::in::stream
 
-#endif // NET_IN_STREAM_SOCKET_H
+#endif // NET_IN_STREAM_PHYSICALSOCKET_H

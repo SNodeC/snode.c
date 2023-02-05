@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_SOCKET_H
-#define NET_IN6_SOCKET_H
+#ifndef NET_IN6_PHYSICALSOCKET_H
+#define NET_IN6_PHYSICALSOCKET_H
 
 #include "net/PhysicalSocket.h"    // IWYU pragma: export
 #include "net/in6/SocketAddress.h" // IWYU pragma: export
@@ -43,4 +43,4 @@ namespace net::in6 {
 
 } // namespace net::in6
 
-#endif // NET_IN6_SOCKET_H
+#endif // NET_IN6_PHYSICALSOCKET_H
