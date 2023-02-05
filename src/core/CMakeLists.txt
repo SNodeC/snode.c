@@ -25,8 +25,6 @@ set(CORE_CPP
     pipe/Pipe.cpp
     pipe/PipeSink.cpp
     pipe/PipeSource.cpp
-    socket/SocketConnection.cpp
-    socket/SocketContext.cpp
     system/dlfcn.cpp
     system/epoll.cpp
     system/netdb.cpp
@@ -68,15 +66,6 @@ set(CORE_H
     pipe/Pipe.h
     pipe/PipeSink.h
     pipe/PipeSource.h
-    socket/SocketConnection.h
-    socket/SocketContext.h
-    socket/stream/SocketAcceptor.h
-    socket/stream/SocketClient.h
-    socket/stream/SocketConnection.h
-    socket/stream/SocketConnector.h
-    socket/stream/SocketReader.h
-    socket/stream/SocketServer.h
-    socket/stream/SocketWriter.h
     system/dlfcn.h
     system/epoll.h
     system/netdb.h
