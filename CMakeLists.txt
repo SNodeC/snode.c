@@ -19,11 +19,15 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Volker Christian") # required
 include(CPack)
 
-add_custom_target(
-    chown ALL
-    COMMAND sudo chown -R $ENV{user}:$ENV{user} ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT
-        "Make sure binary directory is writeable: ${CMAKE_CURRENT_BINARY_DIR}"
-)
+option(CHOWN_BIN_DIR "Check binary dir is writable" OFF)
+
+if(CHOWN_BIN_DIR)
+    add_custom_target(
+        chown ALL
+        COMMAND sudo chown -R $ENV{user}:$ENV{user} ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT
+            "Make sure binary directory is writeable: ${CMAKE_CURRENT_BINARY_DIR}"
+    )
+endif(CHOWN_BIN_DIR)
 
 add_subdirectory(src)
