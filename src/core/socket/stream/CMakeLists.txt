@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(CORE_SOCKET_STREAM_CPP SocketContext.cpp)
+set(CORE_SOCKET_STREAM_CPP SocketContext.cpp SocketConnection.cpp)
 
 set(CORE_SOCKET_STREAM_H
     SocketAcceptor.h
@@ -9,6 +9,7 @@ set(CORE_SOCKET_STREAM_H
     SocketConnectionFactory.h
     SocketConnector.h
     SocketContext.h
+    SocketContextFactory.h
     SocketReader.h
     SocketServer.h
     SocketWriter.h

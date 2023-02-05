@@ -19,10 +19,10 @@
 #ifndef APPS_MODEL_ECHOSOCKETCONTEXT_H
 #define APPS_MODEL_ECHOSOCKETCONTEXT_H
 
-#include "core/socket/SocketContextFactory.h"
+#include "core/socket/stream/SocketContextFactory.h"
 #include "core/socket/stream/SocketContext.h"
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
 }
 
@@ -36,7 +36,7 @@ namespace apps::echo::model {
     public:
         enum class Role { SERVER, CLIENT };
 
-        explicit EchoSocketContext(core::socket::SocketConnection* socketConnection, Role role);
+        explicit EchoSocketContext(core::socket::stream::SocketConnection* socketConnection, Role role);
 
         void onConnected() override;
         void onDisconnected() override;
@@ -47,14 +47,14 @@ namespace apps::echo::model {
         Role role;
     };
 
-    class EchoServerSocketContextFactory : public core::socket::SocketContextFactory {
+    class EchoServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
     private:
-        core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
     };
 
-    class EchoClientSocketContextFactory : public core::socket::SocketContextFactory {
+    class EchoClientSocketContextFactory : public core::socket::stream::SocketContextFactory {
     private:
-        core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
     };
 
 } // namespace apps::echo::model

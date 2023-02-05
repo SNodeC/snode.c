@@ -37,7 +37,7 @@
 #include "iot/mqtt-fast/packets/Unsuback.h"    // IWYU pragma: export
 #include "iot/mqtt-fast/packets/Unsubscribe.h" // IWYU pragma: export
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
 }
 
@@ -58,7 +58,7 @@ namespace iot::mqtt_fast {
 
     class SocketContext : public core::socket::stream::SocketContext {
     public:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);
 
         void sendConnect(const std::string& clientId);
         void sendConnack(uint8_t returnCode, uint8_t flags);

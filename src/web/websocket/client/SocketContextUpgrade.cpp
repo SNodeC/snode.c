@@ -29,7 +29,7 @@
 namespace web::websocket::client {
 
     SocketContextUpgrade::SocketContextUpgrade(
-        core::socket::SocketConnection* socketConnection,
+        core::socket::stream::SocketConnection* socketConnection,
         web::http::SocketContextUpgradeFactory<http::client::Request, http::client::Response>* socketContextUpgradeFactory,
         web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory)
         : web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>(
@@ -38,7 +38,7 @@ namespace web::websocket::client {
 
     SocketContextUpgrade* SocketContextUpgrade::create(
         web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
-        core::socket::SocketConnection* socketConnection,
+        core::socket::stream::SocketConnection* socketConnection,
         const std::string& subProtocolName) {
         SocketContextUpgrade* socketContextUpgrade = nullptr;
 

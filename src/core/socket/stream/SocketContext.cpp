@@ -18,7 +18,7 @@
 
 #include "core/socket/stream/SocketContext.h"
 
-#include "core/socket/SocketConnection.h"
+#include "core/socket/stream/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,15 +28,15 @@
 
 namespace core::socket::stream {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection)
+    SocketContext::SocketContext(SocketConnection* socketConnection)
         : socketConnection(socketConnection) {
     }
 
-    core::socket::stream::SocketContext* SocketContext::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+    SocketContext* SocketContext::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 
-    core::socket::SocketConnection* SocketContext::getSocketConnection() const {
+    SocketConnection* SocketContext::getSocketConnection() const {
         return socketConnection;
     }
 

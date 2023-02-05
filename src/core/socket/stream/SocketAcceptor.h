@@ -25,9 +25,9 @@
 #include "net/config/ConfigCluster.h"
 #include "net/un/dgram/Socket.h"
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketContextFactory;
-} // namespace core::socket
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -69,7 +69,7 @@ namespace core::socket::stream {
 
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
-        SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,

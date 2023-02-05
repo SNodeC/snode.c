@@ -25,10 +25,6 @@ namespace utils {
 
 namespace core::socket {
     class SocketAddress;
-    class SocketContextFactory;
-    namespace stream {
-        class SocketContext;
-    }
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -42,17 +38,17 @@ namespace core::socket {
 
     class SocketConnection {
     public:
-        SocketConnection(const core::socket::SocketConnection&) = delete;
+        SocketConnection(const SocketConnection&) = delete;
 
-        SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
+        SocketConnection& operator=(const SocketConnection&) = delete;
 
     protected:
         SocketConnection() = default;
-        virtual ~SocketConnection();
+        virtual ~SocketConnection() = default;
 
     public:
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
-        virtual void sendToPeer(const std::string& data) = 0;
+        void sendToPeer(const std::string& data);
 
         virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
@@ -65,23 +61,6 @@ namespace core::socket {
         virtual void shutdownWrite(bool forceClose) = 0;
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
-
-    protected: // must be callable from subclasses
-        void onConnected();
-        void onDisconnected();
-
-        void onWriteError(int errnum);
-        void onReadError(int errnum);
-
-        core::socket::stream::SocketContext* setSocketContext(core::socket::SocketContextFactory* socketContextFactory);
-
-        core::socket::stream::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
-
-    protected:
-        core::socket::stream::SocketContext* socketContext = nullptr;
-        core::socket::stream::SocketContext* newSocketContext = nullptr;
-
-        friend class core::socket::stream::SocketContext;
     };
 
 } // namespace core::socket

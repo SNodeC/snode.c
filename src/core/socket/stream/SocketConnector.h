@@ -23,9 +23,9 @@
 #include "core/socket/stream/SocketConnectionFactory.h"
 #include "net/config/ConfigPhysicalSocket.h"
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketContextFactory;
-} // namespace core::socket
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,7 +58,7 @@ namespace core::socket::stream {
 
         SocketConnector& operator=(const SocketConnector&) = delete;
 
-        SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+        SocketConnector(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,

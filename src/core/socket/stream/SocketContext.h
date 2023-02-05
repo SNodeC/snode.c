@@ -25,10 +25,11 @@ namespace utils {
     class Timeval;
 } // namespace utils
 
-namespace core::socket {
-    class SocketConnection;
+namespace core::socket::stream {
     class SocketContextFactory;
-} // namespace core::socket
+    class SocketConnection;
+
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,7 +44,7 @@ namespace core::socket::stream {
         using Super = core::socket::SocketContext1;
 
     protected:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection);
+        explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);
 
     public:
         virtual ~SocketContext() = default;
@@ -60,20 +61,25 @@ namespace core::socket::stream {
         void shutdown(bool forceClose = false);
         void close() override;
 
-        core::socket::SocketConnection* getSocketConnection() const;
-        core::socket::stream::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
+        core::socket::stream::SocketConnection* getSocketConnection() const;
+        core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
     private:
         virtual void onConnected();
         virtual void onDisconnected();
 
-        virtual void onWriteError(int errnum) override;
-        virtual void onReadError(int errnum) override;
+        void onWriteError(int errnum) override;
+        void onReadError(int errnum) override;
 
     protected:
-        core::socket::SocketConnection* socketConnection;
+        core::socket::stream::SocketConnection* socketConnection;
 
-        friend class core::socket::SocketConnection;
+        template <typename PhysicalSocketT,
+                  template <typename PhysicalSocket>
+                  class SocketReaderT,
+                  template <typename PhysicalSocket>
+                  class SocketWriterT>
+        friend class SocketConnectionT;
     };
 
 } // namespace core::socket::stream

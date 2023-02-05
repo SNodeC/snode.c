@@ -18,49 +18,14 @@
 
 #include "core/socket/SocketConnection.h"
 
-#include "core/socket/SocketContextFactory.h"
-#include "core/socket/stream/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket {
 
-    SocketConnection::~SocketConnection() {
-        delete socketContext;
-    }
-
-    void SocketConnection::onConnected() {
-        socketContext->onConnected();
-    }
-
-    void SocketConnection::onDisconnected() {
-        socketContext->onDisconnected();
-    }
-
-    void SocketConnection::onWriteError(int errnum) {
-        socketContext->onWriteError(errnum);
-    }
-
-    void SocketConnection::onReadError(int errnum) {
-        socketContext->onReadError(errnum);
-    }
-
-    core::socket::stream::SocketContext* SocketConnection::setSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
-        return socketContext = socketContextFactory->create(this);
-    }
-
-    core::socket::stream::SocketContext* SocketConnection::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
-        newSocketContext = socketContextFactory->create(this);
-
-        if (newSocketContext == nullptr) {
-            VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
-        }
-
-        return newSocketContext;
+    void SocketConnection::sendToPeer(const std::string &data) {
+        sendToPeer(data.data(), data.size());
     }
 
 } // namespace core::socket

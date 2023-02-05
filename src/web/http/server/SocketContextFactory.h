@@ -50,7 +50,7 @@ namespace web::http::server {
         }
 
     private:
-        core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             return new web::http::server::SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 

@@ -22,7 +22,7 @@
 #include "core/socket/stream/SocketContext.h" // IWYU pragma: export
 #include "iot/mqtt/MqttContext.h"
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
 }
 
@@ -40,7 +40,7 @@ namespace iot::mqtt {
         : public core::socket::stream::SocketContext
         , private iot::mqtt::MqttContext {
     public:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection, Mqtt* mqtt);
+        explicit SocketContext(core::socket::stream::SocketConnection* socketConnection, Mqtt* mqtt);
 
     private:
         void onConnected() override;
@@ -48,7 +48,7 @@ namespace iot::mqtt {
         void onDisconnected() override;
         void onExit() override;
 
-        core::socket::SocketConnection* getSocketConnection() override;
+        core::socket::stream::SocketConnection* getSocketConnection() override;
 
         std::size_t receive(char* junk, std::size_t junklen) override;
         void send(const char* junk, std::size_t junklen) override;

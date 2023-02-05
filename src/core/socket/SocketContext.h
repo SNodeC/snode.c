@@ -23,10 +23,6 @@ namespace utils {
     class Timeval;
 } // namespace utils
 
-namespace core::socket {
-    class SocketConnection;
-} // namespace core::socket
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // IWYU pragma: export
@@ -51,15 +47,13 @@ namespace core::socket {
 
         virtual void close() = 0;
 
-    public:
+    protected:
         virtual std::size_t onReceiveFromPeer() = 0;
+
         virtual void onExit();
 
-    protected:
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
-
-        friend class core::socket::SocketConnection;
     };
 
 } // namespace core::socket

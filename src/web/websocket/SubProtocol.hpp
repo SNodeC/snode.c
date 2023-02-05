@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/SocketConnection.h"
+#include "core/socket/stream/SocketConnection.h"
 #include "web/websocket/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

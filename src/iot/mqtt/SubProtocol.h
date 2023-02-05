@@ -87,7 +87,7 @@ namespace iot::mqtt {
         void onDisconnected() override;
         void onExit() override;
 
-        core::socket::SocketConnection* getSocketConnection() override;
+        core::socket::stream::SocketConnection* getSocketConnection() override;
 
         OnDataEvent onData;
 

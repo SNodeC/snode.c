@@ -30,7 +30,7 @@
 namespace web::http::server {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(core::socket::SocketConnection* socketConnection,
+    SocketContext<Request, Response>::SocketContext(core::socket::stream::SocketConnection* socketConnection,
                                                     const std::function<void(Request&, Response&)>& onRequestReady)
         : Super(socketConnection)
         , onRequestReady(onRequestReady)

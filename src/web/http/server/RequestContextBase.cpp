@@ -34,7 +34,7 @@ namespace web::http::server {
         socketContext = nullptr;
     }
 
-    void RequestContextBase::switchSocketContext(core::socket::SocketContextFactory* socketContextUpgradeFactory) {
+    void RequestContextBase::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory) {
         if (socketContext != nullptr) {
             socketContext->switchSocketContext(socketContextUpgradeFactory);
         } else {

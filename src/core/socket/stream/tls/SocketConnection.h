@@ -38,10 +38,10 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocketT>
     class SocketConnection
         : public core::socket::stream::
-              SocketConnection<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter> {
+              SocketConnectionT<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter> {
     private:
         using Super = core::socket::stream::
-            SocketConnection<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
+            SocketConnectionT<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
 
         using PhysicalSocket = PhysicalSocketT;
         using SocketReader = typename Super::SocketReader;
@@ -51,7 +51,7 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
 
         SocketConnection(int fd,
-                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
+                         const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(SocketConnection*)>& onDisconnect,

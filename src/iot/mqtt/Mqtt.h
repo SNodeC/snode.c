@@ -22,7 +22,7 @@
 #include "core/timer/Timer.h"     // IWYU pragma: export
 #include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
 }
 
@@ -62,7 +62,7 @@ namespace iot::mqtt {
         virtual void onDisconnected();
         virtual void onExit();
 
-        core::socket::SocketConnection* getSocketConnection();
+        core::socket::stream::SocketConnection* getSocketConnection();
 
     private:
         virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;

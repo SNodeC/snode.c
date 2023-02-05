@@ -70,7 +70,6 @@ set(CORE_H
     pipe/PipeSource.h
     socket/SocketConnection.h
     socket/SocketContext.h
-    socket/SocketContextFactory.h
     socket/stream/SocketAcceptor.h
     socket/stream/SocketClient.h
     socket/stream/SocketConnection.h

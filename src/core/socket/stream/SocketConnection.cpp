@@ -16,32 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SOCKETCONTEXTFACTORY_H
-#define WEB_HTTP_SOCKETCONTEXTFACTORY_H
+#include "core/socket/stream/SocketConnection.h"
 
 #include "core/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace web::http {
+namespace core::socket::stream {
 
-    template <template <typename RequestT, typename ResponseT> class SocketContextT, typename RequestT, typename ResponseT>
-    class SocketContextFactory : public core::socket::stream::SocketContextFactory {
-    public:
-        SocketContextFactory(const SocketContextFactory&) = delete;
-        SocketContextFactory& operator=(const SocketContextFactory&) = delete;
+    core::socket::stream::SocketContext*
+    core::socket::stream::SocketConnection::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
+        newSocketContext = socketContextFactory->create(this);
 
-    protected:
-        using Request = RequestT;
-        using Response = ResponseT;
-        using SocketContext = SocketContextT<Request, Response>;
+        if (newSocketContext == nullptr) {
+            VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
+        }
 
-        SocketContextFactory() = default;
-        ~SocketContextFactory() override = default;
-    };
+        return newSocketContext;
+    }
 
-} // namespace web::http
+    SocketContext* SocketConnection::setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
+        return socketContext = socketContextFactory->create(this);
+    }
 
-#endif // WEB_HTTP_ SOCKETCONTEXTFACTORY_H
+} // namespace core::socket::stream

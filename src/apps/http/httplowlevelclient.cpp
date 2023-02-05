@@ -19,7 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/SNodeC.h"
-#include "core/socket/SocketContextFactory.h"
+#include "core/socket/stream/SocketContextFactory.h"
 #include "core/socket/stream/SocketContext.h"
 #include "log/Logger.h"
 #include "net/in/stream/legacy/SocketClient.h"
@@ -92,7 +92,7 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
 
 class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
-    explicit SimpleSocketProtocol(core::socket::SocketConnection* socketConnection)
+    explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
         : core::socket::stream::SocketContext(socketConnection) {
         responseParser = getResponseParser(this);
     }
@@ -126,9 +126,9 @@ private:
     web::http::client::ResponseParser* responseParser;
 };
 
-class SimpleSocketProtocolFactory : public core::socket::SocketContextFactory {
+class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
 private:
-    core::socket::stream::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
+    core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

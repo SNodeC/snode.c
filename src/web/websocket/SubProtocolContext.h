@@ -22,7 +22,7 @@
 #include "web/websocket/Receiver.h"
 #include "web/websocket/Transmitter.h"
 
-namespace core::socket {
+namespace core::socket::stream {
     class SocketConnection;
 }
 
@@ -54,7 +54,7 @@ namespace web::websocket {
         virtual void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) const = 0;
         virtual void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
 
-        virtual core::socket::SocketConnection* getSocketConnection() = 0;
+        virtual core::socket::stream::SocketConnection* getSocketConnection() = 0;
 
         enum OpCode { CONTINUATION = 0x00, TEXT = 0x01, BINARY = 0x02, CLOSE = 0x08, PING = 0x09, PONG = 0x0A };
 
