@@ -61,8 +61,8 @@ namespace core::socket {
 
         if (ret >= 0) {
             for (auto [optName, socketOption] : socketOptions) {
-                int sockopt = 1;
-                int setSockoptRet = setSockopt(socketOption.optLevel, socketOption.optName, &sockopt, sizeof(sockopt));
+                int setSockoptRet =
+                    setSockopt(socketOption.getOptLevel(), socketOption.getOptName(), socketOption.getOptValue(), socketOption.getOptLen());
 
                 ret = (ret >= 0 && setSockoptRet < 0) ? setSockoptRet : ret;
 

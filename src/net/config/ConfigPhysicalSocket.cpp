@@ -52,7 +52,7 @@ namespace net::config {
             name,
             [this, &opt, optLevel, optName]([[maybe_unused]] int64_t count) -> void {
                 if (opt->as<bool>()) {
-                    socketOptionsMap[optName] = core::socket::PhysicalSocketOption(optLevel, optName);
+                    socketOptionsMap[optName] = core::socket::PhysicalSocketOption(optLevel, optName, 1);
                 }
 
                 (utils::ResetToDefault(opt))(opt->as<std::string>());
@@ -64,7 +64,7 @@ namespace net::config {
     }
 
     void ConfigPhysicalSocket::addSocketOption(int optName, int optLevel) {
-        socketOptionsMap[optName] = core::socket::PhysicalSocketOption(optLevel, optName);
+        socketOptionsMap[optName] = core::socket::PhysicalSocketOption(optLevel, optName, 1);
     }
 
     void ConfigPhysicalSocket::removeSocketOption(int optName) {

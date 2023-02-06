@@ -21,17 +21,32 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+#include <sys/socket.h>
+#include <vector>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace core::socket {
 
-    struct PhysicalSocketOption {
+    class PhysicalSocketOption {
+    public:
         PhysicalSocketOption() = default;
 
-        PhysicalSocketOption(int optLevel, int optName);
+        PhysicalSocketOption(int optLevel, int optName, int optValue);
+        PhysicalSocketOption(int optLevel, int optName, const std::string& optValue);
+        PhysicalSocketOption(int optLevel, int optName, const std::vector<char>& optValue);
 
+        int getOptLevel();
+        int getOptName();
+        void* getOptValue();
+        socklen_t getOptLen();
+
+    private:
         int optLevel = -1;
         int optName = -1;
+
+        std::vector<char> optValue;
     };
 
 } // namespace core::socket

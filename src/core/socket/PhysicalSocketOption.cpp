@@ -24,9 +24,38 @@
 
 namespace core::socket {
 
-    PhysicalSocketOption::PhysicalSocketOption(int optLevel, int optName)
+    PhysicalSocketOption::PhysicalSocketOption(int optLevel, int optName, int optValue)
         : optLevel(optLevel)
-        , optName(optName) {
+        , optName(optName)
+        , optValue(reinterpret_cast<char*>(&optValue), reinterpret_cast<char*>(&optValue + sizeof(int))) {
+    }
+
+    PhysicalSocketOption::PhysicalSocketOption(int optLevel, int optName, const std::string& optValue)
+        : optLevel(optLevel)
+        , optName(optName)
+        , optValue(optValue.begin(), optValue.end()) {
+    }
+
+    PhysicalSocketOption::PhysicalSocketOption(int optLevel, int optName, const std::vector<char>& optValue)
+        : optLevel(optLevel)
+        , optName(optName)
+        , optValue(optValue) {
+    }
+
+    int PhysicalSocketOption::getOptLevel() {
+        return optLevel;
+    }
+
+    int PhysicalSocketOption::getOptName() {
+        return optName;
+    }
+
+    void* PhysicalSocketOption::getOptValue() {
+        return reinterpret_cast<void*>(optValue.data());
+    }
+
+    socklen_t PhysicalSocketOption::getOptLen() {
+        return static_cast<socklen_t>(optValue.size());
     }
 
 } // namespace core::socket

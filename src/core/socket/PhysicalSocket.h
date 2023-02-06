@@ -22,7 +22,7 @@
 #include "core/Descriptor.h"
 
 namespace core::socket {
-    struct PhysicalSocketOption;
+    class PhysicalSocketOption;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
