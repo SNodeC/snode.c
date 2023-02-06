@@ -56,15 +56,16 @@ namespace core::socket {
         return *this;
     }
 
-    int PhysicalSocket::open(const std::vector<PhysicalSocketOption>& socketOptions, Flags flags) {
+    int PhysicalSocket::open(const std::map<int, PhysicalSocketOption>& socketOptions, Flags flags) {
         int ret = Super::open(core::system::socket(domain, type | flags, protocol));
 
         if (ret >= 0) {
-            for (const PhysicalSocketOption& socketOption : socketOptions) {
+            for (auto [optName, socketOption] : socketOptions) {
                 int sockopt = 1;
                 int setSockoptRet = setSockopt(socketOption.optLevel, socketOption.optName, &sockopt, sizeof(sockopt));
 
                 ret = (ret >= 0 && setSockoptRet < 0) ? setSockoptRet : ret;
+
                 if (ret < 0) {
                     break;
                 }

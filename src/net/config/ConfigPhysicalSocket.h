@@ -28,8 +28,8 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>
 #include <string>
-#include <vector>
 
 namespace CLI {
     class Option;
@@ -44,7 +44,7 @@ namespace net::config {
     public:
         explicit ConfigPhysicalSocket(ConfigInstance* instance);
 
-        const std::vector<core::socket::PhysicalSocketOption>& getSocketOptions();
+        const std::map<int, core::socket::PhysicalSocketOption>& getSocketOptions();
 
     protected:
         CLI::Option* add_socket_option(CLI::Option*& opt,
@@ -56,8 +56,10 @@ namespace net::config {
                                        const std::string& defaultValue,
                                        const CLI::Validator& validator);
 
-    private:
-        std::vector<core::socket::PhysicalSocketOption> socketOptions;
+        void addSocketOption(int optName, int optLevel);
+        void removeSocketOption(int optName);
+
+        std::map<int, core::socket::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };
 
 } // namespace net::config

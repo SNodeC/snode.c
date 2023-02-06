@@ -79,17 +79,17 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        LOG(INFO) << "WS: Mqtt connected:";
+        LOG(INFO) << "Mqtt connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
-            LOG(ERROR) << "WS: Wrong Opcode: " << opCode;
+            LOG(ERROR) << "WebSocket: Wrong Opcode: " << opCode;
             this->end(true);
         } else {
-            LOG(TRACE) << "WS-Message START";
+            LOG(TRACE) << "WebSocket: Message START: " << opCode;
         }
     }
 
@@ -99,7 +99,7 @@ namespace iot::mqtt {
 
         std::stringstream ss;
 
-        ss << "WS-Frame data: ";
+        ss << "WebSocket: Frame data: ";
         unsigned long i = 0;
         for (char ch : std::string(junk, junkLen)) {
             if (i != 0 && i % 8 == 0 && i != data.size()) {
@@ -115,7 +115,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
-        LOG(TRACE) << "WS-Message END";
+        LOG(TRACE) << "WebSocket: Message END";
 
         buffer.insert(buffer.end(), data.begin(), data.end());
         size += data.size();
@@ -128,7 +128,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
-        LOG(ERROR) << "Message error: " << errnum;
+        LOG(ERROR) << "WebSocket: Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>

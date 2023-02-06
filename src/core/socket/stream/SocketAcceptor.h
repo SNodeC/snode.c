@@ -109,8 +109,8 @@ namespace core::socket::stream {
                 } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
                     VLOG(0) << config->getInstanceName() << " mode: PRIMARY";
                     secondaryPhysicalSocket = new SecondarySocket();
-                    if (secondaryPhysicalSocket->open(std::vector<core::socket::PhysicalSocketOption>(), SecondarySocket::Flags::NONBLOCK) <
-                        0) {
+                    if (secondaryPhysicalSocket->open(std::map<int, core::socket::PhysicalSocketOption>(),
+                                                      SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) <
@@ -129,7 +129,7 @@ namespace core::socket::stream {
             } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
                        config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
                 secondaryPhysicalSocket = new SecondarySocket();
-                if (secondaryPhysicalSocket->open(std::vector<core::socket::PhysicalSocketOption>(), SecondarySocket::Flags::NONBLOCK) <
+                if (secondaryPhysicalSocket->open(std::map<int, core::socket::PhysicalSocketOption>(), SecondarySocket::Flags::NONBLOCK) <
                     0) {
                     onError(config->getLocalAddress(), errno);
                     destruct();

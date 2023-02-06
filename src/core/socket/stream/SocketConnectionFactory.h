@@ -65,8 +65,8 @@ namespace core::socket::stream {
                 if (physicalSocket.getSockname(localAddress) == 0 && physicalSocket.getPeername(remoteAddress) == 0) {
                     SocketConnection* socketConnection = new SocketConnection(physicalSocket.getFd(),
                                                                               socketContextFactory,
-                                                                              SocketAddress(localAddress),
-                                                                              SocketAddress(remoteAddress),
+                                                                              localAddress,
+                                                                              remoteAddress,
                                                                               onDisconnect,
                                                                               config->getReadTimeout(),
                                                                               config->getWriteTimeout(),

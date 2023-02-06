@@ -45,7 +45,11 @@ namespace net::stream::config {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
-        CLI::Option* reuseSocketOpt = nullptr;
+        void setReuseAddress(bool reuseAddress = true);
+        bool getReuseAddress();
+
+    protected:
+        CLI::Option* reuseAddressOpt = nullptr;
     };
 
 } // namespace net::stream::config

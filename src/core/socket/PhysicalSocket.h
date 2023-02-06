@@ -29,6 +29,7 @@ namespace core::socket {
 
 #include "core/system/socket.h"
 
+#include <map>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -50,7 +51,7 @@ namespace core::socket {
         enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
 
     public:
-        int open(const std::vector<PhysicalSocketOption>& socketOptions, Flags flags = Flags::NONE);
+        int open(const std::map<int, PhysicalSocketOption>& socketOptions, Flags flags = Flags::NONE);
 
         bool isValid() const;
 

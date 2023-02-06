@@ -34,7 +34,7 @@ namespace net::stream::config {
         , net::config::ConfigPhysicalSocket(instance)
         , net::config::ConfigListen(instance)
         , net::config::ConfigCluster(instance) {
-        add_socket_option(reuseSocketOpt,
+        add_socket_option(reuseAddressOpt,
                           "--reuse-address",
                           SOL_SOCKET,
                           SO_REUSEADDR,
@@ -42,6 +42,25 @@ namespace net::stream::config {
                           "bool",
                           "false",
                           CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+    }
+
+    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
+    void ConfigSocketServer<ConfigAddress>::setReuseAddress(bool reuseAddress) {
+        if (reuseAddress) {
+            addSocketOption(SO_REUSEADDR, SOL_SOCKET);
+        } else {
+            removeSocketOption(SO_REUSEADDR);
+        }
+
+        reuseAddressOpt //
+            ->default_val(reuseAddress ? "true" : "false")
+            ->take_all()
+            ->clear();
+    }
+
+    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
+    bool ConfigSocketServer<ConfigAddress>::getReuseAddress() {
+        return reuseAddressOpt->as<bool>();
     }
 
 } // namespace net::stream::config

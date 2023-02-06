@@ -26,10 +26,12 @@
 namespace core::socket {
 
     struct PhysicalSocketOption {
+        PhysicalSocketOption() = default;
+
         PhysicalSocketOption(int optLevel, int optName);
 
-        int optLevel;
-        int optName;
+        int optLevel = -1;
+        int optName = -1;
     };
 
 } // namespace core::socket

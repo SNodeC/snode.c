@@ -41,8 +41,11 @@ namespace net::in6::stream::config {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
+        void setIPv6Only(bool iPv6Only = true);
+        bool getIPv6Only();
+
     private:
-        CLI::Option* dualStack = nullptr;
+        CLI::Option* iPv6OnlyOpt = nullptr;
     };
 
 } // namespace net::in6::stream::config

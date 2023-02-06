@@ -36,7 +36,7 @@ namespace net::in6::stream::config {
         : net::stream::config::ConfigSocketServer<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
 
-        add_socket_option(dualStack,
+        add_socket_option(iPv6OnlyOpt,
                           "--ipv6-only",
                           IPPROTO_IPV6,
                           IPV6_V6ONLY,
@@ -44,6 +44,23 @@ namespace net::in6::stream::config {
                           "bool",
                           "false",
                           CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+    }
+
+    void ConfigSocketServer::setIPv6Only(bool iPv6Only) {
+        if (iPv6Only) {
+            addSocketOption(IPV6_V6ONLY, IPPROTO_IPV6);
+        } else {
+            removeSocketOption(IPPROTO_IPV6);
+        }
+
+        iPv6OnlyOpt //
+            ->default_val(iPv6Only ? "true" : "false")
+            ->take_all()
+            ->clear();
+    }
+
+    bool ConfigSocketServer::getIPv6Only() {
+        return iPv6OnlyOpt->as<bool>();
     }
 
 } // namespace net::in6::stream::config
