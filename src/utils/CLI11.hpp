@@ -10236,7 +10236,7 @@ public:                                                                         
                         } else if (opt->get_required()) {
                             value = "REQUIRED";
                         } else {
-                            value = "EMPTY";
+                            value = "\"\"";
                         }
                         isDefault = true;
                     }

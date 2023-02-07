@@ -51,26 +51,7 @@
 #define PIDFILEPATH std::string("/etc/snode.c/pid")
 #endif
 
-namespace utils {
-
-    int Config::argc = 0;
-    char** Config::argv = nullptr;
-    CLI::App Config::app;
-    std::string Config::applicationName;
-
-    std::string Config::defaultConfDir;
-    std::string Config::defaultLogDir;
-    std::string Config::defaultPidDir;
-
-    CLI::Option* Config::daemonizeOpt = nullptr;
-    CLI::Option* Config::logFileOpt = nullptr;
-    CLI::Option* Config::enforceLogFileOpt = nullptr;
-    CLI::Option* Config::logLevelOpt = nullptr;
-    CLI::Option* Config::verboseLevelOpt = nullptr;
-
-    std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::Formatter>();
-
-    std::map<std::string, std::string> Config::prefixMap;
+namespace CLI {
 
     class CallForCommandline : public CLI::Error {
     public:
@@ -94,6 +75,43 @@ namespace utils {
         CLI::App* app;
         Mode mode;
     };
+
+    class CallForShowConfig : public CLI::Error {
+    public:
+        CallForShowConfig()
+            : CLI::Error("CallForPrintConfig", "Call for showing the current config") {
+        }
+    };
+
+    class CallForWriteConfig : public CLI::Error {
+    public:
+        CallForWriteConfig()
+            : CLI::Error("CallForWriteConfig", "Call for writing the config file") {
+        }
+    };
+
+} // namespace CLI
+
+namespace utils {
+
+    int Config::argc = 0;
+    char** Config::argv = nullptr;
+    CLI::App Config::app;
+    std::string Config::applicationName;
+
+    std::string Config::defaultConfDir;
+    std::string Config::defaultLogDir;
+    std::string Config::defaultPidDir;
+
+    CLI::Option* Config::daemonizeOpt = nullptr;
+    CLI::Option* Config::logFileOpt = nullptr;
+    CLI::Option* Config::enforceLogFileOpt = nullptr;
+    CLI::Option* Config::logLevelOpt = nullptr;
+    CLI::Option* Config::verboseLevelOpt = nullptr;
+
+    std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::Formatter>();
+
+    std::map<std::string, std::string> Config::prefixMap;
 
     bool Config::init(int argc, char* argv[]) {
         Config::argc = argc;
@@ -184,7 +202,7 @@ namespace utils {
         app.add_flag_callback(
                "--commandline",
                []() {
-                   throw CallForCommandline(&app, CallForCommandline::Mode::SHORT);
+                   throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::SHORT);
                },
                "Print a template command line showing required options only and exit") //
             ->configurable(false)
@@ -193,7 +211,7 @@ namespace utils {
         app.add_flag_callback(
                "--commandline-long",
                []() {
-                   throw CallForCommandline(&app, CallForCommandline::Mode::LONG);
+                   throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::LONG);
                },
                "Print a template command line showing all possible options and exit") //
             ->configurable(false)
@@ -202,11 +220,27 @@ namespace utils {
         app.add_flag_callback(
                "--commandline-configured",
                []() {
-                   throw CallForCommandline(&app, CallForCommandline::Mode::MEDIUM);
+                   throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::MEDIUM);
                },
                "Print a template command line showing all required and configured options and exit") //
             ->configurable(false)
             ->disable_flag_override();
+
+        app.add_flag_callback(
+               "-s,--show-config",
+               []() {
+                   throw CLI::CallForShowConfig();
+               },
+               "Show current configuration and exit") //
+            ->configurable(false)
+            ->disable_flag_override();
+
+        app.add_option("-w,--write-config", "Write config file and exit") //
+            ->configurable(false)
+            ->default_val(defaultConfDir + "/" + applicationName + ".conf")
+            ->type_name("[configfile]")
+            ->check(!CLI::ExistingDirectory)
+            ->expected(0, 1);
 
         daemonizeOpt = app.add_flag_function("-d,!-f,--daemonize,!--foreground",
                                              utils::ResetToDefault(daemonizeOpt),
@@ -219,17 +253,6 @@ namespace utils {
         app.add_flag("-k,--kill", "Kill running daemon") //
             ->configurable(false)
             ->disable_flag_override();
-
-        app.add_flag("-s,--show-config", "Show current configuration and exit") //
-            ->configurable(false)
-            ->disable_flag_override();
-
-        app.add_option("-w,--write-config", "Write config file and exit") //
-            ->configurable(false)
-            ->default_val(defaultConfDir + "/" + applicationName + ".conf")
-            ->type_name("[configfile]")
-            ->check(!CLI::ExistingDirectory)
-            ->expected(0, 1);
 
         logFileOpt = app.add_option_function<std::string>("-l,--log-file",
                                                           utils::ResetToDefault(logFileOpt),
@@ -270,9 +293,12 @@ namespace utils {
                        prefixMap,
                        "Instance name mapping used to make an instance known under an alias name also in a config file.")
             ->configurable(false)
-            ->type_name("{name mapped_name} ...");
+            ->type_name("{name mapped_name} ...")
+            ->each([](const std::string& item) -> void {
+                std::cout << "Item: " << item << std::endl;
+            });
 
-        bool ret = parse(false); // for stopDaemon but do not act on -h or --help-all
+        bool ret = parse(); // for stopDaemon but do not act on -h or --help-all
 
         if (ret) {
             try {
@@ -291,30 +317,18 @@ namespace utils {
             }
         }
 
-        if (!prefixMap.empty()) {
-            app.all_config_files();
-
-            for (auto& [key, value] : prefixMap) {
-                std::cout << "Key: " << key << ", Value: " << value << std::endl;
-            }
-        }
+        app.all_config_files(!prefixMap.empty());
 
         return ret;
     }
 
     bool Config::prepare() {
+        prefixMap.clear();
+
         bool ret = parse(app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0);
 
         if (ret) {
-            if (app["--show-config"]->count() > 0) {
-                try {
-                    VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
-                } catch (CLI::ValidationError& e) {
-                    std::cout << "Command line or config file error: " << e.what() << std::endl;
-                    std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
-                }
-                ret = false;
-            } else if (app["--write-config"]->count() > 0) {
+            if (app["--write-config"]->count() > 0) {
                 VLOG(0) << "Write config file " << app["--write-config"]->as<std::string>();
                 std::ofstream confFile(app["--write-config"]->as<std::string>());
                 try {
@@ -352,8 +366,8 @@ namespace utils {
         return ret;
     }
 
-    void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, CallForCommandline::Mode mode);
-    void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, CallForCommandline::Mode mode) {
+    void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, CLI::CallForCommandline::Mode mode);
+    void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::vector<CLI::Option*> appOptions = app->get_options();
 
         if (!appOptions.empty()) {
@@ -361,16 +375,16 @@ namespace utils {
                 if (option->get_configurable()) {
                     std::string value;
 
-                    if (option->reduced_results().size() > 0 &&
-                        ((option->get_required() || mode == CallForCommandline::Mode::LONG) || mode == CallForCommandline::Mode::MEDIUM)) {
+                    if (option->reduced_results().size() > 0 && ((option->get_required() || mode == CLI::CallForCommandline::Mode::LONG) ||
+                                                                 mode == CLI::CallForCommandline::Mode::MEDIUM)) {
                         value = option->reduced_results()[0];
                     } else if (!option->get_default_str().empty()) {
-                        value = mode == CallForCommandline::Mode::LONG ? option->get_default_str() : "";
+                        value = mode == CLI::CallForCommandline::Mode::LONG ? option->get_default_str() : "";
                     } else {
                         if (option->get_required()) {
                             value = "<REQUIRED>";
                         } else {
-                            value = mode == CallForCommandline::Mode::LONG ? "\"\"" : "";
+                            value = mode == CLI::CallForCommandline::Mode::LONG ? "\"\"" : "";
                         }
                     }
 
@@ -386,8 +400,8 @@ namespace utils {
         }
     }
 
-    std::string createCommandLineOptions(CLI::App* app, CallForCommandline::Mode mode);
-    std::string createCommandLineOptions(CLI::App* app, CallForCommandline::Mode mode) {
+    std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode);
+    std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream optionOut;
 
         createCommandLineOptions(optionOut, app, mode);
@@ -401,9 +415,9 @@ namespace utils {
         return optionString;
     }
 
-    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CallForCommandline::Mode mode);
-    std::string createCommandLineSubcommands(CLI::App* app, CallForCommandline::Mode mode);
-    std::string createCommandLineSubcommands(CLI::App* app, CallForCommandline::Mode mode) {
+    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode);
+    std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode);
+    std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream subcommandOut;
 
         std::vector<CLI::App*> appSubcommands = app->get_subcommands({});
@@ -416,7 +430,7 @@ namespace utils {
         return subcommandOut.str();
     }
 
-    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CallForCommandline::Mode mode) {
+    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::string outString;
 
         outString = createCommandLineOptions(app, mode);
@@ -430,8 +444,8 @@ namespace utils {
         }
     }
 
-    std::string createCommandLineTemplate(CLI::App* app, CallForCommandline::Mode mode);
-    std::string createCommandLineTemplate(CLI::App* app, CallForCommandline::Mode mode) {
+    std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode);
+    std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
         createCommandLineTemplate(out, app, mode);
@@ -440,7 +454,7 @@ namespace utils {
 
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
-            outString = app->get_name() + " " + createCommandLineOptions(app, CallForCommandline::Mode::MEDIUM) + " " + outString;
+            outString = app->get_name() + " " + createCommandLineOptions(app, CLI::CallForCommandline::Mode::MEDIUM) + " " + outString;
         }
 
         return outString;
@@ -479,6 +493,30 @@ namespace utils {
 
     } // namespace Color
 
+    bool Config::parse() {
+        bool ret = true;
+
+        try {
+            app.parse(argc, argv);
+        } catch (const CLI::CallForHelp&) {
+            // Exception: Do not print Help here
+        } catch (const CLI::CallForAllHelp&) {
+            // Exception: Do no print HelpAll here
+        } catch (const CLI::CallForCommandline&) {
+            // Exception: Do not print commandline here
+        } catch (const CLI::ParseError&) {
+            // Exception: Do not print commandline here
+        } catch (const CLI::CallForShowConfig&) {
+            // Exception: Do not show config here
+        } catch (const CLI::CallForWriteConfig&) {
+            // Exception: Do not write config here
+        } catch (const CLI::Error&) {
+            // Exception: Do not error here
+        }
+
+        return ret;
+    }
+
     bool Config::parse(bool stopOnError) {
         bool ret = true;
 
@@ -486,31 +524,48 @@ namespace utils {
 
         try {
             Config::app.parse(argc, argv);
-        } catch (const CallForCommandline& e) {
-            if (stopOnError) {
-                if (e.getMode() == CallForCommandline::Mode::LONG) {
-                    std::cout << "Below is a full template command line" << std::endl;
-                    std::cout << "* Options that are required but not yet configured show the value <REQUIRED>" << std::endl;
-                    std::cout << "* All other options show either their default value or the currently configured value" << std::endl
-                              << std::endl;
-                } else if (e.getMode() == CallForCommandline::Mode::SHORT) {
-                    std::cout << "Below is a minimal template command line" << std::endl;
-                    std::cout << "* Only required options are showen" << std::endl << std::endl;
-                } else {
-                    std::cout << "Below is a commandline showing all required and configured options" << std::endl;
-                    std::cout << "* Options that are required but not yet configured show the value <REQUIRED>" << std::endl;
-                    std::cout << "* All other options show either their currently configured value" << std::endl << std::endl;
-                }
-                std::cout << Color::Code::FG_GREEN << "\x1b[1mcommand@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE
-                          << "~/>\x1b[0m " << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
+        } catch (const CLI::CallForHelp& e) {
+            Config::app.exit(e);
+            ret = false;
+        } catch (const CLI::CallForAllHelp& e) {
+            Config::app.exit(e);
+            ret = false;
+        } catch (const CLI::CallForCommandline& e) {
+            if (e.getMode() == CLI::CallForCommandline::Mode::LONG) {
+                std::cout << "Below is a full template command line" << std::endl;
+                std::cout << "* Options that are required but not yet configured show the value <REQUIRED>" << std::endl;
+                std::cout << "* All other options show either their default value or the currently configured value" << std::endl
+                          << std::endl;
+            } else if (e.getMode() == CLI::CallForCommandline::Mode::SHORT) {
+                std::cout << "Below is a minimal template command line" << std::endl;
+                std::cout << "* Only required options are showen" << std::endl << std::endl;
+            } else {
+                std::cout << "Below is a commandline showing all required and configured options" << std::endl;
+                std::cout << "* Options that are required but not yet configured show the value <REQUIRED>" << std::endl;
+                std::cout << "* All other options show either their currently configured value" << std::endl << std::endl;
+            }
+            std::cout << Color::Code::FG_GREEN << "\x1b[1mcommand@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE
+                      << "~/>\x1b[0m " << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
 
-                std::cout << std::endl << app.get_footer() << std::endl;
+            std::cout << std::endl << app.get_footer() << std::endl;
+            ret = false;
+        } catch (const CLI::CallForShowConfig&) {
+            VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
+            ret = false;
+        } catch (const CLI::CallForWriteConfig&) {
+            std::ofstream confFile(app["--write-config"]->as<std::string>());
+            VLOG(0) << "Write config file " << app["--write-config"]->as<std::string>();
+            if (confFile.is_open()) {
+                confFile << app.config_to_str(true, true);
+                confFile.close();
+            }
+            ret = false;
+        } catch (const CLI::ConversionError& e) {
+            if (stopOnError) {
+                std::cout << "Command line or config file error: " << e.what() << std::endl;
+                std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
                 ret = false;
             }
-        } catch (const CLI::ConversionError& e) {
-            std::cout << "Command line or config file error: " << e.what() << std::endl;
-            std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
-            ret = false;
         } catch (const CLI::ConfigError& e) {
             if (stopOnError) {
                 std::cout << "Command line or config file error: " << e.what() << std::endl;
@@ -520,18 +575,14 @@ namespace utils {
             }
         } catch (const CLI::ParseError& e) {
             if (stopOnError) {
-                if (e.get_name() != "CallForHelp" && e.get_name() != "CallForAllHelp" && e.get_name() != "CallForVersion") {
-                    std::cout << "Command line or config file error: " << e.what() << std::endl;
-                    std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
-                } else {
-                    Config::app.exit(e);
-                }
+                std::cout << "Command line or config file error: " << e.what() << std::endl;
+                std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
                 ret = false;
             }
         }
 
         return ret;
-    } // namespace utils
+    }
 
     void Config::terminate() {
         if (app["--daemonize"]->as<bool>()) {
@@ -596,7 +647,7 @@ namespace utils {
             ->add_flag_callback(
                 "--commandline",
                 [instance]() {
-                    throw CallForCommandline(instance, CallForCommandline::Mode::SHORT);
+                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::SHORT);
                 },
                 "Print a template command line showing required options only and exit")
             ->configurable(false)
@@ -606,7 +657,7 @@ namespace utils {
             ->add_flag_callback(
                 "--commandline-long",
                 [instance]() {
-                    throw CallForCommandline(instance, CallForCommandline::Mode::LONG);
+                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::LONG);
                 },
                 "Print a template command line showing all possible options and exit")
             ->configurable(false)
@@ -616,7 +667,7 @@ namespace utils {
             ->add_flag_callback(
                 "--commandline-configured",
                 []() {
-                    throw CallForCommandline(&app, CallForCommandline::Mode::MEDIUM);
+                    throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::MEDIUM);
                 },
                 "Print a template command line showing all required and configured options and exit") //
             ->configurable(false)
