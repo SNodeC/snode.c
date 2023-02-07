@@ -56,9 +56,9 @@ namespace iot::mqtt::server::broker {
                 retainTree.fromJson(sessionStoreJson["retain_tree"]);
                 subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
 
-                LOG(INFO) << "Persistent session data loaded successfull";
+                LOG(TRACE) << "Persistent session data loaded successfull";
             } catch (const nlohmann::json::exception& e) {
-                LOG(INFO) << "Starting with empty session: session store empty or corrupted";
+                LOG(WARNING) << "Starting with empty session: session store empty or corrupted";
                 LOG(TRACE) << sessionStoreFileName << ": " << e.what();
 
                 sessionStore.clear();

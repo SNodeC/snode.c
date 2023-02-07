@@ -27,6 +27,7 @@ namespace CLI {
     class Formatter;
 } // namespace CLI
 
+#include <map>
 #include <memory>
 #include <string>
 
@@ -104,6 +105,8 @@ namespace utils {
         static CLI::Option* verboseLevelOpt;
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
+
+        static std::map<std::string, std::string> prefixMap; // from -> to
     };
 
 } // namespace utils

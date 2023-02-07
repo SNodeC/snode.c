@@ -6457,6 +6457,9 @@ public:                                                                         
         /// This is the formatter for help printing. Default provided. INHERITABLE (same pointer)
         std::shared_ptr<Config> config_formatter_{new ConfigTOML()};
 
+        /// Take all options from all subcommands into account. Results are in the order config files are parsed
+        bool all_config_files_{false};
+
         ///@}
 
         /// Special private constructor for subcommand
@@ -6643,6 +6646,12 @@ public:                                                                         
         /// Set the config formatter
         App* config_formatter(std::shared_ptr<Config> fmt) {
             config_formatter_ = fmt;
+            return this;
+        }
+
+        /// Specify that all options from all config files are considered
+        App* all_config_files(bool all = true) {
+            all_config_files_ = all;
             return this;
         }
 
@@ -7479,6 +7488,9 @@ public:                                                                         
         /// Read and process a configuration file (main app only)
         void _process_config_file();
 
+        /// Read and process a particular configuration file
+        void _process_config_file(const auto& config_file, bool config_required, bool file_given);
+
         /// Get envname options if not yet passed. Runs on *all* subcommands.
         void _process_env();
 
@@ -7717,6 +7729,7 @@ public:                                                                         
             formatter_ = parent_->formatter_;
             config_formatter_ = parent_->config_formatter_;
             require_subcommand_max_ = parent_->require_subcommand_max_;
+            all_config_files_ = parent_->all_config_files_;
         }
     }
 
@@ -8693,10 +8706,28 @@ public:                                                                         
         return detail::Classifier::NONE;
     }
 
+    CLI11_INLINE void App::_process_config_file(const auto& config_file, bool config_required, bool file_given) {
+        auto path_result = detail::check_path(config_file.c_str());
+        if (path_result == detail::path_type::file) {
+            try {
+                std::vector<ConfigItem> values = config_formatter_->from_file(config_file);
+                _parse_config(values);
+                if (!file_given) {
+                    config_ptr_->add_result(config_file);
+                }
+            } catch (const FileError&) {
+                if (config_required || file_given)
+                    throw;
+            }
+        } else if (config_required || file_given) {
+            throw FileError::Missing(config_file);
+        }
+    }
+
     CLI11_INLINE void App::_process_config_file() {
         if (config_ptr_ != nullptr) {
             bool config_required = config_ptr_->get_required();
-            auto file_given = config_ptr_->count() > 0;
+            bool file_given = config_ptr_->count() > 0;
             auto config_files = config_ptr_->as<std::vector<std::string>>();
             if (config_files.empty() || config_files.front().empty()) {
                 if (config_required) {
@@ -8704,22 +8735,14 @@ public:                                                                         
                 }
                 return;
             }
-            for (auto rit = config_files.rbegin(); rit != config_files.rend(); ++rit) {
-                const auto& config_file = *rit;
-                auto path_result = detail::check_path(config_file.c_str());
-                if (path_result == detail::path_type::file) {
-                    try {
-                        std::vector<ConfigItem> values = config_formatter_->from_file(config_file);
-                        _parse_config(values);
-                        if (!file_given) {
-                            config_ptr_->add_result(config_file);
-                        }
-                    } catch (const FileError&) {
-                        if (config_required || file_given)
-                            throw;
-                    }
-                } else if (config_required || file_given) {
-                    throw FileError::Missing(config_file);
+
+            if (all_config_files_) {
+                for (auto it = config_files.begin(); it != config_files.end(); ++it) {
+                    _process_config_file(*it, config_required, file_given);
+                }
+            } else {
+                for (auto rit = config_files.rbegin(); rit != config_files.rend(); ++rit) {
+                    _process_config_file(*rit, config_required, file_given);
                 }
             }
         }
@@ -9109,7 +9132,7 @@ public:                                                                         
             throw ConfigError::NotConfigurable(item.fullname());
         }
 
-        if (op->empty()) {
+        if (op->empty() || all_config_files_) {
             if (op->get_expected_min() == 0) {
                 if (item.inputs.size() <= 1) {
                     // Flag parsing

@@ -56,8 +56,6 @@ namespace logger {
             conf.setGlobally(el::ConfigurationType::ToFile, "true");
             el::Loggers::reconfigureLogger("default", conf);
         }
-
-        //        setLogLevel(6);
     }
 
     void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {

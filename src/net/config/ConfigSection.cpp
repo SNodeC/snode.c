@@ -80,8 +80,7 @@ namespace net::config {
 
     CLI::Option* ConfigSection::add_flag(CLI::Option*& opt, const std::string& name, const std::string& description) {
         return opt = section //
-                         ->add_flag_function(name, utils::ResetToDefault(opt), description)
-                         ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast);
+                         ->add_flag_function(name, utils::ResetToDefault(opt), description);
     }
 
     CLI::Option* ConfigSection::add_flag(CLI::Option*& opt,
@@ -100,7 +99,6 @@ namespace net::config {
                                                   const std::string& defaultValue) {
         opt = section //
                   ->add_flag_function(name, callback, description)
-                  ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
                   ->default_val(defaultValue)
                   ->type_name(typeName);
 
@@ -126,7 +124,6 @@ namespace net::config {
                                                   const std::string& defaultValue) {
         opt = section //
                   ->add_flag_callback(name, callback, description)
-                  ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
                   ->default_val(defaultValue)
                   ->type_name(typeName);
 
