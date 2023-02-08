@@ -76,20 +76,6 @@ namespace CLI {
         Mode mode;
     };
 
-    class CallForShowConfig : public CLI::Error {
-    public:
-        CallForShowConfig()
-            : CLI::Error("CallForPrintConfig", "Call for showing the current config") {
-        }
-    };
-
-    class CallForWriteConfig : public CLI::Error {
-    public:
-        CallForWriteConfig()
-            : CLI::Error("CallForWriteConfig", "Call for writing the config file") {
-        }
-    };
-
 } // namespace CLI
 
 namespace utils {
@@ -226,12 +212,7 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override();
 
-        app.add_flag_callback(
-               "-s,--show-config",
-               []() {
-                   throw CLI::CallForShowConfig();
-               },
-               "Show current configuration and exit") //
+        app.add_flag("-s,--show-config", "Show current configuration and exit") //
             ->configurable(false)
             ->disable_flag_override();
 
@@ -245,6 +226,7 @@ namespace utils {
         daemonizeOpt = app.add_flag_function("-d,!-f,--daemonize,!--foreground",
                                              utils::ResetToDefault(daemonizeOpt),
                                              "Start application as daemon") //
+                           ->take_last()
                            ->default_val("false")
                            ->type_name("bool")
                            ->check(CLI::TypeValidator<bool>())
@@ -265,6 +247,7 @@ namespace utils {
         enforceLogFileOpt = app.add_flag_function("-e,--enforce-log-file",
                                                   utils::ResetToDefault(enforceLogFileOpt),
                                                   "Enforce writing of logs to file for foreground applications") //
+                                ->take_last()
                                 ->default_val("false")
                                 ->type_name("bool")
                                 ->check(CLI::TypeValidator<bool>())
@@ -289,13 +272,18 @@ namespace utils {
         app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false) //
             ->expected(0, 10);
 
-        app.add_option("--instance-map",
-                       prefixMap,
-                       "Instance name mapping used to make an instance known under an alias name also in a config file.")
+        app.add_option("--instance-map", "Instance name mapping used to make an instance known under an alias name also in a config file.")
             ->configurable(false)
-            ->type_name("{name mapped_name} ...")
+            ->expected(0, 1000)
+            ->type_name("name=mapped_name {name=mapped_name}")
             ->each([](const std::string& item) -> void {
-                std::cout << "Item: " << item << std::endl;
+                const auto it = item.find('=');
+                if (it != item.npos) {
+                    prefixMap[item.substr(0, it)] = item.substr(it + 1);
+
+                } else {
+                    throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
+                }
             });
 
         bool ret = parse(); // for stopDaemon but do not act on -h or --help-all
@@ -328,7 +316,10 @@ namespace utils {
         bool ret = parse(app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0);
 
         if (ret) {
-            if (app["--write-config"]->count() > 0) {
+            if (app["--show-config"]->count() > 0) {
+                VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
+                ret = false;
+            } else if (app["--write-config"]->count() > 0) {
                 VLOG(0) << "Write config file " << app["--write-config"]->as<std::string>();
                 std::ofstream confFile(app["--write-config"]->as<std::string>());
                 try {
@@ -506,10 +497,6 @@ namespace utils {
             // Exception: Do not print commandline here
         } catch (const CLI::ParseError&) {
             // Exception: Do not print commandline here
-        } catch (const CLI::CallForShowConfig&) {
-            // Exception: Do not show config here
-        } catch (const CLI::CallForWriteConfig&) {
-            // Exception: Do not write config here
         } catch (const CLI::Error&) {
             // Exception: Do not error here
         }
@@ -548,17 +535,6 @@ namespace utils {
                       << "~/>\x1b[0m " << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
 
             std::cout << std::endl << app.get_footer() << std::endl;
-            ret = false;
-        } catch (const CLI::CallForShowConfig&) {
-            VLOG(0) << "Show current configuration\n" << app.config_to_str(true, true);
-            ret = false;
-        } catch (const CLI::CallForWriteConfig&) {
-            std::ofstream confFile(app["--write-config"]->as<std::string>());
-            VLOG(0) << "Write config file " << app["--write-config"]->as<std::string>();
-            if (confFile.is_open()) {
-                confFile << app.config_to_str(true, true);
-                confFile.close();
-            }
             ret = false;
         } catch (const CLI::ConversionError& e) {
             if (stopOnError) {

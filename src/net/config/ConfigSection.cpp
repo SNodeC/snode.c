@@ -78,16 +78,21 @@ namespace net::config {
             ->check(additionalValidator);
     }
 
-    CLI::Option* ConfigSection::add_flag(CLI::Option*& opt, const std::string& name, const std::string& description) {
+    CLI::Option*
+    ConfigSection::add_flag(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName) {
         return opt = section //
-                         ->add_flag_function(name, utils::ResetToDefault(opt), description);
+                         ->add_flag_function(name, utils::ResetToDefault(opt), description)
+                         ->type_name(typeName)
+                         ->take_last()
+                         ->force_callback();
     }
 
     CLI::Option* ConfigSection::add_flag(CLI::Option*& opt,
                                          const std::string& name,
                                          const std::string& description,
+                                         const std::string& typeName,
                                          const CLI::Validator& additionalValidator) {
-        return add_flag(opt, name, description) //
+        return add_flag(opt, name, description, typeName) //
             ->check(additionalValidator);
     }
 
@@ -99,6 +104,7 @@ namespace net::config {
                                                   const std::string& defaultValue) {
         opt = section //
                   ->add_flag_function(name, callback, description)
+                  ->take_last()
                   ->default_val(defaultValue)
                   ->type_name(typeName);
 

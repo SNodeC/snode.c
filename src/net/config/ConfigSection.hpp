@@ -45,9 +45,9 @@ namespace net::config {
     }
 
     template <typename ValueType>
-    CLI::Option*
-    ConfigSection::add_flag(CLI::Option*& opt, const std::string& name, const std::string& description, ValueType defaultValue) {
-        return add_flag(opt, name, description) //
+    CLI::Option* ConfigSection::add_flag(
+        CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
+        return add_flag(opt, name, description, typeName) //
             ->default_val(defaultValue);
     }
 
@@ -55,9 +55,10 @@ namespace net::config {
     CLI::Option* ConfigSection::add_flag(CLI::Option*& opt,
                                          const std::string& name,
                                          const std::string& description,
+                                         const std::string& typeName,
                                          ValueType defaultValue,
                                          const CLI::Validator& additionalValidator) {
-        return add_flag(opt, name, description, defaultValue) //
+        return add_flag(opt, name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }
 

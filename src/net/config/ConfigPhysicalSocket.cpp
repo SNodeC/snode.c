@@ -50,7 +50,7 @@ namespace net::config {
         return net::config::ConfigPhysicalSocket::add_flag_function(
             opt,
             name,
-            [this, &opt, optLevel, optName]([[maybe_unused]] int64_t count) -> void {
+            [this, &opt, optLevel, optName](int64_t) -> void {
                 if (opt->as<bool>()) {
                     socketOptionsMap[optName] = core::socket::PhysicalSocketOption(optLevel, optName, 1);
                 }

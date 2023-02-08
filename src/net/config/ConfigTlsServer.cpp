@@ -56,9 +56,9 @@ namespace net::config {
         add_flag(forceSniOpt,
                  "--sni-required,!--sni-optional",
                  "Force using of the Server Name Indication",
+                 "bool",
                  "false",
-                 CLI::TypeValidator<bool>() & !CLI::Number) // cppcheck-suppress clarifyCondition
-            ->type_name("bool");
+                 CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
 
         section->final_callback([this](void) -> void {
             std::list<std::string> vaultyDomainConfigs;

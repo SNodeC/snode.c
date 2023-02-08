@@ -71,9 +71,9 @@ namespace net::config {
         add_flag(useDefaultCaCertDirOpt,
                  "--ca-use-default-cert-dir,!--ca-ignore-default-cert-dir",
                  "Use default CA-certificate directory",
+                 "bool",
                  "false",
-                 CLI::TypeValidator<bool>() & !CLI::Number) // cppcheck-suppress clarifyCondition
-            ->type_name("bool");
+                 CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
         add_option(cipherListOpt, "--cipher-list", "Cipher list", "cipher_list", "");
         add_option(
             tlsOptionsOpt, "--tls-options", "OR combined SSL/TLS options", "options", 0, CLI::NonNegativeNumber | CLI::IsMember({""}));
