@@ -45,6 +45,8 @@ namespace core::socket::stream::tls {
     public:
         using SocketConnection = typename Super::SocketConnection;
 
+        using Super::config;
+
         SocketAcceptor(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
@@ -109,45 +111,49 @@ namespace core::socket::stream::tls {
 
     private:
         void initAcceptEvent() override {
-            masterSslCtx = ssl_ctx_new(Super::config);
+            if (!config->getDisabled()) {
+                masterSslCtx = ssl_ctx_new(config);
 
-            if (masterSslCtx != nullptr) {
-                masterSslCtxSans = ssl_get_sans(masterSslCtx);
+                if (masterSslCtx != nullptr) {
+                    masterSslCtxSans = ssl_get_sans(masterSslCtx);
 
-                SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
-                forceSni = Super::config->getForceSni();
+                    SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
+                    forceSni = config->getForceSni();
 
-                LOG(INFO) << "SSL_CTX (master) installed";
+                    LOG(INFO) << "SSL_CTX (master) installed";
 
-                for (const auto& [domain, sniCertConf] : Super::config->getSniCerts()) {
-                    if (!sniCertConf.empty()) {
-                        SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
+                    for (const auto& [domain, sniCertConf] : config->getSniCerts()) {
+                        if (!sniCertConf.empty()) {
+                            SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
 
-                        if (sniSslCtx != nullptr) {
-                            if (!domain.empty()) {
-                                if (sniSslCtxs.contains(domain)) {
-                                    ssl_ctx_free(sniSslCtxs[domain]);
+                            if (sniSslCtx != nullptr) {
+                                if (!domain.empty()) {
+                                    if (sniSslCtxs.contains(domain)) {
+                                        ssl_ctx_free(sniSslCtxs[domain]);
+                                    }
+                                    sniSslCtxs.insert_or_assign(domain, sniSslCtx);
+
+                                    LOG(INFO) << "SSL_CTX for (dom)'" << domain << "' as server name indication (sni) installed";
                                 }
-                                sniSslCtxs.insert_or_assign(domain, sniSslCtx);
 
-                                LOG(INFO) << "SSL_CTX for (dom)'" << domain << "' as server name indication (sni) installed";
+                                for (const std::string& san : ssl_get_sans(sniSslCtx)) {
+                                    sniSslCtxs.insert({san, sniSslCtx});
+
+                                    LOG(INFO) << "SSL_CTX for (san)'" << san << "' as server name indication (sni) installed";
+                                }
+                            } else {
+                                LOG(INFO) << "Can not create SSL_CTX for domain '" << domain << "'";
                             }
-
-                            for (const std::string& san : ssl_get_sans(sniSslCtx)) {
-                                sniSslCtxs.insert({san, sniSslCtx});
-
-                                LOG(INFO) << "SSL_CTX for (san)'" << san << "' as server name indication (sni) installed";
-                            }
-                        } else {
-                            LOG(INFO) << "Can not create SSL_CTX for domain '" << domain << "'";
                         }
                     }
-                }
 
-                Super::initAcceptEvent();
+                    Super::initAcceptEvent();
+                } else {
+                    Super::onError(Super::config->getLocalAddress(), EINVAL);
+                    Super::destruct();
+                }
             } else {
-                Super::onError(Super::config->getLocalAddress(), EINVAL);
-                Super::destruct();
+                Super::initAcceptEvent();
             }
         }
 

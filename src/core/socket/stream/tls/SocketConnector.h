@@ -41,6 +41,8 @@ namespace core::socket::stream::tls {
     public:
         using SocketConnection = typename Super::SocketConnection;
 
+        using Super::config;
+
         SocketConnector(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
@@ -95,11 +97,15 @@ namespace core::socket::stream::tls {
         }
 
         void initConnectEvent() override {
-            ctx = ssl_ctx_new(Super::config);
+            if (!config->getDisabled()) {
+                ctx = ssl_ctx_new(config);
 
-            if (ctx == nullptr) {
-                Super::onError(Super::config->getRemoteAddress(), errno);
-                Super::destruct();
+                if (ctx != nullptr) {
+                    Super::initConnectEvent();
+                } else {
+                    Super::onError(config->getRemoteAddress(), errno);
+                    Super::destruct();
+                }
             } else {
                 Super::initConnectEvent();
             }
