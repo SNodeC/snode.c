@@ -84,7 +84,6 @@ namespace utils {
                     close(STDOUT_FILENO);
                     close(STDERR_FILENO);
 
-                    /* Reopen stdin (fd = 0), stdout (fd = 1), stderr (fd = 2) */
                     if (std::freopen("/dev/null", "r", stdin) == nullptr) {
                     }
                     if (std::freopen("/dev/null", "w+", stdout) == nullptr) {

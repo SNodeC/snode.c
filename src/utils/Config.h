@@ -44,7 +44,7 @@ namespace utils {
         Config& operator=(const Config&) = delete;
 
         static bool init(int argc, char* argv[]);
-        static bool prepare();
+        static bool bootstrap();
         static void terminate();
 
         static CLI::App* add_instance(const std::string& name, const std::string& description);

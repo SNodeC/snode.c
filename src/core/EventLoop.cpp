@@ -109,7 +109,7 @@ namespace core {
     int EventLoop::start(const utils::Timeval& timeOut) {
         int returnReason = 0;
 
-        if (initialized && utils::Config::prepare()) {
+        if (initialized && utils::Config::bootstrap()) {
             struct sigaction sact {};
             sigemptyset(&sact.sa_mask);
             sact.sa_flags = 0;
@@ -189,13 +189,7 @@ namespace core {
 
         do {
             EventLoop::instance().eventMultiplexer.stop();
-            tickStatus = EventLoop::instance()._tick(0); // (3)
-
-            /*
-                        if (tickStatus == TickStatus::SUCCESS) {
-                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                        }
-            */
+            tickStatus = EventLoop::instance()._tick(0); // TODO: Do not waste CPU time
         } while (tickStatus == TickStatus::SUCCESS);
 
         DynamicLoader::execDlCloseAll();
