@@ -105,21 +105,6 @@ namespace net::config {
                                        const std::string& defaultValue,
                                        const CLI::Validator& validator);
 
-        CLI::Option* add_flag_callback(CLI::Option*& opt,
-                                       const std::string& name,
-                                       const std::function<void()>& callback,
-                                       const std::string& description,
-                                       const std::string& typeName,
-                                       const std::string& defaultValue);
-
-        CLI::Option* add_flag_callback(CLI::Option*& opt,
-                                       const std::string& name,
-                                       const std::function<void()>& callback,
-                                       const std::string& description,
-                                       const std::string& typeName,
-                                       const std::string& defaultValue,
-                                       const CLI::Validator& validator);
-
         void required(CLI::Option* opt);
         void required(bool req = true);
 

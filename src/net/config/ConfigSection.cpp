@@ -116,29 +116,4 @@ namespace net::config {
             ->check(validator);
     }
 
-    CLI::Option* ConfigSection::add_flag_callback(CLI::Option*& opt,
-                                                  const std::string& name,
-                                                  const std::function<void()>& callback,
-                                                  const std::string& description,
-                                                  const std::string& typeName,
-                                                  const std::string& defaultValue) {
-        opt = section //
-                  ->add_flag_callback(name, callback, description)
-                  ->default_val(defaultValue)
-                  ->type_name(typeName);
-
-        return opt;
-    }
-
-    CLI::Option* ConfigSection::add_flag_callback(CLI::Option*& opt,
-                                                  const std::string& name,
-                                                  const std::function<void()>& callback,
-                                                  const std::string& description,
-                                                  const std::string& typeName,
-                                                  const std::string& defaultValue,
-                                                  const CLI::Validator& validator) {
-        return add_flag_callback(opt, name, callback, description, typeName, defaultValue) //
-            ->check(validator);
-    }
-
 } // namespace net::config

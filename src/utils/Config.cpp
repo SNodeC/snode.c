@@ -128,6 +128,13 @@ namespace utils {
 
     std::map<std::string, std::string> Config::prefixMap;
 
+    // Declare some used functions
+    static std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode);
+    static void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, CLI::CallForCommandline::Mode mode);
+    static void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode);
+    static std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode);
+    static std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode);
+
     bool Config::init(int argc, char* argv[]) {
         Config::argc = argc;
         Config::argv = argv;
@@ -283,18 +290,15 @@ namespace utils {
 
         app.set_version_flag("--version", "0.9.8");
 
-        app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false) //
-            ->expected(0, 10);
+        app.set_config("-c,--config", defaultConfDir + "/" + applicationName + ".conf", "Read an config file", false);
 
         app.add_option("--instance-map", "Instance name mapping used to make an instance known under an alias name also in a config file.")
             ->configurable(false)
-            ->expected(0, 1000)
-            ->type_name("name=mapped_name {name=mapped_name}")
+            ->type_name("name=mapped_name")
             ->each([](const std::string& item) -> void {
                 const auto it = item.find('=');
                 if (it != item.npos) {
                     prefixMap[item.substr(0, it)] = item.substr(it + 1);
-
                 } else {
                     throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
                 }
@@ -364,7 +368,6 @@ namespace utils {
         return parse(app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0);
     }
 
-    void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, CLI::CallForCommandline::Mode mode);
     void createCommandLineOptions(std::stringstream& optionOut, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::vector<CLI::Option*> appOptions = app->get_options();
 
@@ -398,7 +401,6 @@ namespace utils {
         }
     }
 
-    std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode);
     std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream optionOut;
 
@@ -413,8 +415,6 @@ namespace utils {
         return optionString;
     }
 
-    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode);
-    std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode);
     std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream subcommandOut;
 
@@ -442,7 +442,6 @@ namespace utils {
         }
     }
 
-    std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode);
     std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
@@ -496,8 +495,11 @@ namespace utils {
 
         try {
             app.parse(argc, argv);
-        } catch (const CLI::ParseError&) {
+        } catch (const CLI::ParseError& e) {
             // Do not error here but in the second pass
+            // Just print a message about the error occured
+            std::cout << "ParseError: " << e.what() << std::endl;
+            std::cout << "Hint: In case you have used a multi argument option try adding '--' after the last option argument" << std::endl;
         }
 
         return ret;
