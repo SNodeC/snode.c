@@ -316,7 +316,7 @@ namespace utils {
                     logger::Logger::setLogLevel(logLevelOpt->as<int>());
                     logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                 }
-            } catch (const CLI::ParseError& e) {
+            } catch (const CLI::ParseError&) {
                 // Do not error here but in the second pass
             }
         }
@@ -526,14 +526,15 @@ namespace utils {
                     std::cout << "* Remaining options show either their default or configured value" << std::endl;
                 } else if (e.getMode() == CLI::CallForCommandline::Mode::SHORT) {
                     std::cout << "* Required options show eigher their configured value or <REQUIRED>" << std::endl;
-                    std::cout << "* For a successful bootstrap options marked as <REQUIRED> need to be configured " << std::endl;
+                    std::cout << "* Options marked as <REQUIRED> need to be configured for a successfull bootstrap" << std::endl;
                 } else {
                     std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
-                    std::cout << "* All other options show either their currently configured value" << std::endl;
+                    std::cout << "* All other options show their currently configured value" << std::endl;
+                    std::cout << "* Options marked as <REQUIRED> need to be configured for a successfull bootstrap" << std::endl;
                 }
                 std::cout << std::endl
-                          << Color::Code::FG_GREEN << "\x1b[1mcommand@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE
-                          << "~/>\x1b[0m " << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
+                          << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
+                          << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
 
                 std::cout << std::endl << app.get_footer() << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
@@ -562,7 +563,7 @@ namespace utils {
                 std::cout << "Command line error: " << e.what() << std::endl;
                 throw;
             }
-        } catch (const CLI::Error& e) {
+        } catch (const CLI::Error&) {
             std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
         }

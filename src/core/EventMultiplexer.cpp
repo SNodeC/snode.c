@@ -216,7 +216,7 @@ namespace core {
         std::swap(executeQueue, publishQueue);
 
         for (Event* event : *executeQueue) {
-            event->eventReceiver->destruct();
+            event->getEventReceiver()->destruct();
         }
     }
 

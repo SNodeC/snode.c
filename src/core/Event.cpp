@@ -61,4 +61,9 @@ namespace core {
         eventReceiver->onEvent(currentTime);
     }
 
+    EventReceiver *Event::getEventReceiver() const
+    {
+        return eventReceiver;
+    }
+
 } // namespace core

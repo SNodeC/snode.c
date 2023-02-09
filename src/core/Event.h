@@ -46,16 +46,16 @@ namespace core {
 
         const std::string& getName() const;
 
-    private:
         void dispatch(const utils::Timeval& currentTime);
 
+        EventReceiver* getEventReceiver() const;
+
+    private:
         EventReceiver* eventReceiver;
 
         bool published = false;
 
         std::string name;
-
-        friend class EventMultiplexer;
     };
 
 } // namespace core
