@@ -31,9 +31,9 @@
 
 namespace net::config {
 
-    ConfigInstance::ConfigInstance(const std::string& name)
+    ConfigInstance::ConfigInstance(const std::string& name, const std::string& role)
         : name(name) {
-        instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'");
+        instanceSc = utils::Config::add_instance(name, "Configuration for " + role + " instance '" + name + "'");
 
         disabledOpt = instanceSc->add_flag_function("--disable", utils::ResetToDefault(disabledOpt), "Disable this instance")
                           ->configurable(true)
