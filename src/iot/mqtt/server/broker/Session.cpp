@@ -99,7 +99,7 @@ namespace iot::mqtt::server::broker {
         return this->mqtt == mqtt;
     }
 
-    nlohmann::json Session::toJson() {
+    nlohmann::json Session::toJson() const {
         nlohmann::json json = iot::mqtt::Session::toJson();
 
         std::vector<nlohmann::json> messageVector;

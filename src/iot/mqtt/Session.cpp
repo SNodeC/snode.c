@@ -34,7 +34,7 @@ namespace iot::mqtt {
         fromJson(json);
     }
 
-    nlohmann::json Session::toJson() {
+    nlohmann::json Session::toJson() const {
         nlohmann::json json;
 
         std::vector<nlohmann::json> publishJsonVector;
