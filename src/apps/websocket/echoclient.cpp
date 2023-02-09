@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             } else {
-                VLOG(0) << "wsechoclient connecting to " << socketAddress.toString();
+                VLOG(0) << "wsechoclient connected to " << socketAddress.toString();
             }
         }); // Connection:keep-alive\r\n\r\n"
 
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             } else {
-                VLOG(0) << "wsechoclient connecting to " << socketAddress.toString();
+                VLOG(0) << "wsechoclient connected to " << socketAddress.toString();
             }
         }); // Connection:keep-alive\r\n\r\n"
     }

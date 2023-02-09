@@ -118,7 +118,7 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Found parent match:";
                 LOG(TRACE) << "  Topic: '" << message.getTopic() << "'";
                 LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
-                LOG(TRACE) << "Distribute Publish for math ...";
+                LOG(TRACE) << "Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : nextHashLevel->second.subscribers) {
                     broker->sendPublish(clientId, message, clientQoS, false);
@@ -146,8 +146,8 @@ namespace iot::mqtt::server::broker {
 
             foundNode = topicLevels.find("#");
             if (foundNode != topicLevels.end()) {
-                LOG(TRACE) << "Found match: Subscribed topic: '" << topicLevel << "', topic: '" << message.getTopic() << "', Message: '"
-                           << message.getMessage() << "'";
+                LOG(TRACE) << "Found match for topic filter: '.../" << topicLevel << "/#', topic: '" << message.getTopic()
+                           << "', Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
                 for (auto& [clientId, clientQoS] : foundNode->second.subscribers) {
                     broker->sendPublish(clientId, message, clientQoS, false);

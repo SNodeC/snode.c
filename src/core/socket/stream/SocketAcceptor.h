@@ -94,54 +94,58 @@ namespace core::socket::stream {
 
     protected:
         void initAcceptEvent() override {
-            if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE ||
-                config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
-                primaryPhysicalSocket = new PrimaryPhysicalSocket();
-                if (primaryPhysicalSocket->open(config->getSocketOptions(), PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
-                    onError(config->getLocalAddress(), errno);
-                    destruct();
-                } else if (primaryPhysicalSocket->bind(config->getLocalAddress()) < 0) {
-                    onError(config->getLocalAddress(), errno);
-                    destruct();
-                } else if (primaryPhysicalSocket->listen(config->getBacklog()) < 0) {
-                    onError(config->getLocalAddress(), errno);
-                    destruct();
-                } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
-                    VLOG(0) << config->getInstanceName() << " mode: PRIMARY";
+            if (!config->getDisabled()) {
+                if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE ||
+                    config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
+                    primaryPhysicalSocket = new PrimaryPhysicalSocket();
+                    if (primaryPhysicalSocket->open(config->getSocketOptions(), PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
+                        onError(config->getLocalAddress(), errno);
+                        destruct();
+                    } else if (primaryPhysicalSocket->bind(config->getLocalAddress()) < 0) {
+                        onError(config->getLocalAddress(), errno);
+                        destruct();
+                    } else if (primaryPhysicalSocket->listen(config->getBacklog()) < 0) {
+                        onError(config->getLocalAddress(), errno);
+                        destruct();
+                    } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
+                        VLOG(0) << config->getInstanceName() << " mode: PRIMARY";
+                        secondaryPhysicalSocket = new SecondarySocket();
+                        if (secondaryPhysicalSocket->open(std::map<int, core::socket::PhysicalSocketOption>(),
+                                                          SecondarySocket::Flags::NONBLOCK) < 0) {
+                            onError(config->getLocalAddress(), errno);
+                            destruct();
+                        } else if (secondaryPhysicalSocket->bind(
+                                       SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) < 0) {
+                            onError(config->getLocalAddress(), errno);
+                            destruct();
+                        } else {
+                            onError(config->getLocalAddress(), 0);
+                            enable(primaryPhysicalSocket->getFd());
+                        }
+                    } else {
+                        VLOG(0) << config->getInstanceName() << " mode: STANDALONE";
+                        onError(config->getLocalAddress(), 0);
+                        enable(primaryPhysicalSocket->getFd());
+                    }
+                } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
+                           config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
                     secondaryPhysicalSocket = new SecondarySocket();
                     if (secondaryPhysicalSocket->open(std::map<int, core::socket::PhysicalSocketOption>(),
                                                       SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
-                    } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) <
-                               0) {
+                    } else if (secondaryPhysicalSocket->bind(
+                                   SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
-                        onError(config->getLocalAddress(), 0);
-                        enable(primaryPhysicalSocket->getFd());
+                        VLOG(0) << config->getInstanceName() << " mode: SECONDARY or PROXY";
+                        onError(config->getLocalAddress(), errno);
+                        enable(secondaryPhysicalSocket->getFd());
                     }
-                } else {
-                    VLOG(0) << config->getInstanceName() << " mode: STANDALONE";
-                    onError(config->getLocalAddress(), 0);
-                    enable(primaryPhysicalSocket->getFd());
                 }
-            } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
-                       config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
-                secondaryPhysicalSocket = new SecondarySocket();
-                if (secondaryPhysicalSocket->open(std::map<int, core::socket::PhysicalSocketOption>(), SecondarySocket::Flags::NONBLOCK) <
-                    0) {
-                    onError(config->getLocalAddress(), errno);
-                    destruct();
-                } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) <
-                           0) {
-                    onError(config->getLocalAddress(), errno);
-                    destruct();
-                } else {
-                    VLOG(0) << config->getInstanceName() << " mode: SECONDARY or PROXY";
-                    onError(config->getLocalAddress(), errno);
-                    enable(secondaryPhysicalSocket->getFd());
-                }
+            } else {
+                destruct();
             }
         }
 

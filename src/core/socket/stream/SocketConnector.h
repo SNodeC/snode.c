@@ -80,19 +80,22 @@ namespace core::socket::stream {
 
     protected:
         void initConnectEvent() override {
-            physicalSocket = new PhysicalSocket();
-            if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                onError(config->getRemoteAddress(), errno);
-                destruct();
-            } else if (physicalSocket->bind(config->getLocalAddress()) < 0) {
-                onError(config->getRemoteAddress(), errno);
-                destruct();
-            } else if (physicalSocket->connect(config->getRemoteAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
-                onError(config->getRemoteAddress(), errno);
-                destruct();
+            if (!config->getDisabled()) {
+                physicalSocket = new PhysicalSocket();
+                if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+                    onError(config->getRemoteAddress(), errno);
+                    destruct();
+                } else if (physicalSocket->bind(config->getLocalAddress()) < 0) {
+                    onError(config->getRemoteAddress(), errno);
+                    destruct();
+                } else if (physicalSocket->connect(config->getRemoteAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
+                    onError(config->getRemoteAddress(), errno);
+                    destruct();
+                } else {
+                    enable(physicalSocket->getFd());
+                }
             } else {
-                onError(config->getRemoteAddress(), 0);
-                enable(physicalSocket->getFd());
+                destruct();
             }
         }
 

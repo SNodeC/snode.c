@@ -248,8 +248,7 @@ namespace utils {
                            ->take_last()
                            ->default_val("false")
                            ->type_name("bool")
-                           ->check(CLI::TypeValidator<bool>())
-                           ->force_callback();
+                           ->check(CLI::TypeValidator<bool>());
 
         app.add_flag("-k,--kill", "Kill running daemon") //
             ->configurable(false)
@@ -260,8 +259,7 @@ namespace utils {
                                                           "Logfile path") //
                          ->default_val(defaultLogDir + "/" + applicationName + ".log")
                          ->type_name("logfile")
-                         ->check(!CLI::ExistingDirectory)
-                         ->force_callback();
+                         ->check(!CLI::ExistingDirectory);
 
         enforceLogFileOpt = app.add_flag_function("-e,--enforce-log-file",
                                                   utils::ResetToDefault(enforceLogFileOpt),
@@ -269,22 +267,19 @@ namespace utils {
                                 ->take_last()
                                 ->default_val("false")
                                 ->type_name("bool")
-                                ->check(CLI::TypeValidator<bool>())
-                                ->force_callback();
+                                ->check(CLI::TypeValidator<bool>());
 
         logLevelOpt = app.add_option_function<std::string>("--log-level",
                                                            utils::ResetToDefault(logLevelOpt),
                                                            "Log level") //
                           ->default_val(3)
                           ->type_name("level")
-                          ->check(CLI::Range(0, 6))
-                          ->force_callback();
+                          ->check(CLI::Range(0, 6));
 
         verboseLevelOpt = app.add_option_function<std::string>("--verbose-level", utils::ResetToDefault(logFileOpt), "Verbose level") //
                               ->default_val(0)
                               ->type_name("level")
-                              ->check(CLI::Range(0, 10))
-                              ->force_callback();
+                              ->check(CLI::Range(0, 10));
 
         app.set_version_flag("--version", "0.9.8");
 

@@ -47,13 +47,13 @@ int main(int argc, char* argv[]) {
     webApp.addSniCerts(sniCerts);
 #endif
 
-    webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
+    webApp.listen([&webApp](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";
         } else if (errnum > 0) {
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            VLOG(0) << webApp.getConfig().getInstanceName() << " listening on " << socketAddress.toString();
         }
     });
 

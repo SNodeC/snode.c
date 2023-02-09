@@ -18,10 +18,14 @@
 
 #include "net/config/ConfigInstance.h"
 
+#include "utils/ResetToDefault.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/CLI11.hpp"
 #include "utils/Config.h"
+
+#include <stdexcept>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,6 +34,13 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& name)
         : name(name) {
         instanceSc = utils::Config::add_instance(name, "Configuration for instance '" + name + "'");
+
+        disabledOpt = instanceSc->add_flag_function("--disable", utils::ResetToDefault(disabledOpt), "Disable this instance")
+                          ->configurable(true)
+                          ->take_last()
+                          ->default_val("false")
+                          ->type_name("bool")
+                          ->check(CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
     }
 
     ConfigInstance::~ConfigInstance() {
@@ -82,6 +93,17 @@ namespace net::config {
             instanceSc //
                 ->required(reqired);
         }
+    }
+
+    bool ConfigInstance::getDisabled() const {
+        return disabledOpt->as<bool>();
+    }
+
+    void ConfigInstance::setDisabled(bool disabled) {
+        disabledOpt //
+            ->default_val(disabled ? "true" : "false")
+            ->take_all()
+            ->clear();
     }
 
 } // namespace net::config

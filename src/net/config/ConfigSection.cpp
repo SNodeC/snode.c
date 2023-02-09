@@ -59,8 +59,7 @@ namespace net::config {
     ConfigSection::add_option(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName) {
         opt = section //
                   ->add_option_function<std::string>(name, utils::ResetToDefault(opt), description)
-                  ->type_name(typeName)
-                  ->force_callback();
+                  ->type_name(typeName);
 
         return opt;
     }
@@ -79,8 +78,7 @@ namespace net::config {
         return opt = section //
                          ->add_flag_function(name, utils::ResetToDefault(opt), description)
                          ->type_name(typeName)
-                         ->take_last()
-                         ->force_callback();
+                         ->take_last();
     }
 
     CLI::Option* ConfigSection::add_flag(CLI::Option*& opt,

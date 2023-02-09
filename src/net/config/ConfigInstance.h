@@ -23,6 +23,7 @@
 
 namespace CLI {
     class App;
+    class Option;
 } // namespace CLI
 
 #include <string>
@@ -43,14 +44,18 @@ namespace net::config {
 
         const std::string& getInstanceName() const;
 
+        bool getDisabled() const;
+        void setDisabled(bool disabled = true);
+
     private:
         CLI::App* add_section(const std::string& name, const std::string& description);
 
         void required(bool req = true);
 
-        CLI::App* instanceSc = nullptr;
-
         const std::string name;
+
+        CLI::App* instanceSc = nullptr;
+        CLI::Option* disabledOpt = nullptr;
 
         friend class ConfigSection;
     };
