@@ -57,6 +57,9 @@ namespace net::config {
         CLI::App* instanceSc = nullptr;
         CLI::Option* disabledOpt = nullptr;
 
+        bool disableTriggered = false;
+        std::string disabledValue;
+
         friend class ConfigSection;
     };
 

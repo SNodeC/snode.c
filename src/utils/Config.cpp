@@ -197,8 +197,8 @@ namespace utils {
                         "#################################################################");
 
         app.footer("Application '" + applicationName +
-                   "' powered by\n"
-                   "SNode.C (C) 2019-2023 Volker Christian\n"
+                   "' powered by SNode.C\n"
+                   "(C) 2019-2023 Volker Christian\n"
                    "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
 
         app.option_defaults()->take_last();
