@@ -37,43 +37,36 @@ namespace net::config {
         : name(name) {
         instanceSc = utils::Config::add_instance(name, "Configuration for " + role + " instance '" + name + "'");
 
-        disabledOpt = instanceSc
-                          ->add_flag_function(
-                              "--disable",
-                              [this]([[maybe_unused]] int64_t count) -> void {
-                                  if (!disableTriggered) { // Run only once
-                                      if (disabledOpt->as<bool>()) {
-                                          disabledOpt->required(false);
+        disableOpt = instanceSc
+                         ->add_flag_function(
+                             "--disable",
+                             [this]([[maybe_unused]] int64_t count) -> void {
+                                 if (disableOpt->as<bool>()) {
+                                     disableOpt->required(false);
 
-                                          for (CLI::App* instance : instanceSc->get_subcommands([](CLI::App* instance) -> bool {
-                                                   return instance->get_required();
-                                               })) {
-                                              instance->required(false);
-                                          }
+                                     for (CLI::App* instance : instanceSc->get_subcommands([](CLI::App* instance) -> bool {
+                                              return instance->get_required();
+                                          })) {
+                                         instance->required(false);
+                                     }
 
-                                          for (CLI::Option* option : instanceSc->get_options([](CLI::Option* option) -> bool {
-                                                   return option->get_required();
-                                               })) {
-                                              option->required(false);
-                                          }
-                                      }
-
-                                      disabledValue = disabledOpt->as<std::string>();
-                                      disableTriggered = true;
-                                  }
-                              },
-                              "Disable this instance")
-                          ->trigger_on_parse()
-                          ->configurable(true)
-                          ->take_last()
-                          ->default_val("false")
-                          ->type_name("bool")
-                          ->check(CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+                                     for (CLI::Option* option : instanceSc->get_options([](CLI::Option* option) -> bool {
+                                              return option->get_required();
+                                          })) {
+                                         option->required(false);
+                                     }
+                                 }
+                             },
+                             "Disable this instance")
+                         ->trigger_on_parse()
+                         ->configurable(true)
+                         ->take_last()
+                         ->default_val("false")
+                         ->type_name("bool")
+                         ->check(CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
 
         instanceSc->final_callback([this]() -> void {
-            if (disableTriggered) {
-                (utils::ResetToDefault(disabledOpt))(disabledValue);
-            }
+            (utils::ResetToDefault(disableOpt))(disableOpt->as<std::string>());
         });
     }
 
@@ -130,12 +123,12 @@ namespace net::config {
     }
 
     bool ConfigInstance::getDisabled() const {
-        return disabledOpt //
+        return disableOpt //
             ->as<bool>();
     }
 
     void ConfigInstance::setDisabled(bool disabled) {
-        disabledOpt //
+        disableOpt //
             ->default_val(disabled ? "true" : "false")
             ->take_all()
             ->clear();

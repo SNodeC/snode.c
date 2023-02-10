@@ -55,10 +55,7 @@ namespace net::config {
         const std::string name;
 
         CLI::App* instanceSc = nullptr;
-        CLI::Option* disabledOpt = nullptr;
-
-        bool disableTriggered = false;
-        std::string disabledValue;
+        CLI::Option* disableOpt = nullptr;
 
         friend class ConfigSection;
     };
