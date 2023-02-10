@@ -304,7 +304,7 @@ namespace utils {
                 }
             });
 
-        bool ret = parse(); // for stopDaemon but do not act on -h or --help-all
+        bool ret = parse(); // for stopDaemon, logLevel and verboseLevel but do not act on -h or --help-all
 
         if (ret) {
             try {
@@ -496,10 +496,10 @@ namespace utils {
         try {
             app.parse(argc, argv);
         } catch (const CLI::ParseError& e) {
-            // Do not error here but in the second pass
-            // Just print a message about the error occured
             std::cout << "ParseError: " << e.what() << std::endl;
             std::cout << "Hint: In case you have used a multi argument option try adding '--' after the last option argument" << std::endl;
+
+            ret = false;
         }
 
         return ret;

@@ -61,8 +61,7 @@ namespace core {
         eventReceiver->onEvent(currentTime);
     }
 
-    EventReceiver *Event::getEventReceiver() const
-    {
+    EventReceiver* Event::getEventReceiver() const {
         return eventReceiver;
     }
 
