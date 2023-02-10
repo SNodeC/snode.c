@@ -30,7 +30,6 @@ namespace core::socket {
 #include "core/system/socket.h"
 
 #include <map>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
