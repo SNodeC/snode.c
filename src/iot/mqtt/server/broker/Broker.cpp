@@ -58,7 +58,7 @@ namespace iot::mqtt::server::broker {
 
                 LOG(TRACE) << "Persistent session data loaded successfull";
             } catch (const nlohmann::json::exception& e) {
-                LOG(WARNING) << "Starting with empty session: session store empty or corrupted";
+                LOG(TRACE) << "Starting with empty session: session store empty or corrupted";
                 LOG(TRACE) << sessionStoreFileName << ": " << e.what();
 
                 sessionStore.clear();
