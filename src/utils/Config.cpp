@@ -338,7 +338,7 @@ namespace utils {
                 throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::SHORT);
             } else if (app["--commandline-configured"]->count() > 0) {
                 throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::MEDIUM);
-            } else if (app["--commandline-long"]->count() > 0) {
+            } else if (app["--commandline-full"]->count() > 0) {
                 throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::LONG);
             } else {
                 if (app["--daemonize"]->as<bool>()) {
@@ -564,7 +564,7 @@ namespace utils {
                 std::cout << "Command line error: " << e.what() << std::endl;
                 throw;
             }
-        } catch (const CLI::Error&) {
+        } catch (const CLI::Error& e) {
             std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
         }
