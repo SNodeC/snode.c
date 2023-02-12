@@ -344,9 +344,7 @@ namespace utils {
                 if (app["--daemonize"]->as<bool>()) {
                     VLOG(0) << "Try Running as daemon";
 
-                    bool ret = utils::Daemon::startDaemon(defaultPidDir + "/" + applicationName + ".pid");
-
-                    if (ret) {
+                    if (utils::Daemon::startDaemon(defaultPidDir + "/" + applicationName + ".pid")) {
                         logger::Logger::quiet();
 
                         std::string logFile = logFileOpt->as<std::string>();
@@ -369,32 +367,28 @@ namespace utils {
     }
 
     void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
-        std::vector<CLI::Option*> appOptions = app->get_options();
+        for (const CLI::Option* option : app->get_options()) {
+            if (option->get_configurable()) {
+                std::string value;
 
-        if (!appOptions.empty()) {
-            for (const CLI::Option* option : appOptions) {
-                if (option->get_configurable()) {
-                    std::string value;
-
-                    if (option->reduced_results().size() > 0 && ((option->get_required() || mode == CLI::CallForCommandline::Mode::LONG) ||
-                                                                 mode == CLI::CallForCommandline::Mode::MEDIUM)) {
-                        value = option->reduced_results()[0];
-                    } else if (!option->get_default_str().empty()) {
-                        value = mode == CLI::CallForCommandline::Mode::LONG ? option->get_default_str() : "";
+                if (option->reduced_results().size() > 0 && ((option->get_required() || mode == CLI::CallForCommandline::Mode::LONG) ||
+                                                             mode == CLI::CallForCommandline::Mode::MEDIUM)) {
+                    value = option->reduced_results()[0];
+                } else if (!option->get_default_str().empty()) {
+                    value = mode == CLI::CallForCommandline::Mode::LONG ? option->get_default_str() : "";
+                } else {
+                    if (option->get_required()) {
+                        value = "<REQUIRED>";
                     } else {
-                        if (option->get_required()) {
-                            value = "<REQUIRED>";
-                        } else {
-                            value = mode == CLI::CallForCommandline::Mode::LONG ? "\"\"" : "";
-                        }
+                        value = mode == CLI::CallForCommandline::Mode::LONG ? "\"\"" : "";
                     }
+                }
 
-                    if (!value.empty()) {
-                        if (option->get_expected_min() == 0) {
-                            out << "--" << option->get_single_name() << "=" << value << " ";
-                        } else {
-                            out << "--" << option->get_single_name() << " " << value << " ";
-                        }
+                if (!value.empty()) {
+                    if (option->get_expected_min() == 0) {
+                        out << "--" << option->get_single_name() << "=" << value << " ";
+                    } else {
+                        out << "--" << option->get_single_name() << " " << value << " ";
                     }
                 }
             }
@@ -407,7 +401,6 @@ namespace utils {
         createCommandLineOptions(out, app, mode);
 
         std::string optionString = out.str();
-
         if (optionString.back() == ' ') {
             optionString.pop_back();
         }
@@ -418,11 +411,8 @@ namespace utils {
     std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
-        std::vector<CLI::App*> appSubcommands = app->get_subcommands({});
-        if (!appSubcommands.empty()) {
-            for (CLI::App* subcommand : appSubcommands) {
-                createCommandLineTemplate(out, subcommand, mode);
-            }
+        for (CLI::App* subcommand : app->get_subcommands()) {
+            createCommandLineTemplate(out, subcommand, mode);
         }
 
         return out.str();
@@ -435,8 +425,8 @@ namespace utils {
         if (!outString.empty()) {
             outString += " ";
         }
-        outString += createCommandLineSubcommands(app, mode);
 
+        outString += createCommandLineSubcommands(app, mode);
         if (!outString.empty()) {
             out << app->get_name() << " " << outString;
         }
@@ -448,7 +438,6 @@ namespace utils {
         createCommandLineTemplate(out, app, mode);
 
         std::string outString = out.str();
-
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
             outString = app->get_name() + " " + createCommandLineOptions(app, CLI::CallForCommandline::Mode::MEDIUM) + " " + outString;
@@ -549,10 +538,6 @@ namespace utils {
                     confFile.close();
                 }
                 std::cout << std::endl << app.get_footer() << std::endl;
-            } catch (const CLI::DaemonAlreadyRunningError& e) {
-                std::cout << e.what() << std::endl;
-                throw;
-
             } catch (const CLI::ConversionError& e) {
                 std::cout << "Conversion error: " << e.what() << std::endl;
                 throw;
@@ -564,7 +549,11 @@ namespace utils {
                 std::cout << "Command line error: " << e.what() << std::endl;
                 throw;
             }
+        } catch (const CLI::ParseError& e) {
+            std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+            std::cout << std::endl << app.get_footer() << std::endl;
         } catch (const CLI::Error& e) {
+            std::cout << "Error: " << e.what() << std::endl;
             std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
         }
