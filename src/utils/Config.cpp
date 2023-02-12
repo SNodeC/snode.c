@@ -484,10 +484,15 @@ namespace utils {
 
         try {
             app.parse(argc, argv);
+        } catch (const CLI::CallForHelp& e) {
+            // Do not process --help here but on second parse pass
+        } catch (const CLI::CallForAllHelp& e) {
+            // Do not process --help-all here but on second parse pass
+        } catch (const CLI::CallForVersion& e) {
+            // Do not process --version here but on second parse pass
         } catch (const CLI::ParseError& e) {
             std::cout << "ParseError: " << e.what() << std::endl;
             std::cout << "Hint: In case you have used a multi argument option try adding '--' after the last option argument" << std::endl;
-
             ret = false;
         }
 
@@ -503,11 +508,12 @@ namespace utils {
                 app.parse(argc, argv);
                 ret = true;
             } catch (const CLI::CallForHelp& e) {
-                app.exit(e);
                 std::cout << app.help();
             } catch (const CLI::CallForAllHelp& e) {
-                app.exit(e);
                 std::cout << app.help("", CLI::AppFormatMode::All);
+            } catch (const CLI::CallForVersion& e) {
+                std::cout << "SNode.C-Version: " << app.version() << std::endl;
+                throw;
             } catch (const CLI::CallForCommandline& e) {
                 std::cout << e.what();
                 if (e.getMode() == CLI::CallForCommandline::Mode::LONG) {
