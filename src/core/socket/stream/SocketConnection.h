@@ -45,6 +45,8 @@ namespace core::socket::stream {
     public:
         core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
+        bool isValid();
+
     protected:
         core::socket::stream::SocketContext* setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
@@ -58,7 +60,7 @@ namespace core::socket::stream {
               template <typename PhysicalSocket>
               class SocketWriterT>
     class SocketConnectionT
-        : protected SocketConnection
+        : public SocketConnection
         , protected SocketReaderT<PhysicalSocketT>
         , protected SocketWriterT<PhysicalSocketT> {
     protected:
@@ -102,18 +104,20 @@ namespace core::socket::stream {
             , onDisconnect(onDisconnect) {
             SocketConnectionT::Descriptor::open(fd);
 
-            setSocketContext(socketContextFactory.get());
-
-            SocketReader::enable(fd);
-            SocketWriter::enable(fd);
-            SocketWriter::suspend();
+            if (setSocketContext(socketContextFactory.get()) != nullptr) {
+                SocketReader::enable(fd);
+                SocketWriter::enable(fd);
+                SocketWriter::suspend();
+            }
         }
 
         ~SocketConnectionT() override {
-            onDisconnected();
-            onDisconnect();
+            if (socketContext != nullptr) {
+                onDisconnected();
+                onDisconnect();
 
-            delete socketContext;
+                delete socketContext;
+            }
         }
 
     public:

@@ -37,8 +37,18 @@ namespace core::socket::stream {
         return newSocketContext;
     }
 
+    bool SocketConnection::isValid() {
+        return socketContext != nullptr;
+    }
+
     SocketContext* SocketConnection::setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
-        return socketContext = socketContextFactory->create(this);
+        socketContext = socketContextFactory->create(this);
+
+        if (socketContext == nullptr) {
+            VLOG(0) << "Set socket context unsuccessull: new socket context not created";
+        }
+
+        return socketContext;
     }
 
 } // namespace core::socket::stream

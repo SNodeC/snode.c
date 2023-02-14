@@ -79,9 +79,9 @@ namespace core::socket::stream::tls {
             return ssl;
         }
 
-    private:
         ~SocketConnection() override = default;
 
+    private:
         SSL* startSSL(SSL_CTX* ctx, const utils::Timeval& initTimeout, const utils::Timeval& shutdownTimeout) {
             this->initTimeout = initTimeout;
             this->shutdownTimeout = shutdownTimeout;

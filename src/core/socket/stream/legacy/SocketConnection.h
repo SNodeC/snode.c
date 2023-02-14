@@ -72,7 +72,6 @@ namespace core::socket::stream::legacy {
                   terminateTimeout) {
         }
 
-    private:
         ~SocketConnection() override = default;
 
         template <typename ServerSocket>

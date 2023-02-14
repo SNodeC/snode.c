@@ -56,7 +56,9 @@ namespace core::socket::stream {
             setTimeout(timeout);
         }
 
-        ~SocketWriter() override = default;
+        ~SocketWriter() override { // = default;
+            VLOG(0) << "SocketWriter";
+        }
 
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;

@@ -21,7 +21,8 @@
 
 namespace core::socket::stream {
     class SocketContextFactory;
-}
+    class SocketConnection;
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,28 +58,38 @@ namespace core::socket::stream {
         using Config = typename SocketRole::Config;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
-        void create(PhysicalSocket& physicalSocket, const std::shared_ptr<Config>& config) {
+        bool create(PhysicalSocket& physicalSocket, const std::shared_ptr<Config>& config) {
+            SocketConnection* socketConnection = nullptr;
+
             if (physicalSocket.isValid()) {
-                physicalSocket.dontClose();
                 SocketAddress localAddress{};
                 SocketAddress remoteAddress{};
                 if (physicalSocket.getSockname(localAddress) == 0 && physicalSocket.getPeername(remoteAddress) == 0) {
-                    SocketConnection* socketConnection = new SocketConnection(physicalSocket.getFd(),
-                                                                              socketContextFactory,
-                                                                              localAddress,
-                                                                              remoteAddress,
-                                                                              onDisconnect,
-                                                                              config->getReadTimeout(),
-                                                                              config->getWriteTimeout(),
-                                                                              config->getReadBlockSize(),
-                                                                              config->getWriteBlockSize(),
-                                                                              config->getTerminateTimeout());
-                    onConnect(socketConnection);
-                    onConnected(socketConnection);
+                    physicalSocket.dontClose();
+
+                    socketConnection = new SocketConnection(physicalSocket.getFd(),
+                                                            socketContextFactory,
+                                                            localAddress,
+                                                            remoteAddress,
+                                                            onDisconnect,
+                                                            config->getReadTimeout(),
+                                                            config->getWriteTimeout(),
+                                                            config->getReadBlockSize(),
+                                                            config->getWriteBlockSize(),
+                                                            config->getTerminateTimeout());
+                    if (socketConnection->core::socket::stream::SocketConnection::isValid()) {
+                        onConnect(socketConnection);
+                        onConnected(socketConnection);
+                    } else {
+                        delete socketConnection;
+                        socketConnection = nullptr;
+                    }
                 } else {
                     PLOG(ERROR) << "getsockname";
                 }
             }
+
+            return socketConnection != nullptr;
         }
 
     protected:

@@ -107,13 +107,12 @@ namespace core::socket::stream {
                 if (!physicalSocket->connectInProgress(cErrno)) {
                     if (cErrno == 0) {
                         disable();
-                        socketConnectionFactory.create(*physicalSocket, config);
-                        errno = errno == 0 ? cErrno : errno;
-                        onError(config->getRemoteAddress(), errno);
+                        if (socketConnectionFactory.create(*physicalSocket, config)) {
+                            errno = errno == 0 ? cErrno : errno;
+                            onError(config->getRemoteAddress(), errno);
+                        }
                     } else {
                         disable();
-                        errno = errno == 0 ? cErrno : errno;
-                        onError(config->getRemoteAddress(), errno);
                     }
                 } else {
                     // Do nothing: connect() still in progress
