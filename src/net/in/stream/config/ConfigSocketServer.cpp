@@ -22,6 +22,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
+
+#include <memory>
+#include <stdexcept>
+#include <sys/socket.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in::stream::config {
@@ -29,6 +35,31 @@ namespace net::in::stream::config {
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::stream::config::ConfigSocketServer<net::in::config::ConfigAddress>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
+        add_socket_option(reusePortOpt,
+                          "--reuse-port",
+                          SOL_SOCKET,
+                          SO_REUSEPORT,
+                          "Reuse socket address",
+                          "bool",
+                          "false",
+                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+    }
+
+    void ConfigSocketServer::setReusePort(bool reusePort) {
+        if (reusePort) {
+            addSocketOption(SO_REUSEPORT, SOL_SOCKET);
+        } else {
+            removeSocketOption(SO_REUSEPORT);
+        }
+
+        reusePortOpt //
+            ->default_val(reusePort ? "true" : "false")
+            ->take_all()
+            ->clear();
+    }
+
+    bool ConfigSocketServer::getReusePort() {
+        return reusePortOpt->as<bool>();
     }
 
 } // namespace net::in::stream::config

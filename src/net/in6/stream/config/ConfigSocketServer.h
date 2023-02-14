@@ -41,10 +41,14 @@ namespace net::in6::stream::config {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
+        void setReusePort(bool reusePort = true);
+        bool getReusePort();
+
         void setIPv6Only(bool iPv6Only = true);
         bool getIPv6Only();
 
     private:
+        CLI::Option* reusePortOpt = nullptr;
         CLI::Option* iPv6OnlyOpt = nullptr;
     };
 

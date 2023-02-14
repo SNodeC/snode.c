@@ -27,6 +27,7 @@
 #include <netinet/in.h>
 #include <stdexcept>
 #include <string>
+#include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,6 +36,14 @@ namespace net::in6::stream::config {
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::stream::config::ConfigSocketServer<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
+        add_socket_option(reusePortOpt,
+                          "--reuse-port",
+                          SOL_SOCKET,
+                          SO_REUSEPORT,
+                          "Reuse socket address",
+                          "bool",
+                          "false",
+                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
 
         add_socket_option(iPv6OnlyOpt,
                           "--ipv6-only",
@@ -44,6 +53,23 @@ namespace net::in6::stream::config {
                           "bool",
                           "false",
                           CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+    }
+
+    void ConfigSocketServer::setReusePort(bool reusePort) {
+        if (reusePort) {
+            addSocketOption(SO_REUSEPORT, SOL_SOCKET);
+        } else {
+            removeSocketOption(SO_REUSEPORT);
+        }
+
+        reusePortOpt //
+            ->default_val(reusePort ? "true" : "false")
+            ->take_all()
+            ->clear();
+    }
+
+    bool ConfigSocketServer::getReusePort() {
+        return reusePortOpt->as<bool>();
     }
 
     void ConfigSocketServer::setIPv6Only(bool iPv6Only) {

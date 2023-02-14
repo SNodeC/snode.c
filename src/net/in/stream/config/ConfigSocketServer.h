@@ -29,6 +29,10 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace CLI {
+    class Option;
+}
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in::stream::config {
@@ -36,6 +40,12 @@ namespace net::in::stream::config {
     class ConfigSocketServer : public net::stream::config::ConfigSocketServer<net::in::config::ConfigAddress> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+
+        void setReusePort(bool reusePort = true);
+        bool getReusePort();
+
+    private:
+        CLI::Option* reusePortOpt = nullptr;
     };
 } // namespace net::in::stream::config
 
