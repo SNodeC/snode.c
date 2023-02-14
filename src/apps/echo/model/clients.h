@@ -34,7 +34,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>
 #include <string>
 
 #if (STREAM_TYPE == TLS) // tls
