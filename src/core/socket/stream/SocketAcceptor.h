@@ -153,27 +153,27 @@ namespace core::socket::stream {
         void acceptEvent() override {
             if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE ||
                 config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
-                PrimaryPhysicalSocket socket;
+                PrimaryPhysicalSocket physicalSocket;
 
                 int acceptsPerTick = config->getAcceptsPerTick();
 
                 do {
                     SocketAddress remoteAddress{};
-                    socket = primaryPhysicalSocket->accept4(remoteAddress, SOCK_NONBLOCK);
-                    if (socket.isValid()) {
+                    physicalSocket = primaryPhysicalSocket->accept4(remoteAddress, SOCK_NONBLOCK);
+                    if (physicalSocket.isValid()) {
                         if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE) {
-                            socketConnectionFactory.create(socket, config);
+                            socketConnectionFactory.create(physicalSocket, config);
                         } else {
                             // Send descriptor to SECONDARY
                             VLOG(0) << "Sending to secondary";
                             secondaryPhysicalSocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName()),
-                                                            socket.getFd());
+                                                            physicalSocket.getFd());
                             SecondarySocket::SocketAddress address;
                         }
                     } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                         PLOG(ERROR) << "accept";
                     }
-                } while (--acceptsPerTick > 0 && socket.isValid());
+                } while (--acceptsPerTick > 0 && physicalSocket.isValid());
             } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
                        config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
                 // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
