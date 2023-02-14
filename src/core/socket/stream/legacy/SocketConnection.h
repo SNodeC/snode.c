@@ -72,8 +72,6 @@ namespace core::socket::stream::legacy {
                   terminateTimeout) {
         }
 
-        ~SocketConnection() override = default;
-
         template <typename ServerSocket>
         friend class SocketAcceptor;
 

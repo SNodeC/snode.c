@@ -53,9 +53,9 @@ namespace web::websocket {
         SubProtocol* createSubProtocol(SubProtocolContext* subProtocolContext) {
             SubProtocol* subProtocol = create(subProtocolContext);
 
-            if (subProtocol != nullptr) {
-                refCount++;
-            }
+            //            if (subProtocol != nullptr) {
+            refCount++;
+            //            }
 
             return subProtocol;
         }

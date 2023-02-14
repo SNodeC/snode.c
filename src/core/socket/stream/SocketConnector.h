@@ -113,6 +113,8 @@ namespace core::socket::stream {
                         }
                     } else {
                         disable();
+                        errno = cErrno;
+                        onError(config->getRemoteAddress(), errno);
                     }
                 } else {
                     // Do nothing: connect() still in progress
