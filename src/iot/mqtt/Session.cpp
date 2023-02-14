@@ -21,10 +21,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <nlohmann/json.hpp>
-#include <utility>
+#include <type_traits>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

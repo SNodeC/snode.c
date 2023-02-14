@@ -283,10 +283,11 @@ namespace utils {
                           ->type_name("level")
                           ->check(CLI::Range(0, 6));
 
-        verboseLevelOpt = app.add_option_function<std::string>("--verbose-level", utils::ResetToDefault(logFileOpt), "Verbose level") //
-                              ->default_val(0)
-                              ->type_name("level")
-                              ->check(CLI::Range(0, 10));
+        verboseLevelOpt =
+            app.add_option_function<std::string>("--verbose-level", utils::ResetToDefault(verboseLevelOpt), "Verbose level") //
+                ->default_val(0)
+                ->type_name("level")
+                ->check(CLI::Range(0, 10));
 
         app.set_version_flag("--version", "0.9.8");
 
@@ -363,7 +364,8 @@ namespace utils {
             }
         });
 
-        return parse(app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0);
+        return parse(app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--commandline"]->count() == 0 &&
+                     app["--commandline-configured"]->count() == 0 && app["--commandline-full"]->count() == 0);
     }
 
     void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
@@ -411,7 +413,7 @@ namespace utils {
     std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
-        for (CLI::App* subcommand : app->get_subcommands()) {
+        for (CLI::App* subcommand : app->get_subcommands({})) {
             createCommandLineTemplate(out, subcommand, mode);
         }
 
@@ -490,6 +492,8 @@ namespace utils {
             // Do not process --help-all here but on second parse pass
         } catch (const CLI::CallForVersion& e) {
             // Do not process --version here but on second parse pass
+        } catch (const CLI::CallForCommandline& e) {
+            // Do not process --commandline here but on second parse pass
         } catch (const CLI::ParseError& e) {
             std::cout << "ParseError: " << e.what() << std::endl;
             std::cout << "Hint: In case you have used a multi argument option try adding '--' after the last option argument" << std::endl;
@@ -502,11 +506,36 @@ namespace utils {
     bool Config::parse(bool stopOnError) {
         bool ret = false;
 
-        Config::app.allow_extras(!stopOnError)->allow_config_extras(!stopOnError);
+        Config::app //
+            .allow_extras(!stopOnError)
+            ->allow_config_extras(!stopOnError);
+
         try {
             try {
-                app.parse(argc, argv);
-                ret = true;
+                try {
+                    app.parse(argc, argv);
+                    ret = true;
+                } catch (const CLI::ParseError& e) {
+                    if (!stopOnError) {
+                        if (app["--show-config"]->count() > 0) {
+                            throw CLI::CallForShowConfig();
+                        } else if (app["--write-config"]->count() > 0) {
+                            throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
+                        } else if (app["--commandline"]->count() > 0) {
+                            throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::SHORT);
+                        } else if (app["--commandline-configured"]->count() > 0) {
+                            throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::MEDIUM);
+                        } else if (app["--commandline-full"]->count() > 0) {
+                            throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::LONG);
+                        } else if (app["--help"]->count() > 0) {
+                            throw CLI::CallForHelp();
+                        } else if (app["--help-all"]->count() > 0) {
+                            throw CLI::CallForAllHelp();
+                        }
+                    } else {
+                        throw;
+                    }
+                }
             } catch (const CLI::CallForHelp& e) {
                 std::cout << app.help();
             } catch (const CLI::CallForAllHelp& e) {
