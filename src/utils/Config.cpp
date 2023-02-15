@@ -486,13 +486,13 @@ namespace utils {
 
         try {
             app.parse(argc, argv);
-        } catch (const CLI::CallForHelp& e) {
+        } catch (const CLI::CallForHelp&) {
             // Do not process --help here but on second parse pass
-        } catch (const CLI::CallForAllHelp& e) {
+        } catch (const CLI::CallForAllHelp&) {
             // Do not process --help-all here but on second parse pass
-        } catch (const CLI::CallForVersion& e) {
+        } catch (const CLI::CallForVersion&) {
             // Do not process --version here but on second parse pass
-        } catch (const CLI::CallForCommandline& e) {
+        } catch (const CLI::CallForCommandline&) {
             // Do not process --commandline here but on second parse pass
         } catch (const CLI::ParseError& e) {
             std::cout << "ParseError: " << e.what() << std::endl;
@@ -515,7 +515,7 @@ namespace utils {
                 try {
                     app.parse(argc, argv);
                     ret = true;
-                } catch (const CLI::ParseError& e) {
+                } catch (const CLI::ParseError&) {
                     if (!stopOnError) {
                         if (app["--show-config"]->count() > 0) {
                             throw CLI::CallForShowConfig();
@@ -536,11 +536,11 @@ namespace utils {
                         throw;
                     }
                 }
-            } catch (const CLI::CallForHelp& e) {
+            } catch (const CLI::CallForHelp&) {
                 std::cout << app.help();
-            } catch (const CLI::CallForAllHelp& e) {
+            } catch (const CLI::CallForAllHelp&) {
                 std::cout << app.help("", CLI::AppFormatMode::All);
-            } catch (const CLI::CallForVersion& e) {
+            } catch (const CLI::CallForVersion&) {
                 std::cout << "SNode.C-Version: " << app.version() << std::endl;
                 throw;
             } catch (const CLI::CallForCommandline& e) {
@@ -584,7 +584,7 @@ namespace utils {
                 std::cout << "Command line error: " << e.what() << std::endl;
                 throw;
             }
-        } catch (const CLI::ParseError& e) {
+        } catch (const CLI::ParseError&) {
             std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
         } catch (const CLI::Error& e) {
