@@ -81,6 +81,7 @@ namespace web::websocket {
                              Role role)
             : Super(socketConnection, socketContextUpgradeFactory)
             , web::websocket::SubProtocolContext(role == Role::CLIENT)
+            , subProtocolFactory(subProtocolFactory)
             , subProtocol(subProtocolFactory->createSubProtocol(this)) {
         }
 
@@ -278,6 +279,7 @@ namespace web::websocket {
         }
 
     protected:
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;
         SubProtocol* subProtocol = nullptr;
 
     private:

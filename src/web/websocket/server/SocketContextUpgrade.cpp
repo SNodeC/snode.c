@@ -19,7 +19,7 @@
 #include "web/websocket/server/SocketContextUpgrade.h"
 
 #include "web/websocket/SubProtocolFactory.h"
-#include "web/websocket/server/SubProtocol.h"
+#include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -58,13 +58,8 @@ namespace web::websocket::server {
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {
-        if (subProtocol != nullptr) {
-            web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
-                SubProtocolFactorySelector::instance()->select(subProtocol->getName());
-
-            if (subProtocolFactory != nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
-                SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
-            }
+        if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
+            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
     }
 

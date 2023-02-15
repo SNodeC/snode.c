@@ -29,8 +29,6 @@ namespace web::websocket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -53,9 +51,9 @@ namespace web::websocket {
         SubProtocol* createSubProtocol(SubProtocolContext* subProtocolContext) {
             SubProtocol* subProtocol = create(subProtocolContext);
 
-            //            if (subProtocol != nullptr) {
-            refCount++;
-            //            }
+            if (subProtocol != nullptr) {
+                refCount++;
+            }
 
             return subProtocol;
         }
@@ -65,9 +63,11 @@ namespace web::websocket {
 
     public:
         virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {
-            delete subProtocol;
+            if (subProtocol != nullptr) {
+                delete subProtocol;
 
-            refCount--;
+                refCount--;
+            }
 
             return refCount;
         }
