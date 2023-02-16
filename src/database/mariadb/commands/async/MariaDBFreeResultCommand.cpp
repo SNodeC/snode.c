@@ -33,6 +33,12 @@ namespace database::mariadb::commands::async {
         , onFreeResult(onFreeResult) {
     }
 
+    MariaDBFreeResultCommand::~MariaDBFreeResultCommand() {
+        if (result != nullptr) {
+            mysql_free_result(result);
+        }
+    }
+
     int MariaDBFreeResultCommand::commandStart() {
         int ret = 0;
 
@@ -49,6 +55,8 @@ namespace database::mariadb::commands::async {
 
     bool MariaDBFreeResultCommand::commandCompleted() {
         onFreeResult();
+
+        result = nullptr;
 
         return true;
     }

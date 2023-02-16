@@ -36,6 +36,8 @@ namespace database::mariadb::commands::sync {
         MariaDBUseResultCommand(const std::function<void(MYSQL_RES*)>& onUseResult,
                                 const std::function<void(const std::string&, unsigned int)>& onError);
 
+        ~MariaDBUseResultCommand();
+
     private:
         int commandStart() override;
         bool commandCompleted() override;

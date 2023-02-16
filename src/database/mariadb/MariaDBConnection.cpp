@@ -19,6 +19,7 @@
 
 #include "database/mariadb/MariaDBConnection.h"
 
+#include "core/SNodeC.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/commands/async/MariaDBConnectCommand.h"
 
@@ -76,7 +77,9 @@ namespace database::mariadb {
     MariaDBConnection::~MariaDBConnection() {
         for (MariaDBCommandSequence& mariaDBCommandSequence : commandSequenceQueue) {
             for (MariaDBCommand* mariaDBCommand : mariaDBCommandSequence.sequence()) {
-                mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+                if (core::SNodeC::state() == core::State::RUNNING) {
+                    mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+                }
 
                 delete mariaDBCommand;
             }
@@ -249,6 +252,10 @@ namespace database::mariadb {
 
     void MariaDBCommandStartEvent::span() {
         core::EventReceiver::span();
+    }
+
+    void MariaDBCommandStartEvent::destruct() {
+        delete mariaDBConnection;
     }
 
     void MariaDBCommandStartEvent::onEvent(const utils::Timeval& currentTime) {

@@ -36,6 +36,7 @@ namespace database::mariadb::commands::async {
         MariaDBFreeResultCommand(MYSQL_RES*& result,
                                  const std::function<void(void)>& onFreeResult,
                                  const std::function<void(const std::string&, unsigned int)>& onError);
+        ~MariaDBFreeResultCommand();
 
     private:
         int commandStart() override;

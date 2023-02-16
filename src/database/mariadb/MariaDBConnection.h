@@ -51,6 +51,8 @@ namespace database::mariadb {
 
         void span();
 
+        void destruct() override;
+
     private:
         void onEvent(const utils::Timeval& currentTime) override;
 
