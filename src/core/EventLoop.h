@@ -19,6 +19,7 @@
 #ifndef CORE_EVENTLOOP_H
 #define CORE_EVENTLOOP_H
 
+#include "core/State.h"
 #include "core/TickStatus.h"
 
 namespace core {
@@ -58,17 +59,18 @@ namespace core {
         static void stop();
         static void free();
 
+        static core::State state();
+
         static void stoponsig(int sig);
 
         core::EventMultiplexer& eventMultiplexer;
 
     private:
-        static bool running;
-        static bool stopped;
         static int stopsig;
-        static bool initialized;
 
         static unsigned long tickCounter;
+
+        static core::State eventLoopState;
 
         friend class SNodeC;
     };

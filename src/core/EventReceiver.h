@@ -37,7 +37,7 @@ namespace core {
     public:
         EventReceiver(const std::string& name);
 
-        void destruct();
+        virtual void destruct();
 
     protected:
         virtual ~EventReceiver() = default;

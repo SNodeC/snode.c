@@ -50,4 +50,8 @@ namespace express {
         core::SNodeC::free();
     }
 
+    core::State WebApp::state() {
+        return core::SNodeC::state();
+    }
+
 } // namespace express

@@ -40,11 +40,9 @@ core::EventMultiplexer& EventMultiplexer();
 
 namespace core {
 
-    bool EventLoop::initialized = false;
-    bool EventLoop::running = false;
-    bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
     unsigned long EventLoop::tickCounter = 0;
+    core::State EventLoop::eventLoopState = State::LOADED;
 
     static std::string getTickCounterAsString(const el::LogMessage*) {
         std::string tick = std::to_string(EventLoop::getTickCounter());
@@ -80,9 +78,11 @@ namespace core {
     bool EventLoop::init(int argc, char* argv[]) {
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
-        EventLoop::initialized = utils::Config::init(argc, argv);
+        if (utils::Config::init(argc, argv)) {
+            eventLoopState = State::INITIALIZED;
+        }
 
-        return EventLoop::initialized;
+        return eventLoopState == State::INITIALIZED;
     }
 
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
@@ -92,7 +92,7 @@ namespace core {
     }
 
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
-        if (!initialized) {
+        if (!(eventLoopState == State::INITIALIZED)) {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
             exit(1);
         }
@@ -107,9 +107,7 @@ namespace core {
     }
 
     int EventLoop::start(const utils::Timeval& timeOut) {
-        int returnReason = 0;
-
-        if (initialized && utils::Config::bootstrap()) {
+        if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
             struct sigaction sact {};
             sigemptyset(&sact.sa_mask);
             sact.sa_flags = 0;
@@ -133,29 +131,28 @@ namespace core {
             struct sigaction oldHupAct {};
             sigaction(SIGHUP, &sact, &oldHupAct);
 
-            if (!running) {
-                running = true;
-                stopped = false;
+            eventLoopState = State::RUNNING;
 
-                core::TickStatus tickStatus = TickStatus::SUCCESS;
+            core::TickStatus tickStatus = TickStatus::SUCCESS;
 
-                while (tickStatus == TickStatus::SUCCESS && !stopped) {
-                    tickStatus = EventLoop::instance()._tick(timeOut);
-                }
+            while (tickStatus == TickStatus::SUCCESS && eventLoopState == State::RUNNING) {
+                tickStatus = EventLoop::instance()._tick(timeOut);
+            }
 
-                switch (tickStatus) {
-                    case TickStatus::SUCCESS:
-                        LOG(INFO) << "EventLoop terminated: Releasing resources";
-                        break;
-                    case TickStatus::NO_OBSERVER:
-                        LOG(INFO) << "EventLoop: No Observer - exiting";
-                        break;
-                    case TickStatus::ERROR:
-                        PLOG(ERROR) << "EventPublisher::span()";
-                        break;
-                }
+            switch (tickStatus) {
+                case TickStatus::SUCCESS:
+                    LOG(INFO) << "EventLoop terminated: Releasing resources";
+                    break;
+                case TickStatus::NO_OBSERVER:
+                    LOG(INFO) << "EventLoop: No Observer - exiting";
+                    break;
+                case TickStatus::ERROR:
+                    PLOG(ERROR) << "EventPublisher::span()";
+                    break;
+            }
 
-                running = false;
+            if (eventLoopState == State::RUNNING) {
+                eventLoopState = State::STOPING;
             }
 
             sigaction(SIGPIPE, &oldPipeAct, nullptr);
@@ -163,21 +160,17 @@ namespace core {
             sigaction(SIGTERM, &oldTermAct, nullptr);
             sigaction(SIGALRM, &oldAlarmAct, nullptr);
             sigaction(SIGHUP, &oldHupAct, nullptr);
-
-            free();
-
-            if (stopsig != 0) {
-                returnReason = -stopsig;
-            }
         } else {
             EventLoop::instance().eventMultiplexer.deletePublishedEvents();
         }
 
-        return returnReason;
+        free();
+
+        return -stopsig;
     }
 
     void EventLoop::stop() {
-        stopped = true;
+        eventLoopState = State::EXITING;
     }
 
     void EventLoop::free() {
@@ -197,6 +190,10 @@ namespace core {
         utils::Config::terminate();
 
         LOG(INFO) << "All resources released";
+    }
+
+    State EventLoop::state() {
+        return eventLoopState;
     }
 
     void EventLoop::stoponsig(int sig) {

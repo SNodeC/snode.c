@@ -50,4 +50,8 @@ namespace core {
         EventLoop::free();
     }
 
+    State SNodeC::state() {
+        return EventLoop::state();
+    }
+
 } // namespace core

@@ -19,6 +19,7 @@
 #ifndef EXPRESS_WEBAPP_H
 #define EXPRESS_WEBAPP_H
 
+#include "core/State.h"
 #include "core/TickStatus.h"
 #include "express/Router.h" // IWYU pragma: export
 
@@ -42,6 +43,8 @@ namespace express {
         static void stop();
         static core::TickStatus tick(const utils::Timeval& timeOut = 0);
         static void free();
+
+        static core::State state();
     };
 
 } // namespace express

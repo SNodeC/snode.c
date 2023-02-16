@@ -16,38 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SNODEC_H
-#define CORE_SNODEC_H
-
-#include "core/State.h"      // IWYU pragma: export
-#include "core/TickStatus.h" // IWYU pragma: export
+#ifndef CORE_STATE_H
+#define CORE_STATE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
-
-#include <climits>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace core {
 
-    class SNodeC {
-    public:
-        SNodeC() = delete;
-        ~SNodeC() = delete;
-
-        void* operator new(std::size_t count) = delete;
-
-        static void init(int argc, char* argv[]);
-        static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
-        static void stop();
-        static TickStatus tick(const utils::Timeval& timeOut = 0);
-        static void free();
-
-        static State state();
-    };
+    enum class State { LOADED, INITIALIZED, RUNNING, STOPING, EXITING };
 
 } // namespace core
 
-#endif // CORE_SNODEC_H
+#endif // CORE_STATE_H

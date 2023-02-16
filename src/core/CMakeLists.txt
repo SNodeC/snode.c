@@ -10,6 +10,7 @@ set(CORE_CPP
     EventMultiplexer.cpp
     EventReceiver.cpp
     SNodeC.cpp
+    State.h
     Timer.cpp
     TimerEventPublisher.cpp
     TimerEventReceiver.cpp
