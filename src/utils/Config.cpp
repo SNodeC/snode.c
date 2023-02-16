@@ -414,7 +414,9 @@ namespace utils {
         std::stringstream out;
 
         for (CLI::App* subcommand : app->get_subcommands({})) {
-            createCommandLineTemplate(out, subcommand, mode);
+            if (!subcommand->get_name().empty()) {
+                createCommandLineTemplate(out, subcommand, mode);
+            }
         }
 
         return out.str();
@@ -587,6 +589,7 @@ namespace utils {
         } catch (const CLI::ParseError&) {
             std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
+            //            ret = false;
         } catch (const CLI::Error& e) {
             std::cout << "Error: " << e.what() << std::endl;
             std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
