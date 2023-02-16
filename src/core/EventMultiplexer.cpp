@@ -218,6 +218,8 @@ namespace core {
         for (Event* event : *executeQueue) {
             event->getEventReceiver()->destruct();
         }
+
+        executeQueue->clear();
     }
 
 } // namespace core
