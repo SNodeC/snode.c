@@ -593,8 +593,8 @@ namespace utils {
         }
     }
 
-    CLI::App* Config::add_instance(const std::string& name, [[maybe_unused]] const std::string& description) {
-        CLI::App* instance = app.add_subcommand(name, "") //
+    CLI::App* Config::add_instance(const std::string& name, const std::string& description) {
+        CLI::App* instance = app.add_subcommand(name, description) //
                                  ->configurable(false)
                                  ->allow_extras(false)
                                  ->formatter(sectionFormatter)

@@ -199,12 +199,6 @@ namespace core::socket::stream {
         }
 
     private:
-        int reuseAddress() {
-            int sockopt = 1;
-
-            return primaryPhysicalSocket->setSockopt(SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
-        }
-
         void unobservedEvent() override {
             destruct();
         }
