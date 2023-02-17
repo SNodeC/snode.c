@@ -10234,7 +10234,7 @@ public:                                                                         
                         } else if (opt->get_run_callback_for_default()) {
                             value = "\"\""; // empty string default value
                         } else if (opt->get_required()) {
-                            value = "REQUIRED";
+                            value = "\"<REQUIRED>\"";
                         } else {
                             value = "\"\"";
                         }

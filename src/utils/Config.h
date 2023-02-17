@@ -81,8 +81,8 @@ namespace utils {
         static int getVerboseLevel();
 
     private:
-        static bool parse();
-        static bool parse(bool stopOnError);
+        static void parse1();
+        static bool parse2();
 
         static CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
         static CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);

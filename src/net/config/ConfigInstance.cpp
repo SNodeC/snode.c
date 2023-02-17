@@ -42,8 +42,6 @@ namespace net::config {
                              "--disable",
                              [this]([[maybe_unused]] int64_t count) -> void {
                                  if (disableOpt->as<bool>()) {
-                                     disableOpt->required(false);
-
                                      for (CLI::App* instance : instanceSc->get_subcommands([](CLI::App* instance) -> bool {
                                               return instance->get_required();
                                           })) {
