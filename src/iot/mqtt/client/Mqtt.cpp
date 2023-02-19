@@ -52,24 +52,30 @@ namespace iot::mqtt::client {
 
     Mqtt::Mqtt()
         : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
-        std::ifstream sessionStoreFile(sessionStoreFileName);
+        if (!sessionStoreFileName.empty()) {
+            std::ifstream sessionStoreFile(sessionStoreFileName);
 
-        if (sessionStoreFile.is_open()) {
-            try {
-                nlohmann::json sessionStoreJson;
+            if (sessionStoreFile.is_open()) {
+                try {
+                    nlohmann::json sessionStoreJson;
 
-                sessionStoreFile >> sessionStoreJson;
-                session.fromJson(sessionStoreJson);
+                    sessionStoreFile >> sessionStoreJson;
 
-                LOG(TRACE) << "Persistent session data loaded successfull";
-            } catch (const nlohmann::json::exception& e) {
-                LOG(TRACE) << "Starting with empty session: session store empty or corrupted";
-                LOG(TRACE) << sessionStoreFileName << ": " << e.what();
+                    session.fromJson(sessionStoreJson);
 
-                session.clear();
+                    LOG(TRACE) << "Persistent session data loaded successfull";
+                } catch (const nlohmann::json::exception& e) {
+                    LOG(TRACE) << "Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
+
+                    session.clear();
+                }
+                sessionStoreFile.close();
+                std::remove(sessionStoreFileName.data());
+            } else {
+                PLOG(TRACE) << "Could not open session store '" << sessionStoreFileName << "'";
             }
-            sessionStoreFile.close();
-            std::remove(sessionStoreFileName.data());
+        } else {
+            LOG(INFO) << "Session not reloaded: Session store filename empty";
         }
     }
 
@@ -85,9 +91,11 @@ namespace iot::mqtt::client {
                 }
 
                 sessionStoreFile.close();
+            } else {
+                PLOG(TRACE) << "Could not open session store '" << sessionStoreFileName << "'";
             }
         } else {
-            LOG(INFO) << "Session not saved: Sessionstore filename empty";
+            LOG(INFO) << "Session not saved: Session store filename empty";
         }
 
         pingTimer.cancel();

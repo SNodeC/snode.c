@@ -42,32 +42,37 @@ namespace iot::mqtt::server::broker {
         , maxQoS(maxQoS)
         , subscribtionTree(this)
         , retainTree(this) {
-        nlohmann::json sessionStoreJson;
+        if (!sessionStoreFileName.empty()) {
+            std::ifstream sessionStoreFile(sessionStoreFileName);
 
-        std::ifstream sessionStoreFile(sessionStoreFileName);
+            if (sessionStoreFile.is_open()) {
+                try {
+                    nlohmann::json sessionStoreJson;
 
-        if (sessionStoreFile.is_open()) {
-            try {
-                sessionStoreFile >> sessionStoreJson;
+                    sessionStoreFile >> sessionStoreJson;
 
-                for (auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
-                    sessionStore[clientId].fromJson(sessionJson);
+                    for (auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
+                        sessionStore[clientId].fromJson(sessionJson);
+                    }
+                    retainTree.fromJson(sessionStoreJson["retain_tree"]);
+                    subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
+
+                    LOG(TRACE) << "Persistent session data loaded successfull";
+                } catch (const nlohmann::json::exception& e) {
+                    LOG(TRACE) << "Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
+
+                    sessionStore.clear();
+                    retainTree.clear();
+                    subscribtionTree.clear();
                 }
-                retainTree.fromJson(sessionStoreJson["retain_tree"]);
-                subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
 
-                LOG(TRACE) << "Persistent session data loaded successfull";
-            } catch (const nlohmann::json::exception& e) {
-                LOG(TRACE) << "Starting with empty session: session store empty or corrupted";
-                LOG(TRACE) << sessionStoreFileName << ": " << e.what();
-
-                sessionStore.clear();
-                retainTree.clear();
-                subscribtionTree.clear();
+                sessionStoreFile.close();
+                std::remove(sessionStoreFileName.data());
+            } else {
+                PLOG(TRACE) << "Could not open session store '" << sessionStoreFileName << "'";
             }
-
-            sessionStoreFile.close();
-            std::remove(sessionStoreFileName.data());
+        } else {
+            LOG(INFO) << "Session not reloaded: Session store filename empty";
         }
     }
 
@@ -99,9 +104,11 @@ namespace iot::mqtt::server::broker {
                 }
 
                 sessionStoreFile.close();
+            } else {
+                PLOG(TRACE) << "Could not open session store '" << sessionStoreFileName << "'";
             }
         } else {
-            LOG(INFO) << "Session not saved: Sessionstore filename empty";
+            LOG(INFO) << "Session not saved: Session store filename empty";
         }
     }
 
