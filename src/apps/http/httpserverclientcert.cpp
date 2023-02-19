@@ -28,7 +28,7 @@ using namespace express;
 
 int main(int argc, char* argv[]) {
     std::string webRoot;
-    utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
+    utils::Config::add_string_option("--web-root", webRoot, "Root directory of the web site", "[path]");
 
     WebApp::init(argc, argv);
 

@@ -51,24 +51,6 @@ namespace utils {
 
         static bool remove_instance(CLI::App* instance);
 
-        static void add_option(const std::string& name,
-                               std::string& variable,
-                               const std::string& description,
-                               bool required,
-                               const std::string& typeName = "[string]",
-                               const std::string& default_val = "",
-                               bool configurable = true,
-                               const std::string& groupName = "Application specific settings");
-
-        static void add_option(const std::string& name,
-                               int& variable,
-                               const std::string& description,
-                               bool required,
-                               const std::string& typeName = "[int]",
-                               int default_val = 0,
-                               bool configurable = true,
-                               const std::string& groupName = "Application specific settings");
-
         static void add_flag(const std::string& name,
                              bool& variable,
                              const std::string& description,
@@ -79,6 +61,33 @@ namespace utils {
         static std::string getApplicationName();
         static int getLogLevel();
         static int getVerboseLevel();
+
+        static void add_string_option(const std::string& name, const std::string& description, const std::string& typeName);
+
+        static void
+        add_string_option(const std::string& name, const std::string& description, const std::string& typeName, bool configurable);
+
+        static void add_string_option(const std::string& name,
+                                      const std::string& description,
+                                      const std::string& typeName,
+                                      const std::string& defaultValue,
+                                      bool configurable);
+
+        static void add_string_option(const std::string& name,
+                                      const std::string& description,
+                                      const std::string& typeName,
+                                      const std::string& defaultValue);
+
+        static void add_string_option(const std::string& name,
+                                      const std::string& description,
+                                      const std::string& typeName,
+                                      const char* defaultValue,
+                                      bool configurable);
+
+        static void
+        add_string_option(const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue);
+
+        static std::string get_string_option_value(const std::string& name);
 
     private:
         static void parse1();
@@ -107,7 +116,8 @@ namespace utils {
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
-        static std::map<std::string, std::string> prefixMap; // from -> to
+        static std::map<std::string, std::string> prefixMap;    // from -> to
+        static std::map<std::string, CLI::Option*> userOptions; // keep all user options in memory
     };
 
 } // namespace utils

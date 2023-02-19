@@ -27,16 +27,15 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
-    std::string webRoot;
-    utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
+    utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
 
     express::WebApp::init(argc, argv);
 
     express::legacy::in::WebApp legacyApp;
-    legacyApp.use(express::middleware::StaticMiddleware(webRoot));
+    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
     express::tls::in::WebApp tlsApp;
-    tlsApp.use(express::middleware::StaticMiddleware(webRoot));
+    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
     legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {

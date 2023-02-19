@@ -27,16 +27,15 @@
 using namespace express;
 
 int main(int argc, char* argv[]) {
-    std::string webRoot;
-    utils::Config::add_option("--web-root", webRoot, "Root directory of the web site", true, "[path]");
+    utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
 
     WebApp::init(argc, argv);
 
     using WebApp = apps::http::STREAM::WebApp;
-    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
+    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", utils::Config::get_string_option_value("--web-root")));
 
 #if (STREAM_TYPE == TLS)
-    std::string cert = "/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem";
+    std::string cert = "/home/voc/projects/snodec/snode.c/certs/snode.c_-_server.pem";
     std::string key = "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem";
     std::string pass = "snode.c";
 
