@@ -31,12 +31,6 @@ namespace database::mariadb::commands::sync {
         , onUseResult(onUseResult) {
     }
 
-    MariaDBUseResultCommand::~MariaDBUseResultCommand() {
-        if (result != nullptr) {
-            mysql_free_result(result);
-        }
-    }
-
     int MariaDBUseResultCommand::commandStart() {
         result = mysql_use_result(mysql);
 
@@ -45,8 +39,6 @@ namespace database::mariadb::commands::sync {
 
     bool MariaDBUseResultCommand::commandCompleted() {
         onUseResult(result);
-
-        result = nullptr;
 
         return true;
     }

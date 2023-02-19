@@ -19,12 +19,12 @@
 
 #include "database/mariadb/MariaDBConnection.h"
 
-#include "core/SNodeC.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/commands/async/MariaDBConnectCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/SNodeC.h"
 #include "log/Logger.h"
 
 #include <algorithm>
@@ -77,7 +77,7 @@ namespace database::mariadb {
     MariaDBConnection::~MariaDBConnection() {
         for (MariaDBCommandSequence& mariaDBCommandSequence : commandSequenceQueue) {
             for (MariaDBCommand* mariaDBCommand : mariaDBCommandSequence.sequence()) {
-                if (core::SNodeC::state() == core::State::RUNNING) {
+                if (core::SNodeC::state() == core::State::RUNNING && connected) {
                     mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                 }
 
@@ -252,10 +252,6 @@ namespace database::mariadb {
 
     void MariaDBCommandStartEvent::span() {
         core::EventReceiver::span();
-    }
-
-    void MariaDBCommandStartEvent::destruct() {
-        delete mariaDBConnection;
     }
 
     void MariaDBCommandStartEvent::onEvent(const utils::Timeval& currentTime) {
