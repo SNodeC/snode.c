@@ -31,19 +31,12 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
+#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
 #include "utils/Timeval.h"
 
-#include <cstdint>
-#include <openssl/opensslv.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-using ssl_option_t = uint64_t;
-#else
-using ssl_option_t = uint32_t;
-#endif
 
 namespace net::config {
 

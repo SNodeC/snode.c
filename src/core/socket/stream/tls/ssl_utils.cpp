@@ -26,7 +26,6 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
-#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <openssl/asn1.h>
@@ -39,12 +38,6 @@
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <bits/utility.h>
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-using ssl_option_t = uint64_t;
-#else
-using ssl_option_t = uint32_t;
-#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -207,26 +200,26 @@ namespace core::socket::stream::tls {
         return ssl_ctx_new(SslConfig(false, configTls));
     }
 
-    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& sniCert) {
+    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
         SslConfig sslConfig(true);
 
         for (auto& [key, value] : sniCert) {
             if (key == "CertChain") {
-                sslConfig.certChain = std::any_cast<const std::string&>(value);
+                sslConfig.certChain = std::get<std::string>(value);
             } else if (key == "CertKey") {
-                sslConfig.certChainKey = std::any_cast<const std::string&>(value);
+                sslConfig.certChainKey = std::get<std::string>(value);
             } else if (key == "CertKeyPassword") {
-                sslConfig.password = std::any_cast<const std::string&>(value);
+                sslConfig.password = std::get<std::string>(value);
             } else if (key == "CaCertFile") {
-                sslConfig.caFile = std::any_cast<const std::string&>(value);
+                sslConfig.caFile = std::get<std::string>(value);
             } else if (key == "CaCertDir") {
-                sslConfig.caDir = std::any_cast<const std::string&>(value);
+                sslConfig.caDir = std::get<std::string>(value);
             } else if (key == "UseDefaultCaDir") {
-                sslConfig.useDefaultCaDir = std::any_cast<bool>(value);
+                sslConfig.useDefaultCaDir = std::get<bool>(value);
             } else if (key == "CipherList") {
-                sslConfig.cipherList = std::any_cast<const std::string&>(value);
+                sslConfig.cipherList = std::get<std::string>(value);
             } else if (key == "SslOptions") {
-                sslConfig.sslOptions = std::any_cast<ssl_option_t>(value);
+                sslConfig.sslOptions = std::get<ssl_option_t>(value);
             }
         }
 

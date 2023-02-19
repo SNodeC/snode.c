@@ -331,7 +331,6 @@ namespace utils {
         prefixMap.clear();
 
         app.final_callback([](void) -> void {
-            VLOG(0) << "Final Callback";
             if (app["--daemonize"]->as<bool>()) {
                 VLOG(0) << "Try Running as daemon";
 

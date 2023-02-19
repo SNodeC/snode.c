@@ -26,17 +26,24 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <openssl/opensslv.h>
 #include <set>
 #include <string>
+#include <variant>
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/types.h>
 #elif OPENSSL_VERSION_NUMBER >= 0x10100000L
 #include <openssl/ossl_typ.h>
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+using ssl_option_t = uint64_t;
+#else
+using ssl_option_t = uint32_t;
 #endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -46,7 +53,7 @@ namespace core::socket::stream::tls {
     //    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig);
     SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsServer>& configTls);
     SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsClient>& configTls);
-    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& sniCert);
+    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert);
     void ssl_ctx_free(SSL_CTX* ctx);
 
     void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTlsClient>& configTls);

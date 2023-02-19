@@ -27,9 +27,9 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>
 #include <map>
 #include <string>
+#include <variant>
 
 namespace CLI {
     class Option;
@@ -46,11 +46,11 @@ namespace net::config {
         bool getForceSni() const;
         void setForceSni(bool forceSni = true);
 
-        std::map<std::string, std::map<std::string, std::any>>& getSniCerts();
-        void setSniCerts(const std::map<std::string, std::map<std::string, std::any>>& newSniCerts);
+        std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& getSniCerts();
+        void setSniCerts(const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& newSniCerts);
 
     private:
-        std::map<std::string, std::map<std::string, std::any>> sniCerts;
+        std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>> sniCerts;
 
         CLI::Option* sniCertsOpt = nullptr;
         CLI::Option* forceSniOpt = nullptr;

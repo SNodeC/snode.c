@@ -22,7 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>
 #include <list>
 #include <stdexcept>
 #include <type_traits>
@@ -97,11 +96,12 @@ namespace net::config {
             ->clear();
     }
 
-    std::map<std::string, std::map<std::string, std::any>>& ConfigTlsServer::getSniCerts() {
+    std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& ConfigTlsServer::getSniCerts() {
         return sniCerts;
     }
 
-    void ConfigTlsServer::setSniCerts(const std::map<std::string, std::map<std::string, std::any>>& sniCert) {
+    void ConfigTlsServer::setSniCerts(
+        const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCert) {
         this->sniCerts = sniCert;
     }
 

@@ -24,7 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/ssl_utils.h"
+#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
 #include "log/Logger.h"
 
 #include <map> // IWYU pragma: export
@@ -120,7 +120,7 @@ namespace core::socket::stream::tls {
                     SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
                     forceSni = config->getForceSni();
 
-                    LOG(INFO) << "SSL_CTX (master) installed";
+                    LOG(INFO) << "SSL_CTX (master) created";
 
                     for (const auto& [domain, sniCertConf] : config->getSniCerts()) {
                         if (!sniCertConf.empty()) {

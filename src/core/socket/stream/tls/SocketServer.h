@@ -28,6 +28,7 @@
 
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
+#include <variant> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -130,11 +131,11 @@ namespace core::socket::stream::tls {
             : SocketServer("") {
         }
 
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& sniCert) {
+        void addSniCert(const std::string& domain, const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
             Super::config->getSniCerts().insert_or_assign(domain, sniCert);
         }
 
-        void addSniCerts(const std::map<std::string, std::map<std::string, std::any>>& sniCerts) {
+        void addSniCerts(const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts) {
             for (const auto& [domain, cert] : sniCerts) {
                 addSniCert(domain, cert);
             }
