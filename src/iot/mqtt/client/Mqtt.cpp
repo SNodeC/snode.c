@@ -182,6 +182,7 @@ namespace iot::mqtt::client {
 
     void Mqtt::_onPublish(const iot::mqtt::client::packets::Publish& publish) {
         LOG(DEBUG) << "Received PUBLISH:";
+        LOG(DEBUG) << "=================";
 
         if (Super::_onPublish(publish)) {
             onPublish(publish);
@@ -277,7 +278,7 @@ namespace iot::mqtt::client {
         send(iot::mqtt::packets::Pingreq());
     }
 
-    void Mqtt::sendDisconnect() const {
+    void Mqtt::sendDisconnect() const { // Client
         LOG(DEBUG) << "Send Disconnect";
         LOG(DEBUG) << "===============";
 

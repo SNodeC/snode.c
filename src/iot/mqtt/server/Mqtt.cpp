@@ -248,6 +248,7 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onPublish(const iot::mqtt::server::packets::Publish& publish) {
         LOG(DEBUG) << "Received PUBLISH: " << clientId;
+        LOG(DEBUG) << "=================";
 
         if (Super::_onPublish(publish)) {
             broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
@@ -330,21 +331,21 @@ namespace iot::mqtt::server {
         mqttContext->end();
     }
 
-    void Mqtt::sendConnack(uint8_t returnCode, uint8_t flags) const {
+    void Mqtt::sendConnack(uint8_t returnCode, uint8_t flags) const { // Server
         LOG(DEBUG) << "Send CONNACK";
         LOG(DEBUG) << "============";
 
         send(iot::mqtt::packets::Connack(returnCode, flags));
     }
 
-    void Mqtt::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) const {
+    void Mqtt::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) const { // Server
         LOG(DEBUG) << "Send SUBACK";
         LOG(DEBUG) << "===========";
 
         send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
     }
 
-    void Mqtt::sendUnsuback(uint16_t packetIdentifier) const {
+    void Mqtt::sendUnsuback(uint16_t packetIdentifier) const { // Server
         LOG(DEBUG) << "Send UNSUBACK";
         LOG(DEBUG) << "=============";
 

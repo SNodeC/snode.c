@@ -239,7 +239,6 @@ namespace iot::mqtt {
 
     bool Mqtt::_onPublish(const packets::Publish& publish) {
         bool deliver = true;
-        LOG(DEBUG) << "=================";
         printStandardHeader(publish);
         LOG(DEBUG) << "Topic: " << publish.getTopic();
         LOG(DEBUG) << "Message: " << publish.getMessage();
