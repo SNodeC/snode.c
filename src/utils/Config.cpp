@@ -490,7 +490,6 @@ namespace utils {
             try {
                 try {
                     app.parse(argc, argv);
-
                     if (app["--show-config"]->count() > 0) {
                         throw CLI::CallForShowConfig();
                     } else if (app["--write-config"]->count() > 0) {
@@ -502,7 +501,6 @@ namespace utils {
                     } else if (app["--commandline-full"]->count() > 0) {
                         throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::LONG);
                     }
-
                     ret = true;
                 } catch (const CLI::ParseError& e) {
                     if (app["--show-config"]->count() > 0) {
@@ -541,7 +539,6 @@ namespace utils {
                 std::cout << std::endl
                           << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
-
                 std::cout << std::endl << app.get_footer() << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
                 std::cout << e.what() << std::endl;
