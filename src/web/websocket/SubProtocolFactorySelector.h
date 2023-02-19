@@ -48,7 +48,6 @@ namespace web::websocket {
         SubProtocolFactorySelector() = default;
         virtual ~SubProtocolFactorySelector() = default;
 
-    protected:
         SubProtocolFactory* load(const std::string& subProtocolName, Role role) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
@@ -124,7 +123,6 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
-    public:
         void unload(SubProtocolFactory* subProtocolFactory) {
             std::string name = subProtocolFactory->getName();
 
