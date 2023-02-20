@@ -49,9 +49,7 @@ namespace iot::mqtt {
         nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& json);
 
-        void clear() {
-            *this = Session();
-        }
+        void clear();
 
     private:
         // Sender side

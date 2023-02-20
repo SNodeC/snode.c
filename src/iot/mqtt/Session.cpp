@@ -88,4 +88,10 @@ namespace iot::mqtt {
         }
     }
 
+    void Session::clear() {
+        publishMap.clear();
+        pubrelPacketIdentifierSet.clear();
+        publishPacketIdentifierSet.clear();
+    }
+
 } // namespace iot::mqtt

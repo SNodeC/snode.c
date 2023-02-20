@@ -98,17 +98,13 @@ namespace core {
     int DynamicLoader::execDlClose(void* handle) {
         int ret = -1;
 
-        if (handle != nullptr) {
-            if (dlOpenedLibraries.contains(handle)) {
-                VLOG(0) << "execDLClose: " << dlOpenedLibraries[handle].fileName;
+        VLOG(0) << "execDLClose: " << dlOpenedLibraries[handle].fileName;
 
-                ret = core::system::dlclose(handle);
-                dlOpenedLibraries[handle].refCount--;
+        ret = core::system::dlclose(handle);
+        dlOpenedLibraries[handle].refCount--;
 
-                if (dlOpenedLibraries[handle].refCount == 0) {
-                    dlOpenedLibraries.erase(handle);
-                }
-            }
+        if (dlOpenedLibraries[handle].refCount == 0) {
+            dlOpenedLibraries.erase(handle);
         }
 
         return ret;
@@ -119,9 +115,7 @@ namespace core {
             std::size_t refCount = registeredForDlClose[handle];
 
             do {
-                int ret = execDlClose(handle);
-
-                if (ret != 0) {
+                if (execDlClose(handle) != 0) {
                     VLOG(0) << "Error execDeleyedDlClose: " << DynamicLoader::dlError();
                 }
             } while (--refCount > 0);
