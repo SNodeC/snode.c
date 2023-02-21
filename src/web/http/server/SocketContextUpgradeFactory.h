@@ -47,7 +47,6 @@ namespace web::http::server {
     public:
         void checkRefCount() final;
 
-    protected:
         static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
     };
 
