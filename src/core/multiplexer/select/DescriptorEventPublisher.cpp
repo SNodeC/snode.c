@@ -72,7 +72,7 @@ namespace core::select {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 

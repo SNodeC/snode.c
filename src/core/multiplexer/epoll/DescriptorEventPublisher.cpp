@@ -109,7 +109,7 @@ namespace core::epoll {
         ePollEvents.muxOn(eventReceiver);
     }
 
-    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
         ePollEvents.muxOff(eventReceiver);
     }
 

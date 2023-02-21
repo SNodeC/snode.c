@@ -48,7 +48,7 @@ namespace core::poll {
         pollFds.muxOn(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::muxOff(DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
         pollFds.muxOff(eventReceiver, events);
     }
 
