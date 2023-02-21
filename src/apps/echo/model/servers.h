@@ -48,7 +48,6 @@
 
 namespace apps::echo::model::legacy {
 
-    using EchoServerSocketContextFactory = apps::echo::model::EchoServerSocketContextFactory;
     using EchoSocketServer = net::NET::stream::legacy::SocketServer<EchoServerSocketContextFactory>;
 
     EchoSocketServer getServer() {
@@ -61,7 +60,6 @@ namespace apps::echo::model::legacy {
 
 namespace apps::echo::model::tls {
 
-    using EchoServerSocketContextFactory = apps::echo::model::EchoServerSocketContextFactory;
     using EchoSocketServer = net::NET::stream::tls::SocketServer<EchoServerSocketContextFactory>;
 
     EchoSocketServer getServer() {

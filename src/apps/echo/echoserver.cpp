@@ -31,11 +31,15 @@ int main(int argc, char* argv[]) {
     SocketServer server = apps::echo::model::STREAM::getServer();
 
 #if (STREAM_TYPE == TLS)
-//    std::map<std::string, std::any> sniCert = {
-//        {"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
+    std::string cert = "/home/voc/projects/snodec/snode.c/certs/snode.c_-_server.pem";
+    std::string key = "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem";
+    std::string pass = "snode.c";
 
-//    server.addSniCert("snodec.home.vchrist.at", sniCert);
-//    server.getConfig().setForceSni();
+    std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>> sniCerts = {
+        {"snodec.home.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
+        {"www.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
+
+    server.addSniCerts(sniCerts);
 #endif
 
     server.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {
