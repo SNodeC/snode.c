@@ -27,7 +27,7 @@ namespace core::socket {
     PhysicalSocketOption::PhysicalSocketOption(int optLevel, int optName, int optValue)
         : optLevel(optLevel)
         , optName(optName)
-        , optValue(reinterpret_cast<char*>(&optValue), reinterpret_cast<char*>(&optValue + sizeof(int))) {
+        , optValue(reinterpret_cast<char*>(&optValue), reinterpret_cast<char*>(&optValue) + sizeof(optValue)) {
     }
 
     PhysicalSocketOption::PhysicalSocketOption(int optLevel, int optName, const std::string& optValue)
