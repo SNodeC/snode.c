@@ -27,11 +27,11 @@
 namespace core::socket {
 
     PhysicalSocket::PhysicalSocket() {
-        Descriptor::open(-1);
+        Descriptor::attach(-1);
     }
 
     PhysicalSocket::PhysicalSocket(int fd) {
-        Descriptor::open(fd);
+        Descriptor::attach(fd);
 
         socklen_t optLen = sizeof(domain);
         getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
@@ -46,7 +46,7 @@ namespace core::socket {
     }
 
     PhysicalSocket& PhysicalSocket::operator=(int fd) {
-        Descriptor::open(fd);
+        Descriptor::attach(fd);
 
         socklen_t optLen = sizeof(domain);
         getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
@@ -57,7 +57,7 @@ namespace core::socket {
     }
 
     int PhysicalSocket::open(const std::map<int, PhysicalSocketOption>& socketOptions, Flags flags) {
-        int ret = Super::open(core::system::socket(domain, type | flags, protocol));
+        int ret = Super::attach(core::system::socket(domain, type | flags, protocol));
 
         if (ret >= 0) {
             for (auto [optName, socketOption] : socketOptions) {

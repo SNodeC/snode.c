@@ -16,8 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define MFREADSIZE 16384
-
 #include "core/file/FileReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,11 +27,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define MF_READSIZE 16384
+
 namespace core::file {
 
     FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name)
         : EventReceiver(name) {
-        open(fd);
+        attach(fd);
         Source::connect(sink);
 
         span();
@@ -58,9 +58,9 @@ namespace core::file {
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
         if (!suspended) {
             // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-            static char junk[MFREADSIZE];
+            static char junk[MF_READSIZE];
 
-            ssize_t ret = core::system::read(getFd(), junk, MFREADSIZE);
+            ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
 
             if (ret > 0) {
                 if (send(junk, static_cast<std::size_t>(ret)) >= 0) {

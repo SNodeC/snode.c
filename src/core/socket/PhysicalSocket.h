@@ -61,7 +61,7 @@ namespace core::socket {
         void shutdown(SHUT how);
 
     private:
-        using Super::open;
+        using Super::attach;
 
         int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const;
         int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const;

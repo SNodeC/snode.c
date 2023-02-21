@@ -102,7 +102,7 @@ namespace core::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            SocketConnectionT::Descriptor::open(fd);
+            SocketConnectionT::Descriptor::attach(fd);
 
             if (setSocketContext(socketContextFactory.get()) != nullptr) {
                 SocketReader::enable(fd);

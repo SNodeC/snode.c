@@ -65,8 +65,8 @@ namespace core::socket::stream {
         core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
     private:
-        virtual void onConnected();
-        virtual void onDisconnected();
+        virtual void onConnected() = 0;
+        virtual void onDisconnected() = 0;
 
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;

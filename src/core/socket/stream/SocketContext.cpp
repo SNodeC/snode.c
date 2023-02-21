@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
@@ -54,14 +52,6 @@ namespace core::socket::stream {
 
     void SocketContext::close() {
         socketConnection->close();
-    }
-
-    void SocketContext::onConnected() {
-        LOG(INFO) << "Protocol connected";
-    }
-
-    void SocketContext::onDisconnected() {
-        LOG(INFO) << "Protocol disconnected";
     }
 
     void SocketContext::shutdownRead() {
