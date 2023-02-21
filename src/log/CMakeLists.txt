@@ -48,6 +48,10 @@ target_include_directories(
 
 set_target_properties(logger PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-logger)
 
+target_compile_options(
+    logger PUBLIC -Wno-documentation-unknown-command -Wno-c++98-compat-pedantic
+)
+
 install(
     TARGETS logger
     EXPORT snodec_logger_Targets

@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
 
-add_compile_options(-Wno-float-equal -Wno-covered-switch-default)
-
 set(UTILS_CPP
     Config.cpp
     Daemon.cpp
@@ -26,13 +24,6 @@ set(UTILS_H
     sha1.h
 )
 
-set_source_files_properties(
-    Config.cpp
-    PROPERTIES
-        COMPILE_FLAGS
-        "-Wno-covered-switch-default -Wno-float-equal -Wno-implicit-int-float-conversion"
-)
-
 add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})
 add_library(snodec::utils ALIAS utils)
 
@@ -46,6 +37,14 @@ target_include_directories(
 target_link_libraries(utils PRIVATE ${BACKWARD_LIBS} dl)
 
 set_target_properties(utils PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-utils)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(
+        utils PUBLIC -Wno-undefined-func-template -Wno-covered-switch-default
+    )
+endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+target_compile_options(utils PUBLIC -Wno-float-equal)
 
 install(
     TARGETS utils

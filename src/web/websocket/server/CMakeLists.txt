@@ -64,6 +64,10 @@ target_include_directories(
 
 target_link_libraries(websocket-server PUBLIC snodec::websocket)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(websocket-server PUBLIC -Wno-undefined-func-template)
+endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
 install(
     TARGETS websocket-server
     EXPORT snodec_websocket-server_Targets

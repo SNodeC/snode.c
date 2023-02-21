@@ -15,8 +15,6 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LIBMAGIC libmagic)
 
-add_compile_options(-Wno-undefined-func-template)
-
 set(HTTP_CPP MimeTypes.cpp Parser.cpp StatusCodes.cpp http_utils.cpp)
 
 set(HTTP_H
@@ -66,6 +64,10 @@ set_target_properties(
                "${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}"
                EXPORT_PROPERTIES "HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR"
 )
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(http PUBLIC -Wno-undefined-func-template)
+endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 install(
     TARGETS http

@@ -148,7 +148,6 @@ foreach(NET IN LISTS NETS)
 endforeach()
 
 add_executable(httplowlevelclient httplowlevelclient.cpp)
-
 set_target_properties(
     httplowlevelclient PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
 )

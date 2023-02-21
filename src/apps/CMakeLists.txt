@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_compile_options(
-    -Wno-covered-switch-default -Wno-undefined-func-template -Wno-float-equal
-    -Wno-implicit-int-float-conversion
-)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wno-missing-prototypes)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
@@ -22,6 +17,7 @@ target_link_libraries(
 set_target_properties(
     snode.c PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
 )
+target_compile_options(snode.c PRIVATE -Wno-float-equal)
 install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testpost testpost.cpp)

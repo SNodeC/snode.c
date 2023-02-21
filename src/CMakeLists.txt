@@ -28,29 +28,9 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(ADDITIONAL_OPTIONS
-        -Weverything
-        -Wno-c++98-compat
-        -Wno-c++98-compat-pedantic
-        -Wno-documentation-unknown-command
-        -Wno-exit-time-destructors
-        -Wno-global-constructors
-        -Wno-padded
-        -Wno-reserved-identifier
-        -Wno-shadow
-        -Wno-shadow-field
-        -Wno-used-but-marked-unused
-        -Wno-weak-vtables
-        -Wno-weak-template-vtables
-    )
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # using GCC
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    # using Intel C++
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # using Visual Studio C++
-endif()
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(
     -Werror
@@ -65,12 +45,28 @@ add_compile_options(
     -Wfloat-equal
     -pedantic-errors
     -fexec-charset=UTF-8
-    ${ADDITIONAL_OPTIONS}
+    -Wno-shadow
 )
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(
+        -Weverything
+        -Wno-c++98-compat
+        -Wno-c++98-compat-pedantic
+        -Wno-exit-time-destructors
+        -Wno-global-constructors
+        -Wno-shadow-field
+        -Wno-shadow-field-in-constructor
+        -Wno-weak-vtables
+        -Wno-padded
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    # using Intel C++
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # using Visual Studio C++
+endif()
 
 add_subdirectory(log)
 add_subdirectory(utils)
