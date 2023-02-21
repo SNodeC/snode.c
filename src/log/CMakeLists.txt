@@ -48,9 +48,12 @@ target_include_directories(
 
 set_target_properties(logger PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-logger)
 
-target_compile_options(
-    logger PUBLIC -Wno-documentation-unknown-command -Wno-c++98-compat-pedantic
-)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(
+        logger PUBLIC -Wno-documentation-unknown-command
+                      -Wno-c++98-compat-pedantic
+    )
+endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 install(
     TARGETS logger
