@@ -64,7 +64,7 @@ namespace iot::mqtt::client {
                     session.fromJson(sessionStoreJson);
 
                     LOG(TRACE) << "Persistent session data loaded successfull";
-                } catch (const nlohmann::json::exception& e) {
+                } catch (const nlohmann::json::exception&) {
                     LOG(TRACE) << "Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
 
                     session.clear();

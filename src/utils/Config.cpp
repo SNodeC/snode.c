@@ -474,7 +474,7 @@ namespace utils {
 
         try {
             app.parse(argc, argv);
-        } catch (const CLI::ParseError& e) {
+        } catch (const CLI::ParseError&) {
             // Do not process ParseError here but on second parse pass
         }
     }
@@ -501,7 +501,7 @@ namespace utils {
                         throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::LONG);
                     }
                     ret = true;
-                } catch (const CLI::ParseError& e) {
+                } catch (const CLI::ParseError&) {
                     if (app["--show-config"]->count() > 0) {
                         throw CLI::CallForShowConfig();
                     } else if (app["--write-config"]->count() > 0) {
