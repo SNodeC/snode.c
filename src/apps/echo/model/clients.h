@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef APPS_MODEL_LOWLEVELLEGACYCLIENT_H
-#define APPS_MODEL_LOWLEVELLEGACYCLIENT_H
+#ifndef APPS_ECHO_MODEL_CLIENT_H
+#define APPS_ECHO_MODEL_CLIENT_H
 
 #include "log/Logger.h"
 
@@ -70,4 +70,4 @@ namespace apps::echo::model::tls {
 
 #endif
 
-#endif // APPS_MODEL_LOWLEVELLEGACYCLIENT_H
+#endif // APPS_ECHO_MODEL_CLIENT_H

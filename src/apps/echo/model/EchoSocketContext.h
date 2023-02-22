@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef APPS_MODEL_ECHOSOCKETCONTEXT_H
-#define APPS_MODEL_ECHOSOCKETCONTEXT_H
+#ifndef APPS_ECHO_MODEL_ECHOSOCKETCONTEXT_H
+#define APPS_ECHO_MODEL_ECHOSOCKETCONTEXT_H
 
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
@@ -59,4 +59,4 @@ namespace apps::echo::model {
 
 } // namespace apps::echo::model
 
-#endif // APPS_MODEL_ECHOSOCKETCONTEXT_H
+#endif // APPS_ECHO_MODEL_ECHOSOCKETCONTEXT_H

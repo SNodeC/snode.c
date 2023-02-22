@@ -45,7 +45,6 @@ namespace core::socket {
     private:
         int optLevel = -1;
         int optName = -1;
-
         std::vector<char> optValue;
     };
 
