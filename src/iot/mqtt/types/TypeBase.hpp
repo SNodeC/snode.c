@@ -36,7 +36,7 @@ namespace iot::mqtt::types {
     std::size_t TypeBase<ValueType>::deserialize(iot::mqtt::MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
-        consumed = mqttContext->receive(value.data() + length - needed, static_cast<std::size_t>(needed));
+        consumed = mqttContext->recv(value.data() + length - needed, static_cast<std::size_t>(needed));
         needed -= consumed;
         complete = needed == 0;
 

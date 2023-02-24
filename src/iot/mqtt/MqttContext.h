@@ -44,13 +44,13 @@ namespace iot::mqtt {
 
         virtual ~MqttContext();
 
-        virtual std::size_t receive(char* junk, std::size_t junklen) = 0;
+        virtual std::size_t recv(char* junk, std::size_t junklen) = 0;
         virtual void send(const char* junk, std::size_t junklen) = 0;
 
         virtual core::socket::stream::SocketConnection* getSocketConnection() = 0;
 
         virtual void end(bool fatal = false) = 0;
-        virtual void kill() = 0;
+        virtual void close() = 0;
 
         void onConnected();
         std::size_t onProcess();

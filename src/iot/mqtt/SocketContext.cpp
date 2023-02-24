@@ -49,20 +49,20 @@ namespace iot::mqtt {
         return MqttContext::onProcess();
     }
 
-    std::size_t SocketContext::receive(char* junk, std::size_t junklen) {
-        return readFromPeer(junk, junklen);
+    std::size_t SocketContext::recv(char* junk, std::size_t junklen) {
+        return core::socket::stream::SocketContext::readFromPeer(junk, junklen);
     }
 
     void SocketContext::send(const char* junk, std::size_t junklen) {
-        sendToPeer(junk, junklen);
+        core::socket::stream::SocketContext::sendToPeer(junk, junklen);
     }
 
     void SocketContext::end(bool fatal) {
-        shutdown(fatal);
+        core::socket::stream::SocketContext::shutdown(fatal);
     }
 
-    void SocketContext::kill() {
-        close();
+    void SocketContext::close() {
+        core::socket::stream::SocketContext::close();
     }
 
 } // namespace iot::mqtt

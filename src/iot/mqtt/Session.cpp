@@ -24,7 +24,6 @@
 #include <type_traits>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
-// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 // IWYU pragma: no_include <bits/utility.h>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
@@ -76,13 +75,14 @@ namespace iot::mqtt {
 
             if (json.contains("publish_map")) {
                 for (auto publishJson : json["publish_map"]) {
-                    iot::mqtt::packets::Publish publish(publishJson["packet_identifier"],
-                                                        publishJson["topic"],
-                                                        publishJson["message"],
-                                                        publishJson["qos"],
-                                                        publishJson["dup"],
-                                                        publishJson["retain"]);
-                    publishMap[publishJson["packet_identifier"]] = publish;
+                    if (publishJson.contains("packet_identifer")) {
+                        publishMap[publishJson["packet_identifier"]] = iot::mqtt::packets::Publish(publishJson["packet_identifier"],
+                                                                                                   publishJson["topic"],
+                                                                                                   publishJson["message"],
+                                                                                                   publishJson["qos"],
+                                                                                                   publishJson["dup"],
+                                                                                                   publishJson["retain"]);
+                    }
                 }
             }
         }

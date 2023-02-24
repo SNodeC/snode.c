@@ -51,7 +51,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    std::size_t SubProtocol<WSSubProtocolRole>::receive(char* junk, std::size_t junklen) {
+    std::size_t SubProtocol<WSSubProtocolRole>::recv(char* junk, std::size_t junklen) {
         std::size_t maxReturn = std::min(junklen, size);
 
         std::copy(buffer.data() + cursor, buffer.data() + cursor + maxReturn, junk);
@@ -73,7 +73,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::kill() {
+    void SubProtocol<WSSubProtocolRole>::close() {
         WSSubProtocolRole::sendClose();
     }
 

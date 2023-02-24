@@ -50,11 +50,11 @@ namespace iot::mqtt {
 
         core::socket::stream::SocketConnection* getSocketConnection() override;
 
-        std::size_t receive(char* junk, std::size_t junklen) override;
+        std::size_t recv(char* junk, std::size_t junklen) override;
         void send(const char* junk, std::size_t junklen) override;
 
         void end(bool fatal) override;
-        void kill() override;
+        void close() override;
     };
 
 } // namespace iot::mqtt

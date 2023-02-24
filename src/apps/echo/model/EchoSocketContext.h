@@ -38,6 +38,7 @@ namespace apps::echo::model {
 
         explicit EchoSocketContext(core::socket::stream::SocketConnection* socketConnection, Role role);
 
+    private:
         void onConnected() override;
         void onDisconnected() override;
 

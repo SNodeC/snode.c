@@ -36,7 +36,7 @@ namespace iot::mqtt::types {
 
         do {
             char byte;
-            consumed = mqttContext->receive(&byte, 1);
+            consumed = mqttContext->recv(&byte, 1);
 
             if (consumed > 0) {
                 value.push_back(byte);

@@ -67,7 +67,7 @@ namespace iot::mqtt {
                 if (!fixedHeader.isComplete()) {
                     break;
                 } else if (fixedHeader.isError()) {
-                    mqttContext->kill();
+                    mqttContext->close();
                     break;
                 }
 
@@ -158,7 +158,7 @@ namespace iot::mqtt {
             keepAliveTimer = core::timer::Timer::singleshotTimer(
                 [this, keepAlive]() -> void {
                     LOG(TRACE) << "Keep-alive timer expired. Interval was: " << keepAlive;
-                    mqttContext->kill();
+                    mqttContext->close();
                 },
                 keepAlive);
 
