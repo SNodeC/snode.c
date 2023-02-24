@@ -38,7 +38,7 @@ namespace web::http {
         using Super::Super;
 
     protected:
-        std::size_t onReceiveFromPeer() override = 0;
+        std::size_t onReceivedFromPeer() override = 0;
 
     public:
         virtual void sendToPeerCompleted() = 0;

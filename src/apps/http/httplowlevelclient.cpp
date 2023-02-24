@@ -108,7 +108,7 @@ public:
         VLOG(0) << "SimpleSocketProtocol disconnected";
     }
 
-    std::size_t onReceiveFromPeer() override {
+    std::size_t onReceivedFromPeer() override {
         return responseParser->parse();
     }
 

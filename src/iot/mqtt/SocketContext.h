@@ -44,7 +44,7 @@ namespace iot::mqtt {
 
     private:
         void onConnected() override;
-        std::size_t onReceiveFromPeer() override;
+        std::size_t onReceivedFromPeer() override;
         void onDisconnected() override;
         void onExit() override;
 

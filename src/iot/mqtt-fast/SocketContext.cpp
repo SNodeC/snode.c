@@ -136,7 +136,7 @@ namespace iot::mqtt_fast {
         send(iot::mqtt_fast::packets::Disconnect());
     }
 
-    std::size_t SocketContext::onReceiveFromPeer() {
+    std::size_t SocketContext::onReceivedFromPeer() {
         std::size_t consumed = controlPacketFactory.construct();
 
         if (controlPacketFactory.isError()) {

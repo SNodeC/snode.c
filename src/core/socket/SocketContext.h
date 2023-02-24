@@ -48,7 +48,7 @@ namespace core::socket {
         virtual void close() = 0;
 
     protected:
-        virtual std::size_t onReceiveFromPeer() = 0;
+        virtual std::size_t onReceivedFromPeer() = 0;
 
         virtual void onExit();
 

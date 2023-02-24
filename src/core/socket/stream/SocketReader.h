@@ -59,7 +59,7 @@ namespace core::socket::stream {
         ~SocketReader() override = default;
 
     private:
-        virtual void onReceiveFromPeer(std::size_t available) = 0;
+        virtual void onReceivedFromPeer(std::size_t available) = 0;
 
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
@@ -67,7 +67,7 @@ namespace core::socket::stream {
             std::size_t available = doRead();
 
             if (available > 0) {
-                onReceiveFromPeer(available);
+                onReceivedFromPeer(available);
             }
         }
 

@@ -45,7 +45,7 @@ namespace iot::mqtt {
         return core::socket::stream::SocketContext::getSocketConnection();
     }
 
-    std::size_t SocketContext::onReceiveFromPeer() {
+    std::size_t SocketContext::onReceivedFromPeer() {
         return MqttContext::onProcess();
     }
 

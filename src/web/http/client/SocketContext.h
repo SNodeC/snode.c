@@ -64,7 +64,7 @@ namespace web::http::client {
         Response& getResponse();
 
     private:
-        std::size_t onReceiveFromPeer() override;
+        std::size_t onReceivedFromPeer() override;
 
         void sendToPeerCompleted() override;
 

@@ -198,8 +198,8 @@ namespace core::socket::stream {
         }
 
     private:
-        void onReceiveFromPeer(std::size_t available) final {
-            std::size_t consumed = socketContext->onReceiveFromPeer();
+        void onReceivedFromPeer(std::size_t available) final {
+            std::size_t consumed = socketContext->onReceivedFromPeer();
 
             if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
                 onDisconnected();

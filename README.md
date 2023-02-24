@@ -6,52 +6,113 @@ The development of the  framework started during the summer semester 2020 in the
 Main focus (but not only) of the framework is "Machine to Machine" (M2M) communication and here especially the field of "Internet of Things" (IoT).
 Keep in mind, that the framework is still in heavy development, APIs can break from commit to commit. But the highest level API (express) is considered stable.
 
-## Quick Starting Guide
+## Table of Contents
 
-Imagine you want to create a very basic TCP/IPv4 server/client pair which sends some plain text data unencrypted to each other in a ping-pong way. The client shall start sending text data to the server and the server shall reflect that data back to the client and the client should also reflect the received data back to the server. This data ping-pong shall be done infinitely long.
+[TOC]
 
-For the server role you just need to create an object of type
+# License
+
+SNode.C is released under the **GNU Lesser General Public License, Version 3** ([https://www.gnu.org/licenses/lgpl-3.0.de.html](https://www.gnu.org/licenses/lgpl-3.0.de.html))
+
+# Copyright
+
+(c) Volker Christian ([mailto://me@vchrist.at](mailto://me@vchrist.at))
+
+Some components are also copyrighted by Students
+
+- Json Middleware
+
+  - Marlene Mayr
+
+  - Anna Moser
+
+  - Matteo Prock
+
+  - Eric Thalhammer
+
+
+- Regular-Expression Route-Mapping
+
+  - Joelle Helgert
+
+  - Julia Gruber
+
+  - Patrick Brandstätter
+
+  - Fabian Mohr
+
+- MariaDB Database Support
+  - Daniel Flockert
+
+- OAuth2 Demo System
+  - Daniel Flockert
+
+# Quick Starting Guide
+
+Basically the architecture of every server and client application is the same and consists of three components.
+
+- Server and/or client instance
+- SocketContextFactory
+- SocketContext
+
+Let's have a look at how these three components a related to each other by implementing a simple networking application.
+
+## An "Echo" Application
+
+Imagine we want to create a very basic TCP (**stream**)/IPv4 (**in**) server/client pair which sends some plain text data unencrypted (**legacy**) to each other in a ping-pong way.
+
+The client shall start sending text data to the server and the server shall reflect that data back to the client. The client receives this reflected data and sends it back again to the server. This data ping-pong shall last infinitely long.
+
+### SocketServer and SocketClient
+
+For the server role we just need to create an object of type
 
 ```c++
-net::ipv4::stream::legacy::SocketServer<SocketContextFactory>
+net::in::stream::legacy::SocketServer<SocketContextFactory>
 ```
 
 and for the client role an object of type
 
 ```c++
-net::ipv4::stream::legacy::SocketClient<SocketContextFactory>
+net::in::stream::legacy::SocketClient<SocketContextFactory>
 ```
 
 is needed.
 
-Both roles expect a class `SocketContextFactory`as template argument. A `SocketContextFactory` is used by the `SocketServer` and the `SocketClient` to creating a concrete `SocketContext` object for each established connection. A `SocketContext` represents a concrete application protocol.
+Both roles expect a class `SocketContextFactory`as template argument. Such a `SocketContextFactory` is used by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents the concrete application protocol.
 
-Thus, for our Ping-Pong application we need to implement the application logic for server and client in classes derived from `core::socket::stream::SocketContext`what is the base class of all connection oriented (stream) application protocols, and factories derived from`core::socket::stream::SocketContextFactory`.
+Thus, for our echo application we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, which is the base class of all connection-oriented (stream) application protocols, and factories derived from `core::socket::stream::SocketContextFactory`.
 
 ### SocketContextFactories
 
-Let's focus on the `SocketContextFactories`for server and client first.
+Let's focus on the SocketContextFactories for our server and client first.
 
-All what needs to be done is to implement a pure virtual method `create(core::socket::stream::SocketConnection* socketConnection)`witch expects a pointer to a `core::socket::stream::SocketConnection` as argument. Such a `core::socket::stream::SocketConnection` object represents the physical connection between the server and a client. This `core::socket::stream::SocketConnection` is needed by an `core::socket::stream::SocketContext` to handle the physical data transfer.
+All what needs to be done is to implement a pure virtual method `create()`witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a concrete application SocketContext. 
 
-#### PingPong-Server ContextFactory
+The `core::socket::stream::SocketConnection` object involved is managed internally by the SNode.C and represents the physical connection between the server and a client. This `core::socket::stream::SocketConnection` is used by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
+
+#### Echo-Server ContextFactory
+
+The `create()` method of our `EchoServerContextFactory` returns the `EchoServerContext` whose implementation is presented in the SocketContext section below.
 
 ```c++
-class PingPongServerContextFactory : public core::socket::stream::SocketContextFactory {
+class EchoServerContextFactory : public core::socket::stream::SocketContextFactory {
 private:
     core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-        return new PingPongServerContext(socketConnection);
+        return new EchoServerContext(socketConnection);
     }
 };
 ```
 
-#### PingPong-Client ContextFactory
+#### Echo-Client ContextFactory
+
+The `create()` method of our `EchoClientContextFactory` returns the `EchoClientContext` whose implementation is presented in the SocketContext section below.
 
 ```c++
-class PingPongClientContextFactory : public core::socket::stream::SocketContextFactory {
+class EchoClientContextFactory : public core::socket::stream::SocketContextFactory {
 private:
     core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-        return new PingPongClientContext(socketConnection);
+        return new EchoClientContext(socketConnection);
     }  
 };
 ```
@@ -60,72 +121,95 @@ That's easy, isn't it?
 
 ### SocketContexts
 
-It is also not difficult to implement the SocketContext classes for the server and the client. Remember, we need to derive from the base `core::socket::stream::SocketContext`.
+It is also not difficult to implement the SocketContext classes for the server and the client. 
 
-#### PingPong-Server Context
+- Remember, we need to derive from the base class `core::socket::stream::SocketContext`. 
+- And also remember the required functionality: The server shall reflect the received data back to the client!
+- And at last remember that `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection` to handle the physical data exchange. Thus, we have to pass the pointer to the SocketConnection to the constructor of the base `core::socket::stream::SocketContext` class.
+
+The base class `core::socket::stream::SocketContext` provides some virtual methods which can be overridden in an concrete SocketContext class. These methods will be called by the framework automaticaly.
+
+#### Echo-Server Context
+
+For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some data have already been received from the client. Nevertheless, for more information of what is going on in behind the methods `onConnected` and `onDisconnected` are overridden also. 
 
 ```c++
-class PingPongServerContext : public core::socket::stream::SocketContext {
+class EchoServerContext : public core::socket::stream::SocketContext {
 public:
-    explicit PingPongServerContext(core::socket::stream::SocketConnection* socketConnection) 
+    explicit EchoServerContext(core::socket::stream::SocketConnection* socketConnection) 
     	: core::socket::stream::SocketContext(socketConnection) {
     }
+
 private: 
-    void onConnected() override { // called in case a connection has been established successfully
-    	std::cout << "PingPong server connected to " << socketConnection->getRemoteAddress().toString() << std::endl;
+    void onConnected() override { // Called in case a connection has been established successfully.
+    	std::cout << "Echo connected to " << socketConnection->getRemoteAddress().toString() << std::endl;
     }
     
-    void onDisconnected() override { // called in case the connection has been closed
-        std::cout << "PingPong server disconnected from " << socketConnection->getRemoteAddress().toString() << std::endl;
+    void onDisconnected() override { // Called in case the connection has been closed.
+        std::cout << "Echo disconnected from " << socketConnection->getRemoteAddress().toString() << std::endl;
     }
     
-    std::size_t onReceiveFromPeer() override { // called in case data have already been received by the framework
-                                               // and thus are ready for preccessing
+    std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
+                                                // and thus are ready for preccessing.
     	char junk[4096];
 
-        std::size_t junkLen = readFromPeer(junk, 4096);
-
+        std::size_t junkLen = readFromPeer(junk, 4096); // Fetch data.
+                                                        // In case there are less than 4096 bytes available return at 
+                                                        // least that amount of data.
+                                                        // In case more than 4096 bytes are available 
+                                                        // onReceivedFromPeer will be called again.
+                                                        // No error can occure here.
         if (junkLen > 0) {
             std::cout << "Data to reflect: " << std::string(junk, junklen);
-            sendToPeer(junk, junklen);
+            sendToPeer(junk, junklen); // Reflect the received data back to the client.
+                                       // Out of memory is the only error which can occure here.
         }
 
-        return junkLen;
+        return junkLen; // Return the amount of data processed to the framework.
     }
 };
 ```
 
-#### PingPong-Client Context
+#### Echo-Client Context
+
+The echo client SocketContext in contrast to the server SocketContext, *needs* an overridden `onConnected` method, to initiate the ping-pong data exchange.
 
 ```c++
-class PingPongClientContext : public core::socket::stream::SocketContext {
+class EchoClientContext : public core::socket::stream::SocketContext {
 public:
-    explicit PingPongClientContext(core::socket::stream::SocketConnection* socketConnection) 
-        : core::socket::stream::SocketContext(socketConnection)
-    
-    void onConnected() override { // called in case a connection has been established successfully
-        std::cout << "PingPong client connected to " << socketConnection->getRemoteAddress().toString() << std::endl;
-        std::cout << "Initiating data exchange" << std::endl;
+    explicit EchoClientContext(core::socket::stream::SocketConnection* socketConnection) 
+        : core::socket::stream::SocketContext(socketConnection) {
+    }
+
+private:
+    void onConnected() override { // Called in case a connection has been established successfully.
+        std::cout << "Echo connected to " << socketConnection->getRemoteAddress().toString() << std::endl;
         
-        sendToPeer("Hello peer! Nice to talk to you!!!");
+        std::cout << "Initiating data exchange" << std::endl;
+        sendToPeer("Hello peer! It's nice talking to you!!!"); // Initiate the ping-pong data exchange.
     }
     
-    void onDisconnected() override { // called in case the connection has been closed
-        std::cout << "PingPong client disconnected from " << socketConnection->getRemoteAddress().toString() << std::endl;
+    void onDisconnected() override { // Called in case the connection has been closed.
+        std::cout << "Echo disconnected from " << socketConnection->getRemoteAddress().toString() << std::endl;
     }
     
-    std::size_t onReceiveFromPeer() override { // called in case data have already been received by the framework
-                                               // and thus are ready for preccessing
+    std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
+                                                // and thus are ready for preccessing.
         char junk[4096];
 
-        std::size_t junkLen = readFromPeer(junk, 4096);
-
+        std::size_t junkLen = readFromPeer(junk, 4096); // Fetch data.
+                                                        // In case there are less than 4096 bytes available return at 
+                                                        // least that amount of data.
+                                                        // In case more than 4096 bytes are available 
+                                                        // onReceivedFromPeer will be called again.
+                                                        // No error can occure here.
         if (junkLen > 0) {
             std::cout << "Data to reflect: " << std::string(junk, junklen);
-            sendToPeer(junk, junklen);
+            sendToPeer(junk, junklen); // Reflect the received data back to the server.
+                                       // Out of memory is the only error which can occure here.
         }
 
-        return junkLen;
+        return junkLen; // Return the amount of data processed to the framework.
     }
 };
 ```
@@ -134,55 +218,165 @@ public:
 
 Now we can put all together and implement the server and client main applications.
 
-#### PingPong-Server Main Application
+#### Echo-Server Main Application
 
 ```c++
 int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv);
+    core::SNodeC::init(argc, argv); // Initialize the framework.
+                                    // Configure logging, create command line arguments, daemonize if requested.
     
-    using PingPongServer = net::ipv4::stream::legacy::SocketServer<PingPongServerContextFactory>;
-    using SocketAddress = PingPongServer::SocketAddress;
+    using EchoServer = net::in::stream::legacy::SocketServer<EchoServerContextFactory>; // Simplify data type
+                                                                                                // Note the use of our implemented
+                                                                                                // EchoServerContextFactory as
+                                                                                                // template argument
+    using SocketAddress = EchoServer::SocketAddress; // Simplify data type
     
-    PingPongServer pingPongServer;
+    EchoServer echoServer; // Create server instance
     
-    pingPongServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void {
+    echoServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
         if (err == 0){
-            std::cout << "Success: PingPong server listening on " << socketAddress.toString() << std::endl;
+            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
         } else {
-            std::cout << "Error: PingPong server listening on " << socketAddress.toString() << ": " << perror("") << std::endl;
+            std::cout << "Error: Echo server listening on " << socketAddress.toString() << ": " << perror("") << std::endl;
         }
     });
     
-    return core::SNodeC::start();
+    return core::SNodeC::start(); // Start the event loop.
 }
 ```
 
-#### PingPong-Client Main Application
+#### Echo-Client Main Application
 
 ```c++
 int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv);
+    core::SNodeC::init(argc, argv); // Initialize the framework.
+                                    // Configure logging, create command line arguments, daemonize if requested.
     
-    using PingPongClient = net::ipv4::stream::legacy::SocketClient<PingPongClientContextFactory>;
-    using SocketAddress = PingPongServer::SocketAddress;
+    using EchogClient = net::in::stream::legacy::SocketClient<EchoClientContextFactory>; // Simplify data type
+                                                                                                // Note the use of our implemented
+                                                                                                // EchoClientContextFactory as
+                                                                                                // template argument
+    using SocketAddress = EchogClient::SocketAddress; // Simplify data type
     
-    PingPongClient pingPongClient;
+    EchogClient echoClient; // Create client instance
     
-    pingPongClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, int err) -> void {
+    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, int err) -> void { // Connect to server
         if (err == 0){
-            std::cout << "Success: PingPong connecting to " << socketAddress.toString() << std::endl;
+            std::cout << "Success: Echo connecting to " << socketAddress.toString() << std::endl;
         } else {
-            std::cout << "Error: PingPong client connecting to " << socketAddress.toString() << ": " << perror("");
+            std::cout << "Error: Echo client connecting to " << socketAddress.toString() << ": " << perror("");
         }
     });
     
-    return core::SNodeC::start();
+    return core::SNodeC::start(); // Start the event loop.
 }
 ```
 
-## Initial Design Decisions
+## Summary
 
-- Single-threaded, single-tasking,
+The echo application shows the typical architecture of every server and client applications implemented using SNode.C.
+
+The user needs to provide the application protocol layer by implementing the classes
+
+- SocketContextFactory
+- SocketContext
+
+This classes need to be derived from the base classes
+
+- `core::socket::stream::SocketContextFactory`
+- `core::socket::stream::SocketContext`
+
+The framework provides
+
+- ready to use server and client template classes for each network layer/transport layer combination.
+
+# Installation
+
+SNode.C depends on some external libraries. Some of these libraries are directly included in the framework.
+
+## Supported Systems and Hardware
+
+The main development of SNode.C takes place on an debian style linux system. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
+
+SNode.C is known to compile run cleanly on
+
+- x86 architectures (32 and 64 bit)
+  - Tested on HP ZBook 15 G8
+- Arm architectures (32 and 64 bit)
+  - Tested on Raspberry Pi
+
+## Tools
+
+### Required
+
+- git ([https://git-scm.com/](https://git-scm.com/))
+- cmake ([https://cmake.org/](https://cmake.org/))
+- make ([https://www.gnu.org/software/make/#:~:text=GNU%20Make%20is%20a%20tool,compute%20it%20from%20other%20files.](https://www.gnu.org/software/make/#:~:text=GNU%20Make%20is%20a%20tool,compute%20it%20from%20other%20files.)) or 
+- ninja ([https://ninja-build.org/](https://ninja-build.org/))
+- g++ ([https://gcc.gnu.org/](https://gcc.gnu.org/)) or 
+- clang ([https://clang.llvm.org/](https://clang.llvm.org/))
+- pkg-config ([https://www.freedesktop.org/wiki/Software/pkg-config/](https://www.freedesktop.org/wiki/Software/pkg-config/))
+
+### Optional
+
+- iwyu ([https://include-what-you-use.org/](https://include-what-you-use.org/))
+- clang-format ([https://clang.llvm.org/docs/ClangFormat.html](https://clang.llvm.org/docs/ClangFormat.html))
+- cmake-format ([https://cmake-format.readthedocs.io/en/latest/cmake-format.html](https://cmake-format.readthedocs.io/en/latest/cmake-format.html))
+- doxygen ([https://www.doxygen.nl/](https://www.doxygen.nl/))
+
+## Libraries
+
+### Required
+
+- Easylogging ([https://github.com/amrayn/easyloggingpp](https://github.com/amrayn/easyloggingpp))
+- OpenSSL ([https://www.openssl.org/](https://www.openssl.org/))
+- Nlohmann-JSON ([https://json.nlohmann.me/](https://json.nlohmann.me/))
+
+### Optional
+
+- Bluez development files ([http://www.bluez.org/](http://www.bluez.org/))
+- LibMagic development files ([https://www.darwinsys.com/file/](https://www.darwinsys.com/file/))
+- MariaDB client development files ([https://mariadb.org/](https://mariadb.org/))
+
+### In Framework
+
+This components are already integrated directly in SNode.C. Thus they need not be installed by hand
+
+- CLI11 ([https://github.com/CLIUtils/CLI11](https://github.com/CLIUtils/CLI11))
+
+## Installation on debian style systems (x86, Arm)
+
+### Dependencies
+
+To install all dependencies on debian style systems just run
+
+```sh
+sudo apt update
+sudo apt install git cmake make ninja-build g++ clang pkg-config
+sudo apt install iwyu clang-format cmake-format doxygen
+sudo apt install libeasyloggingpp-dev libssl-dev nlohmann-json3-dev
+sudo apt install libbluetooth-dev libmagic-dev libmariadb-dev
+```
+
+### SNode.C
+
+After installing alle dependencies SNode.C can be cloned from github and compiled
+
+```sh
+mkdir snode.c
+cd snode.c
+git clone https://github.com/VolkerChristian/snode.c.git
+mkdir build
+cd build
+cmake ../snode.c
+make
+sudo make install
+```
+
+# Design Decisions and Features
+
+- Object orientated
+- Single-threaded, single-tasking
 - Event driven (asynchronous)
 - Layer based
 - Support for single shot and interval timer 
@@ -198,90 +392,24 @@ int main(int argc, char* argv[]) {
 
 ## Transport Layer
 
-Currently only connection oriented protocols (SOCK_STREAM) for all network layer protocols are supported. For IPv4 and IPv6 this means TCP.
+Currently only connection-oriented protocols (SOCK_STREAM) for all network layer protocols are supported. For IPv4 and IPv6 this means TCP.
 
-Every transport layer provide a common API which makes it very easy to create servers and clients for different network and supports unencrypted and SSL/TLS encrypted communication.
+- Every transport layer protocol provides a common base API which makes it very easy to create servers and clients for the different network layers.
+- New application protocols can be connected to the transport layer very easily.
+- Transparently offers SSL/TLS encryption provided by openssl for each supportet network protocol and thus, also for all application level protocols.
+  - Support of X.509 certificates. TLS/SSL connections can be protected and authenticated using certificates.
+  - Server Name Indication is supported.
 
-The transport layer is totally application protocol agnostic.
 
-Application protocols like e.g. HTTP(S) can be connected very easily
+## Application Layer
 
-But a rudimentary datagram 
+In-framework support currently exist for the application level protocols
 
-- Application protocol independent TCP server and TCP client functionality
-  Application protocols can be connected easily and modularly.
-  Currently in-framework support exists for
-  - HTTP and WebSocket
-  - MQTT and MQTT via WebSockets
-
-- Application protocol independent bluetooth RFCOMM and L2CAP server and client functionality. Application protocols can be easily and modularly connected.
-- TLS/SSL encryption for server and client (TCP, RFCOMM).
-- Support of X.509 certificates. TLS/SSL connections can be protected and authenticated using certificates (TCP, RFCOMM).
-- Fully implemented HTTP(S) application protocol layer (server and client) to which the application logic can be easily connected.
-- High-Level Web API layer with JSON support similar to the API of node.js/express. (Speedup compared to node.js/express approx. 40)
-
-## Copyright
-GNU Lesser General Public License
-
-### Initiator and Main developer
-- Volker Christian (me_AT_vchrist.at, volker.christian_AT_fh-hagenberg.at)
-
-### Contributors (Students)
-#### Json Middleware
-- Marlene Mayr
-- Anna Moser
-- Matteo Prock
-- Eric Thalhammer
-
-#### Regular-Expression Route-Mapping
-- Joelle Helgert
-- Julia Gruber
-- Patrick Brandstätter
-- Fabian Mohr
-
-#### Runtime Module Loading
-
-## Requirements
-- On Debian-Style-Systems run  
-    **sudo apt install doxygen iwyu clang-format cmake-format libmagic-dev libbackward-cpp-dev
-    libdw-dev libdwarf-dev binutils-dev librange-v3-dev libssl-dev libeasyloggingpp-dev libbluetooth-dev nlohmann-json3-dev**  
-  to install all neccesarry dependencies.
-- cmake-format
-- doxygen
-- libeasyloggingpp-dev
-- clang-format
-- libbackward-cpp-dev
-- binutils-dev libdw-dev libunwind-dev
-- libbluetooth-dev
-- libssl-dev
-- nlohmann-json3-dev
-- libmagic-dev
-- iwyu
-- cmake
-
-## Components
-- libnet (directory net) low level multiplexed network-layer (server/client) with event-loop supporting legacy- and tls-connections
-- libhttp (directory http) low level http server and client
-- libexpress (directory express) high level web-api similar to node.js's express module
-- example applications (directory apps)
-
-## TODOs
-- Add better error processing in HTTPResponseParser
-- Extend regex-match in Router (path-to-regex in JS)
-- Add some more complex example apps (Game, Skill for Alexa, ...)
-- Add WebSocket support for server and client, legacy and tls
-- Add support for Template-Engines (similar to express)
-- Add additional transport protocols (udp, bluetooth, local, ipv6, ...)
-- Implement other protocols (contexts) than http (e.g. mqtt, ftp would be interresting, telnet, smtp)
-- Finalize cmake-rules to support install
-- Add cmake description files
-- Add "logical" events
-- Support "promisses"
-- Add OAUTH2 server/client authentification
-- Write unit tests
-- Porting snode.c to MS-Windows
-- Porting snode.c to macOS
-- Add onSSLConnect callback
+- HTTP/1.1
+- WebSocket version 13
+- MQTT version 3.1.1 (version 5.0 is in preparation)
+- MQTT via WebSockets
+- High-Level Web API layer with JSON support very similar to the API of node.js/express.
 
 ## Example Applications
 ### Very Simple HTTP/S Web-Server for static HTML-Pages

@@ -78,7 +78,7 @@ namespace web::http::server {
         ~SocketContext() override;
 
     private:
-        std::size_t onReceiveFromPeer() override;
+        std::size_t onReceivedFromPeer() override;
 
         void sendToPeerCompleted() override;
 

@@ -45,7 +45,7 @@ namespace apps::echo::model {
         VLOG(0) << "Echo disconnected";
     }
 
-    std::size_t EchoSocketContext::onReceiveFromPeer() {
+    std::size_t EchoSocketContext::onReceivedFromPeer() {
         char junk[4096];
 
         std::size_t junklen = readFromPeer(junk, 4096);

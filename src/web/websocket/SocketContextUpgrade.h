@@ -274,7 +274,7 @@ namespace web::websocket {
         }
 
         /* SocketContext */
-        std::size_t onReceiveFromPeer() override {
+        std::size_t onReceivedFromPeer() override {
             return Receiver::receive();
         }
 

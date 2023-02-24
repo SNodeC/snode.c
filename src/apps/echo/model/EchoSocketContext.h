@@ -42,7 +42,7 @@ namespace apps::echo::model {
         void onConnected() override;
         void onDisconnected() override;
 
-        std::size_t onReceiveFromPeer() override;
+        std::size_t onReceivedFromPeer() override;
 
     private:
         Role role;
