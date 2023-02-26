@@ -91,10 +91,10 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    using TLSWebApp = express::legacy::in::WebApp;
+    using TLSWebApp = express::tls::in::WebApp;
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
-    express::tls::in::WebApp tlsApp;
+    TLSWebApp tlsApp;
     tlsApp.getConfig().setReuseAddress();
 
     tlsApp.getConfig().setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
