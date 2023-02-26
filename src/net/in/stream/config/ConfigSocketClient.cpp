@@ -33,3 +33,5 @@ namespace net::in::stream::config {
     }
 
 } // namespace net::in::stream::config
+
+template class net::stream::config::ConfigSocketClient<net::in::config::ConfigAddress>;

@@ -63,3 +63,5 @@ namespace net::in::stream::config {
     }
 
 } // namespace net::in::stream::config
+
+template class net::stream::config::ConfigSocketServer<net::in::config::ConfigAddress>;

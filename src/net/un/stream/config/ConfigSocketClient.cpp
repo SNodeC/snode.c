@@ -32,3 +32,5 @@ namespace net::un::stream::config {
     }
 
 } // namespace net::un::stream::config
+
+template class net::stream::config::ConfigSocketClient<net::un::config::ConfigAddress>;

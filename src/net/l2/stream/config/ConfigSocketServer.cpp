@@ -32,3 +32,5 @@ namespace net::l2::stream::config {
     }
 
 } // namespace net::l2::stream::config
+
+template class net::stream::config::ConfigSocketServer<net::l2::config::ConfigAddress>;

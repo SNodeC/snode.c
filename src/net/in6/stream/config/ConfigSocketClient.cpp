@@ -65,3 +65,5 @@ namespace net::in6::stream::config {
     }
 
 } // namespace net::in6::stream::config
+
+template class net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress>;
