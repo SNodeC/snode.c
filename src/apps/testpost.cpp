@@ -27,7 +27,11 @@
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    express::legacy::in::WebApp legacyApp("legacy-testpost");
+    using LegacyWebApp = express::legacy::in::WebApp;
+    using LegacySocketAddress = LegacyWebApp::SocketAddress;
+
+    LegacyWebApp legacyApp;
+    legacyApp.getConfig().setReuseAddress();
 
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
@@ -47,14 +51,14 @@ int main(int argc, char* argv[]) {
                  "        </style>"
                  "    </head>"
                  "    <body>"
-                 "        <h1>Datei-Upload mit input type=\"file\"</h1>"
+                 "        <h1>File-Upload with input type=\"file\"</h1>"
                  "        <main>"
-                 "            <h2>Schicken Sie uns was Schickes!</h2>"
+                 "            <h2>Send us something fancy!</h2>"
                  "            <form method=\"post\" enctype=\"multipart/form-data\">"
-                 "                <label> Wählen Sie eine Textdatei (*.txt, *.html usw.) von Ihrem Rechner aus."
+                 "                <label> Select a text file (*.txt, *.html etc.) from your computer."
                  "                    <input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
                  "                </label>"
-                 "                <button>… und ab geht die Post!</button>"
+                 "                <button>… and off we go!</button>"
                  "            </form>"
                  "        </main>"
                  "    </body>"
@@ -70,31 +74,40 @@ int main(int argc, char* argv[]) {
 
         res.send("<html>"
                  "    <body>"
-                 "        <h1>Thank you</h1>"
+                 "        <h1>Thank you, we received your file!</h1>"
+                 "        <h2>Content:</h2>"
+                 "<pre>" +
+                 std::string(reinterpret_cast<char*>(req.body.data())) +
+                 "</pre>"
                  "    </body>"
                  "</html>");
     });
 
-    express::tls::in::WebApp tlsApp("tls-testpost");
-    tlsApp.use(legacyApp);
-
-    legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) -> void {
+        if (errnum != 0) {
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            VLOG(0) << "LegacyWebApp listening on " << socketAddress.toString();
         }
     });
 
-    tlsApp.listen(8088, [](const express::tls::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
+    using TLSWebApp = express::legacy::in::WebApp;
+    using TLSSocketAddress = TLSWebApp::SocketAddress;
+
+    express::tls::in::WebApp tlsApp;
+    tlsApp.getConfig().setReuseAddress();
+
+    tlsApp.getConfig().setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
+    tlsApp.getConfig().setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
+    tlsApp.getConfig().setCertKeyPassword("snode.c");
+
+    tlsApp.use(legacyApp);
+
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) -> void {
+        if (errnum != 0) {
             PLOG(ERROR) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            VLOG(0) << "TLSWebApp listening on " << socketAddress.toString();
         }
     });
 

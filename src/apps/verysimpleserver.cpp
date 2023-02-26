@@ -31,13 +31,15 @@ int main(int argc, char* argv[]) {
 
     express::WebApp::init(argc, argv);
 
-    express::legacy::in::WebApp legacyApp;
+    using LegacyWebApp = express::legacy::in::WebApp;
+    using LegacySocketAddress = LegacyWebApp::SocketAddress;
+
+    LegacyWebApp legacyApp;
+    legacyApp.getConfig().setReuseAddress();
+
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    express::tls::in::WebApp tlsApp;
-    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
-
-    legacyApp.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, int errnum) {
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";
         } else if (errnum > 0) {
@@ -47,7 +49,19 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tlsApp.listen(8088, [](const express::tls::in::WebApp::SocketAddress& socketAddress, int errnum) {
+    using TLSWebApp = express::tls::in::WebApp;
+    using TLSSocketAddress = TLSWebApp::SocketAddress;
+
+    TLSWebApp tlsApp;
+    tlsApp.getConfig().setReuseAddress();
+
+    tlsApp.getConfig().setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
+    tlsApp.getConfig().setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
+    tlsApp.getConfig().setCertKeyPassword("snode.c");
+
+    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {
             PLOG(ERROR) << "OnError";
         } else if (errnum > 0) {
