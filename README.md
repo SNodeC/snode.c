@@ -26,6 +26,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
          * [Echo-Client Main Application](#echo-client-main-application)
    * [Summary](#summary)
 * [Installation](#installation)
+   * [Minimum required Compiler Versions](#minimum-required-compiler-versions)
    * [Supported Systems and Hardware](#supported-systems-and-hardware)
    * [Tools](#tools)
       * [Required](#required)
@@ -42,12 +43,12 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Transport Layer](#transport-layer)
    * [Application Layer](#application-layer)
 * [Example Applications](#example-applications)
-   * [HTTP/S Web-Server for static HTML-Pages](#https-web-server-for-static-html-pages)
+   * [HTTP/S Web-Server for Static HTML-Pages](#https-web-server-for-static-html-pages)
    * [Receive Data via HTTP-Post Request](#receive-data-via-http-post-request)
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Sun Feb 26 19:33:04 UTC 2023 -->
+<!-- Added by: runner, at: Sun Feb 26 21:38:25 UTC 2023 -->
 
 <!--te-->
 
@@ -57,7 +58,7 @@ SNode.C is released under the **GNU Lesser General Public License, Version 3** (
 
 # Copyright
 
-\(c\) Volker Christian ([mailto://<me@vchrist.at>](mailto://me@vchrist.at))
+Volker Christian ([me@vchrist.at](mailto:me@vchrist.at) or [Volker.Christian@fh-hagenberg.at](mailto:volker.christian@fh-hagenberg.at))
 
 Some components are also copyrighted by Students
 
@@ -93,7 +94,7 @@ Some components are also copyrighted by Students
 
 Basically the architecture of every server and client application is the same and consists of three components.
 
--   Server and/or client instance
+-   Server respective client instance
 -   SocketContextFactory
 -   SocketContext
 
@@ -113,17 +114,20 @@ For the server role we just need to create an object of type
 net::in::stream::legacy::SocketServer<SocketContextFactory>
 ```
 
-and for the client role an object of type
+called a *server instance* and for the client role an object of type
 
 ``` c++
 net::in::stream::legacy::SocketClient<SocketContextFactory>
 ```
 
-is needed.
+called *client instance* is needed.
 
-Both roles expect a class `SocketContextFactory`as template argument.
+Both role classes have a default constructor and a constructor expecting an instance name as argument. 
 
-Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents the concrete application protocol.
+- When the default constructor is used to create the instance object this instance is called an *unnamed instance*, in contrast to a *named instance* if the constructors expecting a `std::string` is used for object creation. 
+- For named instances command line arguments and configuration file entries are created automatically to configure the instance.
+
+A class `SocketContextFactory` is used for both roles as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
 
 Thus, for our echo application we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, which is the base class of all connection-oriented (stream) application protocols, and factories derived from `core::socket::stream::SocketContextFactory`.
 
@@ -133,13 +137,11 @@ Let\'s focus on the SocketContextFactories for our server and client first.
 
 All what needs to be done is to implement a pure virtual method `create()`witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a concrete application SocketContext.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by the SNode.C and represents the physical connection between the server and a client. This `core::socket::stream::SocketConnection` is used by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the physical connection between the server and a client. This `core::socket::stream::SocketConnection` is used by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
 
 #### Echo-Server ContextFactory
 
-The `create()` method of our `EchoServerContextFactory` returns the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts)
-
- section below.
+The `create()` method of our `EchoServerContextFactory` returns the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
 
 ``` c++
 class EchoServerContextFactory : public core::socket::stream::SocketContextFactory {
@@ -152,7 +154,7 @@ private:
 
 #### Echo-Client ContextFactory
 
-The `create()` method of our `EchoClientContextFactory` returns the `EchoClientContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
+The `create()` method of our `EchoClientContextFactory` returns the `EchoClientContext` whose implementation is also presented in the [SocketContexts](#SocketContexts) section below.
 
 ``` c++
 class EchoClientContextFactory : public core::socket::stream::SocketContextFactory {
@@ -178,9 +180,11 @@ The base class `core::socket::stream::SocketContext` provides some virtual metho
 
 #### Echo-Server Context
 
-For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some data have already been received from the client. 
+For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some data have already been received from the client. Nevertheless, for more information of what is going on in behind the methods `onConnected` and `onDisconnected` are overridden also.
 
-Nevertheless, for more information of what is going on in behind the methods `onConnected` and `onDisconnected` are overridden also.
+In the `onReceivedFromPeer()` method we can fetch data already received by SNode.C by using the `readFromPeer()` method provided by the `core::socket::stream::SocketContext` class.
+
+Sending data to the client is done using the method `sendToPeer()` which is also provided by the `core::socket::stream::SocketContext` class.
 
 ``` c++
 class EchoServerContext : public core::socket::stream::SocketContext {
@@ -222,6 +226,8 @@ private:
 #### Echo-Client Context
 
 The echo client SocketContext in contrast to the server SocketContext, *needs* an overridden `onConnected` method, to initiate the ping-pong data exchange.
+
+Like in the `EchoServerContext` `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` method. In addition `sendToPeer()` is also used in the `onConnected()` method to initiate the ping-pong data exchange.
 
 ``` c++
 class EchoClientContext : public core::socket::stream::SocketContext {
@@ -265,9 +271,19 @@ private:
 
 ### Main Applications for server and client
 
-Now we can put all together and implement the server and client main applications.
+Now we can put all together and implement the server and client main applications. Here nameless instances are created - thus we will get no command line arguments automatically.
+
+Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
+
+At the very beginning the SNode.C must be initialized by calling `core::SNodeC::init(argc, argv)`. And at the end of the main applications the event-loop of SNode.C is started by calling `core::SNodeC::start()`.
 
 #### Echo-Server Main Application
+
+The server instance `echoServer` must be activated by calling `echoServer.listen()`.
+
+SNode.C provides a view overloaded `listen()` methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a lambda function as last argument. Here we use IPv4 and the `listen()` method which expects a port number as argument.
+
+If we would have created a named server instance than a special `listen()` method which only expects the lambda function as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
 ``` c++
 int main(int argc, char* argv[]) {
@@ -296,6 +312,12 @@ int main(int argc, char* argv[]) {
 
 #### Echo-Client Main Application
 
+The client instance `echoClient` must connect to the server by calling `echoClient.connect()`.
+
+Equivalent to the server instance a client instance provides a view overloaded `connect()` methods whose arguments also vary depending on the network layer used. Here it is expected that the server runs on the same machine as the client.
+
+If we would have created a named client instance than a special `connect()` method which only expects the lambda function can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+
 ``` c++
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv); // Initialize the framework.
@@ -323,7 +345,7 @@ int main(int argc, char* argv[]) {
 
 ## Summary
 
-The echo application shows the typical architecture of every server and client applications implemented using SNode.C.
+The echo application shows the typical architecture of servers and clients implemented using SNode.C.
 
 - The user needs to provide the application protocol layer by implementing the classe
 
@@ -340,20 +362,24 @@ The echo application shows the typical architecture of every server and client a
 
   -   ready to use server and client template classes for each network/transport layer combination.
 
-
 # Installation
 
 SNode.C depends on some external libraries. Some of these libraries are directly included in the framework.
 
+The only version-critical dependencies are the C++ compilers. Either the GCC or Clang can be used but they need to be of a relatively up to date version because SNode.C uses some new C++20 features internally.
+
+## Minimum required Compiler Versions
+
+- GCC 10.2
+- Clang 11.0
+
 ## Supported Systems and Hardware
 
-The main development of SNode.C takes place on an debian style linux system. 
-
-Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
+The main development of SNode.C takes place on an debian style linux system. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
 
 SNode.C is known to compile and run successfull on
 
--   x86 architectures (32 and 64 bit)
+-   x86 architectures
     -   Tested on HP ZBook 15 G8
 -   Arm architectures (32 and 64 bit)
     -   Tested on Raspberry Pi
@@ -394,7 +420,7 @@ SNode.C is known to compile and run successfull on
 
 ### In-Framework
 
-This components are already integrated directly in SNode.C. Thus they need not be installed by hand
+This libraries are already integrated directly in SNode.C. Thus they need not be installed by hand
 
 -   CLI11 ([<https://github.com/CLIUtils/CLI11>](https://github.com/CLIUtils/CLI11))
 
@@ -431,18 +457,24 @@ sudo make install
 
 As SNode.C uses C++ templates a lot the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3) if just one core is activated for compilation.
 
-It is a good idea to utilize all processor-cores and -threads for compilation. Thus e.g. on a Raspberry Pi append `-j4` to the `make`  or `ninja` command.
+It is a good idea to utilize all processor cores and threads for compilation. Thus e.g. on a Raspberry Pi append `-j4` to the `make`  or `ninja` command.
 
 # Design Decisions and Features
 
+-   Easy to use
+-   Clear and clean architecture
 -   Object orientated
--   Single-threaded, single-tasking
--   Event driven (asynchronous)
+-   Single-threaded
+-   Single-tasking
+-   Event driven
 -   Layer based
--   Support for single shot and interval timer
 -   Modular
+-   Support for single shot and interval timer
+-   For named server and client instances automated command line argument production and configuration file support
 
 ## Network Layer
+
+SNode.C currently supports five different network layer protocols.
 
 -   Internet Protocol version 4 (IPv4)
 -   Internet Protocol version 6 (IPv6)
@@ -458,7 +490,7 @@ Currently only connection-oriented protocols (SOCK_STREAM) for all supported net
 -   New application protocols can be connected to the transport layer very easily by just implementing a SocketFactory and a SocketContext class.
 -   Transparently offers SSL/TLS encryption provided by OpenSSL for each supportet network protocol and thus, also for all application level protocols.
     -   Support of X.509 certificates.
-    -   Server Name Indication is supported (used e.g. for virtual web servers).
+    -   Server Name Indication (SNI) is supported (useful for e.g. virtual web servers).
 
 ## Application Layer
 
@@ -472,7 +504,11 @@ In-framework support currently exist for the application level protocols
 
 # Example Applications
 
-## HTTP/S Web-Server for static HTML-Pages
+## HTTP/S Web-Server for Static HTML-Pages
+
+This application uses the high-level web API which is very similar to the API of node.js/express. The `StaticMiddleware` is used to deliver the static HTML-pages.
+
+The use of X.509 certificates for encrypted communication is demonstrated also.
 
 ``` cpp
 #include <express/legacy/in/WebApp.h>
@@ -486,13 +522,15 @@ int main(int argc, char* argv[]) {
 
     express::WebApp::init(argc, argv);
 
+    using StaticMiddleware = express::middleware::StaticMiddleware;
+    
     using LegacyWebApp = express::legacy::in::WebApp;
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
     LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
 
-    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+    legacyApp.use(StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
     legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {
@@ -508,13 +546,14 @@ int main(int argc, char* argv[]) {
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
     TLSWebApp tlsApp;
+    
     tlsApp.getConfig().setReuseAddress();
 
-    tlsApp.getConfig().setCertChain("<path to X509 certificate chain>");
-    tlsApp.getConfig().setCertKey("<path to X509 certificate key>");
+    tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
+    tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
     tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
 
-    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+    tlsApp.use(StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
     tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {
@@ -532,6 +571,8 @@ int main(int argc, char* argv[]) {
 
 ## Receive Data via HTTP-Post Request
 
+The high-level web API provides the methods `get()`, `post()`, `put()`, etc like node.js/express.
+
 ``` cpp
 #include <express/legacy/in/WebApp.h>
 #include <express/tls/in/WebApp.h>
@@ -546,6 +587,7 @@ int main(int argc, char* argv[]) {
     LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
 
+    // The macro APPLICATION(req, res) expands to (express::Request& req, express::Response& res)
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
                  "    <head>"
@@ -600,14 +642,15 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    using TLSWebApp = express::legacy::in::WebApp;
+    using TLSWebApp = express::tls::in::WebApp;
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
-    express::tls::in::WebApp tlsApp;
+    TLSWebApp tlsApp;
+    
     tlsApp.getConfig().setReuseAddress();
 
-    tlsApp.getConfig().setCertChain("<path to X509 certificate chain>");
-    tlsApp.getConfig().setCertKey("<path to X509 certificate key>");
+    tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
+    tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
     tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
 
     tlsApp.use(legacyApp);
@@ -627,13 +670,13 @@ int main(int argc, char* argv[]) {
 ## Extract Server and Client Information (host name, IP, port, SSL/TLS information)
 
 ``` cpp
-
+To be documented soon
 ```
 
 ## Using Regular Expressions in Routes
 
 ``` cpp
-
+To be documented soon
 ```
 
 
