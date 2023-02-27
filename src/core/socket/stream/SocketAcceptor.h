@@ -108,7 +108,7 @@ namespace core::socket::stream {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
-                        VLOG(0) << config->getInstanceName() << " mode: PRIMARY";
+                        VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName()) << " mode: PRIMARY";
                         secondaryPhysicalSocket = new SecondarySocket();
                         if (secondaryPhysicalSocket->open(std::map<int, core::socket::PhysicalSocketOption>(),
                                                           SecondarySocket::Flags::NONBLOCK) < 0) {
@@ -123,7 +123,8 @@ namespace core::socket::stream {
                             enable(primaryPhysicalSocket->getFd());
                         }
                     } else {
-                        VLOG(0) << config->getInstanceName() << " mode: STANDALONE";
+                        VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName())
+                                << " mode: STANDALONE";
                         onError(config->getLocalAddress(), 0);
                         enable(primaryPhysicalSocket->getFd());
                     }
@@ -139,7 +140,8 @@ namespace core::socket::stream {
                         onError(config->getLocalAddress(), errno);
                         destruct();
                     } else {
-                        VLOG(0) << config->getInstanceName() << " mode: SECONDARY or PROXY";
+                        VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName())
+                                << " mode: SECONDARY or PROXY";
                         onError(config->getLocalAddress(), errno);
                         enable(secondaryPhysicalSocket->getFd());
                     }
