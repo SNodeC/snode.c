@@ -51,7 +51,7 @@ namespace express::middleware {
         });
     }
 
-    const class JsonMiddleware& JsonMiddleware::instance() {
+    class JsonMiddleware& JsonMiddleware::instance() {
         // Keep the created json middleware alive
         static std::shared_ptr<class JsonMiddleware> jsonMiddleware = nullptr;
 
@@ -63,7 +63,7 @@ namespace express::middleware {
     }
 
     // "Constructor" of JsonMiddleware
-    const class JsonMiddleware& JsonMiddleware() {
+    class JsonMiddleware& JsonMiddleware() {
         return JsonMiddleware::instance();
     }
 

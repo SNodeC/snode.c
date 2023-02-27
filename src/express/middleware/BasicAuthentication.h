@@ -38,11 +38,6 @@ namespace express::middleware {
         static class BasicAuthentication& instance(const std::string& userName, const std::string& password, const std::string& realm);
 
     private:
-        std::string userName;
-        std::string password;
-        std::string realm;
-        std::string credentials;
-
         friend class BasicAuthentication&
         BasicAuthentication(const std::string& userName, const std::string& password, const std::string& realm);
     };

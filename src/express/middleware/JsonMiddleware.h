@@ -41,13 +41,13 @@ namespace express::middleware {
     protected:
         JsonMiddleware();
 
-        static const class JsonMiddleware& instance();
+        static class JsonMiddleware& instance();
 
     private:
-        friend const class JsonMiddleware& JsonMiddleware();
+        friend class JsonMiddleware& JsonMiddleware();
     };
 
-    const class JsonMiddleware& JsonMiddleware();
+    class JsonMiddleware& JsonMiddleware();
 
 } // namespace express::middleware
 
