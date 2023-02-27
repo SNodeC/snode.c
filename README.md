@@ -521,8 +521,6 @@ int main(int argc, char* argv[]) {
     utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
 
     express::WebApp::init(argc, argv);
-
-    using StaticMiddleware = express::middleware::StaticMiddleware;
     
     using LegacyWebApp = express::legacy::in::WebApp;
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
@@ -530,7 +528,7 @@ int main(int argc, char* argv[]) {
     LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
 
-    legacyApp.use(StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
     legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {
@@ -553,7 +551,7 @@ int main(int argc, char* argv[]) {
     tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
     tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
 
-    tlsApp.use(StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
     tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {
