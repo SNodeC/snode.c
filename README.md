@@ -122,12 +122,12 @@ net::in::stream::legacy::SocketClient<SocketContextFactory>
 
 called *client instance* is needed.
 
-Both role classes have a default constructor and a constructor expecting an instance name as argument. 
+Both *instance-classes* have a *default constructor* and a *constructor expecting an instance name* as argument. 
 
-- When the default constructor is used to create the instance object this instance is called an *unnamed instance*, in contrast to a *named instance* if the constructors expecting a `std::string` is used for object creation. 
-- For named instances command line arguments and configuration file entries are created automatically to configure the instance.
+- When the default constructor is used to create the instance object this instance is called an *anonymous instance*, in contrast to a *named instance* if the constructors expecting a `std::string` is used for instance creation. 
+- For named instances *command line arguments and configuration file entries are created automatically* to configure the instance.
 
-A class `SocketContextFactory` is used for both roles as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
+A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
 
 Thus, for our echo application we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, which is the base class of all connection-oriented (stream) application protocols, and factories derived from `core::socket::stream::SocketContextFactory`.
 
@@ -137,7 +137,7 @@ Let\'s focus on the SocketContextFactories for our server and client first.
 
 All what needs to be done is to implement a pure virtual method `create()`witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a concrete application SocketContext.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the physical connection between the server and a client. This `core::socket::stream::SocketConnection` is used by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the *physical connection* between the server and a client. This `core::socket::stream::SocketConnection` is used by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
 
 #### Echo-Server ContextFactory
 
@@ -176,7 +176,7 @@ It is also not difficult to implement the SocketContext classes for the server a
 -   And at last remember that the class  `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection`  to handle the physical data exchange.
     Thus, we have to pass the pointer to the SocketConnection to the constructor of the base `core::socket::stream::SocketContext`  class.
 
-The base class `core::socket::stream::SocketContext` provides some virtual methods which can be overridden in an concrete SocketContext class. These methods will be called by the framework automaticaly.
+The base class `core::socket::stream::SocketContext` provides *some virtual methods* which can be overridden in an concrete SocketContext class. These methods will be *called by the framework automatically*.
 
 #### Echo-Server Context
 
@@ -271,15 +271,15 @@ private:
 
 ### Main Applications for server and client
 
-Now we can put all together and implement the server and client main applications. Here nameless instances are created - thus we will get no command line arguments automatically.
+Now we can put all together and implement the server and client main applications. Here *anonymous instances* are used - thus we will not get command line arguments automatically.
 
 Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
 
-At the very beginning SNode.C must be initialized by calling `core::SNodeC::init(argc, argv)`. And at the end of the main applications the event-loop of SNode.C is started by calling `core::SNodeC::start()`.
+At the very beginning SNode.C must be *initialized* by calling `core::SNodeC::init(argc, argv)`. And at the end of the main applications the *event-loop* of SNode.C is started by calling `core::SNodeC::start()`.
 
 #### Echo-Server Main Application
 
-The server instance `echoServer` must be activated by calling `echoServer.listen()`.
+The server instance `echoServer` must be *activated* by calling `echoServer.listen()`.
 
 SNode.C provides a view overloaded `listen()` methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a lambda function as last argument. Here we use IPv4 and the `listen()` method which expects a port number as argument.
 
@@ -312,9 +312,9 @@ int main(int argc, char* argv[]) {
 
 #### Echo-Client Main Application
 
-The client instance `echoClient` must connect to the server by calling `echoClient.connect()`.
+The client instance `echoClient` must *connect* to the server by calling `echoClient.connect()`.
 
-Equivalent to the server instance a client instance provides a view overloaded `connect()` methods whose arguments also vary depending on the network layer used. Here it is expected that the server runs on the same machine as the client.
+Equivalent to the server instance a client instance provides a view overloaded `connect()` methods whose arguments also vary depending on the network layer used. Here it is assumed that the server runs on the same machine as the client. Thus we pass the hostname "localhost" and port number 8001 to the `connect()` method.
 
 If we would have created a named client instance than a special `connect()` method which only expects the lambda function can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
@@ -345,7 +345,7 @@ int main(int argc, char* argv[]) {
 
 ## Summary
 
-The echo application shows the typical architecture of servers and clients implemented using SNode.C.
+The echo application shows the typical architecture of servers and clients using SNode.C.
 
 - The user needs to provide the application protocol layer by implementing the classe
 
@@ -366,7 +366,7 @@ The echo application shows the typical architecture of servers and clients imple
 
 SNode.C depends on some external libraries. Some of these libraries are directly included in the framework.
 
-The only version-critical dependencies are the C++ compilers. Either the GCC or Clang can be used but they need to be of a relatively up to date version because SNode.C uses some new C++20 features internally.
+The only version-critical dependencies are the C++ compilers. Either GCC or clang can be used but they need to be of a relatively up to date version because SNode.C uses some new C++20 features internally.
 
 ## Minimum required Compiler Versions
 
@@ -375,7 +375,7 @@ The only version-critical dependencies are the C++ compilers. Either the GCC or 
 
 ## Supported Systems and Hardware
 
-The main development of SNode.C takes place on an debian style linux system. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
+The main development of SNode.C takes place on an Debian style linux system. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
 
 SNode.C is known to compile and run successfull on
 
@@ -408,9 +408,9 @@ SNode.C is known to compile and run successfull on
 
 ### Required
 
--   Easylogging ([<https://github.com/amrayn/easyloggingpp>](https://github.com/amrayn/easyloggingpp))
--   OpenSSL ([<https://www.openssl.org/>](https://www.openssl.org/))
--   Nlohmann-JSON ([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
+-   Easylogging development files ([<https://github.com/amrayn/easyloggingpp>](https://github.com/amrayn/easyloggingpp))
+-   OpenSSL development files ([<https://www.openssl.org/>](https://www.openssl.org/))
+-   Nlohmann-JSON development files([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
 
 ### Optional
 
@@ -428,7 +428,7 @@ This libraries are already integrated directly in SNode.C. Thus they need not be
 
 ### Dependencies
 
-To install all dependencies on debian style systems just run
+To install all dependencies on Debian style systems just run
 
 ``` sh
 sudo apt update
@@ -455,7 +455,7 @@ make
 sudo make install
 ```
 
-As SNode.C uses C++ templates a lot the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3) if just one core is activated for compilation.
+As SNode.C uses C++ templates a lot the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3 if just one core is activated for compilation).
 
 It is a good idea to utilize all processor cores and threads for compilation. Thus e.g. on a Raspberry Pi append `-j4` to the `make`  or `ninja` command.
 
@@ -470,7 +470,7 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 -   Layer based
 -   Modular
 -   Support for single shot and interval timer
--   For named server and client instances automated command line argument production and configuration file support
+-   Automated command line argument production and configuration file support for named server and client instances.
 
 ## Network Layer
 
@@ -490,7 +490,7 @@ Currently only connection-oriented protocols (SOCK_STREAM) for all supported net
 -   New application protocols can be connected to the transport layer very easily by just implementing a SocketFactory and a SocketContext class.
 -   Transparently offers SSL/TLS encryption provided by OpenSSL for each supportet network protocol and thus, also for all application level protocols.
     -   Support of X.509 certificates.
-    -   Server Name Indication (SNI) is supported (useful for e.g. virtual web servers).
+    -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers).
 
 ## Application Layer
 
@@ -506,7 +506,7 @@ In-framework support currently exist for the application level protocols
 
 ## HTTP/S Web-Server for Static HTML-Pages
 
-This application uses the high-level web API which is very similar to the API of node.js/express. The `StaticMiddleware` is used to deliver the static HTML-pages.
+This application uses the high-level web API *express* which is very similar to the API of node.js/express. The `StaticMiddleware` is used to deliver the static HTML-pages.
 
 The use of X.509 certificates for encrypted communication is demonstrated also.
 
