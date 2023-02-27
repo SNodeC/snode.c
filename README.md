@@ -275,7 +275,7 @@ Now we can put all together and implement the server and client main application
 
 Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
 
-At the very beginning the SNode.C must be initialized by calling `core::SNodeC::init(argc, argv)`. And at the end of the main applications the event-loop of SNode.C is started by calling `core::SNodeC::start()`.
+At the very beginning SNode.C must be initialized by calling `core::SNodeC::init(argc, argv)`. And at the end of the main applications the event-loop of SNode.C is started by calling `core::SNodeC::start()`.
 
 #### Echo-Server Main Application
 
