@@ -24,11 +24,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
+#include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
 
-#include <map> // IWYU pragma: export
-#include <set> // IWYU pragma: export
+#include <map>
+#include <set>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

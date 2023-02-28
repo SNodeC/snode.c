@@ -39,7 +39,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "utils/Timeval.h" // IWYU pragma: keep
 
 #include <cstdint>
 #include <iomanip>

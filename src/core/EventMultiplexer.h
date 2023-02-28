@@ -76,7 +76,11 @@ namespace core {
         };
 
     public:
-        DescriptorEventPublisher& getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType);
+#define DISP_COUNT 3
+
+        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
+
+        DescriptorEventPublisher& getDescriptorEventPublisher(DISP_TYPE dispType);
         TimerEventPublisher& getTimerEventPublisher();
 
         void span(core::Event* event);
@@ -105,8 +109,6 @@ namespace core {
         virtual int monitorDescriptors(utils::Timeval& tickTimeOut) = 0;
 
     protected:
-#define DISP_COUNT 3
-
         std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;
 
         int activeEventCount = 0;

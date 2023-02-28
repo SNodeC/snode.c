@@ -34,6 +34,10 @@ namespace database::mariadb {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace utils {
+    class Timeval;
+}
+
 #include <deque>
 #include <mysql.h>
 #include <string>

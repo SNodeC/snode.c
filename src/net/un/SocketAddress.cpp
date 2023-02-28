@@ -24,6 +24,7 @@
 
 #include "core/system/socket.h"
 
+#include <cstddef>
 #include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

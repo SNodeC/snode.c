@@ -25,6 +25,10 @@
 
 #include "core/system/epoll.h"
 
+namespace utils {
+    class Timeval;
+}
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::epoll {

@@ -22,8 +22,6 @@
 #include "iot/mqtt/Session.h"
 #include "iot/mqtt/server/broker/Message.h" // IWYU pragma: export
 
-#include <nlohmann/json_fwd.hpp>
-
 namespace iot::mqtt::server {
     class Mqtt;
 } // namespace iot::mqtt::server
@@ -32,6 +30,7 @@ namespace iot::mqtt::server {
 
 #include <cstdint>
 #include <deque>
+#include <nlohmann/json_fwd.hpp>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 

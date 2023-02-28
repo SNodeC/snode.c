@@ -25,6 +25,7 @@ else(NOT OpenSSL_FOUND)
         TLSHandshake.h
         TLSShutdown.h
         ssl_utils.h
+        ssl_version.h
         system/ssl.h
     )
 

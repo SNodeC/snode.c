@@ -24,6 +24,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace utils {
+    class Timeval;
+}
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::select {

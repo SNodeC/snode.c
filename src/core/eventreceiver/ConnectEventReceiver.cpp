@@ -18,6 +18,9 @@
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
 
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -25,7 +28,10 @@
 namespace core::eventreceiver {
 
     ConnectEventReceiver::ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout)
-        : core::DescriptorEventReceiver("ConnectEventReceiver: " + name, core::DescriptorEventReceiver::DISP_TYPE::WR, timeout) {
+        : core::DescriptorEventReceiver(
+              "ConnectEventReceiver: " + name,
+              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR),
+              timeout) {
     }
 
     void ConnectEventReceiver::connectTimeout() {

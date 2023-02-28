@@ -31,7 +31,8 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
+#include "core/socket/stream/tls/ssl_utils.h"   // IWYU pragma: export
+#include "core/socket/stream/tls/ssl_version.h" // IWYU pragma: export
 #include "utils/Timeval.h"
 
 #include <string>

@@ -21,9 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+
 // IWYU pragma: begin_exports
 
-#include <cstddef>
 #include <sys/socket.h>
 #include <sys/types.h>
 

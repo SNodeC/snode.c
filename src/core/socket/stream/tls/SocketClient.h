@@ -24,10 +24,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/socket/stream/tls/ssl_version.h" // IWYU pragma: export
 #include "log/Logger.h"
 
-#include <openssl/ssl.h>
-#include <openssl/x509v3.h>
+#include <openssl/ssl.h>    // IWYU pragma: export
+#include <openssl/x509v3.h> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

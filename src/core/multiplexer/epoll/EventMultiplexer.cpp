@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventMultiplexer() {
@@ -34,21 +36,21 @@ namespace core::epoll {
 
     EventMultiplexer::EventMultiplexer()
         : core::EventMultiplexer(
-              new core::epoll::DescriptorEventPublisher("READ", epfds[core::DescriptorEventReceiver::DISP_TYPE::RD], EPOLLIN),
-              new core::epoll::DescriptorEventPublisher("WRITE", epfds[core::DescriptorEventReceiver::DISP_TYPE::WR], EPOLLOUT),
-              new core::epoll::DescriptorEventPublisher("EXCEPT", epfds[core::DescriptorEventReceiver::DISP_TYPE::EX], EPOLLPRI))
+              new core::epoll::DescriptorEventPublisher("READ", epfds[core::EventMultiplexer::DISP_TYPE::RD], EPOLLIN),
+              new core::epoll::DescriptorEventPublisher("WRITE", epfds[core::EventMultiplexer::DISP_TYPE::WR], EPOLLOUT),
+              new core::epoll::DescriptorEventPublisher("EXCEPT", epfds[core::EventMultiplexer::DISP_TYPE::EX], EPOLLPRI))
         , epfd(core::system::epoll_create1(EPOLL_CLOEXEC)) {
         epoll_event event{};
         event.events = EPOLLIN;
 
-        event.data.ptr = descriptorEventPublishers[core::DescriptorEventReceiver::DISP_TYPE::RD];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::DescriptorEventReceiver::DISP_TYPE::RD], &event);
+        event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::RD];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::RD], &event);
 
-        event.data.ptr = descriptorEventPublishers[core::DescriptorEventReceiver::DISP_TYPE::WR];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::DescriptorEventReceiver::DISP_TYPE::WR], &event);
+        event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::WR];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::WR], &event);
 
-        event.data.ptr = descriptorEventPublishers[core::DescriptorEventReceiver::DISP_TYPE::EX];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::DescriptorEventReceiver::DISP_TYPE::EX], &event);
+        event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::EX];
+        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::EX], &event);
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout) {

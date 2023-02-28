@@ -25,7 +25,8 @@
 #include <initializer_list>
 #include <map>
 #include <memory>
-#include <nlohmann/detail/exceptions.hpp>
+
+// IWYU pragma: no_include <nlohmann/detail/exceptions.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

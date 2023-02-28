@@ -23,13 +23,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     core::Event::Event(EventReceiver* eventReceiver, const std::string& name)
-        : eventReceiver(eventReceiver)
-        , name(name) {
+        : name(name)
+        , eventReceiver(eventReceiver)
+        , eventMultiplexer(core::EventLoop::instance().getEventMultiplexer()) {
     }
 
     Event::~Event() {
@@ -41,14 +44,14 @@ namespace core {
     void Event::span() {
         if (!published) {
             published = true;
-            core::EventLoop::instance().getEventMultiplexer().span(this);
+            eventMultiplexer.span(this);
         }
     }
 
     void Event::relax() {
         if (published) {
             published = false;
-            core::EventLoop::instance().getEventMultiplexer().relax(this);
+            eventMultiplexer.relax(this);
         }
     }
 

@@ -16,34 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/eventreceiver/ReadEventReceiver.h"
-
-#include "core/EventLoop.h"
-#include "core/EventMultiplexer.h"
+#ifndef CORE_SOCKET_STREAM_TLS_SSL_VERSION_H
+#define CORE_SOCKET_STREAM_TLS_SSL_VERSION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace core::eventreceiver {
+#include <openssl/opensslv.h> // IWYU pragma: export
 
-    ReadEventReceiver::ReadEventReceiver(const std::string& name, const utils::Timeval& timeout)
-        : core::DescriptorEventReceiver(
-              "ReadEventReceiver: " + name,
-              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
-              timeout) {
-    }
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/types.h> // IWYU pragma: export
+#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
+#include <openssl/ossl_typ.h> // IWYU pragma: export
+#endif
 
-    void ReadEventReceiver::readTimeout() {
-        disable();
-    }
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+using ssl_option_t = uint64_t;
+#else
+using ssl_option_t = uint32_t;
+#endif
 
-    void ReadEventReceiver::dispatchEvent() {
-        readEvent();
-    }
-
-    void ReadEventReceiver::timeoutEvent() {
-        readTimeout();
-    }
-
-} // namespace core::eventreceiver
+#endif // CORE_SOCKET_STREAM_TLS_SSL_VERSION_H

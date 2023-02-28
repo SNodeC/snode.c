@@ -26,12 +26,10 @@
 #include "core/system/signal.h"
 #include "log/Logger.h"
 #include "utils/Config.h"
+#include "utils/Timeval.h"
 
-//#include <chrono> // IWYU pragma: keep
-// IWYU pragma: no_include <bits/chrono.h>
 #include <cstdlib>
 #include <string>
-//#include <thread>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

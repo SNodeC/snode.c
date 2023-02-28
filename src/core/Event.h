@@ -20,6 +20,7 @@
 #define CORE_EVENT_H
 
 namespace core {
+    class EventMultiplexer;
     class EventReceiver;
 } // namespace core
 
@@ -51,11 +52,12 @@ namespace core {
         EventReceiver* getEventReceiver() const;
 
     private:
+        std::string name;
+
         EventReceiver* eventReceiver;
+        EventMultiplexer& eventMultiplexer;
 
         bool published = false;
-
-        std::string name;
     };
 
 } // namespace core

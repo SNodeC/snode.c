@@ -46,7 +46,7 @@ namespace core::socket::stream {
 
     public:
         using SocketConnection = typename SocketConnector::SocketConnection;
-        using SocketAddress = typename Super::SocketAddress;
+        using SocketAddress = typename SocketConnection::SocketAddress;
 
         SocketClient() = delete;
 

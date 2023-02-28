@@ -27,7 +27,7 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h" // IWYU pragma: export
+#include "utils/Timeval.h"
 
 #include <string>
 
@@ -76,10 +76,8 @@ namespace core {
             static const utils::Timeval MAX;
         };
 
-        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
-
         DescriptorEventReceiver(const std::string& name,
-                                core::DescriptorEventReceiver::DISP_TYPE dispType,
+                                DescriptorEventPublisher& descriptorEventPublisher,
                                 const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
         int getRegisteredFd();

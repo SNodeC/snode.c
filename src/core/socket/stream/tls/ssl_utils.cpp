@@ -26,6 +26,7 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <openssl/asn1.h>

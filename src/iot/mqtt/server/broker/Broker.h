@@ -25,7 +25,6 @@
 
 namespace iot::mqtt::server {
     class Mqtt;
-
 } // namespace iot::mqtt::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

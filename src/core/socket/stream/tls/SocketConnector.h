@@ -24,7 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
+#include "core/socket/stream/tls/ssl_utils.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

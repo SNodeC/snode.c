@@ -18,6 +18,9 @@
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
 
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -25,7 +28,10 @@
 namespace core::eventreceiver {
 
     AcceptEventReceiver::AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout)
-        : core::DescriptorEventReceiver("AcceptEventReceiver: " + name, core::DescriptorEventReceiver::DISP_TYPE::RD, timeout) {
+        : core::DescriptorEventReceiver(
+              "AcceptEventReceiver: " + name,
+              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
+              timeout) {
     }
 
     void AcceptEventReceiver::acceptTimeout() {

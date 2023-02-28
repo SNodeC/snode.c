@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
-#include <fstream> // IWYU pragma: keep
+#include <fstream>
 #include <initializer_list>
 #include <nlohmann/json.hpp>
 #include <vector>

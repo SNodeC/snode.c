@@ -25,6 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #include <algorithm>
 #include <cerrno>
 #include <numeric>
@@ -48,7 +50,7 @@ namespace core {
         delete timerEventPublisher;
     }
 
-    DescriptorEventPublisher& EventMultiplexer::getDescriptorEventPublisher(core::DescriptorEventReceiver::DISP_TYPE dispType) {
+    DescriptorEventPublisher& EventMultiplexer::getDescriptorEventPublisher(DISP_TYPE dispType) {
         return *descriptorEventPublishers[dispType];
     }
 

@@ -26,25 +26,13 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
+#include "core/socket/stream/tls/ssl_version.h"
+
 #include <map>
 #include <memory>
-#include <openssl/opensslv.h>
 #include <set>
 #include <string>
 #include <variant>
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#include <openssl/types.h>
-#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
-#include <openssl/ossl_typ.h>
-#endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-using ssl_option_t = uint64_t;
-#else
-using ssl_option_t = uint32_t;
-#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
