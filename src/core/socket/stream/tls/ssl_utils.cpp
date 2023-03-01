@@ -267,7 +267,6 @@ namespace core::socket::stream::tls {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(2) << "SSL_CTX for domain '" << subjectAltName << "' installed";
                         sans.insert(subjectAltName);
                     }
                 }

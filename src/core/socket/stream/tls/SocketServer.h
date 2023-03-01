@@ -133,20 +133,6 @@ namespace core::socket::stream::tls {
         explicit SocketServer()
             : SocketServer("") {
         }
-
-        void addSniCert(const std::string& domain, const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
-            Super::config->getSniCerts().insert_or_assign(domain, sniCert);
-        }
-
-        void addSniCerts(const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts) {
-            for (const auto& [domain, cert] : sniCerts) {
-                addSniCert(domain, cert);
-            }
-        }
-
-        void forceSni() {
-            Super::config->setForceSni();
-        }
     };
 
 } // namespace core::socket::stream::tls

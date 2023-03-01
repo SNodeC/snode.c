@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
         {"snodec.home.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
         {"www.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
 
-    server.addSniCerts(sniCerts);
+    server.getConfig().setSniCerts(sniCerts);
 #endif
 
     server.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {

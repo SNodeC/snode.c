@@ -117,10 +117,12 @@ namespace core::socket::stream::tls {
                 if (masterSslCtx != nullptr) {
                     masterSslCtxSans = ssl_get_sans(masterSslCtx);
 
+                    for (const std::string& san : masterSslCtxSans) {
+                        LOG(INFO) << "SSL_CTX for (san)'" << san << "' as master installed";
+                    }
+
                     SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
                     forceSni = config->getForceSni();
-
-                    LOG(INFO) << "SSL_CTX (master) created";
 
                     for (const auto& [domain, sniCertConf] : config->getSniCerts()) {
                         if (!sniCertConf.empty()) {
