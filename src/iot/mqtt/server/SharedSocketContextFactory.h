@@ -45,11 +45,11 @@ namespace iot::mqtt::server {
 
     private:
         virtual core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection,
-                                                            std::shared_ptr<iot::mqtt::server::broker::Broker>& broker) = 0;
+                                                            std::shared_ptr<iot::mqtt::server::broker::Broker> broker) = 0;
 
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
 
-        std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
+        //        std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
     };
 
 } // namespace iot::mqtt::server

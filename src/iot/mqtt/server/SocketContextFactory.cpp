@@ -27,11 +27,12 @@
 namespace iot::mqtt::server {
 
     SocketContextFactory::SocketContextFactory()
-        : broker(std::make_shared<iot::mqtt::server::broker::Broker>(SUBSCRIBTION_MAX_QOS)) {
+    //        : broker(std::make_shared<iot::mqtt::server::broker::Broker>(SUBSCRIBTION_MAX_QOS))
+    {
     }
 
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        return create(socketConnection, broker);
+        return create(socketConnection, std::make_shared<iot::mqtt::server::broker::Broker>(SUBSCRIBTION_MAX_QOS));
     }
 
 } // namespace iot::mqtt::server
