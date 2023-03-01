@@ -8,6 +8,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
 
 # Table of Content
 <!--ts-->
+
 * [Simple NODE in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
@@ -323,13 +324,13 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv); // Initialize the framework.
                                     // Configure logging, create command line arguments, daemonize if requested.
     
-    using EchogClient = net::in::stream::legacy::SocketClient<EchoClientContextFactory>; // Simplify data type
+    using EchoClient = net::in::stream::legacy::SocketClient<EchoClientContextFactory>; // Simplify data type
                                                                                          // Note the use of our implemented
                                                                                          // EchoClientContextFactory as
                                                                                          // template argument
-    using SocketAddress = EchogClient::SocketAddress; // Simplify data type
+    using SocketAddress = EchoClient::SocketAddress; // Simplify data type
     
-    EchogClient echoClient; // Create client instance
+    EchoClient echoClient; // Create client instance
     
     echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, int err) -> void { // Connect to server
         if (err == 0){
