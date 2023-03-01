@@ -21,7 +21,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [SocketContexts](#socketcontexts)
          * [Echo-Server Context](#echo-server-context)
          * [Echo-Client Context](#echo-client-context)
-      * [Main Applications for server and client](#main-applications-for-server-and-client)
+      * [Main Applications for Server and Client](#main-applications-for-server-and-client)
          * [Echo-Server Main Application](#echo-server-main-application)
          * [Echo-Client Main Application](#echo-client-main-application)
    * [Summary](#summary)
@@ -35,7 +35,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [Required](#required-1)
       * [Optional](#optional-1)
       * [In-Framework](#in-framework)
-   * [Installation on Debian Style Systems (x86-64, Arm)](#installation-on-debian-style-systems-x86-arm)
+   * [Installation on Debian Style Systems (x86-64, Arm)](#installation-on-debian-style-systems-x86-64-arm)
       * [Dependencies](#dependencies)
       * [SNode.C](#snodec)
 * [Design Decisions and Features](#design-decisions-and-features)
@@ -48,7 +48,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Mon Feb 27 12:54:59 UTC 2023 -->
+<!-- Added by: runner, at: Wed Mar  1 01:52:22 UTC 2023 -->
 
 <!--te-->
 
