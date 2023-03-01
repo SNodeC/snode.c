@@ -35,7 +35,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [Required](#required-1)
       * [Optional](#optional-1)
       * [In-Framework](#in-framework)
-   * [Installation on Debian Style Systems (x86, Arm)](#installation-on-debian-style-systems-x86-arm)
+   * [Installation on Debian Style Systems (x86-64, Arm)](#installation-on-debian-style-systems-x86-arm)
       * [Dependencies](#dependencies)
       * [SNode.C](#snodec)
 * [Design Decisions and Features](#design-decisions-and-features)
@@ -98,7 +98,7 @@ Basically the architecture of every server and client application is the same an
 -   SocketContextFactory
 -   SocketContext
 
-Let\'s have a look at how these three components a related to each other by implementing a simple networking application.
+Let\'s have a look at how these three components are related to each other by implementing a simple networking application.
 
 ## An \"Echo\" Application
 
@@ -124,7 +124,8 @@ called *client instance* is needed.
 
 Both *instance-classes* have a *default constructor* and a *constructor expecting an instance name* as argument. 
 
-- When the default constructor is used to create the instance object this instance is called an *anonymous instance*, in contrast to a *named instance* if the constructors expecting a `std::string` is used for instance creation. 
+- When the default constructor is used to create the instance object this instance is called an *anonymous instance*.
+- In contrast to a *named instance* if the constructors expecting a `std::string` is used for instance creation. 
 - For named instances *command line arguments and configuration file entries are created automatically* to configure the instance.
 
 A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
@@ -137,7 +138,7 @@ Let\'s focus on the SocketContextFactories for our server and client first.
 
 All what needs to be done is to implement a pure virtual method `create()`witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a concrete application SocketContext.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the *physical connection* between the server and a client. This `core::socket::stream::SocketConnection` is used by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the *physical connection* between the server and a client. This `core::socket::stream::SocketConnection` is used internally by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
 
 #### Echo-Server ContextFactory
 
@@ -171,10 +172,9 @@ That\'s easy, isn\'t it?
 
 It is also not difficult to implement the SocketContext classes for the server and the client.
 
--   Remember, we need to derive from the base class `core::socket::stream::SocketContext`.
--   And also remember the required functionality: The server shall reflect the received data back to the client!
--   And at last remember that the class  `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection`  to handle the physical data exchange.
-    Thus, we have to pass the pointer to the SocketConnection to the constructor of the base `core::socket::stream::SocketContext`  class.
+-   Remember, the required functionality: The server shall reflect the received data back to the client!
+-   And also remember we need to derive from the base class `core::socket::stream::SocketContext`.
+-   And at last remember that the class  `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the SocketConnection to the constructor of the base `core::socket::stream::SocketContext`  class.
 
 The base class `core::socket::stream::SocketContext` provides *some virtual methods* which can be overridden in an concrete SocketContext class. These methods will be *called by the framework automatically*.
 
@@ -269,9 +269,9 @@ private:
 };
 ```
 
-### Main Applications for server and client
+### Main Applications for Server and Client
 
-Now we can put all together and implement the server and client main applications. Here *anonymous instances* are used - thus we will not get command line arguments automatically.
+Now we can put all together and implement the server and client main applications. Here *anonymous instances* are used, thus we will not get command line arguments automatically.
 
 Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
 
@@ -314,7 +314,7 @@ int main(int argc, char* argv[]) {
 
 The client instance `echoClient` must *connect* to the server by calling `echoClient.connect()`.
 
-Equivalent to the server instance a client instance provides a view overloaded `connect()` methods whose arguments also vary depending on the network layer used. Here it is assumed that the server runs on the same machine as the client. Thus we pass the hostname "localhost" and port number 8001 to the `connect()` method.
+Equivalent to the server instance a client instance provides a view overloaded `connect()` methods whose arguments also vary depending on the network layer used. Here it is assumed that we talk to an IPv4 server which runs on the same machine (localhost) as the client. Thus we pass the hostname "localhost" and port number 8001 to the `connect()` method.
 
 If we would have created a named client instance than a special `connect()` method which only expects the lambda function can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
@@ -366,9 +366,11 @@ The echo application shows the typical architecture of servers and clients using
 
 SNode.C depends on some external libraries. Some of these libraries are directly included in the framework.
 
-The only version-critical dependencies are the C++ compilers. Either GCC or clang can be used but they need to be of a relatively up to date version because SNode.C uses some new C++20 features internally.
-
 ## Minimum required Compiler Versions
+
+The only version-critical dependencies are the C++ compilers.
+
+Either *GCC* or *clang* can be used but they need to be of a relatively up to date version because SNode.C uses some new C++20 features internally.
 
 - GCC 10.2
 - Clang 11.0
@@ -379,9 +381,9 @@ The main development of SNode.C takes place on an Debian style linux system. Tho
 
 SNode.C is known to compile and run successfull on
 
--   x86 architectures
+-   x86-64 architecture
     -   Tested on HP ZBook 15 G8
--   Arm architectures (32 and 64 bit)
+-   Arm architecture (32 and 64 bit)
     -   Tested on Raspberry Pi
 
 ## Tools
@@ -390,7 +392,7 @@ SNode.C is known to compile and run successfull on
 
 -   git ([<https://git-scm.com/>](https://git-scm.com/))
 -   cmake ([<https://cmake.org/>](https://cmake.org/))
--   make ([<https://www.gnu.org/software/make/#:~:text=GNU%20Make%20is%20a%20tool,compute%20it%20from%20other%20files>.](https://www.gnu.org/software/make/#:~:text=GNU%20Make%20is%20a%20tool,compute%20it%20from%20other%20files.)) or
+-   make ([<https://www.gnu.org/software/make/>](https://www.gnu.org/software/make/)) or
 -   ninja ([<https://ninja-build.org/>](https://ninja-build.org/))
 -   g++ ([<https://gcc.gnu.org/>](https://gcc.gnu.org/)) or
 -   clang ([<https://clang.llvm.org/>](https://clang.llvm.org/))
@@ -401,14 +403,14 @@ SNode.C is known to compile and run successfull on
 
 -   iwyu ([<https://include-what-you-use.org/>](https://include-what-you-use.org/))
 -   clang-format ([<https://clang.llvm.org/docs/ClangFormat.html>](https://clang.llvm.org/docs/ClangFormat.html))
--   cmake-format ([<https://cmake-format.readthedocs.io/en/latest/cmake-format.html>](https://cmake-format.readthedocs.io/en/latest/cmake-format.html))
+-   cmake-format ([<https://cmake-format.readthedocs.io/>](https://cmake-format.readthedocs.io/))
 -   doxygen ([<https://www.doxygen.nl/>](https://www.doxygen.nl/))
 
 ## Libraries
 
 ### Required
 
--   Easylogging development files ([<https://github.com/amrayn/easyloggingpp>](https://github.com/amrayn/easyloggingpp))
+-   Easylogging development files ([<https://github.com/amrayn/easyloggingpp/>](https://github.com/amrayn/easyloggingpp/))
 -   OpenSSL development files ([<https://www.openssl.org/>](https://www.openssl.org/))
 -   Nlohmann-JSON development files([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
 
@@ -422,9 +424,9 @@ SNode.C is known to compile and run successfull on
 
 This libraries are already integrated directly in SNode.C. Thus they need not be installed by hand
 
--   CLI11 ([<https://github.com/CLIUtils/CLI11>](https://github.com/CLIUtils/CLI11))
+-   CLI11 ([<https://github.com/CLIUtils/CLI11/>](https://github.com/CLIUtils/CLI11/))
 
-## Installation on Debian Style Systems (x86, Arm)
+## Installation on Debian Style Systems (x86-64, Arm)
 
 ### Dependencies
 
@@ -440,7 +442,7 @@ sudo apt install libbluetooth-dev libmagic-dev libmariadb-dev
 
 ### SNode.C
 
-After installing all dependencies SNode.C can be cloned from github and compiled. 
+After installing all dependencies SNode.C can be cloned from github, compiled, and installed.
 
 This is strait forward:
 
@@ -461,7 +463,7 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 
 # Design Decisions and Features
 
--   Easy to use
+-   Easy to use and extend
 -   Clear and clean architecture
 -   Object orientated
 -   Single-threaded
@@ -470,7 +472,9 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 -   Layer based
 -   Modular
 -   Support for single shot and interval timer
--   Automated command line argument production and configuration file support for named server and client instances.
+-   Automated command line argument production and configuration file support for named server and client instances
+-   Sophisticated configuration system controlled either by code, command line, or configuration file
+-   Daemonize server and client if requested
 
 ## Network Layer
 
@@ -484,23 +488,25 @@ SNode.C currently supports five different network layer protocols.
 
 ## Transport Layer
 
-Currently only connection-oriented protocols (SOCK_STREAM) for all supported network layer protocols are supported (for IPv4 and IPv6 this means TCP).
+Currently only connection-oriented protocols (SOCK_STREAM) for all supported network layer protocols are implemented (for IPv4 and IPv6 this means TCP).
 
 -   Every transport layer protocol provides a common base API which makes it very easy to create servers and clients for all different network layers supported.
 -   New application protocols can be connected to the transport layer very easily by just implementing a SocketFactory and a SocketContext class.
--   Transparently offers SSL/TLS encryption provided by OpenSSL for each supportet network protocol and thus, also for all application level protocols.
+-   Transparently offers SSL/TLS encryption provided by OpenSSL for each supportet transport layer protocol and thus, also for all application level protocols.
     -   Support of X.509 certificates.
     -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers).
 
 ## Application Layer
 
-In-framework support currently exist for the application level protocols
+In-framework server and client support currently exist for the application level protocols
 
 -   HTTP/1.1
 -   WebSocket version 13
 -   MQTT version 3.1.1 (version 5.0 is in preparation)
 -   MQTT via WebSockets
 -   High-Level Web API layer with JSON support very similar to the API of node.js/express.
+
+As said above in the transport layer section, SSL/TLS encryption is provided for all of these application layer protocols.
 
 # Example Applications
 
@@ -544,7 +550,6 @@ int main(int argc, char* argv[]) {
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
     TLSWebApp tlsApp;
-    
     tlsApp.getConfig().setReuseAddress();
 
     tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
@@ -585,7 +590,10 @@ int main(int argc, char* argv[]) {
     LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
 
-    // The macro APPLICATION(req, res) expands to (express::Request& req, express::Response& res)
+    // The macro 
+    //    APPLICATION(req, res)
+    // expands to 
+    //    ([[maybe_unused]] express::Request& (req), [[maybe_unused]] express::Response& (res)
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
                  "    <head>"
