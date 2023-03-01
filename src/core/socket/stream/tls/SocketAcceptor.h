@@ -28,7 +28,7 @@
 #include "log/Logger.h"
 
 #include <map>
-#include <set>
+#include <set> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
