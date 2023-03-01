@@ -36,7 +36,7 @@ namespace net {
         explicit LogicalSocket(const std::string& name);
         LogicalSocket(const LogicalSocket&) = default;
 
-        Config& getConfig();
+        Config& getConfig() const;
 
     protected:
         std::shared_ptr<Config> config;
