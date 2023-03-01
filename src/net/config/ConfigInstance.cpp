@@ -121,8 +121,7 @@ namespace net::config {
     }
 
     bool ConfigInstance::getDisabled() const {
-        return disableOpt //
-            ->as<bool>();
+        return disableOpt->as<bool>();
     }
 
     void ConfigInstance::setDisabled(bool disabled) {

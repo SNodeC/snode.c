@@ -36,9 +36,18 @@ namespace net::rc::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        Super::add_option(
-            hostOpt, "--host", "Bluetooth address", "xx:xx:xx:xx:xx:xx", "00:00:00:00:00:00", CLI::TypeValidator<std::string>());
-        Super::add_option(channelOpt, "--channel", "Channel number", "channel", 0, CLI::Range(0, 255) | CLI::IsMember({""}));
+        Super::add_option(hostOpt, //
+                          "--host",
+                          "Bluetooth address",
+                          "xx:xx:xx:xx:xx:xx",
+                          "00:00:00:00:00:00",
+                          CLI::TypeValidator<std::string>());
+        Super::add_option(channelOpt, //
+                          "--channel",
+                          "Channel number",
+                          "channel",
+                          0,
+                          CLI::Range(0, 255));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -55,10 +64,7 @@ namespace net::rc::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(hostOpt //
-                                 ->as<std::string>(),
-                             channelOpt //
-                                 ->as<uint8_t>());
+        return SocketAddress(hostOpt->as<std::string>(), channelOpt->as<uint8_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

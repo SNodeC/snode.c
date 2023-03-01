@@ -50,41 +50,40 @@ namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
         : net::config::ConfigSection(instance, "connection", "Options for established connections") {
-        add_option(readTimeoutOpt,
+        add_option(readTimeoutOpt, //
                    "--read-timeout",
                    "Read timeout in seconds",
                    "timeout",
                    DEFAULT_READTIMEOUT,
-                   CLI::PositiveNumber | CLI::IsMember({""}));
-        add_option(writeTimeoutOpt,
+                   CLI::PositiveNumber);
+        add_option(writeTimeoutOpt, //
                    "--write-timeout",
                    "Write timeout in seconds",
                    "timeout",
                    DEFAULT_WRITETIMEOUT,
-                   CLI::PositiveNumber | CLI::IsMember({""}));
-        add_option(readBlockSizeOpt,
+                   CLI::PositiveNumber);
+        add_option(readBlockSizeOpt, //
                    "--read-block-size",
                    "Read block size",
                    "size",
                    DEFAULT_READBLOCKSIZE,
-                   CLI::PositiveNumber | CLI::IsMember({""}));
-        add_option(writeBlockSizeOpt,
+                   CLI::PositiveNumber);
+        add_option(writeBlockSizeOpt, //
                    "--write-block-size",
                    "Write block size",
                    "size",
                    DEFAULT_WRITEBLOCKSIZE,
-                   CLI::PositiveNumber | CLI::IsMember({""}));
-        add_option(terminateTimeoutOpt,
+                   CLI::PositiveNumber);
+        add_option(terminateTimeoutOpt, //
                    "--terminate-timeout",
                    "Terminate timeout",
                    "timeout",
                    DEFAULT_TERMINATETIMEOUT,
-                   CLI::PositiveNumber | CLI::IsMember({""}));
+                   CLI::PositiveNumber);
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {
-        return readTimeoutOpt //
-            ->as<utils::Timeval>();
+        return readTimeoutOpt->as<utils::Timeval>();
     }
 
     void ConfigConnection::setReadTimeout(const utils::Timeval& newReadTimeoutSet) {
@@ -94,8 +93,7 @@ namespace net::config {
     }
 
     utils::Timeval ConfigConnection::getWriteTimeout() const {
-        return writeTimeoutOpt //
-            ->as<utils::Timeval>();
+        return writeTimeoutOpt->as<utils::Timeval>();
     }
 
     void ConfigConnection::setWriteTimeout(const utils::Timeval& newWriteTimeoutSet) {
@@ -105,18 +103,17 @@ namespace net::config {
     }
 
     std::size_t ConfigConnection::getReadBlockSize() const {
-        return readBlockSizeOpt //
-            ->as<std::size_t>();
+        return readBlockSizeOpt->as<std::size_t>();
     }
 
     void ConfigConnection::setReadBlockSize(std::size_t newReadBlockSize) {
         readBlockSizeOpt //
-            ->default_val(newReadBlockSize);
+            ->default_val(newReadBlockSize)
+            ->clear();
     }
 
     std::size_t ConfigConnection::getWriteBlockSize() const {
-        return writeBlockSizeOpt //
-            ->as<std::size_t>();
+        return writeBlockSizeOpt->as<std::size_t>();
     }
 
     void ConfigConnection::setWriteBlockSize(std::size_t newWriteBlockSize) {
@@ -126,13 +123,13 @@ namespace net::config {
     }
 
     utils::Timeval ConfigConnection::getTerminateTimeout() const {
-        return terminateTimeoutOpt //
-            ->as<utils::Timeval>();
+        return terminateTimeoutOpt->as<utils::Timeval>();
     }
 
     void ConfigConnection::setTerminateTimeout(const utils::Timeval& newTerminateTimeout) {
         terminateTimeoutOpt //
-            ->default_val(newTerminateTimeout);
+            ->default_val(newTerminateTimeout)
+            ->clear();
     }
 
 } // namespace net::config

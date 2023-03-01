@@ -30,20 +30,19 @@ namespace net::config {
 
     ConfigCluster::ConfigCluster(ConfigInstance* instance)
         : net::config::ConfigSection(instance, "cluster", "Options for clustering") {
-        add_option(modeOpt,
+        add_option(modeOpt, //
                    "--mode",
                    "Clustering mode",
                    std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
                        std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY",
-                   MODE::STANDALONE) //
+                   MODE::STANDALONE)
             ->configurable(false)
             ->type_name("mode")
             ->check(CLI::Range(STANDALONE, PROXY));
     }
 
     ConfigCluster::MODE ConfigCluster::getClusterMode() const {
-        return modeOpt //
-            ->as<MODE>();
+        return modeOpt->as<MODE>();
     }
 
     void ConfigCluster::setClusterMode(ConfigCluster::MODE newMode) {

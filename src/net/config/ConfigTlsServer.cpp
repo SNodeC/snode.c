@@ -86,8 +86,7 @@ namespace net::config {
     }
 
     bool ConfigTlsServer::getForceSni() const {
-        return forceSniOpt //
-            ->as<bool>();
+        return forceSniOpt->as<bool>();
     }
 
     void ConfigTlsServer::setForceSni(bool forceSni) {

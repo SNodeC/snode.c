@@ -37,7 +37,7 @@ namespace net::un::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        Super::add_option(sunPathOpt,
+        Super::add_option(sunPathOpt, //
                           "--path",
                           "Unix domain socket file",
                           "filename:FILE",
@@ -53,8 +53,7 @@ namespace net::un::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(sunPathOpt //
-                                 ->as<std::string>());
+        return SocketAddress(sunPathOpt->as<std::string>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

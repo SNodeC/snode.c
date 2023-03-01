@@ -38,18 +38,18 @@ namespace net::config {
 
     ConfigTls::ConfigTls(ConfigInstance* instance)
         : ConfigSection(instance, "tls", "Options for SSL/TLS behaviour") {
-        add_option(certChainOpt,
+        add_option(certChainOpt, //
                    "--cert-chain",
                    "Certificate chain file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}));
-        add_option(certKeyOpt,
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE"));
+        add_option(certKeyOpt, //
                    "--cert-key",
                    "Certificate key file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}));
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE"));
         add_option(certKeyPasswordOpt,
                    "--cert-key-password",
                    "Password for the certificate key file",
@@ -61,39 +61,46 @@ namespace net::config {
                    "CA-certificate file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}));
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE"));
         add_option(caCertDirOpt,
                    "--ca-cert-dir",
                    "CA-certificate directory",
                    "directory",
                    "",
-                   CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER") | CLI::IsMember({""}));
+                   CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER"));
         add_flag(useDefaultCaCertDirOpt,
                  "--ca-use-default-cert-dir,!--ca-ignore-default-cert-dir",
                  "Use default CA-certificate directory",
                  "bool",
                  "false",
-                 CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
-        add_option(cipherListOpt, "--cipher-list", "Cipher list", "cipher_list", "");
-        add_option(
-            tlsOptionsOpt, "--tls-options", "OR combined SSL/TLS options", "options", 0, CLI::NonNegativeNumber | CLI::IsMember({""}));
-        add_option(initTimeoutOpt,
+                 CLI::TypeValidator<bool>() & (!CLI::Number));
+        add_option(cipherListOpt, //
+                   "--cipher-list",
+                   "Cipher list",
+                   "cipher_list",
+                   "");
+        add_option(tlsOptionsOpt, //
+                   "--tls-options",
+                   "OR combined SSL/TLS options",
+                   "options",
+                   0,
+                   CLI::NonNegativeNumber);
+        add_option(initTimeoutOpt, //
                    "--init-timeout",
                    "SSL/TLS initialization timeout in seconds",
                    "timeout",
                    DEFAULT_INITTIMEOUT,
-                   CLI::PositiveNumber | CLI::IsMember({""}));
-        add_option(shutdownTimeoutOpt,
+                   CLI::PositiveNumber);
+        add_option(shutdownTimeoutOpt, //
                    "--shutdown-timeout",
                    "SSL/TLS shutdown timeout in seconds",
                    "timeout",
                    DEFAULT_SHUTDOWNTIMEOUT,
-                   CLI::PositiveNumber | CLI::IsMember({""}));
+                   CLI::PositiveNumber);
     }
 
     std::string ConfigTls::getCertChain() const {
-        return certChainOpt //
-            ->as<std::string>();
+        return certChainOpt->as<std::string>();
     }
 
     void ConfigTls::setCertChain(const std::string& newCertChain) {
@@ -103,8 +110,7 @@ namespace net::config {
     }
 
     std::string ConfigTls::getCertKey() const {
-        return certKeyOpt //
-            ->as<std::string>();
+        return certKeyOpt->as<std::string>();
     }
 
     void ConfigTls::setCertKey(const std::string& newCertKey) {
@@ -114,8 +120,7 @@ namespace net::config {
     }
 
     std::string ConfigTls::getCertKeyPassword() const {
-        return certKeyPasswordOpt //
-            ->as<std::string>();
+        return certKeyPasswordOpt->as<std::string>();
     }
 
     void ConfigTls::setCertKeyPassword(const std::string& newCertKeyPassword) {
@@ -125,8 +130,7 @@ namespace net::config {
     }
 
     std::string ConfigTls::getCaCertFile() const {
-        return caCertFileOpt //
-            ->as<std::string>();
+        return caCertFileOpt->as<std::string>();
     }
 
     void ConfigTls::setCaCertFile(const std::string& newCaCertFile) {
@@ -136,8 +140,7 @@ namespace net::config {
     }
 
     std::string ConfigTls::getCaCertDir() const {
-        return caCertDirOpt //
-            ->as<std::string>();
+        return caCertDirOpt->as<std::string>();
     }
 
     void ConfigTls::setCaCertDir(const std::string& newCaCertDir) {
@@ -147,8 +150,7 @@ namespace net::config {
     }
 
     bool ConfigTls::getUseDefaultCaCertDir() const {
-        return useDefaultCaCertDirOpt //
-            ->as<bool>();
+        return useDefaultCaCertDirOpt->as<bool>();
     }
 
     void ConfigTls::setUseDefaultCaCertDir(bool set) {
@@ -158,8 +160,7 @@ namespace net::config {
     }
 
     std::string ConfigTls::getCipherList() const {
-        return cipherListOpt //
-            ->as<std::string>();
+        return cipherListOpt->as<std::string>();
     }
 
     void ConfigTls::setCipherList(const std::string& newCipherList) {
@@ -169,8 +170,7 @@ namespace net::config {
     }
 
     ssl_option_t ConfigTls::getSslTlsOptions() const {
-        return tlsOptionsOpt //
-            ->as<ssl_option_t>();
+        return tlsOptionsOpt->as<ssl_option_t>();
     }
 
     void ConfigTls::setSslTlsOptions(ssl_option_t newSslTlsOptions) {

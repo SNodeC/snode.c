@@ -38,18 +38,22 @@ namespace net::config {
 
     ConfigListen::ConfigListen(ConfigInstance* instance)
         : net::config::ConfigSection(instance, "server", "Options for server socket") {
-        add_option(backlogOpt, "--backlog", "Listen backlog", "backlog", DEFAULT_BACKLOG, CLI::PositiveNumber | CLI::IsMember({""}));
-        add_option(acceptsPerTickOpt,
+        add_option(backlogOpt, //
+                   "--backlog",
+                   "Listen backlog",
+                   "backlog",
+                   DEFAULT_BACKLOG,
+                   CLI::PositiveNumber);
+        add_option(acceptsPerTickOpt, //
                    "--accepts-per-tick",
                    "Accepts per tick",
                    "number",
                    DEFAULT_ACCEPTSPERTICK,
-                   CLI::PositiveNumber | CLI::IsMember({""}));
+                   CLI::PositiveNumber);
     }
 
     int ConfigListen::getBacklog() const {
-        return backlogOpt //
-            ->as<int>();
+        return backlogOpt->as<int>();
     }
 
     void ConfigListen::setBacklog(int newBacklog) {
@@ -59,8 +63,7 @@ namespace net::config {
     }
 
     int ConfigListen::getAcceptsPerTick() const {
-        return acceptsPerTickOpt //
-            ->as<int>();
+        return acceptsPerTickOpt->as<int>();
     }
 
     void ConfigListen::setAcceptsPerTick(int newAcceptsPerTick) {

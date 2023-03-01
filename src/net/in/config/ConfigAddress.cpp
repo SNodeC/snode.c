@@ -37,8 +37,13 @@ namespace net::in::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        Super::add_option(hostOpt, "--host", "Host name or IPv4 address", "hostname|IPv4", "0.0.0.0", CLI::TypeValidator<std::string>());
-        Super::add_option(portOpt,
+        Super::add_option(hostOpt, //
+                          "--host",
+                          "Host name or IPv4 address",
+                          "hostname|IPv4",
+                          "0.0.0.0",
+                          CLI::TypeValidator<std::string>());
+        Super::add_option(portOpt, //
                           "--port",
                           "Port number",
                           "port",
@@ -60,10 +65,7 @@ namespace net::in::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(hostOpt //
-                                 ->as<std::string>(),
-                             portOpt //
-                                 ->as<uint16_t>());
+        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

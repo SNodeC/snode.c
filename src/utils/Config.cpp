@@ -55,7 +55,7 @@ namespace CLI {
 
     class CallForCommandline : public CLI::Success {
     public:
-        enum class Mode { SHORT, MEDIUM, LONG };
+        enum class Mode { REQUIRED, CONFIGURED, ALL };
 
         CallForCommandline(CLI::App* app, Mode mode)
             : CLI::Success("CallForCommandline", "A template command line is showen below:\n", CLI::ExitCodes::Success)
@@ -360,15 +360,15 @@ namespace utils {
             if (option->get_configurable()) {
                 std::string value;
 
-                if (option->reduced_results().size() > 0 && ((option->get_required() || mode == CLI::CallForCommandline::Mode::LONG) ||
-                                                             mode == CLI::CallForCommandline::Mode::MEDIUM)) {
+                if (option->reduced_results().size() > 0 && ((option->get_required() || mode == CLI::CallForCommandline::Mode::ALL) ||
+                                                             mode == CLI::CallForCommandline::Mode::CONFIGURED)) {
                     value = option->reduced_results()[0];
                 } else if (!option->get_default_str().empty()) {
-                    value = (mode == CLI::CallForCommandline::Mode::LONG || option->get_required()) ? option->get_default_str() : "";
+                    value = (mode == CLI::CallForCommandline::Mode::ALL || option->get_required()) ? option->get_default_str() : "";
                 } else if (option->get_required()) {
                     value = "<REQUIRED>";
                 } else {
-                    value = mode == CLI::CallForCommandline::Mode::LONG ? "\"\"" : "";
+                    value = mode == CLI::CallForCommandline::Mode::ALL ? "\"\"" : "";
                 }
 
                 if (!value.empty()) {
@@ -429,7 +429,7 @@ namespace utils {
         std::string outString = out.str();
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
-            outString = app->get_name() + " " + createCommandLineOptions(app, CLI::CallForCommandline::Mode::MEDIUM) + " " + outString;
+            outString = app->get_name() + " " + createCommandLineOptions(app, CLI::CallForCommandline::Mode::CONFIGURED) + " " + outString;
         }
 
         return outString;
@@ -494,11 +494,11 @@ namespace utils {
                     } else if (app["--write-config"]->count() > 0) {
                         throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
                     } else if (app["--commandline"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::SHORT);
+                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::REQUIRED);
                     } else if (app["--commandline-configured"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::MEDIUM);
+                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::CONFIGURED);
                     } else if (app["--commandline-full"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::LONG);
+                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::ALL);
                     }
                     ret = true;
                 } catch (const CLI::ParseError&) {
@@ -507,11 +507,11 @@ namespace utils {
                     } else if (app["--write-config"]->count() > 0) {
                         throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
                     } else if (app["--commandline"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::SHORT);
+                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::REQUIRED);
                     } else if (app["--commandline-configured"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::MEDIUM);
+                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::CONFIGURED);
                     } else if (app["--commandline-full"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::LONG);
+                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::ALL);
                     }
                     throw;
                 }
@@ -523,18 +523,16 @@ namespace utils {
                 std::cout << "SNode.C-Version: " << app.version() << std::endl;
             } catch (const CLI::CallForCommandline& e) {
                 std::cout << e.what();
-                if (e.getMode() == CLI::CallForCommandline::Mode::LONG) {
+                if (e.getMode() == CLI::CallForCommandline::Mode::REQUIRED) {
+                    std::cout << "* Required options show eigher their configured value or <REQUIRED>" << std::endl;
+                } else if (e.getMode() == CLI::CallForCommandline::Mode::CONFIGURED) {
+                    std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
+                    std::cout << "* Configured options show their configured value" << std::endl;
+                } else if (e.getMode() == CLI::CallForCommandline::Mode::ALL) {
                     std::cout << "* Required but not yet configured options show <REQUIRED> as value " << std::endl;
                     std::cout << "* Remaining options show either their default or configured value" << std::endl;
-                    std::cout << "* Options marked as <REQUIRED> need to be configured for a successfull bootstrap" << std::endl;
-                } else if (e.getMode() == CLI::CallForCommandline::Mode::SHORT) {
-                    std::cout << "* Required options show eigher their configured value or <REQUIRED>" << std::endl;
-                    std::cout << "* Options marked as <REQUIRED> need to be configured for a successfull bootstrap" << std::endl;
-                } else {
-                    std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
-                    std::cout << "* All other options show their currently configured value" << std::endl;
-                    std::cout << "* Options marked as <REQUIRED> need to be configured for a successfull bootstrap" << std::endl;
                 }
+                std::cout << "* Options marked as <REQUIRED> need to be configured for a successfull bootstrap" << std::endl;
                 std::cout << std::endl
                           << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
@@ -647,7 +645,7 @@ namespace utils {
             ->add_flag_callback(
                 "--commandline",
                 [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::SHORT);
+                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::REQUIRED);
                 },
                 "Print a template command line showing required options only and exit")
             ->configurable(false)
@@ -657,7 +655,7 @@ namespace utils {
             ->add_flag_callback(
                 "--commandline-full",
                 [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::LONG);
+                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::ALL);
                 },
                 "Print a template command line showing all possible options and exit")
             ->configurable(false)
@@ -667,7 +665,7 @@ namespace utils {
             ->add_flag_callback(
                 "--commandline-configured",
                 [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::MEDIUM);
+                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::CONFIGURED);
                 },
                 "Print a template command line showing all required and configured options and exit") //
             ->configurable(false)

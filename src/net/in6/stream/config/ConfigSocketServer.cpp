@@ -76,7 +76,7 @@ namespace net::in6::stream::config {
         if (iPv6Only) {
             addSocketOption(IPV6_V6ONLY, IPPROTO_IPV6);
         } else {
-            removeSocketOption(IPPROTO_IPV6);
+            removeSocketOption(IPV6_V6ONLY);
         }
 
         iPv6OnlyOpt //
