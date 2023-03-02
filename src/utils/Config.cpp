@@ -429,7 +429,8 @@ namespace utils {
         std::string outString = out.str();
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
-            outString = app->get_name() + " " + createCommandLineOptions(app, CLI::CallForCommandline::Mode::CONFIGURED) + " " + outString;
+            std::string parentOptions = createCommandLineOptions(app, mode);
+            outString = app->get_name() + " " + (!parentOptions.empty() ? parentOptions + " " : "") + outString;
         }
 
         return outString;
