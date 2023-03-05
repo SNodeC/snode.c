@@ -46,13 +46,6 @@ namespace net::config {
 
         virtual SocketAddress getAddress() const = 0;
         virtual void setAddress(const SocketAddress& address) = 0;
-
-        void initialized();
-        void required(CLI::Option* opt);
-
-        bool isInitialized() const;
-
-        bool _initialized = false;
     };
 
 } // namespace net::config

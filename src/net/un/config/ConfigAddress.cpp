@@ -46,7 +46,7 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::sunPathRequired() {
-        Super::required(sunPathOpt);
+        Super::required(sunPathOpt, true);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -61,9 +61,8 @@ namespace net::un::config {
         utils::PreserveErrno preserveErrno;
 
         sunPathOpt //
-            ->default_val(socketAddress.address())
-            ->required(false)
-            ->clear();
+            ->default_val(socketAddress.address());
+        Super::required(sunPathOpt, false);
     }
 
 } // namespace net::un::config

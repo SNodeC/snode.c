@@ -26,6 +26,7 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
+#include <cstdint>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -47,17 +48,19 @@ namespace net::config {
         bool getDisabled() const;
         void setDisabled(bool disabled = true);
 
-    private:
         CLI::App* add_section(const std::string& name, const std::string& description);
 
-        void required(bool req = true);
+        void required(CLI::Option* opt, bool req = true);
+
+        bool required();
+
+    private:
+        uint8_t requiredCount = 0;
 
         const std::string name;
 
         CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;
-
-        friend class ConfigSection;
     };
 
 } // namespace net::config

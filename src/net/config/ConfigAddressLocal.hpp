@@ -36,11 +36,6 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    bool ConfigAddressLocal<SocketAddress>::isLocalInitialized() {
-        return isInitialized();
-    }
-
-    template <typename SocketAddress>
     SocketAddress ConfigAddressLocal<SocketAddress>::getLocalAddress() {
         return getAddress();
     }
@@ -48,8 +43,6 @@ namespace net::config {
     template <typename SocketAddress>
     void ConfigAddressLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
         setAddress(localAddress);
-
-        Super::initialized();
     }
 
 } // namespace net::config

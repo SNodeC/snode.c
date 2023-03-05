@@ -22,6 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/CLI11.hpp"
 #include "utils/Config.h"
 
@@ -83,7 +84,6 @@ namespace net::config {
                                   ->group(this->name.empty() ? "" : "Sections")
                                   ->disabled(this->name.empty())
                                   ->silent(this->name.empty());
-
         sectionSc //
             ->option_defaults()
             ->configurable(!this->name.empty());
@@ -113,11 +113,28 @@ namespace net::config {
         return sectionSc;
     }
 
-    void ConfigInstance::required(bool reqired) {
-        if (instanceSc != nullptr) {
-            instanceSc //
-                ->required(reqired);
+    void ConfigInstance::required(CLI::Option* opt, bool req) {
+        if (req) {
+            ++requiredCount;
+            opt //
+                ->default_str("")
+                ->required()
+                ->clear();
+        } else {
+            if (requiredCount > 0) {
+                --requiredCount;
+            }
+            opt //
+                ->required(false)
+                ->clear();
         }
+
+        instanceSc //
+            ->required(requiredCount > 0);
+    }
+
+    bool ConfigInstance::required() {
+        return requiredCount > 0;
     }
 
     bool ConfigInstance::getDisabled() const {

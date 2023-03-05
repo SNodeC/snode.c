@@ -52,12 +52,12 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::required(hostOpt);
+        Super::required(hostOpt, true);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::channelRequired() {
-        Super::required(channelOpt);
+        Super::required(channelOpt, true);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -72,13 +72,12 @@ namespace net::rc::config {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
-            ->default_val(socketAddress.address())
-            ->required(false)
-            ->clear();
+            ->default_val(socketAddress.address());
+        Super::required(hostOpt, false);
+
         channelOpt //
-            ->default_val(socketAddress.channel())
-            ->required(false)
-            ->clear();
+            ->default_val(socketAddress.channel());
+        Super::required(channelOpt, false);
     }
 
 } // namespace net::rc::config

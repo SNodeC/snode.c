@@ -53,12 +53,12 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::required(hostOpt);
+        Super::required(hostOpt, true);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::psmRequired() {
-        Super::required(psmOpt);
+        Super::required(psmOpt, true);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -73,13 +73,12 @@ namespace net::l2::config {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
-            ->default_val(socketAddress.address())
-            ->required(false)
-            ->clear();
+            ->default_val(socketAddress.address());
+        Super::required(hostOpt, false);
+
         psmOpt //
-            ->default_val(socketAddress.psm())
-            ->required(false)
-            ->clear();
+            ->default_val(socketAddress.psm());
+        Super::required(psmOpt, false);
     }
 
 } // namespace net::l2::config

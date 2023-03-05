@@ -24,6 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <log/Logger.h>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
@@ -33,23 +35,6 @@ namespace net::config {
                                                 const std::string& addressOptionName,
                                                 const std::string& addressOptionDescription)
         : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
-        _initialized = !instance->getInstanceName().empty();
-    }
-
-    template <typename SocketAddress>
-    bool ConfigAddress<SocketAddress>::isInitialized() const {
-        return _initialized;
-    }
-
-    template <typename SocketAddress>
-    void ConfigAddress<SocketAddress>::initialized() {
-        ConfigSection::required(false);
-        _initialized = true;
-    }
-
-    template <typename SocketAddress>
-    void ConfigAddress<SocketAddress>::required(CLI::Option* opt) {
-        ConfigSection::required(opt);
     }
 
 } // namespace net::config

@@ -41,14 +41,11 @@ namespace net::config {
         explicit ConfigAddressLocal(ConfigInstance* instance);
 
     public:
-        bool isLocalInitialized();
-
         SocketAddress getLocalAddress();
         void setLocalAddress(const SocketAddress& localAddress);
 
     private:
         using Super::getAddress;
-        using Super::isInitialized;
         using Super::setAddress;
     };
 

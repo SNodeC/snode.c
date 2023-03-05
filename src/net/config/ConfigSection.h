@@ -105,11 +105,12 @@ namespace net::config {
                                        const std::string& defaultValue,
                                        const CLI::Validator& validator);
 
-        void required(CLI::Option* opt);
-        void required(bool req = true);
+        void required(CLI::Option* opt, bool req = true);
 
     private:
         ConfigInstance* instance = nullptr;
+
+        uint8_t requiredCount = 0;
 
     protected:
         CLI::App* section = nullptr;

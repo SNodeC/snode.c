@@ -70,11 +70,7 @@ namespace core::socket::stream {
         using Super::connect;
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const override {
-            if (Super::config->isRemoteInitialized()) {
-                new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, Super::config);
-            } else {
-                LOG(ERROR) << "Parameterless connect with anonymous client instance";
-            }
+            new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, Super::config);
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {

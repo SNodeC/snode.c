@@ -53,12 +53,12 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::required(hostOpt);
+        Super::required(hostOpt, true);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::portRequired() {
-        Super::required(portOpt);
+        Super::required(portOpt, true);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -73,13 +73,12 @@ namespace net::in6::config {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
-            ->default_val(socketAddress.host())
-            ->required(false)
-            ->clear();
+            ->default_val(socketAddress.host());
+        Super::required(hostOpt, false);
+
         portOpt //
-            ->default_val(socketAddress.port())
-            ->required(false)
-            ->clear();
+            ->default_val(socketAddress.port());
+        Super::required(portOpt, false);
     }
 
 } // namespace net::in6::config

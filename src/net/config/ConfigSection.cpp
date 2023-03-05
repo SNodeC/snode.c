@@ -40,19 +40,17 @@ namespace net::config {
         }
     }
 
-    void ConfigSection::required(CLI::Option* opt) {
-        opt //
-            ->default_str("")
-            ->required()
-            ->clear();
-        required();
-    }
+    void ConfigSection::required(CLI::Option* opt, bool req) {
+        if (req) {
+            ++requiredCount;
+        } else if (requiredCount > 0) {
+            --requiredCount;
+        }
 
-    void ConfigSection::required(bool req) {
         section //
-            ->required(req)
-            ->get_parent()
-            ->required(req);
+            ->required(requiredCount > 0);
+
+        instance->required(opt, req);
     }
 
     CLI::Option*

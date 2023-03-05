@@ -559,7 +559,13 @@ namespace utils {
                 std::cout << "Hint: Rewrite the config file by appending -w [config file] to your command line." << std::endl;
                 throw;
             } catch (const CLI::ParseError& e) {
-                std::cout << "Command line error: " << e.what() << std::endl;
+                std::string what = e.what();
+                if (what == "[Option Group: ] is required") { // If CLI11 throws that error it means for us there are unconfigured anonymous
+                                                              // instances
+                    std::cout << "Bootstrap error: Configuration for anonymous instance(s) missing!" << std::endl;
+                } else {
+                    std::cout << "Command line error: " << what << std::endl;
+                }
                 throw;
             }
         } catch (const CLI::ParseError&) {
@@ -602,9 +608,7 @@ namespace utils {
                                  ->formatter(sectionFormatter)
                                  ->fallthrough()
                                  ->group(name.empty() ? "" : "Instances")
-                                 ->disabled(name.empty())
                                  ->silent(name.empty());
-
         instance //
             ->option_defaults()
             ->configurable(!name.empty());
