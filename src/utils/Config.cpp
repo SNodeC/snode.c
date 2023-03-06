@@ -257,7 +257,7 @@ namespace utils {
                            ->take_last()
                            ->default_val("false")
                            ->type_name("bool")
-                           ->check(CLI::TypeValidator<bool>());
+                           ->check(CLI::IsMember({"true", "false"}));
 
         app.add_flag("-k,--kill", "Kill running daemon") //
             ->configurable(false)
@@ -276,7 +276,7 @@ namespace utils {
                                 ->take_last()
                                 ->default_val("false")
                                 ->type_name("bool")
-                                ->check(CLI::TypeValidator<bool>());
+                                ->check(CLI::IsMember({"true", "false"}));
 
         logLevelOpt = app.add_option_function<std::string>("--log-level",
                                                            utils::ResetToDefault(logLevelOpt),

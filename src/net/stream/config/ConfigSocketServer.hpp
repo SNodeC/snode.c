@@ -41,7 +41,7 @@ namespace net::stream::config {
                           "Reuse socket address",
                           "bool",
                           "false",
-                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+                          CLI::IsMember({"true", "false"}));
     }
 
     template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>

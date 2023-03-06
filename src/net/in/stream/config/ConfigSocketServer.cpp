@@ -42,7 +42,7 @@ namespace net::in::stream::config {
                           "Reuse socket address",
                           "bool",
                           "false",
-                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+                          CLI::IsMember({"true", "false"}));
     }
 
     void ConfigSocketServer::setReusePort(bool reusePort) {

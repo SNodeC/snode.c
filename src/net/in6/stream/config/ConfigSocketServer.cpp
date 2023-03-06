@@ -43,7 +43,7 @@ namespace net::in6::stream::config {
                           "Reuse socket address",
                           "bool",
                           "false",
-                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+                          CLI::IsMember({"true", "false"}));
 
         add_socket_option(iPv6OnlyOpt,
                           "--ipv6-only",
@@ -52,7 +52,7 @@ namespace net::in6::stream::config {
                           "Turn of IPv6 dual stack mode",
                           "bool",
                           "false",
-                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+                          CLI::IsMember({"true", "false"}));
     }
 
     void ConfigSocketServer::setReusePort(bool reusePort) {

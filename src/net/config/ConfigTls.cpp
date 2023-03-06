@@ -44,12 +44,14 @@ namespace net::config {
                    "filename",
                    "",
                    CLI::detail::ExistingFileValidator().description("PEM-FILE"));
+        ConfigSection::required(certChainOpt, true);
         add_option(certKeyOpt, //
                    "--cert-key",
                    "Certificate key file",
                    "filename",
                    "",
                    CLI::detail::ExistingFileValidator().description("PEM-FILE"));
+        ConfigSection::required(certKeyOpt, true);
         add_option(certKeyPasswordOpt,
                    "--cert-key-password",
                    "Password for the certificate key file",
@@ -73,7 +75,7 @@ namespace net::config {
                  "Use default CA-certificate directory",
                  "bool",
                  "false",
-                 CLI::TypeValidator<bool>() & (!CLI::Number));
+                 CLI::IsMember({"true", "false"}));
         add_option(cipherListOpt, //
                    "--cipher-list",
                    "Cipher list",
@@ -105,8 +107,8 @@ namespace net::config {
 
     void ConfigTls::setCertChain(const std::string& newCertChain) {
         certChainOpt //
-            ->default_val(newCertChain)
-            ->clear();
+            ->default_val(newCertChain);
+        ConfigSection::required(certChainOpt, false);
     }
 
     std::string ConfigTls::getCertKey() const {
@@ -115,8 +117,8 @@ namespace net::config {
 
     void ConfigTls::setCertKey(const std::string& newCertKey) {
         certKeyOpt //
-            ->default_val(newCertKey)
-            ->clear();
+            ->default_val(newCertKey);
+        ConfigSection::required(certKeyOpt, false);
     }
 
     std::string ConfigTls::getCertKeyPassword() const {

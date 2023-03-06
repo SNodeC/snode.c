@@ -44,7 +44,7 @@ namespace net::in6::stream::config {
                           "Turn of IPv6 dual stack mode",
                           "bool",
                           "false",
-                          CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+                          CLI::IsMember({"true", "false"}));
     }
 
     void ConfigSocketClient::setIPv6Only(bool iPv6Only) {

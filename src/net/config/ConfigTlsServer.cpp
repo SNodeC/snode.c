@@ -57,7 +57,7 @@ namespace net::config {
                  "Force using of the Server Name Indication",
                  "bool",
                  "false",
-                 CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+                 CLI::IsMember({"true", "false"}));
 
         section->final_callback([this](void) -> void {
             std::list<std::string> vaultyDomainConfigs;

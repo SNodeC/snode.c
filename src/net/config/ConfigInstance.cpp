@@ -22,7 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/CLI11.hpp"
 #include "utils/Config.h"
 
@@ -62,7 +61,7 @@ namespace net::config {
                          ->take_last()
                          ->default_val("false")
                          ->type_name("bool")
-                         ->check(CLI::TypeValidator<bool>() & !CLI::Number); // cppcheck-suppress clarifyCondition
+                         ->check(CLI::IsMember({"true", "false"}));
 
         instanceSc->final_callback([this]() -> void {
             (utils::ResetToDefault(disableOpt))(disableOpt->as<std::string>());

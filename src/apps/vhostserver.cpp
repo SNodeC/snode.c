@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     {
-        legacy::in6::WebApp legacyApp /*("legacy")*/;
+        legacy::in6::WebApp legacyApp("legacy");
 
         Router& router = middleware::VHost("localhost:8080");
         router.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
         });
 
         {
-            express::tls::in6::WebApp tlsApp /*("tls")*/;
+            express::tls::in6::WebApp tlsApp("tls");
 
             Router& vh = middleware::VHost("localhost:8088");
             vh.use(getRouter(utils::Config::get_string_option_value("--web-root")));
@@ -101,6 +101,11 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "snode.c listening on " << socketAddress.toString();
                 }
             });
+
+            //            tlsApp.getConfig().setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
+            //            tlsApp.getConfig().setCertKey(
+            //                "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
+            //            tlsApp.getConfig().setCertKeyPassword("snode.c");
         }
     }
 
