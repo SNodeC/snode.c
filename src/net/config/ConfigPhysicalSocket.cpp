@@ -35,7 +35,7 @@ namespace net::config {
         : ConfigSection(instance, "socket", "Options for socket behaviour") {
     }
 
-    const std::map<int, core::socket::PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
+    const std::map<int, const core::socket::PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
         return socketOptionsMap;
     }
 
@@ -52,7 +52,7 @@ namespace net::config {
             name,
             [this, &opt, optLevel, optName](int64_t) -> void {
                 if (opt->as<bool>()) {
-                    socketOptionsMap[optName] = core::socket::PhysicalSocketOption(optLevel, optName, 1);
+                    socketOptionsMap.insert({optName, core::socket::PhysicalSocketOption(optLevel, optName, 1)});
                 }
 
                 (utils::ResetToDefault(opt))(opt->as<std::string>());
@@ -64,7 +64,7 @@ namespace net::config {
     }
 
     void ConfigPhysicalSocket::addSocketOption(int optName, int optLevel) {
-        socketOptionsMap[optName] = core::socket::PhysicalSocketOption(optLevel, optName, 1);
+        socketOptionsMap.insert({optName, core::socket::PhysicalSocketOption(optLevel, optName, 1)});
     }
 
     void ConfigPhysicalSocket::removeSocketOption(int optName) {

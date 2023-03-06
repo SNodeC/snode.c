@@ -42,19 +42,19 @@ namespace core::socket {
         , optValue(optValue) {
     }
 
-    int PhysicalSocketOption::getOptLevel() {
+    int PhysicalSocketOption::getOptLevel() const {
         return optLevel;
     }
 
-    int PhysicalSocketOption::getOptName() {
+    int PhysicalSocketOption::getOptName() const {
         return optName;
     }
 
-    void* PhysicalSocketOption::getOptValue() {
-        return reinterpret_cast<void*>(optValue.data());
+    const void* PhysicalSocketOption::getOptValue() const {
+        return reinterpret_cast<const void*>(optValue.data());
     }
 
-    socklen_t PhysicalSocketOption::getOptLen() {
+    socklen_t PhysicalSocketOption::getOptLen() const {
         return static_cast<socklen_t>(optValue.size());
     }
 

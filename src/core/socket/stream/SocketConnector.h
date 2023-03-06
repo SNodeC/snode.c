@@ -121,7 +121,8 @@ namespace core::socket::stream {
                 }
             } else {
                 disable();
-                onError(config->getRemoteAddress(), cErrno);
+                errno = cErrno;
+                onError(config->getRemoteAddress(), errno);
             }
         }
 

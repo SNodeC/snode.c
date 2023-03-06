@@ -37,10 +37,10 @@ namespace core::socket {
         PhysicalSocketOption(int optLevel, int optName, const std::string& optValue);
         PhysicalSocketOption(int optLevel, int optName, const std::vector<char>& optValue);
 
-        int getOptLevel();
-        int getOptName();
-        void* getOptValue();
-        socklen_t getOptLen();
+        int getOptLevel() const;
+        int getOptName() const;
+        const void* getOptValue() const;
+        socklen_t getOptLen() const;
 
     private:
         int optLevel = -1;

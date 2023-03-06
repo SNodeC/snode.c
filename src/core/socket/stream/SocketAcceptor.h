@@ -110,7 +110,7 @@ namespace core::socket::stream {
                     } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
                         VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName()) << " mode: PRIMARY";
                         secondaryPhysicalSocket = new SecondarySocket();
-                        if (secondaryPhysicalSocket->open(std::map<int, core::socket::PhysicalSocketOption>(),
+                        if (secondaryPhysicalSocket->open(std::map<int, const core::socket::PhysicalSocketOption>(),
                                                           SecondarySocket::Flags::NONBLOCK) < 0) {
                             onError(config->getLocalAddress(), errno);
                             destruct();
@@ -131,7 +131,7 @@ namespace core::socket::stream {
                 } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
                            config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
                     secondaryPhysicalSocket = new SecondarySocket();
-                    if (secondaryPhysicalSocket->open(std::map<int, core::socket::PhysicalSocketOption>(),
+                    if (secondaryPhysicalSocket->open(std::map<int, const core::socket::PhysicalSocketOption>(),
                                                       SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->getLocalAddress(), errno);
                         destruct();

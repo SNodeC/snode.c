@@ -50,7 +50,7 @@ namespace core::socket {
         enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
 
     public:
-        int open(const std::map<int, PhysicalSocketOption>& socketOptions, Flags flags = Flags::NONE);
+        int open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags = Flags::NONE);
 
         bool isValid() const;
 

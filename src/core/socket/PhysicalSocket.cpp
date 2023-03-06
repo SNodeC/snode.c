@@ -18,9 +18,11 @@
 
 #include "core/socket/PhysicalSocket.h"
 
-#include "core/socket/PhysicalSocketOption.h"
+#include "core/socket/PhysicalSocketOption.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -56,11 +58,11 @@ namespace core::socket {
         return *this;
     }
 
-    int PhysicalSocket::open(const std::map<int, PhysicalSocketOption>& socketOptions, Flags flags) {
+    int PhysicalSocket::open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags) {
         int ret = Super::attach(core::system::socket(domain, type | flags, protocol));
 
         if (ret >= 0) {
-            for (auto [optName, socketOption] : socketOptions) {
+            for (const auto& [optName, socketOption] : socketOptions) {
                 int setSockoptRet =
                     setSockopt(socketOption.getOptLevel(), socketOption.getOptName(), socketOption.getOptValue(), socketOption.getOptLen());
 
