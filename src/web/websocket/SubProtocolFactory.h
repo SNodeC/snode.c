@@ -19,7 +19,6 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 
-#include "core/socket/SocketContext.h"
 #include "web/websocket/SubProtocolContext.h"
 
 namespace web::websocket {
