@@ -49,17 +49,24 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [SocketAddress Constructors](#socketaddress-constructors)
    * [Server](#server)
       * [SocketServer Classes](#socketserver-classes)
-      * [Header Files](#header-files)
+      * [SocketServer Header Files](#socketserver-header-files)
       * [Listen Methods](#listen-methods)
-         * [IPv4 listen() Methods](#ipv4-listen-methods)
-         * [IPv6 listen() Methods](#ipv6-listen-methods)
-         * [Unix Domain Socket listen() Methods](#unix-domain-socket-listen-methods)
-         * [Bluetooth RFCOMM listen() Methods](#bluetooth-rfcomm-listen-methods)
-         * [Bluetooth L2CAP listen() Methods](#bluetooth-l2cap-listen-methods)
+         * [Common listen() Methods](#common-listen-methods)
+         * [IPv4 specific listen() Methods](#ipv4-specific-listen-methods)
+         * [IPv6 specific listen() Methods](#ipv6-specific-listen-methods)
+         * [Unix Domain Socket specific listen() Methods](#unix-domain-socket-specific-listen-methods)
+         * [Bluetooth RFCOMM specific listen() Methods](#bluetooth-rfcomm-specific-listen-methods)
+         * [Bluetooth L2CAP specific listen() Methods](#bluetooth-l2cap-specific-listen-methods)
    * [Client](#client)
       * [SocketClient Classes](#socketclient-classes)
-      * [Header Files](#header-files-1)
+      * [SocketClient Header Files](#socketclient-header-files)
       * [Connect Methods](#connect-methods)
+         * [Common connect() Methods](#common-connect-methods)
+         * [IPv4 specific connect() Methods](#ipv4-specific-connect-methods)
+         * [IPv6 specific connect() Methods](#ipv6-specific-connect-methods)
+         * [Unix Domain Socket specific connect() Methods](#unix-domain-socket-specific-connect-methods)
+         * [Bluetooth RFCOMM specific connect() Methods](#bluetooth-rfcomm-specific-connect-methods)
+         * [Bluetooth L2CAP specific connect() Methods](#bluetooth-l2cap-specific-connect-methods)
 * [Configuration](#configuration)
    * [Command-Line Interface](#command-line-interface)
    * [Configuration in the Source Code](#configuration-in-the-source-code)
@@ -72,7 +79,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Wed Mar  8 21:11:56 UTC 2023 -->
+<!-- Added by: runner, at: Wed Mar  8 22:03:12 UTC 2023 -->
 
 <!--te-->
 
