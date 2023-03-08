@@ -533,7 +533,7 @@ As said above in the transport layer section, SSL/TLS encryption is provided for
 
 Before focusing explicitly on the Server- and Client-Classes a few common aspects for both and all network/transport-layer combinations needs to be known.
 
-## `SocketAddress` Classes
+## SocketAddress Classes
 
 Every network layer provides its specific `SocketAddress` class. In typical scenarios you need not bother about these classes as they are managed internally by the framework.
 
@@ -584,7 +584,7 @@ The default constructors of all SocketAddress classes creates wild-card SocketAd
 
 ## Server
 
-### `SocketServer` Classes
+### SocketServer Classes
 
 | Network Layer       | Legacy Connection                        | SSL/TLS Connection                    |
 | ------------------- | ---------------------------------------- | ------------------------------------- |
@@ -702,7 +702,7 @@ using StatusFunction = const std::function<void(const net::l2::SocketAddress&, i
 
 ## Client
 
-### `SocketClient` Classes
+### SocketClient Classes
 
 
 | Network Layer       | Legacy Connection                        | SSL/TLS Connection                    |
