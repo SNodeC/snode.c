@@ -631,7 +631,7 @@ using StatusFunction = const std::function<void(const <ConcreteServerOrClientTyp
 
 | `listen()`Method Type                          | `listen()` Methods common to all SocketServer Classes        |
 | ---------------------------------------------- | ------------------------------------------------------------ |
-| Listen without parameter [^1]                  | `void listen(StatusFunction& onError)`                       |
+| Listen without parameter[^1]                   | `void listen(StatusFunction& onError)`                       |
 | Listen expecting a `SocketAddress` as argument | `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onError)` |
 
 [^1]: "Without parameter" is not completely right because every `listen()` method expects a reference to a `std::function` for status processing (error or success) as argument.
@@ -758,7 +758,7 @@ using StatusFunction = const std::function<void(const <ConcreteServerOrClientTyp
 | Connect expecting a `SocketAddress` as argument    | `void connect(const SocketAddress& remoteAddress, StatusFunction& onError)` |
 | Connect expecting two `SocketAddress`s as argument | `void connect(const SocketAddress& remoteAddress, const SocketAddress& localAddress, StatusFunction& onError)` |
 
-[^2]: "Without parameter" is not completely right because every listen() method expects a std::function for status processing (error or success) as argument. 
+[^2]: "Without parameter" is not completely right because every `connect()` method expects a `std::function` for status processing (error or success) as argument. 
 
 #### Specific connect() Methods
 
