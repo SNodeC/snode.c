@@ -32,7 +32,7 @@ namespace net::l2::stream {
 
     template <typename Config>
     void
-    SocketClient<Config>::connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) {
+    SocketClient<Config>::connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(address, psm), onError);
     }
 
@@ -40,7 +40,7 @@ namespace net::l2::stream {
     void SocketClient<Config>::connect(const std::string& address,
                                        uint16_t psm,
                                        const std::string& localAddress,
-                                       const std::function<void(const SocketAddress&, int)>& onError) {
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(address, psm), SocketAddress(localAddress), onError);
     }
 
@@ -49,7 +49,7 @@ namespace net::l2::stream {
                                        uint16_t psm,
                                        const std::string& localAddress,
                                        uint16_t bindPsm,
-                                       const std::function<void(const SocketAddress&, int)>& onError) {
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(address, psm), SocketAddress(localAddress, bindPsm), onError);
     }
 

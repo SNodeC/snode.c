@@ -31,15 +31,16 @@ namespace net::l2::stream {
     }
 
     template <typename Config>
-    void
-    SocketServer<Config>::listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
+    void SocketServer<Config>::listen(uint16_t psm,
+                                      int backlog,
+                                      const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
         listen(SocketAddress(psm), backlog, onError);
     }
 
     template <typename Config>
     void SocketServer<Config>::listen(const std::string& address,
                                       int backlog,
-                                      const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
+                                      const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
         listen(SocketAddress(address), backlog, onError);
     }
 
@@ -47,7 +48,7 @@ namespace net::l2::stream {
     void SocketServer<Config>::listen(const std::string& address,
                                       uint16_t psm,
                                       int backlog,
-                                      const std::function<void(const SocketAddress& SocketAddress, int)>& onError) {
+                                      const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
         listen(SocketAddress(address, psm), backlog, onError);
     }
 

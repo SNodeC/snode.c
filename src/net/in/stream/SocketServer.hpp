@@ -31,14 +31,14 @@ namespace net::in::stream {
     }
 
     template <typename Config>
-    void SocketServer<Config>::listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) {
+    void SocketServer<Config>::listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
         listen(SocketAddress(port), backlog, onError);
     }
 
     template <typename Config>
     void SocketServer<Config>::listen(const std::string& ipOrHostname,
                                       int backlog,
-                                      const std::function<void(const SocketAddress&, int)>& onError) {
+                                      const std::function<void(const SocketAddress&, int)>& onError) const {
         listen(SocketAddress(ipOrHostname), backlog, onError);
     }
 
@@ -46,7 +46,7 @@ namespace net::in::stream {
     void SocketServer<Config>::listen(const std::string& ipOrHostname,
                                       uint16_t port,
                                       int backlog,
-                                      const std::function<void(const SocketAddress&, int)>& onError) {
+                                      const std::function<void(const SocketAddress&, int)>& onError) const {
         listen(SocketAddress(ipOrHostname, port), backlog, onError);
     }
 

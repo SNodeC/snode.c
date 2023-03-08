@@ -45,12 +45,14 @@ namespace net::in::stream {
 
         using Super::listen;
 
-        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void
-        listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(const std::string& ipOrHostname,
+                    uint16_t port,
+                    int backlog,
+                    const std::function<void(const SocketAddress&, int)>& onError) const;
     };
 
 } // namespace net::in::stream

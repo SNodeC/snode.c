@@ -42,7 +42,7 @@ namespace net::un::stream {
     public:
         using Super::listen;
 
-        void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
     };
 
 } // namespace net::un::stream

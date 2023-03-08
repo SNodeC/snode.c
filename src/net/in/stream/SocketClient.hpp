@@ -33,7 +33,7 @@ namespace net::in::stream {
     template <typename Config>
     void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
-                                       const std::function<void(const SocketAddress&, int)>& onError) {
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(ipOrHostname, port), onError);
     }
 
@@ -41,7 +41,7 @@ namespace net::in::stream {
     void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
                                        const std::string& bindIpOrHostname,
-                                       const std::function<void(const SocketAddress&, int)>& onError) {
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
     }
 
@@ -50,7 +50,7 @@ namespace net::in::stream {
                                        uint16_t port,
                                        const std::string& bindIpOrHostname,
                                        uint16_t bindPort,
-                                       const std::function<void(const SocketAddress&, int)>& onError) {
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
     }
 

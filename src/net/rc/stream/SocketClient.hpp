@@ -33,7 +33,7 @@ namespace net::rc::stream {
     template <typename Config>
     void SocketClient<Config>::connect(const std::string& address,
                                        uint8_t channel,
-                                       const std::function<void(const SocketAddress&, int)>& onError) {
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(address, channel), onError);
     }
 
@@ -41,7 +41,7 @@ namespace net::rc::stream {
     void SocketClient<Config>::connect(const std::string& address,
                                        uint8_t channel,
                                        const std::string& localAddress,
-                                       const std::function<void(const SocketAddress&, int)>& onError) {
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(address, channel), SocketAddress(localAddress), onError);
     }
 
@@ -50,7 +50,7 @@ namespace net::rc::stream {
                                        uint8_t channel,
                                        const std::string& localAddress,
                                        uint8_t bindChannel,
-                                       const std::function<void(const SocketAddress&, int)>& onError) {
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(address, channel), SocketAddress(localAddress, bindChannel), onError);
     }
 

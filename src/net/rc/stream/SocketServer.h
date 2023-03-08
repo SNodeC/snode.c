@@ -43,12 +43,14 @@ namespace net::rc::stream {
     public:
         using Super::listen;
 
-        void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void listen(const std::string& address, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(const std::string& address, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void
-        listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError);
+        void listen(const std::string& address,
+                    uint8_t channel,
+                    int backlog,
+                    const std::function<void(const SocketAddress&, int)>& onError) const;
     };
 
 } // namespace net::rc::stream
