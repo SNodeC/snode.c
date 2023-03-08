@@ -43,10 +43,12 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Transport Layer](#transport-layer)
    * [Application Layer](#application-layer)
 * [Existing Server- and Client-Classes](#existing-server--and-client-classes)
+   * [SocketAddress Classes](#socketaddress-classes)
       * [SocketAddress Classes](#socketaddress-classes-1)
       * [SocketAddress Header Files](#socketaddress-header-files)
       * [SocketAddress Constructors](#socketaddress-constructors)
    * [Server](#server)
+      * [SocketServer Classes](#socketserver-classes)
       * [Header Files](#header-files)
       * [Listen Methods](#listen-methods)
          * [IPv4 listen() Methods](#ipv4-listen-methods)
@@ -55,6 +57,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
          * [Bluetooth RFCOMM listen() Methods](#bluetooth-rfcomm-listen-methods)
          * [Bluetooth L2CAP listen() Methods](#bluetooth-l2cap-listen-methods)
    * [Client](#client)
+      * [SocketClient Classes](#socketclient-classes)
       * [Header Files](#header-files-1)
       * [Connect Methods](#connect-methods)
 * [Configuration](#configuration)
@@ -69,7 +72,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Wed Mar  8 21:06:14 UTC 2023 -->
+<!-- Added by: runner, at: Wed Mar  8 21:11:56 UTC 2023 -->
 
 <!--te-->
 
