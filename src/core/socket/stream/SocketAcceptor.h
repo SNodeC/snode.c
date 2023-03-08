@@ -170,7 +170,6 @@ namespace core::socket::stream {
                             VLOG(0) << "Sending to secondary";
                             secondaryPhysicalSocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName()),
                                                             physicalSocket.getFd());
-                            SecondarySocket::SocketAddress address;
                         }
                     } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                         PLOG(ERROR) << "accept";
