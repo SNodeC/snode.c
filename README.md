@@ -508,6 +508,87 @@ In-framework server and client support currently exist for the application level
 
 As said above in the transport layer section, SSL/TLS encryption is provided for all of these application layer protocols.
 
+# Existing Server- and Client-Classes
+
+## Server
+
+### Classes
+
+| Network Layer       | Legacy Connection                        | SSL/TLS Connection                    |
+| ------------------- | ---------------------------------------- | ------------------------------------- |
+| IPv4                | `net::in::stream::legacy::SocketServer`  | `net::in::stream::tls::SocketServer`  |
+| IPv6                | `net::in6::stream::legacy::SocketServer` | `net::in6::stream::tls::SocketServer` |
+| Unix Domain Sockets | `net::un::stream::legacy::SocketServer`  | `net::un::stream::tls::SocketServer`  |
+| RFCOMM              | `net::rc::stream::legacy::SocketServer`  | `net::rc::stream::tls::SocketServer`  |
+| L2CAP               | `net::l2::stream::legacy::SocketServer`  | `net::l2::stream::tls::SocketServer`  |
+
+### Header Files
+
+
+| Network Layer       | Legacy Connection                      | SSL/TLS Connection                  |
+| ------------------- | -------------------------------------- | ----------------------------------- |
+| IPv4                | `net/in/stream/legacy/SocketServer.h`  | `net/in/stream/tls/SocketServer.h`  |
+| IPv6                | `net/in6/stream/legacy/SocketServer.h` | `net/in6/stream/tls/SocketServer.h` |
+| Unix Domain Sockets | `net/un/stream/legacy/SocketServer.h`  | `net/un/stream/tls/SocketServer.h`  |
+| RFCOMM              | `net/rc/stream/legacy/SocketServer.h`  | `net/rc/stream/tls/SocketServer.h`  |
+| L2CAP               | `net/l2/stream/legacy/SocketServer.h`  | `net/l2/stream/tls/SocketServer.h`  |
+
+## Client
+
+### Classes
+
+
+| Network Layer       | Legacy Connection                        | SSL/TLS Connection                    |
+| ------------------- | ---------------------------------------- | ------------------------------------- |
+| IPv4                | `net::in::stream::legacy::SocketClient`  | `net::in::stream::tls::SocketClient`  |
+| IPv6                | `net::in6::stream::legacy::SocketClient` | `net::in6::stream::tls::SocketClient` |
+| Unix Domain Sockets | `net::un::stream::legacy::SocketClient`  | `net::un::stream::tls::SocketClient`  |
+| RFCOMM              | `net::rc::stream::legacy::SocketClient`  | `net::rc::stream::tls::SocketClient`  |
+| L2CAP               | `net::l2::stream::legacy::SocketClient`  | `net::l2::stream::tls::SocketClient`  |
+
+### Header Files
+
+
+| Network Layer       | Legacy Connection                      | SSL/TLS Connection                  |
+| ------------------- | -------------------------------------- | ----------------------------------- |
+| IPv4                | `net/in/stream/legacy/SocketClient.h`  | `net/in/stream/tls/SocketClient.h`  |
+| IPv6                | `net/in6/stream/legacy/SocketClient.h` | `net/in6/stream/tls/SocketClient.h` |
+| Unix Domain Sockets | `net/un/stream/legacy/SocketClient.h`  | `net/un/stream/tls/SocketClient.h`  |
+| RFCOMM              | `net/rc/stream/legacy/SocketClient.h`  | `net/rc/stream/tls/SocketClient.h`  |
+| L2CAP               | `net/l2/stream/legacy/SocketClient.h`  | `net/l2/stream/tls/SocketClient.h`  |
+
+## Listen Methods
+
+To be written
+
+## Connect Methods
+
+To be written
+
+# Configuration
+
+To be written
+
+## Command-Line Interface
+
+To be written
+
+## Configuration in the Source Code
+
+To be written
+
+## SSL/TLS-Configuration
+
+To be written
+
+# Highlevel WEB-API a'la Node.JS-Express
+
+To be written
+
+# Websockets
+
+To be written
+
 # Example Applications
 
 ## HTTP/S Web-Server for Static HTML-Pages
