@@ -525,17 +525,68 @@ As said above in the transport layer section, SSL/TLS encryption is provided for
 
 # Existing Server- and Client-Classes
 
+Before focusing explicitly on the Server- and Client-Classes a few common aspects for both and all network/transport-layer combinations needs to be known.
+
+## `SocketAddress` Classes
+
+Every network layer provides its specific `SocketAddress` class. In typical scenarios you need not bother about these classes as they are managed internally by the framework.
+
+Every *SocketServer* and *SocketClient* class has it's `SocketAddress` attached as data type. Thus, one can always get the correct `SocketAddress` type buy just
+
+```cpp
+using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
+```
+
+as can be seen in the Echo-Demo-Application above.
+
+Nevertheless, for the sake of completeness, all implemented `SocketAddress` classes along with the header files they are declared in are listed below.
+
+### SocketAddress Classes
+
+| Network Layer       | `SocketAddress`           |
+| ------------------- | ------------------------- |
+| IPv4                | `net::in::SocketAddress`  |
+| IPv6                | `net::in6::SocketAddress` |
+| Unix Domain Sockets | `net::un::SocketAddress`  |
+| Bluetooth RFCOMM    | `net::rc::SocketAddress`  |
+| Bluetooth L2CAP     | `net::l2::SocketAddress`  |
+
+### SocketAddress Header Files
+
+| Network Layer       | `SocketAddress`           |
+| ------------------- | ------------------------- |
+| IPv4                | `net/in/SocketAddress.h`  |
+| IPv6                | `net/in6/SocketAddress.h` |
+| Unix Domain Sockets | `net/un/SocketAddress.h`  |
+| Bluetooth RFCOMM    | `net/rc/SocketAddress.h`  |
+| Bluetooth L2CAP     | `net/l2/SocketAddress.h`  |
+
+Each SocketAddress class provides it's very specific set of constructors.
+
+### SocketAddress Constructors
+
+The default constructors of all SocketAddress classes creates wild-card SocketAddress objects. For a SocketClient for exampe, which uses such a wild-card SocketAddress as *local address* the operating system chooses a valid `sockaddr` structure automatically.
+
+| SocketAddress |      Constructors |
+| ------------------- | ------------------------- |
+| `net::in::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`<br/>`SocketAddress(uint16_t port)` |
+| `net::in6::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`<br/>`SocketAddress(uint16_t port)` |
+| `net::un::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
+| `net::rc::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)`<br/>`SocketAddress(uint8_t channel)` |
+| `net::l2::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)`<br/>`SocketAddress(uint16_t psm)` |
+
+
 ## Server
 
-### Classes
+### `SocketServer` Classes
 
 | Network Layer       | Legacy Connection                        | SSL/TLS Connection                    |
 | ------------------- | ---------------------------------------- | ------------------------------------- |
 | IPv4                | `net::in::stream::legacy::SocketServer`  | `net::in::stream::tls::SocketServer`  |
 | IPv6                | `net::in6::stream::legacy::SocketServer` | `net::in6::stream::tls::SocketServer` |
 | Unix Domain Sockets | `net::un::stream::legacy::SocketServer`  | `net::un::stream::tls::SocketServer`  |
-| RFCOMM              | `net::rc::stream::legacy::SocketServer`  | `net::rc::stream::tls::SocketServer`  |
-| L2CAP               | `net::l2::stream::legacy::SocketServer`  | `net::l2::stream::tls::SocketServer`  |
+| Bluetooth RFCOMM    | `net::rc::stream::legacy::SocketServer`  | `net::rc::stream::tls::SocketServer`  |
+| Bluetooth L2CAP     | `net::l2::stream::legacy::SocketServer`  | `net::l2::stream::tls::SocketServer`  |
 
 ### Header Files
 
@@ -545,12 +596,107 @@ As said above in the transport layer section, SSL/TLS encryption is provided for
 | IPv4                | `net/in/stream/legacy/SocketServer.h`  | `net/in/stream/tls/SocketServer.h`  |
 | IPv6                | `net/in6/stream/legacy/SocketServer.h` | `net/in6/stream/tls/SocketServer.h` |
 | Unix Domain Sockets | `net/un/stream/legacy/SocketServer.h`  | `net/un/stream/tls/SocketServer.h`  |
-| RFCOMM              | `net/rc/stream/legacy/SocketServer.h`  | `net/rc/stream/tls/SocketServer.h`  |
-| L2CAP               | `net/l2/stream/legacy/SocketServer.h`  | `net/l2/stream/tls/SocketServer.h`  |
+| Bluetooth RFCOMM    | `net/rc/stream/legacy/SocketServer.h`  | `net/rc/stream/tls/SocketServer.h`  |
+| Bluetooth L2CAP     | `net/l2/stream/legacy/SocketServer.h`  | `net/l2/stream/tls/SocketServer.h`  |
+
+### Listen Methods
+
+As already mentioned above, each `SocketServer` class provides its own specific set of `listen()` methods. But some `listen()` methods are common to all `SocketServer` classes.
+
+The type `StatusFunction` is defined as
+
+```cpp
+using StatusFunction = const std::function<void(const <ConcreteServerOrClientType>::SocketAddress&, int)>;
+```
+
+| `listen()`Method Type                          | `listen()` Methods common to all SocketServer Classes        |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| Listen without parameter[¹]                    | `void listen(StatusFunction& onError)`                       |
+| Listen expecting a `SocketAddress` as argument | `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onError)` |
+
+[^1]: "Without parameter" is not completely right because every listen() method expects a std::function for status processing (error or success) as argument. 
+
+#### IPv4 `listen()` Methods
+
+For the IPv4/SOCK_STREAM combination exist three specific `listen()` methods.
+
+The type `StatusFunction` is defined as
+
+```cpp
+using StatusFunction = const std::function<void(const net::in::SocketAddress&, int)>;
+```
+
+| `listen()` Methods                                           |
+| ------------------------------------------------------------ |
+| `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& ipOrHostname, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
+
+#### IPv6 `listen()` Methods
+
+For the IPv6/SOCK_STREAM combination exist three specific `listen()` methods.
+
+The type `StatusFunction` is defined as
+
+```cpp
+using StatusFunction = const std::function<void(const net::in6::SocketAddress&, int)>;
+```
+
+| `listen()` Methods                                           |
+| ------------------------------------------------------------ |
+| `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& ipOrHostname, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
+
+#### Unix Domain Socket `listen()` Methods
+
+For the Unix Domain Socket/SOCK_STREAM combination exist one specific `listen()` methods.
+
+The type `StatusFunction` is defined as
+
+```cpp
+using StatusFunction = const std::function<void(const net::un::SocketAddress&, int)>;
+```
+
+| `listen()` Methods                                           |
+| ------------------------------------------------------------ |
+| `void listen(const std::string& sunPath, int backlog, StatusFunction& onError)` |
+
+#### Bluetooth RFCOMM `listen()` Methods
+
+For the RFCOMM/SOCK_STREAM combination exist three specific `listen()` methods.
+
+IPv4 The type `StatusFunction` is defined as
+
+```cpp
+using StatusFunction = const std::function<void(const net::rc::SocketAddress&, int)>;
+```
+
+| `listen()` Methods                                           |
+| ------------------------------------------------------------ |
+| `void listen(uint8_t channel, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& btAddress, int backlog, StatucFunction& onError)` |
+| `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onError)` |
+
+#### Bluetooth L2CAP `listen()` Methods
+
+For the L2CAP/SOCK_STREAM combination exist three specific `listen()` methods.
+
+IPv4 The type `StatusFunction` is defined as
+
+```cpp
+using StatusFunction = const std::function<void(const net::l2::SocketAddress&, int)>;
+```
+
+| `listen()` Methods                                           |
+| ------------------------------------------------------------ |
+| `void listen(uint16_t psm, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& btAddress, int backlog, StatucFunction& onError)` |
+| `void listen(const std::string& btAddress, uint16_t psm, int backlog, StatusFunction& onError)` |
 
 ## Client
 
-### Classes
+### `SocketClient` Classes
 
 
 | Network Layer       | Legacy Connection                        | SSL/TLS Connection                    |
@@ -558,8 +704,8 @@ As said above in the transport layer section, SSL/TLS encryption is provided for
 | IPv4                | `net::in::stream::legacy::SocketClient`  | `net::in::stream::tls::SocketClient`  |
 | IPv6                | `net::in6::stream::legacy::SocketClient` | `net::in6::stream::tls::SocketClient` |
 | Unix Domain Sockets | `net::un::stream::legacy::SocketClient`  | `net::un::stream::tls::SocketClient`  |
-| RFCOMM              | `net::rc::stream::legacy::SocketClient`  | `net::rc::stream::tls::SocketClient`  |
-| L2CAP               | `net::l2::stream::legacy::SocketClient`  | `net::l2::stream::tls::SocketClient`  |
+| Bluetooth RFCOMM    | `net::rc::stream::legacy::SocketClient`  | `net::rc::stream::tls::SocketClient`  |
+| Bluetooth L2CAP     | `net::l2::stream::legacy::SocketClient`  | `net::l2::stream::tls::SocketClient`  |
 
 ### Header Files
 
@@ -569,14 +715,10 @@ As said above in the transport layer section, SSL/TLS encryption is provided for
 | IPv4                | `net/in/stream/legacy/SocketClient.h`  | `net/in/stream/tls/SocketClient.h`  |
 | IPv6                | `net/in6/stream/legacy/SocketClient.h` | `net/in6/stream/tls/SocketClient.h` |
 | Unix Domain Sockets | `net/un/stream/legacy/SocketClient.h`  | `net/un/stream/tls/SocketClient.h`  |
-| RFCOMM              | `net/rc/stream/legacy/SocketClient.h`  | `net/rc/stream/tls/SocketClient.h`  |
-| L2CAP               | `net/l2/stream/legacy/SocketClient.h`  | `net/l2/stream/tls/SocketClient.h`  |
+| Bluetooth RFCOMM    | `net/rc/stream/legacy/SocketClient.h`  | `net/rc/stream/tls/SocketClient.h`  |
+| Bluetooth L2CAP     | `net/l2/stream/legacy/SocketClient.h`  | `net/l2/stream/tls/SocketClient.h`  |
 
-## Listen Methods
-
-To be written
-
-## Connect Methods
+### Connect Methods
 
 To be written
 
