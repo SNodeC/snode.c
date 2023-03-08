@@ -541,9 +541,9 @@ As said above in the transport layer section, SSL/TLS encryption is provided for
 
 # Existing Server- and Client-Classes
 
-Before focusing explicitly on the Server- and Client-Classes a few common aspects for both and all network/transport-layer combinations needs to be known.
+Before focusing explicitly on the Server- and Client-Classes a few common aspects for both and all network/transport-laClassesyer combinations needs to be known.
 
-## SocketAddress Classes
+## SocketAddress
 
 Every network layer provides its specific `SocketAddress` class. In typical scenarios you need not bother about these classes as they are managed internally by the framework.
 
@@ -634,7 +634,9 @@ using StatusFunction = const std::function<void(const <ConcreteServerOrClientTyp
 
 [^1]: "Without parameter" is not completely right because every listen() method expects a std::function for status processing (error or success) as argument. 
 
-#### IPv4 specific `listen()` Methods
+#### Specific `listen()` Methods
+
+##### IPv4 specific `listen()` Methods
 
 The type `StatusFunction` is defined as
 
@@ -650,7 +652,7 @@ For the IPv4/SOCK_STREAM combination exist three specific `listen()` methods.
 | `void listen(const std::string& ipOrHostname, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
 
-#### IPv6 specific `listen()` Methods
+##### IPv6 specific `listen()` Methods
 
 The type `StatusFunction` is defined as
 
@@ -666,7 +668,7 @@ For the IPv6/SOCK_STREAM combination exist three specific `listen()` methods.
 | `void listen(const std::string& ipOrHostname, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
 
-#### Unix Domain Socket specific `listen()` Methods
+##### Unix Domain Socket specific `listen()` Methods
 
 The type `StatusFunction` is defined as
 
@@ -680,7 +682,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist one specific `listen()`
 | ------------------------------------------------------------ |
 | `void listen(const std::string& sunPath, int backlog, StatusFunction& onError)` |
 
-#### Bluetooth RFCOMM specific `listen()` Methods
+##### Bluetooth RFCOMM specific `listen()` Methods
 
 IPv4 The type `StatusFunction` is defined as
 
@@ -693,10 +695,10 @@ For the RFCOMM/SOCK_STREAM combination exist three specific `listen()` methods.
 | `listen()` Methods                                           |
 | ------------------------------------------------------------ |
 | `void listen(uint8_t channel, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& btAddress, int backlog, StatucFunction& onError)` |
+| `void listen(const std::string& btAddress, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onError)` |
 
-#### Bluetooth L2CAP specific `listen()` Methods
+##### Bluetooth L2CAP specific `listen()` Methods
 
 IPv4 The type `StatusFunction` is defined as
 
@@ -709,7 +711,7 @@ For the L2CAP/SOCK_STREAM combination exist three specific `listen()` methods.
 | `listen()` Methods                                           |
 | ------------------------------------------------------------ |
 | `void listen(uint16_t psm, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& btAddress, int backlog, StatucFunction& onError)` |
+| `void listen(const std::string& btAddress, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint16_t psm, int backlog, StatusFunction& onError)` |
 
 ## Client
@@ -748,7 +750,7 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const <ConcreteServerOrClientType>::SocketAddress&, int)>;
 ```
 
-| `connect()`Method Type                             | `listen()` Methods common to all SocketServer Classes        |
+| `connect()`Method Type                             | `connect()` Methods common to all SocketServer Classes       |
 | -------------------------------------------------- | ------------------------------------------------------------ |
 | Connect without parameter[¹]                       | `void connect(StatusFunction& onError)`                      |
 | Connect expecting a `SocketAddress` as argument    | `void connect(const SocketAddress& remoteAddress, StatusFunction& onError)` |
@@ -756,7 +758,9 @@ using StatusFunction = const std::function<void(const <ConcreteServerOrClientTyp
 
 [^1]: "Without parameter" is not completely right because every listen() method expects a std::function for status processing (error or success) as argument. 
 
-#### IPv4 specific `connect()` Methods
+#### Specific connect() Methods
+
+##### IPv4 specific `connect()` Methods
 
 The type `StatusFunction` is defined as
 
@@ -772,7 +776,7 @@ For the IPv4/SOCK_STREAM combination exist three specific `connect()` methods.
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
-#### IPv6 specific `connect()` Methods
+##### IPv6 specific `connect()` Methods
 
 The type `StatusFunction` is defined as
 
@@ -788,7 +792,7 @@ For the IPv6/SOCK_STREAM combination exist three specific `connect()` methods.
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
-#### Unix Domain Socket specific `connect()` Methods
+##### Unix Domain Socket specific `connect()` Methods
 
 The type `StatusFunction` is defined as
 
@@ -803,7 +807,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific `connect()
 | `void connect(const std::string& sunPath, StatusFunction& onError)` |
 | `void connect(const std::string& remoteSunPath, const std::string& localSunPath, StatusFunction& onError)` |
 
-#### Bluetooth RFCOMM specific `connect()` Methods
+##### Bluetooth RFCOMM specific `connect()` Methods
 
 IPv4 The type `StatusFunction` is defined as
 
@@ -819,7 +823,7 @@ For the RFCOMM/SOCK_STREAM combination exist three specific `connect()` methods.
 | `void connect(const std::string& address, uint8_t channel, StatusFunction& onError)` |
 | `void connect(const std::string& address, uint8_t channel, const std::string& localAddress, uint8_t bindChannel, StatusFunction& onError)` |
 
-#### Bluetooth L2CAP specific `connect()` Methods
+##### Bluetooth L2CAP specific `connect()` Methods
 
 IPv4 The type `StatusFunction` is defined as
 
