@@ -30,6 +30,8 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 namespace CLI {
     class Option;
 } // namespace CLI
