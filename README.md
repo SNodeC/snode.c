@@ -133,7 +133,7 @@ Basically the architecture of every server and client application is the same an
 
 Let\'s have a look at how these three components are related to each other by implementing a simple networking application.
 
-## An \"Echo\" Application
+## An "Echo" Application
 
 Imagine we want to create a very basic TCP (**stream**)/IPv4 (**in**) server/client pair which sends some plain text data unencrypted (**legacy**) to each other in a ping-pong way.
 
@@ -366,9 +366,9 @@ int main(int argc, char* argv[]) {
     
     echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, int err) -> void { // Connect to server
         if (err == 0){
-            std::cout << "Success: Echo connecting to " << socketAddress.toString() << std::endl;
+            std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
         } else {
-            std::cout << "Error: Echo client connecting to " << socketAddress.toString() << ": " << perror("");
+            std::cout << "Error: Echo client connected to " << socketAddress.toString() << ": " << perror("");
         }
     });
     
@@ -843,15 +843,72 @@ For the L2CAP/SOCK_STREAM combination exist three specific `connect()` methods.
 
 # Configuration
 
-To be written
+Each `SocketServer` and `SocketClient` instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP `SocketServer` needs to know the port number it should listen on, a `SocketClient` needs to now the host name or the IP address and the port number a server is listening on. And if an SSL/TLS instance is used certificates are necessary for successful encryption.
 
-## Command-Line Interface
+There are many more configuration items but lets focus on those mentioned above.
 
-To be written
+SNode.C provides three different ways to specify such configuration items. Nevertheless, internally all uses the same underlying configuration system, which is entirely based on the great [CLI11: Command line parser for C++11](https://github.com/CLIUtils/CLI11) library.
 
-## Configuration in the Source Code
+The configuration can be done via
 
-To be written
+- the provided C++ API directly in the source code for anonymous and named instances
+- command line arguments for named instances
+- configuration files for named instances
+
+## Configuration using the C++ API
+
+Each anonymous and named `SocketServer` and `SocketClient` instance provide an configuration object which could be obtained by calling the method `getConfig()` on the instance which returns a reference to that configuration object.
+
+For the `EchoServer` instance from the "Quick Starting Guide" section for example the configuration object can be obtained by just using
+
+```cpp
+EchoServer echoServer;
+echoServer.getConfig();
+```
+
+Such a configuration object provides many methods to specify the individual configuration items.
+
+Thus, to configure the port number for the `echoServer` instance the method `setPort(uint16_t port)` of the configuration object is used
+
+```cpp
+EchoServer echoServer;
+echoServer.getConfig().setPort(8001);
+```
+
+This is what the `listen()` method which expects a port number as argument used in the `EchoServer` application does automatically.
+
+Thus, if the port number is configured by using `setPort()` the `listen()` method which only takes a `std::function` as argument can be use and the `EchoServer` could also be started by
+
+```cpp
+EchoServer echoServer;
+echoServer.getConfig().setPort(8001);
+echoServer.listen([](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
+	if (err == 0){
+        std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl
+    } else {
+        std::cout << "Error: Echo server listening on " << socketAddress.toString() << ": " << perror("") << std::endl;
+    }
+});
+```
+
+The same technique can be used to configure the  `EchoClient` instance. 
+
+Though, a `SocketClient` has two independent sets of IP-Addresses/host names and port numbers, one for the remote side and one for the local side, one need to be more specific in which of these addresses shall be configured. Here the remote address is configured explicitly.
+
+```cpp
+EchoServer echoClient;
+echoClient.getConfig().Remote::setIpOrHostname("localhost");
+echoClient.getConfig().Remote::setPort(8001);
+echoClient.connect([](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
+	if (err == 0){
+        std::cout << "Success: Echo client connected to " << socketAddress.toString() << std::endl
+    } else {
+        std::cout << "Error: Echo client connected to " << socketAddress.toString() << ": " << perror("") << std::endl;
+    }
+});
+```
+
+All other configuration items can be configured in the very same way but for most option items sane default values are already predefined. For more information, see the full SNode.C API documentation.
 
 ## SSL/TLS-Configuration
 
