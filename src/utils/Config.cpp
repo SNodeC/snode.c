@@ -433,6 +433,10 @@ namespace utils {
             outString = app->get_name() + " " + (!parentOptions.empty() ? parentOptions + " " : "") + outString;
         }
 
+        if (outString.empty()) {
+            outString = Config::getApplicationName();
+        }
+
         return outString;
     }
 
