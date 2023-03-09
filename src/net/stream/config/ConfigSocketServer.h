@@ -43,7 +43,7 @@ namespace net::stream::config {
         , public net::config::ConfigListen
         , public net::config::ConfigCluster {
     public:
-        using ConfigAddressLocal = ConfigAddressT<net::config::ConfigAddressLocal>;
+        using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
 
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
