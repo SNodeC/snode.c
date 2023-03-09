@@ -46,6 +46,12 @@ namespace net::config {
 
         const std::map<int, const core::socket::PhysicalSocketOption>& getSocketOptions();
 
+        void addSocketOption(int optName, int optLevel);
+        void removeSocketOption(int optName);
+
+        void setReuseAddress(bool reuseAddress = true);
+        bool getReuseAddress();
+
     protected:
         CLI::Option* add_socket_option(CLI::Option*& opt,
                                        const std::string& name,
@@ -56,8 +62,7 @@ namespace net::config {
                                        const std::string& defaultValue,
                                        const CLI::Validator& validator);
 
-        void addSocketOption(int optName, int optLevel);
-        void removeSocketOption(int optName);
+        CLI::Option* reuseAddressOpt = nullptr;
 
         std::map<int, const core::socket::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };

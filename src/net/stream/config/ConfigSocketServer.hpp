@@ -21,8 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/socket.h>
-
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace net::stream::config {
@@ -34,33 +32,6 @@ namespace net::stream::config {
         , net::config::ConfigPhysicalSocket(instance)
         , net::config::ConfigListen(instance)
         , net::config::ConfigCluster(instance) {
-        add_socket_option(reuseAddressOpt,
-                          "--reuse-address",
-                          SOL_SOCKET,
-                          SO_REUSEADDR,
-                          "Reuse socket address",
-                          "bool",
-                          "false",
-                          CLI::IsMember({"true", "false"}));
-    }
-
-    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
-    void ConfigSocketServer<ConfigAddress>::setReuseAddress(bool reuseAddress) {
-        if (reuseAddress) {
-            addSocketOption(SO_REUSEADDR, SOL_SOCKET);
-        } else {
-            removeSocketOption(SO_REUSEADDR);
-        }
-
-        reuseAddressOpt //
-            ->default_val(reuseAddress ? "true" : "false")
-            ->take_all()
-            ->clear();
-    }
-
-    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
-    bool ConfigSocketServer<ConfigAddress>::getReuseAddress() {
-        return reuseAddressOpt->as<bool>();
     }
 
 } // namespace net::stream::config

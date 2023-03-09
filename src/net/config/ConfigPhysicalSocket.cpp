@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <string>
+#include <sys/socket.h>
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
@@ -33,6 +34,14 @@ namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
         : ConfigSection(instance, "socket", "Options for socket behaviour") {
+        add_socket_option(reuseAddressOpt,
+                          "--reuse-address",
+                          SOL_SOCKET,
+                          SO_REUSEADDR,
+                          "Reuse socket address",
+                          "bool",
+                          "false",
+                          CLI::IsMember({"true", "false"}));
     }
 
     const std::map<int, const core::socket::PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
@@ -69,6 +78,23 @@ namespace net::config {
 
     void ConfigPhysicalSocket::removeSocketOption(int optName) {
         socketOptionsMap.erase(optName);
+    }
+
+    void ConfigPhysicalSocket::setReuseAddress(bool reuseAddress) {
+        if (reuseAddress) {
+            addSocketOption(SO_REUSEADDR, SOL_SOCKET);
+        } else {
+            removeSocketOption(SO_REUSEADDR);
+        }
+
+        reuseAddressOpt //
+            ->default_val(reuseAddress ? "true" : "false")
+            ->take_all()
+            ->clear();
+    }
+
+    bool ConfigPhysicalSocket::getReuseAddress() {
+        return reuseAddressOpt->as<bool>();
     }
 
 } // namespace net::config

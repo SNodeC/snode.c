@@ -46,12 +46,6 @@ namespace net::stream::config {
         using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
 
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
-
-        void setReuseAddress(bool reuseAddress = true);
-        bool getReuseAddress();
-
-    protected:
-        CLI::Option* reuseAddressOpt = nullptr;
     };
 
 } // namespace net::stream::config
