@@ -38,7 +38,7 @@ namespace net::stream::config {
         , public net::config::ConfigPhysicalSocket {
     public:
         using ConfigAddressRemote = ConfigAddressT<net::config::ConfigAddressRemote>;
-        using ConfigAddressLocale = ConfigAddressT<net::config::ConfigAddressLocal>;
+        using ConfigAddressLocal = ConfigAddressT<net::config::ConfigAddressLocal>;
 
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
     };
