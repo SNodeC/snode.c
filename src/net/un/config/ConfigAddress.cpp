@@ -58,10 +58,20 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        setSunPath(socketAddress.address());
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    std::string ConfigAddress<ConfigAddressType>::getSunPath() {
+        return sunPathOpt->as<std::string>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setSunPath(const std::string& sunPath) {
         utils::PreserveErrno preserveErrno;
 
         sunPathOpt //
-            ->default_val(socketAddress.address());
+            ->default_val(sunPath);
         Super::required(sunPathOpt, false);
     }
 

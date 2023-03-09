@@ -30,6 +30,9 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
+#include <string>
+
 namespace CLI {
     class Option;
 } // namespace CLI
@@ -46,16 +49,20 @@ namespace net::l2::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
+        SocketAddress getAddress() const final;
+        void setAddress(const SocketAddress& socketAddress) final;
+
+        std::string getBtAddress();
+        void setBtAddress(const std::string& btAddress);
+
+        uint16_t getPsm();
+        void setPsm(uint16_t psm);
+
     protected:
         void hostRequired();
         void psmRequired();
 
     private:
-        using Super::required;
-
-        SocketAddress getAddress() const final;
-        void setAddress(const SocketAddress& socketAddress) final;
-
         CLI::Option* hostOpt = nullptr;
         CLI::Option* psmOpt = nullptr;
     };

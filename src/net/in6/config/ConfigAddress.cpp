@@ -70,14 +70,35 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        setIpOrHostname(socketAddress.host());
+        setPort(socketAddress.port());
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    std::string ConfigAddress<ConfigAddressType>::getIpOrHostname() {
+        return hostOpt->as<std::string>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
-            ->default_val(socketAddress.host());
+            ->default_val(ipOrHostname);
         Super::required(hostOpt, false);
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    uint16_t ConfigAddress<ConfigAddressType>::getPort() {
+        return portOpt->as<uint16_t>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
+        utils::PreserveErrno preserveErrno;
 
         portOpt //
-            ->default_val(socketAddress.port());
+            ->default_val(port);
         Super::required(portOpt, false);
     }
 

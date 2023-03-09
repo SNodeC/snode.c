@@ -47,7 +47,7 @@ namespace net::rc::config {
                           "Channel number",
                           "channel",
                           0,
-                          CLI::Range(0, 255));
+                          CLI::Range(0, 30));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -69,14 +69,35 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        setBtAddress(socketAddress.address());
+        setChannel(socketAddress.channel());
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    std::string ConfigAddress<ConfigAddressType>::getBtAddress() {
+        return hostOpt->as<std::string>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
-            ->default_val(socketAddress.address());
+            ->default_val(btAddress);
         Super::required(hostOpt, false);
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    uint8_t ConfigAddress<ConfigAddressType>::getChannel() {
+        return channelOpt->as<uint8_t>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setChannel(uint8_t channel) {
+        utils::PreserveErrno preserveErrno;
 
         channelOpt //
-            ->default_val(socketAddress.channel());
+            ->default_val(channel);
         Super::required(channelOpt, false);
     }
 

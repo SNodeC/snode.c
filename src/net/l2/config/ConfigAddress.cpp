@@ -70,14 +70,35 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+        setBtAddress(socketAddress.address());
+        setPsm(socketAddress.psm());
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    std::string ConfigAddress<ConfigAddressType>::getBtAddress() {
+        return hostOpt->as<std::string>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
-            ->default_val(socketAddress.address());
+            ->default_val(btAddress);
         Super::required(hostOpt, false);
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    uint16_t ConfigAddress<ConfigAddressType>::getPsm() {
+        return psmOpt->as<uint16_t>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
+        utils::PreserveErrno preserveErrno;
 
         psmOpt //
-            ->default_val(socketAddress.psm());
+            ->default_val(psm);
         Super::required(psmOpt, false);
     }
 

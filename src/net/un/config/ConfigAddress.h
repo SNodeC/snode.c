@@ -46,14 +46,17 @@ namespace net::un::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
+        SocketAddress getAddress() const final;
+        void setAddress(const SocketAddress& socketAddress) final;
+
+        std::string getSunPath();
+        void setSunPath(const std::string& sunPath);
+
     protected:
         void sunPathRequired();
 
     private:
         using Super::required;
-
-        SocketAddress getAddress() const final;
-        void setAddress(const SocketAddress& socketAddress) final;
 
         CLI::Option* sunPathOpt = nullptr;
     };
