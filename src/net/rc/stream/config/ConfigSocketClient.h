@@ -19,7 +19,7 @@
 #ifndef NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/stream/config/ConfigSocketClient.h"
+#include "net/stream/config/ConfigSocketClient.h" // IWYU pragma: export
 //
 #include "net/rc/config/ConfigAddress.h"
 

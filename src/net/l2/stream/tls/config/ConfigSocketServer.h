@@ -19,7 +19,7 @@
 #ifndef NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/l2/stream/config/ConfigSocketServer.h"
+#include "net/l2/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 #include "net/stream/config/tls/ConfigSocketServer.hpp"
 
 // IWYU pragma: no_include "net/stream/config/tls/ConfigSocketServer.hpp"
