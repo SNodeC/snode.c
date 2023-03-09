@@ -35,16 +35,6 @@ namespace net::config {
         : Super::ConfigAddress(instance, "remote", "Remote side of connection") {
     }
 
-    template <typename SocketAddress>
-    SocketAddress ConfigAddressRemote<SocketAddress>::getRemoteAddress() {
-        return getAddress();
-    }
-
-    template <typename SocketAddress>
-    void ConfigAddressRemote<SocketAddress>::setRemoteAddress(const SocketAddress& remoteAddress) {
-        setAddress(remoteAddress);
-    }
-
 } // namespace net::config
 
 #endif // NET_CONFIG_CONFIGADDRESSREMOTE_HPP

@@ -35,18 +35,8 @@ namespace net::config {
     class ConfigAddressRemote : protected net::config::ConfigAddress<SocketAddressT> {
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
-        using SocketAddress = SocketAddressT;
-
     protected:
         explicit ConfigAddressRemote(ConfigInstance* instance);
-
-    public:
-        SocketAddress getRemoteAddress();
-        void setRemoteAddress(const SocketAddress& localAddress);
-
-    private:
-        using Super::getAddress;
-        using Super::setAddress;
     };
 
 } // namespace net::config

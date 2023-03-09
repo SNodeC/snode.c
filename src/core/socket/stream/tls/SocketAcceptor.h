@@ -151,7 +151,7 @@ namespace core::socket::stream::tls {
 
                     Super::initAcceptEvent();
                 } else {
-                    Super::onError(Super::config->getLocalAddress(), EINVAL);
+                    Super::onError(Super::config->Local::getAddress(), EINVAL);
                     Super::destruct();
                 }
             } else {

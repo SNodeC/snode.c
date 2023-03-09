@@ -70,16 +70,16 @@ namespace core::socket::stream::tls {
                               },
                               [onError = this->onError, config = this->config]() -> void { // onTimeout
                                   LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                                  onError(config->getRemoteAddress(), ETIMEDOUT);
+                                  onError(config->Remote::getAddress(), ETIMEDOUT);
                               },
                               [onError = this->onError, config = this->config](int sslErr) -> void { // onError
                                   ssl_log("SSL/TLS initial handshake failed", sslErr);
-                                  onError(config->getRemoteAddress(), -sslErr);
+                                  onError(config->Remote::getAddress(), -sslErr);
                               });
                       } else {
                           socketConnection->close();
                           ssl_log_error("SSL/TLS initialization failed");
-                          this->onError(this->config->getRemoteAddress(), -SSL_ERROR_SSL);
+                          this->onError(this->config->Remote::getAddress(), -SSL_ERROR_SSL);
                       }
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -103,7 +103,7 @@ namespace core::socket::stream::tls {
                 if (ctx != nullptr) {
                     Super::initConnectEvent();
                 } else {
-                    Super::onError(config->getRemoteAddress(), errno);
+                    Super::onError(config->Remote::getAddress(), errno);
                     Super::destruct();
                 }
             } else {

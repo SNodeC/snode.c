@@ -83,13 +83,13 @@ namespace core::socket::stream {
             if (!config->getDisabled()) {
                 physicalSocket = new PhysicalSocket();
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                    onError(config->getRemoteAddress(), errno);
+                    onError(config->Remote::getAddress(), errno);
                     destruct();
-                } else if (physicalSocket->bind(config->getLocalAddress()) < 0) {
-                    onError(config->getRemoteAddress(), errno);
+                } else if (physicalSocket->bind(config->Local::getAddress()) < 0) {
+                    onError(config->Remote::getAddress(), errno);
                     destruct();
-                } else if (physicalSocket->connect(config->getRemoteAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
-                    onError(config->getRemoteAddress(), errno);
+                } else if (physicalSocket->connect(config->Remote::getAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
+                    onError(config->Remote::getAddress(), errno);
                     destruct();
                 } else {
                     enable(physicalSocket->getFd());
@@ -109,12 +109,12 @@ namespace core::socket::stream {
                         disable();
                         if (socketConnectionFactory.create(*physicalSocket, config)) {
                             errno = errno == 0 ? cErrno : errno;
-                            onError(config->getRemoteAddress(), errno);
+                            onError(config->Remote::getAddress(), errno);
                         }
                     } else {
                         disable();
                         errno = cErrno;
-                        onError(config->getRemoteAddress(), errno);
+                        onError(config->Remote::getAddress(), errno);
                     }
                 } else {
                     // Do nothing: connect() still in progress
@@ -122,7 +122,7 @@ namespace core::socket::stream {
             } else {
                 disable();
                 errno = cErrno;
-                onError(config->getRemoteAddress(), errno);
+                onError(config->Remote::getAddress(), errno);
             }
         }
 

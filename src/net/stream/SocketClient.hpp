@@ -29,7 +29,7 @@ namespace net::stream {
     void SocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
                                                              const SocketAddress& localAddress,
                                                              const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->setLocalAddress(localAddress);
+        Super::config->Local::setAddress(localAddress);
 
         connect(remoteAddress, onError);
     }
@@ -37,7 +37,7 @@ namespace net::stream {
     template <typename PhysicalClientSocket, typename Config>
     void SocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
                                                              const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->setRemoteAddress(remoteAddress);
+        Super::config->Remote::setAddress(remoteAddress);
 
         connect(onError);
     }

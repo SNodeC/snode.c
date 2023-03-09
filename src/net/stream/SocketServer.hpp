@@ -29,7 +29,7 @@ namespace net::stream {
     void SocketServer<PhysicalServerSocket, Config>::listen(const SocketAddress& localAddress,
                                                             int backlog,
                                                             const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->setLocalAddress(localAddress);
+        Super::config->Local::setAddress(localAddress);
         Super::config->setBacklog(backlog);
 
         listen(onError);

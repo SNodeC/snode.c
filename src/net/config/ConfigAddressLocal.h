@@ -35,18 +35,8 @@ namespace net::config {
     class ConfigAddressLocal : protected net::config::ConfigAddress<SocketAddressT> {
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
-        using SocketAddress = SocketAddressT;
-
     protected:
         explicit ConfigAddressLocal(ConfigInstance* instance);
-
-    public:
-        SocketAddress getLocalAddress();
-        void setLocalAddress(const SocketAddress& localAddress);
-
-    private:
-        using Super::getAddress;
-        using Super::setAddress;
     };
 
 } // namespace net::config

@@ -19,9 +19,10 @@
 #ifndef NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 
+// clang-format off
 #include "net/stream/config/ConfigSocketClient.h" // IWYU pragma: export
-//
-#include "net/rc/config/ConfigAddress.h"
+#include "net/rc/config/ConfigAddress.h"          // IWYU pragma: export
+// clang-format on
 
 namespace net::config {
     class ConfigInstance;

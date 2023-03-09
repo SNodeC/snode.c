@@ -99,33 +99,33 @@ namespace core::socket::stream {
                     config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
                     primaryPhysicalSocket = new PrimaryPhysicalSocket();
                     if (primaryPhysicalSocket->open(config->getSocketOptions(), PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
-                        onError(config->getLocalAddress(), errno);
+                        onError(config->Local::getAddress(), errno);
                         destruct();
-                    } else if (primaryPhysicalSocket->bind(config->getLocalAddress()) < 0) {
-                        onError(config->getLocalAddress(), errno);
+                    } else if (primaryPhysicalSocket->bind(config->Local::getAddress()) < 0) {
+                        onError(config->Local::getAddress(), errno);
                         destruct();
                     } else if (primaryPhysicalSocket->listen(config->getBacklog()) < 0) {
-                        onError(config->getLocalAddress(), errno);
+                        onError(config->Local::getAddress(), errno);
                         destruct();
                     } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
                         VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName()) << " mode: PRIMARY";
                         secondaryPhysicalSocket = new SecondarySocket();
                         if (secondaryPhysicalSocket->open(std::map<int, const core::socket::PhysicalSocketOption>(),
                                                           SecondarySocket::Flags::NONBLOCK) < 0) {
-                            onError(config->getLocalAddress(), errno);
+                            onError(config->Local::getAddress(), errno);
                             destruct();
                         } else if (secondaryPhysicalSocket->bind(
                                        SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) < 0) {
-                            onError(config->getLocalAddress(), errno);
+                            onError(config->Local::getAddress(), errno);
                             destruct();
                         } else {
-                            onError(config->getLocalAddress(), 0);
+                            onError(config->Local::getAddress(), 0);
                             enable(primaryPhysicalSocket->getFd());
                         }
                     } else {
                         VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName())
                                 << " mode: STANDALONE";
-                        onError(config->getLocalAddress(), 0);
+                        onError(config->Local::getAddress(), 0);
                         enable(primaryPhysicalSocket->getFd());
                     }
                 } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
@@ -133,16 +133,16 @@ namespace core::socket::stream {
                     secondaryPhysicalSocket = new SecondarySocket();
                     if (secondaryPhysicalSocket->open(std::map<int, const core::socket::PhysicalSocketOption>(),
                                                       SecondarySocket::Flags::NONBLOCK) < 0) {
-                        onError(config->getLocalAddress(), errno);
+                        onError(config->Local::getAddress(), errno);
                         destruct();
                     } else if (secondaryPhysicalSocket->bind(
                                    SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) < 0) {
-                        onError(config->getLocalAddress(), errno);
+                        onError(config->Local::getAddress(), errno);
                         destruct();
                     } else {
                         VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName())
                                 << " mode: SECONDARY or PROXY";
-                        onError(config->getLocalAddress(), errno);
+                        onError(config->Local::getAddress(), errno);
                         enable(secondaryPhysicalSocket->getFd());
                     }
                 }

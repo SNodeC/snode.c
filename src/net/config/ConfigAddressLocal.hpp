@@ -35,16 +35,6 @@ namespace net::config {
         : Super::ConfigAddress(instance, "local", "Local side of connection") {
     }
 
-    template <typename SocketAddress>
-    SocketAddress ConfigAddressLocal<SocketAddress>::getLocalAddress() {
-        return getAddress();
-    }
-
-    template <typename SocketAddress>
-    void ConfigAddressLocal<SocketAddress>::setLocalAddress(const SocketAddress& localAddress) {
-        setAddress(localAddress);
-    }
-
 } // namespace net::config
 
 #endif // NET_CONFIG_CONFIGADDRESSLOCAL_HPP
