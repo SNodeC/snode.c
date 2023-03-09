@@ -47,7 +47,7 @@ namespace net::in::stream::config {
 
     void ConfigSocketServer::setReusePort(bool reusePort) {
         if (reusePort) {
-            addSocketOption(SO_REUSEPORT, SOL_SOCKET);
+            addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);
         } else {
             removeSocketOption(SO_REUSEPORT);
         }

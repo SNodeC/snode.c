@@ -72,8 +72,15 @@ namespace net::config {
             validator);
     }
 
-    void ConfigPhysicalSocket::addSocketOption(int optName, int optLevel) {
-        socketOptionsMap.insert({optName, core::socket::PhysicalSocketOption(optLevel, optName, 1)});
+    void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, int optValue) {
+        socketOptionsMap.insert({optName, core::socket::PhysicalSocketOption(optLevel, optName, optValue)});
+    }
+
+    void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::string& optValue) {
+        socketOptionsMap.insert({optName, core::socket::PhysicalSocketOption(optLevel, optName, optValue)});
+    }
+    void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::vector<char>& optValue) {
+        socketOptionsMap.insert({optName, core::socket::PhysicalSocketOption(optLevel, optName, optValue)});
     }
 
     void ConfigPhysicalSocket::removeSocketOption(int optName) {
@@ -82,7 +89,7 @@ namespace net::config {
 
     void ConfigPhysicalSocket::setReuseAddress(bool reuseAddress) {
         if (reuseAddress) {
-            addSocketOption(SO_REUSEADDR, SOL_SOCKET);
+            addSocketOption(SOL_SOCKET, SO_REUSEADDR, 1);
         } else {
             removeSocketOption(SO_REUSEADDR);
         }

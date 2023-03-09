@@ -49,7 +49,7 @@ namespace net::in6::stream::config {
 
     void ConfigSocketClient::setIPv6Only(bool iPv6Only) {
         if (iPv6Only) {
-            addSocketOption(IPV6_V6ONLY, IPPROTO_IPV6);
+            addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 1);
         } else {
             removeSocketOption(IPV6_V6ONLY);
         }

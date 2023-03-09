@@ -57,7 +57,7 @@ namespace net::in6::stream::config {
 
     void ConfigSocketServer::setReusePort(bool reusePort) {
         if (reusePort) {
-            addSocketOption(SO_REUSEPORT, SOL_SOCKET);
+            addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);
         } else {
             removeSocketOption(SO_REUSEPORT);
         }
@@ -74,7 +74,7 @@ namespace net::in6::stream::config {
 
     void ConfigSocketServer::setIPv6Only(bool iPv6Only) {
         if (iPv6Only) {
-            addSocketOption(IPV6_V6ONLY, IPPROTO_IPV6);
+            addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 1);
         } else {
             removeSocketOption(IPV6_V6ONLY);
         }
