@@ -24,6 +24,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [Main Applications for Server and Client](#main-applications-for-server-and-client)
          * [Echo-Server Main Application](#echo-server-main-application)
          * [Echo-Client Main Application](#echo-client-main-application)
+      * [CMakeLists.txt file for Building and Installing our <em>echoserver</em> and <em>echoclient</em>](#cmakeliststxt-file-for-building-and-installing-our-echoserver-and-echoclient)
    * [Summary](#summary)
 * [Installation](#installation)
    * [Minimum required Compiler Versions](#minimum-required-compiler-versions)
@@ -72,6 +73,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
 * [Configuration](#configuration)
    * [Configuration using the C++ API](#configuration-using-the-c-api)
       * [List of all Configuration Items](#list-of-all-configuration-items)
+   * [Configuration via the Command Line](#configuration-via-the-command-line)
    * [SSL/TLS-Configuration](#ssltls-configuration)
 * [Highlevel WEB-API a'la Node.JS-Express](#highlevel-web-api-ala-nodejs-express)
 * [Websockets](#websockets)
@@ -81,7 +83,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Fri Mar 10 09:46:17 UTC 2023 -->
+<!-- Added by: runner, at: Fri Mar 10 13:51:58 UTC 2023 -->
 
 <!--te-->
 
