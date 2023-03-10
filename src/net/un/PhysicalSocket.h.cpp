@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/PhysicalSocket.h.h"
+#include "net/un/PhysicalSocket.h"
 
 #include "net/PhysicalSocket.hpp" // IWYU pragma: keep
 
