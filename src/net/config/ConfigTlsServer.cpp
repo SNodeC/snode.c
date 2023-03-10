@@ -52,12 +52,8 @@ namespace net::config {
                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
                           ->default_val("\"\" \"\" \"\" \"\"");
 
-        add_flag(forceSniOpt,
-                 "--sni-required,!--sni-optional",
-                 "Force using of the Server Name Indication",
-                 "bool",
-                 "false",
-                 CLI::IsMember({"true", "false"}));
+        add_flag(
+            forceSniOpt, "--force-sni,", "Force using of the Server Name Indication", "bool", "false", CLI::IsMember({"true", "false"}));
 
         section->final_callback([this](void) -> void {
             std::list<std::string> vaultyDomainConfigs;
@@ -99,9 +95,14 @@ namespace net::config {
         return sniCerts;
     }
 
-    void ConfigTlsServer::setSniCerts(
-        const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCert) {
-        this->sniCerts = sniCert;
+    void
+    ConfigTlsServer::addSniCerts(std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCert) {
+        this->sniCerts.merge(sniCert);
+    }
+
+    void ConfigTlsServer::addSniCert(const std::string& domain,
+                                     const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& newSniCert) {
+        this->sniCerts[domain] = newSniCert;
     }
 
 } // namespace net::config

@@ -47,7 +47,7 @@ namespace core::socket::stream::legacy {
             : SocketClient(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect - " << name;
+                      VLOG(0) << "OnConnect " << name;
 
                       VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();
@@ -55,10 +55,10 @@ namespace core::socket::stream::legacy {
                                      socketConnection->getRemoteAddress().toString();
                   },
                   [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected - " << name;
+                      VLOG(0) << "OnConnected " << name;
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect - " << name;
+                      VLOG(0) << "OnDisconnect " << name;
 
                       VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();

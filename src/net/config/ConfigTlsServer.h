@@ -47,7 +47,8 @@ namespace net::config {
         void setForceSni(bool forceSni = true);
 
         std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& getSniCerts();
-        void setSniCerts(const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& newSniCerts);
+        void addSniCerts(std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& newSniCerts);
+        void addSniCert(const std::string& domain, const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& newSniCert);
 
     private:
         std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>> sniCerts;

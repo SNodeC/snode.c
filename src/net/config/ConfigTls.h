@@ -69,9 +69,6 @@ namespace net::config {
         bool getUseDefaultCaCertDir() const;
         void setUseDefaultCaCertDir(bool set = true);
 
-        bool getForceSni() const;
-        void setForceSni();
-
         std::string getCipherList() const;
         void setCipherList(const std::string& newCipherList);
 

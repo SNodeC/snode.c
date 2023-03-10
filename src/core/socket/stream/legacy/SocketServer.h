@@ -58,7 +58,7 @@ namespace core::socket::stream::legacy {
                       VLOG(0) << "OnConnected - " << name;
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect - " << name;
+                      VLOG(0) << "OnDisconnect " << name;
 
                       VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();

@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
         {"snodec.home.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
         {"www.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
 
-    webApp.getConfig().setSniCerts(sniCerts);
+    webApp.getConfig().addSniCerts(sniCerts);
 #endif
 
     webApp.listen([&webApp](const WebApp::SocketAddress& socketAddress, int errnum) -> void {

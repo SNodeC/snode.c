@@ -66,7 +66,7 @@ namespace core::socket::stream::tls {
             : SocketServer(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect - " << name;
+                      VLOG(0) << "OnConnect " << name;
 
                       VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();
@@ -74,7 +74,7 @@ namespace core::socket::stream::tls {
                                      socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected - " << name;
+                      VLOG(0) << "OnConnected " << name;
 
                       X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                       if (client_cert != nullptr) {
@@ -121,7 +121,7 @@ namespace core::socket::stream::tls {
                       }
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect - " << name;
+                      VLOG(0) << "OnDisconnect " << name;
 
                       VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();

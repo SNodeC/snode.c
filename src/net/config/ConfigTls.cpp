@@ -69,7 +69,7 @@ namespace net::config {
                    "",
                    CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER") | CLI::IsMember({""}));
         add_flag(useDefaultCaCertDirOpt,
-                 "--ca-use-default-cert-dir,!--ca-ignore-default-cert-dir",
+                 "--ca-use-default-cert-dir",
                  "Use default CA-certificate directory",
                  "bool",
                  "false",
