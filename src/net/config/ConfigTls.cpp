@@ -43,13 +43,13 @@ namespace net::config {
                    "Certificate chain file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE"));
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}));
         add_option(certKeyOpt, //
                    "--cert-key",
                    "Certificate key file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE"));
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}));
         add_option(certKeyPasswordOpt,
                    "--cert-key-password",
                    "Password for the certificate key file",
@@ -61,13 +61,13 @@ namespace net::config {
                    "CA-certificate file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE"));
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}));
         add_option(caCertDirOpt,
                    "--ca-cert-dir",
                    "CA-certificate directory",
                    "directory",
                    "",
-                   CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER"));
+                   CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER") | CLI::IsMember({""}));
         add_flag(useDefaultCaCertDirOpt,
                  "--ca-use-default-cert-dir,!--ca-ignore-default-cert-dir",
                  "Use default CA-certificate directory",

@@ -30,6 +30,7 @@ namespace net::config {
 
 #include <map>
 #include <string>
+#include <vector>
 
 namespace CLI {
     class Option;

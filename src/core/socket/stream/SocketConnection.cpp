@@ -41,7 +41,8 @@ namespace core::socket::stream {
         return socketContext != nullptr;
     }
 
-    SocketContext* SocketConnection::setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
+    core::socket::stream::SocketContext*
+    SocketConnection::setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
         socketContext = socketContextFactory->create(this);
 
         if (socketContext == nullptr) {
