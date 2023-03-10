@@ -178,6 +178,9 @@ The `core::socket::stream::SocketConnection` object involved is managed internal
 The `create()` method of our `EchoServerContextFactory` returns the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
 
 ``` c++
+#include "EchoServerContext.h"
+#include <core/socket/stream/SocketContextFactory.h>
+
 class EchoServerContextFactory : public core::socket::stream::SocketContextFactory {
 private:
     core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
@@ -191,11 +194,14 @@ private:
 The `create()` method of our `EchoClientContextFactory` returns the `EchoClientContext` whose implementation is also presented in the [SocketContexts](#SocketContexts) section below.
 
 ``` c++
+#include "EchoClientContext.h"
+#include <core/socket/stream/SocketContextFactory.h>
+
 class EchoClientContextFactory : public core::socket::stream::SocketContextFactory {
 private:
     core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
         return new EchoClientContext(socketConnection);
-    }  
+    }
 };
 ```
 
@@ -220,34 +226,40 @@ In the `onReceivedFromPeer()` method we can fetch data already received by SNode
 Sending data to the client is done using the method `sendToPeer()` which is also provided by the `core::socket::stream::SocketContext` class.
 
 ``` c++
+#include <core/socket/SocketAddress.h>
+#include <core/socket/stream/SocketConnection.h>
+#include <core/socket/stream/SocketContext.h>
+#include <iostream>
+#include <string>
+
 class EchoServerContext : public core::socket::stream::SocketContext {
 public:
-    explicit EchoServerContext(core::socket::stream::SocketConnection* socketConnection) 
+    explicit EchoServerContext(core::socket::stream::SocketConnection* socketConnection)
         : core::socket::stream::SocketContext(socketConnection) {
     }
 
-private: 
+private:
     void onConnected() override { // Called in case a connection has been established successfully.
         std::cout << "Echo connected to " << socketConnection->getRemoteAddress().toString() << std::endl;
     }
-    
+
     void onDisconnected() override { // Called in case the connection has been closed.
         std::cout << "Echo disconnected from " << socketConnection->getRemoteAddress().toString() << std::endl;
     }
-    
+
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
                                                 // and thus are ready for preccessing.
         char junk[4096];
 
         std::size_t junkLen = readFromPeer(junk, 4096); // Fetch data.
-                                                        // In case there are less than 4096 bytes available return at 
+                                                        // In case there are less than 4096 bytes available return at
                                                         // least that amount of data.
-                                                        // In case more than 4096 bytes are available 
+                                                        // In case more than 4096 bytes are available
                                                         // onReceivedFromPeer will be called again.
                                                         // No error can occure here.
         if (junkLen > 0) {
-            std::cout << "Data to reflect: " << std::string(junk, junklen);
-            sendToPeer(junk, junklen); // Reflect the received data back to the client.
+            std::cout << "Data to reflect: " << std::string(junk, junkLen);
+            sendToPeer(junk, junkLen); // Reflect the received data back to the client.
                                        // Out of memory is the only error which can occure here.
         }
 
@@ -263,37 +275,43 @@ The echo client SocketContext in contrast to the server SocketContext, *needs* a
 Like in the `EchoServerContext` `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` method. In addition `sendToPeer()` is also used in the `onConnected()` method to initiate the ping-pong data exchange.
 
 ``` c++
+#include <core/socket/SocketAddress.h>
+#include <core/socket/stream/SocketConnection.h>
+#include <core/socket/stream/SocketContext.h>
+#include <iostream>
+#include <string>
+
 class EchoClientContext : public core::socket::stream::SocketContext {
 public:
-    explicit EchoClientContext(core::socket::stream::SocketConnection* socketConnection) 
+    explicit EchoClientContext(core::socket::stream::SocketConnection* socketConnection)
         : core::socket::stream::SocketContext(socketConnection) {
     }
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
         std::cout << "Echo connected to " << socketConnection->getRemoteAddress().toString() << std::endl;
-        
+
         std::cout << "Initiating data exchange" << std::endl;
-        sendToPeer("Hello peer! It's nice talking to you!!!"); // Initiate the ping-pong data exchange.
+        sendToPeer("Hello peer! It's nice talking to you!!!\n"); // Initiate the ping-pong data exchange.
     }
-    
+
     void onDisconnected() override { // Called in case the connection has been closed.
         std::cout << "Echo disconnected from " << socketConnection->getRemoteAddress().toString() << std::endl;
     }
-    
+
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
                                                 // and thus are ready for preccessing.
         char junk[4096];
 
         std::size_t junkLen = readFromPeer(junk, 4096); // Fetch data.
-                                                        // In case there are less than 4096 bytes available return at 
+                                                        // In case there are less than 4096 bytes available return at
                                                         // least that amount of data.
-                                                        // In case more than 4096 bytes are available 
+                                                        // In case more than 4096 bytes are available
                                                         // onReceivedFromPeer will be called again.
                                                         // No error can occure here.
         if (junkLen > 0) {
-            std::cout << "Data to reflect: " << std::string(junk, junklen);
-            sendToPeer(junk, junklen); // Reflect the received data back to the server.
+            std::cout << "Data to reflect: " << std::string(junk, junkLen);
+            sendToPeer(junk, junkLen); // Reflect the received data back to the server.
                                        // Out of memory is the only error which can occure here.
         }
 
@@ -319,27 +337,35 @@ SNode.C provides a view overloaded `listen()` methods whose arguments vary depen
 If we would have created a named server instance than a special `listen()` method which only expects the lambda function as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
 ``` c++
+#include "EchoServerContextFactory.h"
+#include <core/SNodeC.h>
+#include <iostream>
+#include <net/in/stream/legacy/SocketServer.h>
+#include <string.h>
+#include <string>
+
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv); // Initialize the framework.
-                                    // Configure logging, create command line arguments, daemonize if requested.
-    
+                                    // Configure logging, create command line
+                                    // arguments for named instances.
+
     using EchoServer = net::in::stream::legacy::SocketServer<EchoServerContextFactory>; // Simplify data type
                                                                                         // Note the use of our implemented
                                                                                         // EchoServerContextFactory as
                                                                                         // template argument
-    using SocketAddress = EchoServer::SocketAddress; // Simplify data type
-    
+    using SocketAddress = EchoServer::SocketAddress;                                    // Simplify data type
+
     EchoServer echoServer; // Create server instance
-    
-    echoServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
-        if (err == 0){
+
+    echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
+        if (err == 0) {
             std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
         } else {
-            std::cout << "Error: Echo server listening on " << socketAddress.toString() << ": " << perror("") << std::endl;
+            std::cout << "Error: Echo server listening on " << socketAddress.toString() << ": " << strerror(err) << std::endl;
         }
     });
-    
-    return core::SNodeC::start(); // Start the event loop.
+
+    return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
 ```
 
@@ -351,29 +377,66 @@ Equivalent to the server instance a client instance provides a view overloaded `
 
 If we would have created a named client instance than a special `connect()` method which only expects the lambda function can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
-``` c++
+``` cpp
+#include "EchoClientContextFactory.h"
+#include <core/SNodeC.h>
+#include <iostream>
+#include <net/in/stream/legacy/SocketClient.h>
+#include <string.h>
+#include <string>
+
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv); // Initialize the framework.
-                                    // Configure logging, create command line arguments, daemonize if requested.
-    
+                                    // Configure logging, create command line
+                                    // arguments for named instances.
+
     using EchoClient = net::in::stream::legacy::SocketClient<EchoClientContextFactory>; // Simplify data type
-                                                                                         // Note the use of our implemented
-                                                                                         // EchoClientContextFactory as
-                                                                                         // template argument
-    using SocketAddress = EchoClient::SocketAddress; // Simplify data type
-    
+                                                                                        // Note the use of our implemented
+                                                                                        // EchoClientContextFactory as
+                                                                                        // template argument
+    using SocketAddress = EchoClient::SocketAddress;                                    // Simplify data type
+
     EchoClient echoClient; // Create client instance
-    
-    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, int err) -> void { // Connect to server
-        if (err == 0){
-            std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
-        } else {
-            std::cout << "Error: Echo client connected to " << socketAddress.toString() << ": " << perror("");
-        }
-    });
-    
-    return core::SNodeC::start(); // Start the event loop.
+
+    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress,
+                          int err) -> void { // Connect to server
+                           if (err == 0) {
+                               std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
+                           } else {
+                               std::cout << "Error: Echo client connected to " << socketAddress.toString() << ": " << strerror(err)
+                                         << std::endl;
+                           }
+                       });
+
+    return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
+```
+
+### CMakeLists.txt file for Building and Installing our *echoserver* and *echoclient*
+
+```cmake
+cmake_minimum_required(VERSION 3.3)
+
+project(echo LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(snodec COMPONENTS net-in-stream-legacy)
+
+set(ECHOSERVER_CPP EchoServer.cpp)
+set(ECHOSERVER_H EchoServerContextFactory.h EchoServerContext.h)
+
+add_executable(echoserver ${ECHOSERVER_CPP} ${ECHOSERVER_H})
+target_link_libraries(echoserver PRIVATE snodec::net-in-stream-legacy)
+
+set(ECHOCLIENT_CPP EchoClient.cpp)
+set(ECHOCLIENT_H EchoClientContextFactory.h EchoServerContext.h)
+
+add_executable(echoclient ${ECHOCLIENT_CPP} ${ECHOCLIENT_H})
+target_link_libraries(echoclient PRIVATE snodec::net-in-stream-legacy)
+
+install(TARGETS echoserver echoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 ```
 
 ## Summary
@@ -387,9 +450,9 @@ The echo application shows the typical architecture of servers and clients using
 
   which need be be derived from the base classes
 
-  - `core::socket::stream::SocketContextFactory`
+  - [`core::socket::stream::SocketContextFactory`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context_factory.html)
 
-  -   `core::socket::stream::SocketContext`
+  -   [`core::socket::stream::SocketContext`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context.html)
 
 - The framework provides
 
@@ -562,13 +625,13 @@ Nevertheless, for the sake of completeness, all implemented `SocketAddress` clas
 
 ### SocketAddress Classes
 
-| Network Layer       | `SocketAddress`           |
-| ------------------- | ------------------------- |
-| IPv4                | `net::in::SocketAddress`  |
-| IPv6                | `net::in6::SocketAddress` |
-| Unix Domain Sockets | `net::un::SocketAddress`  |
-| Bluetooth RFCOMM    | `net::rc::SocketAddress`  |
-| Bluetooth L2CAP     | `net::l2::SocketAddress`  |
+| Network Layer       | `SocketAddress`                                              |
+| ------------------- | ------------------------------------------------------------ |
+| IPv4                | [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) |
+| IPv6                | [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) |
+| Unix Domain Sockets | [`net::un::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) |
+| Bluetooth RFCOMM    | [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) |
+| Bluetooth L2CAP     | [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) |
 
 ### SocketAddress Header Files
 
@@ -586,26 +649,26 @@ Each `SocketAddress` class provides it's very specific set of constructors.
 
 The default constructors of all `SocketAddress` classes creates wild-card `SocketAddress` objects. For a `SocketClient` for exampe, which uses such a wild-card `SocketAddress` as *local address* the operating system chooses a valid `sockaddr` structure automatically.
 
-| SocketAddress |      Constructors |
-| ------------------- | ------------------------- |
-| `net::in::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`<br/>`SocketAddress(uint16_t port)` |
-| `net::in6::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`<br/>`SocketAddress(uint16_t port)` |
-| `net::un::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
-| `net::rc::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)`<br/>`SocketAddress(uint8_t channel)` |
-| `net::l2::SocketAddress` | `SocketAddress()`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)`<br/>`SocketAddress(uint16_t psm)` |
+| SocketAddress                                                | Constructors                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`<br/>`SocketAddress(uint16_t port)` |
+| [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`<br/>`SocketAddress(uint16_t port)` |
+| [`net::un::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
+| [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)`<br/>`SocketAddress(uint8_t channel)` |
+| [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)`<br/>`SocketAddress(uint16_t psm)` |
 
 
 ## Server
 
 ### SocketServer Classes
 
-| Network Layer       | Legacy Connection                        | SSL/TLS Connection                    |
-| ------------------- | ---------------------------------------- | ------------------------------------- |
-| IPv4                | `net::in::stream::legacy::SocketServer`  | `net::in::stream::tls::SocketServer`  |
-| IPv6                | `net::in6::stream::legacy::SocketServer` | `net::in6::stream::tls::SocketServer` |
-| Unix Domain Sockets | `net::un::stream::legacy::SocketServer`  | `net::un::stream::tls::SocketServer`  |
-| Bluetooth RFCOMM    | `net::rc::stream::legacy::SocketServer`  | `net::rc::stream::tls::SocketServer`  |
-| Bluetooth L2CAP     | `net::l2::stream::legacy::SocketServer`  | `net::l2::stream::tls::SocketServer`  |
+| Network Layer       | Legacy Connection                                            | SSL/TLS Connection                                           |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| IPv4                | [`net::in::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
+| IPv6                | [`net::in6::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) |
+| Unix Domain Sockets | [`net::un::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
+| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
+| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
 
 ### SocketServer Header Files
 
@@ -722,13 +785,13 @@ For the L2CAP/SOCK_STREAM combination exist three specific `listen()` methods.
 ### SocketClient Classes
 
 
-| Network Layer       | Legacy Connection                        | SSL/TLS Connection                    |
-| ------------------- | ---------------------------------------- | ------------------------------------- |
-| IPv4                | `net::in::stream::legacy::SocketClient`  | `net::in::stream::tls::SocketClient`  |
-| IPv6                | `net::in6::stream::legacy::SocketClient` | `net::in6::stream::tls::SocketClient` |
-| Unix Domain Sockets | `net::un::stream::legacy::SocketClient`  | `net::un::stream::tls::SocketClient`  |
-| Bluetooth RFCOMM    | `net::rc::stream::legacy::SocketClient`  | `net::rc::stream::tls::SocketClient`  |
-| Bluetooth L2CAP     | `net::l2::stream::legacy::SocketClient`  | `net::l2::stream::tls::SocketClient`  |
+| Network Layer       | Legacy Connection                                            | SSL/TLS Connection                                           |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| IPv4                | [`net::in::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
+| IPv6                | [`net::in6::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls.html) |
+| Unix Domain Sockets | [`net::un::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
+| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
+| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
 
 ### SocketClient Header Files
 
@@ -924,6 +987,10 @@ Network layer specific configuration options:
 | Unix Domain Sockets | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls_1_1config.html) |
 | Bluetooth RFCOMM    | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls_1_1config.html) |
 | Bluetoot L2CAP      | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls_1_1config.html) |
+
+## Configuration via the Command Line
+
+Named instances can be configured directly on the command line.
 
 ## SSL/TLS-Configuration
 
