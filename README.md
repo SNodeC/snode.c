@@ -71,6 +71,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
             * [Bluetooth L2CAP specific connect() Methods](#bluetooth-l2cap-specific-connect-methods)
 * [Configuration](#configuration)
    * [Configuration using the C++ API](#configuration-using-the-c-api)
+      * [List of all Configuration Items](#list-of-all-configuration-items)
    * [SSL/TLS-Configuration](#ssltls-configuration)
 * [Highlevel WEB-API a'la Node.JS-Express](#highlevel-web-api-ala-nodejs-express)
 * [Websockets](#websockets)
@@ -80,7 +81,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Thu Mar  9 14:29:47 UTC 2023 -->
+<!-- Added by: runner, at: Fri Mar 10 09:46:17 UTC 2023 -->
 
 <!--te-->
 
