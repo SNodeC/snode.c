@@ -402,10 +402,10 @@ SNode.C depends on some external libraries. Some of these libraries are directly
 
 The only version-critical dependencies are the C++ compilers.
 
-Either *GCC* or *clang* can be used but they need to be of a relatively up to date version because SNode.C uses some new C++20 features internally.
+Either *GCC* or *clang* can be used but they need to be of an up to date version because SNode.C uses some new C++20 features internally.
 
-- GCC 10.2
-- Clang 11.0
+- GCC 12.2
+- Clang 13.0
 
 ## Supported Systems and Hardware
 
@@ -487,6 +487,7 @@ cd build
 cmake ../snode.c
 make
 sudo make install
+sudo ldconfig
 ```
 
 As SNode.C uses C++ templates a lot the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3 if just one core is activated for compilation).
@@ -523,8 +524,8 @@ SNode.C currently supports five different network layer protocols.
 Currently only connection-oriented protocols (SOCK_STREAM) for all supported network layer protocols are implemented (for IPv4 and IPv6 this means TCP).
 
 -   Every transport layer protocol provides a common base API which makes it very easy to create servers and clients for all different network layers supported.
--   New application protocols can be connected to the transport layer very easily by just implementing a SocketFactory and a SocketContext class.
--   Transparently offers SSL/TLS encryption provided by OpenSSL for each supportet transport layer protocol and thus, also for all application level protocols.
+-   New application protocols can be connected to the transport layer very easily by just implementing a `SocketContextFactory` and a `SocketContext` class.
+-   Transparently offers SSL/TLS encryption provided by OpenSSL for each supported transport layer protocol and thus, also for all application level protocols.
     -   Support of X.509 certificates.
     -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers).
 
@@ -548,7 +549,7 @@ Before focusing explicitly on the Server- and Client-Classes a few common aspect
 
 Every network layer provides its specific `SocketAddress` class. In typical scenarios you need not bother about these classes as they are managed internally by the framework.
 
-Every *SocketServer* and *SocketClient* class has it's `SocketAddress` attached as data type. Thus, one can always get the correct `SocketAddress` type buy just
+Every *SocketServer* and *SocketClient* class has it's `SocketAddress` attached as nested data type. Thus, one can always get the correct `SocketAddress` type buy just
 
 ```cpp
 using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
@@ -578,11 +579,11 @@ Nevertheless, for the sake of completeness, all implemented `SocketAddress` clas
 | Bluetooth RFCOMM    | `net/rc/SocketAddress.h`  |
 | Bluetooth L2CAP     | `net/l2/SocketAddress.h`  |
 
-Each SocketAddress class provides it's very specific set of constructors.
+Each `SocketAddress` class provides it's very specific set of constructors.
 
 ### SocketAddress Constructors
 
-The default constructors of all SocketAddress classes creates wild-card SocketAddress objects. For a SocketClient for exampe, which uses such a wild-card SocketAddress as *local address* the operating system chooses a valid `sockaddr` structure automatically.
+The default constructors of all `SocketAddress` classes creates wild-card `SocketAddress` objects. For a `SocketClient` for exampe, which uses such a wild-card `SocketAddress` as *local address* the operating system chooses a valid `sockaddr` structure automatically.
 
 | SocketAddress |      Constructors |
 | ------------------- | ------------------------- |
@@ -820,9 +821,9 @@ For the RFCOMM/SOCK_STREAM combination exist three specific `connect()` methods.
 
 | `connect()` Methods                                          |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& address, uint8_t channel, StatusFunction& onError)` |
-| `void connect(const std::string& address, uint8_t channel, StatusFunction& onError)` |
-| `void connect(const std::string& address, uint8_t channel, const std::string& localAddress, uint8_t bindChannel, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::string& localAddress, uint8_t bindChannel, StatusFunction& onError)` |
 
 ##### Bluetooth L2CAP specific `connect()` Methods
 
@@ -836,19 +837,19 @@ For the L2CAP/SOCK_STREAM combination exist three specific `connect()` methods.
 
 | `connect()` Methods                                          |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& address, uint16_t psm, StatusFunction& onError)` |
-| `void connect(const std::string& address, uint16_t psm, const std::string& localAddress, StatusFunction& onError)` |
-| `void connect(const std::string& address, uint16_t psm, const std::string& localAddress, uint16_t bindPsm, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint16_t psm, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& localAddress, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& localAddress, uint16_t bindPsm, StatusFunction& onError)` |
 
 # Configuration
 
-Each `SocketServer` and `SocketClient` instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP `SocketServer` needs to know the port number it should listen on, a `SocketClient` needs to now the host name or the IP address and the port number a server is listening on. And if an SSL/TLS instance is used certificates are necessary for successful encryption.
+Each `SocketServer` and `SocketClient` instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP `SocketServer` needs to know at least the port number it should listen on, a `SocketClient` needs to now the host name or the IP address and the port number a server is listening on. And if an SSL/TLS instance is used certificates are necessary for successful encryption.
 
 There are many more configuration items but lets focus on those mentioned above.
 
 SNode.C provides three different ways to specify such configuration items. Nevertheless, internally all uses the same underlying configuration system, which is entirely based on the great [CLI11: Command line parser for C++11](https://github.com/CLIUtils/CLI11) library.
 
-The configuration can be done via
+The configuration can either be done via
 
 - the provided C++ API directly in the source code for anonymous and named instances
 - command line arguments for named instances
@@ -867,14 +868,14 @@ echoServer.getConfig();
 
 Such a configuration object provides many methods to specify the individual configuration items.
 
-Thus, to configure the port number for the `echoServer` instance the method `setPort(uint16_t port)` of the configuration object is used
+Thus, to configure the port number for the `echoServer` instance the method `setPort(uint16_t port)` of the configuration object can be used
 
 ```cpp
 EchoServer echoServer;
 echoServer.getConfig().setPort(8001);
 ```
 
-This is what the `listen()` method which expects a port number as argument used in the `EchoServer` application does automatically.
+This is what the `listen()` method which expects a port number as argument does automatically.
 
 Thus, if the port number is configured by using `setPort()` the `listen()` method which only takes a `std::function` as argument can be use and the `EchoServer` could also be started by
 
@@ -892,7 +893,7 @@ echoServer.listen([](const SocketAddress& socketAddress, int err) -> void { // L
 
 The same technique can be used to configure the  `EchoClient` instance. 
 
-Though, a `SocketClient` has two independent sets of IP-Addresses/host names and port numbers, one for the remote side and one for the local side, one need to be more specific in which of these addresses shall be configured. Here the remote address is configured explicitly.
+Though, because a `SocketClient` has two independent sets of IP-Addresses/host names and port numbers, one for the remote side and one for the local side, one need to be more specific in which of these addresses shall be configured. Here the remote address is configured explicitly.
 
 ```cpp
 EchoServer echoClient;
@@ -907,7 +908,21 @@ echoClient.connect([](const SocketAddress& socketAddress, int err) -> void { // 
 });
 ```
 
-All other configuration items can be configured in the very same way but for most option items sane default values are already predefined. For more information, see the full SNode.C API documentation.
+Other configuration items can be configured in the very same way but for most option items sane default values are already predefined. 
+
+### List of all Configuration Items
+
+All `SocketServer` and `SocketClient` instances share some common [configuration options](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1config.html).
+
+Network layer specific configuration options:
+
+| Network Layer       | Address                                                      | Transport Layer                                              | Legacy                                                       | TLS                                                          |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| IPv4                | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls_1_1config.html) |
+| IPv6                | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls_1_1config.html) |
+| Unix Domain Sockets | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls_1_1config.html) |
+| Bluetooth RFCOMM    | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls_1_1config.html) |
+| Bluetoot L2CAP      | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls_1_1config.html) |
 
 ## SSL/TLS-Configuration
 
@@ -935,7 +950,6 @@ The use of X.509 certificates for encrypted communication is demonstrated also.
 #include <express/middleware/StaticMiddleware.h>
 #include <log/Logger.h>
 #include <utils/Config.h>
-
 int main(int argc, char* argv[]) {
     utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
 
