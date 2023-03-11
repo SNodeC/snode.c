@@ -361,7 +361,7 @@ int main(int argc, char* argv[]) {
 
     EchoServer echoServer; // Create server instance
 
-    echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
+    echoServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
         if (err == 0) {
             std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
         } else {
@@ -697,10 +697,11 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const <ConcreteServerOrClientType>::SocketAddress&, int)>;
 ```
 
-| `listen()`Method Type                          | `listen()` Methods common to all SocketServer Classes        |
-| ---------------------------------------------- | ------------------------------------------------------------ |
-| Listen without parameter[^1]                   | `void listen(StatusFunction& onError)`                       |
-| Listen expecting a `SocketAddress` as argument | `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onError)` |
+| `listen()`Method Type                                        | `listen()` Methods common to all SocketServer Classes        |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Listen without parameter[^1]                                 | `void listen(StatusFunction& onError)`                       |
+| Listen expecting a `SocketAddress` as argument               | `void listen(const SocketAddress& localAddress, StatusFunction& onError)` |
+| Listen expecting a `SocketAddress` and a backlog as argument | `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onError)` |
 
 [^1]: "Without parameter" is not completely right because every `listen()` method expects a reference to a `std::function` for status processing (error or success) as argument.
 
@@ -714,10 +715,11 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::in::SocketAddress&, int)>;
 ```
 
-For the IPv4/SOCK_STREAM combination exist three specific `listen()` methods.
+For the IPv4/SOCK_STREAM combination exist four specific `listen()` methods.
 
 | `listen()` Methods                                           |
 | ------------------------------------------------------------ |
+| `void listen(uint16_t port, StatusFunction& onError)`        |
 | `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
@@ -730,10 +732,11 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::in6::SocketAddress&, int)>;
 ```
 
-For the IPv6/SOCK_STREAM combination exist three specific `listen()` methods.
+For the IPv6/SOCK_STREAM combination exist four specific `listen()` methods.
 
 | `listen()` Methods                                           |
 | ------------------------------------------------------------ |
+| `void listen(uint16_t port, StatusFunction& onError)`        |
 | `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
@@ -746,10 +749,11 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::un::SocketAddress&, int)>;
 ```
 
-For the Unix Domain Socket/SOCK_STREAM combination exist one specific `listen()` methods.
+For the Unix Domain Socket/SOCK_STREAM combination exist two specific `listen()` methods.
 
 | `listen()` Methods                                           |
 | ------------------------------------------------------------ |
+| `void listen(const std::string& sunPath, StatusFunction& onError)` |
 | `void listen(const std::string& sunPath, int backlog, StatusFunction& onError)` |
 
 ##### Bluetooth RFCOMM specific `listen()` Methods
@@ -760,10 +764,11 @@ IPv4 The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::rc::SocketAddress&, int)>;
 ```
 
-For the RFCOMM/SOCK_STREAM combination exist three specific `listen()` methods.
+For the RFCOMM/SOCK_STREAM combination exist four specific `listen()` methods.
 
 | `listen()` Methods                                           |
 | ------------------------------------------------------------ |
+| `void listen(uint8_t channel, StatusFunction& onError)`      |
 | `void listen(uint8_t channel, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onError)` |
@@ -776,10 +781,11 @@ IPv4 The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::l2::SocketAddress&, int)>;
 ```
 
-For the L2CAP/SOCK_STREAM combination exist three specific `listen()` methods.
+For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
 
 | `listen()` Methods                                           |
 | ------------------------------------------------------------ |
+| `void listen(uint16_t psm, StatusFunction& onError)`         |
 | `void listen(uint16_t psm, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint16_t psm, int backlog, StatusFunction& onError)` |
@@ -994,7 +1000,60 @@ Network layer specific configuration options:
 
 ## Configuration via the Command Line
 
-Named instances can be configured directly on the command line.
+Each application gets a set of common command line options which control the behavior of the application (and not the instances) in general. An overview of those option can be printed on screen by adding `--help` or '--help-all` on the command line. 
+
+For instance `echoserver --help` leads to the help output
+
+```
+#################################################################
+
+Configuration for Application 'echoserver'
+Options with default values are commented in the config file
+
+#################################################################
+Usage: echoserver [OPTIONS]
+
+Options:
+  -h,--help
+        Print this help message and exit
+  --help-all
+        Expand all help
+  --commandline
+        Print a template command line showing required options only and exit
+  --commandline-full
+        Print a template command line showing all possible options and exit
+  --commandline-configured
+        Print a template command line showing all required and configured options and exit
+  -s,--show-config
+        Show current configuration and exit
+  -w,--write-config [configfile]:NOT DIR [/home/voc/etc/snode.c/conf/echoserver.conf] 
+        Write config file and exit
+  -d,-f{false},--daemonize,--foreground{false} bool:{true,false} [false] 
+        Start application as daemon
+  -k,--kill
+        Kill running daemon
+  -l,--log-file logfile:NOT DIR [/home/voc/etc/snode.c/log/echoserver.log] 
+        Logfile path
+  -e,--enforce-log-file bool:{true,false} [false] 
+        Enforce writing of logs to file for foreground applications
+  --log-level level:INT in [0 - 6] [3] 
+        Log level
+  --verbose-level level:INT in [0 - 10] [0] 
+        Verbose level
+  --version
+        Display program version information and exit
+  -c,--config [/home/voc/etc/snode.c/conf/echoserver.conf] 
+        Read an config file
+  --instance-map name=mapped_name
+        Instance name mapping used to make an instance known under an alias name also in a config file.
+
+Application 'echoserver' powered by SNode.C
+(C) 2019-2023 Volker Christian
+https://github.com/VolkerChristian/snode.c - me@vchrist.at
+
+```
+
+Each named `SocketServer` and `SocketClient` instance get their specific set of command line options accessible by specifying the name of the instance on the command line.
 
 ## SSL/TLS-Configuration
 
