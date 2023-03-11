@@ -190,152 +190,154 @@ namespace utils {
                 }
             }
 
-            sectionFormatter->label("SUBCOMMAND", "SECTION");
-            sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
-            sectionFormatter->column_width(8);
+            if (success) {
+                sectionFormatter->label("SUBCOMMAND", "SECTION");
+                sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
+                sectionFormatter->column_width(8);
 
-            app.configurable(false);
-            app.set_help_flag();
+                app.configurable(false);
+                app.set_help_flag();
 
-            app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
-            app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
-            app.get_formatter()->column_width(8);
+                app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
+                app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
+                app.get_formatter()->column_width(8);
 
-            app.get_config_formatter_base()->commentDefaults();
+                app.get_config_formatter_base()->commentDefaults();
 
-            app.description("#################################################################\n\n"
-                            "Configuration for Application '" +
-                            applicationName +
-                            "'\n"
-                            "Options with default values are commented in the config file\n\n"
-                            "#################################################################");
+                app.description("#################################################################\n\n"
+                                "Configuration for Application '" +
+                                applicationName +
+                                "'\n"
+                                "Options with default values are commented in the config file\n\n"
+                                "#################################################################");
 
-            app.footer("Application '" + applicationName +
-                       "' powered by SNode.C\n"
-                       "(C) 2019-2023 Volker Christian\n"
-                       "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
+                app.footer("Application '" + applicationName +
+                           "' powered by SNode.C\n"
+                           "(C) 2019-2023 Volker Christian\n"
+                           "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
 
-            app.option_defaults()->take_last();
+                app.option_defaults()->take_last();
 
-            app.add_flag_callback(
-                   "-h,--help",
-                   []() {
-                       throw CLI::CallForHelp();
-                   },
-                   "Print this help message and exit") //
-                ->configurable(false)
-                ->disable_flag_override()
-                ->trigger_on_parse();
+                app.add_flag_callback(
+                       "-h,--help",
+                       []() {
+                           throw CLI::CallForHelp();
+                       },
+                       "Print this help message and exit") //
+                    ->configurable(false)
+                    ->disable_flag_override()
+                    ->trigger_on_parse();
 
-            app.add_flag_callback(
-                   "--help-all",
-                   []() {
-                       throw CLI::CallForAllHelp();
-                   },
-                   "Expand all help") //
-                ->configurable(false)
-                ->disable_flag_override()
-                ->trigger_on_parse();
+                app.add_flag_callback(
+                       "--help-all",
+                       []() {
+                           throw CLI::CallForAllHelp();
+                       },
+                       "Expand all help") //
+                    ->configurable(false)
+                    ->disable_flag_override()
+                    ->trigger_on_parse();
 
-            app.add_flag("--commandline", "Print a template command line showing required options only and exit")
-                ->configurable(false)
-                ->disable_flag_override();
+                app.add_flag("--commandline", "Print a template command line showing required options only and exit")
+                    ->configurable(false)
+                    ->disable_flag_override();
 
-            app.add_flag("--commandline-full", "Print a template command line showing all possible options and exit")
-                ->configurable(false)
-                ->disable_flag_override();
+                app.add_flag("--commandline-full", "Print a template command line showing all possible options and exit")
+                    ->configurable(false)
+                    ->disable_flag_override();
 
-            app.add_flag("--commandline-configured",
-                         "Print a template command line showing all required and configured options and exit") //
-                ->configurable(false)
-                ->disable_flag_override();
+                app.add_flag("--commandline-configured",
+                             "Print a template command line showing all required and configured options and exit") //
+                    ->configurable(false)
+                    ->disable_flag_override();
 
-            app.add_flag("-s,--show-config",
-                         "Show current configuration and exit") //
-                ->configurable(false)
-                ->disable_flag_override();
+                app.add_flag("-s,--show-config",
+                             "Show current configuration and exit") //
+                    ->configurable(false)
+                    ->disable_flag_override();
 
-            app.add_option("-w,--write-config",
-                           "Write config file and exit") //
-                ->configurable(false)
-                ->default_val(configDirectory + "/" + applicationName + ".conf")
-                ->type_name("[configfile]")
-                ->check(!CLI::ExistingDirectory)
-                ->expected(0, 1);
+                app.add_option("-w,--write-config",
+                               "Write config file and exit") //
+                    ->configurable(false)
+                    ->default_val(configDirectory + "/" + applicationName + ".conf")
+                    ->type_name("[configfile]")
+                    ->check(!CLI::ExistingDirectory)
+                    ->expected(0, 1);
 
-            daemonizeOpt = app.add_flag_function("-d,!-f,--daemonize,!--foreground",
-                                                 utils::ResetToDefault(daemonizeOpt),
-                                                 "Start application as daemon") //
-                               ->take_last()
-                               ->default_val("false")
-                               ->type_name("bool")
-                               ->check(CLI::IsMember({"true", "false"}));
+                daemonizeOpt = app.add_flag_function("-d,!-f,--daemonize,!--foreground",
+                                                     utils::ResetToDefault(daemonizeOpt),
+                                                     "Start application as daemon") //
+                                   ->take_last()
+                                   ->default_val("false")
+                                   ->type_name("bool")
+                                   ->check(CLI::IsMember({"true", "false"}));
 
-            app.add_flag("-k,--kill", "Kill running daemon") //
-                ->configurable(false)
-                ->disable_flag_override();
+                app.add_flag("-k,--kill", "Kill running daemon") //
+                    ->configurable(false)
+                    ->disable_flag_override();
 
-            logFileOpt = app.add_option_function<std::string>("-l,--log-file",
-                                                              utils::ResetToDefault(logFileOpt),
-                                                              "Logfile path") //
-                             ->default_val(logDirectory + "/" + applicationName + ".log")
-                             ->type_name("logfile")
-                             ->check(!CLI::ExistingDirectory);
+                logFileOpt = app.add_option_function<std::string>("-l,--log-file",
+                                                                  utils::ResetToDefault(logFileOpt),
+                                                                  "Logfile path") //
+                                 ->default_val(logDirectory + "/" + applicationName + ".log")
+                                 ->type_name("logfile")
+                                 ->check(!CLI::ExistingDirectory);
 
-            enforceLogFileOpt = app.add_flag_function("-e,--enforce-log-file",
-                                                      utils::ResetToDefault(enforceLogFileOpt),
-                                                      "Enforce writing of logs to file for foreground applications") //
-                                    ->take_last()
-                                    ->default_val("false")
-                                    ->type_name("bool")
-                                    ->check(CLI::IsMember({"true", "false"}));
+                enforceLogFileOpt = app.add_flag_function("-e,--enforce-log-file",
+                                                          utils::ResetToDefault(enforceLogFileOpt),
+                                                          "Enforce writing of logs to file for foreground applications") //
+                                        ->take_last()
+                                        ->default_val("false")
+                                        ->type_name("bool")
+                                        ->check(CLI::IsMember({"true", "false"}));
 
-            logLevelOpt = app.add_option_function<std::string>("--log-level",
-                                                               utils::ResetToDefault(logLevelOpt),
-                                                               "Log level") //
-                              ->default_val(3)
-                              ->type_name("level")
-                              ->check(CLI::Range(0, 6));
+                logLevelOpt = app.add_option_function<std::string>("--log-level",
+                                                                   utils::ResetToDefault(logLevelOpt),
+                                                                   "Log level") //
+                                  ->default_val(3)
+                                  ->type_name("level")
+                                  ->check(CLI::Range(0, 6));
 
-            verboseLevelOpt =
-                app.add_option_function<std::string>("--verbose-level", utils::ResetToDefault(verboseLevelOpt), "Verbose level") //
-                    ->default_val(0)
-                    ->type_name("level")
-                    ->check(CLI::Range(0, 10));
+                verboseLevelOpt =
+                    app.add_option_function<std::string>("--verbose-level", utils::ResetToDefault(verboseLevelOpt), "Verbose level") //
+                        ->default_val(0)
+                        ->type_name("level")
+                        ->check(CLI::Range(0, 10));
 
-            app.set_version_flag("--version", "0.9.8");
+                app.set_version_flag("--version", "0.9.8");
 
-            app.set_config("-c,--config", configDirectory + "/" + applicationName + ".conf", "Read an config file", false);
+                app.set_config("-c,--config", configDirectory + "/" + applicationName + ".conf", "Read an config file", false);
 
-            app.add_option("--instance-map",
-                           "Instance name mapping used to make an instance known under an alias name also in a config file.")
-                ->configurable(false)
-                ->type_name("name=mapped_name")
-                ->each([](const std::string& item) -> void {
-                    const auto it = item.find('=');
-                    if (it != item.npos) {
-                        prefixMap[item.substr(0, it)] = item.substr(it + 1);
+                app.add_option("--instance-map",
+                               "Instance name mapping used to make an instance known under an alias name also in a config file.")
+                    ->configurable(false)
+                    ->type_name("name=mapped_name")
+                    ->each([](const std::string& item) -> void {
+                        const auto it = item.find('=');
+                        if (it != item.npos) {
+                            prefixMap[item.substr(0, it)] = item.substr(it + 1);
+                        } else {
+                            throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
+                        }
+                    });
+
+                parse1(); // for stopDaemon, logLevel and verboseLevel but do not act on -h or --help-all
+
+                try {
+                    if (app["--kill"]->count() > 0) {
+                        utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+
+                        success = false;
                     } else {
-                        throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
+                        logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                        logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                     }
-                });
-
-            parse1(); // for stopDaemon, logLevel and verboseLevel but do not act on -h or --help-all
-
-            try {
-                if (app["--kill"]->count() > 0) {
-                    utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
-
-                    success = false;
-                } else {
-                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
-                    logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                } catch (const CLI::ParseError&) {
+                    // Do not error here but in the second pass
                 }
-            } catch (const CLI::ParseError&) {
-                // Do not error here but in the second pass
-            }
 
-            app.all_config_files(!prefixMap.empty());
+                app.all_config_files(!prefixMap.empty());
+            }
         }
 
         return success;
