@@ -359,7 +359,7 @@ int main(int argc, char* argv[]) {
                                                                                         // template argument
     using SocketAddress = EchoServer::SocketAddress;                                    // Simplify data type
 
-    EchoServer echoServer; // Create server instance
+    EchoServer echoServer; // Create anonymous server instance
 
     echoServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
         if (err == 0) {
@@ -400,7 +400,7 @@ int main(int argc, char* argv[]) {
                                                                                         // template argument
     using SocketAddress = EchoClient::SocketAddress;                                    // Simplify data type
 
-    EchoClient echoClient; // Create client instance
+    EchoClient echoClient; // Create anonymous client instance
 
     echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress,
                           int err) -> void { // Connect to server
@@ -1000,11 +1000,19 @@ Network layer specific configuration options:
 
 ## Configuration via the Command Line
 
-Each application gets a set of common command line options which control the behavior of the application (and not the instances) in general. An overview of those option can be printed on screen by adding `--help` or '--help-all` on the command line. 
+Each application gets a set of common command line options which control the behavior of the application in general. An overview of those option can be printed on screen by adding `--help` or '--help-all` on the command line. 
 
-For instance `echoserver --help` leads to the help output
+### Introduction to the Command Line Interface using the `EchoServer` from above
 
+For instance 
+
+```shell
+command@line:~/> echoserver --help
 ```
+
+leads to the help output
+
+```shell
 #################################################################
 
 Configuration for Application 'echoserver'
@@ -1026,13 +1034,13 @@ Options:
         Print a template command line showing all required and configured options and exit
   -s,--show-config
         Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/voc/etc/snode.c/conf/echoserver.conf] 
+  -w,--write-config [configfile]:NOT DIR [/home/[user]/.config/snode.c/echoserver.conf] 
         Write config file and exit
   -d,-f{false},--daemonize,--foreground{false} bool:{true,false} [false] 
         Start application as daemon
   -k,--kill
         Kill running daemon
-  -l,--log-file logfile:NOT DIR [/home/voc/etc/snode.c/log/echoserver.log] 
+  -l,--log-file logfile:NOT DIR [/home/[user]/.local/log/snode.c/echoserver.log] 
         Logfile path
   -e,--enforce-log-file bool:{true,false} [false] 
         Enforce writing of logs to file for foreground applications
@@ -1042,7 +1050,7 @@ Options:
         Verbose level
   --version
         Display program version information and exit
-  -c,--config [/home/voc/etc/snode.c/conf/echoserver.conf] 
+  -c,--config [/home/[user]/.config/snode.c/echoserver.conf] 
         Read an config file
   --instance-map name=mapped_name
         Instance name mapping used to make an instance known under an alias name also in a config file.
@@ -1054,6 +1062,290 @@ https://github.com/VolkerChristian/snode.c - me@vchrist.at
 ```
 
 Each named `SocketServer` and `SocketClient` instance get their specific set of command line options accessible by specifying the name of the instance on the command line.
+
+Thus, for instance if the `EchoServer` instance is created using and instance name as argument to the server instance constructor like for example 
+
+```cpp
+EchoServer echoServer("echo"); // Create named server instance
+```
+
+ (try it yourself using the code from  [github](https://github.com/VolkerChristian/echo)), the output of the help screen changes slightly:
+
+```shell
+#################################################################
+
+Configuration for Application 'echoserver'
+Options with default values are commented in the config file
+
+#################################################################
+Usage: echoserver [OPTIONS] [INSTANCE]
+
+Options:
+  -h,--help
+        Print this help message and exit
+  --help-all
+        Expand all help
+  --commandline
+        Print a template command line showing required options only and exit
+  --commandline-full
+        Print a template command line showing all possible options and exit
+  --commandline-configured
+        Print a template command line showing all required and configured options and exit
+  -s,--show-config
+        Show current configuration and exit
+  -w,--write-config [configfile]:NOT DIR [/home/[user]/.config/snode.c/echoserver.conf] 
+        Write config file and exit
+  -d,-f{false},--daemonize,--foreground{false} bool:{true,false} [false] 
+        Start application as daemon
+  -k,--kill
+        Kill running daemon
+  -l,--log-file logfile:NOT DIR [/home/[user]/.local/log/snode.c/echoserver.log] 
+        Logfile path
+  -e,--enforce-log-file bool:{true,false} [false] 
+        Enforce writing of logs to file for foreground applications
+  --log-level level:INT in [0 - 6] [3] 
+        Log level
+  --verbose-level level:INT in [0 - 10] [0] 
+        Verbose level
+  --version
+        Display program version information and exit
+  -c,--config [/home/[user]/.config/snode.c/echoserver.conf] 
+        Read an config file
+  --instance-map name=mapped_name
+        Instance name mapping used to make an instance known under an alias name also in a config file.
+
+Instances:
+  echo
+        Configuration for server instance 'echo'
+```
+
+Note that now the named instance *echoserver* now appears at the end of the help screen.
+
+To get informations about what can be configured for the *echoserver* instance it is just needed to write
+
+```shell
+command@line:~/> echoserver echo --help
+```
+
+what prints the output
+
+```shell
+Configuration for server instance 'echo'
+Usage: echoserver echo [OPTIONS] [SECTION]
+
+Options:
+  -h,--help
+        Print this help message and exit
+  --help-all
+        Expand all help
+  --commandline
+        Print a template command line showing required options only and exit
+  --commandline-full
+        Print a template command line showing all possible options and exit
+  --commandline-configured
+        Print a template command line showing all required and configured options and exit
+  --disable bool:{true,false} [false] 
+        Disable this instance
+
+Sections:
+  local Local side of connection
+  connection
+        Options for established connections
+  socket
+        Options for socket behaviour
+  server
+        Options for server socket
+  cluster
+        Options for clustering
+```
+
+on screen.
+
+As one can see, there exists some sections for the instance *echo* each offering specific configuration items for specific instance behavior categories. Most important for a `SocketServer` instance is the section *local*,
+
+```shell
+command@line:~/> echoserver echo local --help
+Local side of connection for instance 'echo'
+Usage: echoserver echo local [OPTIONS]
+
+Options:
+  -h,--help
+        Print this help message and exit
+  --help-all
+        Expand all help
+  --host hostname|IPv4:TEXT [0.0.0.0] 
+        Host name or IPv4 address
+  --port port:UINT in [0 - 65535] [8001] 
+        Port number
+
+```
+
+which offer configuration options to configure the hostname or IP-Address and port number the physical server socket should be bound to. Note, that the default value of the port number is `[8001]`, what is this port number used to activate the `echo` instance:
+
+```cpp
+echoServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
+    ...
+});
+```
+
+This port number can now be overridden on the command line so, that the `echo` listens on port number `8080`:
+
+```shell
+command@line:~/> echoserver echo local --port 8080
+2023-03-11 18:53:12 0000000000001: echo mode: STANDALONE
+Success: Echo server listening on 0.0.0.0:8080
+```
+
+To make this overridden port number setting persistent a configuration file can be generated and stored automatically by appending `-w`
+
+```shell
+command@line:~/> echoserver echo local --port 8080 -w
+Writing config file: /home/[user]/.config/snode.c/echoserver.conf
+```
+
+to the command line above. If *echoserver* is now started without command line arguments
+
+```shell
+command@line:~/> echoserver
+2023-03-11 18:59:46 0000000000001: echo mode: STANDALONE
+Success: Echo server listening on 0.0.0.0:8080
+```
+
+the stored port number `8080` is used instead of the port number `8001` used directly in the code.
+
+All existing configuration options specified directly in the application code can be overridden on the command line and/or the configuration file in that way.
+
+### Anatomy of the Command Line Interface
+
+The command line interface follows a well defined structure, for example
+
+```shell
+command@line:~/> serverorclientexecutable instancename1 section1 --sec1-opt1 val111 --sec1-opt2 val12 section2 --sec2-opt1 val21 --sec2-opt2 val22 instancename2 section1  --sec1-opt1 val111 --sec1-opt2 val12 section2 --sec2-opt1 val21 --sec2-opt2 val22
+```
+
+if two instances with instance names *instancename1* and *instancename2* are present in the executable.
+
+All section names following an instance name are treaded as sections modifying that instance as long as no other instance name is specified. In case a further instance name is given, than all sections following that second instance name are treaded as sections modifying that second instance.
+
+One can switch between sections by just specifying a different section name.
+
+### Using the Parameterless `listen()` Methods when no Configuration File exists
+
+In case the parameterless `listen()` method is used for activating a server instance for example like
+
+```cpp
+EchoServer echoServer("echo"); // Create server instance
+
+echoServer.listen([](const SocketAddress& socketAddress, int err) -> void { // Port on command line or in config file
+    if (err == 0) {
+        std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
+    } else {
+        std::cout << "Error: Echo server listening on " << socketAddress.toString() << ": " << strerror(err) << std::endl;
+    }
+});
+```
+
+ and no configuration file exists, SNode.C notifies that at least a port number needs to be configured on the command line:
+
+```shell
+command@line:~/> echoserver
+Command line error: echo is required
+
+command@line:~/> echoserver echo
+Command line error: local is required
+
+command@line:~/> echoserver echo local
+Command line error: --port is required
+
+command@line:~/> echoserver echo local --port
+Command line error: --port: 1 required port:UINT in [0 - 65535] missing
+
+command@line:~/> echoserver echo local --port 8080
+2023-03-11 19:26:36 0000000000001: echo mode: STANDALONE
+Success: Echo server listening on 0.0.0.0:8080
+```
+
+Again, this configuration can be made permanent by writing the configuration file by appending `-w` to the command line:
+
+```shell
+command@line:~/> echoserver echo local --port 8080 -w
+Writing config file: /home/[user]/.config/snode.c/echoserver.conf
+
+command@line:~/> echoserver
+2023-03-11 19:29:18 0000000000001: echo mode: STANDALONE
+Success: Echo server listening on 0.0.0.0:8080
+```
+
+### Command Line Configuration of the Client Instance `EchoClient`
+
+A client instance is configured in the very same way. 
+
+Lets have look at the case of the named `echoclient` 
+
+```cpp
+EchoClient echoClient("echo"); // Create named client instance
+echoClient.connect([](const SocketAddress& socketAddress,
+                      int err) -> void { // Connect to server
+    if (err == 0) {
+        std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
+    } else {
+        std::cout << "Error: Echo client connected to " << socketAddress.toString() << ": " << strerror(err) << std::endl;
+    }
+});
+```
+
+where the parameterless `connect()` method is used. A terminal session would look like:
+
+```shell
+command@line:~/> echoclient
+Command line error: echo is required
+
+command@line:~/> echoclient echo
+Command line error: remote is required
+
+command@line:~/> echoclient echo remote
+Command line error: --host is required
+
+command@line:~/> echoclient echo remote --host
+Command line error: --host: 1 required hostname|IPv4:TEXT missing
+
+command@line:~/> echoclient echo remote --host localhost
+Command line error: --port is required
+
+command@line:~/> echoclient echo remote --host localhost --port
+Command line error: --port: 1 required port:UINT in [0 - 65535] missing
+
+command@line:~/> echoclient echo remote --host localhost --port 8080
+2023-03-11 19:40:00 0000000000002: OnConnect echo
+2023-03-11 19:40:00 0000000000002:      Local: (127.0.0.1) localhost:37023
+2023-03-11 19:40:00 0000000000002:      Peer:  (127.0.0.1) localhost:8080
+2023-03-11 19:40:00 0000000000002: OnConnected echo
+Echo connected to localhost:8080
+Initiating data exchange
+Success: Echo connected to localhost:8080
+Data to reflect: Hello peer! It's nice talking to you!!!
+Data to reflect: Hello peer! It's nice talking to you!!!
+...
+```
+
+Again this configuration can be made permanent by writing the configuration file using `-w` on the command line:
+
+```shell
+command@line:~/> echoclient echo remote --host localhost --port 8080 -w
+Writing config file: /home/[user]/.config/snode.c/echoclient.conf
+
+command@line:~/> echoclient
+2023-03-11 19:42:00 0000000000002: OnConnect echo
+2023-03-11 19:42:00 0000000000002:      Local: (127.0.0.1) localhost:38276
+2023-03-11 19:42:00 0000000000002:      Peer:  (127.0.0.1) localhost:8080
+2023-03-11 19:42:00 0000000000002: OnConnected echo
+Echo connected to localhost:8080
+Initiating data exchange
+Success: Echo connected to localhost:8080
+Data to reflect: Hello peer! It's nice talking to you!!!
+Data to reflect: Hello peer! It's nice talking to you!!!
+...
+```
 
 ## SSL/TLS-Configuration
 
