@@ -1004,7 +1004,7 @@ Network layer specific configuration options:
 
 ## Configuration via the Command Line
 
-Each application gets a set of common command line options which control the behavior of the application in general. An overview of those option can be printed on screen by adding `--help` or '--help-all` on the command line. 
+Each application gets a set of common command line options which control the behavior of the application in general. An overview of those option can be printed on screen by adding `--help` or `--help-all` on the command line. 
 
 ### Introduction to the Command Line Interface using the `EchoServer` from above
 
@@ -1123,9 +1123,9 @@ Instances:
         Configuration for server instance 'echo'
 ```
 
-Note that now the named instance *echoserver* now appears at the end of the help screen.
+Note that now the named instance *echo* now appears at the end of the help screen.
 
-To get informations about what can be configured for the *echoserver* instance it is just needed to write
+To get informations about what can be configured for the *echo* instance it is just needed to write
 
 ```shell
 command@line:~/> echoserver echo --help
@@ -1215,7 +1215,7 @@ command@line:~/> echoserver
 Success: Echo server listening on 0.0.0.0:8080
 ```
 
-the stored port number `8080` is used instead of the port number `8001` used directly in the code.
+the in the configuration file stored port number `8080` is used instead of the port number `8001` used directly in the code.
 
 All existing configuration options specified directly in the application code can be overridden on the command line and/or the configuration file in that way.
 
