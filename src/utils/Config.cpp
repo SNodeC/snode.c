@@ -556,7 +556,10 @@ namespace utils {
                 }
                 std::cout << std::endl << app.get_footer() << std::endl;
             } catch (const CLI::ConversionError& e) {
-                std::cout << "Conversion error: " << e.what() << std::endl;
+                std::cout << "Command line conversion error: " << e.what() << std::endl;
+                throw;
+            } catch (const CLI::ArgumentMismatch& e) {
+                std::cout << "Command line error: Argument for " << e.what() << std::endl;
                 throw;
             } catch (const CLI::ConfigError& e) {
                 std::cout << "Config file (INI) parse error: " << e.get_name() << e.what() << std::endl;
@@ -572,12 +575,12 @@ namespace utils {
                 }
                 throw;
             }
-        } catch (const CLI::ParseError&) {
-            std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+        } catch (const CLI::ParseError& e) {
+            std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
         } catch (const CLI::Error& e) {
             std::cout << "Error: " << e.what() << std::endl;
-            std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+            std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
         }
 
