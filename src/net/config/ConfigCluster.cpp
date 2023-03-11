@@ -18,6 +18,7 @@
 
 #include "net/config/ConfigCluster.h"
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,7 +30,7 @@
 namespace net::config {
 
     ConfigCluster::ConfigCluster(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, "cluster", "Options for clustering") {
+        : net::config::ConfigSection(instance, "cluster", "Options for clustering of instance '" + instance->getInstanceName() + "'") {
         add_option(modeOpt, //
                    "--mode",
                    "Clustering mode",

@@ -18,16 +18,19 @@
 
 #include "net/config/ConfigLegacy.h"
 
+#include "net/config/ConfigInstance.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
 
     ConfigLegacy::ConfigLegacy(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, "legacy", "Options for legacy behaviour", true) {
+        : net::config::ConfigSection(
+              instance, "legacy", "Options for legacy behaviour of instance '" + instance->getInstanceName() + "'", true) {
     }
 
 } // namespace net::config

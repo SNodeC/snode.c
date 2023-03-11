@@ -18,6 +18,7 @@
 
 #include "ConfigPhysicalSocket.h"
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
 #include "utils/ResetToDefault.h"
 
@@ -33,7 +34,7 @@
 namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
-        : ConfigSection(instance, "socket", "Options for socket behaviour") {
+        : ConfigSection(instance, "socket", "Options for socket behaviour of instance '" + instance->getInstanceName() + "'") {
         add_socket_option(reuseAddressOpt,
                           "--reuse-address",
                           SOL_SOCKET,

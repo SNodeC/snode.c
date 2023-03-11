@@ -32,7 +32,7 @@ namespace net::config {
 
     template <typename SocketAddress>
     ConfigAddressRemote<SocketAddress>::ConfigAddressRemote(ConfigInstance* instance)
-        : Super::ConfigAddress(instance, "remote", "Remote side of connection") {
+        : Super::ConfigAddress(instance, "remote", "Remote side of connection for instance '" + instance->getInstanceName() + "'") {
     }
 
 } // namespace net::config
