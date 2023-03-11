@@ -27,12 +27,19 @@ namespace net::stream {
 
     template <typename PhysicalServerSocket, typename Config>
     void SocketServer<PhysicalServerSocket, Config>::listen(const SocketAddress& localAddress,
-                                                            int backlog,
                                                             const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->Local::setAddress(localAddress);
-        Super::config->setBacklog(backlog);
 
         listen(onError);
+    }
+
+    template <typename PhysicalServerSocket, typename Config>
+    void SocketServer<PhysicalServerSocket, Config>::listen(const SocketAddress& localAddress,
+                                                            int backlog,
+                                                            const std::function<void(const SocketAddress&, int)>& onError) const {
+        Super::config->setBacklog(backlog);
+
+        listen(localAddress, onError);
     }
 
 } // namespace net::stream

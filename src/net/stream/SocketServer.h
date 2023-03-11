@@ -50,6 +50,8 @@ namespace net::stream {
 
         virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
+        void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
+
         void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
     };
 

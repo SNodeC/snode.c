@@ -40,7 +40,7 @@ namespace web::http::legacy::un {
         using web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>::listen;
 
         void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(sunPath, Super::config->getBacklog(), onError);
+            Super::listen(sunPath, onError);
         }
     };
 

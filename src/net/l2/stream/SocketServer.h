@@ -43,6 +43,8 @@ namespace net::l2::stream {
     public:
         using Super::listen;
 
+        void listen(uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const;
+
         void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
         void listen(const std::string& address, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
