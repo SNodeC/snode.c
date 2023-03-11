@@ -104,9 +104,9 @@ namespace utils {
         static CLI::App app;
         static std::string applicationName;
 
-        static std::string defaultConfDir;
-        static std::string defaultLogDir;
-        static std::string defaultPidDir;
+        static std::string configDirectory;
+        static std::string logDirectory;
+        static std::string pidDirectory;
 
         static CLI::Option* daemonizeOpt;
         static CLI::Option* logFileOpt;
