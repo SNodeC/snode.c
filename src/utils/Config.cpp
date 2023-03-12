@@ -132,9 +132,9 @@ namespace utils {
         Config::argv = argv;
 
         if (geteuid() == 0) {
-            configDirectory = "/etc/snode.c/";
-            logDirectory = "/var/log/snode.c/";
-            pidDirectory = "/var/run/snode.c/";
+            configDirectory = "/etc/snode.c";
+            logDirectory = "/var/log/snode.c";
+            pidDirectory = "/var/run/snode.c";
         } else {
             const char* homedir = nullptr;
             if ((homedir = getenv("XDG_CONFIG_HOME")) == nullptr) {
@@ -144,9 +144,9 @@ namespace utils {
             }
 
             if (homedir != nullptr) {
-                configDirectory = std::string(homedir) + "/.config/snode.c/";
-                logDirectory = std::string(homedir) + "/.local/log/snode.c/";
-                pidDirectory = std::string(homedir) + "/.local/run/snode.c/";
+                configDirectory = std::string(homedir) + "/.config/snode.c";
+                logDirectory = std::string(homedir) + "/.local/log/snode.c";
+                pidDirectory = std::string(homedir) + "/.local/run/snode.c";
             } else {
                 success = false;
             }
