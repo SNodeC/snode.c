@@ -69,7 +69,7 @@ namespace iot::mqtt::server::broker {
                 sessionStoreFile.close();
                 std::remove(sessionStoreFileName.data());
             } else {
-                PLOG(TRACE) << "Could not open session store '" << sessionStoreFileName << "'";
+                PLOG(TRACE) << "Could not read session store '" << sessionStoreFileName << "'";
             }
         } else {
             LOG(INFO) << "Session not reloaded: Session store filename empty";
@@ -105,7 +105,7 @@ namespace iot::mqtt::server::broker {
 
                 sessionStoreFile.close();
             } else {
-                PLOG(TRACE) << "Could not open session store '" << sessionStoreFileName << "'";
+                PLOG(TRACE) << "Could not write session store '" << sessionStoreFileName << "'";
             }
         } else {
             LOG(INFO) << "Session not saved: Session store filename empty";
