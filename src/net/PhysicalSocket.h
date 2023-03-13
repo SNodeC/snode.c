@@ -41,7 +41,6 @@ namespace net {
         using Super::operator=;
         using SocketAddress = SocketAddressT;
 
-    public:
         int bind(const SocketAddress& bindAddress);
 
         int getSockname(SocketAddress& socketAddress);

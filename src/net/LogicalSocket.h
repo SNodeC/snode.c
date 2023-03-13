@@ -36,6 +36,8 @@ namespace net {
         explicit LogicalSocket(const std::string& name);
         LogicalSocket(const LogicalSocket&) = default;
 
+        virtual ~LogicalSocket() = default;
+
         Config& getConfig() const;
 
     protected:
