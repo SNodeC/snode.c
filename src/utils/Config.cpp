@@ -20,6 +20,7 @@
 
 #include "utils/CLI11.hpp"
 #include "utils/Daemon.h"
+#include "utils/Formatter.h"
 #include "utils/ResetToDefault.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -112,7 +113,7 @@ namespace utils {
     CLI::Option* Config::logLevelOpt = nullptr;
     CLI::Option* Config::verboseLevelOpt = nullptr;
 
-    std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::Formatter>();
+    std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::HelpFormatter>();
 
     std::map<std::string, std::string> Config::prefixMap;
 
@@ -202,7 +203,13 @@ namespace utils {
                 app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
                 app.get_formatter()->column_width(8);
 
-                app.get_config_formatter_base()->commentDefaults();
+                std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
+                configFormatter->commentDefaults();
+                app.config_formatter(configFormatter);
+
+                app.formatter(std::make_shared<CLI::HelpFormatter>());
+
+                //                app.get_config_formatter_base()->commentDefaults();
 
                 app.description("#################################################################\n\n"
                                 "Configuration for Application '" +

@@ -25,6 +25,7 @@ namespace CLI {
     class App;
     class Option;
     class Formatter;
+
 } // namespace CLI
 
 #include <map>

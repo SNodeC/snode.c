@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.18)
 set(UTILS_CPP
     Config.cpp
     Daemon.cpp
+    Formatter.cpp
     PreserveErrno.cpp
     ResetToDefault.cpp
     Timeval.cpp
@@ -16,6 +17,7 @@ set(UTILS_H
     CLI11.hpp
     Config.h
     Daemon.h
+    Formatter.h
     PreserveErrno.h
     ResetToDefault.h
     Timeval.h
