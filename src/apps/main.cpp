@@ -1,4 +1,5 @@
 #include "utils/CLI11.hpp"
+#include "utils/Formatter.h"
 
 #include <cstdint>
 #include <iostream>
@@ -17,11 +18,16 @@ using ssl_option_t = uint32_t;
 int main(int argc, char** argv) {
     CLI::App app("data output specification");
     app.set_help_all_flag("--help-all", "Expand all help");
-    app.get_config_formatter_base()->commentDefaults();
+    std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
+    configFormatter->commentDefaults();
+    app.config_formatter(configFormatter);
 
     CLI::App* tlsSub = app.add_subcommand("tls", "SNI Certificate");
     tlsSub->required();
 
+    //    sniOpt->required();
+
+    // tlsSub->disabled();
     CLI::App* sniCertSub = tlsSub->add_subcommand("snicert", "Domain for SNI certificate");
     sniCertSub->required();
 
