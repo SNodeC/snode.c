@@ -38,7 +38,7 @@ namespace net::in::stream {
         using Super = net::stream::SocketClient<net::in::stream::PhysicalClientSocket, ConfigT>;
 
     protected:
-        explicit SocketClient(const std::string& name);
+        using Super::Super;
 
     public:
         using Config = ConfigT;

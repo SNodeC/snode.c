@@ -26,13 +26,9 @@
 namespace net::l2::stream {
 
     template <typename Config>
-    SocketClient<Config>::SocketClient(const std::string& name)
-        : Super(name) {
-    }
-
-    template <typename Config>
-    void
-    SocketClient<Config>::connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
+    void SocketClient<Config>::connect(const std::string& address,
+                                       uint16_t psm,
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(address, psm), onError);
     }
 

@@ -31,11 +31,6 @@
 namespace net::un::stream {
 
     template <typename Config>
-    SocketServer<Config>::SocketServer(const std::string& name)
-        : Super(name) {
-    }
-
-    template <typename Config>
     void SocketServer<Config>::listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const {
         if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
             PLOG(ERROR) << "listen: sunPath: " << sunPath;

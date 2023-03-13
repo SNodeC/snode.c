@@ -26,11 +26,6 @@
 namespace net::un::stream {
 
     template <typename Config>
-    SocketClient<Config>::SocketClient(const std::string& name)
-        : Super(name) {
-    }
-
-    template <typename Config>
     void SocketClient<Config>::connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const {
         connect(SocketAddress(sunPath), onError);
     }

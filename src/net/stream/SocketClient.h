@@ -35,18 +35,12 @@ namespace net::stream {
     class SocketClient : public net::LogicalSocket<ConfigT> {
     protected:
         using Super = net::LogicalSocket<ConfigT>;
-
-    public:
         using Super::Super;
 
+    public:
         using Config = ConfigT;
         using PhysicalSocket = PhysicalClientSocketT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
-
-        SocketClient() = default;
-        SocketClient(const SocketClient&) = default;
-
-        virtual ~SocketClient() = default;
 
         virtual void connect(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 

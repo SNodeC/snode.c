@@ -26,11 +26,6 @@
 namespace net::in6::stream {
 
     template <typename Config>
-    SocketClient<Config>::SocketClient(const std::string& name)
-        : Super(name) {
-    }
-
-    template <typename Config>
     void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
                                        const std::function<void(const SocketAddress&, int)>& onError) const {

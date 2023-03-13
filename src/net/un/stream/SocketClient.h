@@ -37,12 +37,10 @@ namespace net::un::stream {
         using Super = net::stream::SocketClient<net::un::stream::PhysicalClientSocket, ConfigT>;
 
     protected:
-        explicit SocketClient(const std::string& name);
+        using Super::Super;
 
     public:
         using Super::connect;
-
-        using Super::Super;
 
         void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const;
         void connect(const std::string& remoteSunPath,

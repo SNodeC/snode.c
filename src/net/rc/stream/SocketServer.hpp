@@ -26,11 +26,6 @@
 namespace net::rc::stream {
 
     template <typename Config>
-    SocketServer<Config>::SocketServer(const std::string& name)
-        : Super(name) {
-    }
-
-    template <typename Config>
     void SocketServer<Config>::listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {
         listen(SocketAddress(channel), onError);
     }

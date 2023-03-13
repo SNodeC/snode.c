@@ -38,7 +38,7 @@ namespace net::rc::stream {
         using Super = net::stream::SocketServer<net::rc::stream::PhysicalServerSocket, ConfigT>;
 
     protected:
-        explicit SocketServer(const std::string& name);
+        using Super::Super;
 
     public:
         using Super::listen;

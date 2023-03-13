@@ -38,7 +38,7 @@ namespace net::in6::stream {
         using Super = net::stream::SocketServer<net::in6::stream::PhysicalServerSocket, ConfigT>;
 
     protected:
-        explicit SocketServer(const std::string& name);
+        using Super::Super;
 
     public:
         using Config = ConfigT;
