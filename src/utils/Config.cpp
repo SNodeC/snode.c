@@ -192,16 +192,12 @@ namespace utils {
             }
 
             if (success) {
-                sectionFormatter->label("SUBCOMMAND", "SECTION");
-                sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
-                sectionFormatter->column_width(8);
-
                 app.configurable(false);
                 app.set_help_flag();
 
-                app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
-                app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
-                app.get_formatter()->column_width(8);
+                sectionFormatter->label("SUBCOMMAND", "SECTION");
+                sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
+                sectionFormatter->column_width(8);
 
                 std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
                 configFormatter->commentDefaults();
@@ -209,7 +205,9 @@ namespace utils {
 
                 app.formatter(std::make_shared<CLI::HelpFormatter>());
 
-                //                app.get_config_formatter_base()->commentDefaults();
+                app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
+                app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
+                app.get_formatter()->column_width(8);
 
                 app.description("#################################################################\n\n"
                                 "Configuration for Application '" +

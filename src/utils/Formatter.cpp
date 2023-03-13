@@ -22,12 +22,4 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace CLI {
-
-    ConfigBase* ConfigFormatter::commentDefaults(bool comDef) {
-        commentDefaultsBool = comDef;
-
-        return this;
-    }
-
-} // namespace CLI
+namespace CLI {} // namespace CLI

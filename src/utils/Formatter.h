@@ -35,7 +35,11 @@ namespace CLI {
     class ConfigFormatter : public ConfigBase {
     public:
         /// Specify the character used as prefix for default value options
-        ConfigBase* commentDefaults(bool comDef = true);
+        ConfigBase* commentDefaults(bool comDef = true) {
+            commentDefaultsBool = comDef;
+
+            return this;
+        }
 
         CLI11_INLINE std::string
         to_config(const App* app, bool default_also, bool write_description, std::string prefix) const { // cppcheck-suppress passedByValue
