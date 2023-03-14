@@ -7496,6 +7496,9 @@ public:                                                                         
         /// The flags allow recursive calls to remember if there was a help flag on a parent.
         void _process_help_flags(bool trigger_help = false, bool trigger_all_help = false) const;
 
+        /// Check recursively if there are needed but not specified subcommands or options
+        bool _missing_needs() const;
+
         /// Verify required options and cross requirements. Subcommands too (only if selected).
         void _process_requirements();
 
@@ -8819,6 +8822,22 @@ public:                                                                         
         }
     }
 
+    CLI11_INLINE bool App::_missing_needs() const {
+        for (const auto& opt : need_options_) {
+            if (opt->count() == 0) {
+                return true;
+            }
+        }
+
+        for (const auto& subc : need_subcommands_) {
+            if (subc->_missing_needs()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     CLI11_INLINE void App::_process_requirements() {
         // check excludes
         bool excluded{false};
@@ -8944,7 +8963,7 @@ public:                                                                         
                 sub->_process_requirements();
             }
 
-            if (sub->required_ && sub->count_all() == 0) {
+            if ((sub->required_ && sub->count_all() == 0) || sub->_missing_needs()) {
                 throw(CLI::RequiredError(sub->get_display_name()));
             }
         }

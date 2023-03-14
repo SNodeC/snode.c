@@ -43,14 +43,24 @@ namespace net::config {
     void ConfigSection::required(CLI::Option* opt, bool req) {
         if (req) {
             ++requiredCount;
-        } else if (requiredCount > 0) {
-            --requiredCount;
+            section //
+                ->needs(opt);
+        } else {
+            if (requiredCount > 0) {
+                --requiredCount;
+            }
+            section //
+                ->remove_needs(opt);
         }
 
         section //
             ->required(requiredCount > 0);
 
-        instance->required(opt, req);
+        instance->required(section, opt, req);
+    }
+
+    bool ConfigSection::required() const {
+        return requiredCount > 0;
     }
 
     CLI::Option*

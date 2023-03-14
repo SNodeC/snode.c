@@ -107,6 +107,8 @@ namespace net::config {
 
         void required(CLI::Option* opt, bool req = true);
 
+        bool required() const;
+
     private:
         ConfigInstance* instance = nullptr;
 

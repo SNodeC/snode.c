@@ -35,11 +35,11 @@ namespace net::in::stream::config {
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::stream::config::ConfigSocketServer<net::in::config::ConfigAddress>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
-        add_socket_option(reusePortOpt,
+        add_socket_option(reusePortOpt, //
                           "--reuse-port",
                           SOL_SOCKET,
                           SO_REUSEPORT,
-                          "Reuse socket address",
+                          "Reuse port number",
                           "bool",
                           "false",
                           CLI::IsMember({"true", "false"}));
