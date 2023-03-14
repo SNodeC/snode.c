@@ -115,6 +115,8 @@ namespace net::config {
     void ConfigInstance::required(CLI::App* section, CLI::Option* opt, bool req) {
         if (req) {
             ++requiredCount;
+            instanceSc //
+                ->needs(section);
             opt //
                 ->default_str("")
                 ->required()
@@ -123,17 +125,18 @@ namespace net::config {
             if (requiredCount > 0) {
                 --requiredCount;
             }
+            instanceSc //
+                ->remove_needs(section);
             opt //
                 ->required(false)
                 ->clear();
         }
 
         instanceSc //
-            ->required(requiredCount > 0)
-            ->needs(section);
+            ->required(requiredCount > 0);
     }
 
-    bool ConfigInstance::required() {
+    bool ConfigInstance::required() const {
         return requiredCount > 0;
     }
 

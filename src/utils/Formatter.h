@@ -203,6 +203,14 @@ namespace CLI {
                                 column_width_);
             return out.str();
         }
+
+        CLI11_INLINE std::string make_subcommands(const App* app, AppFormatMode mode) const {
+            std::string out = Formatter::make_subcommands(app, mode);
+            if (mode == AppFormatMode::All) {
+                out.pop_back();
+            }
+            return out;
+        }
     };
 
 } // namespace CLI

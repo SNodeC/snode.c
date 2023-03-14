@@ -52,7 +52,7 @@ namespace net::config {
 
         void required(CLI::App* section, CLI::Option* opt, bool req = true);
 
-        bool required();
+        bool required() const;
 
     private:
         uint8_t requiredCount = 0;

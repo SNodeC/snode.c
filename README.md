@@ -1256,13 +1256,13 @@ command@line:~/> echoserver
 Command line error: echo is required
 
 command@line:~/> echoserver echo
-Command line error: local is required
+Command line error: echo requires local
 
 command@line:~/> echoserver echo local
-Command line error: --port is required
+Command line error: local requires --port
 
 command@line:~/> echoserver echo local --port
-Command line error: --port: 1 required port:UINT in [0 - 65535] missing
+Command line error: Argument for --port: 1 required port:UINT in [0 - 65535] missing
 
 command@line:~/> echoserver echo local --port 8080
 2023-03-11 19:26:36 0000000000001: echo mode: STANDALONE
@@ -1305,21 +1305,21 @@ command@line:~/> echoclient
 Command line error: echo is required
 
 command@line:~/> echoclient echo
-Command line error: remote is required
+Command line error: echo requires remote
 
 command@line:~/> echoclient echo remote
-Command line error: --host is required
+Command line error: remote requires --port
 
-command@line:~/> echoclient echo remote --host
-Command line error: --host: 1 required hostname|IPv4:TEXT missing
+command@line:~/> echoclient echo remote --port
+Command line error: Argument for --port: 1 required port:UINT in [0 - 65535] missing
 
-command@line:~/> echoclient echo remote --host localhost
-Command line error: --port is required
+command@line:~/> echoclient echo remote --port 8080
+Command line error: remote requires --host
 
-command@line:~/> echoclient echo remote --host localhost --port
-Command line error: --port: 1 required port:UINT in [0 - 65535] missing
+command@line:~/> echoclient echo remote --port 8080 --host
+Command line error: Argument for --host: 1 required hostname|IPv4:TEXT missing
 
-command@line:~/> echoclient echo remote --host localhost --port 8080
+command@line:~/> echoclient echo remote --port 8080 --host localhost
 2023-03-11 19:40:00 0000000000002: OnConnect echo
 2023-03-11 19:40:00 0000000000002:      Local: (127.0.0.1) localhost:37023
 2023-03-11 19:40:00 0000000000002:      Peer:  (127.0.0.1) localhost:8080
@@ -1335,7 +1335,7 @@ Data to reflect: Hello peer! It's nice talking to you!!!
 Again this configuration can be made permanent by writing the configuration file using `-w` on the command line:
 
 ```shell
-command@line:~/> echoclient echo remote --host localhost --port 8080 -w
+command@line:~/> echoclient echo remote --port 8080 --host localhost -w
 Writing config file: /home/[user]/.config/snode.c/echoclient.conf
 
 command@line:~/> echoclient
