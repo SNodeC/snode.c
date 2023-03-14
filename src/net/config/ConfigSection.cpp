@@ -50,7 +50,7 @@ namespace net::config {
         section //
             ->required(requiredCount > 0);
 
-        instance->required(opt, req);
+        instance->required(section, opt, req);
     }
 
     CLI::Option*

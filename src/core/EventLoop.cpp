@@ -180,7 +180,7 @@ namespace core {
 
         do {
             EventLoop::instance().eventMultiplexer.stop();
-            tickStatus = EventLoop::instance()._tick(0); // TODO: Do not waste CPU time
+            tickStatus = EventLoop::instance()._tick(1); // TODO: Do not waste CPU time
         } while (tickStatus == TickStatus::SUCCESS);
 
         DynamicLoader::execDlCloseAll();

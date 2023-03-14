@@ -132,6 +132,11 @@ namespace utils {
         Config::argc = argc;
         Config::argv = argv;
 
+        logger::Logger::init();
+
+        logger::Logger::setLogLevel(0);
+        logger::Logger::setVerboseLevel(0);
+
         if (geteuid() == 0) {
             configDirectory = "/etc/snode.c";
             logDirectory = "/var/log/snode.c";
@@ -154,8 +159,6 @@ namespace utils {
         }
 
         if (success) {
-            logger::Logger::init();
-
             applicationName = std::filesystem::path(argv[0]).filename();
 
             if (!std::filesystem::exists(configDirectory)) {
@@ -311,7 +314,8 @@ namespace utils {
 
                 app.set_version_flag("--version", "0.9.8");
 
-                app.set_config("-c,--config", configDirectory + "/" + applicationName + ".conf", "Read an config file", false);
+                app.set_config("-c,--config", configDirectory + "/" + applicationName + ".conf", "Read an config file", false) //
+                    ->take_all();
 
                 app.add_option("--instance-map",
                                "Instance name mapping used to make an instance known under an alias name also in a config file.")
@@ -328,20 +332,13 @@ namespace utils {
 
                 parse1(); // for stopDaemon, logLevel and verboseLevel but do not act on -h or --help-all
 
-                try {
-                    if (app["--kill"]->count() > 0) {
-                        utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+                //                app.all_config_files(!prefixMap.empty());
 
-                        success = false;
-                    } else {
-                        logger::Logger::setLogLevel(logLevelOpt->as<int>());
-                        logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
-                    }
-                } catch (const CLI::ParseError&) {
-                    // Do not error here but in the second pass
+                if (app["--kill"]->count() > 0) {
+                    utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+
+                    success = false;
                 }
-
-                app.all_config_files(!prefixMap.empty());
             }
         }
 
@@ -503,13 +500,13 @@ namespace utils {
         } catch (const CLI::ParseError&) {
             // Do not process ParseError here but on second parse pass
         }
+
+        app.allow_extras(false) //
+            ->allow_config_extras(false);
     }
 
     bool Config::parse2() {
         bool ret = false;
-
-        app.allow_extras(false) //
-            ->allow_config_extras(false);
 
         try {
             try {
@@ -542,11 +539,11 @@ namespace utils {
                     throw;
                 }
             } catch (const CLI::CallForHelp&) {
-                std::cout << app.help();
+                std::cout << app.help() << std::endl;
             } catch (const CLI::CallForAllHelp&) {
-                std::cout << app.help("", CLI::AppFormatMode::All);
+                std::cout << app.help("", CLI::AppFormatMode::All) << std::endl;
             } catch (const CLI::CallForVersion&) {
-                std::cout << "SNode.C-Version: " << app.version() << std::endl;
+                std::cout << "SNode.C-Version: " << app.version() << std::endl << std::endl;
             } catch (const CLI::CallForCommandline& e) {
                 std::cout << e.what();
                 if (e.getMode() == CLI::CallForCommandline::Mode::REQUIRED) {
@@ -565,7 +562,12 @@ namespace utils {
                 std::cout << std::endl << app.get_footer() << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
                 std::cout << e.what() << std::endl;
-                std::cout << app.config_to_str(true, true);
+                try {
+                    std::cout << app.config_to_str(true, true);
+                } catch (const CLI::ParseError& e1) {
+                    std::cout << "Error parsing config file: " << e1.get_name() << " " << e1.what() << std::endl;
+                    throw;
+                }
             } catch (const CLI::CallForWriteConfig& e) {
                 std::cout << e.what() << std::endl;
                 std::ofstream confFile(e.getConfigFile());
@@ -600,9 +602,14 @@ namespace utils {
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
         } catch (const CLI::Error& e) {
-            std::cout << "Error: " << e.what() << std::endl;
+            std::cout << "Error: " << e.get_name() << " " << e.what() << std::endl;
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
+        }
+
+        if (ret) {
+            logger::Logger::setLogLevel(logLevelOpt->as<int>());
+            logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
         }
 
         return ret;
@@ -714,6 +721,7 @@ namespace utils {
     void Config::add_string_option(const std::string& name, const std::string& description, const std::string& typeName) {
         userOptions[name] = app //
                                 .add_option_function<std::string>(name, utils::ResetToDefault(userOptions[name]), description)
+                                ->take_last()
                                 ->type_name(typeName)
                                 ->configurable()
                                 ->required()
