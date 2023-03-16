@@ -607,7 +607,7 @@ namespace utils {
             std::cout << std::endl << app.get_footer() << std::endl;
         }
 
-        if (ret) {
+        if (ret) { // cppcheck-suppress knownConditionTrueFalse
             logger::Logger::setLogLevel(logLevelOpt->as<int>());
             logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
         }
