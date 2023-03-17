@@ -43,16 +43,21 @@ namespace net::rc::stream {
     public:
         using Super::connect;
 
-        void connect(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void connect(const std::string& address,
+        void connect(const std::string& btAddress,
                      uint8_t channel,
-                     const std::string& localAddress,
+                     const std::string& bindBtAddress,
                      const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void connect(const std::string& address,
+        void connect(const std::string& btAddress,
                      uint8_t channel,
-                     const std::string& localAddress,
+                     uint8_t bindChannel,
+                     const std::function<void(const SocketAddress&, int)>& onError) const;
+
+        void connect(const std::string& btAddress,
+                     uint8_t channel,
+                     const std::string& bindBtAddress,
                      uint8_t bindChannel,
                      const std::function<void(const SocketAddress&, int)>& onError) const;
     };

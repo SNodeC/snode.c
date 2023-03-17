@@ -31,10 +31,10 @@ namespace net::un::stream {
     }
 
     template <typename Config>
-    void SocketClient<Config>::connect(const std::string& remoteSunPath,
-                                       const std::string& localSunPath,
+    void SocketClient<Config>::connect(const std::string& sunPath,
+                                       const std::string& bindSunPath,
                                        const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(remoteSunPath), SocketAddress(localSunPath), onError);
+        connect(SocketAddress(sunPath), SocketAddress(bindSunPath), onError);
     }
 
 } // namespace net::un::stream

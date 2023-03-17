@@ -43,16 +43,21 @@ namespace net::l2::stream {
     public:
         using Super::connect;
 
-        void connect(const std::string& address, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void connect(const std::string& address,
+        void connect(const std::string& btAddress,
                      uint16_t psm,
-                     const std::string& localAddress,
+                     const std::string& bindBtAddress,
                      const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void connect(const std::string& address,
+        void connect(const std::string& btAddress,
                      uint16_t psm,
-                     const std::string& localAddress,
+                     uint16_t bindPsm,
+                     const std::function<void(const SocketAddress&, int)>& onError) const;
+
+        void connect(const std::string& btAddress,
+                     uint16_t psm,
+                     const std::string& bindBtAddress,
                      uint16_t bindPsm,
                      const std::function<void(const SocketAddress&, int)>& onError) const;
     };

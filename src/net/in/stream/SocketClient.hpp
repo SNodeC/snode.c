@@ -43,6 +43,14 @@ namespace net::in::stream {
     template <typename Config>
     void SocketClient<Config>::connect(const std::string& ipOrHostname,
                                        uint16_t port,
+                                       uint16_t bindPort,
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
+        connect(SocketAddress(ipOrHostname, port), SocketAddress(bindPort), onError);
+    }
+
+    template <typename Config>
+    void SocketClient<Config>::connect(const std::string& ipOrHostname,
+                                       uint16_t port,
                                        const std::string& bindIpOrHostname,
                                        uint16_t bindPort,
                                        const std::function<void(const SocketAddress&, int)>& onError) const {

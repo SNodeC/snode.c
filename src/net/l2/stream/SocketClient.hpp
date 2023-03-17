@@ -26,27 +26,35 @@
 namespace net::l2::stream {
 
     template <typename Config>
-    void SocketClient<Config>::connect(const std::string& address,
+    void SocketClient<Config>::connect(const std::string& btAddress,
                                        uint16_t psm,
                                        const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(address, psm), onError);
+        connect(SocketAddress(btAddress, psm), onError);
     }
 
     template <typename Config>
-    void SocketClient<Config>::connect(const std::string& address,
+    void SocketClient<Config>::connect(const std::string& btAddress,
                                        uint16_t psm,
-                                       const std::string& localAddress,
+                                       const std::string& bindBtAddress,
                                        const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(address, psm), SocketAddress(localAddress), onError);
+        connect(SocketAddress(btAddress, psm), SocketAddress(bindBtAddress), onError);
     }
 
     template <typename Config>
-    void SocketClient<Config>::connect(const std::string& address,
+    void SocketClient<Config>::connect(const std::string& btAddress,
                                        uint16_t psm,
-                                       const std::string& localAddress,
                                        uint16_t bindPsm,
                                        const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(address, psm), SocketAddress(localAddress, bindPsm), onError);
+        connect(SocketAddress(btAddress, psm), SocketAddress(bindPsm), onError);
+    }
+
+    template <typename Config>
+    void SocketClient<Config>::connect(const std::string& btAddress,
+                                       uint16_t psm,
+                                       const std::string& bindBtAddress,
+                                       uint16_t bindPsm,
+                                       const std::function<void(const SocketAddress&, int)>& onError) const {
+        connect(SocketAddress(btAddress, psm), SocketAddress(bindBtAddress, bindPsm), onError);
     }
 
 } // namespace net::l2::stream

@@ -54,6 +54,11 @@ namespace net::in::stream {
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
+                     uint16_t bindPort,
+                     const std::function<void(const SocketAddress&, int)>& onError) const;
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
                      const std::string& bindIpOrHostname,
                      uint16_t bindPort,
                      const std::function<void(const SocketAddress&, int)>& onError) const;
