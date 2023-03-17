@@ -194,12 +194,25 @@ namespace CLI {
         }
 
         CLI11_INLINE std::string make_subcommands(const App* app, AppFormatMode mode) const {
-            std::string out = Formatter::make_subcommands(app, mode);
+            std::string out = "\n" + Formatter::make_subcommands(app, mode);
             if (mode == AppFormatMode::All) {
                 out.pop_back();
             }
             return out;
         }
+        CLI11_INLINE std::string make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const {
+            std::string out = Formatter::make_group(group, is_positional, opts);
+            out.pop_back();
+            return out;
+        }
+
+        /*
+                CLI11_INLINE std::string make_groups(const App* app, AppFormatMode mode) const {
+                    std::string out = Formatter::make_groups(app, mode);
+                    out.pop_back();
+                    return out;
+                }
+        */
     };
 
 } // namespace CLI
