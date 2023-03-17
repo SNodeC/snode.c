@@ -19,7 +19,6 @@ int main(int argc, char** argv) {
     CLI::App app("data output specification");
     app.set_help_all_flag("--help-all", "Expand all help");
     std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
-    configFormatter->commentDefaults();
     app.config_formatter(configFormatter);
 
     CLI::App* tlsSub = app.add_subcommand("tls", "SNI Certificate");
