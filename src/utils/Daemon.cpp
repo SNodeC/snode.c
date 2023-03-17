@@ -22,8 +22,10 @@
 
 #include "log/Logger.h"
 
+#include <cerrno>
 #include <csignal>
 #include <cstdio>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <grp.h>
@@ -38,13 +40,23 @@
 namespace utils {
 
     DaemonizeError::DaemonizeError(const std::string& errorMessage)
-        : std::runtime_error(errorMessage) {
+        : std::runtime_error(errorMessage)
+        , errnum(errno) {
+    }
+
+    int DaemonizeError::getErrno() {
+        return errno;
+    }
+
+    std::string DaemonizeError::getError() {
+        return std::strerror(errnum);
     }
 
     Daemon::State Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
         State state = State::StartDaemonSuccess;
 
         if (!std::filesystem::exists(pidFileName)) {
+            errno = 0;
             /* Fork off the parent process */
             pid_t pid = fork();
 
@@ -71,25 +83,24 @@ namespace utils {
                     /* Success: Let the second parent terminate */
                     state = State::SecondForkSuccess;
                 } else {
-                    /* Try to write PID of daemon to lockfile */
-                    std::ofstream pidFile(pidFileName, std::ofstream::out);
+                    struct passwd* pw = nullptr;
+                    struct group* gr = nullptr;
 
-                    if (pidFile.good()) {
-                        pidFile << getpid() << std::endl;
-                        pidFile.close();
+                    if ((errno = 0, gr = getgrnam(groupName.c_str())) == nullptr) {
+                        state = State::GroupNotFoundFailure;
+                    } else if (setegid(gr->gr_gid) != 0) {
+                        state = State::ChangeGroupIdFailure;
+                    } else if ((errno = 0, pw = getpwnam(userName.c_str())) == nullptr) {
+                        state = State::UserNotFoundFailure;
+                    } else if (seteuid(pw->pw_uid) != 0) {
+                        state = State::ChangeUserIdFailure;
+                    } else {
+                        /* Try to write PID of daemon to lockfile */
+                        std::ofstream pidFile(pidFileName, std::ofstream::out);
+                        if (pidFile.good()) {
+                            pidFile << getpid() << std::endl;
+                            pidFile.close();
 
-                        struct passwd* pw = nullptr;
-                        struct group* gr = nullptr;
-
-                        if ((gr = getgrnam(groupName.c_str())) == nullptr) {
-                            state = State::ChangeGroupIdFailure;
-                        } else if (setegid(gr->gr_gid) != 0) {
-                            state = State::ChangeGroupIdFailure;
-                        } else if ((pw = getpwnam(userName.c_str())) == nullptr) {
-                            state = State::ChangeUserIdFailure;
-                        } else if (seteuid(pw->pw_uid) != 0) {
-                            state = State::ChangeUserIdFailure;
-                        } else {
                             /* Set new file permissions */
                             umask(0);
                             chdir("/");
@@ -106,9 +117,9 @@ namespace utils {
                             }
 
                             state = State::StartDaemonSuccess;
+                        } else {
+                            state = State::WritePidFileFailure;
                         }
-                    } else {
-                        state = State::WritePidFileFailure;
                     }
                 }
             }

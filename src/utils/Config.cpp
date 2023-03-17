@@ -28,6 +28,7 @@
 #include "log/Logger.h"
 
 #include <cstdlib>
+#include <cstring>
 #include <errno.h>
 #include <fcntl.h>
 #include <filesystem>
@@ -36,7 +37,6 @@
 #include <memory>
 #include <pwd.h>
 #include <stdexcept>
-#include <string.h>
 #include <unistd.h>
 #include <vector>
 
@@ -87,6 +87,13 @@ namespace CLI {
 
     private:
         std::string configFile;
+    };
+
+    class DaemonNotStartedError : public CLI::Error {
+    public:
+        DaemonNotStartedError()
+            : CLI::Error("DaemonNotStarted", "Daemon not started") {
+        }
     };
 
     class DaemonAlreadyRunningError : public CLI::Error {
@@ -189,8 +196,8 @@ namespace utils {
                     std::filesystem::permissions(logDirectory,
                                                  (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                      ~std::filesystem::perms::others_all);
-                    struct group* gr = getgrnam("snodec");
-                    if (gr != nullptr) {
+                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
+                    if ((gr = getgrnam("snodec")) != nullptr) {
                         chown(logDirectory.c_str(), 0, gr->gr_gid);
                     } else {
                         success = false;
@@ -202,10 +209,15 @@ namespace utils {
 
             if (!std::filesystem::exists(pidDirectory)) {
                 if (std::filesystem::create_directories(pidDirectory)) {
-                    std::filesystem::permissions(
-                        pidDirectory,
-                        (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
-                            ~std::filesystem::perms::others_all);
+                    std::filesystem::permissions(pidDirectory,
+                                                 (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
+                                                     ~std::filesystem::perms::others_all);
+                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
+                    if ((gr = getgrnam("snodec")) != nullptr) {
+                        chown(pidDirectory.c_str(), 0, gr->gr_gid);
+                    } else {
+                        success = false;
+                    }
                 } else {
                     success = false;
                 }
@@ -292,42 +304,40 @@ namespace utils {
                     ->check(!CLI::ExistingDirectory)
                     ->expected(0, 1);
 
-                CLI::Option_group* daemonGrp = app.add_option_group("Daemon", "");
-
-                daemonizeOpt = daemonGrp
-                                   ->add_flag_function( //
-                                       "-d,--daemonize",
-                                       utils::ResetToDefault(daemonizeOpt),
-                                       "Start application as daemon") //
+                daemonizeOpt = app.add_flag_function( //
+                                      "-d,--daemonize",
+                                      utils::ResetToDefault(daemonizeOpt),
+                                      "Start application as daemon") //
                                    ->take_last()
                                    ->default_val("false")
                                    ->type_name("bool")
-                                   ->check(CLI::IsMember({"true", "false"}));
+                                   ->check(CLI::IsMember({"true", "false"}))
+                                   ->group("Daemon Options");
 
-                daemonGrp
-                    ->add_flag( //
-                        "-k,--kill",
-                        "Kill running daemon") //
+                app.add_flag( //
+                       "-k,--kill",
+                       "Kill running daemon") //
                     ->configurable(false)
-                    ->disable_flag_override();
+                    ->disable_flag_override()
+                    ->group("Daemon Options");
 
-                userNameOpt = daemonGrp
-                                  ->add_option_function<std::string>( //
-                                      "-u, --user-name",
-                                      utils::ResetToDefault(userNameOpt),
-                                      "Run as specific user") //
+                userNameOpt = app.add_option_function<std::string>( //
+                                     "-u, --user-name",
+                                     utils::ResetToDefault(userNameOpt),
+                                     "Run as specific user") //
                                   ->default_val(pw->pw_name)
                                   ->type_name("username")
-                                  ->needs(daemonizeOpt);
+                                  ->needs(daemonizeOpt)
+                                  ->group("Daemon Options");
 
-                groupNameOpt = daemonGrp
-                                   ->add_option_function<std::string>( //
-                                       "-g, --group-name",
-                                       utils::ResetToDefault(groupNameOpt),
-                                       "Run under specific group")
+                groupNameOpt = app.add_option_function<std::string>( //
+                                      "-g, --group-name",
+                                      utils::ResetToDefault(groupNameOpt),
+                                      "Run under specific group")
                                    ->default_val(gr->gr_name)
                                    ->type_name("groupname")
-                                   ->needs(daemonizeOpt);
+                                   ->needs(daemonizeOpt)
+                                   ->group("Daemon Options");
 
                 logFileOpt = app.add_option_function<std::string>( //
                                     "-l,--log-file",
@@ -399,51 +409,61 @@ namespace utils {
         prefixMap.clear();
 
         app.final_callback([](void) -> void {
-            if (app["--daemonize"]->as<bool>()) {
+            if (daemonizeOpt->as<bool>() && app["--write-config"]->count() == 0 && app["--commandline"]->count() == 0 &&
+                app["--commandline-configured"]->count() == 0 && app["--commandline-full"]->count() == 0) {
                 std::cout << "Try Running as daemon" << std::endl;
 
                 Daemon::State state = utils::Daemon::startDaemon(
                     pidDirectory + "/" + applicationName + ".pid", userNameOpt->as<std::string>(), groupNameOpt->as<std::string>());
 
+                int errnum = errno;
                 switch (state) {
                     case utils::Daemon::State::FirstForkFailure:
-                        std::cout << "Error daemonizing: First fork failur " << strerror(errno) << std::endl;
+                        std::cout << "Error daemonizing: First fork failur " << std::strerror(errnum) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::SecondForkFailure:
+                        std::cout << "Error daemonizing: First fork failur " << std::strerror(errnum) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::SetSidFailure:
+                        std::cout << "Error daemonizing: Set session leader " << std::strerror(errnum) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::WritePidFileFailure:
+                        std::cout << "Error daemonizing: Pid file " << std::strerror(errnum) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::SetSignalsFailure:
+                        std::cout << "Error daemonizing: Setup signals " << std::strerror(errnum) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::UserNotFoundFailure:
+                        std::cout << "Error daemonizing: User '" << userNameOpt->as<std::string>() << "' not found" << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::ChangeUserIdFailure:
+                        std::cout << "Error daemonizing: Change uid " << std::strerror(errnum) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::GroupNotFoundFailure:
+                        std::cout << "Error daemonizing: Group '" << groupNameOpt->as<std::string>() << "' not found" << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::ChangeGroupIdFailure:
+                        std::cout << "Error daemonizing: Change gid " << strerror(errnum) << std::endl;
                         exit(EXIT_FAILURE);
                         break;
                     case utils::Daemon::State::FirstForkSuccess:
                         exit(EXIT_SUCCESS);
                         break;
-                    case utils::Daemon::State::SecondForkFailure:
-                        std::cout << "Error daemonizing: First fork failur " << strerror(errno) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
                     case utils::Daemon::State::SecondForkSuccess:
                         exit(EXIT_SUCCESS);
-                        break;
-                    case utils::Daemon::State::SetSidFailure:
-                        std::cout << "Error daemonizing: Set session leader " << strerror(errno) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::WritePidFileFailure:
-                        std::cout << "Error daemonizing: Pid file " << strerror(errno) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::SetSignalsFailure:
-                        std::cout << "Error daemonizing: Setup signals " << strerror(errno) << std::endl;
-                        exit(EXIT_FAILURE);
                         break;
                     case utils::Daemon::State::PidFileExistsFailure:
                         throw CLI::DaemonAlreadyRunningError();
                         break;
                     case utils::Daemon::State::StartDaemonSuccess:
-                        break;
-                    case utils::Daemon::State::ChangeUserIdFailure:
-                        std::cout << "Error daemonizing: Change uid " << strerror(errno) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::ChangeGroupIdFailure:
-                        std::cout << "Error daemonizing: Change gid " << strerror(errno) << std::endl;
-                        exit(EXIT_FAILURE);
                         break;
                 }
 
@@ -455,7 +475,7 @@ namespace utils {
                         logger::Logger::logToFile(logFile);
                     }
                 } else {
-                    throw CLI::DaemonAlreadyRunningError();
+                    throw CLI::DaemonNotStartedError();
                 }
             } else if (app["--enforce-log-file"]->as<bool>()) {
                 std::string logFile = logFileOpt->as<std::string>();
@@ -514,6 +534,8 @@ namespace utils {
         for (CLI::App* subcommand : app->get_subcommands({})) {
             if (!subcommand->get_name().empty()) {
                 createCommandLineTemplate(out, subcommand, mode);
+            } else {
+                std::cout << subcommand->get_description() << std::endl;
             }
         }
 
@@ -693,6 +715,8 @@ namespace utils {
                 }
                 throw;
             }
+        } catch (const CLI::Success& e) {
+            std::cout << "Success: " << e.get_name() << " " << e.what() << std::endl;
         } catch (const CLI::ParseError& e) {
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;

@@ -560,6 +560,7 @@ cmake ../snode.c
 make
 sudo make install
 sudo groupadd --system snodec
+sudo usermod -a -G snodec root
 sudo ldconfig
 ```
 

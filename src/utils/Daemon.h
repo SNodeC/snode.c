@@ -30,6 +30,12 @@ namespace utils {
 
     class DaemonizeError : public std::runtime_error {
         explicit DaemonizeError(const std::string& errorMessage);
+
+        int getErrno();
+        std::string getError();
+
+    private:
+        int errnum;
     };
 
     class Daemon {
@@ -44,7 +50,9 @@ namespace utils {
             WritePidFileFailure,
             StartDaemonSuccess,
             PidFileExistsFailure,
+            UserNotFoundFailure,
             ChangeUserIdFailure,
+            GroupNotFoundFailure,
             ChangeGroupIdFailure
         };
 
