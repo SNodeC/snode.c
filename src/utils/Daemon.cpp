@@ -24,10 +24,11 @@
 
 #include <csignal>
 #include <cstdio>
-#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <grp.h>
 #include <poll.h>
+#include <pwd.h>
 #include <sys/stat.h>
 #include <syscall.h>
 #include <unistd.h>
@@ -36,79 +37,86 @@
 
 namespace utils {
 
-    bool Daemon::startDaemon(const std::string& pidFileName) {
-        bool success = true;
+    DaemonizeError::DaemonizeError(const std::string& errorMessage)
+        : std::runtime_error(errorMessage) {
+    }
+
+    Daemon::State Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
+        State state = State::StartDaemonSuccess;
 
         if (!std::filesystem::exists(pidFileName)) {
-            pid_t pid = 0;
-
             /* Fork off the parent process */
-            pid = fork();
+            pid_t pid = fork();
 
             if (pid < 0) {
                 /* An error occurred */
-                success = false; // 1st fork() not successfull
+                state = State::FirstForkFailure;
             } else if (pid > 0) {
                 /* Success: Let the parent terminate */
-                exit(EXIT_SUCCESS);
+                state = State::FirstForkSuccess;
             } else if (setsid() < 0) {
                 /* On success: The child process becomes session leader */
-                success = false; // setsid() not successfull
+                state = State::SetSidFailure;
             } else if (signal(SIGHUP, SIG_IGN) == SIG_ERR) {
                 /* Ignore signal sent from parent to child process */
-                success = false; // signal() not successfull
+                state = State::SetSignalsFailure;
             } else {
                 /* Fork off for the second time*/
                 pid = fork();
 
                 if (pid < 0) {
                     /* An error occurred */
-                    success = false; // 2nd fork() not successfull
+                    state = State::SecondForkFailure;
                 } else if (pid > 0) {
                     /* Success: Let the second parent terminate */
-                    exit(EXIT_SUCCESS);
+                    state = State::SecondForkSuccess;
                 } else {
-                    /* Set new file permissions */
-                    umask(0);
+                    /* Try to write PID of daemon to lockfile */
+                    std::ofstream pidFile(pidFileName, std::ofstream::out);
 
-                    /* Change the working directory to the root directory */
-                    /* or another appropriated directory */
-                    chdir("/");
+                    if (pidFile.good()) {
+                        pidFile << getpid() << std::endl;
+                        pidFile.close();
 
-                    /* Close all open file descriptors */
-                    // for (long fd = sysconf(_SC_OPEN_MAX); fd >= 0; fd--) {
-                    //     close(static_cast<int>(fd));
-                    // }
+                        struct passwd* pw = nullptr;
+                        struct group* gr = nullptr;
 
-                    close(STDIN_FILENO);
-                    close(STDOUT_FILENO);
-                    close(STDERR_FILENO);
-
-                    if (std::freopen("/dev/null", "r", stdin) == nullptr) {
-                    }
-                    if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
-                    }
-                    if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
-                    }
-
-                    if (!pidFileName.empty()) {
-                        /* Try to write PID of daemon to lockfile */
-                        std::ofstream pidFile(pidFileName, std::ofstream::out);
-
-                        if (pidFile.good()) {
-                            pidFile << getpid() << std::endl;
-                            pidFile.close();
+                        if ((gr = getgrnam(groupName.c_str())) == nullptr) {
+                            state = State::ChangeGroupIdFailure;
+                        } else if (setegid(gr->gr_gid) != 0) {
+                            state = State::ChangeGroupIdFailure;
+                        } else if ((pw = getpwnam(userName.c_str())) == nullptr) {
+                            state = State::ChangeUserIdFailure;
+                        } else if (seteuid(pw->pw_uid) != 0) {
+                            state = State::ChangeUserIdFailure;
                         } else {
-                            success = false; // PID-File not created (permissions, not existing directory ... ?)
+                            /* Set new file permissions */
+                            umask(0);
+                            chdir("/");
+
+                            close(STDIN_FILENO);
+                            close(STDOUT_FILENO);
+                            close(STDERR_FILENO);
+
+                            if (std::freopen("/dev/null", "r", stdin) == nullptr) {
+                            }
+                            if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
+                            }
+                            if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
+                            }
+
+                            state = State::StartDaemonSuccess;
                         }
+                    } else {
+                        state = State::WritePidFileFailure;
                     }
                 }
             }
         } else {
-            success = false;
+            state = State::PidFileExistsFailure;
         }
 
-        return success;
+        return state;
     }
 
     void Daemon::stopDaemon(const std::string& pidFileName) {
@@ -157,7 +165,9 @@ namespace utils {
     }
 
     void Daemon::erasePidFile(const std::string& pidFileName) {
-        (void) std::remove(pidFileName.data());
+        (void) seteuid(getuid());               // In case  we are here seteguid can not fail
+        (void) setegid(getgid());               // In case we are here setegid can not fail
+        (void) std::remove(pidFileName.data()); // In case we are here std::remove can not fail
     }
 
 } // namespace utils

@@ -28,12 +28,15 @@
 #include "log/Logger.h"
 
 #include <cstdlib>
+#include <errno.h>
 #include <fcntl.h>
 #include <filesystem>
+#include <grp.h>
 #include <iostream>
 #include <memory>
 #include <pwd.h>
 #include <stdexcept>
+#include <string.h>
 #include <unistd.h>
 #include <vector>
 
@@ -109,6 +112,8 @@ namespace utils {
 
     CLI::Option* Config::daemonizeOpt = nullptr;
     CLI::Option* Config::logFileOpt = nullptr;
+    CLI::Option* Config::userNameOpt = nullptr;
+    CLI::Option* Config::groupNameOpt = nullptr;
     CLI::Option* Config::enforceLogFileOpt = nullptr;
     CLI::Option* Config::logLevelOpt = nullptr;
     CLI::Option* Config::verboseLevelOpt = nullptr;
@@ -137,7 +142,14 @@ namespace utils {
         logger::Logger::setLogLevel(0);
         logger::Logger::setVerboseLevel(0);
 
-        if (geteuid() == 0) {
+        struct passwd* pw = nullptr;
+        struct group* gr = nullptr;
+
+        if ((pw = getpwuid(getuid())) == nullptr) {
+            success = false;
+        } else if ((gr = getgrgid(pw->pw_gid)) == nullptr) {
+            success = false;
+        } else if (geteuid() == 0) {
             configDirectory = "/etc/snode.c";
             logDirectory = "/var/log/snode.c";
             pidDirectory = "/var/run/snode.c";
@@ -145,7 +157,7 @@ namespace utils {
             const char* homedir = nullptr;
             if ((homedir = getenv("XDG_CONFIG_HOME")) == nullptr) {
                 if ((homedir = getenv("HOME")) == nullptr) {
-                    homedir = getpwuid(getuid())->pw_dir;
+                    homedir = pw->pw_dir;
                 }
             }
 
@@ -174,10 +186,15 @@ namespace utils {
 
             if (!std::filesystem::exists(logDirectory)) {
                 if (std::filesystem::create_directories(logDirectory)) {
-                    std::filesystem::permissions(
-                        logDirectory,
-                        (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
-                            ~std::filesystem::perms::others_all);
+                    std::filesystem::permissions(logDirectory,
+                                                 (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
+                                                     ~std::filesystem::perms::others_all);
+                    struct group* gr = getgrnam("snodec");
+                    if (gr != nullptr) {
+                        chown(logDirectory.c_str(), 0, gr->gr_gid);
+                    } else {
+                        success = false;
+                    }
                 } else {
                     success = false;
                 }
@@ -195,22 +212,21 @@ namespace utils {
             }
 
             if (success) {
-                app.configurable(false);
-                app.set_help_flag();
-
                 sectionFormatter->label("SUBCOMMAND", "SECTION");
                 sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
                 sectionFormatter->column_width(8);
 
-                std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
-                configFormatter->commentDefaults();
-                app.config_formatter(configFormatter);
+                app.configurable(false);
+                app.set_help_flag();
+                app.option_defaults()->take_last();
 
                 app.formatter(std::make_shared<CLI::HelpFormatter>());
-
                 app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
                 app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
                 app.get_formatter()->column_width(8);
+
+                std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
+                app.config_formatter(configFormatter);
 
                 app.description("#################################################################\n\n"
                                 "Configuration for Application '" +
@@ -224,9 +240,7 @@ namespace utils {
                            "(C) 2019-2023 Volker Christian\n"
                            "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
 
-                app.option_defaults()->take_last();
-
-                app.add_flag_callback(
+                app.add_flag_callback( //
                        "-h,--help",
                        []() {
                            throw CLI::CallForHelp();
@@ -236,31 +250,37 @@ namespace utils {
                     ->disable_flag_override()
                     ->trigger_on_parse();
 
-                app.add_flag_callback(
+                app.add_flag_callback( //
                        "--help-all",
                        []() {
                            throw CLI::CallForAllHelp();
                        },
-                       "Expand all help") //
+                       "Expand all help")
                     ->configurable(false)
                     ->disable_flag_override()
                     ->trigger_on_parse();
 
-                app.add_flag("--commandline", "Print a template command line showing required options only and exit")
+                app.add_flag( //
+                       "--commandline",
+                       "Print a template command line showing required options only and exit")
                     ->configurable(false)
                     ->disable_flag_override();
 
-                app.add_flag("--commandline-full", "Print a template command line showing all possible options and exit")
+                app.add_flag( //
+                       "--commandline-full",
+                       "Print a template command line showing all possible options and exit")
                     ->configurable(false)
                     ->disable_flag_override();
 
-                app.add_flag("--commandline-configured",
-                             "Print a template command line showing all required and configured options and exit") //
+                app.add_flag( //
+                       "--commandline-configured",
+                       "Print a template command line showing all required and configured options and exit") //
                     ->configurable(false)
                     ->disable_flag_override();
 
-                app.add_flag("-s,--show-config",
-                             "Show current configuration and exit") //
+                app.add_flag( //
+                       "-s,--show-config",
+                       "Show current configuration and exit") //
                     ->configurable(false)
                     ->disable_flag_override();
 
@@ -272,45 +292,75 @@ namespace utils {
                     ->check(!CLI::ExistingDirectory)
                     ->expected(0, 1);
 
-                daemonizeOpt = app.add_flag_function("-d,!-f,--daemonize,!--foreground",
-                                                     utils::ResetToDefault(daemonizeOpt),
-                                                     "Start application as daemon") //
+                CLI::Option_group* daemonGrp = app.add_option_group("Daemon", "");
+
+                daemonizeOpt = daemonGrp
+                                   ->add_flag_function( //
+                                       "-d,--daemonize",
+                                       utils::ResetToDefault(daemonizeOpt),
+                                       "Start application as daemon") //
                                    ->take_last()
                                    ->default_val("false")
                                    ->type_name("bool")
                                    ->check(CLI::IsMember({"true", "false"}));
 
-                app.add_flag("-k,--kill", "Kill running daemon") //
+                daemonGrp
+                    ->add_flag( //
+                        "-k,--kill",
+                        "Kill running daemon") //
                     ->configurable(false)
                     ->disable_flag_override();
 
-                logFileOpt = app.add_option_function<std::string>("-l,--log-file",
-                                                                  utils::ResetToDefault(logFileOpt),
-                                                                  "Logfile path") //
+                userNameOpt = daemonGrp
+                                  ->add_option_function<std::string>( //
+                                      "-u, --user-name",
+                                      utils::ResetToDefault(userNameOpt),
+                                      "Run as specific user") //
+                                  ->default_val(pw->pw_name)
+                                  ->type_name("username")
+                                  ->needs(daemonizeOpt);
+
+                groupNameOpt = daemonGrp
+                                   ->add_option_function<std::string>( //
+                                       "-g, --group-name",
+                                       utils::ResetToDefault(groupNameOpt),
+                                       "Run under specific group")
+                                   ->default_val(gr->gr_name)
+                                   ->type_name("groupname")
+                                   ->needs(daemonizeOpt);
+
+                logFileOpt = app.add_option_function<std::string>( //
+                                    "-l,--log-file",
+                                    utils::ResetToDefault(logFileOpt),
+                                    "Logfile path") //
                                  ->default_val(logDirectory + "/" + applicationName + ".log")
                                  ->type_name("logfile")
                                  ->check(!CLI::ExistingDirectory);
 
-                enforceLogFileOpt = app.add_flag_function("-e,--enforce-log-file",
-                                                          utils::ResetToDefault(enforceLogFileOpt),
-                                                          "Enforce writing of logs to file for foreground applications") //
+                enforceLogFileOpt = app.add_flag_function( //
+                                           "-e,--enforce-log-file",
+                                           utils::ResetToDefault(enforceLogFileOpt),
+                                           "Enforce writing of logs to file for foreground applications") //
                                         ->take_last()
                                         ->default_val("false")
                                         ->type_name("bool")
                                         ->check(CLI::IsMember({"true", "false"}));
 
-                logLevelOpt = app.add_option_function<std::string>("--log-level",
-                                                                   utils::ResetToDefault(logLevelOpt),
-                                                                   "Log level") //
+                logLevelOpt = app.add_option_function<std::string>( //
+                                     "--log-level",
+                                     utils::ResetToDefault(logLevelOpt),
+                                     "Log level") //
                                   ->default_val(3)
                                   ->type_name("level")
                                   ->check(CLI::Range(0, 6));
 
-                verboseLevelOpt =
-                    app.add_option_function<std::string>("--verbose-level", utils::ResetToDefault(verboseLevelOpt), "Verbose level") //
-                        ->default_val(0)
-                        ->type_name("level")
-                        ->check(CLI::Range(0, 10));
+                verboseLevelOpt = app.add_option_function<std::string>( //
+                                         "--verbose-level",
+                                         utils::ResetToDefault(verboseLevelOpt),
+                                         "Verbose level") //
+                                      ->default_val(0)
+                                      ->type_name("level")
+                                      ->check(CLI::Range(0, 10));
 
                 app.set_version_flag("--version", "0.9.8");
 
@@ -350,9 +400,54 @@ namespace utils {
 
         app.final_callback([](void) -> void {
             if (app["--daemonize"]->as<bool>()) {
-                VLOG(0) << "Try Running as daemon";
+                std::cout << "Try Running as daemon" << std::endl;
 
-                if (utils::Daemon::startDaemon(pidDirectory + "/" + applicationName + ".pid")) {
+                Daemon::State state = utils::Daemon::startDaemon(
+                    pidDirectory + "/" + applicationName + ".pid", userNameOpt->as<std::string>(), groupNameOpt->as<std::string>());
+
+                switch (state) {
+                    case utils::Daemon::State::FirstForkFailure:
+                        std::cout << "Error daemonizing: First fork failur " << strerror(errno) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::FirstForkSuccess:
+                        exit(EXIT_SUCCESS);
+                        break;
+                    case utils::Daemon::State::SecondForkFailure:
+                        std::cout << "Error daemonizing: First fork failur " << strerror(errno) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::SecondForkSuccess:
+                        exit(EXIT_SUCCESS);
+                        break;
+                    case utils::Daemon::State::SetSidFailure:
+                        std::cout << "Error daemonizing: Set session leader " << strerror(errno) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::WritePidFileFailure:
+                        std::cout << "Error daemonizing: Pid file " << strerror(errno) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::SetSignalsFailure:
+                        std::cout << "Error daemonizing: Setup signals " << strerror(errno) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::PidFileExistsFailure:
+                        throw CLI::DaemonAlreadyRunningError();
+                        break;
+                    case utils::Daemon::State::StartDaemonSuccess:
+                        break;
+                    case utils::Daemon::State::ChangeUserIdFailure:
+                        std::cout << "Error daemonizing: Change uid " << strerror(errno) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                    case utils::Daemon::State::ChangeGroupIdFailure:
+                        std::cout << "Error daemonizing: Change gid " << strerror(errno) << std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
+                }
+
+                if (state == utils::Daemon::State::StartDaemonSuccess) {
                     logger::Logger::quiet();
 
                     std::string logFile = logFileOpt->as<std::string>();
@@ -364,7 +459,7 @@ namespace utils {
                 }
             } else if (app["--enforce-log-file"]->as<bool>()) {
                 std::string logFile = logFileOpt->as<std::string>();
-                VLOG(0) << "Writing logs to file " << logFile;
+                std::cout << "Writing logs to file " << logFile << std::endl;
 
                 logger::Logger::logToFile(logFile);
             }
@@ -373,7 +468,7 @@ namespace utils {
         return parse2();
     }
 
-    void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         for (const CLI::Option* option : app->get_options()) {
             if (option->get_configurable()) {
                 std::string value;
@@ -400,7 +495,7 @@ namespace utils {
         }
     }
 
-    std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
         createCommandLineOptions(out, app, mode);
@@ -413,7 +508,7 @@ namespace utils {
         return optionString;
     }
 
-    std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
         for (CLI::App* subcommand : app->get_subcommands({})) {
@@ -425,7 +520,7 @@ namespace utils {
         return out.str();
     }
 
-    void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::string outString;
 
         outString = createCommandLineOptions(app, mode);
@@ -439,7 +534,7 @@ namespace utils {
         }
     }
 
-    std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
         createCommandLineTemplate(out, app, mode);
