@@ -49,7 +49,7 @@ namespace net::un {
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
             sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
         } else {
-            throw bad_sunpath(sunPath);
+            throw net::BadSocketAddress("Bad Sun-Path: " + sunPath);
         }
     }
 
@@ -59,14 +59,6 @@ namespace net::un {
 
     std::string SocketAddress::toString() const {
         return address();
-    }
-
-    bad_sunpath::bad_sunpath(const std::string& sunPath) {
-        message = "Bad sun-path \"" + sunPath + "\"";
-    }
-
-    const char* bad_sunpath::what() const noexcept {
-        return message.c_str();
     }
 
 } // namespace net::un

@@ -25,23 +25,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <exception>
 #include <string>
 #include <sys/un.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un {
-
-    class bad_sunpath : public std::exception {
-    public:
-        explicit bad_sunpath(const std::string& sunPath);
-
-        const char* what() const noexcept override;
-
-    private:
-        std::string message;
-    };
 
     class SocketAddress : public net::SocketAddress<sockaddr_un> {
     private:
