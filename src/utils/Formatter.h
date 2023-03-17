@@ -34,13 +34,6 @@ namespace CLI {
 
     class ConfigFormatter : public ConfigBase {
     public:
-        /// Specify the character used as prefix for default value options
-        ConfigBase* commentDefaults(bool comDef = true) {
-            commentDefaultsBool = comDef;
-
-            return this;
-        }
-
         CLI11_INLINE std::string
         to_config(const App* app, bool default_also, bool write_description, std::string prefix) const { // cppcheck-suppress passedByValue
             std::stringstream out;
@@ -96,7 +89,7 @@ namespace CLI {
                             if (write_description && opt->has_description()) {
                                 out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
                             }
-                            if (commentDefaultsBool && isDefault) {
+                            if (isDefault) {
                                 name = commentChar + name;
                             }
                             out << name << valueDelimiter << value << "\n\n";
@@ -145,10 +138,6 @@ namespace CLI {
 
             return outString + out.str();
         }
-
-    protected:
-        /// the character used as prefix for default value options
-        bool commentDefaultsBool = false;
     };
 
     class HelpFormatter : public CLI::Formatter {
@@ -189,7 +178,7 @@ namespace CLI {
 
             // Drop blank spaces
             std::string tmp = detail::find_and_replace(out.str(), "\n\n", "\n");
-            tmp = tmp.substr(0, tmp.size() - 1); // Remove the final '\n'
+            tmp = tmp.substr(0, tmp.size() - 1); // cppcheck-suppress uselessCallsSubstr
 
             // Indent all but the first line (the name)
             return detail::find_and_replace(tmp, "\n", "\n  ") + "\n";
