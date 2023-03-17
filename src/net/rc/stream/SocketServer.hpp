@@ -36,18 +36,18 @@ namespace net::rc::stream {
     }
 
     template <typename Config>
-    void SocketServer<Config>::listen(const std::string& address,
+    void SocketServer<Config>::listen(const std::string& btAddress,
                                       int backlog,
                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        listen(SocketAddress(address), backlog, onError);
+        listen(SocketAddress(btAddress), backlog, onError);
     }
 
     template <typename Config>
-    void SocketServer<Config>::listen(const std::string& address,
+    void SocketServer<Config>::listen(const std::string& btAddress,
                                       uint8_t channel,
                                       int backlog,
                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        listen(SocketAddress(address, channel), backlog, onError);
+        listen(SocketAddress(btAddress, channel), backlog, onError);
     }
 
 } // namespace net::rc::stream

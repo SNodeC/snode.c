@@ -38,18 +38,18 @@ namespace net::l2::stream {
     }
 
     template <typename Config>
-    void SocketServer<Config>::listen(const std::string& address,
+    void SocketServer<Config>::listen(const std::string& btAddress,
                                       int backlog,
                                       const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
-        listen(SocketAddress(address), backlog, onError);
+        listen(SocketAddress(btAddress), backlog, onError);
     }
 
     template <typename Config>
-    void SocketServer<Config>::listen(const std::string& address,
+    void SocketServer<Config>::listen(const std::string& btAddress,
                                       uint16_t psm,
                                       int backlog,
                                       const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
-        listen(SocketAddress(address, psm), backlog, onError);
+        listen(SocketAddress(btAddress, psm), backlog, onError);
     }
 
 } // namespace net::l2::stream

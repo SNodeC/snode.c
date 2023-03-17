@@ -47,9 +47,9 @@ namespace net::rc::stream {
 
         void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void listen(const std::string& address, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(const std::string& btAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
 
-        void listen(const std::string& address,
+        void listen(const std::string& btAddress,
                     uint8_t channel,
                     int backlog,
                     const std::function<void(const SocketAddress&, int)>& onError) const;
