@@ -24,11 +24,17 @@
 #include "core/socket/SocketAddress.h"
 #include "core/system/socket.h"
 
+#include <stdexcept>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
+
+    class BadSocketAddress : public std::runtime_error {
+    public:
+        explicit BadSocketAddress(const std::string& errorMessage);
+    };
 
     template <typename SockAddrT>
     class SocketAddress : public core::socket::SocketAddress {

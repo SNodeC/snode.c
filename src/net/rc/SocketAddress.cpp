@@ -73,14 +73,6 @@ namespace net::rc {
         return address() + ":" + std::to_string(channel());
     }
 
-    bad_bdaddress::bad_bdaddress(const std::string& bdAddress) {
-        message = "Bad bad bdaddress \"" + bdAddress + "\"";
-    }
-
-    const char* bad_bdaddress::what() const noexcept {
-        return message.c_str();
-    }
-
 } // namespace net::rc
 
 template class net::SocketAddress<sockaddr_rc>;

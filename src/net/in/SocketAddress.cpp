@@ -68,7 +68,7 @@ namespace net::in {
         int err = core::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
         if (err != 0) {
-            throw bad_hostname(ipOrHostname + ": " + gai_strerror(err));
+            throw net::BadSocketAddress("Not resolvable: " + ipOrHostname);
         }
 
         resalloc = res;
@@ -126,14 +126,6 @@ namespace net::in {
 
     std::string SocketAddress::toString() const {
         return host() + ":" + std::to_string(port());
-    }
-
-    bad_hostname::bad_hostname(const std::string& hostName) {
-        message = "Bad hostname \"" + hostName + "\"";
-    }
-
-    const char* bad_hostname::what() const noexcept {
-        return message.c_str();
     }
 
 } // namespace net::in

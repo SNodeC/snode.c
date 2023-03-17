@@ -28,22 +28,11 @@
 #include <bluetooth/bluetooth.h> // IWYU pragma: keep
 #include <bluetooth/rfcomm.h>
 #include <cstdint>
-#include <exception>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc {
-
-    class bad_bdaddress : public std::exception {
-    public:
-        explicit bad_bdaddress(const std::string& bdAddress);
-
-        const char* what() const noexcept override;
-
-    private:
-        std::string message;
-    };
 
     class SocketAddress : public net::SocketAddress<sockaddr_rc> {
     public:

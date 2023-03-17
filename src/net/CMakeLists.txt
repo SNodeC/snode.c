@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(NET_CPP
+    SocketAddress.cpp
     config/ConfigInstance.cpp
     config/ConfigCluster.cpp
     config/ConfigConnection.cpp

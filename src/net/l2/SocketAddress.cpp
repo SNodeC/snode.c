@@ -73,14 +73,6 @@ namespace net::l2 {
         return address() + ":" + std::to_string(psm());
     }
 
-    bad_bdaddress::bad_bdaddress(const std::string& bdAddress) {
-        message = "Bad bad bdaddress \"" + bdAddress + "\"";
-    }
-
-    const char* bad_bdaddress::what() const noexcept {
-        return message.c_str();
-    }
-
 } // namespace net::l2
 
 template class net::SocketAddress<sockaddr_l2>;

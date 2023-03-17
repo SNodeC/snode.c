@@ -16,42 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_SOCKETADDRESS_H
-#define NET_L2_SOCKETADDRESS_H
-
 #include "net/SocketAddress.h"
-
-// IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <bluetooth/bluetooth.h> // IWYU pragma: keep
-#include <bluetooth/l2cap.h>
-#include <cstdint>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2 {
+namespace net {
 
-    class SocketAddress : public net::SocketAddress<sockaddr_l2> {
-    public:
-        using net::SocketAddress<sockaddr_l2>::SocketAddress;
+    BadSocketAddress::BadSocketAddress(const std::string& errorMessage)
+        : runtime_error(errorMessage) {
+    }
 
-        SocketAddress();
-        explicit SocketAddress(const std::string& btAddress);
-        SocketAddress(const std::string& btAddress, uint16_t psm);
-        explicit SocketAddress(uint16_t psm);
-
-        void setAddress(const std::string& btAddress);
-        void setPsm(uint16_t psm);
-
-        uint16_t psm() const;
-
-        std::string address() const override;
-        std::string toString() const override;
-    };
-
-} // namespace net::l2
-
-#endif // NET_L2_SOCKETADDRESS_H
+} // namespace net
