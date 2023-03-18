@@ -280,7 +280,7 @@ namespace utils {
                     ->group("Help Options");
 
                 logFileOpt = app.add_option_function<std::string>( //
-                                    "-l,--log-file",
+                                    "--log-file",
                                     utils::ResetToDefault(logFileOpt),
                                     "Logfile path") //
                                  ->default_val(logDirectory + "/" + applicationName + ".log")
@@ -289,7 +289,7 @@ namespace utils {
                                  ->group("Logging Options");
 
                 enforceLogFileOpt = app.add_flag_function( //
-                                           "-e,--enforce-log-file",
+                                           "--enforce-log-file",
                                            utils::ResetToDefault(enforceLogFileOpt),
                                            "Enforce writing of logs to file for foreground applications") //
                                         ->take_last()
@@ -299,7 +299,7 @@ namespace utils {
                                         ->group("Logging Options");
 
                 logLevelOpt = app.add_option_function<std::string>( //
-                                     "--log-level",
+                                     "-l,--log-level",
                                      utils::ResetToDefault(logLevelOpt),
                                      "Log level") //
                                   ->default_val(3)
@@ -308,7 +308,7 @@ namespace utils {
                                   ->group("Logging Options");
 
                 verboseLevelOpt = app.add_option_function<std::string>( //
-                                         "--verbose-level",
+                                         "-v,--verbose-level",
                                          utils::ResetToDefault(verboseLevelOpt),
                                          "Verbose level") //
                                       ->default_val(0)
@@ -333,7 +333,7 @@ namespace utils {
                     ->group("Config Options");
 
                 app.set_config( //
-                       "-c,--config",
+                       "--config-file",
                        configDirectory + "/" + applicationName + ".conf",
                        "Read an config file",
                        false) //
