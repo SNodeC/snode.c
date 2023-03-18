@@ -23,10 +23,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/signal.h"
 #include "log/Logger.h"
 #include "utils/Config.h"
 #include "utils/Timeval.h"
+#include "utils/system/signal.h"
 
 #include <cstdlib>
 #include <string>
@@ -95,11 +95,11 @@ namespace core {
             exit(1);
         }
 
-        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
+        sighandler_t oldSigPipeHandler = utils::system::signal(SIGPIPE, SIG_IGN);
 
         TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
 
-        core::system::signal(SIGPIPE, oldSigPipeHandler);
+        utils::system::signal(SIGPIPE, oldSigPipeHandler);
 
         return tickStatus;
     }

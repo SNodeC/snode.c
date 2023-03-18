@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/time.h"
+#include "utils/system/time.h"
 
 #include <algorithm>
 #include <cctype>
@@ -130,11 +130,11 @@ namespace httputils {
         char buf[100];
 
         if (tm == nullptr) {
-            time_t now = core::system::time(nullptr);
-            tm = core::system::gmtime(&now);
+            time_t now = utils::system::time(nullptr);
+            tm = utils::system::gmtime(&now);
         } else {
-            time_t time = core::system::mktime(tm);
-            tm = core::system::gmtime(&time);
+            time_t time = utils::system::mktime(tm);
+            tm = utils::system::gmtime(&time);
         }
 
         (void) strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", tm);

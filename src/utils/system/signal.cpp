@@ -18,32 +18,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/time.h"
+#include "utils/system/signal.h"
 
 #include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::system {
+namespace utils::system {
 
-    time_t time(time_t* tloc) {
+    sighandler_t signal(int signum, sighandler_t handler) {
         errno = 0;
-        return ::time(tloc);
+        return ::signal(signum, handler);
     }
 
-    int gettimeofday(struct timeval* tv, struct timezone* tz) {
-        errno = 0;
-        return ::gettimeofday(tv, tz);
-    }
-
-    struct tm* gmtime(const time_t* timep) {
-        errno = 0;
-        return ::gmtime(timep);
-    }
-
-    time_t mktime(struct tm* tm) {
-        errno = 0;
-        return ::mktime(tm);
-    }
-
-} // namespace core::system
+} // namespace utils::system

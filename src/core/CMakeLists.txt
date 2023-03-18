@@ -31,9 +31,7 @@ set(CORE_CPP
     system/netdb.cpp
     system/poll.cpp
     system/select.cpp
-    system/signal.cpp
     system/socket.cpp
-    system/time.cpp
     system/unistd.cpp
     timer/IntervalTimer.cpp
     timer/IntervalTimerStopable.cpp
@@ -72,9 +70,7 @@ set(CORE_H
     system/netdb.h
     system/poll.h
     system/select.h
-    system/signal.h
     system/socket.h
-    system/time.h
     system/unistd.h
     timer/IntervalTimer.h
     timer/IntervalTimerStopable.h
@@ -99,8 +95,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    core PUBLIC snodec::mux-${IO_Multiplexer} snodec::logger snodec::utils
-                ${CMAKE_DL_LIBS}
+    core PUBLIC snodec::mux-${IO_Multiplexer} snodec::utils dl
 )
 
 set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)

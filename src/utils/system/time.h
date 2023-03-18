@@ -16,24 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SYSTEM_SIGNAL_H
-#define NET_SYSTEM_SIGNAL_H
+#ifndef NET_SYSTEM_TIME_H
+#define NET_SYSTEM_TIME_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 // IWYU pragma: begin_exports
 
-#include <csignal>
+#include <ctime>
+#include <sys/time.h>
 
 // IWYU pragma: end_exports
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::system {
+namespace utils::system {
 
-    // #include <csignal>
-    sighandler_t signal(int signum, sighandler_t handler);
+    // #include <time.h> = <ctime>
+    time_t time(time_t* tloc);
+    struct tm* gmtime(const time_t* timep);
+    time_t mktime(struct tm* tm);
 
-} // namespace core::system
+    // #include <sys/time.h>
+    int gettimeofday(struct timeval* tv, struct timezone* tz);
 
-#endif // NET_SYSTEM_SIGNAL_H
+} // namespace utils::system
+
+#endif // NET_SYSTEM_TIME_H

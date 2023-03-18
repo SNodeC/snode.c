@@ -12,7 +12,7 @@ endif()
 
 add_executable(snode.c main.cpp)
 target_link_libraries(
-    snode.c PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
+    snode.c PUBLIC snodec::core
 )
 set_target_properties(
     snode.c PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"

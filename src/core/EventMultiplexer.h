@@ -34,7 +34,7 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/signal.h"
+#include "utils/system/signal.h"
 
 #include <array> // IWYU pragma: export
 #include <list>

@@ -1027,44 +1027,51 @@ Options with default values are commented in the config file
 #################################################################
 Usage: echoserver [OPTIONS]
 
-Options:
+Help Options:
   -h,--help
         Print this help message and exit
   --help-all
         Expand all help
+  --version
+        Display program version information and exit
+
+Logging Options:
+  -l,--log-file logfile:NOT DIR [/home/voc/.local/log/snode.c/echoserver.log] 
+        Logfile path
+  -e,--enforce-log-file={true,false} [false] 
+        Enforce writing of logs to file for foreground applications
+  --log-level level:INT in [0 - 6] [3] 
+        Log level
+  --verbose-level level:INT in [0 - 10] [0] 
+        Verbose level
+
+Config Options:
+  -s,--show-config
+        Show current configuration and exit
+  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
+        Write config file and exit
+  -c,--config [/home/voc/.config/snode.c/echoserver.conf] 
+        Read an config file
+  --instance-map name=mapped_name
+        Instance name mapping used to make an instance known under an alias name also in a config file.
+
+Daemon Options:
+  -d{true},-f{false},--daemonize={true,false} [false] 
+        Start application as daemon
+  -k,--kill
+        Kill running daemon
+  -u,--user-name username [<user>]  Needs: --daemonize
+        Run as specific user
+  -g,--group-name groupname [<user>]  Needs: --daemonize
+        Run under specific group
+
+Command Line Options:
   --commandline
         Print a template command line showing required options only and exit
   --commandline-full
         Print a template command line showing all possible options and exit
   --commandline-configured
         Print a template command line showing all required and configured options and exit
-  -s,--show-config
-        Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/[user]/.config/snode.c/echoserver.conf] 
-        Write config file and exit
-  -d,-f{false},--daemonize,--foreground{false} bool:{true,false} [false] 
-        Start application as daemon
-  -k,--kill
-        Kill running daemon
-  -l,--log-file logfile:NOT DIR [/home/[user]/.local/log/snode.c/echoserver.log] 
-        Logfile path
-  -e,--enforce-log-file bool:{true,false} [false] 
-        Enforce writing of logs to file for foreground applications
-  --log-level level:INT in [0 - 6] [3] 
-        Log level
-  --verbose-level level:INT in [0 - 10] [0] 
-        Verbose level
-  --version
-        Display program version information and exit
-  -c,--config [/home/[user]/.config/snode.c/echoserver.conf] 
-        Read an config file
-  --instance-map name=mapped_name
-        Instance name mapping used to make an instance known under an alias name also in a config file.
-
-Application 'echoserver' powered by SNode.C
-(C) 2019-2023 Volker Christian
-https://github.com/VolkerChristian/snode.c - me@vchrist.at
-
 ```
 
 Each named `SocketServer` and `SocketClient` instance get their specific set of command line options accessible by specifying the name of the instance on the command line.
@@ -1086,43 +1093,54 @@ Options with default values are commented in the config file
 #################################################################
 Usage: echoserver [OPTIONS] [INSTANCE]
 
-Options:
+Help Options:
   -h,--help
         Print this help message and exit
   --help-all
         Expand all help
+  --version
+        Display program version information and exit
+
+Logging Options:
+  -l,--log-file logfile:NOT DIR [/home/voc/.local/log/snode.c/echoserver.log] 
+        Logfile path
+  -e,--enforce-log-file={true,false} [false] 
+        Enforce writing of logs to file for foreground applications
+  --log-level level:INT in [0 - 6] [3] 
+        Log level
+  --verbose-level level:INT in [0 - 10] [0] 
+        Verbose level
+
+Config Options:
+  -s,--show-config
+        Show current configuration and exit
+  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
+        Write config file and exit
+  -c,--config [/home/voc/.config/snode.c/echoserver.conf] 
+        Read an config file
+  --instance-map name=mapped_name
+        Instance name mapping used to make an instance known under an alias name also in a config file.
+
+Daemon Options:
+  -d{true},-f{false},--daemonize={true,false} [false] 
+        Start application as daemon
+  -k,--kill
+        Kill running daemon
+  -u,--user-name username [<user>]  Needs: --daemonize
+        Run as specific user
+  -g,--group-name groupname [<user>]  Needs: --daemonize
+        Run under specific group
+
+Command Line Options:
   --commandline
         Print a template command line showing required options only and exit
   --commandline-full
         Print a template command line showing all possible options and exit
   --commandline-configured
         Print a template command line showing all required and configured options and exit
-  -s,--show-config
-        Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/[user]/.config/snode.c/echoserver.conf] 
-        Write config file and exit
-  -d,-f{false},--daemonize,--foreground{false} bool:{true,false} [false] 
-        Start application as daemon
-  -k,--kill
-        Kill running daemon
-  -l,--log-file logfile:NOT DIR [/home/[user]/.local/log/snode.c/echoserver.log] 
-        Logfile path
-  -e,--enforce-log-file bool:{true,false} [false] 
-        Enforce writing of logs to file for foreground applications
-  --log-level level:INT in [0 - 6] [3] 
-        Log level
-  --verbose-level level:INT in [0 - 10] [0] 
-        Verbose level
-  --version
-        Display program version information and exit
-  -c,--config [/home/[user]/.config/snode.c/echoserver.conf] 
-        Read an config file
-  --instance-map name=mapped_name
-        Instance name mapping used to make an instance known under an alias name also in a config file.
 
 Instances:
-  echo
-        Configuration for server instance 'echo'
+  echo  Configuration for server instance 'echo'
 ```
 
 Note that now the named instance *echo* now appears at the end of the help screen.

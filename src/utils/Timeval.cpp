@@ -56,7 +56,7 @@ namespace utils {
 
     Timeval Timeval::currentTime() {
         utils::Timeval currentTime;
-        core::system::gettimeofday(&currentTime, nullptr);
+        utils::system::gettimeofday(&currentTime, nullptr);
 
         return currentTime;
     }

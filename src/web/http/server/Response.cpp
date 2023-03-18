@@ -28,8 +28,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/time.h"
 #include "log/Logger.h"
+#include "utils/system/time.h"
 
 #include <cerrno>
 #include <filesystem>
@@ -147,7 +147,7 @@ namespace web::http::server {
 
         opts.erase("Max-Age");
         time_t time = 0;
-        opts["Expires"] = httputils::to_http_date(core::system::gmtime(&time));
+        opts["Expires"] = httputils::to_http_date(utils::system::gmtime(&time));
 
         return cookie(name, "", opts);
     }

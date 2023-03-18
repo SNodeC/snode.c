@@ -10,6 +10,8 @@ set(UTILS_CPP
     Uuid.cpp
     base64.cpp
     sha1.cpp
+    system/signal.cpp
+    system/time.cpp
 )
 
 set(UTILS_H
@@ -24,6 +26,8 @@ set(UTILS_H
     Uuid.h
     base64.h
     sha1.h
+    system/signal.h
+    system/time.h
 )
 
 add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})
@@ -36,7 +40,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(utils PRIVATE ${BACKWARD_LIBS} dl)
+target_link_libraries(utils PUBLIC snodec::logger)
 
 set_target_properties(utils PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-utils)
 
