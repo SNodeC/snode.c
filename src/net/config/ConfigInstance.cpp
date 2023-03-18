@@ -60,7 +60,8 @@ namespace net::config {
                          ->take_last()
                          ->default_val("false")
                          ->type_name("bool")
-                         ->check(CLI::IsMember({"true", "false"}));
+                         ->check(CLI::IsMember({"true", "false"}))
+                         ->group("Instance Options");
 
         instanceSc->final_callback([this]() -> void {
             (utils::ResetToDefault(disableOpt))(disableOpt->as<std::string>());
@@ -95,18 +96,8 @@ namespace net::config {
                 "Print this help message and exit")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse();
-
-        sectionSc //
-            ->add_flag_callback(
-                "--help-all",
-                []() {
-                    throw CLI::CallForAllHelp();
-                },
-                "Expand all help")
-            ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
+            ->trigger_on_parse()
+            ->group("Help Options");
 
         return sectionSc;
     }

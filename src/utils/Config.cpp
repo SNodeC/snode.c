@@ -382,21 +382,21 @@ namespace utils {
                        "Print a template command line showing required options only and exit")
                     ->configurable(false)
                     ->disable_flag_override()
-                    ->group("Command Line Options");
+                    ->group("Command line Options");
 
                 app.add_flag( //
                        "--commandline-full",
                        "Print a template command line showing all possible options and exit")
                     ->configurable(false)
                     ->disable_flag_override()
-                    ->group("Command Line Options");
+                    ->group("Command line Options");
 
                 app.add_flag( //
                        "--commandline-configured",
                        "Print a template command line showing all required and configured options and exit") //
                     ->configurable(false)
                     ->disable_flag_override()
-                    ->group("Command Line Options");
+                    ->group("Command line Options");
 
                 parse1(); // for stopDaemon
 
@@ -480,11 +480,7 @@ namespace utils {
                 }
 
                 if (!value.empty()) {
-                    if (option->get_expected_min() == 0) {
-                        out << "--" << option->get_single_name() << "=" << value << " ";
-                    } else {
-                        out << "--" << option->get_single_name() << " " << value << " ";
-                    }
+                    out << "--" << option->get_single_name() << ((option->get_items_expected_max() == 0) ? "=" : " ") << value << " ";
                 }
             }
         }
@@ -735,7 +731,6 @@ namespace utils {
                                  ->configurable(false)
                                  ->allow_extras(false)
                                  ->formatter(sectionFormatter)
-                                 ->fallthrough()
                                  ->group(name.empty() ? "" : "Instances")
                                  ->silent(name.empty());
         instance //
@@ -762,7 +757,8 @@ namespace utils {
                 "Print this help message and exit")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse();
+            ->trigger_on_parse()
+            ->group("Help Options");
 
         instance //
             ->add_flag_callback(
@@ -773,7 +769,8 @@ namespace utils {
                 "Expand all help")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse();
+            ->trigger_on_parse()
+            ->group("Help Options");
 
         instance //
             ->add_flag_callback(
@@ -783,7 +780,8 @@ namespace utils {
                 },
                 "Print a template command line showing required options only and exit")
             ->configurable(false)
-            ->disable_flag_override();
+            ->disable_flag_override()
+            ->group("Command line Options");
 
         instance //
             ->add_flag_callback(
@@ -793,7 +791,8 @@ namespace utils {
                 },
                 "Print a template command line showing all possible options and exit")
             ->configurable(false)
-            ->disable_flag_override();
+            ->disable_flag_override()
+            ->group("Command line Options");
 
         instance //
             ->add_flag_callback(
@@ -803,7 +802,8 @@ namespace utils {
                 },
                 "Print a template command line showing all required and configured options and exit") //
             ->configurable(false)
-            ->disable_flag_override();
+            ->disable_flag_override()
+            ->group("Command line Options");
 
         return instance;
     }

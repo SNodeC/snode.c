@@ -139,6 +139,83 @@ namespace CLI {
         return outString + out.str();
     }
 
+    CLI11_INLINE std::string HelpFormatter::make_help(const App* app, std::string name, AppFormatMode mode) const {
+        // This immediately forwards to the make_expanded method. This is done this way so that subcommands can
+        // have overridden formatters
+        if (mode == AppFormatMode::Sub)
+            return make_expanded(app);
+
+        std::stringstream out;
+        if ((app->get_name().empty()) && (app->get_parent() != nullptr)) {
+            if (app->get_group() != "Subcommands") {
+                out << app->get_group() << ':';
+            }
+        }
+
+        out << make_description(app);
+        out << make_usage(app, name);
+        out << make_positionals(app);
+        out << make_groups(app, mode);
+        out << make_subcommands(app, mode);
+
+        out << make_footer(app);
+
+        return out.str();
+    }
+
+    CLI11_INLINE std::string HelpFormatter::make_usage(const App* app, std::string name) const {
+        std::string usage = app->get_usage();
+        if (!usage.empty()) {
+            return usage + "\n";
+        }
+
+        std::stringstream out;
+
+        out << get_label("Usage") << ":" << (name.empty() ? "" : " ") << name;
+
+        std::vector<std::string> groups = app->get_groups();
+
+        // Print an Options badge if any options exist
+        std::vector<const Option*> non_pos_options = app->get_options([](const Option* opt) {
+            return opt->nonpositional();
+        });
+        if (!non_pos_options.empty())
+            out << " [" << get_label("OPTIONS") << "]";
+
+        // Positionals need to be listed here
+        std::vector<const Option*> positionals = app->get_options([](const Option* opt) {
+            return opt->get_positional();
+        });
+
+        // Print out positionals if any are left
+        if (!positionals.empty()) {
+            // Convert to help names
+            std::vector<std::string> positional_names(positionals.size());
+            std::transform(positionals.begin(), positionals.end(), positional_names.begin(), [this](const Option* opt) {
+                return make_option_usage(opt);
+            });
+
+            out << " " << detail::join(positional_names, " ");
+        }
+
+        // Add a marker if subcommands are expected or optional
+        if (!app->get_subcommands([](const CLI::App* subc) {
+                    return ((!subc->get_disabled()) && (!subc->get_name().empty()));
+                })
+                 .empty()) {
+            out << " "
+                << get_label(app->get_subcommands([](const CLI::App* subc) {
+                                    return ((!subc->get_disabled()) && (!subc->get_name().empty()) && subc->get_required());
+                                }).size() == 1
+                                 ? "SUBCOMMAND"
+                                 : "SUBCOMMANDS");
+        }
+
+        out << std::endl;
+
+        return out.str();
+    }
+
     CLI11_INLINE std::string HelpFormatter::make_description(const App* app) const {
         std::string desc = app->get_description();
         auto min_options = app->get_require_option_min();
@@ -175,11 +252,11 @@ namespace CLI {
         out << make_subcommands(sub, AppFormatMode::Sub);
 
         // Drop blank spaces
-        std::string tmp = detail::find_and_replace(out.str(), "\n\n", "\n");
-        tmp = tmp.substr(0, tmp.size() - 1); // cppcheck-suppress uselessCallsSubstr
+        std::string tmp = out.str();
 
+        tmp.pop_back();
         // Indent all but the first line (the name)
-        return detail::find_and_replace(tmp, "\n", "\n  ") + "\n";
+        return detail::find_and_replace(tmp, "\n", "\n  "); //  + "\n";
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommand(const App* sub) const {
@@ -191,18 +268,40 @@ namespace CLI {
         return out.str();
     }
 
-    CLI11_INLINE std::string HelpFormatter::make_subcommands(const App* app, AppFormatMode mode) const {
-        std::string out = "\n" + Formatter::make_subcommands(app, mode);
-        if (mode == AppFormatMode::All) {
-            out.pop_back();
+    CLI11_INLINE std::string HelpFormatter::make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const {
+        std::stringstream out;
+
+        out << group << ":\n";
+        for (const Option* opt : opts) {
+            out << make_option(opt, is_positional);
         }
-        return out;
+        out << "\n";
+
+        return out.str();
     }
 
-    CLI11_INLINE std::string HelpFormatter::make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const {
-        std::string out = Formatter::make_group(group, is_positional, opts);
-        out.pop_back();
-        return out;
+    CLI11_INLINE std::string HelpFormatter::make_groups(const App* app, AppFormatMode mode) const {
+        std::stringstream out;
+        std::vector<std::string> groups = app->get_groups();
+
+        // Options
+        for (const std::string& group : groups) {
+            std::vector<const Option*> opts = app->get_options([app, mode, &group](const Option* opt) {
+                return opt->get_group() == group                    // Must be in the right group
+                       && opt->nonpositional()                      // Must not be a positional
+                       && (mode != AppFormatMode::Sub               // If mode is Sub, then
+                           || (app->get_help_ptr() != opt           // Ignore help pointer
+                               && app->get_help_all_ptr() != opt)); // Ignore help all pointer
+            });
+            if (!group.empty() && !opts.empty()) {
+                out << make_group(group, false, opts);
+            }
+        }
+
+        std::string tmp = out.str();
+        tmp.pop_back();
+
+        return out.str();
     }
 
     CLI11_INLINE std::string HelpFormatter::make_option_opts(const Option* opt) const {
@@ -213,7 +312,7 @@ namespace CLI {
         } else {
             if (opt->get_type_size() != 0) {
                 if (!opt->get_type_name().empty())
-                    out << (opt->get_expected_max() == 0 ? "=" : " ") << get_label(opt->get_type_name());
+                    out << ((opt->get_items_expected_max() == 0) ? "=" : " ") << get_label(opt->get_type_name());
                 if (!opt->get_default_str().empty())
                     out << " [" << opt->get_default_str() << "] ";
                 if (opt->get_expected_max() == detail::expected_max_vector_size)
