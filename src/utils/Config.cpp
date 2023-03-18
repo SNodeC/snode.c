@@ -224,6 +224,7 @@ namespace utils {
             if (success) {
                 sectionFormatter->label("SUBCOMMAND", "SECTION");
                 sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
+                sectionFormatter->label("bool:{true,false}", "{true,false}");
                 sectionFormatter->column_width(8);
 
                 app.configurable(false);
@@ -233,6 +234,7 @@ namespace utils {
                 app.formatter(std::make_shared<CLI::HelpFormatter>());
                 app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
                 app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
+                app.get_formatter()->label("bool:{true,false}", "{true,false}");
                 app.get_formatter()->column_width(8);
 
                 std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
