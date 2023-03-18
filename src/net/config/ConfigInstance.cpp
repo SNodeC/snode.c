@@ -57,7 +57,6 @@ namespace net::config {
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
-                         ->configurable(true)
                          ->take_last()
                          ->default_val("false")
                          ->type_name("bool")
