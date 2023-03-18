@@ -28,8 +28,6 @@
 #include "log/Logger.h"
 
 #include <cstdlib>
-#include <cstring>
-#include <errno.h>
 #include <fcntl.h>
 #include <filesystem>
 #include <grp.h>
@@ -88,21 +86,21 @@ namespace CLI {
     private:
         std::string configFile;
     };
+    /*
+        class DaemonNotStartedError : public CLI::Error {
+        public:
+            DaemonNotStartedError()
+                : CLI::Error("DaemonNotStarted", "Daemon not started") {
+            }
+        };
 
-    class DaemonNotStartedError : public CLI::Error {
-    public:
-        DaemonNotStartedError()
-            : CLI::Error("DaemonNotStarted", "Daemon not started") {
-        }
-    };
-
-    class DaemonAlreadyRunningError : public CLI::Error {
-    public:
-        DaemonAlreadyRunningError()
-            : CLI::Error("DaemonAlreadyRunning", "Daemon already running: Not daemonized ... exiting") {
-        }
-    };
-
+        class DaemonAlreadyRunningError : public CLI::Error {
+        public:
+            DaemonAlreadyRunningError()
+                : CLI::Error("DaemonAlreadyRunning", "Daemon already running: Not daemonized ... exiting") {
+            }
+        };
+    */
 } // namespace CLI
 
 namespace utils {
@@ -416,7 +414,18 @@ namespace utils {
                 //                app.all_config_files(!prefixMap.empty());
 
                 if (app["--kill"]->count() > 0) {
-                    utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+                    try {
+                        utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+                    } catch (const DaemonizeError& e) {
+                        std::cout << "Daemonize error: " << e.what() << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    } catch (const DaemonizeFailure& e) {
+                        std::cout << "Daemonize failure: " << e.what() << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    } catch (const DaemonizeSuccess&) {
+                        std::cout << "Daemon stopped" << std::endl;
+                        std::exit(EXIT_SUCCESS);
+                    }
 
                     success = false;
                 }
@@ -433,71 +442,26 @@ namespace utils {
             if (daemonizeOpt->as<bool>() && app["--write-config"]->count() == 0 && app["--commandline"]->count() == 0 &&
                 app["--commandline-configured"]->count() == 0 && app["--commandline-full"]->count() == 0 &&
                 app["--show-config"]->count() == 0) {
-                std::cout << "Try Running as daemon" << std::endl;
+                std::cout << "Running as daemon" << std::endl;
 
-                Daemon::State state = utils::Daemon::startDaemon(
-                    pidDirectory + "/" + applicationName + ".pid", userNameOpt->as<std::string>(), groupNameOpt->as<std::string>());
-
-                int errnum = errno;
-                switch (state) {
-                    case utils::Daemon::State::FirstForkFailure:
-                        std::cout << "Error daemonizing: First fork failur " << std::strerror(errnum) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::SecondForkFailure:
-                        std::cout << "Error daemonizing: Second fork failur " << std::strerror(errnum) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::SetSidFailure:
-                        std::cout << "Error daemonizing: Set session leader " << std::strerror(errnum) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::WritePidFileFailure:
-                        std::cout << "Error daemonizing: Pid file " << std::strerror(errnum) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::SetSignalsFailure:
-                        std::cout << "Error daemonizing: Setup signals " << std::strerror(errnum) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::UserNotFoundFailure:
-                        std::cout << "Error daemonizing: User '" << userNameOpt->as<std::string>() << "' not found" << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::ChangeUserIdFailure:
-                        std::cout << "Error daemonizing: Change uid " << std::strerror(errnum) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::GroupNotFoundFailure:
-                        std::cout << "Error daemonizing: Group '" << groupNameOpt->as<std::string>() << "' not found" << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::ChangeGroupIdFailure:
-                        std::cout << "Error daemonizing: Change gid " << strerror(errnum) << std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    case utils::Daemon::State::FirstForkSuccess:
-                        exit(EXIT_SUCCESS);
-                        break;
-                    case utils::Daemon::State::SecondForkSuccess:
-                        exit(EXIT_SUCCESS);
-                        break;
-                    case utils::Daemon::State::PidFileExistsFailure:
-                        throw CLI::DaemonAlreadyRunningError();
-                        break;
-                    case utils::Daemon::State::StartDaemonSuccess:
-                        break;
+                try {
+                    utils::Daemon::startDaemon(
+                        pidDirectory + "/" + applicationName + ".pid", userNameOpt->as<std::string>(), groupNameOpt->as<std::string>());
+                } catch (const DaemonizeError& e) {
+                    std::cout << "Daemonize error: " << e.what() << " ... exiting" << std::endl;
+                    std::exit(EXIT_FAILURE);
+                } catch (const DaemonizeFailure& e) {
+                    std::cout << "Daemonize failure: " << e.what() << " ... exiting" << std::endl;
+                    std::exit(EXIT_FAILURE);
+                } catch (const DaemonizeSuccess&) {
+                    std::exit(EXIT_SUCCESS);
                 }
 
-                if (state == utils::Daemon::State::StartDaemonSuccess) {
-                    logger::Logger::quiet();
+                logger::Logger::quiet();
 
-                    std::string logFile = logFileOpt->as<std::string>();
-                    if (!logFile.empty()) {
-                        logger::Logger::logToFile(logFile);
-                    }
-                } else {
-                    throw CLI::DaemonNotStartedError();
+                std::string logFile = logFileOpt->as<std::string>();
+                if (!logFile.empty()) {
+                    logger::Logger::logToFile(logFile);
                 }
             } else if (app["--enforce-log-file"]->as<bool>()) {
                 std::string logFile = logFileOpt->as<std::string>();

@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <exception>
 #include <stdexcept>
 #include <string>
 
@@ -28,7 +29,13 @@
 
 namespace utils {
 
-    class DaemonizeError : public std::runtime_error {
+    class DaemonizeFailure : public std::runtime_error {
+    public:
+        explicit DaemonizeFailure(const std::string& failureMessage);
+    };
+
+    class DaemonizeError : public DaemonizeFailure {
+    public:
         explicit DaemonizeError(const std::string& errorMessage);
 
         int getErrno();
@@ -42,26 +49,10 @@ namespace utils {
 
     class Daemon {
     public:
-        enum class State {
-            FirstForkSuccess,
-            FirstForkFailure,
-            SetSidFailure,
-            SetSignalsFailure,
-            SecondForkSuccess,
-            SecondForkFailure,
-            WritePidFileFailure,
-            StartDaemonSuccess,
-            PidFileExistsFailure,
-            UserNotFoundFailure,
-            ChangeUserIdFailure,
-            GroupNotFoundFailure,
-            ChangeGroupIdFailure
-        };
-
         Daemon() = delete;
         ~Daemon() = delete;
 
-        static State startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName);
+        static void startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName);
         static void stopDaemon(const std::string& pidFileName);
 
         static void erasePidFile(const std::string& pidFileName);

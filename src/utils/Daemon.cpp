@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cerrno>
 #include <csignal>
 #include <cstdio>
@@ -39,8 +37,12 @@
 
 namespace utils {
 
+    DaemonizeFailure::DaemonizeFailure(const std::string& failureMessage)
+        : std::runtime_error(failureMessage) {
+    }
+
     DaemonizeError::DaemonizeError(const std::string& errorMessage)
-        : std::runtime_error(errorMessage)
+        : DaemonizeFailure(errorMessage + ": " + std::strerror(errno))
         , errnum(errno) {
     }
 
@@ -52,9 +54,7 @@ namespace utils {
         return std::strerror(errnum);
     }
 
-    Daemon::State Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
-        State state = State::StartDaemonSuccess;
-
+    void Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
         if (!std::filesystem::exists(pidFileName)) {
             errno = 0;
             /* Fork off the parent process */
@@ -62,38 +62,46 @@ namespace utils {
 
             if (pid < 0) {
                 /* An error occurred */
-                state = State::FirstForkFailure;
+                throw DaemonizeError("First fork()");
             } else if (pid > 0) {
                 /* Success: Let the parent terminate */
-                state = State::FirstForkSuccess;
+                throw DaemonizeSuccess();
             } else if (setsid() < 0) {
                 /* On success: The child process becomes session leader */
-                state = State::SetSidFailure;
+                throw DaemonizeError("setsid()");
             } else if (signal(SIGHUP, SIG_IGN) == SIG_ERR) {
                 /* Ignore signal sent from parent to child process */
-                state = State::SetSignalsFailure;
+                throw DaemonizeError("signal()");
             } else {
                 /* Fork off for the second time*/
                 pid = fork();
 
                 if (pid < 0) {
                     /* An error occurred */
-                    state = State::SecondForkFailure;
+                    throw DaemonizeError("Second fork()");
                 } else if (pid > 0) {
                     /* Success: Let the second parent terminate */
-                    state = State::SecondForkSuccess;
+                    throw DaemonizeSuccess();
                 } else {
                     struct passwd* pw = nullptr;
                     struct group* gr = nullptr;
 
                     if ((errno = 0, gr = getgrnam(groupName.c_str())) == nullptr) {
-                        state = State::GroupNotFoundFailure;
+                        if (errno != 0) {
+                            throw DaemonizeError("getgrnam()");
+                        } else {
+                            throw DaemonizeFailure("getgrname() group not existing");
+                        }
                     } else if (setegid(gr->gr_gid) != 0) {
-                        state = State::ChangeGroupIdFailure;
+                        throw DaemonizeError("setegid()");
                     } else if ((errno = 0, pw = getpwnam(userName.c_str())) == nullptr) {
-                        state = State::UserNotFoundFailure;
+                        if (errno != 0) {
+                            throw DaemonizeError("getpwnam()");
+                        } else {
+                            throw DaemonizeFailure("getpwnam() user not existing");
+                        }
                     } else if (seteuid(pw->pw_uid) != 0) {
-                        state = State::ChangeUserIdFailure;
+                        throw DaemonizeError("seteuid()");
                     } else {
                         /* Try to write PID of daemon to lockfile */
                         std::ofstream pidFile(pidFileName, std::ofstream::out);
@@ -115,19 +123,15 @@ namespace utils {
                             }
                             if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
                             }
-
-                            state = State::StartDaemonSuccess;
                         } else {
-                            state = State::WritePidFileFailure;
+                            throw DaemonizeError("Writing pid file '" + pidFileName);
                         }
                     }
                 }
             }
         } else {
-            state = State::PidFileExistsFailure;
+            throw DaemonizeFailure("Pid file '" + pidFileName + "' exists. Daemon already running?");
         }
-
-        return state;
     }
 
     void Daemon::stopDaemon(const std::string& pidFileName) {
@@ -138,40 +142,39 @@ namespace utils {
             if (pidFile.good()) {
                 int pid = 0;
                 pidFile >> pid;
-
-                struct pollfd pollfd {};
+                pidFile.close();
 
                 int pidfd = static_cast<int>(syscall(SYS_pidfd_open, pid, 0));
 
                 if (pidfd == -1) {
-                    VLOG(0) << "Daemon not running";
                     erasePidFile(pidFileName);
+                    throw DaemonizeFailure("Daemon not running");
                 } else if (::kill(pid, SIGTERM) == 0) {
-                    pidFile.close();
-
+                    struct pollfd pollfd {};
                     pollfd.fd = pidfd;
                     pollfd.events = POLLIN;
 
                     int ready = poll(&pollfd, 1, 5000);
+                    close(pidfd);
+
                     if (ready == -1) {
-                        PLOG(ERROR) << "Poll";
-                        close(pidfd);
+                        throw DaemonizeError("poll()");
                     } else if (ready == 0) {
-                        LOG(WARNING) << "Daemon not responding - killing";
                         ::kill(pid, SIGKILL);
                         erasePidFile(pidFileName);
+                        throw DaemonizeFailure("Daemon not responding - killed");
                     } else {
-                        VLOG(0) << "Daemon terminated";
+                        throw DaemonizeSuccess();
                     }
-
-                    close(pidfd);
                 } else {
-                    PLOG(ERROR) << "Kill daemon";
+                    throw DaemonizeError("kill()");
                 }
             } else {
-                VLOG(0) << "Daemon not running";
                 pidFile.close();
+                throw DaemonizeError("Reading pid file '" + pidFileName + "'");
             }
+        } else {
+            throw DaemonizeFailure("No pid file given");
         }
     }
 
