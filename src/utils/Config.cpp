@@ -411,7 +411,7 @@ namespace utils {
                     ->disable_flag_override()
                     ->group("Command Line Options");
 
-                parse1(); // for stopDaemon, logLevel and verboseLevel but do not act on -h or --help-all
+                parse1(); // for stopDaemon
 
                 //                app.all_config_files(!prefixMap.empty());
 
@@ -772,9 +772,9 @@ namespace utils {
                 []() {
                     throw CLI::CallForHelp();
                 },
-                "Print this help message and exit") //
-            ->configurable(false)                   //
-            ->disable_flag_override()               //
+                "Print this help message and exit")
+            ->configurable(false)
+            ->disable_flag_override()
             ->trigger_on_parse();
 
         instance //
