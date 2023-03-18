@@ -86,21 +86,7 @@ namespace CLI {
     private:
         std::string configFile;
     };
-    /*
-        class DaemonNotStartedError : public CLI::Error {
-        public:
-            DaemonNotStartedError()
-                : CLI::Error("DaemonNotStarted", "Daemon not started") {
-            }
-        };
 
-        class DaemonAlreadyRunningError : public CLI::Error {
-        public:
-            DaemonAlreadyRunningError()
-                : CLI::Error("DaemonAlreadyRunning", "Daemon already running: Not daemonized ... exiting") {
-            }
-        };
-    */
 } // namespace CLI
 
 namespace utils {
@@ -338,6 +324,7 @@ namespace utils {
                        "Read an config file",
                        false) //
                     ->take_all()
+                    ->type_name("configfile")
                     ->group("Config Options");
 
                 app.add_option( //
