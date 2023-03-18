@@ -52,8 +52,12 @@ namespace CLI {
                     }
                     defaultUsed = true;
                 }
-                if (write_description && group != "Options" && !group.empty()) {
-                    out << '\n' << commentChar << commentLead << group << " Options\n";
+                if (write_description && group != "Options" && !group.empty() &&
+                    !app->get_options([group](const Option* opt) -> bool {
+                            return opt->get_group() == group && opt->get_configurable();
+                        })
+                         .empty()) {
+                    out << '\n' << commentChar << commentLead << group << "\n";
                 }
                 for (const Option* opt : app->get_options({})) {
                     // Only process options that are configurable
