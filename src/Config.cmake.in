@@ -53,8 +53,10 @@ set(mqtt-client_DEPENDENCIES mqtt)
 # Database
 set(db-mariadb_DEPENDENCIES core)
 
+# core
 set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils)
 
+# utils
 set(utils_DEPENDENCIES logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
