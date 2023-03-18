@@ -120,7 +120,7 @@ namespace utils {
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
         static std::map<std::string, std::string> prefixMap;    // from -> to
-        static std::map<std::string, CLI::Option*> userOptions; // keep all user options in memory
+        static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
     };
 
 } // namespace utils

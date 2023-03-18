@@ -38,6 +38,8 @@ namespace utils {
         int errnum;
     };
 
+    class DaemonizeSuccess : public std::exception {};
+
     class Daemon {
     public:
         enum class State {

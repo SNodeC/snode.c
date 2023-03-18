@@ -129,7 +129,7 @@ namespace utils {
 
     std::map<std::string, std::string> Config::prefixMap;
 
-    std::map<std::string, CLI::Option*> Config::userOptions;
+    std::map<std::string, CLI::Option*> Config::applicationOptions;
 
     // Declare some used functions
     static std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode);
@@ -356,7 +356,7 @@ namespace utils {
                     ->group("Config Options");
 
                 daemonizeOpt = app.add_flag_function( //
-                                      "-d,--daemonize",
+                                      "-d{true},!-f,--daemonize",
                                       utils::ResetToDefault(daemonizeOpt),
                                       "Start application as daemon") //
                                    ->take_last()
@@ -431,7 +431,8 @@ namespace utils {
 
         app.final_callback([](void) -> void {
             if (daemonizeOpt->as<bool>() && app["--write-config"]->count() == 0 && app["--commandline"]->count() == 0 &&
-                app["--commandline-configured"]->count() == 0 && app["--commandline-full"]->count() == 0) {
+                app["--commandline-configured"]->count() == 0 && app["--commandline-full"]->count() == 0 &&
+                app["--show-config"]->count() == 0) {
                 std::cout << "Try Running as daemon" << std::endl;
 
                 Daemon::State state = utils::Daemon::startDaemon(
@@ -444,7 +445,7 @@ namespace utils {
                         exit(EXIT_FAILURE);
                         break;
                     case utils::Daemon::State::SecondForkFailure:
-                        std::cout << "Error daemonizing: First fork failur " << std::strerror(errnum) << std::endl;
+                        std::cout << "Error daemonizing: Second fork failur " << std::strerror(errnum) << std::endl;
                         exit(EXIT_FAILURE);
                         break;
                     case utils::Daemon::State::SetSidFailure:
@@ -859,13 +860,13 @@ namespace utils {
     }
 
     void Config::add_string_option(const std::string& name, const std::string& description, const std::string& typeName) {
-        userOptions[name] = app //
-                                .add_option_function<std::string>(name, utils::ResetToDefault(userOptions[name]), description)
-                                ->take_last()
-                                ->type_name(typeName)
-                                ->configurable()
-                                ->required()
-                                ->group("Application Options");
+        applicationOptions[name] = app //
+                                       .add_option_function<std::string>(name, utils::ResetToDefault(applicationOptions[name]), description)
+                                       ->take_last()
+                                       ->type_name(typeName)
+                                       ->configurable()
+                                       ->required()
+                                       ->group("Application Options");
     }
 
     void Config::add_string_option(const std::string& name,
@@ -874,7 +875,7 @@ namespace utils {
                                    const std::string& defaultValue) {
         add_string_option(name, description, typeName);
 
-        userOptions[name] //
+        applicationOptions[name] //
             ->required(false)
             ->default_val(defaultValue);
     }
@@ -894,7 +895,7 @@ namespace utils {
     void
     Config::add_string_option(const std::string& name, const std::string& description, const std::string& typeName, bool configurable) {
         add_string_option(name, description, typeName);
-        userOptions[name] //
+        applicationOptions[name] //
             ->configurable(configurable);
     }
 
@@ -904,7 +905,7 @@ namespace utils {
                                    const std::string& defaultValue,
                                    bool configurable) {
         add_string_option(name, description, typeName, defaultValue);
-        userOptions[name] //
+        applicationOptions[name] //
             ->configurable(configurable);
     }
 
