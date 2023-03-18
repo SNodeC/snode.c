@@ -229,8 +229,7 @@ namespace utils {
                 app.description("#################################################################\n\n"
                                 "Configuration for Application '" +
                                 applicationName +
-                                "'\n"
-                                "Options with default values are commented in the config file\n\n"
+                                "'\n\n"
                                 "#################################################################");
 
                 app.footer("Application '" + applicationName +
