@@ -225,7 +225,7 @@ namespace utils {
                 sectionFormatter->label("SUBCOMMAND", "SECTION");
                 sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
                 sectionFormatter->label("bool:{true,false}", "{true,false}");
-                sectionFormatter->column_width(8);
+                sectionFormatter->column_width(7);
 
                 app.configurable(false);
                 app.set_help_flag();
@@ -235,7 +235,7 @@ namespace utils {
                 app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
                 app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
                 app.get_formatter()->label("bool:{true,false}", "{true,false}");
-                app.get_formatter()->column_width(8);
+                app.get_formatter()->column_width(7);
 
                 std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
                 app.config_formatter(configFormatter);
@@ -264,7 +264,7 @@ namespace utils {
                     ->group("Help Options");
 
                 app.add_flag_callback( //
-                       "--help-all",
+                       "-a,--help-all",
                        []() {
                            throw CLI::CallForAllHelp();
                        },
@@ -278,6 +278,24 @@ namespace utils {
                        "--version",
                        "0.9.8")
                     ->group("Help Options");
+
+                logLevelOpt = app.add_option_function<std::string>( //
+                                     "-l,--log-level",
+                                     utils::ResetToDefault(logLevelOpt),
+                                     "Log level") //
+                                  ->default_val(3)
+                                  ->type_name("level")
+                                  ->check(CLI::Range(0, 6))
+                                  ->group("Logging Options");
+
+                verboseLevelOpt = app.add_option_function<std::string>( //
+                                         "-v,--verbose-level",
+                                         utils::ResetToDefault(verboseLevelOpt),
+                                         "Verbose level") //
+                                      ->default_val(0)
+                                      ->type_name("level")
+                                      ->check(CLI::Range(0, 10))
+                                      ->group("Logging Options");
 
                 logFileOpt = app.add_option_function<std::string>( //
                                     "--log-file",
@@ -297,24 +315,6 @@ namespace utils {
                                         ->type_name("bool")
                                         ->check(CLI::IsMember({"true", "false"}))
                                         ->group("Logging Options");
-
-                logLevelOpt = app.add_option_function<std::string>( //
-                                     "-l,--log-level",
-                                     utils::ResetToDefault(logLevelOpt),
-                                     "Log level") //
-                                  ->default_val(3)
-                                  ->type_name("level")
-                                  ->check(CLI::Range(0, 6))
-                                  ->group("Logging Options");
-
-                verboseLevelOpt = app.add_option_function<std::string>( //
-                                         "-v,--verbose-level",
-                                         utils::ResetToDefault(verboseLevelOpt),
-                                         "Verbose level") //
-                                      ->default_val(0)
-                                      ->type_name("level")
-                                      ->check(CLI::Range(0, 10))
-                                      ->group("Logging Options");
 
                 app.add_flag( //
                        "-s,--show-config",
@@ -373,7 +373,7 @@ namespace utils {
                     ->group("Daemon Options");
 
                 userNameOpt = app.add_option_function<std::string>( //
-                                     "-u, --user-name",
+                                     "--user-name",
                                      utils::ResetToDefault(userNameOpt),
                                      "Run as specific user") //
                                   ->default_val(pw->pw_name)
@@ -382,7 +382,7 @@ namespace utils {
                                   ->group("Daemon Options");
 
                 groupNameOpt = app.add_option_function<std::string>( //
-                                      "-g, --group-name",
+                                      "--group-name",
                                       utils::ResetToDefault(groupNameOpt),
                                       "Run under specific group")
                                    ->default_val(gr->gr_name)
