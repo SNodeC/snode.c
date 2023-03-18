@@ -206,7 +206,7 @@ namespace CLI {
             out << " ["
                 << get_label(app->get_subcommands([](const CLI::App* subc) {
                                     return ((!subc->get_disabled()) && (!subc->get_name().empty()) && subc->get_required());
-                                }).size() == 1
+                                }).size() <= 1
                                  ? "SUBCOMMAND"
                                  : "SUBCOMMANDS")
                 << "]";

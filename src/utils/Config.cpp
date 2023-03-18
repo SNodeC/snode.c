@@ -213,9 +213,11 @@ namespace utils {
                 sectionFormatter->label("bool:{true,false}", "{true,false}");
                 sectionFormatter->column_width(7);
 
+                app.option_defaults()->take_last();
+
                 app.configurable(false);
                 app.set_help_flag();
-                app.option_defaults()->take_last();
+                app.allow_config_extras();
 
                 app.formatter(std::make_shared<CLI::HelpFormatter>());
                 app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
@@ -324,6 +326,7 @@ namespace utils {
                        false) //
                     ->take_all()
                     ->type_name("configfile")
+                    ->check(!CLI::ExistingDirectory)
                     ->group("Config Options");
 
                 app.add_option( //
@@ -579,8 +582,7 @@ namespace utils {
     } // namespace Color
 
     void Config::parse1() {
-        app.allow_extras() //
-            ->allow_config_extras();
+        app.allow_extras();
 
         try {
             app.parse(argc, argv);
@@ -588,8 +590,7 @@ namespace utils {
             // Do not process ParseError here but on second parse pass
         }
 
-        app.allow_extras(false) //
-            ->allow_config_extras(false);
+        app.allow_extras(false);
     }
 
     bool Config::parse2() {
