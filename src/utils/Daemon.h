@@ -37,12 +37,6 @@ namespace utils {
     class DaemonizeError : public DaemonizeFailure {
     public:
         explicit DaemonizeError(const std::string& errorMessage);
-
-        int getErrno();
-        std::string getError();
-
-    private:
-        int errnum;
     };
 
     class DaemonizeSuccess : public std::exception {};

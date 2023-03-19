@@ -42,16 +42,7 @@ namespace utils {
     }
 
     DaemonizeError::DaemonizeError(const std::string& errorMessage)
-        : DaemonizeFailure(errorMessage + ": " + std::strerror(errno))
-        , errnum(errno) {
-    }
-
-    int DaemonizeError::getErrno() {
-        return errno;
-    }
-
-    std::string DaemonizeError::getError() {
-        return std::strerror(errnum);
+        : DaemonizeFailure(errorMessage + ": " + std::strerror(errno)) {
     }
 
     void Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
