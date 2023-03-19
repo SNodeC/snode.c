@@ -1019,23 +1019,35 @@ command@line:~/> echoserver --help
 leads to the help output
 
 ```shell
-#################################################################
-
 Configuration for Application 'echoserver'
-Options with default values are commented in the config file
 
-#################################################################
 Usage: echoserver [OPTIONS]
 
-Help Options:
+Options (non-persistent):
   -h,--help
        Print this help message and exit
   -a,--help-all
-       Expand all help
+       Print this help message, expand instances and exit
   --version
        Display program version information and exit
+  -s,--show-config
+       Show current configuration and exit
+  -w,--write-config [configfile]:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
+       Write config file and exit
+  --config-file configfile:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
+       Read an config file
+  --instance-map name=mapped_name 
+       Instance name mapping used to make an instance known under an alias name also in a config file
+  -k,--kill
+       Kill running daemon
+  --commandline
+       Print a template command line showing required options only and exit
+  --commandline-full
+       Print a template command line showing all possible options and exit
+  --commandline-configured
+       Print a template command line showing all required and configured options and exit
 
-Logging Options:
+Options (persistent):
   -l,--log-level level:INT in [0 - 6] [3] 
        Log level
   -v,--verbose-level level:INT in [0 - 10] [0] 
@@ -1044,38 +1056,12 @@ Logging Options:
        Logfile path
   --enforce-log-file={true,false} [false] 
        Enforce writing of logs to file for foreground applications
-
-Config Options:
-  -s,--show-config
-       Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
-       Write config file and exit
-  --config-file configfile [/home/<user>/.config/snode.c/echoserver.conf] 
-       Read an config file
-  --instance-map name=mapped_name
-       Instance name mapping used to make an instance known under an alias name also in a config file.
-
-Daemon Options:
   -d{true},-f{false},--daemonize={true,false} [false] 
        Start application as daemon
-  -k,--kill
-       Kill running daemon
-  --user-name username [<user>]  Needs: --daemonize
-       Run as specific user
-  --group-name groupname [<user>]  Needs: --daemonize
-       Run under specific group
-
-Command Line Options:
-  --commandline
-       Print a template command line showing required options only and exit
-  --commandline-full
-       Print a template command line showing all possible options and exit
-  --commandline-configured
-       Print a template command line showing all required and configured options and exit
-
-Application 'echoserver' powered by SNode.C
-(C) 2019-2023 Volker Christian
-https://github.com/VolkerChristian/snode.c - me@vchrist.at
+  --user-name username [<user>]  Needs: --daemonize 
+       Run daemon under specific user permissions
+  --group-name groupname [<user>]  Needs: --daemonize 
+       Run daemon under specific group permissions
 ```
 
 Each named `SocketServer` and `SocketClient` instance get their specific set of command line options accessible by specifying the name of the instance on the command line.
@@ -1089,23 +1075,35 @@ EchoServer echoServer("echo"); // Create named server instance
  (try it yourself using the code from  [github](https://github.com/VolkerChristian/echo)), the output of the help screen changes slightly:
 
 ```shell
-#################################################################
-
 Configuration for Application 'echoserver'
-Options with default values are commented in the config file
 
-#################################################################
 Usage: echoserver [OPTIONS] [INSTANCE]
 
-Help Options:
+Options (non-persistent):
   -h,--help
        Print this help message and exit
   -a,--help-all
-       Expand all help
+       Print this help message, expand instances and exit
   --version
        Display program version information and exit
+  -s,--show-config
+       Show current configuration and exit
+  -w,--write-config [configfile]:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
+       Write config file and exit
+  --config-file configfile:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
+       Read an config file
+  --instance-map name=mapped_name 
+       Instance name mapping used to make an instance known under an alias name also in a config file
+  -k,--kill
+       Kill running daemon
+  --commandline
+       Print a template command line showing required options only and exit
+  --commandline-full
+       Print a template command line showing all possible options and exit
+  --commandline-configured
+       Print a template command line showing all required and configured options and exit
 
-Logging Options:
+Options (persistent):
   -l,--log-level level:INT in [0 - 6] [3] 
        Log level
   -v,--verbose-level level:INT in [0 - 10] [0] 
@@ -1114,34 +1112,12 @@ Logging Options:
        Logfile path
   --enforce-log-file={true,false} [false] 
        Enforce writing of logs to file for foreground applications
-
-Config Options:
-  -s,--show-config
-       Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
-       Write config file and exit
-  --config-file configfile [/home/<user>/.config/snode.c/echoserver.conf] 
-       Read an config file
-  --instance-map name=mapped_name
-       Instance name mapping used to make an instance known under an alias name also in a config file.
-
-Daemon Options:
   -d{true},-f{false},--daemonize={true,false} [false] 
        Start application as daemon
-  -k,--kill
-       Kill running daemon
-  --user-name username [<user>]  Needs: --daemonize
-       Run as specific user
-  --group-name groupname [<user>]  Needs: --daemonize
-       Run under specific group
-
-Command Line Options:
-  --commandline
-       Print a template command line showing required options only and exit
-  --commandline-full
-       Print a template command line showing all possible options and exit
-  --commandline-configured
-       Print a template command line showing all required and configured options and exit
+  --user-name username [<user>]  Needs: --daemonize 
+       Run daemon under specific user permissions
+  --group-name groupname [<user>]  Needs: --daemonize 
+       Run daemon under specific group permissions
 
 Instances:
   echo Configuration for server instance 'echo'
@@ -1159,33 +1135,36 @@ what prints the output
 
 ```shell
 Configuration for server instance 'echo'
-Usage: echoserver echo [OPTIONS] [SECTION]
 
-Options:
+Usage: echoserver echo [OPTIONS] [SECTIONS]
+
+Options (non-persistent):
   -h,--help
        Print this help message and exit
   --help-all
-       Expand all help
+       Print this help message, expand sections and exit
   --commandline
        Print a template command line showing required options only and exit
   --commandline-full
        Print a template command line showing all possible options and exit
   --commandline-configured
        Print a template command line showing all required and configured options and exit
+
+Options (persistent):
   --disable={true,false} [false] 
        Disable this instance
 
 Sections:
   local
-       Local side of connection for insance 'echo'
+       Local side of connection for instance 'echo'
   connection
-       Options for established connections of instance 'echo'
+       Configuration of established connections for instance 'echo'
   socket
-       Options for socket behaviour of instance 'echo'
+       Configuration of socket behaviour for instance 'echo'
   server
-       Options for server socket of instance 'echo'
+       Configuration of server socket for instance 'echo'
   cluster
-       Options for clustering of instance 'echo'
+       Configuration of clustering mode for instance 'echo'
 ```
 
 on screen.
@@ -1194,14 +1173,15 @@ As one can see, there exists some sections for the instance *echo* each offering
 
 ```shell
 command@line:~/> echoserver echo local --help
-Local side of connection for insance 'echo'
+Local side of connection for instance 'echo'
+
 Usage: echoserver echo local [OPTIONS]
 
-Options:
+Options (non-persistent):
   -h,--help
        Print this help message and exit
-  --help-all
-       Expand all help
+
+Options (persistent):
   --host hostname|IPv4:TEXT [0.0.0.0] 
        Host name or IPv4 address
   --port port:UINT in [0 - 65535] [8001] 
