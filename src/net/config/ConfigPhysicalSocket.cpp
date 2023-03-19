@@ -34,7 +34,7 @@
 namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
-        : ConfigSection(instance, "socket", "Options for socket behaviour of instance '" + instance->getInstanceName() + "'") {
+        : ConfigSection(instance, "socket", "Configuration of socket behaviour for instance '" + instance->getInstanceName() + "'") {
         add_socket_option(reuseAddressOpt, //
                           "--reuse-address",
                           SOL_SOCKET,

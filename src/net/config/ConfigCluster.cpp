@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -30,7 +31,8 @@
 namespace net::config {
 
     ConfigCluster::ConfigCluster(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, "cluster", "Options for clustering of instance '" + instance->getInstanceName() + "'") {
+        : net::config::ConfigSection(
+              instance, "cluster", "Configuration of clustering mode for instance '" + instance->getInstanceName() + "'") {
         add_option(modeOpt, //
                    "--mode",
                    "Clustering mode",
@@ -38,6 +40,7 @@ namespace net::config {
                        std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY",
                    MODE::STANDALONE)
             ->configurable(false)
+            ->group(section->get_formatter()->get_label("Non-Persistent Options"))
             ->type_name("mode")
             ->check(CLI::Range(STANDALONE, PROXY));
     }

@@ -44,6 +44,8 @@ namespace net::config {
         ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description, bool hidden = false);
 
     protected:
+        CLI::Option* add_option(CLI::Option*& opt, const std::string& name, const std::string& description);
+
         CLI::Option* add_option(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName);
 
         CLI::Option* add_option(CLI::Option*& opt,

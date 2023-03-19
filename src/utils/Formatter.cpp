@@ -139,27 +139,40 @@ namespace CLI {
         return outString + out.str();
     }
 
-    CLI11_INLINE std::string HelpFormatter::make_help(const App* app, std::string name, AppFormatMode mode) const {
-        // This immediately forwards to the make_expanded method. This is done this way so that subcommands can
-        // have overridden formatters
-        if (mode == AppFormatMode::Sub)
-            return make_expanded(app);
-
+    CLI11_INLINE std::string HelpFormatter::make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const {
         std::stringstream out;
-        if ((app->get_name().empty()) && (app->get_parent() != nullptr)) {
-            if (app->get_group() != "Subcommands") {
-                out << app->get_group() << ':';
-            }
+
+        // ############## Next line changed
+        out << group << ":\n";
+        for (const Option* opt : opts) {
+            out << make_option(opt, is_positional);
         }
 
-        out << make_description(app);
-        out << make_usage(app, name);
-        out << make_positionals(app);
-        out << make_groups(app, mode);
-        out << make_subcommands(app, mode);
-        out << make_footer(app);
-
         return out.str();
+    }
+
+    CLI11_INLINE std::string HelpFormatter::make_description(const App* app) const {
+        std::string desc = app->get_description();
+        auto min_options = app->get_require_option_min();
+        auto max_options = app->get_require_option_max();
+        // ############## Next line changed (if statement removed)
+        if ((max_options == min_options) && (min_options > 0)) {
+            if (min_options == 1) {
+                desc += " \n[Exactly 1 of the following options is required]";
+            } else {
+                desc += " \n[Exactly " + std::to_string(min_options) + " options from the following list are required]";
+            }
+        } else if (max_options > 0) {
+            if (min_options > 0) {
+                desc += " \n[Between " + std::to_string(min_options) + " and " + std::to_string(max_options) +
+                        " of the follow options are required]";
+            } else {
+                desc += " \n[At most " + std::to_string(max_options) + " of the following options are allowed]";
+            }
+        } else if (min_options > 0) {
+            desc += " \n[At least " + std::to_string(min_options) + " of the following options are required]";
+        }
+        return (!desc.empty()) ? desc + "\n" : std::string{};
     }
 
     CLI11_INLINE std::string HelpFormatter::make_usage(const App* app, std::string name) const {
@@ -170,7 +183,7 @@ namespace CLI {
 
         std::stringstream out;
 
-        out << "\n" + get_label("Usage") << ":" << (name.empty() ? "" : " ") << name;
+        out << get_label("Usage") << ":" << (name.empty() ? "" : " ") << name;
 
         std::vector<std::string> groups = app->get_groups();
 
@@ -202,6 +215,7 @@ namespace CLI {
                     return ((!subc->get_disabled()) && (!subc->get_name().empty()));
                 })
                  .empty()) {
+            // ############## Next line changed
             out << " ["
                 << get_label(app->get_subcommands([](const CLI::App* subc) {
                                     return ((!subc->get_disabled()) && (!subc->get_name().empty()) /*&& subc->get_required()*/);
@@ -210,56 +224,13 @@ namespace CLI {
                                  : "SUBCOMMANDS")
                 << "]";
         }
+        if (app->get_required()) {
+            out << "  " << get_label("REQUIRED");
+        }
 
         out << std::endl << std::endl;
 
         return out.str();
-    }
-
-    CLI11_INLINE std::string HelpFormatter::make_description(const App* app) const {
-        std::string desc = app->get_description();
-        auto min_options = app->get_require_option_min();
-        auto max_options = app->get_require_option_max();
-        if ((max_options == min_options) && (min_options > 0)) {
-            if (min_options == 1) {
-                desc += " \n[Exactly 1 of the following options is required]";
-            } else {
-                desc += " \n[Exactly " + std::to_string(min_options) + " options from the following list are required]";
-            }
-        } else if (max_options > 0) {
-            if (min_options > 0) {
-                desc += " \n[Between " + std::to_string(min_options) + " and " + std::to_string(max_options) +
-                        " of the follow options are required]";
-            } else {
-                desc += " \n[At most " + std::to_string(max_options) + " of the following options are allowed]";
-            }
-        } else if (min_options > 0) {
-            desc += " \n[At least " + std::to_string(min_options) + " of the following options are required]";
-        }
-        return (!desc.empty()) ? desc + "\n" : std::string{};
-    }
-
-    CLI11_INLINE std::string HelpFormatter::make_expanded(const App* sub) const {
-        std::stringstream out;
-        out << sub->get_display_name(true) + " [OPTIONS]" + (!sub->get_subcommands({}).empty() ? " [SECTIONS]" : "") +
-                   (sub->get_required() ? " " + get_label("REQUIRED") : "")
-            << "\n";
-
-        out << make_description(sub);
-        if (sub->get_name().empty() && !sub->get_aliases().empty()) {
-            detail::format_aliases(out, sub->get_aliases(), column_width_ + 2);
-        }
-        out << make_positionals(sub);
-        out << make_groups(sub, AppFormatMode::Sub);
-        out << make_subcommands(sub, AppFormatMode::Sub);
-
-        // Drop blank spaces
-        std::string tmp = out.str();
-
-        tmp.pop_back();
-        // Indent all but the first line (the name)
-
-        return detail::find_and_replace(tmp, "\n", "\n  ") + "\n";
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommands(const App* app, AppFormatMode mode) const {
@@ -301,54 +272,46 @@ namespace CLI {
             }
         }
 
-        return out.str();
+        // ########## Next line(s) changed
+        std::string tmp = out.str();
+        if (mode == AppFormatMode::All) {
+            tmp.pop_back();
+        }
+
+        return tmp;
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommand(const App* sub) const {
         std::stringstream out;
-
+        // ########## Next line changed
         detail::format_help(out,
                             sub->get_display_name(true) + (sub->get_required() ? " " + get_label("REQUIRED") : ""),
                             sub->get_description(),
                             column_width_);
-
         return out.str();
     }
 
-    CLI11_INLINE std::string HelpFormatter::make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const {
+    CLI11_INLINE std::string HelpFormatter::make_expanded(const App* sub) const {
         std::stringstream out;
+        // ########## Next line changed
+        out << sub->get_display_name(true) + " [OPTIONS]" + (!sub->get_subcommands({}).empty() ? " [SECTIONS]" : "") +
+                   (sub->get_required() ? "  " + get_label("REQUIRED") : "")
+            << "\n";
 
-        out << group << ":\n";
-        for (const Option* opt : opts) {
-            out << make_option(opt, is_positional);
+        out << make_description(sub);
+        if (sub->get_name().empty() && !sub->get_aliases().empty()) {
+            detail::format_aliases(out, sub->get_aliases(), column_width_ + 2);
         }
-        out << "\n";
+        out << make_positionals(sub);
+        out << make_groups(sub, AppFormatMode::Sub);
+        out << make_subcommands(sub, AppFormatMode::Sub);
 
-        return out.str();
-    }
-
-    CLI11_INLINE std::string HelpFormatter::make_groups(const App* app, AppFormatMode mode) const {
-        std::stringstream out;
-        std::vector<std::string> groups = app->get_groups();
-
-        // Options
-        for (const std::string& group : groups) {
-            std::vector<const Option*> opts = app->get_options([app, mode, &group](const Option* opt) {
-                return opt->get_group() == group                    // Must be in the right group
-                       && opt->nonpositional()                      // Must not be a positional
-                       && (mode != AppFormatMode::Sub               // If mode is Sub, then
-                           || (app->get_help_ptr() != opt           // Ignore help pointer
-                               && app->get_help_all_ptr() != opt)); // Ignore help all pointer
-            });
-            if (!group.empty() && !opts.empty()) {
-                out << make_group(group, false, opts);
-            }
-        }
-
+        // Drop blank spaces
         std::string tmp = out.str();
         tmp.pop_back();
 
-        return tmp;
+        // Indent all but the first line (the name)
+        return detail::find_and_replace(tmp, "\n", "\n  ") + "\n";
     }
 
     CLI11_INLINE std::string HelpFormatter::make_option_opts(const Option* opt) const {
@@ -359,28 +322,34 @@ namespace CLI {
         } else {
             if (opt->get_type_size() != 0) {
                 if (!opt->get_type_name().empty())
-                    out << ((opt->get_items_expected_max() == 0) ? "=" : " ") << get_label(opt->get_type_name());
+                    // ########## Next line changed
+                    out << ((opt->get_items_expected_max() == 0) ? "=" : " ") << get_label(opt->get_type_name()) << " ";
                 if (!opt->get_default_str().empty())
-                    out << " [" << opt->get_default_str() << "] ";
+                    out << "[" << opt->get_default_str() << "] ";
                 if (opt->get_expected_max() == detail::expected_max_vector_size)
-                    out << " ...";
+                    out << "... ";
                 else if (opt->get_expected_min() > 1)
-                    out << " x " << opt->get_expected();
+                    out << "x " << opt->get_expected() << " ";
 
-                if (opt->get_required())
-                    out << " " << get_label("REQUIRED");
+                if (opt->get_required() && !get_label("REQUIRED").empty())
+                    out << " " << get_label("REQUIRED") << " ";
+                if (opt->get_configurable() && !get_label("PERSISTENT").empty()) {
+                    out << " " << get_label("PERSISTENT") << " ";
+                }
             }
             if (!opt->get_envname().empty())
-                out << " (" << get_label("Env") << ":" << opt->get_envname() << ")";
+                out << " (" << get_label("Env") << ":" << opt->get_envname() << ") ";
             if (!opt->get_needs().empty()) {
                 out << " " << get_label("Needs") << ":";
                 for (const Option* op : opt->get_needs())
                     out << " " << op->get_name();
+                out << " ";
             }
             if (!opt->get_excludes().empty()) {
                 out << " " << get_label("Excludes") << ":";
                 for (const Option* op : opt->get_excludes())
                     out << " " << op->get_name();
+                out << " ";
             }
         }
         return out.str();

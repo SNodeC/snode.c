@@ -38,7 +38,7 @@
 namespace net::config {
 
     ConfigTls::ConfigTls(ConfigInstance* instance)
-        : ConfigSection(instance, "tls", "Options for SSL/TLS behaviour of instance '" + instance->getInstanceName() + "'") {
+        : ConfigSection(instance, "tls", "Configuration of SSL/TLS behaviour for instance '" + instance->getInstanceName() + "'") {
         add_option(certChainOpt, //
                    "--cert-chain",
                    "Certificate chain file",

@@ -38,7 +38,8 @@
 namespace net::config {
 
     ConfigListen::ConfigListen(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, "server", "Options for server socket of instance '" + instance->getInstanceName() + "'") {
+        : net::config::ConfigSection(
+              instance, "server", "Configuration of server socket for instance '" + instance->getInstanceName() + "'") {
         add_option(backlogOpt, //
                    "--backlog",
                    "Listen backlog",

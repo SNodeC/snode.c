@@ -25,6 +25,8 @@
 #include "utils/CLI11.hpp"
 #include "utils/ResetToDefault.h"
 
+#include <memory>
+
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
 namespace net::config {
@@ -63,13 +65,21 @@ namespace net::config {
         return requiredCount > 0;
     }
 
-    CLI::Option*
-    ConfigSection::add_option(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName) {
+    CLI::Option* ConfigSection::add_option(CLI::Option*& opt, const std::string& name, const std::string& description) {
         opt = section //
-                  ->add_option_function<std::string>(name, utils::ResetToDefault(opt), description)
-                  ->type_name(typeName);
+                  ->add_option_function<std::string>(name, utils::ResetToDefault(opt), description);
+
+        if (opt->get_configurable()) {
+            opt->group(section->get_formatter()->get_label("Persistent Options"));
+        }
 
         return opt;
+    }
+
+    CLI::Option*
+    ConfigSection::add_option(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName) {
+        return add_option(opt, name, description) //
+            ->type_name(typeName);
     }
 
     CLI::Option* ConfigSection::add_option(CLI::Option*& opt,
@@ -83,10 +93,16 @@ namespace net::config {
 
     CLI::Option*
     ConfigSection::add_flag(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName) {
-        return opt = section //
-                         ->add_flag_function(name, utils::ResetToDefault(opt), description)
-                         ->type_name(typeName)
-                         ->take_last();
+        opt = section //
+                  ->add_flag_function(name, utils::ResetToDefault(opt), description)
+                  ->type_name(typeName)
+                  ->take_last();
+
+        if (opt->get_configurable()) {
+            opt->group(section->get_formatter()->get_label("Persistent Options"));
+        }
+
+        return opt;
     }
 
     CLI::Option* ConfigSection::add_flag(CLI::Option*& opt,
@@ -109,6 +125,10 @@ namespace net::config {
                   ->take_last()
                   ->default_val(defaultValue)
                   ->type_name(typeName);
+
+        if (opt->get_configurable()) {
+            opt->group(section->get_formatter()->get_label("Persistent Options"));
+        }
 
         return opt;
     }

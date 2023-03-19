@@ -26,6 +26,7 @@
 #include "utils/Config.h"
 
 #include <cstdint>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -60,8 +61,8 @@ namespace net::config {
                          ->take_last()
                          ->default_val("false")
                          ->type_name("bool")
-                         ->check(CLI::IsMember({"true", "false"}));
-        //                         ->group("Instance Options");
+                         ->check(CLI::IsMember({"true", "false"}))
+                         ->group(instanceSc->get_formatter()->get_label("Persistent Options"));
 
         instanceSc->final_callback([this]() -> void {
             (utils::ResetToDefault(disableOpt))(disableOpt->as<std::string>());
@@ -97,7 +98,6 @@ namespace net::config {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
-        //            ->group("Help Options");
 
         return sectionSc;
     }

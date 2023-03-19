@@ -23,6 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
+#include <memory>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -51,6 +52,9 @@ namespace net::config {
                                        "        }") //
                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
                           ->default_val("\"\" \"\" \"\" \"\"");
+        if (sniCertsOpt->get_configurable()) {
+            sniCertsOpt->group(section->get_formatter()->get_label("Persistent Options"));
+        }
 
         add_flag(
             forceSniOpt, "--force-sni,", "Force using of the Server Name Indication", "bool", "false", CLI::IsMember({"true", "false"}));
