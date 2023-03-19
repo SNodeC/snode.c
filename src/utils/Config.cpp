@@ -725,6 +725,7 @@ namespace utils {
                                  ->configurable(false)
                                  ->allow_extras(false)
                                  ->formatter(sectionFormatter)
+                                 ->fallthrough()
                                  ->group(name.empty() ? "" : "Instances")
                                  ->silent(name.empty());
         instance //
