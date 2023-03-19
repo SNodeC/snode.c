@@ -20,8 +20,6 @@
 
 #include "utils/Timeval.h"
 
-#include "log/Logger.h"
-
 #include <climits>
 #include <string>
 
@@ -35,12 +33,8 @@ namespace utils {
 
     Timeval::Timeval(const std::initializer_list<time_t>& initList) noexcept
         : timeVal({}) {
-        if (initList.size() == 2) {
-            timeVal.tv_sec = *initList.begin();
-            timeVal.tv_usec = static_cast<suseconds_t>(*(initList.begin() + 1));
-        } else {
-            LOG(WARNING) << "Timeval initialized with an list size != 2. Initializing Timeval with 0";
-        }
+        timeVal.tv_sec = *initList.begin();
+        timeVal.tv_usec = static_cast<suseconds_t>(*(initList.begin() + 1));
     }
 
     Timeval::Timeval(double time) noexcept {

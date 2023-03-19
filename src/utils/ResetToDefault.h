@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UTILS_RESETVALIDATOR_H
-#define UTILS_RESETVALIDATOR_H
+#ifndef UTILS_RESETTODEFAULT_H
+#define UTILS_RESETTODEFAULT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,4 +46,4 @@ namespace utils {
 
 } // namespace utils
 
-#endif // UTILS_RESETVALIDATOR_H
+#endif // UTILS_RESETTODEFAULT_H

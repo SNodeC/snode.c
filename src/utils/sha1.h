@@ -1,5 +1,5 @@
-#ifndef SHA1_H
-#define SHA1_H
+#ifndef UTILS_SHA1_H
+#define UTILS_SHA1_H
 
 /*
     sha1.h - header of
@@ -54,4 +54,4 @@ private:
 
 std::string sha1(const std::string& string);
 
-#endif // SHA1_H
+#endif // UTILS_SHA1_H
