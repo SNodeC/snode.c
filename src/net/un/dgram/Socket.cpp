@@ -28,4 +28,7 @@ namespace net::un::dgram {
         : Super(SOCK_DGRAM, 0) {
     }
 
+    Socket::~Socket() {
+    }
+
 } // namespace net::un::dgram

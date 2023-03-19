@@ -90,9 +90,7 @@ public:
         responseParser = getResponseParser(this);
     }
 
-    ~SimpleSocketProtocol() override {
-        delete responseParser;
-    }
+    ~SimpleSocketProtocol() override;
 
     void onConnected() override {
         VLOG(0) << "SimpleSocketProtocol connected";
@@ -119,12 +117,22 @@ private:
     web::http::client::ResponseParser* responseParser;
 };
 
+SimpleSocketProtocol::~SimpleSocketProtocol() {
+    delete responseParser;
+}
+
 class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
+public:
+    ~SimpleSocketProtocolFactory() override;
+
 private:
     core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };
+
+SimpleSocketProtocolFactory::~SimpleSocketProtocolFactory() {
+}
 
 namespace tls {
 

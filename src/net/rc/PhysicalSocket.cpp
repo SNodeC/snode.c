@@ -30,6 +30,9 @@ namespace net::rc {
         : Super(PF_BLUETOOTH, type, protocol) {
     }
 
+    PhysicalSocket::~PhysicalSocket() {
+    }
+
 } // namespace net::rc
 
 template class net::PhysicalSocket<net::rc::SocketAddress>;

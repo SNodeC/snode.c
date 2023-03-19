@@ -24,6 +24,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::client {} // namespace web::websocket::client
+namespace web::websocket::client {
+
+    SubProtocol::~SubProtocol() {
+    }
+
+} // namespace web::websocket::client
 
 template class web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>;

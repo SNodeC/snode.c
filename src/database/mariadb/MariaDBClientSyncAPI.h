@@ -40,7 +40,7 @@ namespace database::mariadb {
         MariaDBClientSyncAPI() = default;
         MariaDBClientSyncAPI(const MariaDBClientSyncAPI&) = default;
 
-        virtual ~MariaDBClientSyncAPI() = default;
+        virtual ~MariaDBClientSyncAPI();
 
     public:
         void affectedRows(const std::function<void(int)>& onAffectedRows,

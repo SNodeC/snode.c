@@ -23,4 +23,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace database::mariadb {} // namespace database::mariadb
+namespace database::mariadb {
+
+    MariaDBCommandASync::~MariaDBCommandASync() {
+    }
+
+} // namespace database::mariadb

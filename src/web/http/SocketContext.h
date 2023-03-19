@@ -31,6 +31,8 @@ namespace web::http {
     public:
         SocketContext(const SocketContext&) = delete;
 
+        ~SocketContext() override;
+
         SocketContext& operator=(const SocketContext&) = delete;
 
     private:

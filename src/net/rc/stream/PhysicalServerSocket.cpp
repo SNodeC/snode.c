@@ -24,6 +24,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rc::stream {}
+namespace net::rc::stream {
+
+    PhysicalServerSocket::~PhysicalServerSocket() {
+    }
+
+} // namespace net::rc::stream
 
 template class net::stream::PhysicalServerSocket<net::rc::stream::PhysicalSocket>;

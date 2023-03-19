@@ -41,6 +41,8 @@ namespace web::websocket {
         : masking(masking) {
     }
 
+    Transmitter::~Transmitter(){}
+
     void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const {
         send(true, opCode, message, messageLength);
     }

@@ -26,6 +26,7 @@ set(EASYLOGGING_COMPILE_FLAGS
     -Wno-suggest-destructor-override\
     -Wno-suggest-override\
     -Wno-unused-exception-parameter\
+    -Wno-weak-vtables\
     "
 )
 

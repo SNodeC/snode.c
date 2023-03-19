@@ -24,6 +24,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {}
+namespace net::in::stream {
+
+    PhysicalClientSocket::~PhysicalClientSocket() {
+    }
+
+} // namespace net::in::stream
 
 template class net::stream::PhysicalClientSocket<net::in::stream::PhysicalSocket>;

@@ -40,7 +40,7 @@ namespace iot::mqtt {
 
         ControlPacketDeserializer& operator=(const ControlPacketDeserializer&) = default;
 
-        virtual ~ControlPacketDeserializer() = default;
+        virtual ~ControlPacketDeserializer();
 
         std::size_t deserialize(iot::mqtt::MqttContext* mqttContext);
 

@@ -39,6 +39,9 @@ namespace core {
         : name(std::move(name)) {
     }
 
+    DescriptorEventPublisher::~DescriptorEventPublisher() {
+    }
+
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         int fd = descriptorEventReceiver->getRegisteredFd();
         descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());

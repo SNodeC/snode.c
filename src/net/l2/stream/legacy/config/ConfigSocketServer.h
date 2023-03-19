@@ -34,9 +34,9 @@ namespace net::l2::stream::legacy::config {
 
     class ConfigSocketServer : public net::stream::config::legacy::ConfigSocketServer<net::l2::stream::config::ConfigSocketServer> {
     public:
-        explicit ConfigSocketServer(const std::string& name)
-            : net::stream::config::legacy::ConfigSocketServer<net::l2::stream::config::ConfigSocketServer>(name) {
-        }
+        explicit ConfigSocketServer(const std::string& name);
+
+        ~ConfigSocketServer() override;
     };
 
 } // namespace net::l2::stream::legacy::config

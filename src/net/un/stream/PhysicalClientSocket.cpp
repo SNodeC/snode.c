@@ -28,6 +28,9 @@
 
 namespace net::un::stream {
 
+    PhysicalClientSocket::~PhysicalClientSocket() {
+    }
+
     bool PhysicalClientSocket::connectInProgress(int cErrno) {
         return cErrno == EAGAIN;
     }

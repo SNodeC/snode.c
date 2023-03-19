@@ -18,7 +18,15 @@
 
 #include "utils/Config.h"
 
-#include "utils/CLI11.hpp"
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+#include "utils/CLI11.hpp" // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 #include "utils/Daemon.h"
 #include "utils/Formatter.h"
 #include "utils/ResetToDefault.h"
@@ -52,6 +60,8 @@ namespace CLI {
             , mode(mode) {
         }
 
+        ~CallForCommandline() override;
+
         CLI::App* getApp() const {
             return app;
         }
@@ -65,12 +75,20 @@ namespace CLI {
         Mode mode;
     };
 
+    CallForCommandline::~CallForCommandline() {
+    }
+
     class CallForShowConfig : public CLI::Success {
     public:
         CallForShowConfig()
             : CLI::Success("CallForPrintConfig", "Show current configuration", CLI::ExitCodes::Success) {
         }
+
+        ~CallForShowConfig() override;
     };
+
+    CallForShowConfig::~CallForShowConfig() {
+    }
 
     class CallForWriteConfig : public CLI::Success {
     public:
@@ -79,6 +97,8 @@ namespace CLI {
             , configFile(configFile) {
         }
 
+        ~CallForWriteConfig() override;
+
         std::string getConfigFile() const {
             return configFile;
         }
@@ -86,6 +106,9 @@ namespace CLI {
     private:
         std::string configFile;
     };
+
+    CallForWriteConfig::~CallForWriteConfig() {
+    }
 
 } // namespace CLI
 

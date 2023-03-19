@@ -28,4 +28,7 @@ namespace net::un::stream {
         : Super(SOCK_STREAM, 0) {
     }
 
+    PhysicalSocket::~PhysicalSocket() {
+    }
+
 } // namespace net::un::stream

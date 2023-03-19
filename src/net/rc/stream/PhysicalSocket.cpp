@@ -30,4 +30,7 @@ namespace net::rc::stream {
         : Super(SOCK_STREAM, BTPROTO_RFCOMM) {
     }
 
+    PhysicalSocket::~PhysicalSocket() {
+    }
+
 } // namespace net::rc::stream

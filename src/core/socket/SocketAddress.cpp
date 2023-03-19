@@ -22,4 +22,8 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace core::socket {} // namespace core::socket
+namespace core::socket {
+
+    SocketAddress::~SocketAddress(){}
+
+} // namespace core::socket

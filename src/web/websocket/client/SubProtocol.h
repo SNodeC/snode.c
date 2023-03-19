@@ -39,6 +39,8 @@ namespace web::websocket::client {
         using Super::Super;
 
     public:
+        ~SubProtocol() override;
+
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         using Super::sendMessage;
 

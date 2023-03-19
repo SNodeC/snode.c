@@ -26,8 +26,6 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
@@ -36,7 +34,7 @@ namespace core::socket::stream {
     protected:
         SocketContextFactory() = default;
 
-        virtual ~SocketContextFactory() = default;
+        virtual ~SocketContextFactory();
 
     public:
         virtual core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) = 0;

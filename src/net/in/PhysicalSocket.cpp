@@ -30,6 +30,9 @@ namespace net::in {
         : Super(PF_INET, type, protocol) {
     }
 
+    PhysicalSocket::~PhysicalSocket() {
+    }
+
 } // namespace net::in
 
 template class net::PhysicalSocket<net::in::SocketAddress>;

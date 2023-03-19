@@ -16,29 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
-#define NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
-
-#include "net/in6/stream/config/ConfigSocketServer.h" // IWYU pragma: export
-#include "net/stream/config/legacy/ConfigSocketServer.h"
-
-// IWYU pragma: no_include "net/stream/config/legacy/ConfigSocketServer.hpp"
+#include "iot/mqtt/server/ControlPacketDeserializer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+namespace iot::mqtt::server {
 
-namespace net::in6::stream::legacy::config {
+    ControlPacketDeserializer::~ControlPacketDeserializer() {
+    }
 
-    class ConfigSocketServer : public net::stream::config::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer> {
-    public:
-        explicit ConfigSocketServer(const std::string& name);
-
-        ~ConfigSocketServer() override;
-    };
-
-} // namespace net::in6::stream::legacy::config
-
-#endif // NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
+}

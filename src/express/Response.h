@@ -38,6 +38,8 @@ namespace express {
     public:
         explicit Response(web::http::server::RequestContextBase* requestContext);
 
+        ~Response() override;
+
         void json(const nlohmann::json& json);
 
         void download(const std::string& file, const std::function<void(int err)>& onError);

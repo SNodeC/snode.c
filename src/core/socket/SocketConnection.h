@@ -44,7 +44,8 @@ namespace core::socket {
 
     protected:
         SocketConnection() = default;
-        virtual ~SocketConnection() = default;
+
+        virtual ~SocketConnection();
 
     public:
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;

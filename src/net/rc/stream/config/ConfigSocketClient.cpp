@@ -32,6 +32,9 @@ namespace net::rc::stream::config {
         net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::channelRequired();
     }
 
+    ConfigSocketClient::~ConfigSocketClient() {
+    }
+
 } // namespace net::rc::stream::config
 
 template class net::stream::config::ConfigSocketClient<net::rc::config::ConfigAddress>;

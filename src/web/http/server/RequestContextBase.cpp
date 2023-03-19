@@ -30,6 +30,9 @@ namespace web::http::server {
         : socketContext(socketContext) {
     }
 
+    RequestContextBase::~RequestContextBase() {
+    }
+
     void RequestContextBase::socketContextGone() {
         socketContext = nullptr;
     }

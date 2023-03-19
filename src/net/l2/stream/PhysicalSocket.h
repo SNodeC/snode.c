@@ -36,6 +36,8 @@ namespace net::l2::stream {
         using Super::operator=;
 
         PhysicalSocket();
+
+        ~PhysicalSocket() override;
     };
 
 } // namespace net::l2::stream

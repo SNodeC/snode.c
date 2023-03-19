@@ -36,6 +36,8 @@ namespace net::un::stream {
         using Super::operator=;
 
         PhysicalSocket();
+
+        ~PhysicalSocket() override;
     };
 
 } // namespace net::un::stream

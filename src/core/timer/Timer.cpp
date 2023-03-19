@@ -28,6 +28,9 @@
 
 namespace core::timer {
 
+    Timer::~Timer() {
+    }
+
     Timer Timer::singleshotTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout) {
         return Timer(new SingleshotTimer(dispatcher, timeout));
     }

@@ -26,6 +26,9 @@
 
 namespace express {
 
+    Dispatcher::~Dispatcher() {
+    }
+
     bool Dispatcher::dispatchNext(Controller& controller, const std::string& parentMountPath) {
         bool dispatched = false;
 

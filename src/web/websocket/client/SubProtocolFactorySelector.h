@@ -51,6 +51,8 @@ namespace web::websocket::client {
     public:
         static SubProtocolFactorySelector* instance();
 
+        ~SubProtocolFactorySelector() override;
+
         static void link(const std::string& subProtocolName, void* (*getSubProtocolFactory)());
         static void addSubProtocolSearchPath(const std::string& searchPath);
 

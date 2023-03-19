@@ -41,8 +41,14 @@ namespace utils {
         : std::runtime_error(failureMessage) {
     }
 
+    DaemonizeFailure::~DaemonizeFailure() {
+    }
+
     DaemonizeError::DaemonizeError(const std::string& errorMessage)
         : DaemonizeFailure(errorMessage + ": " + std::strerror(errno)) {
+    }
+
+    DaemonizeError::~DaemonizeError() {
     }
 
     void Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
@@ -173,6 +179,9 @@ namespace utils {
         (void) seteuid(getuid());               // In case  we are here seteguid can not fail
         (void) setegid(getgid());               // In case we are here setegid can not fail
         (void) std::remove(pidFileName.data()); // In case we are here std::remove can not fail
+    }
+
+    DaemonizeSuccess::~DaemonizeSuccess() {
     }
 
 } // namespace utils

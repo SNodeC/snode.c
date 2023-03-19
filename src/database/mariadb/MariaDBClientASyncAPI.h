@@ -42,7 +42,7 @@ namespace database::mariadb {
         MariaDBClientASyncAPI() = default;
         MariaDBClientASyncAPI(const MariaDBClientASyncAPI&) = default;
 
-        virtual ~MariaDBClientASyncAPI() = default;
+        virtual ~MariaDBClientASyncAPI();
 
     public:
         MariaDBCommandSequence& query(const std::string& sql,

@@ -28,4 +28,7 @@ namespace web::websocket {
         : Transmitter(role) {
     }
 
+    SubProtocolContext::~SubProtocolContext() {
+    }
+
 } // namespace web::websocket

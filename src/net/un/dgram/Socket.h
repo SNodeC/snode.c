@@ -36,6 +36,8 @@ namespace net::un::dgram {
         using Super::operator=;
 
         Socket();
+
+        ~Socket() override;
     };
 
 } // namespace net::un::dgram

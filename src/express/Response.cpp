@@ -33,6 +33,9 @@ namespace express {
         : web::http::server::Response(requestContext) {
     }
 
+    Response::~Response() {
+    }
+
     void Response::json(const nlohmann::json& json) {
         set("Content-Type", "application/json");
         send(json.dump());

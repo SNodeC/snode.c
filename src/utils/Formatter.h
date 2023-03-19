@@ -21,7 +21,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp" // IWYU pramga: export
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+#include "utils/CLI11.hpp" // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #include <string>
 #include <vector>
@@ -32,10 +39,17 @@ namespace CLI {
 
     class ConfigFormatter : public ConfigBase {
     public:
+        ~ConfigFormatter() override;
+
+    private:
         std::string to_config(const App* app, bool default_also, bool write_description, std::string prefix) const override;
     };
 
     class HelpFormatter : public CLI::Formatter {
+    public:
+        ~HelpFormatter() override;
+
+    private:
         std::string make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const override;
         std::string make_description(const App* app) const override;
         std::string make_usage(const App* app, std::string name) const override;

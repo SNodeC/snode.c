@@ -1,4 +1,12 @@
-#include "utils/CLI11.hpp"
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+#include "utils/CLI11.hpp" // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 #include "utils/Formatter.h"
 
 #include <cstdint>

@@ -24,6 +24,9 @@
 
 namespace core::socket {
 
+    SocketConnection::~SocketConnection() {
+    }
+
     void SocketConnection::sendToPeer(const std::string& data) {
         sendToPeer(data.data(), data.size());
     }

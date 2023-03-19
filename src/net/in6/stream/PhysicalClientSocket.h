@@ -36,6 +36,9 @@ namespace net::in6::stream {
 
     public:
         using Super::Super;
+
+        ~PhysicalClientSocket() override;
+
         using Super::operator=;
     };
 

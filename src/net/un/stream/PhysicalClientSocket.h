@@ -36,6 +36,9 @@ namespace net::un::stream {
 
     public:
         using Super::Super;
+
+        ~PhysicalClientSocket() override;
+
         using Super::operator=;
 
         bool connectInProgress(int cErrno) override;

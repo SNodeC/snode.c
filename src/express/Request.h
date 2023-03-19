@@ -32,6 +32,10 @@ namespace express {
 
     class Request : public web::http::server::Request {
     public:
+        Request() = default;
+
+        ~Request() override;
+
         const std::string& param(const std::string& id, const std::string& fallBack = "");
 
         std::string originalUrl;

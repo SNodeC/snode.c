@@ -24,6 +24,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {}
+namespace net::un::stream {
+
+    PhysicalServerSocket::~PhysicalServerSocket() {
+    }
+
+} // namespace net::un::stream
 
 template class net::stream::PhysicalServerSocket<net::un::stream::PhysicalSocket>;

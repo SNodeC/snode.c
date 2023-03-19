@@ -32,14 +32,21 @@ namespace utils {
     class DaemonizeFailure : public std::runtime_error {
     public:
         explicit DaemonizeFailure(const std::string& failureMessage);
+
+        ~DaemonizeFailure() override;
     };
 
     class DaemonizeError : public DaemonizeFailure {
     public:
         explicit DaemonizeError(const std::string& errorMessage);
+
+        ~DaemonizeError() override;
     };
 
-    class DaemonizeSuccess : public std::exception {};
+    class DaemonizeSuccess : public std::exception {
+    public:
+        ~DaemonizeSuccess() override;
+    };
 
     class Daemon {
     public:

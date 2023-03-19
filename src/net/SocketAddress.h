@@ -34,6 +34,7 @@ namespace net {
     class BadSocketAddress : public std::runtime_error {
     public:
         explicit BadSocketAddress(const std::string& errorMessage);
+        ~BadSocketAddress() override;
     };
 
     template <typename SockAddrT>

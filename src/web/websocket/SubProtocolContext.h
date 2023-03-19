@@ -42,6 +42,8 @@ namespace web::websocket {
         SubProtocolContext(bool role);
         SubProtocolContext(const SubProtocolContext&) = delete;
 
+        ~SubProtocolContext() override;
+
         SubProtocolContext& operator=(const SubProtocolContext&) = delete;
 
         virtual void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const = 0;

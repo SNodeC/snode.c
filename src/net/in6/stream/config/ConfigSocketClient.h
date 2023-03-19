@@ -42,6 +42,8 @@ namespace net::in6::stream::config {
     public:
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
 
+        ~ConfigSocketClient() override;
+
         void setIPv6Only(bool iPv6Only = true);
         bool getIPv6Only();
 

@@ -26,6 +26,9 @@
 
 namespace core::socket::stream {
 
+    SocketConnection::~SocketConnection() {
+    }
+
     core::socket::stream::SocketContext*
     core::socket::stream::SocketConnection::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
         newSocketContext = socketContextFactory->create(this);

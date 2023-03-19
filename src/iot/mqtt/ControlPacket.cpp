@@ -74,6 +74,9 @@ namespace iot::mqtt {
         }
     }
 
+    ControlPacket::~ControlPacket() {
+    }
+
     std::vector<char> ControlPacket::serialize() const {
         std::vector<char> variablHeaderPayload = serializeVP();
 

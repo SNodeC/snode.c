@@ -35,7 +35,7 @@ namespace web::websocket {
         Transmitter(const Transmitter&) = delete;
         Transmitter& operator=(const Transmitter&) = delete;
 
-        virtual ~Transmitter() = default;
+        virtual ~Transmitter();
 
     protected:
         Transmitter(bool masking);

@@ -36,6 +36,9 @@ namespace net::un::stream {
 
     public:
         using Super::Super;
+
+        ~PhysicalServerSocket() override;
+
         using Super::operator=;
     };
 

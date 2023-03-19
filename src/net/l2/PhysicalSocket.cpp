@@ -30,6 +30,9 @@ namespace net::l2 {
         : Super(PF_BLUETOOTH, type, protocol) {
     }
 
+    PhysicalSocket::~PhysicalSocket() {
+    }
+
 } // namespace net::l2
 
 template class net::PhysicalSocket<net::l2::SocketAddress>;

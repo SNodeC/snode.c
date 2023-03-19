@@ -28,4 +28,7 @@ namespace net {
         : runtime_error(errorMessage) {
     }
 
+    BadSocketAddress::~BadSocketAddress() {
+    }
+
 } // namespace net

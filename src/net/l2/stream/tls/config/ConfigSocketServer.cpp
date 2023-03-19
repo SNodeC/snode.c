@@ -16,14 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/stream/legacy/config/ConfigSocketServer.h"
+#include "net/l2/stream/tls/config/ConfigSocketServer.h"
 
-#include "net/stream/config/legacy/ConfigSocketServer.hpp" // IWYU pragma: keep
+#include "net/stream/config/tls/ConfigSocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net::l2::stream::tls::config {} // namespace net::l2::stream::tls::config
+namespace net::l2::stream::tls::config {
 
-template class net::stream::config::legacy::ConfigSocketServer<net::l2::stream::config::ConfigSocketServer>;
+    ConfigSocketServer::ConfigSocketServer(const std::string& name)
+        : net::stream::config::tls::ConfigSocketServer<net::l2::stream::config::ConfigSocketServer>(name) {
+    }
+
+    ConfigSocketServer::~ConfigSocketServer() {
+    }
+
+} // namespace net::l2::stream::tls::config
+
+template class net::stream::config::tls::ConfigSocketServer<net::l2::stream::config::ConfigSocketServer>;

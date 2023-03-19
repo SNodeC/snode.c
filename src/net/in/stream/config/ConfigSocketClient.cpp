@@ -32,6 +32,9 @@ namespace net::in::stream::config {
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
     }
 
+    ConfigSocketClient::~ConfigSocketClient() {
+    }
+
 } // namespace net::in::stream::config
 
 template class net::stream::config::ConfigSocketClient<net::in::config::ConfigAddress>;

@@ -30,4 +30,7 @@ namespace net::in6::stream {
         : Super(SOCK_STREAM, IPPROTO_TCP) {
     }
 
+    PhysicalSocket::~PhysicalSocket() {
+    }
+
 } // namespace net::in6::stream

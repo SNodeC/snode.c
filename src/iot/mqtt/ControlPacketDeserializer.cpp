@@ -29,6 +29,9 @@ namespace iot::mqtt {
         error = flags != mustFlags;
     }
 
+    ControlPacketDeserializer::~ControlPacketDeserializer() {
+    }
+
     std::size_t ControlPacketDeserializer::deserialize(iot::mqtt::MqttContext* mqttContext) {
         std::size_t currentConsumed = deserializeVP(mqttContext);
         consumed += currentConsumed;

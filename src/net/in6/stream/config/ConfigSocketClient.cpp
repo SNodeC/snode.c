@@ -22,7 +22,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+#include "utils/CLI11.hpp" // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #include <netinet/in.h>
 #include <stdexcept>
@@ -45,6 +52,9 @@ namespace net::in6::stream::config {
                           "bool",
                           "false",
                           CLI::IsMember({"true", "false"}));
+    }
+
+    ConfigSocketClient::~ConfigSocketClient() {
     }
 
     void ConfigSocketClient::setIPv6Only(bool iPv6Only) {

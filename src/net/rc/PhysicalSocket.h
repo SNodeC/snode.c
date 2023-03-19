@@ -39,6 +39,8 @@ namespace net::rc {
         using Super::operator=;
 
         PhysicalSocket(int type, int protocol);
+
+        ~PhysicalSocket() override;
     };
 
 } // namespace net::rc

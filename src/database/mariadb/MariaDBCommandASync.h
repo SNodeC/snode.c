@@ -31,6 +31,8 @@ namespace database::mariadb {
     class MariaDBCommandASync : public MariaDBCommand {
     public:
         using MariaDBCommand::MariaDBCommand;
+
+        ~MariaDBCommandASync() override;
     };
 
 } // namespace database::mariadb

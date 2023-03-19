@@ -58,6 +58,9 @@ namespace core::socket {
         return *this;
     }
 
+    PhysicalSocket::~PhysicalSocket() {
+    }
+
     int PhysicalSocket::open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags) {
         int ret = Super::attach(core::system::socket(domain, type | flags, protocol));
 

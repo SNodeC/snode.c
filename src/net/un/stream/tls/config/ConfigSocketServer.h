@@ -34,9 +34,9 @@ namespace net::un::stream::tls::config {
 
     class ConfigSocketServer : public net::stream::config::tls::ConfigSocketServer<net::un::stream::config::ConfigSocketServer> {
     public:
-        explicit ConfigSocketServer(const std::string& name)
-            : net::stream::config::tls::ConfigSocketServer<net::un::stream::config::ConfigSocketServer>(name) {
-        }
+        explicit ConfigSocketServer(const std::string& name);
+
+        ~ConfigSocketServer() override;
     };
 
 } // namespace net::un::stream::tls::config

@@ -24,6 +24,15 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net::l2::stream::legacy::config {} // namespace net::l2::stream::legacy::config
+namespace net::l2::stream::legacy::config {
+
+    ConfigSocketServer::ConfigSocketServer(const std::string &name)
+        : net::stream::config::legacy::ConfigSocketServer<net::l2::stream::config::ConfigSocketServer>(name) {
+    }
+
+    ConfigSocketServer::~ConfigSocketServer() {
+    }
+
+} // namespace net::l2::stream::legacy::config
 
 template class net::stream::config::legacy::ConfigSocketServer<net::l2::stream::config::ConfigSocketServer>;

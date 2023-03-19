@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 
 add_subdirectory(packets)
 
-set(MQTT_CLIENT_CPP Mqtt.cpp)
+set(MQTT_CLIENT_CPP ControlPacketDeserializer.cpp Mqtt.cpp)
 
 set(MQTT_CLIENT_H ControlPacketDeserializer.h Mqtt.h)
 

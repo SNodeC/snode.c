@@ -39,6 +39,8 @@ namespace core::timer {
     public:
         using core::Timer::Timer;
 
+        ~Timer() override;
+
         Timer& operator=(const Timer&) = delete;
 
         Timer& operator=(Timer&& timer) noexcept = default;

@@ -26,7 +26,10 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 namespace core::file {
 
-    class File : virtual public core::Descriptor {};
+    class File : virtual public core::Descriptor {
+    public:
+        ~File() override;
+    };
 
 } // namespace core::file
 

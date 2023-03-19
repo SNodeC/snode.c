@@ -39,16 +39,16 @@ namespace core {
 
     class DescriptorEventPublisher {
     public:
-        DescriptorEventPublisher() = delete;
-        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
-
-        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
-
     protected:
         DescriptorEventPublisher(std::string name);
 
     public:
-        virtual ~DescriptorEventPublisher() = default;
+        DescriptorEventPublisher() = delete;
+
+        virtual ~DescriptorEventPublisher();
+
+        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
+        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
         void enable(DescriptorEventReceiver* descriptorEventReceiver);
         void disable(DescriptorEventReceiver* descriptorEventReceiver);

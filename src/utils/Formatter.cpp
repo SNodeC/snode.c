@@ -28,6 +28,9 @@
 
 namespace CLI {
 
+    ConfigFormatter::~ConfigFormatter() {
+    }
+
     CLI11_INLINE std::string ConfigFormatter::to_config(const App* app,
                                                         bool default_also,
                                                         bool write_description,
@@ -137,6 +140,9 @@ namespace CLI {
         }
 
         return outString + out.str();
+    }
+
+    HelpFormatter::~HelpFormatter() {
     }
 
     CLI11_INLINE std::string HelpFormatter::make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const {

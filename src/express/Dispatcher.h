@@ -41,7 +41,8 @@ namespace express {
         Dispatcher& operator=(const Dispatcher&) = delete;
 
         Dispatcher() = default;
-        virtual ~Dispatcher() = default;
+
+        virtual ~Dispatcher();
 
         virtual bool dispatch(Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);

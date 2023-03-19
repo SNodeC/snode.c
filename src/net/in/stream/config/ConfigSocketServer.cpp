@@ -22,7 +22,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/CLI11.hpp"
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+#include "utils/CLI11.hpp" // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #include <memory>
 #include <stdexcept>
@@ -43,6 +50,9 @@ namespace net::in::stream::config {
                           "bool",
                           "false",
                           CLI::IsMember({"true", "false"}));
+    }
+
+    ConfigSocketServer::~ConfigSocketServer() {
     }
 
     void ConfigSocketServer::setReusePort(bool reusePort) {

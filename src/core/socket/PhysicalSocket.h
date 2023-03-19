@@ -45,7 +45,7 @@ namespace core::socket {
 
         PhysicalSocket& operator=(int fd);
 
-        virtual ~PhysicalSocket() = default;
+        ~PhysicalSocket() override;
 
         enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
 

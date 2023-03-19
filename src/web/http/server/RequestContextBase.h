@@ -41,7 +41,7 @@ namespace web::http::server {
     public:
         RequestContextBase(web::http::SocketContext* socketContext);
 
-        virtual ~RequestContextBase() = default;
+        virtual ~RequestContextBase();
 
         void socketContextGone();
 

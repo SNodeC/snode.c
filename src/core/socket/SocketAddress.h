@@ -34,7 +34,7 @@ namespace core::socket {
 
         SocketAddress& operator=(const SocketAddress&) = default;
 
-        virtual ~SocketAddress() = default;
+        virtual ~SocketAddress();
 
         virtual std::string address() const = 0;
         virtual std::string toString() const = 0;

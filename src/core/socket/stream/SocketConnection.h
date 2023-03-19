@@ -43,6 +43,10 @@ namespace core::socket::stream {
 
     class SocketConnection : public core::socket::SocketConnection {
     public:
+        SocketConnection() = default;
+
+        ~SocketConnection() override;
+
         core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
         bool isValid();

@@ -28,7 +28,8 @@ namespace core {
     class Descriptor {
     public:
         Descriptor() = default;
-        ~Descriptor();
+
+        virtual ~Descriptor();
 
         Descriptor(const Descriptor& d) = delete;
         Descriptor& operator=(const Descriptor& descriptor) = delete;

@@ -162,4 +162,7 @@ namespace core {
         }
     }
 
+    Observer::~Observer() {
+    }
+
 } // namespace core
