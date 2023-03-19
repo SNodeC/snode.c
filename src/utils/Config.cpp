@@ -210,6 +210,8 @@ namespace utils {
             if (success) {
                 sectionFormatter->label("SUBCOMMAND", "SECTION");
                 sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
+                sectionFormatter->label("PERSISTENT", "");
+                sectionFormatter->label("Usage", "\nUsage");
                 sectionFormatter->label("bool:{true,false}", "{true,false}");
                 sectionFormatter->column_width(7);
 
@@ -222,6 +224,8 @@ namespace utils {
                 app.formatter(std::make_shared<CLI::HelpFormatter>());
                 app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
                 app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
+                app.get_formatter()->label("PERSISTENT", "");
+                app.get_formatter()->label("Usage", "\nUsage");
                 app.get_formatter()->label("bool:{true,false}", "{true,false}");
                 app.get_formatter()->column_width(7);
 
@@ -243,24 +247,24 @@ namespace utils {
                        "Print this help message and exit") //
                     ->configurable(false)
                     ->disable_flag_override()
-                    ->trigger_on_parse()
-                    ->group("Help Options");
+                    ->trigger_on_parse();
+                //                    ->group("Help Options");
 
                 app.add_flag_callback( //
                        "-a,--help-all",
                        []() {
                            throw CLI::CallForAllHelp();
                        },
-                       "Expand all help")
+                       "Print this help message, expand instances and exit")
                     ->configurable(false)
                     ->disable_flag_override()
-                    ->trigger_on_parse()
-                    ->group("Help Options");
+                    ->trigger_on_parse();
+                //                    ->group("Help Options");
 
                 app.set_version_flag( //
-                       "--version",
-                       "0.9.8")
-                    ->group("Help Options");
+                    "--version",
+                    "0.9.8");
+                //                    ->group("Help Options");
 
                 logLevelOpt = app.add_option_function<std::string>( //
                                      "-l,--log-level",
@@ -268,8 +272,8 @@ namespace utils {
                                      "Log level") //
                                   ->default_val(3)
                                   ->type_name("level")
-                                  ->check(CLI::Range(0, 6))
-                                  ->group("Logging Options");
+                                  ->check(CLI::Range(0, 6));
+                //                                  ->group("Logging Options");
 
                 verboseLevelOpt = app.add_option_function<std::string>( //
                                          "-v,--verbose-level",
@@ -277,8 +281,8 @@ namespace utils {
                                          "Verbose level") //
                                       ->default_val(0)
                                       ->type_name("level")
-                                      ->check(CLI::Range(0, 10))
-                                      ->group("Logging Options");
+                                      ->check(CLI::Range(0, 10));
+                //                                      ->group("Logging Options");
 
                 logFileOpt = app.add_option_function<std::string>( //
                                     "--log-file",
@@ -286,8 +290,8 @@ namespace utils {
                                     "Logfile path") //
                                  ->default_val(logDirectory + "/" + applicationName + ".log")
                                  ->type_name("logfile")
-                                 ->check(!CLI::ExistingDirectory)
-                                 ->group("Logging Options");
+                                 ->check(!CLI::ExistingDirectory);
+                //                                 ->group("Logging Options");
 
                 enforceLogFileOpt = app.add_flag_function( //
                                            "--enforce-log-file",
@@ -296,15 +300,15 @@ namespace utils {
                                         ->take_last()
                                         ->default_val("false")
                                         ->type_name("bool")
-                                        ->check(CLI::IsMember({"true", "false"}))
-                                        ->group("Logging Options");
+                                        ->check(CLI::IsMember({"true", "false"}));
+                //                                        ->group("Logging Options");
 
                 app.add_flag( //
                        "-s,--show-config",
                        "Show current configuration and exit") //
                     ->configurable(false)
-                    ->disable_flag_override()
-                    ->group("Config Options");
+                    ->disable_flag_override();
+                //                    ->group("Config Options");
 
                 app.add_option("-w,--write-config",
                                "Write config file and exit") //
@@ -312,8 +316,8 @@ namespace utils {
                     ->default_val(configDirectory + "/" + applicationName + ".conf")
                     ->type_name("[configfile]")
                     ->check(!CLI::ExistingDirectory)
-                    ->expected(0, 1)
-                    ->group("Config Options");
+                    ->expected(0, 1);
+                //                    ->group("Config Options");
 
                 app.set_config( //
                        "--config-file",
@@ -322,8 +326,8 @@ namespace utils {
                        false) //
                     ->take_all()
                     ->type_name("configfile")
-                    ->check(!CLI::ExistingDirectory)
-                    ->group("Config Options");
+                    ->check(!CLI::ExistingDirectory);
+                //                    ->group("Config Options");
 
                 app.add_option( //
                        "--instance-map",
@@ -337,8 +341,8 @@ namespace utils {
                         } else {
                             throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
                         }
-                    })
-                    ->group("Config Options");
+                    });
+                //                    ->group("Config Options");
 
                 daemonizeOpt = app.add_flag_function( //
                                       "-d{true},!-f,--daemonize",
@@ -347,54 +351,54 @@ namespace utils {
                                    ->take_last()
                                    ->default_val("false")
                                    ->type_name("bool")
-                                   ->check(CLI::IsMember({"true", "false"}))
-                                   ->group("Daemon Options");
+                                   ->check(CLI::IsMember({"true", "false"}));
+                //                                   ->group("Daemon Options");
 
                 app.add_flag( //
                        "-k,--kill",
                        "Kill running daemon") //
                     ->configurable(false)
-                    ->disable_flag_override()
-                    ->group("Daemon Options");
+                    ->disable_flag_override();
+                //                    ->group("Daemon Options");
 
                 userNameOpt = app.add_option_function<std::string>( //
                                      "--user-name",
                                      utils::ResetToDefault(userNameOpt),
-                                     "Run as specific user") //
+                                     "Run daemon under specific user permissions") //
                                   ->default_val(pw->pw_name)
                                   ->type_name("username")
-                                  ->needs(daemonizeOpt)
-                                  ->group("Daemon Options");
+                                  ->needs(daemonizeOpt);
+                //                                  ->group("Daemon Options");
 
                 groupNameOpt = app.add_option_function<std::string>( //
                                       "--group-name",
                                       utils::ResetToDefault(groupNameOpt),
-                                      "Run under specific group")
+                                      "Run daemon under specific group permissions")
                                    ->default_val(gr->gr_name)
                                    ->type_name("groupname")
-                                   ->needs(daemonizeOpt)
-                                   ->group("Daemon Options");
+                                   ->needs(daemonizeOpt);
+                //                                   ->group("Daemon Options");
 
                 app.add_flag( //
                        "--commandline",
                        "Print a template command line showing required options only and exit")
                     ->configurable(false)
-                    ->disable_flag_override()
-                    ->group("Command line Options");
+                    ->disable_flag_override();
+                //                    ->group("Command line Options");
 
                 app.add_flag( //
                        "--commandline-full",
                        "Print a template command line showing all possible options and exit")
                     ->configurable(false)
-                    ->disable_flag_override()
-                    ->group("Command line Options");
+                    ->disable_flag_override();
+                //                    ->group("Command line Options");
 
                 app.add_flag( //
                        "--commandline-configured",
                        "Print a template command line showing all required and configured options and exit") //
                     ->configurable(false)
-                    ->disable_flag_override()
-                    ->group("Command line Options");
+                    ->disable_flag_override();
+                //                    ->group("Command line Options");
 
                 parse1(); // for stopDaemon
 
@@ -753,8 +757,8 @@ namespace utils {
                 "Print this help message and exit")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse()
-            ->group("Help Options");
+            ->trigger_on_parse();
+        //            ->group("Help Options");
 
         instance //
             ->add_flag_callback(
@@ -762,11 +766,11 @@ namespace utils {
                 []() {
                     throw CLI::CallForAllHelp();
                 },
-                "Expand all help")
+                "Print this help message, expand sections and exit")
             ->configurable(false)
             ->disable_flag_override()
-            ->trigger_on_parse()
-            ->group("Help Options");
+            ->trigger_on_parse();
+        //            ->group("Help Options");
 
         instance //
             ->add_flag_callback(
@@ -776,8 +780,8 @@ namespace utils {
                 },
                 "Print a template command line showing required options only and exit")
             ->configurable(false)
-            ->disable_flag_override()
-            ->group("Command line Options");
+            ->disable_flag_override();
+        //            ->group("Command line Options");
 
         instance //
             ->add_flag_callback(
@@ -787,8 +791,8 @@ namespace utils {
                 },
                 "Print a template command line showing all possible options and exit")
             ->configurable(false)
-            ->disable_flag_override()
-            ->group("Command line Options");
+            ->disable_flag_override();
+        //            ->group("Command line Options");
 
         instance //
             ->add_flag_callback(
@@ -798,8 +802,8 @@ namespace utils {
                 },
                 "Print a template command line showing all required and configured options and exit") //
             ->configurable(false)
-            ->disable_flag_override()
-            ->group("Command line Options");
+            ->disable_flag_override();
+        //            ->group("Command line Options");
 
         return instance;
     }
