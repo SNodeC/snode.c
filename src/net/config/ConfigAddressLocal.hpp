@@ -32,7 +32,7 @@ namespace net::config {
 
     template <typename SocketAddress>
     ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(ConfigInstance* instance)
-        : Super::ConfigAddress(instance, "local", "Local side of connection for insance '" + instance->getInstanceName() + "'") {
+        : Super::ConfigAddress(instance, "local", "Local side of connection for instance '" + instance->getInstanceName() + "'") {
     }
 
 } // namespace net::config
