@@ -27,19 +27,19 @@ namespace net::stream {
 
     template <typename PhysicalClientSocket, typename Config>
     void SocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
+                                                             const std::function<void(const SocketAddress&, int)>& onError) const {
+        Super::config->Remote::setAddress(remoteAddress);
+
+        connect(onError);
+    }
+
+    template <typename PhysicalClientSocket, typename Config>
+    void SocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
                                                              const SocketAddress& localAddress,
                                                              const std::function<void(const SocketAddress&, int)>& onError) const {
         Super::config->Local::setAddress(localAddress);
 
         connect(remoteAddress, onError);
-    }
-
-    template <typename PhysicalClientSocket, typename Config>
-    void SocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
-                                                             const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->Remote::setAddress(remoteAddress);
-
-        connect(onError);
     }
 
 } // namespace net::stream

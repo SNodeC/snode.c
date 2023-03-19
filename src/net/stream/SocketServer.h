@@ -35,10 +35,9 @@ namespace net::stream {
     class SocketServer : public net::LogicalSocket<ConfigT> {
     protected:
         using Super = LogicalSocket<ConfigT>;
-
-    public:
         using Super::Super;
 
+    public:
         using Config = ConfigT;
         using PhysicalSocket = PhysicalServerSocketT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
