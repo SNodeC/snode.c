@@ -40,6 +40,7 @@ namespace CLI {
         std::string make_usage(const App* app, std::string name) const override;
         std::string make_description(const App* app) const override;
         std::string make_expanded(const App* sub) const override;
+        std::string make_subcommands(const App* app, AppFormatMode mode) const override;
         std::string make_subcommand(const App* sub) const override;
         std::string make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const override;
         std::string make_groups(const App* app, AppFormatMode mode) const;

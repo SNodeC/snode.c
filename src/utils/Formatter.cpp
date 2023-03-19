@@ -157,7 +157,6 @@ namespace CLI {
         out << make_positionals(app);
         out << make_groups(app, mode);
         out << make_subcommands(app, mode);
-
         out << make_footer(app);
 
         return out.str();
@@ -171,7 +170,7 @@ namespace CLI {
 
         std::stringstream out;
 
-        out << get_label("Usage") << ":" << (name.empty() ? "" : " ") << name;
+        out << "\n" + get_label("Usage") << ":" << (name.empty() ? "" : " ") << name;
 
         std::vector<std::string> groups = app->get_groups();
 
@@ -205,14 +204,14 @@ namespace CLI {
                  .empty()) {
             out << " ["
                 << get_label(app->get_subcommands([](const CLI::App* subc) {
-                                    return ((!subc->get_disabled()) && (!subc->get_name().empty()) && subc->get_required());
+                                    return ((!subc->get_disabled()) && (!subc->get_name().empty()) /*&& subc->get_required()*/);
                                 }).size() <= 1
                                  ? "SUBCOMMAND"
                                  : "SUBCOMMANDS")
                 << "]";
         }
 
-        out << std::endl;
+        out << std::endl << std::endl;
 
         return out.str();
     }
@@ -242,7 +241,9 @@ namespace CLI {
 
     CLI11_INLINE std::string HelpFormatter::make_expanded(const App* sub) const {
         std::stringstream out;
-        out << sub->get_display_name(true) + (sub->get_required() ? " " + get_label("REQUIRED") : "") << "\n";
+        out << sub->get_display_name(true) + " [OPTIONS]" + (!sub->get_subcommands({}).empty() ? " [SECTIONS]" : "") +
+                   (sub->get_required() ? " " + get_label("REQUIRED") : "")
+            << "\n";
 
         out << make_description(sub);
         if (sub->get_name().empty() && !sub->get_aliases().empty()) {
@@ -257,15 +258,60 @@ namespace CLI {
 
         tmp.pop_back();
         // Indent all but the first line (the name)
-        return detail::find_and_replace(tmp, "\n", "\n  "); //  + "\n";
+
+        return detail::find_and_replace(tmp, "\n", "\n  ") + "\n";
+    }
+
+    CLI11_INLINE std::string HelpFormatter::make_subcommands(const App* app, AppFormatMode mode) const {
+        std::stringstream out;
+
+        std::vector<const App*> subcommands = app->get_subcommands({});
+
+        // Make a list in definition order of the groups seen
+        std::vector<std::string> subcmd_groups_seen;
+        for (const App* com : subcommands) {
+            if (com->get_name().empty()) {
+                if (!com->get_group().empty()) {
+                    out << make_expanded(com);
+                }
+                continue;
+            }
+            std::string group_key = com->get_group();
+            if (!group_key.empty() && std::find_if(subcmd_groups_seen.begin(), subcmd_groups_seen.end(), [&group_key](std::string a) {
+                                          return detail::to_lower(a) == detail::to_lower(group_key);
+                                      }) == subcmd_groups_seen.end())
+                subcmd_groups_seen.push_back(group_key);
+        }
+
+        // For each group, filter out and print subcommands
+        for (const std::string& group : subcmd_groups_seen) {
+            out << "\n" << group << ":\n";
+            std::vector<const App*> subcommands_group = app->get_subcommands([&group](const App* sub_app) {
+                return detail::to_lower(sub_app->get_group()) == detail::to_lower(group);
+            });
+            for (const App* new_com : subcommands_group) {
+                if (new_com->get_name().empty())
+                    continue;
+                if (mode != AppFormatMode::All) {
+                    out << make_subcommand(new_com);
+                } else {
+                    out << new_com->help(new_com->get_name(), AppFormatMode::Sub);
+                    out << "\n";
+                }
+            }
+        }
+
+        return out.str();
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommand(const App* sub) const {
         std::stringstream out;
+
         detail::format_help(out,
                             sub->get_display_name(true) + (sub->get_required() ? " " + get_label("REQUIRED") : ""),
                             sub->get_description(),
                             column_width_);
+
         return out.str();
     }
 
@@ -302,7 +348,7 @@ namespace CLI {
         std::string tmp = out.str();
         tmp.pop_back();
 
-        return out.str();
+        return tmp;
     }
 
     CLI11_INLINE std::string HelpFormatter::make_option_opts(const Option* opt) const {

@@ -228,11 +228,7 @@ namespace utils {
                 std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
                 app.config_formatter(configFormatter);
 
-                app.description("#################################################################\n\n"
-                                "Configuration for Application '" +
-                                applicationName +
-                                "'\n\n"
-                                "#################################################################");
+                app.description("Configuration for Application '" + applicationName + "'");
 
                 app.footer("Application '" + applicationName +
                            "' powered by SNode.C\n"
