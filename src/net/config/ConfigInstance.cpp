@@ -99,6 +99,17 @@ namespace net::config {
             ->disable_flag_override()
             ->trigger_on_parse();
 
+        sectionSc //
+            ->add_flag_callback(
+                "-a,--help-all",
+                []() {
+                    throw CLI::CallForAllHelp();
+                },
+                "Print this help message and exit")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse();
+
         return sectionSc;
     }
 

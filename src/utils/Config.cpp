@@ -756,7 +756,7 @@ namespace utils {
 
         instance //
             ->add_flag_callback(
-                "--help-all",
+                "-a,--help-all",
                 []() {
                     throw CLI::CallForAllHelp();
                 },
