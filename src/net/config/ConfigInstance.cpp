@@ -28,7 +28,6 @@
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -42,19 +41,7 @@ namespace net::config {
                          ->add_flag_function(
                              "--disable",
                              [this]([[maybe_unused]] int64_t count) -> void {
-                                 if (disableOpt->as<bool>()) {
-                                     for (CLI::App* instance : instanceSc->get_subcommands([](CLI::App* instance) -> bool {
-                                              return instance->get_required();
-                                          })) {
-                                         instance->required(false);
-                                     }
-
-                                     for (CLI::Option* option : instanceSc->get_options([](CLI::Option* option) -> bool {
-                                              return option->get_required();
-                                          })) {
-                                         option->required(false);
-                                     }
-                                 }
+                                 instanceSc->disabled(disableOpt->as<bool>());
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
