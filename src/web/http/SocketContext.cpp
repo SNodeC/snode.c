@@ -27,4 +27,4 @@ namespace web::http {
     SocketContext::~SocketContext() {
     }
 
-}
+} // namespace web::http

@@ -26,7 +26,7 @@
 
 namespace net::un::stream::tls::config {
 
-    ConfigSocketServer::ConfigSocketServer(const std::string &name)
+    ConfigSocketServer::ConfigSocketServer(const std::string& name)
         : net::stream::config::tls::ConfigSocketServer<net::un::stream::config::ConfigSocketServer>(name) {
     }
 

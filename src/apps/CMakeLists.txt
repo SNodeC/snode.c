@@ -11,9 +11,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 add_executable(snode.c main.cpp)
-target_link_libraries(
-    snode.c PUBLIC snodec::core
-)
+target_link_libraries(snode.c PUBLIC snodec::core)
 set_target_properties(
     snode.c PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
 )

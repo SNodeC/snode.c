@@ -27,4 +27,4 @@ namespace iot::mqtt::server {
     ControlPacketDeserializer::~ControlPacketDeserializer() {
     }
 
-}
+} // namespace iot::mqtt::server

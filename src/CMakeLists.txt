@@ -59,8 +59,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-shadow-field-in-constructor
         -Wno-padded
         -Wno-reserved-identifier
-#        -Wno-weak-template-vtables
-        -Wno-documentation-unknown-command
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC

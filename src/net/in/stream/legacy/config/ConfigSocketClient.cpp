@@ -26,7 +26,7 @@
 
 namespace net::in::stream::legacy::config {
 
-    ConfigSocketClient::ConfigSocketClient(const std::string &name)
+    ConfigSocketClient::ConfigSocketClient(const std::string& name)
         : net::stream::config::legacy::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>(name) {
     }
 

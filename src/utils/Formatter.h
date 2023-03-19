@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CONFIGFORMATER_H
-#define _CONFIGFORMATER_H
+#ifndef UTILS_CONFIGFORMATER_H
+#define UTILS_CONFIGFORMATER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -61,4 +61,4 @@ namespace CLI {
 
 } // namespace CLI
 
-#endif // _CONFIGFORMATER_H
+#endif // UTILS_CONFIGFORMATER_H

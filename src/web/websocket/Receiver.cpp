@@ -31,7 +31,8 @@
 
 namespace web::websocket {
 
-    Receiver::~Receiver(){}
+    Receiver::~Receiver() {
+    }
 
     std::size_t Receiver::receive() {
         std::size_t ret = 0;

@@ -24,6 +24,7 @@
 
 namespace core::socket {
 
-    SocketAddress::~SocketAddress(){}
+    SocketAddress::~SocketAddress() {
+    }
 
 } // namespace core::socket

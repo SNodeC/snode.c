@@ -27,4 +27,4 @@ namespace core::socket::stream {
     SocketContextFactory::~SocketContextFactory() {
     }
 
-}
+} // namespace core::socket::stream

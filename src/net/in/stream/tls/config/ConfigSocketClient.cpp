@@ -26,7 +26,7 @@
 
 namespace net::in::stream::tls::config {
 
-    ConfigSocketClient::ConfigSocketClient(const std::string &name)
+    ConfigSocketClient::ConfigSocketClient(const std::string& name)
         : net::stream::config::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>(name) {
     }
 
