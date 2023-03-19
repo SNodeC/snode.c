@@ -273,8 +273,9 @@ namespace CLI {
         }
 
         // ########## Next line(s) changed
+
         std::string tmp = out.str();
-        if (mode == AppFormatMode::All) {
+        if (mode == AppFormatMode::All && !tmp.empty()) {
             tmp.pop_back();
         }
 
