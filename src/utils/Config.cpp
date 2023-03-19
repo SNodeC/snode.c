@@ -411,8 +411,6 @@ namespace utils {
                         std::cout << "Daemon stopped" << std::endl;
                         std::exit(EXIT_SUCCESS);
                     }
-
-                    success = false;
                 }
             }
         }
@@ -682,7 +680,7 @@ namespace utils {
             }
         } catch (const CLI::Success& e) {
             std::cout << "Success: " << e.get_name() << " " << e.what() << std::endl;
-        } catch (const CLI::ParseError& e) {
+        } catch (const CLI::ParseError&) {
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
         } catch (const CLI::Error& e) {

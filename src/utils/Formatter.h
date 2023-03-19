@@ -32,7 +32,7 @@ namespace CLI {
 
     class ConfigFormatter : public ConfigBase {
     public:
-        std::string to_config(const App* app, bool default_also, bool write_description, std::string prefix) const;
+        std::string to_config(const App* app, bool default_also, bool write_description, std::string prefix) const override;
     };
 
     class HelpFormatter : public CLI::Formatter {

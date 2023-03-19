@@ -46,11 +46,13 @@ namespace utils {
     }
 
     void Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
-        if (!std::filesystem::exists(pidFileName)) {
+        if (std::filesystem::exists(pidFileName)) {
+            throw DaemonizeFailure("Pid file '" + pidFileName + "' exists. Daemon already running?");
+        } else {
             errno = 0;
+
             /* Fork off the parent process */
             pid_t pid = fork();
-
             if (pid < 0) {
                 /* An error occurred */
                 throw DaemonizeError("First fork()");
@@ -66,7 +68,6 @@ namespace utils {
             } else {
                 /* Fork off for the second time*/
                 pid = fork();
-
                 if (pid < 0) {
                     /* An error occurred */
                     throw DaemonizeError("Second fork()");
@@ -77,7 +78,7 @@ namespace utils {
                     struct passwd* pw = nullptr;
                     struct group* gr = nullptr;
 
-                    if ((errno = 0, gr = getgrnam(groupName.c_str())) == nullptr) {
+                    if (((void) (errno = 0), gr = getgrnam(groupName.c_str())) == nullptr) {
                         if (errno != 0) {
                             throw DaemonizeError("getgrnam()");
                         } else {
@@ -85,7 +86,7 @@ namespace utils {
                         }
                     } else if (setegid(gr->gr_gid) != 0) {
                         throw DaemonizeError("setegid()");
-                    } else if ((errno = 0, pw = getpwnam(userName.c_str())) == nullptr) {
+                    } else if (((void) (errno = 0), (pw = getpwnam(userName.c_str())) == nullptr)) {
                         if (errno != 0) {
                             throw DaemonizeError("getpwnam()");
                         } else {
@@ -96,7 +97,10 @@ namespace utils {
                     } else {
                         /* Try to write PID of daemon to lockfile */
                         std::ofstream pidFile(pidFileName, std::ofstream::out);
-                        if (pidFile.good()) {
+
+                        if (!pidFile.good()) {
+                            throw DaemonizeError("Writing pid file '" + pidFileName);
+                        } else {
                             pidFile << getpid() << std::endl;
                             pidFile.close();
 
@@ -114,23 +118,24 @@ namespace utils {
                             }
                             if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
                             }
-                        } else {
-                            throw DaemonizeError("Writing pid file '" + pidFileName);
                         }
                     }
                 }
             }
-        } else {
-            throw DaemonizeFailure("Pid file '" + pidFileName + "' exists. Daemon already running?");
         }
     }
 
     void Daemon::stopDaemon(const std::string& pidFileName) {
-        if (!pidFileName.empty()) {
+        if (pidFileName.empty()) {
+            throw DaemonizeFailure("No pid file given");
+        } else {
             /* Try to read PID of daemon to from lockfile and kill the daemon */
             std::ifstream pidFile(pidFileName, std::ifstream::in);
 
-            if (pidFile.good()) {
+            if (!pidFile.good()) {
+                pidFile.close();
+                throw DaemonizeError("Reading pid file '" + pidFileName + "'");
+            } else {
                 int pid = 0;
                 pidFile >> pid;
                 pidFile.close();
@@ -140,7 +145,9 @@ namespace utils {
                 if (pidfd == -1) {
                     erasePidFile(pidFileName);
                     throw DaemonizeFailure("Daemon not running");
-                } else if (::kill(pid, SIGTERM) == 0) {
+                } else if (kill(pid, SIGTERM) != 0) {
+                    throw DaemonizeError("kill()");
+                } else {
                     struct pollfd pollfd {};
                     pollfd.fd = pidfd;
                     pollfd.events = POLLIN;
@@ -151,21 +158,14 @@ namespace utils {
                     if (ready == -1) {
                         throw DaemonizeError("poll()");
                     } else if (ready == 0) {
-                        ::kill(pid, SIGKILL);
+                        kill(pid, SIGKILL);
                         erasePidFile(pidFileName);
                         throw DaemonizeFailure("Daemon not responding - killed");
                     } else {
                         throw DaemonizeSuccess();
                     }
-                } else {
-                    throw DaemonizeError("kill()");
                 }
-            } else {
-                pidFile.close();
-                throw DaemonizeError("Reading pid file '" + pidFileName + "'");
             }
-        } else {
-            throw DaemonizeFailure("No pid file given");
         }
     }
 

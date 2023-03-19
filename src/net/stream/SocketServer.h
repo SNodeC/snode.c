@@ -43,11 +43,6 @@ namespace net::stream {
         using PhysicalSocket = PhysicalServerSocketT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
-        SocketServer() = default;
-        SocketServer(const SocketServer&) = default;
-
-        virtual ~SocketServer() = default;
-
         virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
         void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
