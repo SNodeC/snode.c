@@ -28,15 +28,72 @@
 
 namespace net {
 
+    // template <typename SocketContextFactoryT>
+    // using SocketServer =
+    // core::socket::TRANSPORT::ENCRYPTION::SocketServer<
+    //                                                   net::NET::TRANSPORT::SocketServer<
+    //                                                                                     net::NET::TRANSPORT::ENCRYPTION::config::ConfigSocketServer
+    //                                                                                    >,
+    //                                                   SocketContextFactoryT
+    //                                                  >;
+    //
+    // template <typename ConfigT>
+    // class net::NET::TRANSPORT::SocketServer :
+    // net::TRANSPORT::SocketServer<net::NET::TRANSPORT::PhysicalServerSocket, ConfigT>
+    //
+    // template <typename PhysicalServerSocketT, typename ConfigT>
+    // class net::TRANSPORT::SocketServer : net::LogicalSocket<ConfigT>
+    //
+    // net::NET::TRANSPORT::PhysicalServerSocket : net::TRANSPORT::PhysicalServerSocket<net::NET::STREAM::PhysicalSocket>
+    //
+    // net::TRANSPORT::PhysicalServerSocket<net::NET::TRANSPORT::PhysicalSocket>
+
+    // net::NET::TRANSPORT::PhysicalSocket : net::NET::PhysicalSocket
+    //
+    // net::NET::PhysicalSocket : net::PhysicalSocket<net::NET::SocketAddress>
+    //
+    // Inheritance structure
+    //
+    // net::NET::TRANSPORT::ENCRYPTION::SocketServer
+    // core::socket::TRANSPORT::ENCRYPTION::SocketServer
+    // core::socket::TRANSPORT::SocketServer
+    // net::NET::TRANSPORT::SocketServer
+    // net::TRANSPORT::SocketServer
+    // net::LogicalSocket
+    //
+    // net::NET::TRANSPORT::ENCRYPTION::SocketClient
+    // core::socket::TRANSPORT::ENCRYPTION::SocketClient
+    // core::socket::TRANSPORT::SocketClient
+    // net::NET::TRANSPORT::SocketClient
+    // net::TRANSPORT::SocketClient
+    // net::LogicalSocket
+    //
+    // net::NET::TRANSPORT::PhysicalServerSocket
+    // net::TRANSPORT::PhysicalServerSocket
+    // net::NET::TRANSPORT::PhysicalSocket
+    // net::NET::PhysicalSocket
+    // net::PhysicalSocket
+    //
+    // net::NET::TRANSPORT::PhysicalClientSocket
+    // net::TRANSPORT::PhysicalClientSocket   -> system::connect
+    // net::NET::TRANSPORT::PhysicalSocket
+    // net::NET::PhysicalSocket
+    // net::PhysicalSocket
+
     template <typename ConfigT>
     class LogicalSocket {
     public:
         using Config = ConfigT;
 
         explicit LogicalSocket(const std::string& name);
-        LogicalSocket(const LogicalSocket&) = default;
 
-        virtual ~LogicalSocket() = default;
+        LogicalSocket(const LogicalSocket&) = default;
+        LogicalSocket(LogicalSocket&&) = default;
+
+        LogicalSocket& operator=(const LogicalSocket&) = default;
+        LogicalSocket& operator=(LogicalSocket&&) = default;
+
+        virtual ~LogicalSocket();
 
         Config& getConfig() const;
 

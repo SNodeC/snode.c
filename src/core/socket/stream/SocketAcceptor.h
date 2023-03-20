@@ -58,16 +58,12 @@ namespace core::socket::stream {
         using Config = typename SocketServer::Config;
         using SocketAddress = typename PrimaryPhysicalSocket::SocketAddress;
 
-        /** Sequence diagramm of res.upgrade(req).
-        @startuml
-        !include core/socket/stream/pu/SocketAcceptor.pu!0
-        @enduml
-        */
-
         SocketAcceptor() = delete;
         SocketAcceptor(const SocketAcceptor&) = delete;
+        SocketAcceptor(SocketAcceptor&&) = delete;
 
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
+        SocketAcceptor& operator=(SocketAcceptor&&) = delete;
 
         SocketAcceptor(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,

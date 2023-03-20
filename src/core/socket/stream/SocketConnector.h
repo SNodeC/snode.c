@@ -55,8 +55,10 @@ namespace core::socket::stream {
 
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
+        SocketConnector(SocketConnector&&) = delete;
 
         SocketConnector& operator=(const SocketConnector&) = delete;
+        SocketConnector& operator=(SocketConnector&&) = delete;
 
         SocketConnector(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                         const std::function<void(SocketConnection*)>& onConnect,

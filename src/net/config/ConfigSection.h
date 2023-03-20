@@ -42,6 +42,11 @@ namespace net::config {
     class ConfigSection {
     public:
         ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description, bool hidden = false);
+        ConfigSection(const ConfigSection&) = delete;
+        ConfigSection(ConfigSection&&) = delete;
+
+        ConfigSection& operator=(const ConfigSection&) = delete;
+        ConfigSection& operator=(ConfigSection&&) = delete;
 
     protected:
         CLI::Option* add_option(CLI::Option*& opt, const std::string& name, const std::string& description);

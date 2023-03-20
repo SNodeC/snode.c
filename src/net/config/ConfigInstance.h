@@ -38,8 +38,10 @@ namespace net::config {
         ConfigInstance() = default;
         explicit ConfigInstance(const std::string& name, const std::string& description);
         ConfigInstance(const ConfigInstance&) = delete;
+        ConfigInstance(ConfigInstance&&) = delete;
 
         ConfigInstance& operator=(const ConfigInstance&) = delete;
+        ConfigInstance& operator=(ConfigInstance&&) = delete;
 
         virtual ~ConfigInstance();
 

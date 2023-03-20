@@ -134,8 +134,7 @@ namespace core::socket::stream::tls {
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-
-                              X509_free(client_cert);
+                          X509_free(client_cert);
                       } else {
                           VLOG(0) << "\tPeer certificate: no certificate";
                       }

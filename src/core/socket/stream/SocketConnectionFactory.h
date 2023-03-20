@@ -45,6 +45,12 @@ namespace core::socket::stream {
         using SocketConnection = SocketConnectionT;
 
     public:
+        SocketConnectionFactory(const SocketConnectionFactory&) = delete;
+        SocketConnectionFactory(SocketConnectionFactory&&) = delete;
+
+        SocketConnectionFactory& operator=(const SocketConnectionFactory&) = delete;
+        SocketConnectionFactory& operator=(SocketConnectionFactory&&) = delete;
+
         SocketConnectionFactory(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                                 const std::function<void(SocketConnection*)>& onConnect,
                                 const std::function<void(SocketConnection*)>& onConnected,

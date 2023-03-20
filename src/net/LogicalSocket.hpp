@@ -30,6 +30,10 @@ namespace net {
     }
 
     template <typename Config>
+    LogicalSocket<Config>::~LogicalSocket() {
+    }
+
+    template <typename Config>
     Config& LogicalSocket<Config>::getConfig() const {
         return *config;
     }

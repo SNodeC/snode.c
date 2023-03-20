@@ -56,8 +56,6 @@ namespace core::socket::stream {
             setTimeout(timeout);
         }
 
-        ~SocketReader() override = default;
-
     private:
         virtual void onReceivedFromPeer(std::size_t available) = 0;
 

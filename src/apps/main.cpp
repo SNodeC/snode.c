@@ -7,7 +7,7 @@
 #pragma clang diagnostic ignored "-Wweak-vtables"
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
-#include "utils/CLI11.hpp" // IWYU pragma: export
+//#include "utils/CLI11.hpp" // IWYU pragma: export
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -15,55 +15,155 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include "utils/Formatter.h"
-
-#include <cstdint>
 #include <iostream>
-#include <memory>
-#include <openssl/opensslv.h>
 #include <string>
+#include <utility>
 
-// IWYU pragma: no_include <bits/utility.h>
+void g(int&& b) {
+    int&& a = std::move(b);
+    std::cout << "RREF";
+    std::cout << "B = " << b << std::endl;
+    std::cout << "B A = " << a << std::endl;
+}
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-using ssl_option_t = uint64_t;
-#else
-using ssl_option_t = uint32_t;
-#endif
+void g(int& b) {
+    std::cout << "LREF";
+    std::cout << "B = " << b << std::endl;
+}
 
-int main(int argc, char** argv) {
-    CLI::App app("data output specification");
-    app.set_help_all_flag("--help-all", "Expand all help");
-    std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
-    app.config_formatter(configFormatter);
+void f(int&& a) {
+    std::cout << "A = " << a << std::endl;
+    g(std::move(a));
+    g(a);
+}
 
-    CLI::App* tlsSub = app.add_subcommand("tls", "SNI Certificate");
-    tlsSub->required();
+class Member {
+public:
+    Member()
+        : a(0)
+        , b(0) {
+        std::cout << "Member()" << std::endl;
+    }
 
-    //    sniOpt->required();
+    Member(int a, int b)
+        : a(a)
+        , b(b) {
+        std::cout << "Member(int a, int b)" << std::endl;
+    }
 
-    // tlsSub->disabled();
-    CLI::App* sniCertSub = tlsSub->add_subcommand("snicert", "Domain for SNI certificate");
-    sniCertSub->required();
+    Member(Member&& member)
+        : a(std::move(member.a))
+        , b(std::move(member.b)) {
+        std::cout << "Member(Member&&)" << std::endl;
+        member.a = 0;
+        member.b = 0;
+    }
 
-    std::string sniName;
+    Member(const Member& member)
+        : a(member.a)
+        , b(member.b) {
+        std::cout << "Member(const Member&)" << std::endl;
+    }
 
-    CLI::Option* sniOpt = sniCertSub->add_option("--sni", sniName, "SNI Name");
-    sniOpt->type_name("[FQDN with Wildcards]");
-    sniOpt->default_val("Test SNIName");
+    Member& operator=(Member&& member) {
+        std::cout << "Member& operator=(const Member&)" << std::endl;
+        a = std::move(member.a);
+        b = std::move(member.b);
+        member.a = 0;
+        member.b = 0;
+        return *this;
+    }
 
-    //    sniOpt->required();
+    Member& operator=(const Member& member) {
+        std::cout << "Member& operator=(const Member&)" << std::endl;
+        a = member.a;
+        b = member.b;
+        return *this;
+    }
 
-    // tlsSub->disabled();
+    void print() {
+        std::cout << "Test: a = " << a << std::endl;
+        std::cout << "Test: b = " << b << std::endl;
+    }
 
-    sniOpt->default_val("Hihihi");
-    //    sniOpt->add_result("hihihi");
+private:
+    int a;
+    int b;
+};
 
-    //    CLI11_PARSE(app, argc, argv)
+class Test {
+public:
+    Test() {
+    }
 
-    app.parse(argc, argv);
+    Test(int a, int b)
+        : member(a, b) {
+        std::cout << "Test(int a, int b)" << std::endl;
+    }
 
-    std::cout << app.config_to_str(true, true) << std::endl;
+    Test(Test&& test)
+        : member(std::move(test.member)) {
+        std::cout << "Test(Test&& test)" << std::endl;
+    }
+
+    Test(const Test& test)
+        : member(test.member) {
+        std::cout << "Test(const Test& test)" << std::endl;
+    }
+
+    Test& operator=(Test&& test) {
+        std::cout << "Test& operator=(Test&& test)" << std::endl;
+        member = std::move(test.member);
+        return *this;
+    }
+
+    Test& operator=(const Test& test) {
+        std::cout << "Test& operator=(const Test& test)" << std::endl;
+        member = test.member;
+        return *this;
+    }
+
+    void print(const std::string& message) {
+        std::cout << "Message: " << message << std::endl;
+        member.print();
+        std::cout << std::endl;
+    }
+
+private:
+    Member member;
+};
+
+Test getTest(int a, int b) {
+    return Test(a, b);
+}
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
+    Test test1(5, 6);
+    test1.print("Test test1(5, 6)");
+
+    Test test2;
+    test2.print("Test test2");
+
+    test2 = test1;
+    test2.print("test2 = test1");
+
+    Test test3(Test(7, 8));
+    test3.print("Test test3(Test(7, 8))");
+
+    Test test4(test3);
+    test4.print("Test test4(test3)");
+
+    Test test5(std::move(test3));
+    test4.print("Test test4(std::move(test3))");
+
+    test3.print("Should be 0, 0");
+
+    bool cond = false;
+
+    Test test6;
+    test6 = cond ? getTest(7, 8) : Test(9, 10);
+
+    test6.print("test6 = cond ? getTest(7, 8) : Test(9, 10)");
 
     return 0;
 }
