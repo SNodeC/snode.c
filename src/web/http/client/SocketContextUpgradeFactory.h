@@ -54,4 +54,6 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
+extern template class web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>;
+
 #endif // WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H

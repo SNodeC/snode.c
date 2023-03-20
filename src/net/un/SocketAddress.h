@@ -50,4 +50,6 @@ namespace net::un {
 
 } // namespace net::un
 
+extern template class net::SocketAddress<sockaddr_un>;
+
 #endif // NET_UN_SOCKETADDRESS_H

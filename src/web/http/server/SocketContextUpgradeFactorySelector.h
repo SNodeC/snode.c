@@ -47,4 +47,6 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
+extern template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;
+
 #endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H

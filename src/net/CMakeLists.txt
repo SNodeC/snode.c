@@ -74,14 +74,6 @@ target_include_directories(
 
 set_target_properties(net PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(
-        net PUBLIC -Wno-undefined-func-template -Wno-covered-switch-default
-    )
-endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-
-target_compile_options(net PUBLIC -Wno-float-equal)
-
 install(
     TARGETS net
     EXPORT snodec_net_Targets

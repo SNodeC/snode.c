@@ -36,12 +36,6 @@ set_target_properties(
                SOVERSION 1 # PREFIX "ssp"
 )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(
-        echoclientsubprotocol PRIVATE -Wno-undefined-func-template
-    )
-endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-
 install(TARGETS echoclientsubprotocol
         LIBRARY DESTINATION ${WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR}
 )

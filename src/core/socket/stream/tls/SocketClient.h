@@ -87,11 +87,24 @@ namespace core::socket::stream::tls {
 
                           GENERAL_NAMES* subjectAltNames =
                               static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
-
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#endif
                           int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
                           VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
                           for (int32_t i = 0; i < altNameCount; ++i) {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#endif
                               GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
                               if (generalName->type == GEN_URI) {
                                   std::string subjectAltName = std::string(
                                       reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
@@ -106,8 +119,14 @@ namespace core::socket::stream::tls {
                                   VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                               }
                           }
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#endif
                           sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
-
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
                           X509_free(server_cert);
                       } else {
                           VLOG(0) << "\tPeer certificate: no certificate";

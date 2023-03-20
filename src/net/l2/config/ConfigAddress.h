@@ -19,6 +19,8 @@
 #ifndef NET_L2_CONFIG_CONFIGADDRESS_H
 #define NET_L2_CONFIG_CONFIGADDRESS_H
 
+#include "net/config/ConfigAddressLocal.h"  // IWYU pragma: keep
+#include "net/config/ConfigAddressRemote.h" // IWYU pragma: keep
 #include "net/l2/SocketAddress.h"
 
 namespace net::config {
@@ -68,5 +70,11 @@ namespace net::l2::config {
     };
 
 } // namespace net::l2::config
+
+extern template class net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>;
+extern template class net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>;
+
+extern template class net::config::ConfigAddressLocal<net::l2::SocketAddress>;
+extern template class net::config::ConfigAddressRemote<net::l2::SocketAddress>;
 
 #endif // NET_L2_CONFIG_CONFIGADDRESS_H

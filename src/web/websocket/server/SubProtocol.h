@@ -23,11 +23,11 @@
 
 namespace web::websocket {
     class SubProtocolContext;
-}
 
-namespace web::websocket::server {
-    class SocketContextUpgrade;
-}
+    namespace server {
+        class SocketContextUpgrade;
+    }
+} // namespace web::websocket
 
 // IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
 
@@ -85,5 +85,7 @@ namespace web::websocket::server {
     };
 
 } // namespace web::websocket::server
+
+extern template class web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
 
 #endif // WEB_WEBSOCKET_SERVER_SUBSPROTOCOL_H

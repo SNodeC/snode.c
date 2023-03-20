@@ -69,4 +69,6 @@ namespace web::websocket::server {
 
 } // namespace web::websocket::server
 
+extern template class web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>;
+
 #endif // WEB_WEBSOCKET_SERVER_SOCKTECONTEXT_H

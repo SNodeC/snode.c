@@ -44,4 +44,6 @@ namespace net::rc::stream {
 
 } // namespace net::rc::stream
 
+extern template class net::stream::PhysicalClientSocket<net::rc::stream::PhysicalSocket>;
+
 #endif // NET_RC_STREAM_PHYSICALCLIENTSOCKET_H

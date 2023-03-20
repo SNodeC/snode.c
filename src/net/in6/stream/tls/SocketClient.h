@@ -36,4 +36,8 @@ namespace net::in6::stream::tls {
 
 } // namespace net::in6::stream::tls
 
+extern template class net::in6::stream::SocketClient<net::in6::stream::tls::config::ConfigSocketClient>;
+extern template class net::stream::SocketClient<net::in6::stream::PhysicalClientSocket, net::in6::stream::tls::config::ConfigSocketClient>;
+extern template class net::LogicalSocket<net::in6::stream::tls::config::ConfigSocketClient>;
+
 #endif // NET_IN6_STREAM_TLS_SOCKETCLIENT_H

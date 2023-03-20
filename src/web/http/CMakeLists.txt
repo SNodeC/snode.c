@@ -67,10 +67,6 @@ set_target_properties(
                EXPORT_PROPERTIES "HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR"
 )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(http PUBLIC -Wno-undefined-func-template)
-endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-
 install(
     TARGETS http
     EXPORT snodec_http_Targets

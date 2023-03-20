@@ -19,11 +19,13 @@
 #ifndef NET_IN_CONFIG_CONFIGADDRESS_H
 #define NET_IN_CONFIG_CONFIGADDRESS_H
 
+#include "net/config/ConfigAddressLocal.h"  // IWYU pragma: keep
+#include "net/config/ConfigAddressRemote.h" // IWYU pragma: keep
 #include "net/in/SocketAddress.h"
 
 namespace net::config {
     class ConfigInstance;
-}
+} // namespace net::config
 
 // IWYU pragma: no_include "net/config/ConfigAddressLocal.hpp"
 // IWYU pragma: no_include "net/config/ConfigAddressRemote.hpp"
@@ -68,5 +70,11 @@ namespace net::in::config {
     };
 
 } // namespace net::in::config
+
+extern template class net::in::config::ConfigAddress<net::config::ConfigAddressLocal>;
+extern template class net::in::config::ConfigAddress<net::config::ConfigAddressRemote>;
+
+extern template class net::config::ConfigAddressLocal<net::in::SocketAddress>;
+extern template class net::config::ConfigAddressRemote<net::in::SocketAddress>;
 
 #endif // NET_IN_CONFIG_CONFIGADDRESS_H

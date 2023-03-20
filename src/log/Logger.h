@@ -21,7 +21,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#endif
 #include <easylogging++.h> // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

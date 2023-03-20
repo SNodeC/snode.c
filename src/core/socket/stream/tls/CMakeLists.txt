@@ -52,12 +52,6 @@ else(NOT OpenSSL_FOUND)
         PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-socket-stream-tls
     )
 
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_compile_options(
-            core-socket-stream-tls PUBLIC -Wno-used-but-marked-unused
-        )
-    endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-
     install(
         TARGETS core-socket-stream-tls
         EXPORT snodec_core-socket-stream-tls_Targets

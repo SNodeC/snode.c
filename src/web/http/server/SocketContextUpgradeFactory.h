@@ -52,4 +52,6 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
+extern template class web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>;
+
 #endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H

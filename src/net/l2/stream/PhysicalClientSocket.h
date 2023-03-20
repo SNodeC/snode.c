@@ -44,4 +44,6 @@ namespace net::l2::stream {
 
 } // namespace net::l2::stream
 
+extern template class net::stream::PhysicalClientSocket<net::l2::stream::PhysicalSocket>;
+
 #endif // NET_L2_STREAM_PHYSICALCLIENTSOCKET_H

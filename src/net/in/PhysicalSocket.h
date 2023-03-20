@@ -45,4 +45,6 @@ namespace net::in {
 
 } // namespace net::in
 
+extern template class net::PhysicalSocket<net::in::SocketAddress>;
+
 #endif // NET_IN_PHYSICALSOCKET_H

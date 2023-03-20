@@ -38,7 +38,6 @@ namespace apps::websocket::subprotocol::echo::server {
     class Echo : public web::websocket::server::SubProtocol {
     public:
         Echo(web::websocket::SubProtocolContext* socketContextUpgradeBase, const std::string& name);
-        ~Echo() override = default;
 
     private:
         void onConnected() override;

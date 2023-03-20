@@ -21,9 +21,9 @@
 
 #include "web/websocket/SubProtocol.h"
 
-namespace web::websocket::client {
+namespace web::websocket ::client {
     class SocketContextUpgrade;
-}
+} // namespace web::websocket::client
 
 // IWYU pragma: no_include "web/websocket/SubProtocol.hpp"
 
@@ -36,6 +36,8 @@ namespace web::websocket::client {
     class SubProtocol : public web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade> {
     private:
         using Super = web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>;
+
+    protected:
         using Super::Super;
 
     public:
@@ -55,5 +57,7 @@ namespace web::websocket::client {
     };
 
 } // namespace web::websocket::client
+
+extern template class web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>;
 
 #endif // WEB_WEBSOCKET_CLIENT_SUBSPROTOCOL_H

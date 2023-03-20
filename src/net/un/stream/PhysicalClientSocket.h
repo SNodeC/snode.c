@@ -46,4 +46,6 @@ namespace net::un::stream {
 
 } // namespace net::un::stream
 
+extern template class net::stream::PhysicalClientSocket<net::un::stream::PhysicalSocket>;
+
 #endif // NET_UN_STREAM_PHYSICALCLIENTSOCKET_H

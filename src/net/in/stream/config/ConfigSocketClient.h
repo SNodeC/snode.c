@@ -43,4 +43,6 @@ namespace net::in::stream::config {
 
 } // namespace net::in::stream::config
 
+extern template class net::stream::config::ConfigSocketClient<net::in::config::ConfigAddress>;
+
 #endif // NET_IN_STREAM_CONFIG_CONFIGSOCKETCLIENT_H

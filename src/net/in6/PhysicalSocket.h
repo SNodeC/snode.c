@@ -45,4 +45,6 @@ namespace net::in6 {
 
 } // namespace net::in6
 
+extern template class net::PhysicalSocket<net::in6::SocketAddress>;
+
 #endif // NET_IN6_PHYSICALSOCKET_H

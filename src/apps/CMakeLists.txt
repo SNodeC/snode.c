@@ -15,7 +15,6 @@ target_link_libraries(snode.c PUBLIC snodec::core)
 set_target_properties(
     snode.c PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
 )
-target_compile_options(snode.c PRIVATE -Wno-float-equal)
 install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testpost testpost.cpp)
@@ -111,11 +110,6 @@ install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 add_executable(configtest configtest.cpp)
 target_link_libraries(configtest PRIVATE snodec::core)
 install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-set_source_files_properties(
-    configtest.cpp
-    PROPERTIES COMPILE_FLAGS
-               "-Wno-float-equal -Wno-implicit-int-float-conversion"
-)
 
 add_executable(testbasicauthentication testbasicauthentication.cpp)
 target_link_libraries(

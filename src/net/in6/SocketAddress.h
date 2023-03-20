@@ -55,4 +55,6 @@ namespace net::in6 {
 
 } // namespace net::in6
 
+extern template class net::SocketAddress<sockaddr_in6>;
+
 #endif // NET_IN6_SOCKETADDRESS_H

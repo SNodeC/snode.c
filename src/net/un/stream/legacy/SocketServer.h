@@ -36,4 +36,8 @@ namespace net::un::stream::legacy {
 
 } // namespace net::un::stream::legacy
 
+extern template class net::un::stream::SocketServer<net::un::stream::legacy::config::ConfigSocketServer>;
+extern template class net::stream::SocketServer<net::un::stream::PhysicalServerSocket, net::un::stream::legacy::config::ConfigSocketServer>;
+extern template class net::LogicalSocket<net::un::stream::legacy::config::ConfigSocketServer>;
+
 #endif // NET_UN_STREAM_LEGACY_SOCKETSERVER_H

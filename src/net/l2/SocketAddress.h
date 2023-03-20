@@ -54,4 +54,6 @@ namespace net::l2 {
 
 } // namespace net::l2
 
+extern template class net::SocketAddress<sockaddr_l2>;
+
 #endif // NET_L2_SOCKETADDRESS_H
