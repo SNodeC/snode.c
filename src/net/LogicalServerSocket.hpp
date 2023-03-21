@@ -16,14 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/tls/SocketClient.h"
-
-#include "net/rc/stream/SocketClient.hpp" // IWYU pragma: keep
+#include "LogicalServerSocket.h"
+#include "LogicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-template class net::rc::stream::SocketClient<net::rc::stream::tls::config::ConfigSocketClient>;
-template class net::LogicalClientSocket<net::rc::stream::PhysicalClientSocket, net::rc::stream::tls::config::ConfigSocketClient>;
-template class net::LogicalSocket<net::rc::stream::tls::config::ConfigSocketClient>;
+namespace net {} // namespace net

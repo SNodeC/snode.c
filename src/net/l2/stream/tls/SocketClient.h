@@ -37,7 +37,7 @@ namespace net::l2::stream::tls {
 } // namespace net::l2::stream::tls
 
 extern template class net::l2::stream::SocketClient<net::l2::stream::tls::config::ConfigSocketClient>;
-extern template class net::stream::SocketClient<net::l2::stream::PhysicalClientSocket, net::l2::stream::tls::config::ConfigSocketClient>;
+extern template class net::LogicalClientSocket<net::l2::stream::PhysicalClientSocket, net::l2::stream::tls::config::ConfigSocketClient>;
 extern template class net::LogicalSocket<net::l2::stream::tls::config::ConfigSocketClient>;
 
 #endif // NET_L2_STREAM_LEGACY_SOCKETCLIENT_H

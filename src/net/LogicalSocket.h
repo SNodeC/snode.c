@@ -56,9 +56,9 @@ namespace net {
     //
     // net::NET::TRANSPORT::ENCRYPTION::SocketServer
     // core::socket::TRANSPORT::ENCRYPTION::SocketServer
-    // core::socket::TRANSPORT::SocketServer
-    // net::NET::TRANSPORT::SocketServer
-    // net::TRANSPORT::SocketServer
+    // core::socket::TRANSPORT::SocketServer // parameter less listen, common listen
+    // net::NET::TRANSPORT::SocketServer // special listen
+    // net::TRANSPORT::SocketServer // pure virtual common listen
     // net::LogicalSocket
     //
     // net::NET::TRANSPORT::ENCRYPTION::SocketClient

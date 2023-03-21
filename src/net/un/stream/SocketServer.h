@@ -19,7 +19,7 @@
 #ifndef NET_UN_STREAM_SOCKETSERVER_H
 #define NET_UN_STREAM_SOCKETSERVER_H
 
-#include "net/stream/SocketServer.h"            // IWYU pragma: export
+#include "net/LogicalServerSocket.h"            // IWYU pragma: export
 #include "net/un/stream/PhysicalServerSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,9 +32,9 @@
 namespace net::un::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::stream::SocketServer<net::un::stream::PhysicalServerSocket, ConfigT> {
+    class SocketServer : public net::LogicalServerSocket<net::un::stream::PhysicalServerSocket, ConfigT> {
     private:
-        using Super = net::stream::SocketServer<net::un::stream::PhysicalServerSocket, ConfigT>;
+        using Super = net::LogicalServerSocket<net::un::stream::PhysicalServerSocket, ConfigT>;
 
     protected:
         using Super::Super;

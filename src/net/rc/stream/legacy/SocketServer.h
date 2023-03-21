@@ -37,7 +37,7 @@ namespace net::rc::stream::legacy {
 } // namespace net::rc::stream::legacy
 
 extern template class net::rc::stream::SocketServer<net::rc::stream::legacy::config::ConfigSocketServer>;
-extern template class net::stream::SocketServer<net::rc::stream::PhysicalServerSocket, net::rc::stream::legacy::config::ConfigSocketServer>;
+extern template class net::LogicalServerSocket<net::rc::stream::PhysicalServerSocket, net::rc::stream::legacy::config::ConfigSocketServer>;
 extern template class net::LogicalSocket<net::rc::stream::legacy::config::ConfigSocketServer>;
 
 #endif // NET_RC_STREAM_LEGACY_SOCKETSERVER_H

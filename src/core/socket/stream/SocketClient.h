@@ -73,6 +73,20 @@ namespace core::socket::stream {
             new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, Super::config);
         }
 
+        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const override {
+            Super::config->Remote::setAddress(remoteAddress);
+
+            connect(onError);
+        }
+
+        void connect(const SocketAddress& remoteAddress,
+                     const SocketAddress& localAddress,
+                     const std::function<void(const SocketAddress&, int)>& onError) const override {
+            Super::config->Local::setAddress(localAddress);
+
+            connect(remoteAddress, onError);
+        }
+
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
             _onConnect = onConnect;
         }

@@ -17,6 +17,10 @@ set(NET_CPP
 set(NET_H
     LogicalSocket.h
     LogicalSocket.hpp
+    LogicalClientSocket.h
+    LogicalClientSocket.hpp
+    LogicalServerSocket.h
+    LogicalServerSocket.hpp
     PhysicalSocket.h
     PhysicalSocket.hpp
     SocketAddress.h
@@ -44,10 +48,6 @@ set(NET_H
     stream/PhysicalClientSocket.hpp
     stream/PhysicalServerSocket.h
     stream/PhysicalServerSocket.hpp
-    stream/SocketClient.h
-    stream/SocketClient.hpp
-    stream/SocketServer.h
-    stream/SocketServer.hpp
     stream/config/ConfigSocketClient.h
     stream/config/ConfigSocketClient.hpp
     stream/config/ConfigSocketServer.h

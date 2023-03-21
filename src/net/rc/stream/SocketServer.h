@@ -19,8 +19,8 @@
 #ifndef NET_RC_STREAM_SOCKETSERVER_H
 #define NET_RC_STREAM_SOCKETSERVER_H
 
+#include "net/LogicalServerSocket.h"            // IWYU pragma: export
 #include "net/rc/stream/PhysicalServerSocket.h" // IWYU pragma: export
-#include "net/stream/SocketServer.h"            // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,9 +33,9 @@
 namespace net::rc::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::stream::SocketServer<net::rc::stream::PhysicalServerSocket, ConfigT> {
+    class SocketServer : public net::LogicalServerSocket<net::rc::stream::PhysicalServerSocket, ConfigT> {
     private:
-        using Super = net::stream::SocketServer<net::rc::stream::PhysicalServerSocket, ConfigT>;
+        using Super = net::LogicalServerSocket<net::rc::stream::PhysicalServerSocket, ConfigT>;
 
     protected:
         using Super::Super;
