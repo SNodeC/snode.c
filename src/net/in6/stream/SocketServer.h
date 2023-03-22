@@ -19,7 +19,7 @@
 #ifndef NET_IN6_STREAM_SOCKETSERVER_H
 #define NET_IN6_STREAM_SOCKETSERVER_H
 
-#include "net/LogicalSocketServer.h"             // IWYU pragma: export
+#include "core/socket/stream/LogicalSocketServer.h"             // IWYU pragma: export
 #include "net/in6/stream/PhysicalServerSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,9 +33,9 @@
 namespace net::in6::stream {
 
     template <typename ConfigT>
-    class SocketServer : public net::LogicalSocketServer<net::in6::stream::PhysicalServerSocket, ConfigT> {
+    class SocketServer : public core::socket::stream::LogicalSocketServer<net::in6::stream::PhysicalServerSocket, ConfigT> {
     private:
-        using Super = net::LogicalSocketServer<net::in6::stream::PhysicalServerSocket, ConfigT>;
+        using Super = core::socket::stream::LogicalSocketServer<net::in6::stream::PhysicalServerSocket, ConfigT>;
 
     protected:
         using Super::Super;

@@ -4,7 +4,7 @@ set(CORE_SOCKET_CPP PhysicalSocket.cpp PhysicalSocketOption.cpp
                     SocketAddress.cpp SocketConnection.cpp SocketContext.cpp
 )
 
-set(CORE_SOCKET_H PhysicalSocket.h PhysicalSocketOption.h SocketAddress.h
+set(CORE_SOCKET_H LogicalSocket.h LogicalSocket.hpp PhysicalSocket.h PhysicalSocketOption.h SocketAddress.h
                   SocketConnection.h SocketContext.h
 )
 

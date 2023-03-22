@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIGSOCKET_H
-#define NET_CONFIGSOCKET_H
+#ifndef CORE_SOCKET_LOGICALSOCKET_H
+#define CORE_SOCKET_LOGICALSOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,23 +26,23 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace core::socket {
 
     // net::NET::TRANSPORT::ENCRYPTION::SocketServer
     // core::socket::TRANSPORT::ENCRYPTION::SocketServer
     // core::socket::TRANSPORT::SocketServer
     // net::NET::TRANSPORT::SocketServer
     // net::TRANSPORT::SocketServer
-    // net::LogicalSocketServer
-    // net::LogicalSocket
+    // core::socket::stream::LogicalSocketServer
+    // core::socket::LogicalSocket
     //
     // net::NET::TRANSPORT::ENCRYPTION::SocketClient
     // core::socket::TRANSPORT::ENCRYPTION::SocketClient
     // core::socket::TRANSPORT::SocketClient
     // net::NET::TRANSPORT::SocketClient
     // net::TRANSPORT::SocketClient
-    // net::LogicalSocketClient
-    // net::LogicalSocket
+    // core::socket::stream::LogicalSocketClient
+    // core::socket::LogicalSocket
 
     template <typename ConfigT>
     class LogicalSocket {
@@ -65,6 +65,6 @@ namespace net {
         std::shared_ptr<Config> config;
     };
 
-} // namespace net
+} // namespace core::socket
 
-#endif // NET_CONFIGSOCKET_H
+#endif // CORE_SOCKET_LOGICALSOCKET_H

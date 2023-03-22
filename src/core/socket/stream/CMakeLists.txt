@@ -5,6 +5,10 @@ set(CORE_SOCKET_STREAM_CPP SocketContext.cpp SocketContextFactory.cpp
 )
 
 set(CORE_SOCKET_STREAM_H
+    LogicalSocketClient.h
+    LogicalSocketClient.hpp
+    LogicalSocketServer.h
+    LogicalSocketServer.hpp
     SocketAcceptor.h
     SocketClient.h
     SocketConnection.h

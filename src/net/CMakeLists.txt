@@ -15,12 +15,6 @@ set(NET_CPP
 )
 
 set(NET_H
-    LogicalSocket.h
-    LogicalSocket.hpp
-    LogicalSocketClient.h
-    LogicalSocketClient.hpp
-    LogicalSocketServer.h
-    LogicalSocketServer.hpp
     PhysicalSocket.h
     PhysicalSocket.hpp
     SocketAddress.h

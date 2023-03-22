@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/LogicalSocketClient.h"
-#include "net/LogicalSocket.hpp"
+#include "core/socket/LogicalSocket.hpp"
+#include "core/socket/stream/LogicalSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net {} // namespace net
+namespace core::socket::stream {} // namespace core::socket::stream

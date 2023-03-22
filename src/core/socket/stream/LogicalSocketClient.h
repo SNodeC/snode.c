@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_LOGICALCLIENTSOCKET_H
-#define NET_LOGICALCLIENTSOCKET_H
+#ifndef CORE_SOCKET_STREAM_LOGICALSOCKETCLIENT_H
+#define CORE_SOCKET_STREAM_LOGICALSOCKETCLIENT_H
 
-#include "net/LogicalSocket.h" // IWYU pragma: export
+#include "core/socket/LogicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,12 +27,12 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net {
+namespace core::socket::stream {
 
     template <typename PhysicalClientSocketT, typename ConfigT>
-    class LogicalSocketClient : public net::LogicalSocket<ConfigT> {
+    class LogicalSocketClient : public core::socket::LogicalSocket<ConfigT> {
     protected:
-        using Super = net::LogicalSocket<ConfigT>;
+        using Super = core::socket::LogicalSocket<ConfigT>;
         using Super::Super;
 
     public:
@@ -49,6 +49,6 @@ namespace net {
                              const std::function<void(const SocketAddress&, int)>& onError) const = 0;
     };
 
-} // namespace net
+} // namespace core::socket::stream
 
-#endif // NET_LOGICALCLIENTSOCKET_H
+#endif // CORE_SOCKET_STREAM_LOGICALSOCKETCLIENT_H

@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/LogicalSocket.h"
+#include "core/socket/LogicalSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace core::socket {
 
     template <typename Config>
     LogicalSocket<Config>::LogicalSocket(const std::string& name)
@@ -38,4 +38,4 @@ namespace net {
         return *config;
     }
 
-} // namespace net
+} // namespace core::socket
