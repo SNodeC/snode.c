@@ -37,7 +37,7 @@ namespace net::un::stream::tls {
 } // namespace net::un::stream::tls
 
 extern template class net::un::stream::SocketServer<net::un::stream::tls::config::ConfigSocketServer>;
-extern template class net::LogicalServerSocket<net::un::stream::PhysicalServerSocket, net::un::stream::tls::config::ConfigSocketServer>;
+extern template class net::LogicalSocketServer<net::un::stream::PhysicalServerSocket, net::un::stream::tls::config::ConfigSocketServer>;
 extern template class net::LogicalSocket<net::un::stream::tls::config::ConfigSocketServer>;
 
 #endif // NET_UN_STREAM_TLS_SOCKETSERVER_H

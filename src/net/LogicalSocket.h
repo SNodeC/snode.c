@@ -33,7 +33,7 @@ namespace net {
     // core::socket::TRANSPORT::SocketServer
     // net::NET::TRANSPORT::SocketServer
     // net::TRANSPORT::SocketServer
-    // net::LogicalServerSocket
+    // net::LogicalSocketServer
     // net::LogicalSocket
     //
     // net::NET::TRANSPORT::ENCRYPTION::SocketClient
@@ -41,7 +41,7 @@ namespace net {
     // core::socket::TRANSPORT::SocketClient
     // net::NET::TRANSPORT::SocketClient
     // net::TRANSPORT::SocketClient
-    // net::LogicalClientSocket
+    // net::LogicalSocketClient
     // net::LogicalSocket
 
     template <typename ConfigT>

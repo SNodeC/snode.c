@@ -25,5 +25,5 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class net::l2::stream::SocketServer<net::l2::stream::tls::config::ConfigSocketServer>;
-template class net::LogicalServerSocket<net::l2::stream::PhysicalServerSocket, net::l2::stream::tls::config::ConfigSocketServer>;
+template class net::LogicalSocketServer<net::l2::stream::PhysicalServerSocket, net::l2::stream::tls::config::ConfigSocketServer>;
 template class net::LogicalSocket<net::l2::stream::tls::config::ConfigSocketServer>;

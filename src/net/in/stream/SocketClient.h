@@ -19,7 +19,7 @@
 #ifndef NET_IN_STREAM_SOCKETCLIENT_H
 #define NET_IN_STREAM_SOCKETCLIENT_H
 
-#include "net/LogicalClientSocket.h"            // IWYU pragma: export
+#include "net/LogicalSocketClient.h"            // IWYU pragma: export
 #include "net/in/stream/PhysicalClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,9 +33,9 @@
 namespace net::in::stream {
 
     template <typename ConfigT>
-    class SocketClient : public net::LogicalClientSocket<net::in::stream::PhysicalClientSocket, ConfigT> {
+    class SocketClient : public net::LogicalSocketClient<net::in::stream::PhysicalClientSocket, ConfigT> {
     private:
-        using Super = net::LogicalClientSocket<net::in::stream::PhysicalClientSocket, ConfigT>;
+        using Super = net::LogicalSocketClient<net::in::stream::PhysicalClientSocket, ConfigT>;
 
     protected:
         using Super::Super;

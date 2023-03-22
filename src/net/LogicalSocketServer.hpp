@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LogicalClientSocket.h"
-#include "LogicalSocket.hpp"
+#include "net/LogicalSocketServer.h"
+#include "net/LogicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

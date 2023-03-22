@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_LOGICALSERVERSOCKET_H
-#define NET_LOGICALSERVERSOCKET_H
+#ifndef NET_LOGICALCLIENTSOCKET_H
+#define NET_LOGICALCLIENTSOCKET_H
 
 #include "net/LogicalSocket.h" // IWYU pragma: export
 
@@ -29,25 +29,26 @@
 
 namespace net {
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    class LogicalServerSocket : public net::LogicalSocket<ConfigT> {
+    template <typename PhysicalClientSocketT, typename ConfigT>
+    class LogicalSocketClient : public net::LogicalSocket<ConfigT> {
     protected:
-        using Super = LogicalSocket<ConfigT>;
+        using Super = net::LogicalSocket<ConfigT>;
         using Super::Super;
 
     public:
         using Config = ConfigT;
-        using PhysicalSocket = PhysicalServerSocketT;
+        using PhysicalSocket = PhysicalClientSocketT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
-        virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+        virtual void connect(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
-        virtual void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
 
-        virtual void
-        listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const = 0;
+        virtual void connect(const SocketAddress& remoteAddress,
+                             const SocketAddress& localAddress,
+                             const std::function<void(const SocketAddress&, int)>& onError) const = 0;
     };
 
 } // namespace net
 
-#endif // NET_LOGICALSERVERSOCKET_H
+#endif // NET_LOGICALCLIENTSOCKET_H
