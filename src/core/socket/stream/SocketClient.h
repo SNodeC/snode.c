@@ -44,10 +44,11 @@ namespace core::socket::stream {
         using SocketConnector = SocketConnectorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
-    public:
+    protected:
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
+    public:
         SocketClient() = delete;
 
         SocketClient(const std::string& name,
@@ -71,20 +72,6 @@ namespace core::socket::stream {
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const override {
             new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, Super::config);
-        }
-
-        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const override {
-            Super::config->Remote::setAddress(remoteAddress);
-
-            connect(onError);
-        }
-
-        void connect(const SocketAddress& remoteAddress,
-                     const SocketAddress& localAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError) const override {
-            Super::config->Local::setAddress(localAddress);
-
-            connect(remoteAddress, onError);
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {

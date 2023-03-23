@@ -28,6 +28,13 @@
 
 namespace core::socket {
 
+    // net::in::stream::tls::SocketClient = core::socket::stream::tls::SocketClient     |    Alias Template
+    // core::socket::stream::tls::SocketClient = core::socket::stream::SocketClient     |    Just Encryption
+    // core::socket::stream::SocketClient = net::in::stream::SocketClient               |    General connect methods
+    // net::in::stream::SocketClient = core::socket::stream::LogicalSocketClient        |    IPv4-Specific connect methods
+    // core::socket::stream::LogicalSocketClient = core::socket::LogicalSocket          |    Pure virtual General connect methods
+    // core::socket::LogicalSocket                                                      |    Just config
+
     template <typename ConfigT>
     class LogicalSocket {
     public:

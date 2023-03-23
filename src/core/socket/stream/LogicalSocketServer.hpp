@@ -23,4 +23,22 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace net {} // namespace net
+namespace core::socket::stream {
+
+    template <typename PhysicalServerSocket, typename Config>
+    void LogicalSocketServer<PhysicalServerSocket, Config>::listen(const SocketAddress& localAddress,
+                                                                   const std::function<void(const SocketAddress&, int)>& onError) const {
+        Super::config->Local::setAddress(localAddress);
+
+        listen(onError);
+    }
+
+    template <typename PhysicalServerSocket, typename Config>
+    void LogicalSocketServer<PhysicalServerSocket, Config>::listen(const SocketAddress& localAddress,
+                                                                   int backlog,
+                                                                   const std::function<void(const SocketAddress&, int)>& onError) const {
+        Super::config->setBacklog(backlog);
+
+        listen(localAddress, onError);
+    }
+} // namespace core::socket::stream
