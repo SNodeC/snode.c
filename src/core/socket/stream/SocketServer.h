@@ -39,10 +39,11 @@ namespace core::socket::stream {
         using SocketAcceptor = SocketAcceptorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
-    public:
+    protected:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = typename Super::SocketAddress;
 
+    public:
         SocketServer() = delete;
 
         SocketServer(const std::string& name,
@@ -66,20 +67,6 @@ namespace core::socket::stream {
 
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
             new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, Super::config);
-        }
-
-        void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const override {
-            Super::config->Local::setAddress(localAddress);
-
-            listen(onError);
-        }
-
-        void listen(const SocketAddress& localAddress,
-                    int backlog,
-                    const std::function<void(const SocketAddress&, int)>& onError) const override {
-            Super::config->setBacklog(backlog);
-
-            listen(localAddress, onError);
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {

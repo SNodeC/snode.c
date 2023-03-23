@@ -28,21 +28,12 @@
 
 namespace core::socket {
 
-    // net::NET::TRANSPORT::ENCRYPTION::SocketServer
-    // core::socket::TRANSPORT::ENCRYPTION::SocketServer
-    // core::socket::TRANSPORT::SocketServer
-    // net::NET::TRANSPORT::SocketServer
-    // net::TRANSPORT::SocketServer
-    // core::socket::stream::LogicalSocketServer
-    // core::socket::LogicalSocket
-    //
-    // net::NET::TRANSPORT::ENCRYPTION::SocketClient
-    // core::socket::TRANSPORT::ENCRYPTION::SocketClient
-    // core::socket::TRANSPORT::SocketClient
-    // net::NET::TRANSPORT::SocketClient
-    // net::TRANSPORT::SocketClient
-    // core::socket::stream::LogicalSocketClient
-    // core::socket::LogicalSocket
+    // net::in::stream::tls::SocketClient = core::socket::stream::tls::SocketClient     |    Alias Template
+    // core::socket::stream::tls::SocketClient = core::socket::stream::SocketClient     |    Just Encryption
+    // core::socket::stream::SocketClient = net::in::stream::SocketClient               |    General connect methods
+    // net::in::stream::SocketClient = core::socket::stream::LogicalSocketClient        |    IPv4-Specific connect methods
+    // core::socket::stream::LogicalSocketClient = core::socket::LogicalSocket          |    Pure virtual General connect methods
+    // core::socket::LogicalSocket                                                      |    Just config
 
     template <typename ConfigT>
     class LogicalSocket {

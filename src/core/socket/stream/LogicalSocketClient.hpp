@@ -23,4 +23,23 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace core::socket::stream {} // namespace core::socket::stream
+namespace core::socket::stream {
+
+    template <typename PhysicalClientSocket, typename Config>
+    void LogicalSocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
+                                                                    const std::function<void(const SocketAddress&, int)>& onError) const {
+        Super::config->Remote::setAddress(remoteAddress);
+
+        connect(onError);
+    }
+
+    template <typename PhysicalClientSocket, typename Config>
+    void LogicalSocketClient<PhysicalClientSocket, Config>::connect(const SocketAddress& remoteAddress,
+                                                                    const SocketAddress& localAddress,
+                                                                    const std::function<void(const SocketAddress&, int)>& onError) const {
+        Super::config->Local::setAddress(localAddress);
+
+        connect(remoteAddress, onError);
+    }
+
+} // namespace core::socket::stream
