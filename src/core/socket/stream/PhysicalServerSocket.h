@@ -16,39 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_LOGICALSOCKET_H
-#define CORE_SOCKET_LOGICALSOCKET_H
+#ifndef CORE_SOCKET_STREAM_PHYSICALSERVERSOCKET_H
+#define CORE_SOCKET_STREAM_PHYSICALSERVERSOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
-#include <string>
+#endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace core::socket::stream {
 
-namespace core::socket {
+    template <typename SocketAddressT>
+    class PhysicalServerSocket {
+    private:
+        using SocketAddress = SocketAddressT;
 
-    template <typename ConfigT>
-    class LogicalSocket {
     public:
-        using Config = ConfigT;
+        virtual ~PhysicalServerSocket() = default;
 
-        explicit LogicalSocket(const std::string& name);
+        virtual int listen(int backlog) = 0;
 
-        LogicalSocket(const LogicalSocket&) = default;
-        LogicalSocket(LogicalSocket&&) = default;
-
-        LogicalSocket& operator=(const LogicalSocket&) = default;
-        LogicalSocket& operator=(LogicalSocket&&) = default;
-
-        virtual ~LogicalSocket();
-
-        Config& getConfig() const;
-
-    protected:
-        std::shared_ptr<Config> config;
+        virtual int accept(SocketAddress& remoteAddress) = 0;
+        virtual int accept4(SocketAddress& remoteAddress, int flags) = 0;
     };
 
-} // namespace core::socket
+} // namespace core::socket::stream
 
-#endif // CORE_SOCKET_LOGICALSOCKET_H
+#endif // CORE_SOCKET_STREAM_PHYSICALSERVERSOCKET_H

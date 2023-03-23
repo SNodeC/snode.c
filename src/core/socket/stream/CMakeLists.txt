@@ -9,6 +9,8 @@ set(CORE_SOCKET_STREAM_H
     LogicalSocketClient.hpp
     LogicalSocketServer.h
     LogicalSocketServer.hpp
+    PhysicalClientSocket.h
+    PhysicalServerSocket.h
     SocketAcceptor.h
     SocketClient.h
     SocketConnection.h

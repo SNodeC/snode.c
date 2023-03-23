@@ -117,7 +117,8 @@ namespace core::socket::stream {
             return maxReturn;
         }
 
-        void shutdown() {
+        using PhysicalSocket::shutdown;
+        virtual void shutdown() {
             if (!shutdownTriggered) {
                 PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
                 shutdownTriggered = true;

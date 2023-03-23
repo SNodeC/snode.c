@@ -19,6 +19,7 @@
 #ifndef NET_UN_SOCKETADDRESS_H
 #define NET_UN_SOCKETADDRESS_H
 
+#include "core/socket/PhysicalSocket.h"
 #include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
@@ -51,5 +52,6 @@ namespace net::un {
 } // namespace net::un
 
 extern template class net::SocketAddress<sockaddr_un>;
+extern template class core::socket::PhysicalSocket<net::un::SocketAddress>;
 
 #endif // NET_UN_SOCKETADDRESS_H

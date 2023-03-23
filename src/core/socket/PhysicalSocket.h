@@ -35,41 +35,37 @@ namespace core::socket {
 
 namespace core::socket {
 
+    template <typename SocketAddressT>
     class PhysicalSocket : public core::Descriptor {
     public:
         using Super = core::Descriptor;
+        using SocketAddress = SocketAddressT;
 
-        PhysicalSocket();
-        PhysicalSocket(int fd); // cppcheck-suppress noExplicitConstructor
-        PhysicalSocket(int domain, int type, int protocol);
-
-        PhysicalSocket& operator=(int fd);
-
-        ~PhysicalSocket() override;
+        virtual PhysicalSocket& operator=(int fd) = 0;
 
         enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
 
     public:
-        int open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags = Flags::NONE);
+        virtual int open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags = Flags::NONE) = 0;
 
-        bool isValid() const;
+        virtual int bind(const SocketAddress& bindAddress) = 0;
 
-        int getSockError() const;
+        virtual int getSockname(SocketAddress& socketAddress) = 0;
+        virtual int getPeername(SocketAddress& socketAddress) = 0;
+
+        virtual bool isValid() const = 0;
+
+        virtual int getSockError() const = 0;
 
         enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
-        void shutdown(SHUT how);
+        virtual void shutdown(SHUT how) = 0;
+
+        virtual const SocketAddress& getBindAddress() const = 0;
 
     private:
-        using Super::attach;
-
-        int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const;
-        int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const;
-
-    private:
-        int domain{};
-        int type{};
-        int protocol{};
+        virtual int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const = 0;
+        virtual int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const = 0;
     };
 
 } // namespace core::socket

@@ -19,6 +19,8 @@
 #ifndef NET_STREAM_PHYSICALSERVERSOCKET_H
 #define NET_STREAM_PHYSICALSERVERSOCKET_H
 
+#include "core/socket/stream/PhysicalServerSocket.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -26,7 +28,9 @@
 namespace net::stream {
 
     template <typename PhysicalSocketT>
-    class PhysicalServerSocket : public PhysicalSocketT {
+    class PhysicalServerSocket
+        : public PhysicalSocketT
+        , public core::socket::stream::PhysicalServerSocket<typename PhysicalSocketT::SocketAddress> {
     private:
         using Super = PhysicalSocketT;
 
@@ -34,10 +38,10 @@ namespace net::stream {
         using Super::Super;
         using Super::operator=;
 
-        int listen(int backlog);
+        int listen(int backlog) override;
 
-        int accept(typename PhysicalSocketT::SocketAddress& remoteAddress);
-        int accept4(typename PhysicalSocketT::SocketAddress& remoteAddress, int flags);
+        int accept(typename PhysicalSocketT::SocketAddress& remoteAddress) override;
+        int accept4(typename PhysicalSocketT::SocketAddress& remoteAddress, int flags) override;
     };
 
 } // namespace net::stream

@@ -18,6 +18,7 @@
 
 #include "net/in6/SocketAddress.h"
 
+#include "core/socket/PhysicalSocket.hpp" // IWYU pragma: keep
 #include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -131,3 +132,4 @@ namespace net::in6 {
 } // namespace net::in6
 
 template class net::SocketAddress<sockaddr_in6>;
+template class core::socket::PhysicalSocket<net::in6::SocketAddress>;

@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(CORE_SOCKET_CPP PhysicalSocket.cpp PhysicalSocketOption.cpp
+set(CORE_SOCKET_CPP PhysicalSocketOption.cpp
                     SocketAddress.cpp SocketConnection.cpp SocketContext.cpp
 )
 
-set(CORE_SOCKET_H LogicalSocket.h LogicalSocket.hpp PhysicalSocket.h PhysicalSocketOption.h SocketAddress.h
+set(CORE_SOCKET_H LogicalSocket.h LogicalSocket.hpp PhysicalSocket.h PhysicalSocket.hpp PhysicalSocketOption.h SocketAddress.h
                   SocketConnection.h SocketContext.h
 )
 

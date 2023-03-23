@@ -19,6 +19,7 @@
 #ifndef NET_L2_SOCKETADDRESS_H
 #define NET_L2_SOCKETADDRESS_H
 
+#include "core/socket/PhysicalSocket.h"
 #include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
@@ -43,7 +44,7 @@ namespace net::l2 {
         SocketAddress(const std::string& btAddress, uint16_t psm);
         explicit SocketAddress(uint16_t psm);
 
-        void setAddress(const std::string& btAddress);
+        void setBtAddress(const std::string& btAddress);
         void setPsm(uint16_t psm);
 
         uint16_t psm() const;
@@ -55,5 +56,6 @@ namespace net::l2 {
 } // namespace net::l2
 
 extern template class net::SocketAddress<sockaddr_l2>;
+extern template class core::socket::PhysicalSocket<net::l2::SocketAddress>;
 
 #endif // NET_L2_SOCKETADDRESS_H

@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "core/socket/PhysicalSocket.h"
+#include "core/socket/PhysicalSocketOption.h"
 #include "net/PhysicalSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -27,8 +29,67 @@
 namespace net {
 
     template <typename SocketAddress>
+    PhysicalSocket<SocketAddress>::PhysicalSocket() {
+        core::Descriptor::attach(-1);
+    }
+
+    template <typename SocketAddress>
+    PhysicalSocket<SocketAddress>::PhysicalSocket(int fd) {
+        core::Descriptor::attach(fd);
+
+        socklen_t optLen = sizeof(domain);
+        getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
+        getSockopt(SOL_SOCKET, SO_TYPE, &type, &optLen);
+        getSockopt(SOL_SOCKET, SO_PROTOCOL, &protocol, &optLen);
+    }
+
+    template <typename SocketAddress>
+    PhysicalSocket<SocketAddress>::PhysicalSocket(int domain, int type, int protocol)
+        : domain(domain)
+        , type(type)
+        , protocol(protocol) {
+    }
+
+    template <typename SocketAddress>
+    PhysicalSocket<SocketAddress>& PhysicalSocket<SocketAddress>::operator=(int fd) {
+        core::Descriptor::attach(fd);
+
+        socklen_t optLen = sizeof(domain);
+        getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
+        getSockopt(SOL_SOCKET, SO_TYPE, &type, &optLen);
+        getSockopt(SOL_SOCKET, SO_PROTOCOL, &protocol, &optLen);
+
+        return *this;
+    }
+
+    template <typename SocketAddress>
+    PhysicalSocket<SocketAddress>::~PhysicalSocket() {
+    }
+
+    template <typename SocketAddress>
+    int PhysicalSocket<SocketAddress>::open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions,
+                                            typename core::socket::PhysicalSocket<SocketAddress>::Flags flags) {
+        int ret = Super::attach(core::system::socket(domain, type | flags, protocol));
+
+        if (ret >= 0) {
+            for (const auto& [optName, socketOption] : socketOptions) {
+                int setSockoptRet =
+                    setSockopt(socketOption.getOptLevel(), socketOption.getOptName(), socketOption.getOptValue(), socketOption.getOptLen());
+
+                ret = (ret >= 0 && setSockoptRet < 0) ? setSockoptRet : ret;
+
+                if (ret < 0) {
+                    break;
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::bind(const SocketAddress& bindAddress) {
-        int ret = core::system::bind(getFd(), &bindAddress.getSockAddr(), bindAddress.getSockAddrLen());
+        int ret = core::system::bind(core::Descriptor::getFd(), &bindAddress.getSockAddr(), bindAddress.getSockAddrLen());
 
         if (ret == 0) {
             this->bindAddress = bindAddress;
@@ -38,15 +99,44 @@ namespace net {
     }
 
     template <typename SocketAddress>
+    bool PhysicalSocket<SocketAddress>::isValid() const {
+        return core::Descriptor::getFd() >= 0;
+    }
+
+    template <typename SocketAddress>
+    int PhysicalSocket<SocketAddress>::getSockError() const {
+        int cErrno = 0;
+        socklen_t cErrnoLen = sizeof(cErrno);
+        int err = getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+
+        return err < 0 ? err : cErrno;
+    }
+
+    template <typename SocketAddress>
+    void PhysicalSocket<SocketAddress>::shutdown(typename core::socket::PhysicalSocket<SocketAddress>::SHUT how) {
+        core::system::shutdown(core::Descriptor::getFd(), how);
+    }
+
+    template <typename SocketAddress>
+    int PhysicalSocket<SocketAddress>::setSockopt(int level, int optname, const void* optval, socklen_t optlen) const {
+        return core::system::setsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
+    }
+
+    template <typename SocketAddress>
+    int PhysicalSocket<SocketAddress>::getSockopt(int level, int optname, void* optval, socklen_t* optlen) const {
+        return core::system::getsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
+    }
+
+    template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::getSockname(SocketAddress& socketAddress) {
         socketAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
-        return core::system::getsockname(getFd(), &socketAddress.getSockAddr(), &socketAddress.getSockAddrLen());
+        return core::system::getsockname(core::Descriptor::getFd(), &socketAddress.getSockAddr(), &socketAddress.getSockAddrLen());
     }
 
     template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::getPeername(SocketAddress& socketAddress) {
         socketAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
-        return core::system::getpeername(getFd(), &socketAddress.getSockAddr(), &socketAddress.getSockAddrLen());
+        return core::system::getpeername(core::Descriptor::getFd(), &socketAddress.getSockAddr(), &socketAddress.getSockAddrLen());
     }
 
     template <typename SocketAddress>
@@ -82,7 +172,7 @@ namespace net {
         *reinterpret_cast<int*>(CMSG_DATA(cmptr)) = sendfd;
         cmptr->cmsg_len = CMSG_LEN(sizeof(int));
 
-        return sendmsg(getFd(), &msg, 0);
+        return sendmsg(core::Descriptor::getFd(), &msg, 0);
     }
 
     template <typename SocketAddress>
@@ -109,7 +199,7 @@ namespace net {
 
         ssize_t n = 0;
 
-        if ((n = recvmsg(getFd(), &msg, 0)) > 0) {
+        if ((n = recvmsg(core::Descriptor::getFd(), &msg, 0)) > 0) {
             cmsghdr* cmptr = nullptr;
 
             if ((cmptr = CMSG_FIRSTHDR(&msg)) != nullptr && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {

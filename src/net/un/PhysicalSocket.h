@@ -23,6 +23,7 @@
 #include "net/un/SocketAddress.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/PhysicalSocket.hpp"
+// IWYU pragma: no_include <map>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

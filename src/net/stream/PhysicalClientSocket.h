@@ -19,6 +19,8 @@
 #ifndef NET_STREAM_PHYSICALCLIENTSOCKET_H
 #define NET_STREAM_PHYSICALCLIENTSOCKET_H
 
+#include "core/socket/stream/PhysicalClientSocket.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -26,7 +28,9 @@
 namespace net::stream {
 
     template <typename PhysicalSocketT>
-    class PhysicalClientSocket : public PhysicalSocketT {
+    class PhysicalClientSocket
+        : public PhysicalSocketT
+        , public core::socket::stream::PhysicalClientSocket<typename PhysicalSocketT::SocketAddress> {
     private:
         using Super = PhysicalSocketT;
 
@@ -34,9 +38,9 @@ namespace net::stream {
         using Super::Super;
         using Super::operator=;
 
-        int connect(const typename PhysicalSocketT::SocketAddress& remoteAddress);
+        int connect(const typename PhysicalSocketT::SocketAddress& remoteAddress) override;
 
-        virtual bool connectInProgress(int cErrno);
+        virtual bool connectInProgress(int cErrno) override;
     };
 
 } // namespace net::stream

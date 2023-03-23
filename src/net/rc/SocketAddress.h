@@ -19,6 +19,7 @@
 #ifndef NET_RC_SOCKETADDRESS_H
 #define NET_RC_SOCKETADDRESS_H
 
+#include "core/socket/PhysicalSocket.h"
 #include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
@@ -43,7 +44,7 @@ namespace net::rc {
         SocketAddress(const std::string& btAddress, uint8_t channel);
         explicit SocketAddress(uint8_t channel);
 
-        void setAddress(const std::string& btAddress);
+        void setBtAddress(const std::string& btAddress);
         void setChannel(uint8_t channel);
 
         uint8_t channel() const;
@@ -55,5 +56,6 @@ namespace net::rc {
 } // namespace net::rc
 
 extern template class net::SocketAddress<sockaddr_rc>;
+extern template class core::socket::PhysicalSocket<net::rc::SocketAddress>;
 
 #endif // NET_RC_SOCKETADDRESS_H

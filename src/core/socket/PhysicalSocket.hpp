@@ -16,39 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_LOGICALSOCKET_H
-#define CORE_SOCKET_LOGICALSOCKET_H
+#include "core/socket/PhysicalSocket.h"
+#include "core/socket/PhysicalSocketOption.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
-#include <string>
+#include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
-
-    template <typename ConfigT>
-    class LogicalSocket {
-    public:
-        using Config = ConfigT;
-
-        explicit LogicalSocket(const std::string& name);
-
-        LogicalSocket(const LogicalSocket&) = default;
-        LogicalSocket(LogicalSocket&&) = default;
-
-        LogicalSocket& operator=(const LogicalSocket&) = default;
-        LogicalSocket& operator=(LogicalSocket&&) = default;
-
-        virtual ~LogicalSocket();
-
-        Config& getConfig() const;
-
-    protected:
-        std::shared_ptr<Config> config;
-    };
-
-} // namespace core::socket
-
-#endif // CORE_SOCKET_LOGICALSOCKET_H
+namespace core::socket {} // namespace core::socket

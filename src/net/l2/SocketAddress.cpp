@@ -18,6 +18,7 @@
 
 #include "net/l2/SocketAddress.h"
 
+#include "core/socket/PhysicalSocket.hpp" // IWYU pragma: keep
 #include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,7 +37,7 @@ namespace net::l2 {
 
     SocketAddress::SocketAddress(const std::string& btAddress)
         : SocketAddress() {
-        setAddress(btAddress);
+        setBtAddress(btAddress);
     }
 
     SocketAddress::SocketAddress(uint16_t psm)
@@ -46,11 +47,11 @@ namespace net::l2 {
 
     SocketAddress::SocketAddress(const std::string& btAddress, uint16_t psm)
         : SocketAddress() {
-        setAddress(btAddress);
+        setBtAddress(btAddress);
         setPsm(psm);
     }
 
-    void SocketAddress::setAddress(const std::string& btAddress) {
+    void SocketAddress::setBtAddress(const std::string& btAddress) {
         str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
     }
 
@@ -76,3 +77,4 @@ namespace net::l2 {
 } // namespace net::l2
 
 template class net::SocketAddress<sockaddr_l2>;
+template class core::socket::PhysicalSocket<net::l2::SocketAddress>;
