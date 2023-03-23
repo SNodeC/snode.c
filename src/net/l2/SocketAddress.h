@@ -19,7 +19,6 @@
 #ifndef NET_L2_SOCKETADDRESS_H
 #define NET_L2_SOCKETADDRESS_H
 
-#include "core/socket/PhysicalSocket.h"
 #include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
@@ -56,6 +55,5 @@ namespace net::l2 {
 } // namespace net::l2
 
 extern template class net::SocketAddress<sockaddr_l2>;
-extern template class core::socket::PhysicalSocket<net::l2::SocketAddress>;
 
 #endif // NET_L2_SOCKETADDRESS_H

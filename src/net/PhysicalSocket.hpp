@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/PhysicalSocket.h"
 #include "core/socket/PhysicalSocketOption.h"
 #include "net/PhysicalSocket.h"
 
@@ -67,8 +66,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions,
-                                            typename core::socket::PhysicalSocket<SocketAddress>::Flags flags) {
+    int PhysicalSocket<SocketAddress>::open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions, Flags flags) {
         int ret = Super::attach(core::system::socket(domain, type | flags, protocol));
 
         if (ret >= 0) {
@@ -113,7 +111,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    void PhysicalSocket<SocketAddress>::shutdown(typename core::socket::PhysicalSocket<SocketAddress>::SHUT how) {
+    void PhysicalSocket<SocketAddress>::shutdown(SHUT how) {
         core::system::shutdown(core::Descriptor::getFd(), how);
     }
 

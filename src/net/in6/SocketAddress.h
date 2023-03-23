@@ -19,7 +19,6 @@
 #ifndef NET_IN6_SOCKETADDRESS_H
 #define NET_IN6_SOCKETADDRESS_H
 
-#include "core/socket/PhysicalSocket.h"
 #include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
@@ -57,6 +56,5 @@ namespace net::in6 {
 } // namespace net::in6
 
 extern template class net::SocketAddress<sockaddr_in6>;
-extern template class core::socket::PhysicalSocket<net::in6::SocketAddress>;
 
 #endif // NET_IN6_SOCKETADDRESS_H

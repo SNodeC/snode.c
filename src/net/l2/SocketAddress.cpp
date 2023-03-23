@@ -18,7 +18,6 @@
 
 #include "net/l2/SocketAddress.h"
 
-#include "core/socket/PhysicalSocket.hpp" // IWYU pragma: keep
 #include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -77,4 +76,3 @@ namespace net::l2 {
 } // namespace net::l2
 
 template class net::SocketAddress<sockaddr_l2>;
-template class core::socket::PhysicalSocket<net::l2::SocketAddress>;

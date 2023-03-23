@@ -18,7 +18,6 @@
 
 #include "net/rc/SocketAddress.h"
 
-#include "core/socket/PhysicalSocket.hpp" // IWYU pragma: keep
 #include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -77,4 +76,3 @@ namespace net::rc {
 } // namespace net::rc
 
 template class net::SocketAddress<sockaddr_rc>;
-template class core::socket::PhysicalSocket<net::rc::SocketAddress>;

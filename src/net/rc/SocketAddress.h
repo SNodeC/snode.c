@@ -19,7 +19,6 @@
 #ifndef NET_RC_SOCKETADDRESS_H
 #define NET_RC_SOCKETADDRESS_H
 
-#include "core/socket/PhysicalSocket.h"
 #include "net/SocketAddress.h"
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
@@ -56,6 +55,5 @@ namespace net::rc {
 } // namespace net::rc
 
 extern template class net::SocketAddress<sockaddr_rc>;
-extern template class core::socket::PhysicalSocket<net::rc::SocketAddress>;
 
 #endif // NET_RC_SOCKETADDRESS_H

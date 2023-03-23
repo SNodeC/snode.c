@@ -19,22 +19,24 @@
 #ifndef NET_SOCKET_H
 #define NET_SOCKET_H
 
-#include "core/socket/PhysicalSocket.h"
+#include "core/Descriptor.h"
+#include "core/socket/PhysicalSocketOption.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/socket.h" // IWYU pragma: export
 
 #include <functional>
+#include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
     template <typename SocketAddressT>
-    class PhysicalSocket : public core::socket::PhysicalSocket<SocketAddressT> {
+    class PhysicalSocket : public core::Descriptor {
     private:
-        using Super = core::socket::PhysicalSocket<SocketAddressT>;
+        using Super = core::Descriptor;
 
     public:
         using SocketAddress = SocketAddressT;
@@ -43,33 +45,36 @@ namespace net {
         PhysicalSocket(int fd);
         PhysicalSocket(int domain, int type, int protocol);
 
-        PhysicalSocket& operator=(int fd) override;
+        PhysicalSocket& operator=(int fd);
 
         ~PhysicalSocket() override;
 
-        int open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions,
-                 typename core::socket::PhysicalSocket<SocketAddress>::Flags flags) override;
+        enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
 
-        int bind(const SocketAddress& bindAddress) override;
+        int open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions, Flags flags);
 
-        void shutdown(typename core::socket::PhysicalSocket<SocketAddress>::SHUT how) override;
+        int bind(const SocketAddress& bindAddress);
 
-        bool isValid() const override;
+        enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
-        int getSockError() const override;
+        void shutdown(SHUT how);
 
-        int getSockname(SocketAddress& socketAddress) override;
-        int getPeername(SocketAddress& socketAddress) override;
+        bool isValid() const;
+
+        int getSockError() const;
+
+        int getSockname(SocketAddress& socketAddress);
+        int getPeername(SocketAddress& socketAddress);
 
         ssize_t sendFd(SocketAddress&& destAddress, int sendfd);
         ssize_t sendFd(SocketAddress& destAddress, int sendfd);
         ssize_t recvFd(int* recvfd);
 
-        const SocketAddress& getBindAddress() const override;
+        const SocketAddress& getBindAddress() const;
 
     private:
-        int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const override;
-        int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const override;
+        int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const;
+        int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const;
 
         SocketAddress bindAddress{};
 

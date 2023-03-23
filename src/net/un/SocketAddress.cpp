@@ -18,7 +18,6 @@
 
 #include "net/un/SocketAddress.h"
 
-#include "core/socket/PhysicalSocket.hpp" // IWYU pragma: keep
 #include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -65,4 +64,3 @@ namespace net::un {
 } // namespace net::un
 
 template class net::SocketAddress<sockaddr_un>;
-template class core::socket::PhysicalSocket<net::un::SocketAddress>;
