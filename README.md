@@ -460,11 +460,11 @@ The echo application shows the typical architecture of servers and clients using
 
   - [`core::socket::stream::SocketContextFactory`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context_factory.html)
 
-  -   [`core::socket::stream::SocketContext`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context.html)
+  - [`core::socket::stream::SocketContext`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context.html)
 
 - The framework provides
 
-  -   ready to use server and client template classes for each network/transport layer combination.
+  - ready to use server and client template classes for each network/transport layer combination.
 
 # Installation
 

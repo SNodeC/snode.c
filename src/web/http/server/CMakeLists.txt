@@ -1,5 +1,17 @@
 cmake_minimum_required(VERSION 3.18)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(
+        -Wno-weak-template-vtables
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    # using Intel C++
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # using Visual Studio C++
+endif()
+
 set(HTTPSERVER_CPP
     Request.cpp RequestContextBase.cpp RequestParser.cpp Response.cpp
     SocketContextUpgradeFactory.cpp SocketContextUpgradeFactorySelector.cpp

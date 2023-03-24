@@ -24,7 +24,7 @@
 #include "net/config/ConfigPhysicalSocket.h"
 
 namespace core::socket::stream {
-    class SocketContextFactory;
+    //    class SocketContextFactory;
 } // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
