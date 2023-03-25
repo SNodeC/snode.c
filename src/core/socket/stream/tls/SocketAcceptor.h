@@ -38,7 +38,6 @@ namespace core::socket::stream::tls {
     class SocketAcceptor : protected core::socket::stream::SocketAcceptor<SocketServerT, core::socket::stream::tls::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketAcceptor<SocketServerT, core::socket::stream::tls::SocketConnection>;
-        using SocketServer = SocketServerT;
         using SocketAddress = typename Super::SocketAddress;
         using Config = typename Super::Config;
 
