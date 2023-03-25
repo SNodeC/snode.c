@@ -16,45 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/LogicalSocketClient.hpp"
 #include "net/rc/stream/SocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rc::stream {
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& btAddress,
-                                       uint8_t channel,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(btAddress, channel), onError);
-    }
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& btAddress,
-                                       uint8_t channel,
-                                       const std::string& bindBtAddress,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(btAddress, channel), SocketAddress(bindBtAddress), onError);
-    }
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& btAddress,
-                                       uint8_t channel,
-                                       uint8_t bindChannel,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(btAddress, channel), SocketAddress(bindChannel), onError);
-    }
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& btAddress,
-                                       uint8_t channel,
-                                       const std::string& bindBtAddress,
-                                       uint8_t bindChannel,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(btAddress, channel), SocketAddress(bindBtAddress, bindChannel), onError);
-    }
-
-} // namespace net::rc::stream
+namespace net::rc::stream {} // namespace net::rc::stream

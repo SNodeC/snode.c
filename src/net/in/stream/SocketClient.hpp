@@ -16,45 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/LogicalSocketClient.hpp"
 #include "net/in/stream/SocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& ipOrHostname,
-                                       uint16_t port,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(ipOrHostname, port), onError);
-    }
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& ipOrHostname,
-                                       uint16_t port,
-                                       const std::string& bindIpOrHostname,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
-    }
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& ipOrHostname,
-                                       uint16_t port,
-                                       uint16_t bindPort,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(ipOrHostname, port), SocketAddress(bindPort), onError);
-    }
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& ipOrHostname,
-                                       uint16_t port,
-                                       const std::string& bindIpOrHostname,
-                                       uint16_t bindPort,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
-    }
-
-} // namespace net::in::stream
+namespace net::in::stream {} // namespace net::in::stream

@@ -31,13 +31,14 @@ namespace net::in::stream::legacy {
 
     template <typename SocketContextFactoryT>
     using SocketClient =
-        core::socket::stream::legacy::SocketClient<net::in::stream::SocketClient<net::in::stream::legacy::config::ConfigSocketClient>,
-                                                   SocketContextFactoryT>;
+        net::in::stream::SocketClient<core::socket::stream::legacy::SocketClient<net::in::stream::PhysicalClientSocket,
+                                                                                 net::in::stream::legacy::config::ConfigSocketClient,
+                                                                                 SocketContextFactoryT>>;
 
 } // namespace net::in::stream::legacy
 
-extern template class net::in::stream::SocketClient<net::in::stream::legacy::config::ConfigSocketClient>;
-extern template class core::socket::stream::LogicalSocketClient<net::in::stream::PhysicalClientSocket, net::in::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::stream::LogicalSocketClient<net::in::stream::PhysicalClientSocket,
+                                                                net::in::stream::legacy::config::ConfigSocketClient>;
 extern template class core::socket::LogicalSocket<net::in::stream::legacy::config::ConfigSocketClient>;
 
 #endif // NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H

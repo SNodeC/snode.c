@@ -32,10 +32,10 @@
 
 namespace net::in6::stream {
 
-    template <typename ConfigT>
-    class SocketClient : public core::socket::stream::LogicalSocketClient<net::in6::stream::PhysicalClientSocket, ConfigT> {
+    template <typename SocketClientT>
+    class SocketClient : public SocketClientT {
     private:
-        using Super = core::socket::stream::LogicalSocketClient<net::in6::stream::PhysicalClientSocket, ConfigT>;
+        using Super = SocketClientT;
 
     protected:
         using Super::Super;
@@ -43,23 +43,31 @@ namespace net::in6::stream {
     public:
         using Super::connect;
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(ipOrHostname, port), onError);
+        }
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      const std::string& bindIpOrHostname,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
+        }
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      uint16_t bindPort,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindPort), onError);
+        }
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      const std::string& bindIpOrHostname,
                      uint16_t bindPort,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+        }
     };
 
 } // namespace net::in6::stream

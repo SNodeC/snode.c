@@ -32,10 +32,10 @@
 
 namespace net::rc::stream {
 
-    template <typename ConfigT>
-    class SocketClient : public core::socket::stream::LogicalSocketClient<net::rc::stream::PhysicalClientSocket, ConfigT> {
+    template <typename SocketClientT>
+    class SocketClient : public SocketClientT {
     private:
-        using Super = core::socket::stream::LogicalSocketClient<net::rc::stream::PhysicalClientSocket, ConfigT>;
+        using Super = SocketClientT;
 
     protected:
         using Super::Super;
@@ -43,23 +43,31 @@ namespace net::rc::stream {
     public:
         using Super::connect;
 
-        void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(btAddress, channel), onError);
+        }
 
         void connect(const std::string& btAddress,
                      uint8_t channel,
                      const std::string& bindBtAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(btAddress, channel), SocketAddress(bindBtAddress), onError);
+        }
 
         void connect(const std::string& btAddress,
                      uint8_t channel,
                      uint8_t bindChannel,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(btAddress, channel), SocketAddress(bindChannel), onError);
+        }
 
         void connect(const std::string& btAddress,
                      uint8_t channel,
                      const std::string& bindBtAddress,
                      uint8_t bindChannel,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(btAddress, channel), SocketAddress(bindBtAddress, bindChannel), onError);
+        }
     };
 
 } // namespace net::rc::stream

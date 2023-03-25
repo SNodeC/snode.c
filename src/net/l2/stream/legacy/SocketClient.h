@@ -31,13 +31,14 @@ namespace net::l2::stream::legacy {
 
     template <typename SocketContextFactoryT>
     using SocketClient =
-        core::socket::stream::legacy::SocketClient<net::l2::stream::SocketClient<net::l2::stream::legacy::config::ConfigSocketClient>,
-                                                   SocketContextFactoryT>;
+        net::l2::stream::SocketClient<core::socket::stream::legacy::SocketClient<net::l2::stream::PhysicalClientSocket,
+                                                                                 net::l2::stream::legacy::config::ConfigSocketClient,
+                                                                                 SocketContextFactoryT>>;
 
 } // namespace net::l2::stream::legacy
 
-extern template class net::l2::stream::SocketClient<net::l2::stream::legacy::config::ConfigSocketClient>;
-extern template class core::socket::stream::LogicalSocketClient<net::l2::stream::PhysicalClientSocket, net::l2::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::stream::LogicalSocketClient<net::l2::stream::PhysicalClientSocket,
+                                                                net::l2::stream::legacy::config::ConfigSocketClient>;
 extern template class core::socket::LogicalSocket<net::l2::stream::legacy::config::ConfigSocketClient>;
 
 #endif // NET_L2_STREAM_LEGACY_SOCKETCLIENT_H

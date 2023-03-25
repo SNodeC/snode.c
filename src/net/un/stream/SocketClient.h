@@ -19,8 +19,8 @@
 #ifndef NET_UN_STREAM_SOCKETCLIENT_H
 #define NET_UN_STREAM_SOCKETCLIENT_H
 
-#include "core/socket/stream/LogicalSocketClient.h"            // IWYU pragma: export
-#include "net/un/stream/PhysicalClientSocket.h" // IWYU pragma: export
+#include "core/socket/stream/LogicalSocketClient.h" // IWYU pragma: export
+#include "net/un/stream/PhysicalClientSocket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,10 +31,10 @@
 
 namespace net::un::stream {
 
-    template <typename ConfigT>
-    class SocketClient : public core::socket::stream::LogicalSocketClient<net::un::stream::PhysicalClientSocket, ConfigT> {
+    template <typename SocketClientT>
+    class SocketClient : public SocketClientT {
     private:
-        using Super = core::socket::stream::LogicalSocketClient<net::un::stream::PhysicalClientSocket, ConfigT>;
+        using Super = SocketClientT;
 
     protected:
         using Super::Super;
@@ -42,10 +42,15 @@ namespace net::un::stream {
     public:
         using Super::connect;
 
-        void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(sunPath), onError);
+        }
+
         void connect(const std::string& sunPath,
                      const std::string& bindSunPath,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(sunPath), SocketAddress(bindSunPath), onError);
+        }
     };
 
 } // namespace net::un::stream

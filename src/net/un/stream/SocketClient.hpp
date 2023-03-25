@@ -16,25 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/LogicalSocketClient.hpp"
 #include "net/un/stream/SocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(sunPath), onError);
-    }
-
-    template <typename Config>
-    void SocketClient<Config>::connect(const std::string& sunPath,
-                                       const std::string& bindSunPath,
-                                       const std::function<void(const SocketAddress&, int)>& onError) const {
-        connect(SocketAddress(sunPath), SocketAddress(bindSunPath), onError);
-    }
-
-} // namespace net::un::stream
+namespace net::un::stream {} // namespace net::un::stream

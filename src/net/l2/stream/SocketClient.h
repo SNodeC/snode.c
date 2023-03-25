@@ -32,10 +32,10 @@
 
 namespace net::l2::stream {
 
-    template <typename ConfigT>
-    class SocketClient : public core::socket::stream::LogicalSocketClient<net::l2::stream::PhysicalClientSocket, ConfigT> {
+    template <typename SocketClientT>
+    class SocketClient : public SocketClientT {
     private:
-        using Super = core::socket::stream::LogicalSocketClient<net::l2::stream::PhysicalClientSocket, ConfigT>;
+        using Super = SocketClientT;
 
     protected:
         using Super::Super;
@@ -43,23 +43,31 @@ namespace net::l2::stream {
     public:
         using Super::connect;
 
-        void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(btAddress, psm), onError);
+        }
 
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      const std::string& bindBtAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(btAddress, psm), SocketAddress(bindBtAddress), onError);
+        }
 
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      uint16_t bindPsm,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(btAddress, psm), SocketAddress(bindPsm), onError);
+        }
 
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      const std::string& bindBtAddress,
                      uint16_t bindPsm,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
+                     const std::function<void(const SocketAddress&, int)>& onError) const {
+            connect(SocketAddress(btAddress, psm), SocketAddress(bindBtAddress, bindPsm), onError);
+        }
     };
 
 } // namespace net::l2::stream
