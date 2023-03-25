@@ -18,12 +18,13 @@
 
 #include "net/in/stream/legacy/SocketServer.h"
 
-#include "net/in/stream/SocketServer.hpp" // IWYU pragma: keep
+#include "core/socket/stream/LogicalSocketServer.hpp" // IWYU pragma: keep
+#include "net/in/stream/SocketServer.hpp"             // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-template class net::in::stream::SocketServer<net::in::stream::legacy::config::ConfigSocketServer>;
-template class core::socket::stream::LogicalSocketServer<net::in::stream::PhysicalServerSocket, net::in::stream::legacy::config::ConfigSocketServer>;
+template class core::socket::stream::LogicalSocketServer<net::in::stream::PhysicalServerSocket,
+                                                         net::in::stream::legacy::config::ConfigSocketServer>;
 template class core::socket::LogicalSocket<net::in::stream::legacy::config::ConfigSocketServer>;

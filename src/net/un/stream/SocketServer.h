@@ -19,11 +19,15 @@
 #ifndef NET_UN_STREAM_SOCKETSERVER_H
 #define NET_UN_STREAM_SOCKETSERVER_H
 
-#include "core/socket/stream/LogicalSocketServer.h"            // IWYU pragma: export
-#include "net/un/stream/PhysicalServerSocket.h" // IWYU pragma: export
+#include "core/socket/stream/LogicalSocketServer.h" // IWYU pragma: export
+#include "net/un/stream/PhysicalServerSocket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
+#include <cerrno>
+#include <cstdio>
 #include <functional>
 #include <string>
 
@@ -31,10 +35,10 @@
 
 namespace net::un::stream {
 
-    template <typename ConfigT>
-    class SocketServer : public core::socket::stream::LogicalSocketServer<net::un::stream::PhysicalServerSocket, ConfigT> {
+    template <typename SocketServerT>
+    class SocketServer : public SocketServerT {
     private:
-        using Super = core::socket::stream::LogicalSocketServer<net::un::stream::PhysicalServerSocket, ConfigT>;
+        using Super = SocketServerT;
 
     protected:
         using Super::Super;
@@ -42,9 +46,21 @@ namespace net::un::stream {
     public:
         using Super::listen;
 
-        void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const {
+            if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
+                PLOG(ERROR) << "listen: sunPath: " << sunPath;
+            } else {
+                listen(SocketAddress(sunPath), onError);
+            }
+        }
 
-        void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+            if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
+                PLOG(ERROR) << "listen: sunPath: " << sunPath;
+            } else {
+                listen(SocketAddress(sunPath), backlog, onError);
+            }
+        }
     };
 
 } // namespace net::un::stream

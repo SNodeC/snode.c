@@ -19,8 +19,8 @@
 #ifndef NET_L2_STREAM_SOCKETSERVER_H
 #define NET_L2_STREAM_SOCKETSERVER_H
 
-#include "core/socket/stream/LogicalSocketServer.h"            // IWYU pragma: export
-#include "net/l2/stream/PhysicalServerSocket.h" // IWYU pragma: export
+#include "core/socket/stream/LogicalSocketServer.h" // IWYU pragma: export
+#include "net/l2/stream/PhysicalServerSocket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,10 +32,10 @@
 
 namespace net::l2::stream {
 
-    template <typename ConfigT>
-    class SocketServer : public core::socket::stream::LogicalSocketServer<net::l2::stream::PhysicalServerSocket, ConfigT> {
+    template <typename SocketServerT>
+    class SocketServer : public SocketServerT {
     private:
-        using Super = core::socket::stream::LogicalSocketServer<net::l2::stream::PhysicalServerSocket, ConfigT>;
+        using Super = SocketServerT;
 
     protected:
         using Super::Super;
@@ -43,16 +43,24 @@ namespace net::l2::stream {
     public:
         using Super::listen;
 
-        void listen(uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(psm), onError);
+        }
 
-        void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(psm), backlog, onError);
+        }
 
-        void listen(const std::string& btAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(const std::string& btAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(btAddress), backlog, onError);
+        }
 
         void listen(const std::string& btAddress,
                     uint16_t psm,
                     int backlog,
-                    const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const;
+                    const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
+            listen(SocketAddress(btAddress, psm), backlog, onError);
+        }
     };
 
 } // namespace net::l2::stream

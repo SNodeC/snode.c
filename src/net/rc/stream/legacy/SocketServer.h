@@ -31,13 +31,14 @@ namespace net::rc::stream::legacy {
 
     template <typename SocketContextFactoryT>
     using SocketServer =
-        core::socket::stream::legacy::SocketServer<net::rc::stream::SocketServer<net::rc::stream::legacy::config::ConfigSocketServer>,
-                                                   SocketContextFactoryT>;
+        net::rc::stream::SocketServer<core::socket::stream::legacy::SocketServer<net::rc::stream::PhysicalServerSocket,
+                                                                                 net::rc::stream::legacy::config::ConfigSocketServer,
+                                                                                 SocketContextFactoryT>>;
 
 } // namespace net::rc::stream::legacy
 
-extern template class net::rc::stream::SocketServer<net::rc::stream::legacy::config::ConfigSocketServer>;
-extern template class core::socket::stream::LogicalSocketServer<net::rc::stream::PhysicalServerSocket, net::rc::stream::legacy::config::ConfigSocketServer>;
+extern template class core::socket::stream::LogicalSocketServer<net::rc::stream::PhysicalServerSocket,
+                                                                net::rc::stream::legacy::config::ConfigSocketServer>;
 extern template class core::socket::LogicalSocket<net::rc::stream::legacy::config::ConfigSocketServer>;
 
 #endif // NET_RC_STREAM_LEGACY_SOCKETSERVER_H

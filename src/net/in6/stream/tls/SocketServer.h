@@ -31,13 +31,14 @@ namespace net::in6::stream::tls {
 
     template <typename SocketContextFactoryT>
     using SocketServer =
-        core::socket::stream::tls::SocketServer<net::in6::stream::SocketServer<net::in6::stream::tls::config::ConfigSocketServer>,
-                                                SocketContextFactoryT>;
+        net::in6::stream::SocketServer<core::socket::stream::tls::SocketServer<net::in6::stream::PhysicalServerSocket,
+                                                                               net::in6::stream::tls::config::ConfigSocketServer,
+                                                                               SocketContextFactoryT>>;
 
 } // namespace net::in6::stream::tls
 
-extern template class net::in6::stream::SocketServer<net::in6::stream::tls::config::ConfigSocketServer>;
-extern template class core::socket::stream::LogicalSocketServer<net::in6::stream::PhysicalServerSocket, net::in6::stream::tls::config::ConfigSocketServer>;
+extern template class core::socket::stream::LogicalSocketServer<net::in6::stream::PhysicalServerSocket,
+                                                                net::in6::stream::tls::config::ConfigSocketServer>;
 extern template class core::socket::LogicalSocket<net::in6::stream::tls::config::ConfigSocketServer>;
 
 #endif // NET_IN6_STREAM_TLS_SOCKETSERVER_H

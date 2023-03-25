@@ -31,13 +31,14 @@ namespace net::un::stream::tls {
 
     template <typename SocketContextFactoryT>
     using SocketServer =
-        core::socket::stream::tls::SocketServer<net::un::stream::SocketServer<net::un::stream::tls::config::ConfigSocketServer>,
-                                                SocketContextFactoryT>;
+        net::un::stream::SocketServer<core::socket::stream::tls::SocketServer<net::un::stream::PhysicalServerSocket,
+                                                                              net::un::stream::tls::config::ConfigSocketServer,
+                                                                              SocketContextFactoryT>>;
 
 } // namespace net::un::stream::tls
 
-extern template class net::un::stream::SocketServer<net::un::stream::tls::config::ConfigSocketServer>;
-extern template class core::socket::stream::LogicalSocketServer<net::un::stream::PhysicalServerSocket, net::un::stream::tls::config::ConfigSocketServer>;
+extern template class core::socket::stream::LogicalSocketServer<net::un::stream::PhysicalServerSocket,
+                                                                net::un::stream::tls::config::ConfigSocketServer>;
 extern template class core::socket::LogicalSocket<net::un::stream::tls::config::ConfigSocketServer>;
 
 #endif // NET_UN_STREAM_TLS_SOCKETSERVER_H

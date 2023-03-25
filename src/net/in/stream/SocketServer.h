@@ -19,8 +19,8 @@
 #ifndef NET_IN_STREAM_SOCKETSERVER_H
 #define NET_IN_STREAM_SOCKETSERVER_H
 
-#include "core/socket/stream/LogicalSocketServer.h"            // IWYU pragma: export
-#include "net/in/stream/PhysicalServerSocket.h" // IWYU pragma: export
+#include "core/socket/stream/LogicalSocketServer.h" // IWYU pragma: export
+#include "net/in/stream/PhysicalServerSocket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,29 +32,35 @@
 
 namespace net::in::stream {
 
-    template <typename ConfigT>
-    class SocketServer : public core::socket::stream::LogicalSocketServer<net::in::stream::PhysicalServerSocket, ConfigT> {
+    template <typename SocketServerT>
+    class SocketServer : public SocketServerT {
     private:
-        using Super = core::socket::stream::LogicalSocketServer<net::in::stream::PhysicalServerSocket, ConfigT>;
+        using Super = SocketServerT;
 
     protected:
         using Super::Super;
 
     public:
-        using Config = ConfigT;
-
         using Super::listen;
 
-        void listen(uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(port), onError);
+        }
 
-        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(port), backlog, onError);
+        }
 
-        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(ipOrHostname), backlog, onError);
+        }
 
         void listen(const std::string& ipOrHostname,
                     uint16_t port,
                     int backlog,
-                    const std::function<void(const SocketAddress&, int)>& onError) const;
+                    const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(ipOrHostname, port), backlog, onError);
+        }
     };
 
 } // namespace net::in::stream

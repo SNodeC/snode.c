@@ -69,12 +69,6 @@ namespace web::http::server {
         Server(const std::function<void(Request&, Response&)>& onRequestReady)
             : Server("", onRequestReady) {
         }
-
-        using Super::listen;
-
-        void listen(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
-            Super::listen(socketAddress, Super::config->getBacklog(), onError);
-        }
     };
 
 } // namespace web::http::server

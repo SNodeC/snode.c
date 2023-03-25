@@ -38,18 +38,6 @@ namespace web::http::legacy::in {
         using SocketConnection = typename Super::SocketConnection;
 
         using web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>::listen;
-
-        void listen(uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
-            Super::listen(port, onError);
-        }
-
-        void listen(const std::string& ipOrHostname, const std::function<void(const SocketAddress&, int)>& onError) {
-            Super::listen(ipOrHostname, onError);
-        }
-
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
-            Super::listen(ipOrHostname, port, onError);
-        }
     };
 
 } // namespace web::http::legacy::in

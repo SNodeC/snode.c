@@ -16,38 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/LogicalSocketServer.hpp"
 #include "net/rc/stream/SocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rc::stream {
-
-    template <typename Config>
-    void SocketServer<Config>::listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {
-        listen(SocketAddress(channel), onError);
-    }
-
-    template <typename Config>
-    void SocketServer<Config>::listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-        listen(SocketAddress(channel), backlog, onError);
-    }
-
-    template <typename Config>
-    void SocketServer<Config>::listen(const std::string& btAddress,
-                                      int backlog,
-                                      const std::function<void(const SocketAddress&, int)>& onError) const {
-        listen(SocketAddress(btAddress), backlog, onError);
-    }
-
-    template <typename Config>
-    void SocketServer<Config>::listen(const std::string& btAddress,
-                                      uint8_t channel,
-                                      int backlog,
-                                      const std::function<void(const SocketAddress&, int)>& onError) const {
-        listen(SocketAddress(btAddress, channel), backlog, onError);
-    }
-
-} // namespace net::rc::stream
+namespace net::rc::stream {} // namespace net::rc::stream

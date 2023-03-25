@@ -16,38 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/LogicalSocketServer.hpp"
 #include "net/un/stream/SocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
-#include <cerrno>
-#include <cstdio>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
-
-    template <typename Config>
-    void SocketServer<Config>::listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const {
-        if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
-            PLOG(ERROR) << "listen: sunPath: " << sunPath;
-        } else {
-            listen(SocketAddress(sunPath), onError);
-        }
-    }
-
-    template <typename Config>
-    void SocketServer<Config>::listen(const std::string& sunPath,
-                                      int backlog,
-                                      const std::function<void(const SocketAddress&, int)>& onError) const {
-        if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
-            PLOG(ERROR) << "listen: sunPath: " << sunPath;
-        } else {
-            listen(SocketAddress(sunPath), backlog, onError);
-        }
-    }
-
-} // namespace net::un::stream
+namespace net::un::stream {} // namespace net::un::stream

@@ -16,40 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/LogicalSocketServer.hpp"
 #include "net/l2/stream/SocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
-
-    template <typename Config>
-    void SocketServer<Config>::listen(uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
-        listen(SocketAddress(psm), onError);
-    }
-
-    template <typename Config>
-    void SocketServer<Config>::listen(uint16_t psm,
-                                      int backlog,
-                                      const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
-        listen(SocketAddress(psm), backlog, onError);
-    }
-
-    template <typename Config>
-    void SocketServer<Config>::listen(const std::string& btAddress,
-                                      int backlog,
-                                      const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
-        listen(SocketAddress(btAddress), backlog, onError);
-    }
-
-    template <typename Config>
-    void SocketServer<Config>::listen(const std::string& btAddress,
-                                      uint16_t psm,
-                                      int backlog,
-                                      const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
-        listen(SocketAddress(btAddress, psm), backlog, onError);
-    }
-
-} // namespace net::l2::stream
+namespace net::l2::stream {} // namespace net::l2::stream

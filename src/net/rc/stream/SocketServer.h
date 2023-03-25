@@ -19,8 +19,8 @@
 #ifndef NET_RC_STREAM_SOCKETSERVER_H
 #define NET_RC_STREAM_SOCKETSERVER_H
 
-#include "core/socket/stream/LogicalSocketServer.h"            // IWYU pragma: export
-#include "net/rc/stream/PhysicalServerSocket.h" // IWYU pragma: export
+#include "core/socket/stream/LogicalSocketServer.h" // IWYU pragma: export
+#include "net/rc/stream/PhysicalServerSocket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,10 +32,10 @@
 
 namespace net::rc::stream {
 
-    template <typename ConfigT>
-    class SocketServer : public core::socket::stream::LogicalSocketServer<net::rc::stream::PhysicalServerSocket, ConfigT> {
+    template <typename SocketServerT>
+    class SocketServer : public SocketServerT {
     private:
-        using Super = core::socket::stream::LogicalSocketServer<net::rc::stream::PhysicalServerSocket, ConfigT>;
+        using Super = SocketServerT;
 
     protected:
         using Super::Super;
@@ -43,16 +43,24 @@ namespace net::rc::stream {
     public:
         using Super::listen;
 
-        void listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(channel), onError);
+        }
 
-        void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(channel), backlog, onError);
+        }
 
-        void listen(const std::string& btAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(const std::string& btAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(btAddress), backlog, onError);
+        }
 
         void listen(const std::string& btAddress,
                     uint8_t channel,
                     int backlog,
-                    const std::function<void(const SocketAddress&, int)>& onError) const;
+                    const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(btAddress, channel), backlog, onError);
+        }
     };
 
 } // namespace net::rc::stream

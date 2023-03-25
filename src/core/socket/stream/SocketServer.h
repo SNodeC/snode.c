@@ -19,6 +19,8 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 #define CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 
+#include "core/socket/stream/LogicalSocketServer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -32,10 +34,14 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketServerT, template <typename PhysicalServerSocket> class SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public SocketServerT {
+    template <typename PhysicalServerSocketT,
+              typename ConfigT,
+              template <typename PhysicalServerSocket>
+              class SocketAcceptorT,
+              typename SocketContextFactoryT>
+    class SocketServer : public core::socket::stream::LogicalSocketServer<PhysicalServerSocketT, ConfigT> {
     private:
-        using Super = SocketServerT;
+        using Super = core::socket::stream::LogicalSocketServer<PhysicalServerSocketT, ConfigT>;
         using SocketAcceptor = SocketAcceptorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
@@ -63,10 +69,20 @@ namespace core::socket::stream {
             : SocketServer("", onConnect, onConnected, onDisconnect) {
         }
 
-        using Super::listen;
-
-        void listen(const std::function<void(const SocketAddress&, int)>& onError) const override {
+        void listen(const std::function<void(const SocketAddress&, int)>& onError) const {
             new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, Super::config);
+        }
+
+        void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const {
+            Super::config->Local::setAddress(localAddress);
+
+            listen(onError);
+        }
+
+        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+            Super::config->setBacklog(backlog);
+
+            listen(localAddress, onError);
         }
 
         void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
