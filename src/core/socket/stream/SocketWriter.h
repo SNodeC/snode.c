@@ -126,8 +126,7 @@ namespace core::socket::stream {
             onShutdown(errno);
         }
 
-        using PhysicalSocket::shutdown;
-        virtual void shutdown(const std::function<void(int)>& onShutdown) {
+        void shutdown(const std::function<void(int)>& onShutdown) {
             if (!shutdownInProgress) {
                 this->onShutdown = onShutdown;
                 if (writeBuffer.empty()) {

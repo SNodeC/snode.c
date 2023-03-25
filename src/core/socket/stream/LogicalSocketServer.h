@@ -41,11 +41,8 @@ namespace core::socket::stream {
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
         virtual void listen(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
-
-        virtual void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
-
-        virtual void
-        listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const;
     };
 
 } // namespace core::socket::stream

@@ -41,12 +41,10 @@ namespace core::socket::stream {
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
         virtual void connect(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
-
-        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
-
-        virtual void connect(const SocketAddress& remoteAddress,
-                             const SocketAddress& localAddress,
-                             const std::function<void(const SocketAddress&, int)>& onError) const;
+        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
+        void connect(const SocketAddress& remoteAddress,
+                     const SocketAddress& localAddress,
+                     const std::function<void(const SocketAddress&, int)>& onError) const;
     };
 
 } // namespace core::socket::stream
