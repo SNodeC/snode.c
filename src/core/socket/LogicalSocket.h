@@ -30,16 +30,17 @@ namespace core::socket {
 
     // Inheritance structure concrete on IPv4 TLS
     //
-    // core::socket::LogicalSocket                                                      |    Just config (and coming PhysicalServerSocket)
-    // core::socket::stream::LogicalSocketClient = core::socket::LogicalSocket          |    PhysicalServerSocket - will be removed soon
-    // core::socket::stream::SocketClient = net::in::stream::SocketClient               |    General connect methods
-    // core::socket::stream::tls::SocketClient = core::socket::stream::SocketClient     |    Just Encryption
-    // net::in::stream::SocketClient = core::socket::stream::LogicalSocketClient        |    IPv4-Specific connect methods
-    // net::in::stream::tls::SocketClient = core::socket::stream::tls::SocketClient     |    Alias Template
+    // core::socket::LogicalSocket              |    Just config and PhysicalSocket
+    // core::socket::stream::SocketClient       |    General connect methods
+    // core::socket::stream::tls::SocketClient  |    Encryption
+    // net::in::stream::SocketClient            |    IPv4-Specific connect methods
+    // net::in::stream::tls::SocketClient       |    Alias Template
 
-    template <typename ConfigT>
+    template <typename PhysicalSocketT, typename ConfigT>
     class LogicalSocket {
     public:
+        using PhysicalSocket = PhysicalSocketT;
+        using SocketAddress = typename PhysicalSocket::SocketAddress;
         using Config = ConfigT;
 
         explicit LogicalSocket(const std::string& name);

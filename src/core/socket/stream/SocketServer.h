@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 #define CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 
-#include "core/socket/stream/LogicalSocketServer.h"
+#include "core/socket/LogicalSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,9 +39,9 @@ namespace core::socket::stream {
               template <typename PhysicalServerSocket>
               class SocketAcceptorT,
               typename SocketContextFactoryT>
-    class SocketServer : public core::socket::stream::LogicalSocketServer<PhysicalServerSocketT, ConfigT> {
+    class SocketServer : public core::socket::LogicalSocket<PhysicalServerSocketT, ConfigT> {
     private:
-        using Super = core::socket::stream::LogicalSocketServer<PhysicalServerSocketT, ConfigT>;
+        using Super = core::socket::LogicalSocket<PhysicalServerSocketT, ConfigT>;
         using SocketAcceptor = SocketAcceptorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 

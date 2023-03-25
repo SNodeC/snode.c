@@ -37,8 +37,7 @@ namespace net::l2::stream::legacy {
 
 } // namespace net::l2::stream::legacy
 
-extern template class core::socket::stream::LogicalSocketClient<net::l2::stream::PhysicalClientSocket,
-                                                                net::l2::stream::legacy::config::ConfigSocketClient>;
-extern template class core::socket::LogicalSocket<net::l2::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::LogicalSocket<net::l2::stream::PhysicalClientSocket,
+                                                  net::l2::stream::legacy::config::ConfigSocketClient>;
 
 #endif // NET_L2_STREAM_LEGACY_SOCKETCLIENT_H

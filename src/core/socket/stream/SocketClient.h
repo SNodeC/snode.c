@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
-#include "core/socket/stream/LogicalSocketClient.h"
+#include "core/socket/LogicalSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,14 +39,14 @@ namespace core::socket::stream {
               template <typename PhysicalClientSocket>
               class SocketConnectorT,
               typename SocketContextFactoryT>
-    class SocketClient : public core::socket::stream::LogicalSocketClient<PhysicalClientSocketT, ConfigT> {
+    class SocketClient : public core::socket::LogicalSocket<PhysicalClientSocketT, ConfigT> {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
         !include core/socket/stream/pu/SocketClient.pu
         @enduml
         */
     private:
-        using Super = core::socket::stream::LogicalSocketClient<PhysicalClientSocketT, ConfigT>;
+        using Super = core::socket::LogicalSocket<PhysicalClientSocketT, ConfigT>;
         using SocketConnector = SocketConnectorT<Super>;
         using SocketContextFactory = SocketContextFactoryT;
 
