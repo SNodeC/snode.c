@@ -9,9 +9,7 @@ set(NET-L2-STREAM_H
     PhysicalClientSocket.cpp
     PhysicalServerSocket.cpp
     SocketClient.h
-    SocketClient.hpp
     SocketServer.h
-    SocketServer.hpp
     PhysicalSocket.h
     config/ConfigSocketClient.h
     config/ConfigSocketServer.h

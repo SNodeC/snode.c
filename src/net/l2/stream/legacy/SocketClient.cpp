@@ -19,7 +19,7 @@
 #include "net/l2/stream/legacy/SocketClient.h"
 
 #include "core/socket/stream/LogicalSocketClient.hpp" // IWYU pragma: keep
-#include "net/l2/stream/SocketClient.hpp"             // IWYU pragma: keep
+#include "net/l2/stream/SocketClient.h"               // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

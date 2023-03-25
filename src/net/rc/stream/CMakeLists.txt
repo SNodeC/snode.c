@@ -9,9 +9,7 @@ set(NET-RC-STREAM_H
     PhysicalClientSocket.h
     PhysicalServerSocket.h
     SocketClient.h
-    SocketClient.hpp
     SocketServer.h
-    SocketServer.hpp
     PhysicalSocket.h
     config/ConfigSocketClient.h
     config/ConfigSocketServer.h

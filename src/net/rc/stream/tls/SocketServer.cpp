@@ -19,7 +19,6 @@
 #include "net/rc/stream/tls/SocketServer.h"
 
 #include "core/socket/stream/LogicalSocketServer.hpp" // IWYU pragma: keep
-#include "net/rc/stream/SocketServer.hpp"             // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
