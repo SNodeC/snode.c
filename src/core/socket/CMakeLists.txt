@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(CORE_SOCKET_CPP PhysicalSocketOption.cpp
-                    SocketAddress.cpp SocketConnection.cpp SocketContext.cpp
+set(CORE_SOCKET_CPP PhysicalSocketOption.cpp SocketAddress.cpp
+                    SocketConnection.cpp SocketContext.cpp
 )
 
-set(CORE_SOCKET_H LogicalSocket.h LogicalSocket.hpp PhysicalSocketOption.h SocketAddress.h
-                  SocketConnection.h SocketContext.h
+set(CORE_SOCKET_H LogicalSocket.h LogicalSocket.hpp PhysicalSocketOption.h
+                  SocketAddress.h SocketConnection.h SocketContext.h
 )
 
 add_library(core-socket SHARED ${CORE_SOCKET_CPP} ${CORE_SOCKET_H})

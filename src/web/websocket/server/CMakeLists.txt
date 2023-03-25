@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(
-        -Wno-weak-template-vtables
-    )
+    add_compile_options(-Wno-weak-template-vtables)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
