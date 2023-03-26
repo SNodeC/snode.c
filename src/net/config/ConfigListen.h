@@ -43,7 +43,7 @@ namespace net::config {
         void setBacklog(int newBacklog);
 
         int getAcceptsPerTick() const;
-        void setAcceptsPerTick(int newAcceptsPerTickSet);
+        void setAcceptsPerTick(int acceptsPerTickSet);
 
     private:
         CLI::Option* backlogOpt = nullptr;

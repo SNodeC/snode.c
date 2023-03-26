@@ -68,9 +68,9 @@ namespace net::config {
         return acceptsPerTickOpt->as<int>();
     }
 
-    void ConfigListen::setAcceptsPerTick(int newAcceptsPerTick) {
+    void ConfigListen::setAcceptsPerTick(int acceptsPerTickSet) {
         acceptsPerTickOpt //
-            ->default_val(newAcceptsPerTick)
+            ->default_val(acceptsPerTickSet)
             ->clear();
     }
 
