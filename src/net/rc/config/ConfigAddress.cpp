@@ -97,7 +97,7 @@ namespace net::rc::config {
         utils::PreserveErrno preserveErrno;
 
         channelOpt //
-            ->default_val(channel);
+            ->default_val(static_cast<int>(channel));
         Super::required(channelOpt, false);
     }
 
