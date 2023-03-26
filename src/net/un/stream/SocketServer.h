@@ -23,10 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cerrno>
-#include <cstdio>
 #include <functional>
 #include <string>
 
@@ -46,19 +43,11 @@ namespace net::un::stream {
         using Super::listen;
 
         void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const {
-            if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
-                PLOG(ERROR) << "listen: sunPath: " << sunPath;
-            } else {
-                listen(SocketAddress(sunPath), onError);
-            }
+            listen(SocketAddress(sunPath), onError);
         }
 
         void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-            if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
-                PLOG(ERROR) << "listen: sunPath: " << sunPath;
-            } else {
-                listen(SocketAddress(sunPath), backlog, onError);
-            }
+            listen(SocketAddress(sunPath), backlog, onError);
         }
     };
 

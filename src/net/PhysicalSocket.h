@@ -53,7 +53,7 @@ namespace net {
 
         int open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions, Flags flags);
 
-        int bind(const SocketAddress& bindAddress);
+        virtual int bind(const SocketAddress& bindAddress);
 
         enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 

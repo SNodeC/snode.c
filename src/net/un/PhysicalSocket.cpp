@@ -24,6 +24,7 @@
 
 #include "log/Logger.h"
 
+#include <cerrno>
 #include <cstdio>
 #include <string>
 
@@ -36,9 +37,17 @@ namespace net::un {
     }
 
     PhysicalSocket::~PhysicalSocket() {
-        if (!getBindAddress().address().empty() && std::remove(getBindAddress().address().data()) != 0) {
+        if (!doNotRemove && !getBindAddress().address().empty() && std::remove(getBindAddress().address().data()) != 0) {
             PLOG(ERROR) << "remove: sunPath: " << getBindAddress().address();
         }
+    }
+
+    int PhysicalSocket::bind(const SocketAddress& bindAddress) {
+        int ret = Super::bind(bindAddress);
+
+        doNotRemove = ret != 0 && errno == EADDRINUSE;
+
+        return ret;
     }
 
 } // namespace net::un
