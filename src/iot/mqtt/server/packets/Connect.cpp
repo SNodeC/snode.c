@@ -84,7 +84,7 @@ namespace iot::mqtt::server::packets {
                 }
 
                 if (clientId.size() == 0) {
-                    clientId = utils::Uuid::getUudi();
+                    clientId = utils::Uuid::getUuid();
                     fakedClientId = true;
                 }
 

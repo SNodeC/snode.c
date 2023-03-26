@@ -32,7 +32,7 @@ namespace utils {
         Uuid() = delete;
         Uuid(const Uuid&) = delete;
 
-        static std::string getUudi();
+        static std::string getUuid();
     };
 
 } // namespace utils
