@@ -22,6 +22,7 @@
 #include "net/config/ConfigAddressRemote.hpp"
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
+#include "utils/Uuid.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -41,7 +42,7 @@ namespace net::un::config {
                           "--path",
                           "Unix domain socket file",
                           "filename:FILE",
-                          std::string('\0' + instance->getInstanceName() + "_" + std::to_string(getpid())));
+                          std::string('\0' + instance->getInstanceName() + utils::Uuid::getUuid() + "_" + std::to_string(getpid())));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
