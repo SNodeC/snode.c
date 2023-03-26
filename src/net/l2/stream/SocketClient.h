@@ -19,7 +19,6 @@
 #ifndef NET_L2_STREAM_SOCKETCLIENT_H
 #define NET_L2_STREAM_SOCKETCLIENT_H
 
-#include "core/socket/LogicalSocket.h"          // IWYU pragma: export
 #include "net/l2/stream/PhysicalClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

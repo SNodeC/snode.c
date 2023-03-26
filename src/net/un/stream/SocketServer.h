@@ -19,7 +19,6 @@
 #ifndef NET_UN_STREAM_SOCKETSERVER_H
 #define NET_UN_STREAM_SOCKETSERVER_H
 
-#include "core/socket/LogicalSocket.h"          // IWYU pragma: export
 #include "net/un/stream/PhysicalServerSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

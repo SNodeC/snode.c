@@ -21,7 +21,6 @@
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
-#include "net/config/ConfigPhysicalSocket.h"
 
 namespace core::socket::stream {
     //    class SocketContextFactory;

@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
-#include "core/socket/LogicalSocket.h"
+#include "core/socket/LogicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

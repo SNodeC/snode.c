@@ -28,13 +28,13 @@
 
 namespace core::socket {
 
-    // Inheritance structure concrete on IPv4 TLS
+    // Inheritance described on SocketClient (it's the same for SocketServer)
     //
-    // core::socket::LogicalSocket              |    Just config and PhysicalSocket
-    // core::socket::stream::SocketClient       |    General connect methods
-    // core::socket::stream::tls::SocketClient  |    Encryption
-    // net::in::stream::SocketClient            |    IPv4-Specific connect methods
-    // net::in::stream::tls::SocketClient       |    Alias Template
+    // core::socket::LogicalSocket                     |    Just Config and PhysicalSocket
+    // core::socket::STREAM::SocketClient              |    STREAM general connect methods
+    // core::socket::STREAM::ENCRYPTION::SocketClient  |    STREAM encryption
+    // net::NET::STREAM::SocketClient                  |    NET STREAM specific connect methods
+    // net::NET::STREAM::ENCRYPTION::SocketClient      |    NET STREAM ENCRYPTION alias Template
 
     template <typename PhysicalSocketT, typename ConfigT>
     class LogicalSocket {

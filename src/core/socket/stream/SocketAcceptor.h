@@ -21,7 +21,6 @@
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
-#include "net/config/ConfigCluster.h"
 #include "net/un/dgram/Socket.h"
 
 namespace core::socket::stream {
