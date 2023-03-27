@@ -54,7 +54,7 @@ namespace net::un {
     }
 
     std::string SocketAddress::address() const {
-        return std::string(sockAddr.sun_path);
+        return (sockAddr.sun_path[0] != '\0') ? std::string(sockAddr.sun_path) : "@" + std::string(sockAddr.sun_path + 1);
     }
 
     std::string SocketAddress::toString() const {
