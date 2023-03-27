@@ -50,8 +50,8 @@ namespace net::in6::stream {
             listen(SocketAddress(port), backlog, onError);
         }
 
-        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(ipOrHostname), backlog, onError);
+        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(ipOrHostname, port), onError);
         }
 
         void listen(const std::string& ipOrHostname,

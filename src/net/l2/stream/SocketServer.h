@@ -50,8 +50,8 @@ namespace net::l2::stream {
             listen(SocketAddress(psm), backlog, onError);
         }
 
-        void listen(const std::string& btAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(btAddress), backlog, onError);
+        void listen(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
+            listen(SocketAddress(btAddress, psm), onError);
         }
 
         void listen(const std::string& btAddress,
