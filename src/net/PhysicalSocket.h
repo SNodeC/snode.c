@@ -51,6 +51,7 @@ namespace net {
 
         enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
 
+        int open(Flags flags);
         int open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions, Flags flags);
 
         virtual int bind(const SocketAddress& bindAddress);

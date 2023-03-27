@@ -22,10 +22,6 @@
 #include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
 
-namespace core::socket::stream {
-    //    class SocketContextFactory;
-} // namespace core::socket::stream
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>

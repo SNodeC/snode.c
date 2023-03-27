@@ -66,8 +66,13 @@ namespace net {
     }
 
     template <typename SocketAddress>
+    int PhysicalSocket<SocketAddress>::open(Flags flags) {
+        return Super::attach(core::system::socket(domain, type | flags, protocol));
+    }
+
+    template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions, Flags flags) {
-        int ret = Super::attach(core::system::socket(domain, type | flags, protocol));
+        int ret = open(flags);
 
         if (ret >= 0) {
             for (const auto& [optName, socketOption] : socketOptions) {

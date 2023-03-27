@@ -23,10 +23,6 @@
 #include "core/socket/stream/SocketConnectionFactory.h"
 #include "net/un/dgram/Socket.h"
 
-namespace core::socket::stream {
-    class SocketContextFactory;
-} // namespace core::socket::stream
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -104,8 +100,7 @@ namespace core::socket::stream {
                     } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
                         VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName()) << " mode: PRIMARY";
                         secondaryPhysicalSocket = new SecondarySocket();
-                        if (secondaryPhysicalSocket->open(std::map<int, const core::socket::PhysicalSocketOption>(),
-                                                          SecondarySocket::Flags::NONBLOCK) < 0) {
+                        if (secondaryPhysicalSocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                             onError(config->Local::getAddress(), errno);
                             destruct();
                         } else if (secondaryPhysicalSocket->bind(
@@ -125,8 +120,7 @@ namespace core::socket::stream {
                 } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
                            config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
                     secondaryPhysicalSocket = new SecondarySocket();
-                    if (secondaryPhysicalSocket->open(std::map<int, const core::socket::PhysicalSocketOption>(),
-                                                      SecondarySocket::Flags::NONBLOCK) < 0) {
+                    if (secondaryPhysicalSocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
                         onError(config->Local::getAddress(), errno);
                         destruct();
                     } else if (secondaryPhysicalSocket->bind(
