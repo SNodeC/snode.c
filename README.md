@@ -371,7 +371,8 @@ int main(int argc, char* argv[]) {
         if (err == 0) {
             std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
         } else {
-            std::cout << "Error: Echo server listening on " << socketAddress.toString() << ": " << strerror(err) << std::endl;
+            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
+                      << ": " << strerror(err) << std::endl;
         }
     });
 
@@ -413,8 +414,8 @@ int main(int argc, char* argv[]) {
                            if (err == 0) {
                                std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
                            } else {
-                               std::cout << "Error: Echo client connected to " << socketAddress.toString() << ": " << strerror(err)
-                                         << std::endl;
+                               std::cout << "Error: Echo client connected to " << socketAddress.toString() 
+                                         << ": " << strerror(err) << std::endl;
                            }
                        });
 
@@ -725,11 +726,11 @@ using StatusFunction = const std::function<void(const net::in::SocketAddress&, i
 
 For the IPv4/SOCK_STREAM combination exist four specific `listen()` methods.
 
-| `listen()` Methods                                           |
+| IPv4 `listen()` Methods                                      |
 | ------------------------------------------------------------ |
 | `void listen(uint16_t port, StatusFunction& onError)`        |
 | `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& ipOrHostname, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
 
 ##### IPv6 specific `listen()` Methods
@@ -742,11 +743,11 @@ using StatusFunction = const std::function<void(const net::in6::SocketAddress&, 
 
 For the IPv6/SOCK_STREAM combination exist four specific `listen()` methods.
 
-| `listen()` Methods                                           |
+| IPv6 `listen()` Methods                                      |
 | ------------------------------------------------------------ |
 | `void listen(uint16_t port, StatusFunction& onError)`        |
 | `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& ipOrHostname, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
 
 ##### Unix Domain Socket specific `listen()` Methods
@@ -759,7 +760,7 @@ using StatusFunction = const std::function<void(const net::un::SocketAddress&, i
 
 For the Unix Domain Socket/SOCK_STREAM combination exist two specific `listen()` methods.
 
-| `listen()` Methods                                           |
+| Unix-Domain `listen()` Methods                               |
 | ------------------------------------------------------------ |
 | `void listen(const std::string& sunPath, StatusFunction& onError)` |
 | `void listen(const std::string& sunPath, int backlog, StatusFunction& onError)` |
@@ -774,11 +775,11 @@ using StatusFunction = const std::function<void(const net::rc::SocketAddress&, i
 
 For the RFCOMM/SOCK_STREAM combination exist four specific `listen()` methods.
 
-| `listen()` Methods                                           |
+| Bluetooth RFCOMM `listen()` Methods                          |
 | ------------------------------------------------------------ |
 | `void listen(uint8_t channel, StatusFunction& onError)`      |
 | `void listen(uint8_t channel, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& btAddress, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onError)` |
 
 ##### Bluetooth L2CAP specific `listen()` Methods
@@ -791,11 +792,11 @@ using StatusFunction = const std::function<void(const net::l2::SocketAddress&, i
 
 For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
 
-| `listen()` Methods                                           |
+| Bluetooth L2CAP `listen()` Methods                           |
 | ------------------------------------------------------------ |
 | `void listen(uint16_t psm, StatusFunction& onError)`         |
 | `void listen(uint16_t psm, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& btAddress, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& btAddress, uint16_t psm, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint16_t psm, int backlog, StatusFunction& onError)` |
 
 ## Client
@@ -852,12 +853,13 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::in::SocketAddress&, int)>;
 ```
 
-For the IPv4/SOCK_STREAM combination exist three specific `connect()` methods.
+For the IPv4/SOCK_STREAM combination exist four specific `connect()` methods.
 
-| `connect()` Methods                                          |
+| IPv4 `connect()` Methods                                     |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
 ##### IPv6 specific `connect()` Methods
@@ -868,12 +870,13 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::in6::SocketAddress&, int)>;
 ```
 
-For the IPv6/SOCK_STREAM combination exist three specific `connect()` methods.
+For the IPv6/SOCK_STREAM combination exist four specific `connect()` methods.
 
-| `connect()` Methods                                          |
+| IPv6 `connect()` Methods                                     |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
 ##### Unix Domain Socket specific `connect()` Methods
@@ -886,7 +889,7 @@ using StatusFunction = const std::function<void(const net::un::SocketAddress&, i
 
 For the Unix Domain Socket/SOCK_STREAM combination exist two specific `connect()` methods.
 
-| `connect()` Methods                                          |
+| Unix-Domain `connect()` Methods                              |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& sunPath, StatusFunction& onError)` |
 | `void connect(const std::string& remoteSunPath, const std::string& localSunPath, StatusFunction& onError)` |
@@ -899,13 +902,14 @@ IPv4 The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::rc::SocketAddress&, int)>;
 ```
 
-For the RFCOMM/SOCK_STREAM combination exist three specific `connect()` methods.
+For the RFCOMM/SOCK_STREAM combination exist four specific `connect()` methods.
 
-| `connect()` Methods                                          |
+| Bluetooth RFCOMM `connect()` Methods                         |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::string& localAddress, uint8_t bindChannel, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint8_t channel, uint8_t bindChannel, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, StatusFunction& onError)` |
 
 ##### Bluetooth L2CAP specific `connect()` Methods
 
@@ -915,13 +919,14 @@ IPv4 The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::l2::SocketAddress&, int)>;
 ```
 
-For the L2CAP/SOCK_STREAM combination exist three specific `connect()` methods.
+For the L2CAP/SOCK_STREAM combination exist four specific `connect()` methods.
 
-| `connect()` Methods                                          |
+| Bluetooth L2CAP `connect()` Methods                          |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& btAddress, uint16_t psm, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& localAddress, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& localAddress, uint16_t bindPsm, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint16_t psm, uint16_t bindPsm, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, uint16_t bindPsm, StatusFunction& onError)` |
 
 # Configuration
 
@@ -968,7 +973,8 @@ echoServer.listen([](const SocketAddress& socketAddress, int err) -> void { // L
 	if (err == 0){
         std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl
     } else {
-        std::cout << "Error: Echo server listening on " << socketAddress.toString() << ": " << perror("") << std::endl;
+        std::cout << "Error: Echo server listening on " << socketAddress.toString() 
+                  << ": " << perror("") << std::endl;
     }
 });
 ```
@@ -985,7 +991,8 @@ echoClient.connect([](const SocketAddress& socketAddress, int err) -> void { // 
 	if (err == 0){
         std::cout << "Success: Echo client connected to " << socketAddress.toString() << std::endl
     } else {
-        std::cout << "Error: Echo client connected to " << socketAddress.toString() << ": " << perror("") << std::endl;
+        std::cout << "Error: Echo client connected to " << socketAddress.toString() 
+                  << ": " << perror("") << std::endl;
     }
 });
 ```
@@ -1074,7 +1081,7 @@ Thus, for instance if the `EchoServer` instance is created using and instance na
 EchoServer echoServer("echo"); // Create named server instance
 ```
 
- (try it yourself using the code from  [github](https://github.com/VolkerChristian/echo)), the output of the help screen changes slightly:
+ (try it yourself using the code from github in the **[named-instance](https://github.com/VolkerChristian/echo/tree/named-instance)** branch of the echo application), the output of the help screen changes slightly:
 
 ```shell
 Configuration for Application 'echoserver'
@@ -1245,12 +1252,12 @@ In case the parameterless `listen()` method is used for activating a server inst
 
 ```cpp
 EchoServer echoServer("echo"); // Create server instance
-
 echoServer.listen([](const SocketAddress& socketAddress, int err) -> void { // Port on command line or in config file
     if (err == 0) {
         std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
     } else {
-        std::cout << "Error: Echo server listening on " << socketAddress.toString() << ": " << strerror(err) << std::endl;
+        std::cout << "Error: Echo server listening on " << socketAddress.toString() 
+                  << ": " << strerror(err) << std::endl;
     }
 });
 ```
@@ -1360,6 +1367,126 @@ Data to reflect: Hello peer! It's nice talking to you!!!
 ## SSL/TLS-Configuration
 
 To be written
+
+# Using more than one Instance in an Application
+
+SNode.C is designed to run multiple Server and Client Instances in one Application.
+
+For instance, if the echo server shall also communicate via e.g. Unix-Domain sockets and Bluetoot-RFCOMM those two server Instances need to be added but the application level protocol need not to be changed. The code can be found on github in the **[multiple-instances](https://github.com/VolkerChristian/echo/tree/multiple-instances)** branch of the echo application.
+
+In that case the Main-Application would look like
+
+```c++
+#include "EchoServerContextFactory.h"
+
+#include <core/SNodeC.h>
+#include <iostream>
+#include <net/in/stream/legacy/SocketServer.h>
+#include <net/rc/stream/legacy/SocketServer.h>
+#include <net/un/stream/legacy/SocketServer.h>
+#include <string.h>
+#include <string>
+
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
+
+    using EchoServerIn = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressIn = EchoServerIn::SocketAddress;
+
+    EchoServerIn echoServerIn;
+    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, int err) -> void { // IPv4, port 8001
+        if (err == 0) {
+            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
+        } else {
+            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
+                      << ": " << strerror(err) << std::endl;
+        }
+    });
+
+    using EchoServerUn = net::un::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressUn = EchoServerUn::SocketAddress;
+
+    EchoServerUn echoServerUn;
+    echoServerUn.listen(
+        "/tmp/echoserver", [](const SocketAddressUn& socketAddress, int err) -> void { // Unix-domain socket /tmp/echoserver
+            if (err == 0) {
+                std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
+            } else {
+                std::cout << "Error: Echo server listening on " 
+                          << socketAddress.toString() << ": " << strerror(err) << std::endl;
+            }
+        });
+
+    using EchoServerRc = net::rc::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressRc = EchoServerRc::SocketAddress;
+
+    EchoServerRc echoServerRc;
+    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, int err) -> void { // Bluetooth RFCOMM on channel 16
+        if (err == 0) {
+            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
+        } else {
+            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
+                      << ": " << strerror(err) << std::endl;
+        }
+    });
+
+    return core::SNodeC::start(); // Start the event loop, daemonize if requested.
+}
+```
+
+and the client application with an additional Unix-Domain socket instance look like
+
+```c++
+#include "EchoClientContextFactory.h"
+
+#include <core/SNodeC.h>
+#include <iostream>
+#include <net/in/stream/legacy/SocketClient.h>
+#include <net/un/stream/legacy/SocketClient.h>
+#include <string.h>
+#include <string>
+
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
+
+    static std::string ipv4("IPv4 Socket");
+    using EchoClientIn = net::in::stream::legacy::SocketClient<EchoClientContextFactory<ipv4>>;
+    using SocketAddressIn = EchoClientIn::SocketAddress;
+
+    EchoClientIn echoClientIn; // Create client instance
+    echoClientIn.connect("localhost",
+                         8001,
+                         [](const SocketAddressIn& socketAddress,
+                            int err) -> void { // Connect to server
+                             if (err == 0) {
+                                 std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
+                             } else {
+                                 std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
+                                           << ": " << strerror(err) << std::endl;
+                             }
+                         });
+
+    static std::string unixDomain("Unix-Domain Socket");
+    using EchoClientUn = net::un::stream::legacy::SocketClient<EchoClientContextFactory<unixDomain>>;
+    using SocketAddressUn = EchoClientUn::SocketAddress;
+
+    EchoClientUn echoClientUn; // Create client instance
+    echoClientUn.connect("/tmp/echoserver",
+                         [](const SocketAddressUn& socketAddress,
+                            int err) -> void { // Connect to server
+                             if (err == 0) {
+                                 std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
+                             } else {
+                                 std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
+                                           << ": " << strerror(err) << std::endl;
+                             }
+                         });
+
+    return core::SNodeC::start(); // Start the event loop, daemonize if requested.
+}
+```
+
+The `EchoClientContextFactory` and the `EchoClientContext` has also be changed slightly to expect now a `std::string` as non-type template argument which is appended in the ping-pong initiation to the string send to the server to distinguish both instances in the output of the application.
 
 # Highlevel WEB-API a'la Node.JS-Express
 
