@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/PhysicalSocketOption.h"
+#include "net/PhysicalSocketOption.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace core::socket {
+namespace net {
 
     PhysicalSocketOption::PhysicalSocketOption(int optLevel, int optName, int optValue)
         : optLevel(optLevel)
@@ -58,4 +58,4 @@ namespace core::socket {
         return static_cast<socklen_t>(optValue.size());
     }
 
-} // namespace core::socket
+} // namespace net

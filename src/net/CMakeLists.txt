@@ -11,6 +11,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 set(NET_CPP
+    PhysicalSocketOption.cpp
     SocketAddress.cpp
     config/ConfigInstance.cpp
     config/ConfigCluster.cpp
@@ -27,6 +28,7 @@ set(NET_CPP
 set(NET_H
     PhysicalSocket.h
     PhysicalSocket.hpp
+    PhysicalSocketOption.h
     SocketAddress.h
     SocketAddress.hpp
     config/ConfigAddress.h

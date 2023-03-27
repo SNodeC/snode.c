@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_PHYSICALSOCKETOPTIONS_H
-#define CORE_SOCKET_PHYSICALSOCKETOPTIONS_H
+#ifndef NET_PHYSICALSOCKETOPTIONS_H
+#define NET_PHYSICALSOCKETOPTIONS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
 
-namespace core::socket {
+namespace net {
 
     class PhysicalSocketOption {
     public:
@@ -48,6 +48,6 @@ namespace core::socket {
         std::vector<char> optValue;
     };
 
-} // namespace core::socket
+} // namespace net
 
-#endif // CORE_SOCKET_PHYSICALSOCKETOPTIONS_H
+#endif // NET_PHYSICALSOCKETOPTIONS_H

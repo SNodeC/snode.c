@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGPHYSICALSOCKET_H
 #define NET_CONFIG_CONFIGPHYSICALSOCKET_H
 
-#include "core/socket/PhysicalSocketOption.h"
+#include "net/PhysicalSocketOption.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace net::config {
@@ -45,7 +45,7 @@ namespace net::config {
     public:
         explicit ConfigPhysicalSocket(ConfigInstance* instance);
 
-        const std::map<int, const core::socket::PhysicalSocketOption>& getSocketOptions();
+        const std::map<int, const net::PhysicalSocketOption>& getSocketOptions();
 
         void addSocketOption(int optLevel, int optName, int optValue);
         void addSocketOption(int optLevel, int optName, const std::string& optValue);
@@ -68,7 +68,7 @@ namespace net::config {
 
         CLI::Option* reuseAddressOpt = nullptr;
 
-        std::map<int, const core::socket::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
+        std::map<int, const net::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };
 
 } // namespace net::config

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/PhysicalSocketOption.h"
 #include "net/PhysicalSocket.h"
+#include "net/PhysicalSocketOption.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -71,7 +71,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions, Flags flags) {
+    int PhysicalSocket<SocketAddress>::open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags) {
         int ret = open(flags);
 
         if (ret >= 0) {

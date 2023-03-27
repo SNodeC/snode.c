@@ -20,7 +20,7 @@
 #define NET_SOCKET_H
 
 #include "core/Descriptor.h"
-#include "core/socket/PhysicalSocketOption.h"
+#include "net/PhysicalSocketOption.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -52,7 +52,7 @@ namespace net {
         enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
 
         int open(Flags flags);
-        int open(const std::map<int, const core::socket::PhysicalSocketOption>& socketOptions, Flags flags);
+        int open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags);
 
         virtual int bind(const SocketAddress& bindAddress);
 
