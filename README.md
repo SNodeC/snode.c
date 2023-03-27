@@ -81,6 +81,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [Using the Parameterless listen() Methods when no Configuration File exists](#using-the-parameterless-listen-methods-when-no-configuration-file-exists)
       * [Command Line Configuration of the Client Instance EchoClient](#command-line-configuration-of-the-client-instance-echoclient)
    * [SSL/TLS-Configuration](#ssltls-configuration)
+* [Using more than one Instance in an Application](#using-more-than-one-instance-in-an-application)
 * [Highlevel WEB-API a'la Node.JS-Express](#highlevel-web-api-ala-nodejs-express)
 * [Websockets](#websockets)
 * [Example Applications](#example-applications)
@@ -89,7 +90,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Sat Mar 25 21:12:11 UTC 2023 -->
+<!-- Added by: runner, at: Mon Mar 27 00:14:15 UTC 2023 -->
 
 <!--te-->
 
