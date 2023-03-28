@@ -42,7 +42,7 @@ namespace net::un::config {
                           "--path",
                           "Unix domain socket file",
                           "filename:FILE",
-                          std::string('\0' + instance->getInstanceName() + utils::Uuid::getUuid() + "_" + std::to_string(getpid())));
+                          std::string('\0' + instance->getInstanceName() + "_" + utils::Uuid::getUuid() + "_" + std::to_string(getpid())));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

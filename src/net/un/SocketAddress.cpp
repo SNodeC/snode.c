@@ -40,25 +40,26 @@ namespace net::un {
     SocketAddress::SocketAddress(const std::string& sunPath)
         : SocketAddress() {
         setSunPath(sunPath);
-        sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
     }
 
     void SocketAddress::setSunPath(const std::string& sunPath) {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
-            std::size_t len = sizeof(sockAddr.sun_path) - 1 < sunPath.size() + 1 ? sizeof(sockAddr.sun_path) - 1 : sunPath.size() + 1;
+            std::size_t len = sunPath.length();
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
-            sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + sunPath.length() + 1);
+            sockAddr.sun_path[len] = 0;
+            sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + len + 1);
         } else {
-            throw net::BadSocketAddress("Bad Sun-Path: " + sunPath);
+            throw net::BadSocketAddress("Error Sun-Path to long: Lenght is = " + std::to_string(sunPath.length()) +
+                                        ", should be: " + std::to_string(sizeof(sockAddr.sun_path) - 1));
         }
     }
 
     std::string SocketAddress::address() const {
-        return (sockAddr.sun_path[0] != '\0') ? std::string(sockAddr.sun_path) : "@" + std::string(sockAddr.sun_path + 1);
+        return sockAddr.sun_path;
     }
 
     std::string SocketAddress::toString() const {
-        return address();
+        return (sockAddr.sun_path[0] != '\0') ? std::string(sockAddr.sun_path) : "@" + std::string(sockAddr.sun_path + 1);
     }
 
 } // namespace net::un
