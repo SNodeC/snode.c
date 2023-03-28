@@ -55,8 +55,8 @@ namespace net {
         const socklen_t& getSockAddrLen() const;
 
     protected:
-        SockAddr sockAddr;
-        socklen_t sockAddrLen;
+        SockAddr sockAddr{0};
+        socklen_t sockAddrLen = 0;
     };
 
 } // namespace net
