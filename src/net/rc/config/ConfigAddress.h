@@ -21,7 +21,7 @@
 
 #include "net/config/ConfigAddressLocal.h"  // IWYU pragma: keep
 #include "net/config/ConfigAddressRemote.h" // IWYU pragma: keep
-#include "net/rc/SocketAddress.h"
+#include "net/rc/SocketAddress.h"           // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -64,7 +64,7 @@ namespace net::rc::config {
         void hostRequired();
         void channelRequired();
 
-    private:
+    protected:
         using Super::required;
 
         CLI::Option* hostOpt = nullptr;

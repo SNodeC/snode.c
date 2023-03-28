@@ -45,9 +45,7 @@ namespace net::rc::config {
         Super::add_option(channelOpt, //
                           "--channel",
                           "Channel number",
-                          "channel",
-                          0,
-                          CLI::Range(0, 30));
+                          "channel");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
