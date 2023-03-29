@@ -27,7 +27,7 @@
 namespace net::l2::stream {
 
     PhysicalSocket::PhysicalSocket()
-        : Super(SOCK_SEQPACKET, BTPROTO_L2CAP) {
+        : Super(SOCK_STREAM, BTPROTO_L2CAP) {
     }
 
     PhysicalSocket::~PhysicalSocket() {
