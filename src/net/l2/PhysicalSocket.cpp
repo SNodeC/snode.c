@@ -33,6 +33,10 @@ namespace net::l2 {
     PhysicalSocket::~PhysicalSocket() {
     }
 
+    void PhysicalSocket::shutdown([[maybe_unused]] SHUT how) {
+        Super::shutdown(SHUT::RDWR); // always shutdown L2CAP sockets for RDWR
+    }
+
 } // namespace net::l2
 
 template class net::PhysicalSocket<net::l2::SocketAddress>;
