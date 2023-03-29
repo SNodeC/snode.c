@@ -42,7 +42,7 @@ namespace net::un {
         PhysicalSocket(int type, int protocol);
         ~PhysicalSocket() override;
 
-        int bind(const SocketAddress& bindAddress) override;
+        int bind(const SocketAddress& bindAddress);
 
     private:
         bool doNotRemove = true;

@@ -54,12 +54,14 @@ namespace net {
         int open(Flags flags);
         int open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags);
 
-        virtual int bind(const SocketAddress& bindAddress);
+        int bind(const SocketAddress& bindAddress);
 
+    protected:
         enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
         void shutdown(SHUT how);
 
+    public:
         bool isValid() const;
 
         int getSockError() const;
