@@ -34,7 +34,6 @@ namespace net::un {
     SocketAddress::SocketAddress()
         : Super(offsetof(sockaddr_un, sun_path)) {
         sockAddr.sun_family = AF_UNIX;
-        *sockAddr.sun_path = 0;
     }
 
     SocketAddress::SocketAddress(const std::string& sunPath)

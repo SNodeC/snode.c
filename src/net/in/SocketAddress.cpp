@@ -33,8 +33,6 @@ namespace net::in {
 
     SocketAddress::SocketAddress() {
         sockAddr.sin_family = AF_INET;
-        sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        sockAddr.sin_port = 0;
     }
 
     SocketAddress::SocketAddress(const std::string& ipOrHostname)

@@ -30,8 +30,6 @@ namespace net::l2 {
 
     SocketAddress::SocketAddress() {
         sockAddr.l2_family = AF_BLUETOOTH;
-        sockAddr.l2_bdaddr = {{0, 0, 0, 0, 0, 0}};
-        sockAddr.l2_psm = htobs(0);
     }
 
     SocketAddress::SocketAddress(const std::string& btAddress)

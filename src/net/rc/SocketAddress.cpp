@@ -30,8 +30,6 @@ namespace net::rc {
 
     SocketAddress::SocketAddress() {
         sockAddr.rc_family = AF_BLUETOOTH;
-        sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
-        sockAddr.rc_channel = static_cast<unsigned char>(0);
     }
 
     SocketAddress::SocketAddress(const std::string& btAddress)
