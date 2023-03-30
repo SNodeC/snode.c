@@ -20,7 +20,7 @@
 #define NET_SOCKET_H
 
 #include "core/Descriptor.h"
-#include "net/PhysicalSocketOption.h"
+#include "net/PhysicalSocketOption.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

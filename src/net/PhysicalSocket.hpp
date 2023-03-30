@@ -17,7 +17,6 @@
  */
 
 #include "net/PhysicalSocket.h" // IWYU pragma: export
-#include "net/PhysicalSocketOption.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
