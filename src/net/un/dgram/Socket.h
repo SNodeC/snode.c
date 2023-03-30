@@ -19,8 +19,8 @@
 #ifndef NET_UN_DGRAM_SOCKET_H
 #define NET_UN_DGRAM_SOCKET_H
 
-#include "net/stream/PhysicalClientSocket.h" // IWYU pragma: export
-#include "net/un/PhysicalSocket.h"           // IWYU pragma: export
+#include "net/dgram/PeerSocket.h"  // IWYU pragma: export
+#include "net/un/PhysicalSocket.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/un/PhysicalSocket.hpp"
 
@@ -30,9 +30,9 @@
 
 namespace net::un::dgram {
 
-    class Socket : public net::un::PhysicalSocket<net::stream::PhysicalClientSocket> {
+    class Socket : public net::un::PhysicalSocket<net::dgram::PeerSocket> {
     private:
-        using Super = net::un::PhysicalSocket<net::stream::PhysicalClientSocket>;
+        using Super = net::un::PhysicalSocket<net::dgram::PeerSocket>;
 
     public:
         using Super::Super;
@@ -45,7 +45,7 @@ namespace net::un::dgram {
 
 } // namespace net::un::dgram
 
-extern template class net::stream::PhysicalClientSocket<net::un::SocketAddress>;
-extern template class net::un::PhysicalSocket<net::stream::PhysicalClientSocket>;
+extern template class net::dgram::PeerSocket<net::un::SocketAddress>;
+extern template class net::un::PhysicalSocket<net::dgram::PeerSocket>;
 
 #endif // NET_UN_DGRAM_SOCKET_H

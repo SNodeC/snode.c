@@ -16,30 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/LogicalSocket.hpp"
 #include "net/dgram/PeerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::dgram {
-
-    template <typename Config, typename Socket>
-    void PeerSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
-                                             const SocketAddress& localAddress,
-                                             const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->setLocalAddress(localAddress);
-
-        connect(remoteAddress, onError);
-    }
-
-    template <typename Config, typename Socket>
-    void PeerSocket<Config, Socket>::connect(const SocketAddress& remoteAddress,
-                                             const std::function<void(const SocketAddress&, int)>& onError) const {
-        Super::config->setRemoteAddress(remoteAddress);
-
-        connect(onError);
-    }
-
-} // namespace net::dgram
+namespace net::dgram {} // namespace net::dgram

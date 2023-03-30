@@ -19,7 +19,7 @@
 #ifndef NET_DGRAM_PEERSOCKET_H
 #define NET_DGRAM_PEERSOCKET_H
 
-#include "net/LogicalSocket.h" // IWYU pragma: export
+#include "net/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,27 +31,16 @@
 
 namespace net::dgram {
 
-    template <typename ConfigT, typename SocketT>
-    class PeerSocket : public LogicalSocket<ConfigT> {
+    template <typename SocketAddressT>
+    class PeerSocket : public net::PhysicalSocket<SocketAddressT> {
     protected:
-        using Super = LogicalSocket<ConfigT>;
-
-        virtual ~PeerSocket() = default;
+        using Super = net::PhysicalSocket<SocketAddressT>;
 
     public:
         using Super::Super;
+        using Super::operator=;
 
-        using Config = ConfigT;
-        using Socket = SocketT;
-        using SocketAddress = typename Socket::SocketAddress;
-
-        virtual void connect(const std::function<void(const SocketAddress&, int)>& onError) const = 0;
-
-        void connect(const SocketAddress& remoteAddress,
-                     const SocketAddress& localAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError) const;
-
-        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const;
+        using SocketAddress = SocketAddressT;
     };
 
 } // namespace net::dgram
