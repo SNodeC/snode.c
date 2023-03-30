@@ -19,10 +19,11 @@
 #ifndef NET_RC_STREAM_PHYSICALCLIENTSOCKET_H
 #define NET_RC_STREAM_PHYSICALCLIENTSOCKET_H
 
-#include "net/rc/stream/PhysicalSocket.h" // IWYU pragma: export
-#include "net/stream/PhysicalClientSocket.h"
+#include "net/rc/stream/PhysicalSocket.h"    // IWYU pragma: export
+#include "net/stream/PhysicalClientSocket.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/stream/PhysicalClientSocket.hpp"
+// IWYU pragma: no_include "net/rc/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,9 +31,9 @@
 
 namespace net::rc::stream {
 
-    class PhysicalClientSocket : public net::stream::PhysicalClientSocket<net::rc::stream::PhysicalSocket> {
+    class PhysicalClientSocket : public net::rc::stream::PhysicalSocket<net::stream::PhysicalClientSocket> {
     private:
-        using Super = net::stream::PhysicalClientSocket<net::rc::stream::PhysicalSocket>;
+        using Super = net::rc::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
 
     public:
         using Super::Super;
@@ -44,6 +45,8 @@ namespace net::rc::stream {
 
 } // namespace net::rc::stream
 
-extern template class net::stream::PhysicalClientSocket<net::rc::stream::PhysicalSocket>;
+extern template class net::stream::PhysicalClientSocket<net::rc::SocketAddress>;
+extern template class net::rc::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
+extern template class net::rc::PhysicalSocket<net::stream::PhysicalClientSocket>;
 
 #endif // NET_RC_STREAM_PHYSICALCLIENTSOCKET_H

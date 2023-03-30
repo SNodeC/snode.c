@@ -31,9 +31,10 @@
 
 namespace net::l2 {
 
-    class PhysicalSocket : public net::PhysicalSocket<net::l2::SocketAddress> {
+    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
+    class PhysicalSocket : public PhysicalPeerSocketT<net::l2::SocketAddress> {
     private:
-        using Super = net::PhysicalSocket<net::l2::SocketAddress>;
+        using Super = PhysicalPeerSocketT<net::l2::SocketAddress>;
 
     public:
         using Super::Super;
@@ -44,7 +45,7 @@ namespace net::l2 {
         ~PhysicalSocket() override;
 
     protected:
-        void shutdown(SHUT how); // shutdown L2CAP sockets must be handled differently
+        void shutdown([[maybe_unused]] typename Super::SHUT how); // shutdown L2CAP sockets must be handled differently
     };
 
 } // namespace net::l2

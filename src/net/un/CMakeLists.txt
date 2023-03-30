@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-UN_CPP PhysicalSocket.cpp SocketAddress.cpp config/ConfigAddress.cpp)
+set(NET-UN_CPP SocketAddress.cpp config/ConfigAddress.cpp)
 
-set(NET-UN_H PhysicalSocket.h SocketAddress.h config/ConfigAddress.h)
+set(NET-UN_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
+             config/ConfigAddress.h
+)
 
 add_library(net-un SHARED ${NET-UN_CPP} ${NET-UN_H})
 add_library(snodec::net-un ALIAS net-un)

@@ -19,22 +19,28 @@
 #ifndef NET_STREAM_PHYSICALCLIENTSOCKET_H
 #define NET_STREAM_PHYSICALCLIENTSOCKET_H
 
+#include "net/PhysicalSocket.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "net/PhysicalSocket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
 
-    template <typename PhysicalSocketT>
-    class PhysicalClientSocket : public PhysicalSocketT {
+    template <typename SocketAddressT>
+    class PhysicalClientSocket : public net::PhysicalSocket<SocketAddressT> {
     private:
-        using Super = PhysicalSocketT;
+        using Super = net::PhysicalSocket<SocketAddressT>;
 
     public:
         using Super::Super;
         using Super::operator=;
 
-        int connect(const typename PhysicalSocketT::SocketAddress& remoteAddress);
+        using SocketAddress = SocketAddressT;
+
+        int connect(const SocketAddress& remoteAddress);
 
         virtual bool connectInProgress(int cErrno);
     };

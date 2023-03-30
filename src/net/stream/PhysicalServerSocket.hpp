@@ -28,19 +28,19 @@ namespace net::stream {
 
     template <typename PhysicalSocket>
     int PhysicalServerSocket<PhysicalSocket>::listen(int backlog) {
-        return core::system::listen(PhysicalSocket::getFd(), backlog);
+        return core::system::listen(Super::getFd(), backlog);
     }
 
     template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept(typename PhysicalSocket::SocketAddress& remoteAddress) {
-        remoteAddress.getSockAddrLen() = sizeof(typename PhysicalSocket::SocketAddress::SockAddr);
-        return core::system::accept(PhysicalSocket::getFd(), &remoteAddress.getSockAddr(), &remoteAddress.getSockAddrLen());
+    int PhysicalServerSocket<PhysicalSocket>::accept(SocketAddress& remoteAddress) {
+        remoteAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
+        return core::system::accept(Super::getFd(), &remoteAddress.getSockAddr(), &remoteAddress.getSockAddrLen());
     }
 
     template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept4(typename PhysicalSocket::SocketAddress& remoteAddress, int flags) {
-        remoteAddress.getSockAddrLen() = sizeof(typename PhysicalSocket::SocketAddress::SockAddr);
-        return core::system::accept4(PhysicalSocket::getFd(), &remoteAddress.getSockAddr(), &remoteAddress.getSockAddrLen(), flags);
+    int PhysicalServerSocket<PhysicalSocket>::accept4(SocketAddress& remoteAddress, int flags) {
+        remoteAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
+        return core::system::accept4(Super::getFd(), &remoteAddress.getSockAddr(), &remoteAddress.getSockAddrLen(), flags);
     }
 
 } // namespace net::stream

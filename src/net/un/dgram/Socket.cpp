@@ -18,6 +18,9 @@
 
 #include "net/un/dgram/Socket.h"
 
+#include "net/stream/PhysicalClientSocket.hpp" // IWYU pragma: keep
+#include "net/un/PhysicalSocket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,3 +35,6 @@ namespace net::un::dgram {
     }
 
 } // namespace net::un::dgram
+
+template class net::stream::PhysicalClientSocket<net::un::SocketAddress>;
+template class net::un::PhysicalSocket<net::stream::PhysicalClientSocket>;

@@ -18,6 +18,8 @@
 
 #include "net/un/stream/PhysicalServerSocket.h"
 
+#include "net/un/stream/PhysicalSocket.hpp"
+//
 #include "net/stream/PhysicalServerSocket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,4 +33,6 @@ namespace net::un::stream {
 
 } // namespace net::un::stream
 
-template class net::stream::PhysicalServerSocket<net::un::stream::PhysicalSocket>;
+template class net::stream::PhysicalServerSocket<net::un::SocketAddress>;
+template class net::un::stream::PhysicalSocket<net::stream::PhysicalServerSocket>;
+template class net::un::PhysicalSocket<net::stream::PhysicalServerSocket>;

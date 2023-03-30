@@ -18,6 +18,7 @@
 
 #include "net/rc/stream/PhysicalServerSocket.h"
 
+#include "net/rc/stream/PhysicalSocket.hpp"
 #include "net/stream/PhysicalServerSocket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,4 +32,6 @@ namespace net::rc::stream {
 
 } // namespace net::rc::stream
 
-template class net::stream::PhysicalServerSocket<net::rc::stream::PhysicalSocket>;
+template class net::stream::PhysicalServerSocket<net::rc::SocketAddress>;
+template class net::rc::stream::PhysicalSocket<net::stream::PhysicalServerSocket>;
+template class net::rc::PhysicalSocket<net::stream::PhysicalServerSocket>;

@@ -29,8 +29,8 @@
 namespace net::stream {
 
     template <typename PhysicalSocket>
-    int PhysicalClientSocket<PhysicalSocket>::connect(const typename PhysicalSocket::SocketAddress& remoteAddress) {
-        return core::system::connect(PhysicalSocket::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
+    int PhysicalClientSocket<PhysicalSocket>::connect(const SocketAddress& remoteAddress) {
+        return core::system::connect(Super::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
     }
 
     template <typename PhysicalSocket>

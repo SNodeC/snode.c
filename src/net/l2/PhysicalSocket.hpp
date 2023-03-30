@@ -16,23 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in/PhysicalSocket.h"
-
-#include "net/PhysicalSocket.hpp" // IWYU pragma: keep
+#include "net/PhysicalSocket.hpp"  // IWYU pragma: export
+#include "net/l2/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in {
+namespace net::l2 {
 
-    PhysicalSocket::PhysicalSocket(int type, int protocol)
-        : Super(PF_INET, type, protocol) {
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    l2::PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
+        : Super(PF_BLUETOOTH, type, protocol) {
     }
 
-    PhysicalSocket::~PhysicalSocket() {
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
     }
 
-} // namespace net::in
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    void PhysicalSocket<PhysicalPeerSocket>::shutdown([[maybe_unused]] typename Super::SHUT how) {
+        Super::shutdown(Super::SHUT::RDWR); // always shutdown L2CAP sockets for RDWR
+    }
 
-template class net::PhysicalSocket<net::in::SocketAddress>;
+} // namespace net::l2
+
+template class net::PhysicalSocket<net::l2::SocketAddress>;

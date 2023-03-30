@@ -16,10 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/PhysicalSocket.h"
+#include "net/PhysicalSocket.h" // IWYU pragma: export
 #include "net/PhysicalSocketOption.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cerrno>
 

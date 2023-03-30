@@ -19,10 +19,12 @@
 #ifndef NET_UN_STREAM_PHYSICALCLIENTSOCKET_H
 #define NET_UN_STREAM_PHYSICALCLIENTSOCKET_H
 
-#include "net/stream/PhysicalClientSocket.h"
 #include "net/un/stream/PhysicalSocket.h" // IWYU pragma: export
+//
+#include "net/stream/PhysicalClientSocket.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/stream/PhysicalClientSocket.hpp"
+// IWYU pragma: no_include "net/un/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,9 +32,9 @@
 
 namespace net::un::stream {
 
-    class PhysicalClientSocket : public net::stream::PhysicalClientSocket<net::un::stream::PhysicalSocket> {
+    class PhysicalClientSocket : public net::un::stream::PhysicalSocket<net::stream::PhysicalClientSocket> {
     private:
-        using Super = net::stream::PhysicalClientSocket<net::un::stream::PhysicalSocket>;
+        using Super = net::un::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
 
     public:
         using Super::Super;
@@ -46,6 +48,8 @@ namespace net::un::stream {
 
 } // namespace net::un::stream
 
-extern template class net::stream::PhysicalClientSocket<net::un::stream::PhysicalSocket>;
+extern template class net::stream::PhysicalClientSocket<net::un::SocketAddress>;
+extern template class net::un::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
+extern template class net::un::PhysicalSocket<net::stream::PhysicalClientSocket>;
 
 #endif // NET_UN_STREAM_PHYSICALCLIENTSOCKET_H

@@ -19,25 +19,31 @@
 #ifndef NET_STREAM_PHYSICALSERVERSOCKET_H
 #define NET_STREAM_PHYSICALSERVERSOCKET_H
 
+#include "net/PhysicalSocket.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "net/PhysicalSocket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
 
-    template <typename PhysicalSocketT>
-    class PhysicalServerSocket : public PhysicalSocketT {
+    template <typename SocketAddressT>
+    class PhysicalServerSocket : public net::PhysicalSocket<SocketAddressT> {
     private:
-        using Super = PhysicalSocketT;
+        using Super = net::PhysicalSocket<SocketAddressT>;
 
     public:
         using Super::Super;
         using Super::operator=;
 
+        using SocketAddress = SocketAddressT;
+
         int listen(int backlog);
 
-        int accept(typename PhysicalSocketT::SocketAddress& remoteAddress);
-        int accept4(typename PhysicalSocketT::SocketAddress& remoteAddress, int flags);
+        int accept(SocketAddress& remoteAddress);
+        int accept4(SocketAddress& remoteAddress, int flags);
     };
 
 } // namespace net::stream

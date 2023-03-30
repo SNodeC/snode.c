@@ -31,9 +31,10 @@
 
 namespace net::rc {
 
-    class PhysicalSocket : public net::PhysicalSocket<net::rc::SocketAddress> {
+    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
+    class PhysicalSocket : public PhysicalPeerSocketT<net::rc::SocketAddress> {
     private:
-        using Super = net::PhysicalSocket<net::rc::SocketAddress>;
+        using Super = PhysicalPeerSocketT<net::rc::SocketAddress>;
 
     public:
         using Super::Super;

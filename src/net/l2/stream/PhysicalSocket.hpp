@@ -16,23 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/PhysicalSocket.h"
-
-#include "net/PhysicalSocket.hpp" // IWYU pragma: keep
+#include "net/l2/PhysicalSocket.hpp"      // IWYU pragma: export
+#include "net/l2/stream/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <bluetooth/bluetooth.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rc {
+namespace net::l2::stream {
 
-    PhysicalSocket::PhysicalSocket(int type, int protocol)
-        : Super(PF_BLUETOOTH, type, protocol) {
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket()
+        : Super(SOCK_STREAM, BTPROTO_L2CAP) {
     }
 
-    PhysicalSocket::~PhysicalSocket() {
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
     }
 
-} // namespace net::rc
-
-template class net::PhysicalSocket<net::rc::SocketAddress>;
+} // namespace net::l2::stream

@@ -21,15 +21,18 @@
 
 #include "net/l2/PhysicalSocket.h" // IWYU pragma: export
 
+// IWYU pragma: no_include "net/l2/PhysicalSocket.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream {
 
-    class PhysicalSocket : public net::l2::PhysicalSocket {
+    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
+    class PhysicalSocket : public net::l2::PhysicalSocket<PhysicalPeerSocketT> {
     private:
-        using Super = net::l2::PhysicalSocket;
+        using Super = net::l2::PhysicalSocket<PhysicalPeerSocketT>;
 
     public:
         using Super::Super;

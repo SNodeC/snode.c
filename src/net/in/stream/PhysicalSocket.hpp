@@ -16,19 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/PhysicalSocket.h"
+#include "net/in/PhysicalSocket.hpp"      // IWYU pragma: export
+#include "net/in/stream/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
+#include <netinet/in.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::in::stream {
 
-    PhysicalSocket::PhysicalSocket()
-        : Super(SOCK_STREAM, 0) {
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket()
+        : Super(SOCK_STREAM, IPPROTO_TCP) {
     }
 
-    PhysicalSocket::~PhysicalSocket() {
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
     }
 
-} // namespace net::un::stream
+} // namespace net::in::stream

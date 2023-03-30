@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN6_CPP PhysicalSocket.cpp SocketAddress.cpp config/ConfigAddress.cpp)
+set(NET-IN6_CPP SocketAddress.cpp config/ConfigAddress.cpp)
 
-set(NET-IN6_H PhysicalSocket.h SocketAddress.h config/ConfigAddress.h)
+set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
+              config/ConfigAddress.h
+)
 
 option(DUAL_STACK "IPv4/IPv6 Dual Stack" true)
 

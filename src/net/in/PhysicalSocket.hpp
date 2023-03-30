@@ -16,40 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/PhysicalSocket.h"
-
-#include "net/PhysicalSocket.hpp" // IWYU pragma: keep
+#include "net/PhysicalSocket.hpp"  // IWYU pragma: export
+#include "net/in/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
-#include <cerrno>
-#include <cstdio>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un {
+namespace net::in {
 
-    PhysicalSocket::PhysicalSocket(int type, int protocol)
-        : Super(PF_UNIX, type, protocol) {
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
+        : Super(PF_INET, type, protocol) {
     }
 
-    PhysicalSocket::~PhysicalSocket() {
-        if (!doNotRemove && !getBindAddress().address().empty() && std::remove(getBindAddress().address().data()) != 0) {
-            PLOG(ERROR) << "remove: sunPath: " << getBindAddress().address();
-        }
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
     }
 
-    int PhysicalSocket::bind(const SocketAddress& bindAddress) {
-        int ret = Super::bind(bindAddress);
+} // namespace net::in
 
-        doNotRemove = ret != 0 && errno == EADDRINUSE;
-
-        return ret;
-    }
-
-} // namespace net::un
-
-template class net::PhysicalSocket<net::un::SocketAddress>;
+template class net::PhysicalSocket<net::in::SocketAddress>;
