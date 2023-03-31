@@ -41,6 +41,10 @@ namespace net::un::dgram {
         Socket();
 
         ~Socket() override;
+
+        ssize_t sendFd(SocketAddress&& destAddress, int sendfd);
+        ssize_t sendFd(SocketAddress& destAddress, int sendfd);
+        ssize_t recvFd(int* recvfd);
     };
 
 } // namespace net::un::dgram

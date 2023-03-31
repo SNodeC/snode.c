@@ -69,10 +69,6 @@ namespace net {
         int getSockname(SocketAddress& socketAddress);
         int getPeername(SocketAddress& socketAddress);
 
-        ssize_t sendFd(SocketAddress&& destAddress, int sendfd);
-        ssize_t sendFd(SocketAddress& destAddress, int sendfd);
-        ssize_t recvFd(int* recvfd);
-
         const SocketAddress& getBindAddress() const;
 
     private:

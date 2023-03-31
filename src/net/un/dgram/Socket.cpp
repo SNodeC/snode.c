@@ -34,6 +34,84 @@ namespace net::un::dgram {
     Socket::~Socket() {
     }
 
+    ssize_t Socket::sendFd(SocketAddress&& destAddress, int sendfd) {
+        return sendFd(destAddress, sendfd);
+    }
+
+    ssize_t Socket::sendFd(SocketAddress& destAddress, int sendfd) {
+        union {
+            struct cmsghdr cm;
+            char control[CMSG_SPACE(sizeof(int))] = {};
+        } control_un;
+
+        msghdr msg{};
+        msg.msg_name = &destAddress.getSockAddr();
+        msg.msg_namelen = destAddress.getSockAddrLen();
+
+        msg.msg_control = control_un.control;
+        msg.msg_controllen = sizeof(control_un.control);
+
+        iovec iov[1];
+        msg.msg_iov = iov;
+        msg.msg_iovlen = 1;
+
+        char ptr = 0;
+        msg.msg_iov[0].iov_base = &ptr;
+        msg.msg_iov[0].iov_len = 1;
+
+        cmsghdr* cmptr = CMSG_FIRSTHDR(&msg);
+        cmptr->cmsg_level = SOL_SOCKET;
+        cmptr->cmsg_type = SCM_RIGHTS;
+        *reinterpret_cast<int*>(CMSG_DATA(cmptr)) = sendfd;
+        cmptr->cmsg_len = CMSG_LEN(sizeof(int));
+
+        return sendmsg(core::Descriptor::getFd(), &msg, 0);
+    }
+
+    ssize_t Socket::recvFd(int* recvfd) {
+        union {
+            struct cmsghdr cm;
+            char control[CMSG_SPACE(sizeof(int))] = {};
+        } control_un;
+
+        msghdr msg{};
+        msg.msg_control = control_un.control;
+        msg.msg_controllen = sizeof(control_un.control);
+
+        msg.msg_name = nullptr;
+        msg.msg_namelen = 0;
+
+        iovec iov[1];
+        msg.msg_iov = iov;
+        msg.msg_iovlen = 1;
+
+        char ptr = 0;
+        msg.msg_iov[0].iov_base = &ptr;
+        msg.msg_iov[0].iov_len = 1;
+
+        ssize_t n = 0;
+
+        if ((n = recvmsg(core::Descriptor::getFd(), &msg, 0)) > 0) {
+            cmsghdr* cmptr = nullptr;
+
+            if ((cmptr = CMSG_FIRSTHDR(&msg)) != nullptr && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
+                if (cmptr->cmsg_level != SOL_SOCKET || cmptr->cmsg_type != SCM_RIGHTS) {
+                    errno = EBADE;
+                    *recvfd = -1;
+                    n = -1;
+                } else {
+                    *recvfd = *reinterpret_cast<int*>(CMSG_DATA(cmptr));
+                }
+            } else {
+                errno = ENOMSG;
+                *recvfd = -1;
+                n = -1;
+            }
+        }
+
+        return n;
+    }
+
 } // namespace net::un::dgram
 
 template class net::dgram::PeerSocket<net::un::SocketAddress>;
