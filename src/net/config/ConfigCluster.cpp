@@ -35,13 +35,12 @@ namespace net::config {
               instance, "cluster", "Configuration of clustering mode for instance '" + instance->getInstanceName() + "'") {
         add_option(modeOpt, //
                    "--mode",
-                   "Clustering mode",
-                   std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) + " = PRIMARY, " +
-                       std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY",
+                   "Clustering mode\n" + std::to_string(MODE::STANDALONE) + " = STANDALONE, " + std::to_string(MODE::PRIMARY) +
+                       " = PRIMARY, " + std::to_string(MODE::SECONDARY) + " = SECONDARY, " + std::to_string(MODE::PROXY) + " = PROXY",
+                   "mode",
                    MODE::STANDALONE)
             ->configurable(false)
             ->group(section->get_formatter()->get_label("Non-Persistent Options"))
-            ->type_name("mode")
             ->check(CLI::Range(STANDALONE, PROXY));
     }
 
