@@ -425,7 +425,7 @@ namespace utils {
                     ->configurable(false)
                     ->disable_flag_override();
 
-                parse1(); // for stopDaemon
+                parse1(); // for stopDaemon and pre init application options
 
                 //                app.all_config_files(!prefixMap.empty());
 
