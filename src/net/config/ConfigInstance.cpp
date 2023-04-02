@@ -116,31 +116,24 @@ namespace net::config {
         return sectionSc;
     }
 
-    void ConfigInstance::required(CLI::App* section, CLI::Option* opt, bool req) {
+    void ConfigInstance::required(CLI::App* section, bool req) {
         if (req) {
             ++requiredCount;
             instanceSc //
                 ->needs(section);
-            opt //
-                ->default_str("")
-                ->required()
-                ->clear();
         } else {
             if (requiredCount > 0) {
                 --requiredCount;
             }
             instanceSc //
                 ->remove_needs(section);
-            opt //
-                ->required(false)
-                ->clear();
         }
 
         instanceSc //
             ->required(requiredCount > 0);
     }
 
-    bool ConfigInstance::required() const {
+    bool ConfigInstance::getRequired() const {
         return requiredCount > 0;
     }
 
