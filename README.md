@@ -166,13 +166,13 @@ net::in::stream::legacy::SocketClient<SocketContextFactory>
 
 called *client instance* is needed.
 
+A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
+
 Both *instance-classes* have a *default constructor* and a *constructor expecting an instance name* as argument. 
 
 - When the default constructor is used to create the instance object this instance is called an *anonymous instance*.
 - In contrast to a *named instance* if the constructors expecting a `std::string` is used for instance creation. 
 - For named instances *command line arguments and configuration file entries are created automatically* to configure the instance.
-
-A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
 
 Thus, for our echo application we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, which is the base class of all connection-oriented (stream) application protocols, and factories derived from `core::socket::stream::SocketContextFactory`.
 
@@ -182,11 +182,13 @@ Let\'s focus on the SocketContextFactories for our server and client first.
 
 All what needs to be done is to implement a pure virtual method `create()`witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a concrete application SocketContext.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the *physical connection* between the server and a client. This `core::socket::stream::SocketConnection` is used internally by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the *physical connection* between the server and a client. Such a `core::socket::stream::SocketConnection` is needed by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
 
 #### Echo-Server ContextFactory
 
 The `create()` method of our `EchoServerContextFactory` returns the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
+
+Note, that the pointer to the  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
 ``` c++
 #include "EchoServerContext.h"
@@ -203,6 +205,8 @@ private:
 #### Echo-Client ContextFactory
 
 The `create()` method of our `EchoClientContextFactory` returns the `EchoClientContext` whose implementation is also presented in the [SocketContexts](#SocketContexts) section below.
+
+Note, that the pointer to the  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
 ``` c++
 #include "EchoClientContext.h"
@@ -337,7 +341,13 @@ Now we can put all together and implement the server and client main application
 
 Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
 
-At the very beginning SNode.C must be *initialized* by calling `core::SNodeC::init(argc, argv)`. And at the end of the main applications the *event-loop* of SNode.C is started by calling `core::SNodeC::start()`.
+At the very beginning SNode.C must be *initialized* by calling
+
+- `core::SNodeC::init(argc, argv)`
+
+and at the end of the main applications the *event-loop* of SNode.C is started by calling
+
+- `core::SNodeC::start()`.
 
 #### Echo-Server Main Application
 
@@ -583,7 +593,6 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 -   Layer based
 -   Modular
 -   Support for single shot and interval timer
--   Automated command line argument production and configuration file support for named server and client instances
 -   Sophisticated configuration system controlled either by code, command line, or configuration file
 -   Daemonize server and client if requested
 
@@ -599,7 +608,7 @@ SNode.C currently supports five different network layer protocols.
 
 ## Transport Layer
 
-Currently only connection-oriented protocols (SOCK_STREAM) for all supported network layer protocols are implemented (for IPv4 and IPv6 this means TCP).
+Currently only connection-oriented protocols (SOCK_STREAM) for all supported network layer and transport layer combinations are implemented (for IPv4 and IPv6 this means TCP).
 
 -   Every transport layer protocol provides a common base API which makes it very easy to create servers and clients for all different network layers supported.
 -   New application protocols can be connected to the transport layer very easily by just implementing a `SocketContextFactory` and a `SocketContext` class.
@@ -617,7 +626,7 @@ In-framework server and client support currently exist for the application level
 -   MQTT via WebSockets
 -   High-Level Web API layer with JSON support very similar to the API of node.js/express.
 
-As said above in the transport layer section, SSL/TLS encryption is provided for all of these application layer protocols.
+As said above in the transport layer section, SSL/TLS encryption is provided transparently for all of these application layer protocols.
 
 # Existing Server- and Client-Classes
 
@@ -627,15 +636,15 @@ Before focusing explicitly on the Server- and Client-Classes a few common aspect
 
 Every network layer provides its specific `SocketAddress` class. In typical scenarios you need not bother about these classes as they are managed internally by the framework.
 
-Every *SocketServer* and *SocketClient* class has it's `SocketAddress` attached as nested data type. Thus, one can always get the correct `SocketAddress` type buy just
+Nevertheless, for the sake of completeness, all implemented `SocketAddress` classes along with the header files they are declared in are listed below.
+
+Every *SocketServer* and *SocketClient* class has it's specific `SocketAddress` type attached as nested data type. Thus, one can always get the correct `SocketAddress` type buy just
 
 ```cpp
 using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
 ```
 
 as can be seen in the Echo-Demo-Application above.
-
-Nevertheless, for the sake of completeness, all implemented `SocketAddress` classes along with the header files they are declared in are listed below.
 
 ### SocketAddress Classes
 
@@ -649,13 +658,13 @@ Nevertheless, for the sake of completeness, all implemented `SocketAddress` clas
 
 ### SocketAddress Header Files
 
-| Network Layer       | `SocketAddress`           |
-| ------------------- | ------------------------- |
-| IPv4                | `net/in/SocketAddress.h`  |
-| IPv6                | `net/in6/SocketAddress.h` |
-| Unix Domain Sockets | `net/un/SocketAddress.h`  |
-| Bluetooth RFCOMM    | `net/rc/SocketAddress.h`  |
-| Bluetooth L2CAP     | `net/l2/SocketAddress.h`  |
+| Network Layer       | `SocketAddress`                                              |
+| ------------------- | ------------------------------------------------------------ |
+| IPv4                | [`net/in/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2_socket_address_8h.html) |
+| IPv6                | [`net/in6/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2_socket_address_8h.html) |
+| Unix Domain Sockets | [`net/un/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2_socket_address_8h.html) |
+| Bluetooth RFCOMM    | [`net/rc/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2_socket_address_8h.html) |
+| Bluetooth L2CAP     | [`net/l2/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2_socket_address_8h.html) |
 
 Each `SocketAddress` class provides it's very specific set of constructors.
 
@@ -687,13 +696,13 @@ The default constructors of all `SocketAddress` classes creates wild-card `Socke
 ### SocketServer Header Files
 
 
-| Network Layer       | Legacy Connection                      | SSL/TLS Connection                  |
-| ------------------- | -------------------------------------- | ----------------------------------- |
-| IPv4                | `net/in/stream/legacy/SocketServer.h`  | `net/in/stream/tls/SocketServer.h`  |
-| IPv6                | `net/in6/stream/legacy/SocketServer.h` | `net/in6/stream/tls/SocketServer.h` |
-| Unix Domain Sockets | `net/un/stream/legacy/SocketServer.h`  | `net/un/stream/tls/SocketServer.h`  |
-| Bluetooth RFCOMM    | `net/rc/stream/legacy/SocketServer.h`  | `net/rc/stream/tls/SocketServer.h`  |
-| Bluetooth L2CAP     | `net/l2/stream/legacy/SocketServer.h`  | `net/l2/stream/tls/SocketServer.h`  |
+| Network Layer       | Legacy Connection                                            | SSL/TLS Connection                                           |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| IPv4                | [`net/in/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_server_8h.html) | [`net/in/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_server_8h.html) |
+| IPv6                | [`net/in6/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_server_8h.html) | [`net/in6/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_server_8h.html) |
+| Unix Domain Sockets | [`net/un/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_server_8h.html) | [`net/un/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_server_8h.html) |
+| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_server_8h.html) | [`net/rc/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_server_8h.html) |
+| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_server_8h.html) | [`net/l2/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_server_8h.html) |
 
 ### Listen Methods
 
@@ -1133,7 +1142,7 @@ Instances:
   echo Configuration for server instance 'echo'
 ```
 
-Note that now the named instance *echo* now appears at the end of the help screen.
+Note that now the named instance *echo* appears at the end of the help screen.
 
 To get informations about what can be configured for the *echo* instance it is just needed to write
 
