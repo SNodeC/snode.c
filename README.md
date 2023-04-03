@@ -674,12 +674,216 @@ The default constructors of all `SocketAddress` classes creates wild-card `Socke
 
 | SocketAddress                                                | Constructors                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`<br/>`SocketAddress(uint16_t port)` |
-| [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`<br/>`SocketAddress(uint16_t port)` |
+| [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
+| [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
 | [`net::un::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
-| [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)`<br/>`SocketAddress(uint8_t channel)` |
-| [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)`<br/>`SocketAddress(uint16_t psm)` |
+| [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
+| [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
 
+## SocketConnection
+
+Every network layer also provides its specific `SocketConnection` class. This `SocketConnection` represents the physical connection to the peer. Equivalent to the `SocketAddress` type each `SocketServer` and `SocketClient` class provides its correct `SocketConnection` as nested data type. This type can be obtained from a concrete `SocketServer` or `SocketClient` class using
+
+```c++
+using SocketConnection = <ConcreteServerOrClientType>::SocketConnection;
+```
+
+Each `SocketConnection` object provides among others the method
+
+- `int socketConnection->getFd()`
+
+which returns the underlying descriptor used for communication.
+
+Additionally the `SocketConnection` objects of a SSL/TLS `SocketServer` or `SocketClient` class provides the method
+
+- `SSL* socketConnection->getSSL()`
+
+which returns a pointer to the `SSL` structure of *openssl* used for encryption, authenticating and authorization. Using this SSL structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the `onConnect` callback and add all kinds of authentication and authorization logic directly in the `onConnected` callback.
+
+| SocketConnection | Classes                                                      | Header Files                                                 |
+| ---------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Legacy           | [`core::socket::stream::legacy::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
+| SSL/TLS          | [`core::socket::stream::tls::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
+
+### Most Important common SocketConnection Methods
+
+| Method                                                       | Explanation                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `int getFd()`                                                | Returns the underlying descriptor used for communication.    |
+| `void sendToPeer(const char* junk, std::size_t junkLen)` <br/>`void sendToPeer(const std::string& data)`<br />`void sendToPeer(const std::vector<int8_t>& data)`<br />`void sendToPeer(const std::vector<char>& data)` | Enqueue data to be sent to peer.                             |
+| `std::size_t readFromPeer(char* junk, std::size_t junkLen)`  | Read already received data from peer.                        |
+| `void shutdownRead()`<br/>`void shuddownWrite()`             | Shut down socket either for reading or writing.              |
+| `void close()`                                               | Hard close the connection without a prior shutdown.          |
+| `void setTimeout(utils::Timeval& timeout)`                   | Set the inactivity timeout of a connection (default 60 seconds).<br/>If no data has been transfered within this amount of time<br/>the connection is terminated. |
+| `bool isValid()`                                             | Check if a connection has been created successfully.         |
+
+## Constructors
+
+Beside the already discussed constructors of the `SocketServer` and `SocketClient` classes, each of them provides two additional constructors which expect three callback `std::function`s as arguments. This callback functions are called by SNode.C during connection establishmentand connection shutdown between server and clients.
+
+Thus the full list of constructors of the `SocketServer` and `SocketClient` classes is:
+
+### Constructors of `SocketServer` Classes
+
+```c++
+SocketServer()
+    
+SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConnect,
+             const std::function<void(SocketServer::SocketConnection*)>& onConnected,
+             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect)
+    
+SocketServer(const std::string& name)
+    
+SocketServer(const std::string& name,
+             const std::function<void(SocketServer::SocketConnection*)>& onConnect,
+             const std::function<void(SocketServer::SocketConnection*)>& onConnected,
+             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect)
+```
+
+### Constructors of `SocketClient` Classes
+
+```c++
+SocketClient()
+    
+SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
+             const std::function<void(SocketClient::SocketConnection*)>& onConnected,
+             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect)
+    
+SocketClient(const std::string& name)
+    
+SocketClient(const std::string& name,
+             const std::function<void(SocketClient::SocketConnection*)>& onConnect,
+             const std::function<void(SocketClient::SocketConnection*)>& onConnected,
+             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect)
+```
+
+### Constructor Callbacks
+
+All three callbacks expect a pointer to a `SocketConnection` as argument. This `SocketConnection` can be used to modify all aspects of the physical connection.
+
+*Important*: Do not confuse this callbacks with the overridden `onConnected()` and `onDisconnected()` methods of a `SocketConetext` as this virtual methods are called in case a `SocketContext` has been created or destroyed successfully.
+
+#### The `onConnect` Callback
+
+This callback is called after a SOCK_STREAM connection has been created successful.
+
+For a `SocketServer` this means after an internal successful call to
+
+- `accept()`
+
+and for a `SocketServer` after an internal successful call to
+
+- `connect()`
+
+This does not necessarily mean that the connection is ready for communication. Especially in case of an SSL/TLS connection the initial SSL/TLS handshake has not been done yet.
+
+#### The onConnected Callback
+
+This callback is called after the connection has fully established and is ready for communication. In case of an SSL/TLS connection the initial SSL/TLS handshake has been successfully finished.
+
+In case of an legacy connection `onConnected` is called immediately after `onConnect` because no additional handshake needs to be done.
+
+#### The onDisconnected Callback
+
+As the name suggests this callback is executed after a connection to the peer has been shut down.
+
+### Attaching the Callbacks during Instance Creation
+
+For a concrete `SocketServer` instance (here an anonymous instance) the constructors expecting callbacks are used like
+
+```c++
+using EchoServer = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
+using SocketAddress = EchoServer::SocketAddress;
+using SocketConnection = EchoServer::SocketConnection;
+
+EchoServer echoServer([] (SocketConnection* socketConnection) -> void {
+                          std::cout << "Connection to peer estableshed" << std::endl;
+                      },
+                      [] (SocketConnection* socketConnection) -> void {
+                          std::cout << "Connection to peer ready to be used" << std::endl;
+                      },
+                      [] (SocketConnection* socketConnection) -> void {
+                          std::cout << "Connection to peer closed" << std::endl;
+                      });
+
+echoServer.listen(...);
+```
+
+and for a concrete `SocketClient` class like
+
+```c++
+using EchoClient = net::in::stream::legacy::SocketServer<EchoClientContextFactory>;
+using SocketAddress = EchoClient::SocketAddress;
+using SocketConnection = EchoClient::SocketConnection;
+
+EchoClient echoClient([] (SocketConnection* socketConnection) -> void {
+                          std::cout << "Connection to peer estableshed" << std::endl;
+                      },
+                      [] (SocketConnection* socketConnection) -> void {
+                          std::cout << "Connection to peer ready to be used" << std::endl;
+                      },
+                      [] (SocketConnection* socketConnection) -> void {
+                          std::cout << "Connection to peer closed" << std::endl;
+                      });
+
+echoClient.connect(...);
+```
+
+### Attaching the Callbacks to `SocketServer` and `SocketClient` Instances
+
+In case `SocketServer` and `SocketClient` instances have been created using the constructors not expecting the three callbacks this callbacks can be attached to this instances afterwards by using the methods
+
+- `void onConnect(const std::function<SocketConnection*>& onConnect)`
+- `void onConnected(const std::function<SocketConnection*>& onConnected)`
+- `void onDisconnected(const std::function<SocketConnection*>& onDisconnected)`
+
+like for example
+
+```c++
+using EchoServer = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
+using SocketAddress = EchoServer::SocketAddress;
+using SocketConnection = EchoServer::SocketConnection;
+
+EchoServer echoServer;
+
+echoServer.onConnect([] (SocketConnection* socketConnection) -> void {
+    std::cout << "Connection to peer estableshed" << std::endl;
+});
+
+echoServer.onConnected([] (SocketConnection* socketConnection) -> void {
+    std::cout << "Connection to peer ready to be used" << std::endl;
+});
+    
+echoServer.onDisconnected([] (SocketConnection* socketConnection) -> void {
+    std::cout << "Connection to peer closed" << std::endl;
+});
+
+echoServer.listen(...);
+```
+
+and
+
+```c++
+using EchoClient = net::in::stream::legacy::SocketServer<EchoClientContextFactory>;
+using SocketAddress = EchoClient::SocketAddress;
+using SocketConnection = EchoClient::SocketConnection;
+
+EchoClient echoClient;
+
+echoClient.onConnect([] (SocketConnection* socketConnection) -> void {
+    std::cout << "Connection to peer estableshed" << std::endl;
+});
+
+echoClient.onConnected([] (SocketConnection* socketConnection) -> void {
+    std::cout << "Connection to peer ready to be used" << std::endl;
+});
+    
+echoClient.onDisconnected([] (SocketConnection* socketConnection) -> void {
+    std::cout << "Connection to peer closed" << std::endl;
+});
+
+echoClient.connect(...);
+```
 
 ## Server
 
@@ -703,6 +907,10 @@ The default constructors of all `SocketAddress` classes creates wild-card `Socke
 | Unix Domain Sockets | [`net/un/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_server_8h.html) | [`net/un/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_server_8h.html) |
 | Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_server_8h.html) | [`net/rc/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_server_8h.html) |
 | Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_server_8h.html) | [`net/l2/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_server_8h.html) |
+
+### Constructors
+
+Beside the already discussed constructors for creating an anonymous and a named instance each `SocketServer` class provides two additional constructors which expect three `std::function`'s as argument. Each of this functions expect a pointer to a  `SocketConnection` as argument.
 
 ### Listen Methods
 
@@ -825,13 +1033,13 @@ For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
 ### SocketClient Header Files
 
 
-| Network Layer       | Legacy Connection                      | SSL/TLS Connection                  |
-| ------------------- | -------------------------------------- | ----------------------------------- |
-| IPv4                | `net/in/stream/legacy/SocketClient.h`  | `net/in/stream/tls/SocketClient.h`  |
-| IPv6                | `net/in6/stream/legacy/SocketClient.h` | `net/in6/stream/tls/SocketClient.h` |
-| Unix Domain Sockets | `net/un/stream/legacy/SocketClient.h`  | `net/un/stream/tls/SocketClient.h`  |
-| Bluetooth RFCOMM    | `net/rc/stream/legacy/SocketClient.h`  | `net/rc/stream/tls/SocketClient.h`  |
-| Bluetooth L2CAP     | `net/l2/stream/legacy/SocketClient.h`  | `net/l2/stream/tls/SocketClient.h`  |
+| Network Layer       | Legacy Connection                                            | SSL/TLS Connection                                           |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| IPv4                | [`net/in/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_client_8h.html) | [`net/in/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_client_8h.html) |
+| IPv6                | [`net/in6/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_client_8h.html) | [`net/in6/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_client_8h.html) |
+| Unix Domain Sockets | [`net/un/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_client_8h.html) | [`net/un/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_client_8h.html) |
+| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_client_8h.html) | [`net/rc/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_client_8h.html) |
+| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_client_8h.html) | [`net/l2/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_client_8h.html) |
 
 ### Connect Methods
 
@@ -868,8 +1076,8 @@ For the IPv4/SOCK_STREAM combination exist four specific `connect()` methods.
 | IPv4 `connect()` Methods                                     |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onError)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
 ##### IPv6 specific `connect()` Methods
@@ -885,8 +1093,8 @@ For the IPv6/SOCK_STREAM combination exist four specific `connect()` methods.
 | IPv6 `connect()` Methods                                     |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onError)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
 ##### Unix Domain Socket specific `connect()` Methods
@@ -917,8 +1125,8 @@ For the RFCOMM/SOCK_STREAM combination exist four specific `connect()` methods.
 | Bluetooth RFCOMM `connect()` Methods                         |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint8_t channel, uint8_t bindChannel, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, StatusFunction& onError)` |
 
 ##### Bluetooth L2CAP specific `connect()` Methods
@@ -934,8 +1142,8 @@ For the L2CAP/SOCK_STREAM combination exist four specific `connect()` methods.
 | Bluetooth L2CAP `connect()` Methods                          |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& btAddress, uint16_t psm, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint16_t psm, uint16_t bindPsm, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, uint16_t bindPsm, StatusFunction& onError)` |
 
 # Configuration
@@ -1083,6 +1291,11 @@ Options (persistent):
        Run daemon under specific group permissions
 ```
 
+- Persistent options can be stored in the configuration file by appending `-w` on the command line.
+- Non-persistent options are never stored in the configuration file.
+
+#### Instance Configuration
+
 Each named `SocketServer` and `SocketClient` instance get their specific set of command line options accessible by specifying the name of the instance on the command line.
 
 Thus, for instance if the `EchoServer` instance is created using and instance name as argument to the server instance constructor like for example 
@@ -1187,6 +1400,8 @@ Sections:
 ```
 
 on screen.
+
+#### Sections
 
 As one can see, there exists some sections for the instance *echo* each offering specific configuration items for specific instance behavior categories. Most important for a `SocketServer` instance is the section *local*,
 
@@ -1376,7 +1591,13 @@ Data to reflect: Hello peer! It's nice talking to you!!!
 
 ## SSL/TLS-Configuration
 
-To be written
+SSL/TLS encryption is provided if a TLS server or client instance is created.
+
+Equivalent to all other configuration options SSL/TLS encryption can be configured either in-code, on the command line or via configuration files.
+
+In most scenarios it is sufficient to specify a CA-certificate, a certificate chain, a certificate key and, in case the key is encrypted, a password.
+
+In case a CA-certificate is configured either on the server and/or the client side a certificate request is send to the peer during the initial SSL/TLS handshake. In case the peer answers with an certificate response this response can be validated in-code in the `onConnected` callback of a `SocketServer` or `SocketClient` class.
 
 # Using more than one Instance in an Application
 
