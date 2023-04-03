@@ -731,7 +731,7 @@ which returns a pointer to the `SSL` structure of *openssl* used for encryption,
 | `void setTimeout(utils::Timeval& timeout)`                   | Set the inactivity timeout of a connection (default 60 seconds).<br/>If no data has been transfered within this amount of time<br/>the connection is terminated. |
 | `bool isValid()`                                             | Check if a connection has been created successfully.         |
 
-## Constructors
+## Constructors of `SocketServer` and `SocketClient` Classes
 
 Beside the already discussed constructors of the `SocketServer` and `SocketClient` classes, each of them provides two additional constructors which expect three callback `std::function`s as arguments. This callback functions are called by SNode.C during connection establishmentand connection shutdown between server and clients.
 
@@ -775,7 +775,7 @@ SocketClient(const std::string& name,
 
 All three callbacks expect a pointer to a `SocketConnection` as argument. This `SocketConnection` can be used to modify all aspects of the physical connection.
 
-*Important*: Do not confuse this callbacks with the overridden `onConnected()` and `onDisconnected()` methods of a `SocketConetext` as this virtual methods are called in case a `SocketContext` has been created or destroyed successfully.
+***Important***: Do not confuse this callbacks with the overridden `onConnected()` and `onDisconnected()` methods of a `SocketConetext` as this virtual methods are called in case a `SocketContext` has been created or destroyed successfully.
 
 #### The `onConnect` Callback
 
@@ -921,10 +921,6 @@ echoClient.connect(...);
 | Unix Domain Sockets | [`net/un/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_server_8h.html) | [`net/un/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_server_8h.html) |
 | Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_server_8h.html) | [`net/rc/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_server_8h.html) |
 | Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_server_8h.html) | [`net/l2/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_server_8h.html) |
-
-### Constructors
-
-Beside the already discussed constructors for creating an anonymous and a named instance each `SocketServer` class provides two additional constructors which expect three `std::function`'s as argument. Each of this functions expect a pointer to a  `SocketConnection` as argument.
 
 ### Listen Methods
 
