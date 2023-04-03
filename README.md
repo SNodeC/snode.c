@@ -50,9 +50,21 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [SocketAddress Classes](#socketaddress-classes)
       * [SocketAddress Header Files](#socketaddress-header-files)
       * [SocketAddress Constructors](#socketaddress-constructors)
+   * [SocketConnection](#socketconnection)
+      * [Most Important common SocketConnection Methods](#most-important-common-socketconnection-methods)
+   * [Constructors](#constructors)
+      * [Constructors of SocketServer Classes](#constructors-of-socketserver-classes)
+      * [Constructors of SocketClient Classes](#constructors-of-socketclient-classes)
+      * [Constructor Callbacks](#constructor-callbacks)
+         * [The onConnect Callback](#the-onconnect-callback)
+         * [The onConnected Callback](#the-onconnected-callback)
+         * [The onDisconnected Callback](#the-ondisconnected-callback)
+      * [Attaching the Callbacks during Instance Creation](#attaching-the-callbacks-during-instance-creation)
+      * [Attaching the Callbacks to SocketServer and SocketClient Instances](#attaching-the-callbacks-to-socketserver-and-socketclient-instances)
    * [Server](#server)
       * [SocketServer Classes](#socketserver-classes)
       * [SocketServer Header Files](#socketserver-header-files)
+      * [Constructors](#constructors-1)
       * [Listen Methods](#listen-methods)
          * [Common listen() Methods](#common-listen-methods)
          * [Specific listen() Methods](#specific-listen-methods)
@@ -77,6 +89,8 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [List of all Configuration Items](#list-of-all-configuration-items)
    * [Configuration via the Command Line](#configuration-via-the-command-line)
       * [Introduction to the Command Line Interface using the EchoServer from above](#introduction-to-the-command-line-interface-using-the-echoserver-from-above)
+         * [Instance Configuration](#instance-configuration)
+         * [Sections](#sections)
       * [Anatomy of the Command Line Interface](#anatomy-of-the-command-line-interface)
       * [Using the Parameterless listen() Methods when no Configuration File exists](#using-the-parameterless-listen-methods-when-no-configuration-file-exists)
       * [Command Line Configuration of the Client Instance EchoClient](#command-line-configuration-of-the-client-instance-echoclient)
@@ -90,7 +104,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Sun Apr  2 21:33:38 UTC 2023 -->
+<!-- Added by: runner, at: Mon Apr  3 14:47:28 UTC 2023 -->
 
 <!--te-->
 
