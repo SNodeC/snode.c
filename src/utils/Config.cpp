@@ -243,7 +243,7 @@ namespace utils {
                 sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
                 sectionFormatter->label("PERSISTENT", "");
                 sectionFormatter->label("Persistent Options", "Options (persistent)");
-                sectionFormatter->label("Non-Persistent Options", "Options (non-persistent)");
+                sectionFormatter->label("None Persistent Options", "Options (none persistent)");
                 sectionFormatter->label("Usage", "\nUsage");
                 sectionFormatter->label("bool:{true,false}", "{true,false}");
                 sectionFormatter->column_width(7);
@@ -257,13 +257,13 @@ namespace utils {
                 app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
                 app.get_formatter()->label("PERSISTENT", "");
                 app.get_formatter()->label("Persistent Options", "Options (persistent)");
-                app.get_formatter()->label("Non-Persistent Options", "Options (non-persistent)");
+                app.get_formatter()->label("None Persistent Options", "Options (none persistent)");
                 app.get_formatter()->label("Usage", "\nUsage");
                 app.get_formatter()->label("bool:{true,false}", "{true,false}");
                 app.get_formatter()->column_width(7);
 
                 app.option_defaults()->take_last();
-                app.option_defaults()->group(app.get_formatter()->get_label("Non-Persistent Options"));
+                app.option_defaults()->group(app.get_formatter()->get_label("None Persistent Options"));
 
                 std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
                 app.config_formatter(configFormatter);

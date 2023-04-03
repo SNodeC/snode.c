@@ -40,7 +40,7 @@ namespace net::config {
                    "mode",
                    MODE::STANDALONE)
             ->configurable(false)
-            ->group(section->get_formatter()->get_label("Non-Persistent Options"))
+            ->group(section->get_formatter()->get_label("None Persistent Options"))
             ->check(CLI::Range(STANDALONE, PROXY));
     }
 
