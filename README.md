@@ -52,7 +52,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [SocketAddress Constructors](#socketaddress-constructors)
    * [SocketConnection](#socketconnection)
       * [Most Important common SocketConnection Methods](#most-important-common-socketconnection-methods)
-   * [Constructors](#constructors)
+   * [Constructors of SocketServer and SocketClient Classes](#constructors-of-socketserver-and-socketclient-classes)
       * [Constructors of SocketServer Classes](#constructors-of-socketserver-classes)
       * [Constructors of SocketClient Classes](#constructors-of-socketclient-classes)
       * [Constructor Callbacks](#constructor-callbacks)
@@ -64,7 +64,6 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Server](#server)
       * [SocketServer Classes](#socketserver-classes)
       * [SocketServer Header Files](#socketserver-header-files)
-      * [Constructors](#constructors-1)
       * [Listen Methods](#listen-methods)
          * [Common listen() Methods](#common-listen-methods)
          * [Specific listen() Methods](#specific-listen-methods)
@@ -104,7 +103,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Mon Apr  3 14:47:28 UTC 2023 -->
+<!-- Added by: runner, at: Mon Apr  3 17:19:23 UTC 2023 -->
 
 <!--te-->
 
