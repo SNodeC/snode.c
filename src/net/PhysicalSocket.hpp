@@ -147,4 +147,5 @@ namespace net {
     const SocketAddress& PhysicalSocket<SocketAddress>::getBindAddress() const {
         return bindAddress;
     }
+
 } // namespace net
