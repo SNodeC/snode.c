@@ -77,15 +77,16 @@ namespace net::config {
                  CLI::IsMember({"true", "false"}));
         add_option(cipherListOpt, //
                    "--cipher-list",
-                   "Cipher list",
+                   "Cipher list (openssl syntax)",
                    "cipher_list",
-                   "");
+                   "",
+                   CLI::TypeValidator<std::string>("CHIPHER"));
         add_option(tlsOptionsOpt, //
                    "--tls-options",
-                   "OR combined SSL/TLS options",
+                   "OR combined SSL/TLS options (openssl values)",
                    "options",
                    0,
-                   CLI::NonNegativeNumber);
+                   CLI::TypeValidator<ssl_option_t>());
         add_option(initTimeoutOpt, //
                    "--init-timeout",
                    "SSL/TLS initialization timeout in seconds",

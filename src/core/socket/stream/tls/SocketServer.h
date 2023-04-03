@@ -51,19 +51,6 @@ namespace core::socket::stream::tls {
 
         using Super::Super;
 
-        SocketServer(const std::string& name,
-                     const std::function<void(SocketConnection*)>& onConnect,
-                     const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
-            : Super(name, onConnect, onConnected, onDisconnect) {
-        }
-
-        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
-                     const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
-            : SocketServer("", onConnect, onConnected, onDisconnect) {
-        }
-
         explicit SocketServer(const std::string& name)
             : SocketServer(
                   name,
@@ -74,6 +61,15 @@ namespace core::socket::stream::tls {
                                      socketConnection->getLocalAddress().toString();
                       VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
+
+                      /* Enable automatic hostname checks */
+                      // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
+
+                      // X509_VERIFY_PARAM_set_hostflags(param, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+                      // if (!X509_VERIFY_PARAM_set1_host(param, "localhost", sizeof("localhost") - 1)) {
+                      //   // handle error
+                      //   socketConnection->close();
+                      // }
                   },
                   [name](SocketConnection* socketConnection) -> void { // onConnected
                       VLOG(0) << "OnConnected " << name;

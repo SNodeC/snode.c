@@ -125,6 +125,10 @@ namespace core::socket::stream {
         }
 
     public:
+        int getFd() const {
+            return PhysicalSocket::getFd();
+        }
+
         void close() final {
             if (SocketWriter::isEnabled()) {
                 SocketWriter::disable();

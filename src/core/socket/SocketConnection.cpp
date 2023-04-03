@@ -31,4 +31,12 @@ namespace core::socket {
         sendToPeer(data.data(), data.size());
     }
 
+    void SocketConnection::sentToPeer(const std::vector<uint8_t>& data) {
+        sendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
+    }
+
+    void SocketConnection::sentToPeer(const std::vector<char>& data) {
+        sendToPeer(data.data(), data.size());
+    }
+
 } // namespace core::socket

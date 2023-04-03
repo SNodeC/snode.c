@@ -48,7 +48,7 @@ namespace net::config {
                                        "          \"CaCertFile\" -> value:PEM-FILE,\n"
                                        "          \"CaCertDir\" -> value:PEM-CONTAINER:DIR,\n"
                                        "          \"UseDefaultCaDir\" -> value:BOOLEAN [false],\n"
-                                       "          \"SslOptions\" -> value:POSITIV\n"
+                                       "          \"SslOptions\" -> value:UINT\n"
                                        "        }") //
                           ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
                           ->default_val("\"\" \"\" \"\" \"\"");

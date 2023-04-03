@@ -80,9 +80,9 @@ namespace core::socket::stream::tls {
         }
 
     private:
-        SSL* startSSL(SSL_CTX* ctx, const utils::Timeval& initTimeout, const utils::Timeval& shutdownTimeout) {
-            this->initTimeout = initTimeout;
-            this->shutdownTimeout = shutdownTimeout;
+        SSL* startSSL(SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout) {
+            this->sslInitTimeout = sslInitTimeout;
+            this->sslShutdownTimeout = sslShutdownTimeout;
             if (ctx != nullptr) {
                 ssl = SSL_new(ctx);
 
@@ -134,7 +134,7 @@ namespace core::socket::stream::tls {
                     SocketConnection::close();
                     onError(sslErr);
                 },
-                initTimeout);
+                sslInitTimeout);
         }
 
         void doSSLShutdown(const std::function<void()>& onSuccess,
@@ -233,14 +233,14 @@ namespace core::socket::stream::tls {
                             SocketConnection::close();
                         });
                     },
-                    shutdownTimeout);
+                    sslShutdownTimeout);
             }
         }
 
         SSL* ssl = nullptr;
 
-        utils::Timeval initTimeout;
-        utils::Timeval shutdownTimeout;
+        utils::Timeval sslInitTimeout;
+        utils::Timeval sslShutdownTimeout;
 
         template <typename PhysicalServerSocket>
         friend class SocketAcceptor;

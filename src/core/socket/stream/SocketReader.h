@@ -90,6 +90,7 @@ namespace core::socket::stream {
                         resume();
                     }
                 } else {
+                    LOG(TRACE) << "Received EOF";
                     disable();
                     onError(errno);
                 }

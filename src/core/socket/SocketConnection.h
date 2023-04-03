@@ -30,7 +30,9 @@ namespace core::socket {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -50,6 +52,8 @@ namespace core::socket {
     public:
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
         void sendToPeer(const std::string& data);
+        void sentToPeer(const std::vector<uint8_t>& data);
+        void sentToPeer(const std::vector<char>& data);
 
         virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
