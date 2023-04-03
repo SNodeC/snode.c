@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <iostream>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
@@ -31,10 +29,6 @@ namespace net {
     }
 
     BadSocketAddress::~BadSocketAddress() {
-    }
-
-    void BadSocketAddress::printError() const {
-        std::cout << what() << std::endl;
     }
 
 } // namespace net
