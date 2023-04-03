@@ -66,7 +66,7 @@ namespace net::in6 {
         int err = core::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
         if (err != 0) {
-            throw net::BadSocketAddress("Not resolvable: " + ipOrHostname);
+            throw net::BadSocketAddress("IPv6 error not resolvable: " + ipOrHostname);
         }
 
         resalloc = res;
