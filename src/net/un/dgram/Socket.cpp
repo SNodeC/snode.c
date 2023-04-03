@@ -18,10 +18,16 @@
 
 #include "net/un/dgram/Socket.h"
 
+#include "core/Descriptor.h"
 #include "net/dgram/PeerSocket.hpp" // IWYU pragma: keep
 #include "net/un/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cerrno>
+#include <sys/uio.h> // IWYU pragma: keep
+
+// IWYU pragma: no_include <bits/types/struct_iovec.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
