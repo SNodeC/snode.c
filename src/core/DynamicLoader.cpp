@@ -31,30 +31,6 @@ namespace core {
     std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
     std::set<void*> DynamicLoader::closeHandles;
 
-    void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
-        void* handle = nullptr;
-
-        if (std::filesystem::exists(libFile)) {
-            handle = core::system::dlopen(libFile.c_str(), flags);
-
-            if (handle != nullptr) {
-                LOG(INFO) << "dlOpen file = " << libFile << ": success";
-
-                if (!dlOpenedLibraries.contains(handle)) {
-                    dlOpenedLibraries[handle].fileName = libFile;
-                    dlOpenedLibraries[handle].handle = handle;
-                }
-                dlOpenedLibraries[handle].refCount++;
-            } else {
-                LOG(ERROR) << "dlopen file = " << libFile << ": " << core::DynamicLoader::dlError();
-            }
-        } else {
-            LOG(WARNING) << "dlOpen file = " << libFile << ": not existing";
-        }
-
-        return handle;
-    }
-
     void DynamicLoader::dlCloseDelayed(void* handle) {
         if (handle != nullptr) {
             if (dlOpenedLibraries.contains(handle)) {

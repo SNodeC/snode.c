@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(snode.c)
+project(
+    snode.c
+    DESCRIPTION "Simple Node in C++ Frakework"
+    VERSION 1.0.0
+)
 
 set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
 
@@ -14,9 +18,6 @@ include(format)
 include(doxygen)
 include(uninstall)
 
-set(CPACK_PROJECT_NAME "snodec")
-set(CPACK_GENERATOR "DEB")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Volker Christian") # required
-include(CPack)
+include(Packing)
 
 add_subdirectory(src)

@@ -67,49 +67,51 @@ namespace web::http {
                                                                            typename SocketContextUpgrade::Role role) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        for (const std::string& searchPath : searchPaths) {
+        for ([[maybe_unused]] const std::string& searchPath : searchPaths) {
+            /*
             std::string libFile = searchPath + "/libsnodec-" + upgradeContextName +
                                   (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so";
-
+            */
+            std::string libFile =
+                "libsnodec-" + upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so";
             std::error_code errorCode;
-            if (std::filesystem::is_regular_file(libFile, errorCode)) {
-                void* handle = core::DynamicLoader::dlOpen(libFile, RTLD_LAZY | RTLD_GLOBAL);
+            //            if (std::filesystem::is_regular_file(libFile, errorCode)) {
+            void* handle = core::DynamicLoader::dlOpen(libFile, RTLD_LAZY | RTLD_GLOBAL);
 
-                if (handle != nullptr) {
-                    std::string socketContextUpgradeFactoryName =
-                        upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "Server" : "Client") + "ContextUpgradeFactory";
-                    SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
-                        reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(
-                            core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryName));
+            if (handle != nullptr) {
+                std::string socketContextUpgradeFactoryName =
+                    upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "Server" : "Client") + "ContextUpgradeFactory";
+                SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(
+                    core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryName));
 
-                    if (getSocketContextUpgradeFactory != nullptr) {
-                        socketContextUpgradeFactory = getSocketContextUpgradeFactory();
+                if (getSocketContextUpgradeFactory != nullptr) {
+                    socketContextUpgradeFactory = getSocketContextUpgradeFactory();
 
-                        if (socketContextUpgradeFactory != nullptr) {
-                            if (add(socketContextUpgradeFactory, handle)) {
-                                VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
-                            } else {
-                                VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
-                                delete socketContextUpgradeFactory;
-                                socketContextUpgradeFactory = nullptr;
-                                core::DynamicLoader::dlCloseDelayed(handle);
-                            }
-                            break;
+                    if (socketContextUpgradeFactory != nullptr) {
+                        if (add(socketContextUpgradeFactory, handle)) {
+                            VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
+                        } else {
+                            VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
+                            delete socketContextUpgradeFactory;
+                            socketContextUpgradeFactory = nullptr;
+                            core::DynamicLoader::dlCloseDelayed(handle);
                         }
-                        VLOG(0) << "SocketContextUpgradeFactory not created: " << upgradeContextName;
-                        core::DynamicLoader::dlCloseDelayed(handle);
-
-                    } else {
-                        VLOG(0) << "Optaining function \"" << socketContextUpgradeFactoryName
-                                << "\" in plugin failed: " << core::DynamicLoader::dlError();
-                        core::DynamicLoader::dlCloseDelayed(handle);
+                        break;
                     }
+                    VLOG(0) << "SocketContextUpgradeFactory not created: " << upgradeContextName;
+                    core::DynamicLoader::dlCloseDelayed(handle);
+
                 } else {
-                    VLOG(0) << "Error dlopen: " << upgradeContextName;
+                    VLOG(0) << "Optaining function \"" << socketContextUpgradeFactoryName
+                            << "\" in plugin failed: " << core::DynamicLoader::dlError();
+                    core::DynamicLoader::dlCloseDelayed(handle);
                 }
             } else {
-                VLOG(0) << "Error dlopen: " << libFile << ": " << errorCode.message();
+                VLOG(0) << "Error dlopen: " << upgradeContextName;
             }
+            //            } else {
+            //               VLOG(0) << "Error dlopen: " << libFile << ": " << errorCode.message();
+            //           }
         }
 
         return socketContextUpgradeFactory;

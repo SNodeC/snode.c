@@ -44,7 +44,27 @@ namespace core {
         DynamicLoader() = delete;
         ~DynamicLoader() = delete;
 
-        static void* dlOpen(const std::string& libFile, int flags);
+        inline static void* dlOpen(const std::string& libFile, int flags) {
+            void* handle = nullptr;
+
+            //        if (std::filesystem::exists(libFile)) {
+            handle = core::system::dlopen(libFile.c_str(), flags);
+
+            if (handle != nullptr) {
+                if (!dlOpenedLibraries.contains(handle)) {
+                    dlOpenedLibraries[handle].fileName = libFile;
+                    dlOpenedLibraries[handle].handle = handle;
+                }
+                dlOpenedLibraries[handle].refCount++;
+            } else {
+            }
+            //        } else {
+            //            LOG(WARNING) << "dlOpen file = " << libFile << ": not existing";
+            //        }
+
+            return handle;
+        }
+
         static void dlCloseDelayed(void* handle);
         static int dlClose(void* handle);
 
