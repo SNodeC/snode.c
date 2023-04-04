@@ -24,8 +24,8 @@
 #include "core/system/dlfcn.h" // IWYU pragma: keep
 
 #include <cstddef>
-#include <list>
 #include <map>
+#include <set>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,6 +37,7 @@ namespace core {
         struct Library {
             std::string fileName = "";
             std::size_t refCount = 0;
+            void* handle = nullptr;
         };
 
     public:
@@ -47,18 +48,20 @@ namespace core {
         static void dlCloseDelayed(void* handle);
         static int dlClose(void* handle);
 
+        static int dlClose(Library& library);
+
         static void* dlSym(void* handle, const std::string& symbol);
 
         static char* dlError();
 
     private:
         static int execDlClose(void* handle);
+        static int execDlClose(Library& library);
         static void execDlCloseDeleyed();
         static void execDlCloseAll();
 
         static std::map<void*, Library> dlOpenedLibraries;
-        static std::map<void*, std::size_t> registeredForDlClose;
-        static std::list<void*> closeHandles;
+        static std::set<void*> closeHandles;
 
         friend class EventLoop;
         friend class EventMultiplexer;
