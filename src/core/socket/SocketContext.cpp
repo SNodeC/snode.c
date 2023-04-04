@@ -36,8 +36,7 @@ namespace core::socket {
         }
     }
 
-    void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown. Override this method in case your protocol still
-                                                  // wants to send data after peers sending side has closed the connection.
+    void SocketContext::onReadError(int errnum) {
         if (errnum != 0) {
             PLOG(ERROR) << "OnReadError: " << errnum;
         }

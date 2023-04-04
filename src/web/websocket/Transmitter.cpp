@@ -77,67 +77,6 @@ namespace web::websocket {
         } while (messageLength - messageOffset > 0);
     }
 
-    /*
-        void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
-            uint64_t frameLength = 2 + payloadLength;
-            uint8_t opCodeOffset = 0;
-            uint8_t lengthOffset = 1;
-            uint8_t eLengthOffset = 2;
-            uint8_t maskingKeyOffset = 2;
-            uint8_t payloadOffset = 2;
-
-            if (masking) {
-                frameLength += 4;
-                payloadOffset += 4;
-            }
-
-            char* frame = nullptr;
-            uint64_t length = 0;
-
-            if (payloadLength < 126) {
-                frame = new char[frameLength];
-                length = payloadLength;
-            } else if (payloadLength < 0x10000) {
-                frameLength += 2;
-                maskingKeyOffset += 2;
-                payloadOffset += 2;
-                frame = new char[frameLength];
-                *reinterpret_cast<uint16_t*>(frame + eLengthOffset) = htobe16(static_cast<uint16_t>(payloadLength));
-                length = 126;
-            } else {
-                frameLength += 8;
-                maskingKeyOffset += 8;
-                payloadOffset += 8;
-                frame = new char[frameLength];
-                *reinterpret_cast<uint64_t*>(frame + eLengthOffset) = htobe64(payloadLength);
-                length = 127;
-            }
-
-            union MaskingKey {
-                uint32_t keyAsValue;
-                char keyAsArray[4];
-            } maskingKeyAsArray = {.keyAsValue = 0};
-
-            if (masking) {
-                maskingKeyAsArray = {.keyAsValue = distribution(generator)};
-                *reinterpret_cast<uint32_t*>(frame + maskingKeyOffset) = htobe32(maskingKeyAsArray.keyAsValue);
-            }
-
-            *reinterpret_cast<uint8_t*>(frame + opCodeOffset) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
-            *reinterpret_cast<uint8_t*>(frame + lengthOffset) = static_cast<uint8_t>((masking ? 0b10000000 : 0) | length);
-
-            for (uint64_t i = 0; i < payloadLength; i++) {
-                *(frame + payloadOffset + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsArray + i % 4);
-            }
-
-            // dumpFrame(frame, frameLength);
-
-            sendFrameData(frame, frameLength);
-
-            delete[] frame;
-        }
-    */
-
     void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) const {
         uint64_t length = 0;
 

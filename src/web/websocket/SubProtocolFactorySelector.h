@@ -72,7 +72,6 @@ namespace web::websocket {
                             }
                             VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
                             core::DynamicLoader::dlClose(handle);
-
                         } else {
                             VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
                                     << "\" in plugin failed: " << core::DynamicLoader::dlError();
