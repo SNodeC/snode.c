@@ -20,26 +20,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdlib>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::client {
-
-    SubProtocolFactorySelector::SubProtocolFactorySelector() {
-        Super::addSubProtocolSearchPath(WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR);
-
-#if !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR)
-
-        Super::addSubProtocolSearchPath(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR);
-
-#endif // !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR)
-
-        char* envDlWsClientSubprotocolPath = getenv("DL_WSCLIENT_SUBPROTOCOL_PATH");
-        if (envDlWsClientSubprotocolPath != nullptr) {
-            Super::addSubProtocolSearchPath(envDlWsClientSubprotocolPath);
-        }
-    }
 
     SubProtocolFactorySelector* SubProtocolFactorySelector::instance() {
         static SubProtocolFactorySelector subProtocolFactorySelector;
@@ -52,10 +35,6 @@ namespace web::websocket::client {
 
     void SubProtocolFactorySelector::link(const std::string& subProtocolName, void* (*getSubProtocolFactory)()) {
         SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
-    }
-
-    void SubProtocolFactorySelector::addSubProtocolSearchPath(const std::string& searchPath) {
-        SubProtocolFactorySelector::instance()->Super::addSubProtocolSearchPath(searchPath);
     }
 
     void SubProtocolFactorySelector::allowDlOpen() {

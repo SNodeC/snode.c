@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(CMAKE_INSTALL_RPATH
-    ""
-    CACHE INTERNAL ""
-)
-
 set(MQTT_FAST_PACKETS_CPP
     Connect.cpp
     Connack.cpp

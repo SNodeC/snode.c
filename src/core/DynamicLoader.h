@@ -22,10 +22,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/dlfcn.h" // IWYU pragma: keep
+#include "log/Logger.h"
 
 #include <cstddef>
+#include <list>
 #include <map>
-#include <set>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -44,11 +45,8 @@ namespace core {
         DynamicLoader() = delete;
         ~DynamicLoader() = delete;
 
-        inline static void* dlOpen(const std::string& libFile, int flags) {
-            void* handle = nullptr;
-
-            //        if (std::filesystem::exists(libFile)) {
-            handle = core::system::dlopen(libFile.c_str(), flags);
+        inline static void* __attribute__((visibility("hidden"))) dlOpen(const std::string& libFile, int flags) {
+            void* handle = core::system::dlopen(libFile.c_str(), flags);
 
             if (handle != nullptr) {
                 if (!dlOpenedLibraries.contains(handle)) {
@@ -56,11 +54,27 @@ namespace core {
                     dlOpenedLibraries[handle].handle = handle;
                 }
                 dlOpenedLibraries[handle].refCount++;
+                LOG(TRACE) << "dlOpen file = " << libFile << ": success";
             } else {
+                LOG(WARNING) << "dlOpen " << DynamicLoader::dlError();
             }
-            //        } else {
-            //            LOG(WARNING) << "dlOpen file = " << libFile << ": not existing";
-            //        }
+
+            return handle;
+        }
+
+#define DLOPEN(libFile, flags) core::DynamicLoader::dlRegisterHandle(::dlopen(libFile.c_str(), flags), libFile)
+
+        static void* dlRegisterHandle(void* handle, const std::string& libFile) {
+            if (handle != nullptr) {
+                if (!dlOpenedLibraries.contains(handle)) {
+                    dlOpenedLibraries[handle].fileName = libFile;
+                    dlOpenedLibraries[handle].handle = handle;
+                }
+                dlOpenedLibraries[handle].refCount++;
+                LOG(TRACE) << "dlOpen file = " << libFile << ": success";
+            } else {
+                LOG(WARNING) << "dlOpen " << DynamicLoader::dlError();
+            }
 
             return handle;
         }
@@ -81,7 +95,7 @@ namespace core {
         static void execDlCloseAll();
 
         static std::map<void*, Library> dlOpenedLibraries;
-        static std::set<void*> closeHandles;
+        static std::list<void*> closeHandles;
 
         friend class EventLoop;
         friend class EventMultiplexer;

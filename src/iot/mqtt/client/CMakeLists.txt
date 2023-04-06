@@ -26,7 +26,7 @@ set_target_properties(
                OUTPUT_NAME snodec-mqtt-client
                IOT_MQTT_CLIENT_INCLUDE_DIRS
                "${CMAKE_INSTALL_PREFIX}/include/snode.c"
-#               INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
+               INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
 )
 
 install(
