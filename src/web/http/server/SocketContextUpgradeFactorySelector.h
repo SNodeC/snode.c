@@ -34,8 +34,6 @@ namespace web::http::server {
     private:
         using Super = web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>;
 
-        SocketContextUpgradeFactorySelector();
-
         using Super::load;
         using Super::select;
 

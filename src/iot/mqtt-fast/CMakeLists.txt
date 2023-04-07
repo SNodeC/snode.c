@@ -4,7 +4,8 @@ add_subdirectory(types)
 add_subdirectory(packets)
 
 set(SNODEC_IOT_MQTT-FAST_RPATH
-    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt"
+    ""
+    # "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt"
     CACHE INTERNAL ""
 )
 

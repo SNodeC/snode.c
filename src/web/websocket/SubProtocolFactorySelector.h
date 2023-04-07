@@ -51,45 +51,32 @@ namespace web::websocket {
         SubProtocolFactory* load(const std::string& subProtocolName, Role role) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
-            for (const std::string& searchPath : searchPaths) {
-                std::string libFile = searchPath + "/libsnodec-websocket-" + subProtocolName + ".so";
+            std::string libFile = "libsnodec-websocket-" + subProtocolName + ".so";
 
-                std::error_code errorCode;
-                if (std::filesystem::is_regular_file(libFile, errorCode)) {
-                    void* handle = core::DynamicLoader::dlOpen(libFile, RTLD_LAZY | RTLD_LOCAL);
+            void* handle = DLOPEN(libFile, RTLD_LAZY | RTLD_LOCAL);
 
-                    if (handle != nullptr) {
-                        std::string subProtocolFactoryFunctionName =
-                            subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory";
-                        SubProtocolFactory* (*getSubProtocolFactory)() = reinterpret_cast<SubProtocolFactory* (*) ()>(
-                            core::DynamicLoader::dlSym(handle, subProtocolFactoryFunctionName));
-                        if (getSubProtocolFactory != nullptr) {
-                            subProtocolFactory = getSubProtocolFactory();
-                            if (subProtocolFactory != nullptr) {
-                                subProtocolFactory->setHandle(handle);
-                                VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
-                                break;
-                            }
-                            VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
-                            core::DynamicLoader::dlClose(handle);
-                        } else {
-                            VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
-                                    << "\" in plugin failed: " << core::DynamicLoader::dlError();
-                            core::DynamicLoader::dlClose(handle);
-                        }
+            if (handle != nullptr) {
+                std::string subProtocolFactoryFunctionName =
+                    subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory";
+                SubProtocolFactory* (*getSubProtocolFactory)() =
+                    reinterpret_cast<SubProtocolFactory* (*) ()>(core::DynamicLoader::dlSym(handle, subProtocolFactoryFunctionName));
+                if (getSubProtocolFactory != nullptr) {
+                    subProtocolFactory = getSubProtocolFactory();
+                    if (subProtocolFactory != nullptr) {
+                        subProtocolFactory->setHandle(handle);
+                        VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
                     } else {
-                        VLOG(0) << "Error dlopen: " << libFile;
+                        VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
+                        core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    VLOG(0) << "Error dlopen: " << libFile << ": " << errorCode.message();
+                    VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
+                            << "\" in plugin failed: " << core::DynamicLoader::dlError();
+                    core::DynamicLoader::dlClose(handle);
                 }
             }
 
             return subProtocolFactory;
-        }
-
-        void addSubProtocolSearchPath(const std::string& searchPath) {
-            searchPaths.push_front(searchPath);
         }
 
     public:
@@ -150,7 +137,6 @@ namespace web::websocket {
     private:
         std::map<std::string, SubProtocolFactory*> subProtocolFactories;
         std::map<std::string, SubProtocolFactory* (*) ()> linkedSubProtocolFactories;
-        std::list<std::string> searchPaths;
 
         bool onlyLinked = false;
     };

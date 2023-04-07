@@ -54,13 +54,12 @@ namespace web::websocket::client {
         ~SubProtocolFactorySelector() override;
 
         static void link(const std::string& subProtocolName, void* (*getSubProtocolFactory)());
-        static void addSubProtocolSearchPath(const std::string& searchPath);
 
         using web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::allowDlOpen;
         static void allowDlOpen();
 
     private:
-        SubProtocolFactorySelector();
+        SubProtocolFactorySelector() = default;
     };
 
 } // namespace web::websocket::client

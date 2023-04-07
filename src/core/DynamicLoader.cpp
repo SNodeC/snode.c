@@ -22,50 +22,46 @@
 
 #include "log/Logger.h"
 
-#include <filesystem>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
-    std::set<void*> DynamicLoader::closeHandles;
+    std::list<void*> DynamicLoader::closeHandles;
+    /*
+        void* __attribute__((weak)) DynamicLoader::dlOpen(const std::string& libFile, int flags) {
+            void* handle = nullptr;
 
-    void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
-        void* handle = nullptr;
-
-        if (std::filesystem::exists(libFile)) {
+            //        if (std::filesystem::exists(libFile)) {
             handle = core::system::dlopen(libFile.c_str(), flags);
 
             if (handle != nullptr) {
-                LOG(INFO) << "dlOpen file = " << libFile << ": success";
-
                 if (!dlOpenedLibraries.contains(handle)) {
                     dlOpenedLibraries[handle].fileName = libFile;
                     dlOpenedLibraries[handle].handle = handle;
                 }
                 dlOpenedLibraries[handle].refCount++;
             } else {
-                LOG(ERROR) << "dlopen file = " << libFile << ": " << core::DynamicLoader::dlError();
+                LOG(WARNING) << "dlOpen file = " << libFile << ": " << DynamicLoader::dlError();
             }
-        } else {
-            LOG(WARNING) << "dlOpen file = " << libFile << ": not existing";
+            //        } else {
+            //            LOG(WARNING) << "dlOpen file = " << libFile << ": not existing";
+            //        }
+
+            return handle;
         }
-
-        return handle;
-    }
-
+    */
     void DynamicLoader::dlCloseDelayed(void* handle) {
         if (handle != nullptr) {
             if (dlOpenedLibraries.contains(handle)) {
-                if (!closeHandles.contains(handle)) {
-                    LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName << ": registered";
+                //                if (!closeHandles.contains(handle)) {
+                LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName << ": registered";
 
-                    closeHandles.insert(handle);
-                } else {
-                    LOG(ERROR) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
-                               << ": already registered for dlCloseDelayed";
-                }
+                closeHandles.push_back(handle);
+                //                } else {
+                //                    LOG(ERROR) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
+                //                               << ": already registered for dlCloseDelayed";
+                //                }
             } else {
                 LOG(WARNING) << "dlCloseDelayed handle = " << handle << ": not opened using dlOpen";
             }
@@ -78,17 +74,17 @@ namespace core {
         int ret = 0;
 
         if (handle != nullptr) {
-            if (!closeHandles.contains(handle)) {
-                if (dlOpenedLibraries.contains(handle)) {
-                    ret = dlClose(dlOpenedLibraries[handle]);
+            //            if (!closeHandles.contains(handle)) {
+            if (dlOpenedLibraries.contains(handle)) {
+                ret = dlClose(dlOpenedLibraries[handle]);
 
-                    dlOpenedLibraries.erase(handle);
-                } else {
-                    LOG(WARNING) << "dlClose handle = " << handle << ": not opened with dlOpen";
-                }
+                dlOpenedLibraries.erase(handle);
             } else {
-                LOG(ERROR) << "dlClose handle = " << handle << ": already registered for dlCloseDelayed";
+                LOG(WARNING) << "dlClose handle = " << handle << ": not opened with dlOpen";
             }
+            //            } else {
+            //                LOG(ERROR) << "dlClose handle = " << handle << ": already registered for dlCloseDelayed";
+            //            }
         } else {
             LOG(ERROR) << "dlClose handle: nullptr";
         }

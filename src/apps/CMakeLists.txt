@@ -10,11 +10,11 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
 
+get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
+get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
+
 add_executable(snode.c main.cpp)
 target_link_libraries(snode.c PUBLIC snodec::core)
-set_target_properties(
-    snode.c PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
-)
 install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testpost testpost.cpp)
@@ -22,9 +22,7 @@ target_link_libraries(
     testpost PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
                      snodec::net-in-stream-tls
 )
-set_target_properties(
-    testpost PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
-)
+set_target_properties(testpost PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}")
 install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(verysimpleserver verysimpleserver.cpp)
@@ -34,7 +32,7 @@ target_link_libraries(
             snodec::net-in-stream-tls
 )
 set_target_properties(
-    verysimpleserver PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    verysimpleserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
 install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -45,7 +43,7 @@ if(NLOHMANN_JSON_FOUND)
                            snodec::net-in-stream-legacy
     )
     set_target_properties(
-        jsonserver PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+        jsonserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
     )
     install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif(NLOHMANN_JSON_FOUND)
@@ -55,7 +53,7 @@ target_link_libraries(
     jsonclient PRIVATE snodec::http-client snodec::net-in-stream-legacy
 )
 set_target_properties(
-    jsonclient PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    jsonclient PROPERTIES INSTALL_RPATH "${HTTP_CLIENT_RPATH}"
 )
 install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -65,7 +63,8 @@ target_link_libraries(
                        snodec::core-socket-stream snodec::logger
 )
 set_target_properties(
-    testparser PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    testparser PROPERTIES INSTALL_RPATH
+                          "${HTTP_SERVER_RPATH};${HTTP_CLIENT_RPATH}"
 )
 install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -77,7 +76,7 @@ if(MARIADB_FOUND)
                 snodec::net-in-stream-tls snodec::db-mariadb
     )
     set_target_properties(
-        testregex PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+        testregex PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
     )
     install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif(MARIADB_FOUND)
@@ -88,7 +87,7 @@ target_link_libraries(
                              snodec::net-in-stream-legacy
 )
 set_target_properties(
-    warema-jalousien PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    warema-jalousien PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
 install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -99,7 +98,7 @@ target_link_libraries(
             snodec::net-in6-stream-tls
 )
 set_target_properties(
-    vhostserver PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    vhostserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
 install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -118,7 +117,7 @@ target_link_libraries(
             snodec::net-in6-stream-tls
 )
 set_target_properties(
-    testbasicauthentication PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    testbasicauthentication PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
 install(TARGETS testbasicauthentication
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

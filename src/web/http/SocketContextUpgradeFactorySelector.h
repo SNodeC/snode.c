@@ -64,7 +64,7 @@ namespace web::http {
     protected:
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName, typename SocketContextUpgrade::Role role);
 
-        void addSocketContextUpgradeSearchPath(const std::string& searchPath);
+        //        void addSocketContextUpgradeSearchPath(const std::string& searchPath);
 
         SocketContextUpgradeFactory* load(const std::string& upgradeContextName, typename SocketContextUpgrade::Role role);
 
@@ -73,7 +73,7 @@ namespace web::http {
     private:
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
-        std::list<std::string> searchPaths;
+        //        std::list<std::string> searchPaths;
 
         bool onlyLinked = false;
     };

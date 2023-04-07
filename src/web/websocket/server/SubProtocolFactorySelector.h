@@ -55,11 +55,10 @@ namespace web::websocket::server {
 
         static void link(const std::string& subProtocolName, void* (*getSubProtocolFactory)());
 
-        static void addSubProtocolSearchPath(const std::string& searchPath);
         static void allowDlOpen();
 
     private:
-        SubProtocolFactorySelector();
+        SubProtocolFactorySelector() = default;
     };
 
 } // namespace web::websocket::server

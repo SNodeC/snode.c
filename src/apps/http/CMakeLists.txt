@@ -33,6 +33,10 @@ set(HTTPSERVER_H model/servers.h)
 set(HTTPSERVERCLIENTCERT_CPP httpserverclientcert.cpp)
 set(HTTPSERVERCLIENTCERT_H model/servers.h)
 
+get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
+
+get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
+
 set(NETS "in" "in6" "un")
 if(BLUEZ_FOUND)
     list(APPEND NETS "rc")
@@ -69,7 +73,7 @@ foreach(NET IN LISTS NETS)
         )
         set_target_properties(
             httpserver-${STREAM}-${NET} PROPERTIES INSTALL_RPATH
-                                                   "${SNODEC_WEB_HTTP_RPATH}"
+                                                   "${HTTP_SERVER_RPATH}"
         )
         target_compile_definitions(
             httpserver-${STREAM}-${NET}
@@ -85,7 +89,7 @@ foreach(NET IN LISTS NETS)
         )
         set_target_properties(
             httpclient-${STREAM}-${NET} PROPERTIES INSTALL_RPATH
-                                                   "${SNODEC_WEB_HTTP_RPATH}"
+                                                   "${HTTP_CLIENT_RPATH}"
         )
         target_link_libraries(
             httpclient-${STREAM}-${NET}
@@ -107,7 +111,7 @@ foreach(NET IN LISTS NETS)
             )
             set_target_properties(
                 httpserverclientcert-${STREAM}-${NET}
-                PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+                PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
             )
             target_link_libraries(
                 httpserverclientcert-${STREAM}-${NET}
@@ -129,7 +133,7 @@ foreach(NET IN LISTS NETS)
             )
             set_target_properties(
                 httpclientclientcert-${STREAM}-${NET}
-                PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+                PROPERTIES INSTALL_RPATH "${HTTP_CLIENT_RPATH}"
             )
             target_link_libraries(
                 httpclientclientcert-${STREAM}-${NET}
@@ -149,7 +153,7 @@ endforeach()
 
 add_executable(httplowlevelclient httplowlevelclient.cpp)
 set_target_properties(
-    httplowlevelclient PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+    httplowlevelclient PROPERTIES INSTALL_RPATH "${HTTP_CLIENT_RPATH}"
 )
 target_link_libraries(
     httplowlevelclient PUBLIC snodec::net-in-stream-legacy
