@@ -45,24 +45,7 @@ namespace core {
         DynamicLoader() = delete;
         ~DynamicLoader() = delete;
 
-        inline static void* __attribute__((visibility("hidden"))) dlOpen(const std::string& libFile, int flags) {
-            void* handle = core::system::dlopen(libFile.c_str(), flags);
-
-            if (handle != nullptr) {
-                if (!dlOpenedLibraries.contains(handle)) {
-                    dlOpenedLibraries[handle].fileName = libFile;
-                    dlOpenedLibraries[handle].handle = handle;
-                }
-                dlOpenedLibraries[handle].refCount++;
-                LOG(TRACE) << "dlOpen file = " << libFile << ": success";
-            } else {
-                LOG(WARNING) << "dlOpen " << DynamicLoader::dlError();
-            }
-
-            return handle;
-        }
-
-#define DLOPEN(libFile, flags) core::DynamicLoader::dlRegisterHandle(::dlopen(libFile.c_str(), flags), libFile)
+#define dlOpen(libFile, flags) core::DynamicLoader::dlRegisterHandle(::dlopen(libFile.c_str(), flags), libFile)
 
         static void* dlRegisterHandle(void* handle, const std::string& libFile) {
             if (handle != nullptr) {

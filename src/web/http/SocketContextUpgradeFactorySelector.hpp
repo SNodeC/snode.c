@@ -64,7 +64,7 @@ namespace web::http {
         std::string libFile =
             "libsnodec-" + upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so";
 
-        void* handle = DLOPEN(libFile, RTLD_LAZY | RTLD_GLOBAL);
+        void* handle = dlOpen(libFile, RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
             std::string socketContextUpgradeFactoryName =

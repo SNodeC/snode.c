@@ -53,7 +53,7 @@ namespace web::websocket {
 
             std::string libFile = "libsnodec-websocket-" + subProtocolName + ".so";
 
-            void* handle = DLOPEN(libFile, RTLD_LAZY | RTLD_LOCAL);
+            void* handle = dlOpen(libFile, RTLD_LAZY | RTLD_GLOBAL);
 
             if (handle != nullptr) {
                 std::string subProtocolFactoryFunctionName =

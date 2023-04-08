@@ -22,46 +22,26 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
     std::list<void*> DynamicLoader::closeHandles;
-    /*
-        void* __attribute__((weak)) DynamicLoader::dlOpen(const std::string& libFile, int flags) {
-            void* handle = nullptr;
 
-            //        if (std::filesystem::exists(libFile)) {
-            handle = core::system::dlopen(libFile.c_str(), flags);
-
-            if (handle != nullptr) {
-                if (!dlOpenedLibraries.contains(handle)) {
-                    dlOpenedLibraries[handle].fileName = libFile;
-                    dlOpenedLibraries[handle].handle = handle;
-                }
-                dlOpenedLibraries[handle].refCount++;
-            } else {
-                LOG(WARNING) << "dlOpen file = " << libFile << ": " << DynamicLoader::dlError();
-            }
-            //        } else {
-            //            LOG(WARNING) << "dlOpen file = " << libFile << ": not existing";
-            //        }
-
-            return handle;
-        }
-    */
     void DynamicLoader::dlCloseDelayed(void* handle) {
         if (handle != nullptr) {
             if (dlOpenedLibraries.contains(handle)) {
-                //                if (!closeHandles.contains(handle)) {
-                LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName << ": registered";
+                if (std::find(closeHandles.begin(), closeHandles.end(), handle) == closeHandles.end()) {
+                    LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName << ": registered";
 
-                closeHandles.push_back(handle);
-                //                } else {
-                //                    LOG(ERROR) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
-                //                               << ": already registered for dlCloseDelayed";
-                //                }
+                    closeHandles.push_back(handle);
+                } else {
+                    LOG(ERROR) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
+                               << ": already registered for dlCloseDelayed";
+                }
             } else {
                 LOG(WARNING) << "dlCloseDelayed handle = " << handle << ": not opened using dlOpen";
             }
@@ -74,17 +54,17 @@ namespace core {
         int ret = 0;
 
         if (handle != nullptr) {
-            //            if (!closeHandles.contains(handle)) {
-            if (dlOpenedLibraries.contains(handle)) {
-                ret = dlClose(dlOpenedLibraries[handle]);
+            if (std::find(closeHandles.begin(), closeHandles.end(), handle) == closeHandles.end()) {
+                if (dlOpenedLibraries.contains(handle)) {
+                    ret = dlClose(dlOpenedLibraries[handle]);
 
-                dlOpenedLibraries.erase(handle);
+                    dlOpenedLibraries.erase(handle);
+                } else {
+                    LOG(WARNING) << "dlClose handle = " << handle << ": not opened with dlOpen";
+                }
             } else {
-                LOG(WARNING) << "dlClose handle = " << handle << ": not opened with dlOpen";
+                LOG(ERROR) << "dlClose handle = " << handle << ": already registered for dlCloseDelayed";
             }
-            //            } else {
-            //                LOG(ERROR) << "dlClose handle = " << handle << ": already registered for dlCloseDelayed";
-            //            }
         } else {
             LOG(ERROR) << "dlClose handle: nullptr";
         }
