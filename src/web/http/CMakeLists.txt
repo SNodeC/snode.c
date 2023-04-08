@@ -55,7 +55,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(http PUBLIC ${LIBMAGIC_LIBRARIES} dl)
+target_link_libraries(http PUBLIC ${LIBMAGIC_LIBRARIES})
 
 set_target_properties(
     http

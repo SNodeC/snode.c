@@ -56,7 +56,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(http-client PUBLIC snodec::http ${LIBMAGIC_LIBRARIES} dl)
+target_link_libraries(http-client PUBLIC snodec::http)
 
 get_target_property(HTTP_COMPILE_LIBDIR snodec::http HTTP_COMPILE_LIBDIR)
 set(HTTP_CLIENT_COMPILE_LIBDIR "${HTTP_COMPILE_LIBDIR}/client")
@@ -85,7 +85,7 @@ set_target_properties(
         OUTPUT_NAME snodec-http-client
         BUILD_RPATH "${HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR}"
         INSTALL_RPATH
-        "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${HTTP_UPGRADE_INSTALL_LIBDIR};${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}"
+        "${HTTP_UPGRADE_INSTALL_LIBDIR};${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}"
         LIBRARY_OUTPUT_DIRECTORY ${HTTP_CLIENT_COMPILE_LIBDIR}
         HTTP_CLIENT_COMPILE_LIBDIR "${HTTP_CLIENT_COMPILE_LIBDIR}"
         HTTP_CLIENT_INSTALL_LIBDIR "${HTTP_CLIENT_INSTALL_LIBDIR}"
