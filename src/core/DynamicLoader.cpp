@@ -31,6 +31,21 @@ namespace core {
     std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
     std::list<void*> DynamicLoader::closeHandles;
 
+    void *DynamicLoader::dlRegisterHandle(void *handle, const std::string &libFile) {
+        if (handle != nullptr) {
+            if (!dlOpenedLibraries.contains(handle)) {
+                dlOpenedLibraries[handle].fileName = libFile;
+                dlOpenedLibraries[handle].handle = handle;
+            }
+            dlOpenedLibraries[handle].refCount++;
+            LOG(TRACE) << "dlOpen file = " << libFile << ": success";
+        } else {
+            LOG(WARNING) << "dlOpen " << DynamicLoader::dlError();
+        }
+
+        return handle;
+    }
+
     void DynamicLoader::dlCloseDelayed(void* handle) {
         if (handle != nullptr) {
             if (dlOpenedLibraries.contains(handle)) {

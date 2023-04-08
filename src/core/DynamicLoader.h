@@ -22,7 +22,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/dlfcn.h" // IWYU pragma: keep
-#include "log/Logger.h"
 
 #include <cstddef>
 #include <list>
@@ -47,31 +46,19 @@ namespace core {
 
 #define dlOpen(libFile, flags) core::DynamicLoader::dlRegisterHandle(::dlopen(libFile.c_str(), flags), libFile)
 
-        static void* dlRegisterHandle(void* handle, const std::string& libFile) {
-            if (handle != nullptr) {
-                if (!dlOpenedLibraries.contains(handle)) {
-                    dlOpenedLibraries[handle].fileName = libFile;
-                    dlOpenedLibraries[handle].handle = handle;
-                }
-                dlOpenedLibraries[handle].refCount++;
-                LOG(TRACE) << "dlOpen file = " << libFile << ": success";
-            } else {
-                LOG(WARNING) << "dlOpen " << DynamicLoader::dlError();
-            }
-
-            return handle;
-        }
+        static void* dlRegisterHandle(void* handle, const std::string& libFile);
 
         static void dlCloseDelayed(void* handle);
-        static int dlClose(void* handle);
 
-        static int dlClose(Library& library);
+        static int dlClose(void* handle);
 
         static void* dlSym(void* handle, const std::string& symbol);
 
         static char* dlError();
 
     private:
+        static int dlClose(Library& library);
+
         static int execDlClose(void* handle);
         static int execDlClose(Library& library);
         static void execDlCloseDeleyed();
