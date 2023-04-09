@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.18)
 project(snode.c-code)
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 # set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 # set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -85,4 +86,4 @@ add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
 
-install(CODE "execute_process(COMMAND ldconfig)")
+install(CODE "execute_process(COMMAND ldconfig)" COMPONENT notneeded)

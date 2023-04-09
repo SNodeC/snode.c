@@ -24,7 +24,10 @@ target_link_libraries(
     testpost PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
                      snodec::net-in-stream-tls
 )
-set_target_properties(testpost PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}")
+set_target_properties(
+    testpost PROPERTIES INSTALL_RPATH
+                        "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
+)
 install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                  COMPONENT apps
 )
@@ -36,7 +39,8 @@ target_link_libraries(
             snodec::net-in-stream-tls
 )
 set_target_properties(
-    verysimpleserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
+    verysimpleserver PROPERTIES INSTALL_RPATH
+                                "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
 )
 install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                          COMPONENT apps
@@ -49,7 +53,8 @@ if(NLOHMANN_JSON_FOUND)
                            snodec::net-in-stream-legacy
     )
     set_target_properties(
-        jsonserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
+        jsonserver PROPERTIES INSTALL_RPATH
+                              "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
     )
     install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                        COMPONENT apps
@@ -61,7 +66,8 @@ target_link_libraries(
     jsonclient PRIVATE snodec::http-client snodec::net-in-stream-legacy
 )
 set_target_properties(
-    jsonclient PROPERTIES INSTALL_RPATH "${HTTP_CLIENT_RPATH}"
+    jsonclient PROPERTIES INSTALL_RPATH
+                          "${CMAKE_INSTALL_RPATH};${HTTP_CLIENT_RPATH}"
 )
 install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                    COMPONENT apps
@@ -73,8 +79,10 @@ target_link_libraries(
                        snodec::core-socket-stream snodec::logger
 )
 set_target_properties(
-    testparser PROPERTIES INSTALL_RPATH
-                          "${HTTP_SERVER_RPATH};${HTTP_CLIENT_RPATH}"
+    testparser
+    PROPERTIES
+        INSTALL_RPATH
+        "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH};${HTTP_CLIENT_RPATH}"
 )
 install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                    COMPONENT apps
@@ -88,7 +96,8 @@ if(MARIADB_FOUND)
                 snodec::net-in-stream-tls snodec::db-mariadb
     )
     set_target_properties(
-        testregex PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
+        testregex PROPERTIES INSTALL_RPATH
+                             "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
     )
     install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                       COMPONENT apps
@@ -101,7 +110,8 @@ target_link_libraries(
                              snodec::net-in-stream-legacy
 )
 set_target_properties(
-    warema-jalousien PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
+    warema-jalousien PROPERTIES INSTALL_RPATH
+                                "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
 )
 install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                          COMPONENT apps
@@ -114,7 +124,8 @@ target_link_libraries(
             snodec::net-in6-stream-tls
 )
 set_target_properties(
-    vhostserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
+    vhostserver PROPERTIES INSTALL_RPATH
+                           "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
 )
 install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                     COMPONENT apps
@@ -139,7 +150,8 @@ target_link_libraries(
             snodec::net-in6-stream-tls
 )
 set_target_properties(
-    testbasicauthentication PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
+    testbasicauthentication
+    PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
 )
 install(TARGETS testbasicauthentication
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps

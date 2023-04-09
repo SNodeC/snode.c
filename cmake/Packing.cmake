@@ -3,8 +3,7 @@ set(CPACK_PACKAGE_NAME
     ${PROJECT_NAME}
     CACHE STRING "The resulting package name"
 )
-# which is useful in case of packing only selected components instead of the
-# whole thing
+
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "Simple Node in C++"
     CACHE STRING "Package description for the package metadata"
@@ -31,15 +30,111 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
 
-# package name for deb. If set, then instead of some-application-0.9.2-Linux.deb
-# you'll get some-application_0.9.2_amd64.deb (note the underscores too)
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-# that is if you want every group to have its own package, although the same
-# will happen if this is not set (so it defaults to ONE_PER_GROUP) and
-# CPACK_DEB_COMPONENT_INSTALL is set to YES
-set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP) # ALL_COMPONENTS_IN_ONE)
-# without this you won't be able to pack only specified component
+
+set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
 set(CPACK_DEB_COMPONENT_INSTALL YES)
 
+get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
+list(REMOVE_ITEM CPACK_COMPONENTS_ALL notneeded)
+
 include(CPack)
+
+cpack_add_component(logger)
+cpack_add_component(utils DEPENDS logger)
+
+cpack_add_component(mux-epoll)
+cpack_add_component(mux-poll)
+cpack_add_component(mux-select)
+
+cpack_add_component(core DEPENDS mux-${IO_Multiplexer} utils)
+cpack_add_component(core-socket DEPENDS core)
+cpack_add_component(core-socket-stream DEPENDS core-socket)
+cpack_add_component(core-socket-stream-legacy DEPENDS core-socket-stream)
+cpack_add_component(core-socket-stream-tls DEPENDS core-socket-stream)
+
+cpack_add_component(net)
+
+cpack_add_component(net-in DEPENDS net)
+cpack_add_component(net-in6 DEPENDS net)
+cpack_add_component(net-l2 DEPENDS net)
+cpack_add_component(net-rc DEPENDS net)
+cpack_add_component(net-un DEPENDS net)
+
+cpack_add_component(net-in-stream DEPENDS net-in)
+cpack_add_component(net-in6-stream DEPENDS net-in6)
+cpack_add_component(net-l2-stream DEPENDS net-l2)
+cpack_add_component(net-rc-stream DEPENDS net-rc)
+cpack_add_component(net-un-stream DEPENDS net-un)
+
+cpack_add_component(
+    net-in-stream-legacy DEPENDS net-in-stream core-socket-stream-legacy
+)
+cpack_add_component(
+    net-in6-stream-legacy DEPENDS net-in6-stream core-socket-stream-legacy
+)
+cpack_add_component(
+    net-l2-stream-legacy DEPENDS net-l2-stream core-socket-stream-legacy
+)
+cpack_add_component(
+    net-rc-stream-legacy DEPENDS net-rc-stream core-socket-stream-legacy
+)
+cpack_add_component(
+    net-un-stream-legacy DEPENDS net-un-stream core-socket-stream-legacy
+)
+
+cpack_add_component(
+    net-in-stream-tls DEPENDS net-in-stream core-socket-stream-tls
+)
+cpack_add_component(
+    net-in6-stream-tls DEPENDS net-in6-stream core-socket-stream-tls
+)
+cpack_add_component(
+    net-l2-stream-tls DEPENDS net-l2-stream core-socket-stream-tls
+)
+cpack_add_component(
+    net-rc-stream-tls DEPENDS net-rc-stream core-socket-stream-tls
+)
+cpack_add_component(
+    net-un-stream-tls DEPENDS net-un-stream core-socket-stream-tls
+)
+
+cpack_add_component(net-un-dgram DEPENDS net-un)
+
+cpack_add_component(http)
+cpack_add_component(http-server DEPENDS http)
+cpack_add_component(http-client DEPENDS http)
+cpack_add_component(http-server-express DEPENDS http-server)
+
+cpack_add_component(websocket)
+cpack_add_component(websocket-server DEPENDS websocket http-server)
+cpack_add_component(websocket-client DEPENDS websocket http-client)
+
+cpack_add_component(mqtt)
+cpack_add_component(mqtt-server DEPENDS mqtt)
+cpack_add_component(mqtt-client DEPENDS mqtt)
+
+cpack_add_component(mqtt-fast)
+
+cpack_add_component(db-mariadb core)
+
+cpack_add_component(
+    apps
+    DEPENDS http-server-express
+            http-client
+            net-in-stream-tls
+            net-in6-stream-tls
+            net-l2-stream-tls
+            net-rc-stream-tls
+            net-un-stream-tls
+            net-in-stream-legacy
+            net-in6-stream-legacy
+            net-l2-stream-legacy
+            net-rc-stream-legacy
+            net-un-stream-legacy
+            core-socket-stream-legacy
+            core-socket-stream-tls
+            db-mariadb
+)
