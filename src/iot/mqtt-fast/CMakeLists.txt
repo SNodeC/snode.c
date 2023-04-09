@@ -36,11 +36,13 @@ install(
     TARGETS mqtt-fast
     EXPORT snodec_mqtt-fast_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt
+            COMPONENT mqtt-fast
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/iot/mqtt-fast
+    COMPONENT mqtt-fast
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -54,4 +56,5 @@ install(
     FILE snodec_mqtt-fast_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT mqtt-fast
 )

@@ -72,12 +72,13 @@ set_target_properties(
 install(
     TARGETS http
     EXPORT snodec_http_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/web/http
+    COMPONENT http
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -91,6 +92,7 @@ install(
     FILE snodec_http_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT http
 )
 
 add_subdirectory(server)

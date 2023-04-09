@@ -83,11 +83,13 @@ install(
     TARGETS websocket-server
     EXPORT snodec_websocket-server_Targets
     LIBRARY DESTINATION ${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}
+            COMPONENT websocket-server
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/web/websocket/server
+    COMPONENT websocket-server
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -99,6 +101,7 @@ install(
     FILE snodec_websocket-server_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT websocket-server
 )
 
 # HTTP_SERVER_UPGRADE_COMPILE_LIBDIR   // Compile to

@@ -35,12 +35,13 @@ set_target_properties(
 install(
     TARGETS net-in6-stream-tls
     EXPORT snodec_net-in6-stream-tls_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in6-stream-tls
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in6/stream/tls
+    COMPONENT net-in6-stream-tls
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -52,4 +53,5 @@ install(
     FILE snodec_net-in6-stream-tls_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT net-in6-stream-tls
 )

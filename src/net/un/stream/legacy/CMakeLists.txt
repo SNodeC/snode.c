@@ -36,12 +36,13 @@ set_target_properties(
 install(
     TARGETS net-un-stream-legacy
     EXPORT snodec_net-un-stream-legacy_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-un-stream-legacy
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/un/stream/legacy
+    COMPONENT net-un-stream-legacy
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -53,4 +54,5 @@ install(
     FILE snodec_net-un-stream-legacy_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT net-un-stream-legacy
 )

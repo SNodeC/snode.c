@@ -66,17 +66,19 @@ if(MARIADB_FOUND)
     install(
         TARGETS db-mariadb
         EXPORT snodec_db-mariadb_Targets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT db-mariadb
     )
     install(
         EXPORT snodec_db-mariadb_Targets
         FILE snodec_db-mariadb_Targets.cmake
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+        COMPONENT db-mariadb
     )
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION include/snode.c/database/mariadb
+        COMPONENT db-mariadb
         FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"

@@ -35,12 +35,13 @@ set_target_properties(
 install(
     TARGETS net-l2-stream
     EXPORT snodec_net-l2-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-l2-stream
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2/stream
+    COMPONENT net-l2-stream
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -54,6 +55,7 @@ install(
     FILE snodec_net-l2-stream_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT net-l2-stream
 )
 
 add_subdirectory(legacy)

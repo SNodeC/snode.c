@@ -70,7 +70,7 @@ foreach(NET IN LISTS NETS)
                     STREAM_TYPE=${STREAM_TYPE}
         )
         install(TARGETS echoclient-${STREAM}-${NET}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
         )
 
         add_executable(
@@ -86,7 +86,7 @@ foreach(NET IN LISTS NETS)
                     STREAM_TYPE=${STREAM_TYPE}
         )
         install(TARGETS echoserver-${STREAM}-${NET}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
         )
     endforeach()
 endforeach()

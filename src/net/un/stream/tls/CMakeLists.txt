@@ -34,12 +34,13 @@ set_target_properties(
 install(
     TARGETS net-un-stream-tls
     EXPORT snodec_net-un-stream-tls_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-un-stream-tls
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/un/stream/tls
+    COMPONENT net-un-stream-tls
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -51,4 +52,5 @@ install(
     FILE snodec_net-un-stream-tls_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT net-un-stream-tls
 )

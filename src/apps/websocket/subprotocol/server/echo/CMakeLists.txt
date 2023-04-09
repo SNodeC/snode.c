@@ -38,6 +38,7 @@ set_target_properties(
 
 install(TARGETS echoserversubprotocol
         LIBRARY DESTINATION ${WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR}
+                COMPONENT apps
 )
 
 if(CHECK_INCLUDES)

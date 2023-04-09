@@ -18,7 +18,9 @@ get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
 set_target_properties(
     wsechoserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
-install(TARGETS wsechoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS wsechoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                     COMPONENT apps
+)
 
 set(WSECHOCLIENT_CPP echoclient.cpp)
 
@@ -35,6 +37,8 @@ get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
 set_target_properties(
     wsechoclient PROPERTIES INSTALL_RPATH "${HTTP_CLIENT_RPATH}"
 )
-install(TARGETS wsechoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS wsechoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                     COMPONENT apps
+)
 
 add_subdirectory(subprotocol)

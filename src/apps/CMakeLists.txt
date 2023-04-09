@@ -15,7 +15,9 @@ get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
 
 add_executable(snode.c main.cpp)
 target_link_libraries(snode.c PUBLIC snodec::core)
-install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                COMPONENT apps
+)
 
 add_executable(testpost testpost.cpp)
 target_link_libraries(
@@ -23,7 +25,9 @@ target_link_libraries(
                      snodec::net-in-stream-tls
 )
 set_target_properties(testpost PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}")
-install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                 COMPONENT apps
+)
 
 add_executable(verysimpleserver verysimpleserver.cpp)
 target_link_libraries(
@@ -34,7 +38,9 @@ target_link_libraries(
 set_target_properties(
     verysimpleserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
-install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                         COMPONENT apps
+)
 
 if(NLOHMANN_JSON_FOUND)
     add_executable(jsonserver jsonserver.cpp)
@@ -45,7 +51,9 @@ if(NLOHMANN_JSON_FOUND)
     set_target_properties(
         jsonserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
     )
-    install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                       COMPONENT apps
+    )
 endif(NLOHMANN_JSON_FOUND)
 
 add_executable(jsonclient jsonclient.cpp)
@@ -55,7 +63,9 @@ target_link_libraries(
 set_target_properties(
     jsonclient PROPERTIES INSTALL_RPATH "${HTTP_CLIENT_RPATH}"
 )
-install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                   COMPONENT apps
+)
 
 add_executable(testparser testparsers.cpp)
 target_link_libraries(
@@ -66,7 +76,9 @@ set_target_properties(
     testparser PROPERTIES INSTALL_RPATH
                           "${HTTP_SERVER_RPATH};${HTTP_CLIENT_RPATH}"
 )
-install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                   COMPONENT apps
+)
 
 if(MARIADB_FOUND)
     add_executable(testregex testregex.cpp)
@@ -78,7 +90,9 @@ if(MARIADB_FOUND)
     set_target_properties(
         testregex PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
     )
-    install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                      COMPONENT apps
+    )
 endif(MARIADB_FOUND)
 
 add_executable(warema-jalousien warema-jalousien.cpp)
@@ -89,7 +103,9 @@ target_link_libraries(
 set_target_properties(
     warema-jalousien PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
-install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                         COMPONENT apps
+)
 
 add_executable(vhostserver vhostserver.cpp)
 target_link_libraries(
@@ -100,15 +116,21 @@ target_link_libraries(
 set_target_properties(
     vhostserver PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
-install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                    COMPONENT apps
+)
 
 add_executable(testpipe testpipe.cpp)
 target_link_libraries(testpipe PRIVATE snodec::core)
-install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                 COMPONENT apps
+)
 
 add_executable(configtest configtest.cpp)
 target_link_libraries(configtest PRIVATE snodec::core)
-install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                   COMPONENT apps
+)
 
 add_executable(testbasicauthentication testbasicauthentication.cpp)
 target_link_libraries(
@@ -120,7 +142,7 @@ set_target_properties(
     testbasicauthentication PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
 )
 install(TARGETS testbasicauthentication
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
 )
 
 macro(subdirlist result curdir)

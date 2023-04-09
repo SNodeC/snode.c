@@ -53,12 +53,13 @@ set_target_properties(logger PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-logger)
 install(
     TARGETS logger
     EXPORT snodec_logger_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT logger
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/log
+    COMPONENT logger
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "cmake" EXCLUDE
@@ -71,4 +72,5 @@ install(
     FILE snodec_logger_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT logger
 )

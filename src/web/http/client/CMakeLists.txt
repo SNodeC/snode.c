@@ -85,7 +85,7 @@ set_target_properties(
         OUTPUT_NAME snodec-http-client
         BUILD_RPATH "${HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR}"
         INSTALL_RPATH
-        "${HTTP_UPGRADE_INSTALL_LIBDIR};${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}"
+        "${HTTP_RPATH};${HTTP_UPGRADE_INSTALL_LIBDIR};${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}"
         LIBRARY_OUTPUT_DIRECTORY ${HTTP_CLIENT_COMPILE_LIBDIR}
         HTTP_CLIENT_COMPILE_LIBDIR "${HTTP_CLIENT_COMPILE_LIBDIR}"
         HTTP_CLIENT_INSTALL_LIBDIR "${HTTP_CLIENT_INSTALL_LIBDIR}"
@@ -102,6 +102,7 @@ set_target_properties(
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/web/http/client
+    COMPONENT http-client
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -111,7 +112,7 @@ install(
 install(
     TARGETS http-client
     EXPORT snodec_http-client_Targets
-    LIBRARY DESTINATION ${HTTP_CLIENT_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${HTTP_CLIENT_INSTALL_LIBDIR} COMPONENT http-client
 )
 
 install(
@@ -119,6 +120,7 @@ install(
     FILE snodec_http-client_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT http-client
 )
 
 # HTTP_CLIENT_COMPILE_LIBDIR   // Compile to HTTP_CLIENT_INSTALL_LIBDIR   //

@@ -28,8 +28,10 @@ configure_package_config_file(
     NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT "core"
 )
 
 set(CMAKE_CXX_STANDARD 20)

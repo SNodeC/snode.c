@@ -10,4 +10,6 @@ add_executable(towerCalculation ${TOWERCALCULATION_CPP} ${TOWERCALCULATION_H})
 
 target_link_libraries(towerCalculation PRIVATE snodec::core)
 
-install(TARGETS towerCalculation RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS towerCalculation RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                         COMPONENT apps
+)

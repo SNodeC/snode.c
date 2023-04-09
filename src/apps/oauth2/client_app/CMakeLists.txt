@@ -12,9 +12,11 @@ target_link_libraries(
 if(SNODEC_INTREE_BUILD)
 
     set_target_properties(
-        client_app PROPERTIES INSTALL_RPATH "${SNODEC_WEB_HTTP_RPATH}"
+        client_app PROPERTIES INSTALL_RPATH "${HTTP_SERVER_RPATH}"
     )
 
 endif(SNODEC_INTREE_BUILD)
 
-install(TARGETS client_app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS client_app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                   COMPONENT apps
+)

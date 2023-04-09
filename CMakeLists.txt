@@ -18,6 +18,6 @@ include(format)
 include(doxygen)
 include(uninstall)
 
-# include(Packing)
-
 add_subdirectory(src)
+
+include(Packing)

@@ -109,11 +109,13 @@ install(
     TARGETS http-server-express
     EXPORT snodec_http-server-express_Targets
     LIBRARY DESTINATION ${HTTP_SERVER_INSTALL_LIBDIR}
+            COMPONENT http-server-express
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express
+    COMPONENT http-server-express
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -125,4 +127,5 @@ install(
     FILE snodec_http-server-express_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT http-server-express
 )

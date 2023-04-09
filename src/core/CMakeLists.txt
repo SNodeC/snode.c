@@ -105,12 +105,13 @@ set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)
 install(
     TARGETS core
     EXPORT snodec_core_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT core
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core
+    COMPONENT core
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -132,6 +133,7 @@ install(
     FILE snodec_core_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT core
 )
 
 add_subdirectory(multiplexer)

@@ -30,20 +30,22 @@ set_target_properties(
     mqtt-server
     PROPERTIES SOVERSION 1
                OUTPUT_NAME snodec-mqtt-server
+               INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
                IOT_MQTT_SERVER_INCLUDE_DIRS
                "${CMAKE_INSTALL_PREFIX}/include/snode.c"
-               # INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
 )
 
 install(
     TARGETS mqtt-server
     EXPORT snodec_mqtt-server_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt
+            COMPONENT mqtt-server
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/iot/mqtt/server
+    COMPONENT mqtt-server
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -57,4 +59,5 @@ install(
     FILE snodec_mqtt-server_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT mqtt-server
 )

@@ -87,7 +87,7 @@ set_target_properties(
         OUTPUT_NAME snodec-http-server
         BUILD_RPATH "${HTTP_SERVER_UPGRADE_COMPILE_LIBDIR}"
         INSTALL_RPATH
-        "${HTTP_UPGRADE_INSTALL_LIBDIR};${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
+        "${HTTP_RPATH};${HTTP_UPGRADE_INSTALL_LIBDIR};${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
         LIBRARY_OUTPUT_DIRECTORY ${HTTP_SERVER_COMPILE_LIBDIR}
         HTTP_SERVER_COMPILE_LIBDIR "${HTTP_SERVER_COMPILE_LIBDIR}"
         HTTP_SERVER_INSTALL_LIBDIR "${HTTP_SERVER_INSTALL_LIBDIR}"
@@ -104,6 +104,7 @@ set_target_properties(
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/web/http/server
+    COMPONENT http-server
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -113,7 +114,7 @@ install(
 install(
     TARGETS http-server
     EXPORT snodec_http-server_Targets
-    LIBRARY DESTINATION ${HTTP_SERVER_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${HTTP_SERVER_INSTALL_LIBDIR} COMPONENT http-server
 )
 
 install(
@@ -121,6 +122,7 @@ install(
     FILE snodec_http-server_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT http-server
 )
 
 # HTTP_SERVER_COMPILE_LIBDIR   // Compile to HTTP_SERVER_INSTALL_LIBDIR   //

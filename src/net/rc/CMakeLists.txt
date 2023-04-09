@@ -30,12 +30,13 @@ if(BLUEZ_FOUND)
     install(
         TARGETS net-rc
         EXPORT snodec_net-rc_Targets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-rc
     )
 
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc
+        COMPONENT net-rc
         FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"
@@ -49,6 +50,7 @@ if(BLUEZ_FOUND)
         FILE snodec_net-rc_Targets.cmake
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+        COMPONENT net-rc
     )
 
     add_subdirectory(stream)

@@ -56,11 +56,13 @@ else(NOT OpenSSL_FOUND)
         TARGETS core-socket-stream-tls
         EXPORT snodec_core-socket-stream-tls_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT core-socket-stream-tls
     )
 
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream/tls
+        COMPONENT core-socket-stream-tls
         FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"
@@ -72,6 +74,7 @@ else(NOT OpenSSL_FOUND)
         FILE snodec_core-socket-stream-tls_Targets.cmake
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+        COMPONENT core-socket-stream-tls
     )
 
 endif(NOT OpenSSL_FOUND)

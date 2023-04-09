@@ -21,7 +21,7 @@ set_target_properties(
 install(
     TARGETS mux-poll
     EXPORT snodec_mux-poll_Targets
-    LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR} COMPONENT mux-poll
 )
 
 install(
@@ -29,4 +29,5 @@ install(
     FILE snodec_mux-poll_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT mux-poll
 )

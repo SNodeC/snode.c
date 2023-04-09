@@ -35,12 +35,13 @@ set_target_properties(
 install(
     TARGETS net-in-stream
     EXPORT snodec_net-in-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in-stream
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in/stream
+    COMPONENT net-in-stream
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -54,6 +55,7 @@ install(
     FILE snodec_net-in-stream_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT net-in-stream
 )
 
 add_subdirectory(legacy)

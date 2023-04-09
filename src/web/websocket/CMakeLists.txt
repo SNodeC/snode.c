@@ -53,12 +53,13 @@ set_target_properties(
 install(
     TARGETS websocket
     EXPORT snodec_websocket_Targets
-    LIBRARY DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR} COMPONENT websocket
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/web/websocket
+    COMPONENT websocket
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -73,6 +74,7 @@ install(
     FILE snodec_websocket_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT websocket
 )
 
 add_subdirectory(server)

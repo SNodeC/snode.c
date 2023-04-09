@@ -23,12 +23,13 @@ set_target_properties(
 install(
     TARGETS net-un-dgram
     EXPORT snodec_net-un-dgram_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-un-dgram
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/un/dgram
+    COMPONENT net-un-dgram
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -40,4 +41,5 @@ install(
     FILE snodec_net-un-dgram_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT net-un-dgram
 )

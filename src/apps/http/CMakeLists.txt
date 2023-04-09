@@ -81,7 +81,7 @@ foreach(NET IN LISTS NETS)
                     STREAM_TYPE=${STREAM_TYPE}
         )
         install(TARGETS httpserver-${STREAM}-${NET}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
         )
 
         add_executable(
@@ -101,7 +101,7 @@ foreach(NET IN LISTS NETS)
                     STREAM_TYPE=${STREAM_TYPE}
         )
         install(TARGETS httpclient-${STREAM}-${NET}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
         )
 
         if(${STREAM} STREQUAL "tls")
@@ -124,7 +124,7 @@ foreach(NET IN LISTS NETS)
                         STREAM_TYPE=${STREAM_TYPE}
             )
             install(TARGETS httpserverclientcert-${STREAM}-${NET}
-                    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
             )
 
             add_executable(
@@ -145,7 +145,7 @@ foreach(NET IN LISTS NETS)
                         STREAM_TYPE=${STREAM_TYPE}
             )
             install(TARGETS httpclientclientcert-${STREAM}-${NET}
-                    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
             )
         endif()
     endforeach()
@@ -159,4 +159,6 @@ target_link_libraries(
     httplowlevelclient PUBLIC snodec::net-in-stream-legacy
                               snodec::net-in-stream-tls snodec::http-client
 )
-install(TARGETS httplowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS httplowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                           COMPONENT apps
+)

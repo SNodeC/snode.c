@@ -28,11 +28,13 @@ install(
     TARGETS core-socket-stream-legacy
     EXPORT snodec_core-socket-stream-legacy_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT core-socket-stream-legacy
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream/legacy
+    COMPONENT core-socket-stream-legacy
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -44,4 +46,5 @@ install(
     FILE snodec_core-socket-stream-legacy_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT core-socket-stream-legacy
 )
