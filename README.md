@@ -1598,15 +1598,172 @@ Data to reflect: Hello peer! It's nice talking to you!!!
 ...
 ```
 
-## SSL/TLS-Configuration
+## SSL/TLS Configuration
 
-SSL/TLS encryption is provided if a TLS server or client instance is created.
+SSL/TLS encryption is provided if a SSL/TLS server or client instance is created.
 
 Equivalent to all other configuration options SSL/TLS encryption can be configured either in-code, on the command line or via configuration files.
 
 In most scenarios it is sufficient to specify a CA-certificate, a certificate chain, a certificate key and, in case the key is encrypted, a password.
 
+***Important**:* CA-certificate, certificate chain, and certificate key needs to be in *PEM format*.
+
 In case a CA-certificate is configured either on the server and/or the client side a certificate request is send to the peer during the initial SSL/TLS handshake. In case the peer answers with an certificate response this response can be validated in-code in the `onConnected` callback of a `SocketServer` or `SocketClient` class.
+
+***Warning***: Passwords either provided in-code or on the command line are not obfuscated in memory during runtime. Thus it is a good idea to not specify a password in-code or on the command line. In that case OpenSSL asks for the password during application startup. This password is only used internally by OpenSSL and is removed from memory as soon as the keys have been decrypted.
+
+***Warning***: Hold all keys and their passwords secured!
+
+### SSL/TLS In-Code Configuration
+
+If the echo server instance would have been created using an SSL/TLS-SocketServer class like e.g.
+
+```c++
+using EchoServer = net::in::stream::tls::SocketServer<EchoServerContextFactory>;
+using SocketAddress = EchoServer::SocketAddress;
+
+EchoServer echoServer("echo");
+```
+
+than SSL/TLS could be configured in-code using
+
+```c++
+echoServer.getConfig().setCaCertFile("<path to X.509 CA certificate>");   // Has to be in PEM format
+echoServer.getConfig().setCertChain("<path to X.509 certificate chain>"); // Has to be in PEM format
+echoServer.getConfig().setCertKey("<path to X.509 certificate key>");     // Has to be in PEM format
+echoServer.getConfig().setCertKeyPassword("<certificate key password>");
+```
+
+The same technique can be used for the client instance
+
+```c++
+using EchoClient = net::in::stream::tls::SocketClient<EchoClientContextFactory>;
+using SocketAddress = EchoClient::SocketAddress;
+
+EchoClient echoClient("echo");
+
+echoClient.getConfig().setCaCertFile("<path to X.509 CA certificate>");   // Has to be in PEM format
+echoClient.getConfig().setCertChain("<path to X.509 certificate chain>"); // Has to be in PEM format
+echoClient.getConfig().setCertKey("<path to X.509 certificate key>");     // Has to be in PEM format
+echoClient.getConfig().setCertKeyPassword("<certificate key password>");
+```
+
+### SSL/TLS Command Line Configuration
+
+*Note*, that the in-code configuration can be overridden on the command line like all other configuration items.
+
+Using this SSL/TLS echo-instance the help screen for this *echo* instance offers an additional section *tls* which provides the command line arguments to configure SSL/TLS behaviour.
+
+```shell
+command@line:~/> echoserver echo --help
+Configuration for server instance 'echo'
+
+Usage: echoserver echo [OPTIONS] [SECTIONS]
+
+Options (none persistent):
+  -h,--help
+       Print this help message and exit
+  -a,--help-all
+       Print this help message, expand sections and exit
+  --commandline
+       Print a template command line showing required options only and exit
+  --commandline-full
+       Print a template command line showing all possible options and exit
+  --commandline-configured
+       Print a template command line showing all required and configured options and exit
+
+Options (persistent):
+  --disable={true,false} [false] 
+       Disable this instance
+
+Sections:
+  local
+       Local side of connection for instance 'echo'
+  connection
+       Configuration of established connections for instance 'echo'
+  socket
+       Configuration of socket behaviour for instance 'echo'
+  server
+       Configuration of server socket for instance 'echo'
+  cluster
+       Configuration of clustering mode for instance 'echo'
+  tls  Configuration of SSL/TLS behaviour for instance 'echo'
+```
+
+```shell
+command@line:~/> echoserver echo tls --help
+Configuration of SSL/TLS behaviour for instance 'echo'
+
+Usage: echoserver echo tls [OPTIONS]
+
+Options (none persistent):
+  -h,--help
+       Print this help message and exit
+  -a,--help-all
+       Print this help message and exit
+
+Options (persistent):
+  --cert-chain filename:PEM-FILE [<path to X.509 certificate chain>] 
+       Certificate chain file
+  --cert-key filename:PEM-FILE [<path to X.509 certificate key>] 
+       Certificate key file
+  --cert-key-password password:TEXT [<certificate key password>] 
+       Password for the certificate key file
+  --ca-cert-file filename:PEM-FILE [<path to X.509 CA certificate>]
+       CA-certificate file
+  --ca-cert-dir directory:PEM-CONTAINER 
+       CA-certificate directory
+  --ca-use-default-cert-dir={true,false} [false] 
+       Use default CA-certificate directory
+  --cipher-list cipher_list:CHIPHER 
+       Cipher list (openssl syntax)
+  --tls-options options:UINT [0] 
+       OR combined SSL/TLS options (openssl values)
+  --init-timeout timeout:POSITIVE [10] 
+       SSL/TLS initialization timeout in seconds
+  --shutdown-timeout timeout:POSITIVE [2] 
+       SSL/TLS shutdown timeout in seconds
+  --sni-cert sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...} ["" "" "" ""] ... 
+       Server Name Indication (SNI) Certificates:
+       sni = SNI of the virtual server
+       <key> = {
+                 "CertChain" -> value:PEM-FILE,
+                 "CertKey" -> value:PEM-FILE,
+                 "CertKeyPassword" -> value:TEXT,
+                 "CaCertFile" -> value:PEM-FILE,
+                 "CaCertDir" -> value:PEM-CONTAINER:DIR,
+                 "UseDefaultCaDir" -> value:BOOLEAN [false],
+                 "SslOptions" -> value:UINT
+               }
+  --force-sni={true,false} [false] 
+       Force using of the Server Name Indication
+```
+
+All available SSL/TLS options are listed in this help screen. 
+
+Thus the certificates can also bee configured running
+
+```shell
+command@line:~/> echoserver echo tls --ca-cert-file <path to X.509 CA certificate> --cert-chain <path to X.509 certificate chain> --cert-key <path to X.509 certificate key> --cert-key-password <certificate key password>
+```
+
+The demo code for this application can be found on github in the branch [named-instance-tls](https://github.com/VolkerChristian/echo/tree/named-instance-tls). Included in that branch is the directory *certs* where demo self signed CA certificate authorities with corresponding certificates for server and client can be found. This certificates have been created using the tool [XCA](https://hohnstaedt.de/xca/). The database of XCA can also be found in that directory. The password of the XCA database and the keys is always 'snode.c'. 
+
+***Warning***: Do not use this certificates for production! But the database of XCA can be used as template for own certificate creation.
+
+This certificates can be applied to the echo server and client applications either in-code or on the command line like for instance
+
+```shell
+command@line:~/> echoserver --verbose-level 10 --log-level 6 echo tls --ca-cert-file [absolute-path-to]/SNode.C-Client-CA.crt --cert-chain [absolute-path-to]/Snode.C-Server-Cert.pem --cert-key [absolute-path-to]/Snode.C-Server-Cert.key --cert-key-password snode.c
+```
+
+```shell
+command@line:~/> echoclient --verbose-level 10 --log-level 6 echo tls --ca-cert-file [absolute-path-to]/SNode.C-Server-CA.crt --cert-chain [absolute-path-to]/Snode.C-Client-Cert.pem --cert-key [absolute-path-to]/Snode.C-Client-Cert.key --cert-key-password snode.c
+```
+
+### Using SSL/TLS with Other Network Layers
+
+All provided network layers (IPv4, IPv6, Unix-Domain Sockets, RFCOMM, and L2CAP) combined with a connection oriented transport layer (SOCK_STREAM) can be secured with exactly the same technique. This is funny because e.g. bluetooth already provides encryption but can be made even more secure using SSL/TLS. But yes, we get this feature automatically due to the internal architecture of the framework.
 
 # Using more than one Instance in an Application
 
