@@ -4,13 +4,13 @@ set(CPACK_PACKAGE_NAME
     CACHE STRING "The resulting package name"
 )
 
-#set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-#    "Simple Node in C++"
-#    CACHE STRING "Package description for the package metadata"
-#)
+# set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Simple Node in C++" CACHE STRING
+# "Package description for the package metadata" )
 
 set(CPACK_PACKAGE_CONTACT "me@vchrist.at")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Volker Christian <${CPACK_PACKAGE_CONTACT}>")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER
+    "Volker Christian <${CPACK_PACKAGE_CONTACT}>"
+)
 set(CPACK_PACKAGE_VENDOR "Volker Christian")
 
 set(CPACK_VERBATIM_VARIABLES YES)
