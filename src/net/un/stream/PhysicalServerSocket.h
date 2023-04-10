@@ -19,9 +19,10 @@
 #ifndef NET_UN_STREAM_PHYSICALSERVERSOCKET_H
 #define NET_UN_STREAM_PHYSICALSERVERSOCKET_H
 
-#include "net/un/stream/PhysicalSocket.h" // IWYU pragma: export
-//
+// clang-format off
+#include "net/un/stream/PhysicalSocket.h"    // IWYU pragma: export
 #include "net/stream/PhysicalServerSocket.h" // IWYU pragma: export
+// clang-format on
 
 // IWYU pragma: no_include "net/stream/PhysicalServerSocket.hpp"
 // IWYU pragma: no_include "net/un/stream/PhysicalSocket.hpp"

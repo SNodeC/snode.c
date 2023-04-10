@@ -18,8 +18,10 @@
 
 #include "net/in6/stream/PhysicalServerSocket.h"
 
+// clang-format off
 #include "net/in6/stream/PhysicalSocket.hpp"
 #include "net/stream/PhysicalServerSocket.hpp" // IWYU pragma: keep
+// clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
