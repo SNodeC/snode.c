@@ -50,14 +50,14 @@ namespace net::in::stream::config {
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::stream::config::ConfigSocketServer<net::in::config::ConfigAddress>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
-        add_socket_option(reusePortOpt, //
-                          "--reuse-port",
-                          SOL_SOCKET,
-                          SO_REUSEPORT,
-                          "Reuse port number",
-                          "bool",
-                          "false",
-                          CLI::IsMember({"true", "false"}));
+        net::config::ConfigPhysicalSocket::add_socket_option(reusePortOpt, //
+                                                             "--reuse-port",
+                                                             SOL_SOCKET,
+                                                             SO_REUSEPORT,
+                                                             "Reuse port number",
+                                                             "bool",
+                                                             "false",
+                                                             CLI::IsMember({"true", "false"}));
     }
 
     ConfigSocketServer::~ConfigSocketServer() {
