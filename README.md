@@ -793,13 +793,13 @@ and for a `SocketServer` after an internal successful call to
 
 This does not necessarily mean that the connection is ready for communication. Especially in case of an SSL/TLS connection the initial SSL/TLS handshake has not been done yet.
 
-#### The onConnected Callback
+#### The `onConnected` Callback
 
 This callback is called after the connection has fully established and is ready for communication. In case of an SSL/TLS connection the initial SSL/TLS handshake has been successfully finished.
 
 In case of an legacy connection `onConnected` is called immediately after `onConnect` because no additional handshake needs to be done.
 
-#### The onDisconnected Callback
+#### The `onDisconnected` Callback
 
 As the name suggests this callback is executed after a connection to the peer has been shut down.
 
@@ -1474,10 +1474,10 @@ All existing configuration options specified directly in the application code ca
 The command line interface follows a well defined structure, for example
 
 ```shell
-command@line:~/> serverorclientexecutable instancename1 section1 --sec1-opt1 val111 --sec1-opt2 val12 section2 --sec2-opt1 val21 --sec2-opt2 val22 instancename2 section1  --sec1-opt1 val111 --sec1-opt2 val12 section2 --sec2-opt1 val21 --sec2-opt2 val22
+command@line:~/> serverorclientexecutable --app-opt1 val1 --app-opt2 val2 instance1 --inst-opt1 val11 --int-opt2 val12 section11 --sec1-opt1 val111 --sec1-opt2 val112 section12 --sec2-opt1 val121 --sec2-opt2 val122 instance2 --inst-opt1 val21 --inst-opt2 val22 section21 --sec1-opt1 val211 --sec1-opt2 val212 section22 --sec2-opt1 val221 --sec2-opt2 val222
 ```
 
-if two instances with instance names *instancename1* and *instancename2* are present in the executable.
+if two instances with instance names *instance1* and *instance2* are present in the executable.
 
 All section names following an instance name are treaded as sections modifying that instance as long as no other instance name is specified. In case a further instance name is given, than all sections following that second instance name are treaded as sections modifying that second instance.
 
@@ -1601,9 +1601,144 @@ Data to reflect: Hello peer! It's nice talking to you!!!
 ...
 ```
 
-## SSL/TLS Configuration
+## Configuration via a Configuration File
 
-SSL/TLS encryption is provided if a SSL/TLS server or client instance is created.
+Each configuration option which is marked as *persistent* in the help output can also be configured via a configuration file. The names of the entries for options in such an configuration file follow a well defined structure.
+
+```ini
+instancename.sectionname.optionname = value
+```
+
+Thus to configure the port number the *echoserver* with server instance name `echo`shall listen on the entry in the configuration file would look like
+
+```ini
+echo.local.port = 8080
+```
+
+and for the *echoclient* the remote hostname or ip-address and the remote port number is configured by specifying
+
+```ini
+echo.remote.host = "localhost"
+echo.remote.port = 8080
+```
+
+The content of an configuration file can be printed on screen by appending the flag `-s` on the command line.
+
+Thus, the configuration of the *echoserver* configured and made persistent on the command line above to listen on port number 8080 can be shown using
+
+```shell
+command@line:~/> echoserver -s
+```
+
+which leads to the output
+
+```ini
+## Configuration for Application 'echoserver'
+
+## Options (persistent)
+# Log level
+#log-level=3
+
+# Verbose level
+#verbose-level=0
+
+# Logfile path
+#log-file="/home/[user]/.local/log/snode.c/echoserver.log"
+
+# Enforce writing of logs to file for foreground applications
+#enforce-log-file=false
+
+# Start application as daemon
+#daemonize=false
+
+# Run daemon under specific user permissions
+#user-name="[user]"
+
+# Run daemon under specific group permissions
+#group-name="[user]"
+
+
+## Configuration for server instance 'echo'
+
+## Options (persistent)
+# Disable this instance
+#echo.disable=false
+
+
+## Local side of connection for instance 'echo'
+
+## Options (persistent)
+# Host name or IPv4 address
+#echo.local.host="0.0.0.0"
+
+# Port number
+echo.local.port=8080
+
+
+## Configuration of established connections for instance 'echo'
+
+## Options (persistent)
+# Read timeout in seconds
+#echo.connection.read-timeout=60
+
+# Write timeout in seconds
+#echo.connection.write-timeout=60
+
+# Read block size
+#echo.connection.read-block-size=16384
+
+# Write block size
+#echo.connection.write-block-size=16384
+
+# Terminate timeout
+#echo.connection.terminate-timeout=1
+
+
+## Configuration of socket behaviour for instance 'echo'
+
+## Options (persistent)
+# Reuse socket address
+#echo.socket.reuse-address=false
+
+# Reuse port number
+#echo.socket.reuse-port=false
+
+
+## Configuration of server socket for instance 'echo'
+
+## Options (persistent)
+# Listen backlog
+#echo.server.backlog=5
+
+# Accepts per tick
+#echo.server.accepts-per-tick=1
+```
+
+***Note***: Options with default values, which includes option values configured in-code, are commented in the configuration file.
+
+### Default Name of a Configuration File
+
+The default name of a configuration file is simple the application name to which `.conf` is appended.
+
+Thus, for the *echoserver* and the *echoclient* the names of their configuration files are
+
+- `echoserver.conf`
+- `echoclient.conf`
+
+### Location of Configuration Files
+
+Configuration files are stored in directories following the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html). So these directories differ if an application is run as ordinary user or the root user.
+
+- **Ordinary User**: `$HOME/.config/snode.c/`
+- **Root User**: `/etc/snode.c/`
+
+This directories are created automatically by an application in case they did not exist.
+
+## Important Configuration Sections
+
+### SSL/TLS Configuration (Section *tls*)
+
+SSL/TLS encryption is provided if a SSL/TLS server or client instance is created. Internally OpenSSL is used.
 
 Equivalent to all other configuration options SSL/TLS encryption can be configured either in-code, on the command line or via configuration files.
 
@@ -1617,7 +1752,7 @@ In case a CA-certificate is configured either on the server and/or the client si
 
 ***Warning***: Hold all keys and their passwords secured!
 
-### SSL/TLS In-Code Configuration
+#### SSL/TLS In-Code Configuration
 
 If the echo server instance would have been created using an SSL/TLS-SocketServer class like e.g.
 
@@ -1651,7 +1786,7 @@ echoClient.getConfig().setCertKey("<path to X.509 certificate key>");     // Has
 echoClient.getConfig().setCertKeyPassword("<certificate key password>");
 ```
 
-### SSL/TLS Command Line Configuration
+#### SSL/TLS Command Line Configuration
 
 *Note*, that the in-code configuration can be overridden on the command line like all other configuration items.
 
@@ -1750,7 +1885,7 @@ Thus the certificates can also bee configured running
 command@line:~/> echoserver echo tls --ca-cert-file <path to X.509 CA certificate> --cert-chain <path to X.509 certificate chain> --cert-key <path to X.509 certificate key> --cert-key-password <certificate key password>
 ```
 
-The demo code for this application can be found on github in the branch [named-instance-tls](https://github.com/VolkerChristian/echo/tree/named-instance-tls). Included in that branch is the directory *certs* where demo self signed CA certificate authorities with corresponding certificates for server and client can be found. This certificates have been created using the tool [XCA](https://hohnstaedt.de/xca/). The database of XCA can also be found in that directory. The password of the XCA database and the keys is always 'snode.c'. 
+The demo code for this application can be found on github in the branch [named-instance-tls](https://github.com/VolkerChristian/echo/tree/named-instance-tls). Included in that branch is the directory *certs* where demo self signed CA certificate authorities with corresponding certificates for server and client can be found. This certificates have been created using the tool [XCA](https://hohnstaedt.de/xca/). The database of XCA for this certificates can also be found in that directory. The password of the XCA database and the keys is always 'snode.c'. 
 
 ***Warning***: Do not use this certificates for production! But the database of XCA can be used as template for own certificate creation.
 
@@ -1764,9 +1899,33 @@ command@line:~/> echoserver --verbose-level 10 --log-level 6 echo tls --ca-cert-
 command@line:~/> echoclient --verbose-level 10 --log-level 6 echo tls --ca-cert-file [absolute-path-to]/SNode.C-Server-CA.crt --cert-chain [absolute-path-to]/Snode.C-Client-Cert.pem --cert-key [absolute-path-to]/Snode.C-Client-Cert.key --cert-key-password snode.c
 ```
 
-### Using SSL/TLS with Other Network Layers
+#### Using SSL/TLS with Other Network Layers
 
-All provided network layers (IPv4, IPv6, Unix-Domain Sockets, RFCOMM, and L2CAP) combined with a connection oriented transport layer (SOCK_STREAM) can be secured with exactly the same technique. This is funny because e.g. bluetooth already provides encryption but can be made even more secure using SSL/TLS. But yes, we get this feature automatically due to the internal architecture of the framework.
+All supported network layers (IPv4, IPv6, Unix-Domain Sockets, RFCOMM, and L2CAP) combined with a connection oriented transport layer (SOCK_STREAM) can be secured with exactly the same technique. This is funny because e.g. bluetooth already provides encryption but can be made even more secure using SSL/TLS. But yes, we get this feature automatically due to the internal architecture of the framework.
+
+### Socket Configuration (Section *socket*)
+
+Via this section socket options can be configured.
+
+#### Common *socket* Options for `SocketServer` and `SocketClient` Instances
+
+Some configuration options are common for all SocketServer and SocketClient instances
+
+| Command Line Configuration      | In-Code Configuration                                     | Description                                                  |
+| ------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------ |
+| `--reuse-address=[true, false]` | `instance.getConfig().setReuseAddress(bool reuse = true)` | This flag turns on address reuse. Thus if a socket is left in a TIME_WAIT state after application shutdown the address and port/channel/psm number tuple can be reused immediately.<br />***Recommendation***: Leave on `false` for production but set to `true` during development. |
+
+#### Specific *socket* Options for IPv4 and IPv6 `SocketServer` 
+
+| Command Line Configuration   | In-Code Configuration                                  | Description                                                  |
+| ---------------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
+| `--reuse-port=[true, false]` | `instance.getConfig().setReusePort(bool reuse = true)` | This flag turns on port reuse so multiple server applications can listening on the same address and port number tuple simultaneously.<br />With this option set to `true` one can start an server application multiple times and the operating system (Linux) routes incoming client connection requests randomly to one of the running application instances. So one can achieve a simple load balancing/multitasking application. |
+
+#### Specific *socket* Options for IPv6 `SocketServer` and `SocketClient`
+
+| Command Line Configuration  | In-Code Configuration                                | Description                                                  |
+| --------------------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
+| `--ipv6-only=[true, false]` | `instance.getConfig().setIPv6Only(bool only = true)` | By default if a IPv6 socket is created on Linux it is a dual-stack socket also using IPv4 addresses. In case this flag is set to `true` a pure IPv6 socket is created. |
 
 # Using more than one Instance in an Application
 
