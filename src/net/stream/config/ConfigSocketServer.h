@@ -19,11 +19,11 @@
 #ifndef NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigAddressLocal.h" // IWYU pragma: export
-#include "net/config/ConfigCluster.h"
-#include "net/config/ConfigConnection.h"
-#include "net/config/ConfigListen.h"
-#include "net/config/ConfigPhysicalSocket.h"
+#include "net/config/ConfigAddressLocal.h"   // IWYU pragma: export
+#include "net/config/ConfigCluster.h"        // IWYU pragma: export
+#include "net/config/ConfigConnection.h"     // IWYU pragma: export
+#include "net/config/ConfigListen.h"         // IWYU pragma: export
+#include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;

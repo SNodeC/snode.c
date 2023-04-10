@@ -19,10 +19,10 @@
 #ifndef NET_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/config/ConfigAddressLocal.h"  // IWYU pragma: export
-#include "net/config/ConfigAddressRemote.h" // IWYU pragma: export
-#include "net/config/ConfigConnection.h"
-#include "net/config/ConfigPhysicalSocket.h"
+#include "net/config/ConfigAddressLocal.h"   // IWYU pragma: export
+#include "net/config/ConfigAddressRemote.h"  // IWYU pragma: export
+#include "net/config/ConfigConnection.h"     // IWYU pragma: export
+#include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
