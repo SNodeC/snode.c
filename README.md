@@ -93,10 +93,18 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [Anatomy of the Command Line Interface](#anatomy-of-the-command-line-interface)
       * [Using the Parameterless listen() Methods when no Configuration File exists](#using-the-parameterless-listen-methods-when-no-configuration-file-exists)
       * [Command Line Configuration of the Client Instance EchoClient](#command-line-configuration-of-the-client-instance-echoclient)
-   * [SSL/TLS Configuration](#ssltls-configuration)
-      * [SSL/TLS In-Code Configuration](#ssltls-in-code-configuration)
-      * [SSL/TLS Command Line Configuration](#ssltls-command-line-configuration)
-      * [Using SSL/TLS with Other Network Layers](#using-ssltls-with-other-network-layers)
+   * [Configuration via a Configuration File](#configuration-via-a-configuration-file)
+      * [Default Name of a Configuration File](#default-name-of-a-configuration-file)
+      * [Location of Configuration Files](#location-of-configuration-files)
+   * [Important Configuration Sections](#important-configuration-sections)
+      * [SSL/TLS Configuration (Section <em>tls</em>)](#ssltls-configuration-section-tls)
+         * [SSL/TLS In-Code Configuration](#ssltls-in-code-configuration)
+         * [SSL/TLS Command Line Configuration](#ssltls-command-line-configuration)
+         * [Using SSL/TLS with Other Network Layers](#using-ssltls-with-other-network-layers)
+      * [Socket Configuration (Section <em>socket</em>)](#socket-configuration-section-socket)
+         * [Common <em>socket</em> Options for SocketServer and SocketClient Instances](#common-socket-options-for-socketserver-and-socketclient-instances)
+         * [Specific <em>socket</em> Options for IPv4 and IPv6 SocketServer](#specific-socket-options-for-ipv4-and-ipv6-socketserver)
+         * [Specific <em>socket</em> Options for IPv6 SocketServer and SocketClient](#specific-socket-options-for-ipv6-socketserver-and-socketclient)
 * [Using more than one Instance in an Application](#using-more-than-one-instance-in-an-application)
 * [Highlevel WEB-API a'la Node.JS-Express](#highlevel-web-api-ala-nodejs-express)
 * [Websockets](#websockets)
@@ -106,7 +114,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Mon Apr 10 11:50:47 UTC 2023 -->
+<!-- Added by: runner, at: Mon Apr 10 17:04:34 UTC 2023 -->
 
 <!--te-->
 
