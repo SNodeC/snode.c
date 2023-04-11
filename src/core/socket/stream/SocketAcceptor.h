@@ -39,21 +39,19 @@ namespace core::socket::stream {
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
+    public:
+        using Config = ConfigT;
+
     private:
         using PrimaryPhysicalSocket = PhysicalServerSocketT;
         using SecondarySocket = net::un::dgram::Socket;
 
-    public:
-        using Config = ConfigT;
-
     protected:
+        using SocketAddress = typename PrimaryPhysicalSocket::SocketAddress;
         using SocketConnection = SocketConnectionT<PrimaryPhysicalSocket>;
 
     private:
         using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PrimaryPhysicalSocket, Config, SocketConnection>;
-
-    protected:
-        using SocketAddress = typename PrimaryPhysicalSocket::SocketAddress;
 
     public:
         SocketAcceptor() = delete;

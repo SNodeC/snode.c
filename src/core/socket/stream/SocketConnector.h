@@ -36,20 +36,18 @@ namespace core::socket::stream {
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
-    private:
-        using PhysicalSocket = PhysicalClientSocketT;
-
     public:
         using Config = ConfigT;
 
+    private:
+        using PhysicalSocket = PhysicalClientSocketT;
+
     protected:
+        using SocketAddress = typename PhysicalSocket::SocketAddress;
         using SocketConnection = SocketConnectionT<PhysicalSocket>;
 
     private:
         using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>;
-
-    protected:
-        using SocketAddress = typename PhysicalSocket::SocketAddress;
 
     public:
         SocketConnector() = delete;
