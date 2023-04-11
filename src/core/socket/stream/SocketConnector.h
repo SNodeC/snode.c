@@ -32,23 +32,23 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketClientT, template <typename PhysicalSocket> class SocketConnectionT>
+    //    template <typename SocketClientT, template <typename PhysicalSocket> class SocketConnectionT>
+    template <typename PhysicalSocketT, typename ConfigT, template <typename PhysicalServerSocketT> class SocketConnectionT>
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
     private:
-        using SocketClient = SocketClientT;
-        using PhysicalSocket = typename SocketClient::PhysicalSocket;
+        using PhysicalSocket = PhysicalSocketT;
 
     public:
-        using Config = typename SocketClient::Config;
+        using Config = ConfigT;
 
     protected:
         using SocketConnection = SocketConnectionT<PhysicalSocket>;
         using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>;
 
     public:
-        using SocketAddress = typename SocketClient::SocketAddress;
+        using SocketAddress = typename PhysicalSocket::SocketAddress;
 
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;

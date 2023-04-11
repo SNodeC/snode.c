@@ -36,7 +36,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalClientSocketT,
               typename ConfigT,
-              template <typename PhysicalClientSocket>
+              template <typename PhysicalClientSocket, typename Config>
               class SocketConnectorT,
               typename SocketContextFactoryT>
     class SocketClient : public core::socket::LogicalSocket<PhysicalClientSocketT, ConfigT> {
@@ -47,7 +47,7 @@ namespace core::socket::stream {
         */
     private:
         using Super = core::socket::LogicalSocket<PhysicalClientSocketT, ConfigT>;
-        using SocketConnector = SocketConnectorT<Super>;
+        using SocketConnector = SocketConnectorT<PhysicalClientSocketT, ConfigT>;
         using SocketContextFactory = SocketContextFactoryT;
 
     protected:

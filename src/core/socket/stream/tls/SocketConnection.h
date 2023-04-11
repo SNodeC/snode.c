@@ -245,7 +245,7 @@ namespace core::socket::stream::tls {
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;
 
-        template <typename SocketServer>
+        template <typename PhysicalSocket, typename Config>
         friend class SocketConnector;
     };
 

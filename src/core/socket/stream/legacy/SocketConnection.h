@@ -75,7 +75,7 @@ namespace core::socket::stream::legacy {
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;
 
-        template <typename SocketServer>
+        template <typename PhysicalSocket, typename Config>
         friend class SocketConnector;
     };
 
