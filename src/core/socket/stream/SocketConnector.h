@@ -40,12 +40,14 @@ namespace core::socket::stream {
         using SocketClient = SocketClientT;
         using PhysicalSocket = typename SocketClient::PhysicalSocket;
 
-    protected:
-        using SocketConnection = SocketConnectionT<PhysicalSocket>;
-        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<SocketClient, SocketConnection>;
-
     public:
         using Config = typename SocketClient::Config;
+
+    protected:
+        using SocketConnection = SocketConnectionT<PhysicalSocket>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>;
+
+    public:
         using SocketAddress = typename SocketClient::SocketAddress;
 
         SocketConnector() = delete;

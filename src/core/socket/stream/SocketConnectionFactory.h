@@ -35,11 +35,10 @@ namespace core::socket::stream {
 
 namespace core::socket::stream {
 
-    template <typename SocketRoleT, typename SocketConnectionT>
+    template <typename PhysicalSocketT, typename ConfigT, typename SocketConnectionT>
     class SocketConnectionFactory {
     private:
-        using SocketRole = SocketRoleT;
-        using PhysicalSocket = typename SocketRoleT::PhysicalSocket;
+        using PhysicalSocket = PhysicalSocketT;
 
     protected:
         using SocketConnection = SocketConnectionT;
@@ -61,7 +60,7 @@ namespace core::socket::stream {
             , onDisconnect(onDisconnect) {
         }
 
-        using Config = typename SocketRole::Config;
+        using Config = ConfigT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
         bool create(PhysicalSocket& physicalSocket, const std::shared_ptr<Config>& config) {

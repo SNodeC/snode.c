@@ -44,12 +44,14 @@ namespace core::socket::stream {
         using PrimaryPhysicalSocket = typename SocketServer::PhysicalSocket;
         using SecondarySocket = net::un::dgram::Socket;
 
-    protected:
-        using SocketConnection = SocketConnectionT<PrimaryPhysicalSocket>;
-        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<SocketServer, SocketConnection>;
-
     public:
         using Config = typename SocketServer::Config;
+
+    protected:
+        using SocketConnection = SocketConnectionT<PrimaryPhysicalSocket>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PrimaryPhysicalSocket, Config, SocketConnection>;
+
+    public:
         using SocketAddress = typename PrimaryPhysicalSocket::SocketAddress;
 
         SocketAcceptor() = delete;
