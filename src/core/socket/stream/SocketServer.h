@@ -34,7 +34,7 @@
 
 namespace core::socket::stream {
 
-    template <typename LogicalSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
+    template <typename LogicalSocketT, typename SocketAddressT, typename SocketAcceptorT, typename SocketContextFactoryT>
     class SocketServer : public LogicalSocketT {
     private:
         using Super = LogicalSocketT;
@@ -43,7 +43,7 @@ namespace core::socket::stream {
 
     protected:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
-        using SocketAddress = typename Super::SocketAddress;
+        using SocketAddress = SocketAddressT;
 
     public:
         SocketServer() = delete;

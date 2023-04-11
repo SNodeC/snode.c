@@ -36,11 +36,9 @@ namespace core::socket {
     // net::NET::STREAM::SocketClient                  |    NET STREAM specific connect methods
     // net::NET::STREAM::ENCRYPTION::SocketClient      |    NET STREAM ENCRYPTION alias Template
 
-    template <typename PhysicalSocketT, typename ConfigT>
+    template <typename ConfigT>
     class LogicalSocket {
     public:
-        using PhysicalSocket = PhysicalSocketT;
-        using SocketAddress = typename PhysicalSocket::SocketAddress;
         using Config = ConfigT;
 
         explicit LogicalSocket(const std::string& name);

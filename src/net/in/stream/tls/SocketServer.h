@@ -37,6 +37,6 @@ namespace net::in::stream::tls {
 
 } // namespace net::in::stream::tls
 
-extern template class core::socket::LogicalSocket<net::in::stream::PhysicalServerSocket, net::in::stream::tls::config::ConfigSocketServer>;
+extern template class core::socket::LogicalSocket<net::in::stream::tls::config::ConfigSocketServer>;
 
 #endif // NET_IN_STREAM_TLS_SOCKETSERVER_H

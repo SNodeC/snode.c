@@ -24,4 +24,4 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-template class core::socket::LogicalSocket<net::in6::stream::PhysicalClientSocket, net::in6::stream::legacy::config::ConfigSocketClient>;
+template class core::socket::LogicalSocket<net::in6::stream::legacy::config::ConfigSocketClient>;

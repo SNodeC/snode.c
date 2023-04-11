@@ -37,7 +37,6 @@ namespace net::in::stream::legacy {
 
 } // namespace net::in::stream::legacy
 
-extern template class core::socket::LogicalSocket<net::in::stream::PhysicalServerSocket,
-                                                  net::in::stream::legacy::config::ConfigSocketServer>;
+extern template class core::socket::LogicalSocket<net::in::stream::legacy::config::ConfigSocketServer>;
 
 #endif // NET_IN_STREAM_LEGACY_SOCKETSERVER_H

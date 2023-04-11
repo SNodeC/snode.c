@@ -24,17 +24,17 @@
 
 namespace core::socket {
 
-    template <typename PhysicalSocket, typename Config>
-    LogicalSocket<PhysicalSocket, Config>::LogicalSocket(const std::string& name)
+    template <typename Config>
+    LogicalSocket<Config>::LogicalSocket(const std::string& name)
         : config(std::make_shared<Config>(name)) {
     }
 
-    template <typename PhysicalSocket, typename Config>
-    LogicalSocket<PhysicalSocket, Config>::~LogicalSocket() {
+    template <typename Config>
+    LogicalSocket<Config>::~LogicalSocket() {
     }
 
-    template <typename PhysicalSocket, typename Config>
-    Config& LogicalSocket<PhysicalSocket, Config>::getConfig() const {
+    template <typename Config>
+    Config& LogicalSocket<Config>::getConfig() const {
         return *config;
     }
 

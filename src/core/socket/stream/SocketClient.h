@@ -34,7 +34,7 @@
 
 namespace core::socket::stream {
 
-    template <typename LogicalSocketT, typename SocketConnectorT, typename SocketContextFactoryT>
+    template <typename LogicalSocketT, typename SocketAddressT, typename SocketConnectorT, typename SocketContextFactoryT>
     class SocketClient : public LogicalSocketT {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
@@ -48,7 +48,7 @@ namespace core::socket::stream {
 
     protected:
         using SocketConnection = typename SocketConnector::SocketConnection;
-        using SocketAddress = typename SocketConnection::SocketAddress;
+        using SocketAddress = SocketAddressT;
 
     public:
         SocketClient() = delete;
