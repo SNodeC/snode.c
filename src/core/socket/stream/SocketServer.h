@@ -36,13 +36,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalServerSocketT,
               typename ConfigT,
-              template <typename PhysicalServerSocket>
+              template <typename PhysicalServerSocket, typename Config>
               class SocketAcceptorT,
               typename SocketContextFactoryT>
     class SocketServer : public core::socket::LogicalSocket<PhysicalServerSocketT, ConfigT> {
     private:
         using Super = core::socket::LogicalSocket<PhysicalServerSocketT, ConfigT>;
-        using SocketAcceptor = SocketAcceptorT<Super>;
+        using SocketAcceptor = SocketAcceptorT<PhysicalServerSocketT, ConfigT>;
         using SocketContextFactory = SocketContextFactoryT;
 
     protected:

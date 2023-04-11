@@ -72,7 +72,7 @@ namespace core::socket::stream::legacy {
                   terminateTimeout) {
         }
 
-        template <typename SocketServer>
+        template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;
 
         template <typename SocketServer>
