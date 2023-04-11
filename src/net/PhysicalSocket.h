@@ -41,7 +41,7 @@ namespace net {
     public:
         using SocketAddress = SocketAddressT;
 
-        PhysicalSocket();
+        PhysicalSocket() = delete;
         PhysicalSocket(int fd);
         PhysicalSocket(int domain, int type, int protocol);
 

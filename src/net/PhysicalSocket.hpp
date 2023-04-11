@@ -29,11 +29,6 @@
 namespace net {
 
     template <typename SocketAddress>
-    PhysicalSocket<SocketAddress>::PhysicalSocket() {
-        core::Descriptor::attach(-1);
-    }
-
-    template <typename SocketAddress>
     PhysicalSocket<SocketAddress>::PhysicalSocket(int fd) {
         core::Descriptor::attach(fd);
 
