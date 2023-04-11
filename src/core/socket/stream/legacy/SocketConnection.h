@@ -72,10 +72,10 @@ namespace core::socket::stream::legacy {
                   terminateTimeout) {
         }
 
-        template <typename ServerSocket>
+        template <typename SocketServer>
         friend class SocketAcceptor;
 
-        template <typename ClientSocket>
+        template <typename SocketServer>
         friend class SocketConnector;
     };
 

@@ -242,10 +242,10 @@ namespace core::socket::stream::tls {
         utils::Timeval sslInitTimeout;
         utils::Timeval sslShutdownTimeout;
 
-        template <typename PhysicalServerSocket>
+        template <typename SocketServer>
         friend class SocketAcceptor;
 
-        template <typename PhysicalClientSocket>
+        template <typename SocketServer>
         friend class SocketConnector;
     };
 
