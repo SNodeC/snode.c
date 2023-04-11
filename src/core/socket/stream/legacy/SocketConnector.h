@@ -30,7 +30,7 @@ namespace core::socket::stream::legacy {
 
     template <typename PhysicalClientSocketT, typename ConfigT>
     class SocketConnector
-        : protected core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::legacy::SocketConnection> {
+        : private core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::legacy::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::legacy::SocketConnection>;
         using SocketAddress = typename Super::SocketAddress;

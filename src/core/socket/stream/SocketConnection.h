@@ -60,9 +60,9 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketT,
               template <typename PhysicalSocket>
-              class SocketReaderT,
+              typename SocketReaderT,
               template <typename PhysicalSocket>
-              class SocketWriterT>
+              typename SocketWriterT>
     class SocketConnectionT
         : public SocketConnection
         , protected SocketReaderT<PhysicalSocketT>

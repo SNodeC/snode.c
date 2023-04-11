@@ -36,7 +36,7 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalServerSocketT, typename ConfigT>
     class SocketAcceptor
-        : protected core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
+        : private core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
         using SocketAddress = typename Super::SocketAddress;
