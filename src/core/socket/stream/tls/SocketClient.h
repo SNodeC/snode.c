@@ -36,11 +36,15 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalClientSocketT, typename ConfigT, typename SocketContextFactoryT>
     class SocketClient
-        : public core::socket::stream::
-              SocketClient<PhysicalClientSocketT, ConfigT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT> {
+        : public core::socket::stream::SocketClient<PhysicalClientSocketT,
+                                                    ConfigT,
+                                                    core::socket::stream::tls::SocketConnector<PhysicalClientSocketT, ConfigT>,
+                                                    SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::
-            SocketClient<PhysicalClientSocketT, ConfigT, core::socket::stream::tls::SocketConnector, SocketContextFactoryT>;
+        using Super = core::socket::stream::SocketClient<PhysicalClientSocketT,
+                                                         ConfigT,
+                                                         core::socket::stream::tls::SocketConnector<PhysicalClientSocketT, ConfigT>,
+                                                         SocketContextFactoryT>;
 
     public:
         using SocketConnection = typename Super::SocketConnection;

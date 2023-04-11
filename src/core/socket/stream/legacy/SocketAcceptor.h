@@ -28,7 +28,6 @@
 
 namespace core::socket::stream::legacy {
 
-    //    template <typename SocketServerT>
     template <typename PhysicalSocketT, typename ConfigT>
     class SocketAcceptor
         : protected core::socket::stream::SocketAcceptor<PhysicalSocketT, ConfigT, core::socket::stream::legacy::SocketConnection> {

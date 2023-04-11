@@ -35,7 +35,6 @@
 
 namespace core::socket::stream {
 
-    //    template <typename SocketServerT, template <typename PhysicalServerSocketT> class SocketConnectionT>
     template <typename PhysicalSocketT, typename ConfigT, template <typename PhysicalServerSocketT> class SocketConnectionT>
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver

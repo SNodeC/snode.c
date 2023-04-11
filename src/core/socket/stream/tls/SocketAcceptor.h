@@ -34,7 +34,6 @@
 
 namespace core::socket::stream::tls {
 
-    //    template <typename SocketServerT>
     template <typename PhysicalSocketT, typename ConfigT>
     class SocketAcceptor
         : protected core::socket::stream::SocketAcceptor<PhysicalSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
