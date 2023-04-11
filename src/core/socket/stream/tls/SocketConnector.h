@@ -30,11 +30,11 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalSocketT, typename ConfigT>
+    template <typename PhysicalClientSocketT, typename ConfigT>
     class SocketConnector
-        : protected core::socket::stream::SocketConnector<PhysicalSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
+        : protected core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
     private:
-        using Super = core::socket::stream::SocketConnector<PhysicalSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
+        using Super = core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
         using SocketAddress = typename Super::SocketAddress;
         using Config = ConfigT;
 

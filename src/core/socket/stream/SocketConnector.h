@@ -32,12 +32,12 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocketT, typename ConfigT, template <typename PhysicalServerSocketT> class SocketConnectionT>
+    template <typename PhysicalClientSocketT, typename ConfigT, template <typename PhysicalClientSocket> class SocketConnectionT>
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
     private:
-        using PhysicalSocket = PhysicalSocketT;
+        using PhysicalSocket = PhysicalClientSocketT;
 
     public:
         using Config = ConfigT;

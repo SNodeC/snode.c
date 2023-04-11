@@ -35,12 +35,12 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocketT, typename ConfigT, template <typename PhysicalServerSocketT> class SocketConnectionT>
+    template <typename PhysicalServerSocketT, typename ConfigT, template <typename PhysicalServerSocket> class SocketConnectionT>
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
     private:
-        using PrimaryPhysicalSocket = PhysicalSocketT;
+        using PrimaryPhysicalSocket = PhysicalServerSocketT;
         using SecondarySocket = net::un::dgram::Socket;
 
     public:
