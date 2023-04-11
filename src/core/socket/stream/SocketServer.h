@@ -34,10 +34,10 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalServerSocketT, typename ConfigT, typename SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public core::socket::LogicalSocket<PhysicalServerSocketT, ConfigT> {
+    template <typename LogicalSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
+    class SocketServer : public LogicalSocketT {
     private:
-        using Super = core::socket::LogicalSocket<PhysicalServerSocketT, ConfigT>;
+        using Super = LogicalSocketT;
         using SocketAcceptor = SocketAcceptorT;
         using SocketContextFactory = SocketContextFactoryT;
 

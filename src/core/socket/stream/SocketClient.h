@@ -34,15 +34,15 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalClientSocketT, typename ConfigT, typename SocketConnectorT, typename SocketContextFactoryT>
-    class SocketClient : public core::socket::LogicalSocket<PhysicalClientSocketT, ConfigT> {
+    template <typename LogicalSocketT, typename SocketConnectorT, typename SocketContextFactoryT>
+    class SocketClient : public LogicalSocketT {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
         !include core/socket/stream/pu/SocketClient.pu
         @enduml
         */
     private:
-        using Super = core::socket::LogicalSocket<PhysicalClientSocketT, ConfigT>;
+        using Super = LogicalSocketT;
         using SocketConnector = SocketConnectorT;
         using SocketContextFactory = SocketContextFactoryT;
 
