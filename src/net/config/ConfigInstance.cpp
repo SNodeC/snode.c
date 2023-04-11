@@ -131,6 +131,8 @@ namespace net::config {
 
         instanceSc //
             ->required(requiredCount > 0);
+
+        utils::Config::needs_instance(instanceSc);
     }
 
     bool ConfigInstance::getRequired() const {

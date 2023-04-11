@@ -49,6 +49,7 @@ namespace utils {
         static void terminate();
 
         static CLI::App* add_instance(const std::string& name, const std::string& description);
+        static void needs_instance(CLI::App* instance);
 
         static bool remove_instance(CLI::App* instance);
 

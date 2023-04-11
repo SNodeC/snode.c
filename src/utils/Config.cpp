@@ -757,6 +757,7 @@ namespace utils {
                                  ->fallthrough()
                                  ->group(name.empty() ? "" : "Instances")
                                  ->silent(name.empty());
+        app.needs(instance);
         instance //
             ->option_defaults()
             ->configurable(!name.empty());
@@ -827,7 +828,19 @@ namespace utils {
         return instance;
     }
 
+    void Config::needs_instance(CLI::App* instance) {
+        if (instance->get_required()) {
+            app.needs(instance);
+        } else {
+            app.remove_needs(instance);
+        }
+    }
+
     bool Config::remove_instance(CLI::App* instance) {
+        instance->required(false);
+
+        Config::needs_instance(instance);
+
         return app.remove_subcommand(instance);
     }
 
