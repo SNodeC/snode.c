@@ -44,11 +44,14 @@ namespace core::socket::stream {
 
     protected:
         using SocketConnection = SocketConnectionT<PhysicalSocket>;
+
+    private:
         using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>;
 
-    public:
+    protected:
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
+    public:
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector(SocketConnector&&) = delete;

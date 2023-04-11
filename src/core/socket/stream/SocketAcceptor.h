@@ -48,11 +48,14 @@ namespace core::socket::stream {
 
     protected:
         using SocketConnection = SocketConnectionT<PrimaryPhysicalSocket>;
+
+    private:
         using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PrimaryPhysicalSocket, Config, SocketConnection>;
 
-    public:
+    protected:
         using SocketAddress = typename PrimaryPhysicalSocket::SocketAddress;
 
+    public:
         SocketAcceptor() = delete;
         SocketAcceptor(const SocketAcceptor&) = delete;
         SocketAcceptor(SocketAcceptor&&) = delete;
