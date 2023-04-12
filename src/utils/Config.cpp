@@ -829,9 +829,9 @@ namespace utils {
 
     void Config::needs_instance(CLI::App* instance) {
         if (instance->get_required()) {
-            //            app.needs(instance);
+            app.needs(instance);
         } else {
-            //            app.remove_needs(instance);
+            app.remove_needs(instance);
         }
     }
 
