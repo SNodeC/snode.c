@@ -31,7 +31,7 @@ namespace iot::mqtt_fast {
 #include <cstdint> // IWYU pragma: export
 #include <list>    // IWYU pragma: export
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define MQTT_SUBSCRIBE 0x08
 

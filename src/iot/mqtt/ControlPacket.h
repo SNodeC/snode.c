@@ -24,7 +24,7 @@
 #include <cstdint> // IWYU pragma: export
 #include <vector>  // IWYU pragma: export
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define MQTT_CONNECT 0x01
 #define MQTT_CONNACK 0x02

@@ -33,7 +33,7 @@
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::server::broker {
 

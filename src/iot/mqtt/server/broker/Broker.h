@@ -34,7 +34,7 @@ namespace iot::mqtt::server {
 #include <memory>
 #include <string>
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define SUBSCRIBTION_MAX_QOS 0x02
 

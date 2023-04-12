@@ -37,7 +37,7 @@ namespace CLI {
     class Validator;
 } // namespace CLI
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
 

@@ -28,7 +28,7 @@ namespace iot::mqtt {
 #include <cstddef> // IWYU pragma: export
 #include <vector>  // IWYU pragma: export
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::types {
 

@@ -18,14 +18,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-@if '%{NameSp}'
-namespace %{NameSp} {
-@endif
+@ if '%{NameSp}' namespace % {NameSp} {
+    @endif
 
-
-%{JS: Cpp.closeNamespaces('%{Class}')}
-@if '%{NameSp}'
+        % {
+    JS:
+        Cpp.closeNamespaces('%{Class}')
+    }
+    @ if '%{NameSp}'
 } // %{NameSp}
 @endif

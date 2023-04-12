@@ -43,7 +43,7 @@
 #include <cstdint>
 #include <iomanip>
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::server {
 

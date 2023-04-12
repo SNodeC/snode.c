@@ -16,44 +16,49 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@if '%{Cpp:PragmaOnce}'
+@ if '%{Cpp:PragmaOnce}'
 #pragma once
-@else
-#ifndef %{GUARD}
-#define %{GUARD}
-@endif
+    @ else
+#ifndef % {GUARD }
+#define % {GUARD }
+    @endif
 
-@if '%{Base}'
+    @ if '%{Base}'
 #include "%{Base}.h"
 
-@endif
+    @endif
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-@if '%{NameSp}'
-namespace %{NameSp} {
-@endif
+    @ if '%{NameSp}' namespace %
+    {NameSp} {
+    @endif
 
-@if '%{Base}'
-class %{CN} : public %{Base}
-@else
-class %{CN}
-@endif
-{
-public:
-    %{CN}();
-    %{CN}(const %{CN} &) = default;
+        @ if '%{Base}' class
+        % {CN} : public % {
+        Base
+    }
+    @ else class % {
+        CN
+    }
+    @endif {
+    public:
+        % {CN}();
+        % {CN}(const % {CN}&) = default;
 
-    %{CN} &operator=(const %{CN} &) = default;
+        % {CN}& operator=(const % {CN}&) = default;
 
-    ~%{CN}();
-};
-%{JS: Cpp.closeNamespaces('%{Class}')}
-@if '%{NameSp}'
+        ~ % {CN}();
+    };
+    % {
+    JS:
+        Cpp.closeNamespaces('%{Class}')
+    }
+    @ if '%{NameSp}'
 } // %{NameSp}
 @endif
 
-@if ! '%{Cpp:PragmaOnce}'
+    @ if !'%{Cpp:PragmaOnce}'
 #endif // %{GUARD}
-@endif
+    @endif

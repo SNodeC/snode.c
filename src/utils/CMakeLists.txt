@@ -57,6 +57,7 @@ install(
     COMPONENT utils
     FILES_MATCHING
     PATTERN "*.h"
+    PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
 )
 

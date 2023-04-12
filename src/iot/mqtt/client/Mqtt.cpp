@@ -46,7 +46,7 @@
 
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::client {
 
