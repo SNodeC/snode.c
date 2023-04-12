@@ -20,6 +20,7 @@
 
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
+#include "utils/Validators.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,13 +45,13 @@ namespace net::config {
                    "Certificate chain file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}).description(""));
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsValue(std::string{}).description(""));
         add_option(certKeyOpt, //
                    "--cert-key",
                    "Certificate key file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}).description(""));
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsValue(std::string{}).description(""));
         add_option(certKeyPasswordOpt,
                    "--cert-key-password",
                    "Password for the certificate key file",
@@ -62,13 +63,13 @@ namespace net::config {
                    "CA-certificate file",
                    "filename",
                    "",
-                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsMember({""}).description(""));
+                   CLI::detail::ExistingFileValidator().description("PEM-FILE") | CLI::IsValue(std::string{}).description(""));
         add_option(caCertDirOpt,
                    "--ca-cert-dir",
                    "CA-certificate directory",
                    "directory",
                    "",
-                   CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER") | CLI::IsMember({""}).description(""));
+                   CLI::detail::ExistingDirectoryValidator().description("PEM-CONTAINER") | CLI::IsValue(std::string{}).description(""));
         add_flag(useDefaultCaCertDirOpt,
                  "--ca-use-default-cert-dir",
                  "Use default CA-certificate directory",
