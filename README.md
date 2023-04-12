@@ -120,7 +120,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
 
 # License
 
-SNode.C is released under the **GNU Lesser General Public License, Version 3** ([<https://www.gnu.org/licenses/lgpl-3.0.html.en>](https://www.gnu.org/licenses/lgpl-3.0.html.en)
+SNode.C is released under the **GNU Lesser General Public License, Version 3** ([<https://www.gnu.org/licenses/lgpl-3.0.html.en>](https://www.gnu.org/licenses/lgpl-3.0.html.en))
 
 # Copyright
 
