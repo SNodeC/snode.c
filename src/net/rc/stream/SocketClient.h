@@ -36,10 +36,9 @@ namespace net::rc::stream {
     private:
         using Super = SocketClientT;
 
-    protected:
+    public:
         using Super::Super;
 
-    public:
         using Super::connect;
 
         void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {

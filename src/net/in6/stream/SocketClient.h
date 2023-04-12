@@ -36,10 +36,9 @@ namespace net::in6::stream {
     private:
         using Super = SocketClientT;
 
-    protected:
+    public:
         using Super::Super;
 
-    public:
         using Super::connect;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {

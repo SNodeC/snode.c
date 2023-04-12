@@ -36,10 +36,9 @@ namespace net::l2::stream {
     private:
         using Super = SocketClientT;
 
-    protected:
+    public:
         using Super::Super;
 
-    public:
         using Super::connect;
 
         void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {

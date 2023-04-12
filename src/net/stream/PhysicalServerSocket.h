@@ -35,10 +35,10 @@ namespace net::stream {
         using Super = net::PhysicalSocket<SocketAddressT>;
 
     public:
+        using SocketAddress = SocketAddressT;
+
         using Super::Super;
         using Super::operator=;
-
-        using SocketAddress = SocketAddressT;
 
         int listen(int backlog);
 

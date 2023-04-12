@@ -36,10 +36,9 @@ namespace net::rc::stream {
     private:
         using Super = SocketServerT;
 
-    protected:
+    public:
         using Super::Super;
 
-    public:
         using Super::listen;
 
         void listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {

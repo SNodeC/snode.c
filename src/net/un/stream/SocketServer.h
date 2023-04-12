@@ -36,10 +36,9 @@ namespace net::un::stream {
     private:
         using Super = SocketServerT;
 
-    protected:
+    public:
         using Super::Super;
 
-    public:
         using Super::listen;
 
         void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) const {
