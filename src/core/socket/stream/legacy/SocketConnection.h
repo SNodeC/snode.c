@@ -56,21 +56,7 @@ namespace core::socket::stream::legacy {
                          const utils::Timeval& writeTimeout,
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
-                         const utils::Timeval& terminateTimeout)
-            : Super(
-                  fd,
-                  socketContextFactory,
-                  localAddress,
-                  remoteAddress,
-                  [onDisconnect, this]() -> void {
-                      onDisconnect(this);
-                  },
-                  readTimeout,
-                  writeTimeout,
-                  readBlockSize,
-                  writeBlockSize,
-                  terminateTimeout) {
-        }
+                         const utils::Timeval& terminateTimeout);
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;

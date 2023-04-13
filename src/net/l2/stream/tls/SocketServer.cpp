@@ -18,10 +18,15 @@
 
 #include "net/l2/stream/tls/SocketServer.h"
 
-#include "core/socket/LogicalSocket.hpp" // IWYU pragma: keep
+#include "core/socket/LogicalSocket.hpp"               // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketAcceptor.hpp"   // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketConnection.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class core::socket::LogicalSocket<net::l2::stream::tls::config::ConfigSocketServer>;
+template class core::socket::stream::tls::SocketAcceptor<net::l2::stream::PhysicalServerSocket,
+                                                         net::l2::stream::tls::config::ConfigSocketServer>;
+template class core::socket::stream::tls::SocketConnection<net::l2::stream::PhysicalServerSocket>;

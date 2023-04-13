@@ -19,6 +19,8 @@
 #ifndef NET_L2_STREAM_LEGACY_SOCKETSERVER_H
 #define NET_L2_STREAM_LEGACY_SOCKETSERVER_H
 
+#include "core/socket/stream/legacy/SocketAcceptor.h"
+#include "core/socket/stream/legacy/SocketConnection.h"
 #include "core/socket/stream/legacy/SocketServer.h"         // IWYU pragma: export
 #include "net/l2/stream/SocketServer.h"                     // IWYU pragma: export
 #include "net/l2/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: export
@@ -38,5 +40,8 @@ namespace net::l2::stream::legacy {
 } // namespace net::l2::stream::legacy
 
 extern template class core::socket::LogicalSocket<net::l2::stream::legacy::config::ConfigSocketServer>;
+extern template class core::socket::stream::legacy::SocketAcceptor<net::l2::stream::PhysicalServerSocket,
+                                                                   net::l2::stream::legacy::config::ConfigSocketServer>;
+extern template class core::socket::stream::legacy::SocketConnection<net::l2::stream::PhysicalServerSocket>;
 
 #endif // NET_L2_STREAM_LEGACY_SOCKETSERVER_H

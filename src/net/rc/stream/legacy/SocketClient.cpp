@@ -18,10 +18,15 @@
 
 #include "net/rc/stream/legacy/SocketClient.h"
 
-#include "core/socket/LogicalSocket.hpp" // IWYU pragma: keep
+#include "core/socket/LogicalSocket.hpp"                  // IWYU pragma: keep
+#include "core/socket/stream/legacy/SocketConnection.hpp" // IWYU pragma: keep
+#include "core/socket/stream/legacy/SocketConnector.hpp"  // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class core::socket::LogicalSocket<net::rc::stream::legacy::config::ConfigSocketClient>;
+template class core::socket::stream::legacy::SocketConnector<net::rc::stream::PhysicalClientSocket,
+                                                             net::rc::stream::legacy::config::ConfigSocketClient>;
+template class core::socket::stream::legacy::SocketConnection<net::rc::stream::PhysicalClientSocket>;

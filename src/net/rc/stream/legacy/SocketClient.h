@@ -19,7 +19,9 @@
 #ifndef NET_RC_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_RC_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/legacy/SocketClient.h"         // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketConnection.h"
+#include "core/socket/stream/legacy/SocketConnector.h"
 #include "net/rc/stream/SocketClient.h"                     // IWYU pragma: export
 #include "net/rc/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
 
@@ -38,5 +40,8 @@ namespace net::rc::stream::legacy {
 } // namespace net::rc::stream::legacy
 
 extern template class core::socket::LogicalSocket<net::rc::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::stream::legacy::SocketConnector<net::rc::stream::PhysicalClientSocket,
+                                                                    net::rc::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::stream::legacy::SocketConnection<net::rc::stream::PhysicalClientSocket>;
 
 #endif // NET_RC_STREAM_LEGACY_SOCKETCLIENT_H
