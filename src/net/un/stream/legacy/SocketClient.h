@@ -20,6 +20,7 @@
 #define NET_UN_STREAM_LEGACY_SOCKETCLIENT_H
 
 #include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketConnection.h"
 #include "core/socket/stream/legacy/SocketConnector.h"
 #include "net/un/stream/SocketClient.h"                     // IWYU pragma: export
 #include "net/un/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
@@ -41,5 +42,6 @@ namespace net::un::stream::legacy {
 extern template class core::socket::LogicalSocket<net::un::stream::legacy::config::ConfigSocketClient>;
 extern template class core::socket::stream::legacy::SocketConnector<net::un::stream::PhysicalClientSocket,
                                                                     net::un::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::stream::legacy::SocketConnection<net::un::stream::PhysicalClientSocket>;
 
 #endif // NET_UN_STREAM_LEGACY_SOCKETCLIENT_H

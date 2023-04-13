@@ -59,183 +59,29 @@ namespace core::socket::stream::tls {
                          const utils::Timeval& writeTimeout,
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
-                         const utils::Timeval& terminateTimeout)
-            : Super(
-                  fd,
-                  socketContextFactory,
-                  localAddress,
-                  remoteAddress,
-                  [onDisconnect, this]() -> void {
-                      onDisconnect(this);
-                  },
-                  readTimeout,
-                  writeTimeout,
-                  readBlockSize,
-                  writeBlockSize,
-                  terminateTimeout) {
-        }
+                         const utils::Timeval& terminateTimeout);
 
-        SSL* getSSL() const {
-            return ssl;
-        }
+        SSL* getSSL() const;
 
     private:
-        SSL* startSSL(SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout) {
-            this->sslInitTimeout = sslInitTimeout;
-            this->sslShutdownTimeout = sslShutdownTimeout;
-            if (ctx != nullptr) {
-                ssl = SSL_new(ctx);
+        SSL* startSSL(SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout);
 
-                if (ssl != nullptr) {
-                    if (SSL_set_fd(ssl, PhysicalSocket::getFd()) == 1) {
-                        SocketReader::ssl = ssl;
-                        SocketWriter::ssl = ssl;
-                    } else {
-                        SSL_free(ssl);
-                        ssl = nullptr;
-                    }
-                }
-            }
-
-            return ssl;
-        }
-
-        void stopSSL() {
-            if (ssl != nullptr) {
-                SSL_free(ssl);
-
-                ssl = nullptr;
-                SocketReader::ssl = nullptr;
-                SocketWriter::ssl = nullptr;
-            }
-        }
+        void stopSSL();
 
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
-                            const std::function<void(int)>& onError) override {
-            if (!SocketReader::isSuspended()) {
-                SocketReader::suspend();
-            }
-            if (!SocketWriter::isSuspended()) {
-                SocketWriter::suspend();
-            }
-
-            TLSHandshake::doHandshake(
-                ssl,
-                [onSuccess, this]() -> void { // onSuccess
-                    SocketReader::span();
-                    onSuccess();
-                },
-                [onTimeout, this]() -> void { // onTimeout
-                    SocketConnection::close();
-                    onTimeout();
-                },
-                [onError, this](int sslErr) -> void { // onError
-                    SocketConnection::close();
-                    onError(sslErr);
-                },
-                sslInitTimeout);
-        }
+                            const std::function<void(int)>& onError) override;
 
         void doSSLShutdown(const std::function<void()>& onSuccess,
                            const std::function<void()>& onTimeout,
                            const std::function<void(int)>& onError,
-                           const utils::Timeval& shutdownTimeout) {
-            int resumeSocketReader = false;
-            int resumeSocketWriter = false;
-
-            if (!SocketReader::isSuspended()) {
-                SocketReader::suspend();
-                resumeSocketReader = true;
-            }
-
-            if (!SocketWriter::isSuspended()) {
-                SocketWriter::suspend();
-                resumeSocketWriter = true;
-            }
-
-            TLSShutdown::doShutdown(
-                ssl,
-                [onSuccess, this, resumeSocketReader, resumeSocketWriter]() -> void { // onSuccess
-                    if (resumeSocketReader) {
-                        SocketReader::resume();
-                    }
-                    if (resumeSocketWriter) {
-                        SocketWriter::resume();
-                    }
-                    onSuccess();
-                },
-                [onTimeout, this, resumeSocketReader, resumeSocketWriter]() -> void { // onTimeout
-                    if (resumeSocketReader) {
-                        SocketReader::resume();
-                    }
-                    if (resumeSocketWriter) {
-                        SocketWriter::resume();
-                    }
-                    onTimeout();
-                },
-                [onError, this, resumeSocketReader, resumeSocketWriter](int sslErr) -> void { // onError
-                    if (resumeSocketReader) {
-                        SocketReader::resume();
-                    }
-                    if (resumeSocketWriter) {
-                        SocketWriter::resume();
-                    }
-                    onError(sslErr);
-                },
-                shutdownTimeout);
-        }
+                           const utils::Timeval& shutdownTimeout);
 
         using SocketWriter::doWriteShutdown;
 
-        void doWriteShutdown() override {
-            if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
-                if (SocketWriter::isEnabled()) {
-                    SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
-                        if (errno != 0) {
-                            PLOG(INFO) << "SocketWriter::doWriteShutdown";
-                        }
-                        SocketWriter::disable();
-                    });
-                }
-            } else {
-                VLOG(0) << "SSL_Shutdown WAITING: Close_notify received but not send";
-            }
-        }
+        void doWriteShutdown() override;
 
-        void doWriteShutdown(const std::function<void(int)>& onShutdown) override {
-            if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
-                doSSLShutdown(
-                    [this, &onShutdown]() -> void { // thus send one
-                        if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                            VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
-                            SocketWriter::doWriteShutdown(onShutdown);
-                        } else {
-                            VLOG(0) << "SSL_Shutdown WAITING: Close_notify sent but not received";
-                        }
-                    },
-                    [this]() -> void {
-                        LOG(WARNING) << "SSL_shutdown: Handshake timed out";
-                        SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
-                            if (errno != 0) {
-                                PLOG(INFO) << "SocketWriter::doWriteShutdown";
-                            }
-                            SocketConnection::close();
-                        });
-                    },
-                    [this](int sslErr) -> void {
-                        ssl_log("SSL_shutdown: Handshake failed", sslErr);
-                        SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
-                            if (errno != 0) {
-                                PLOG(INFO) << "SocketWriter::doWriteShutdown";
-                            }
-                            SocketConnection::close();
-                        });
-                    },
-                    sslShutdownTimeout);
-            }
-        }
+        void doWriteShutdown(const std::function<void(int)>& onShutdown) override;
 
         SSL* ssl = nullptr;
 

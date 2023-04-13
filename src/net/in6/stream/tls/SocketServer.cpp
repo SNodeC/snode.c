@@ -18,8 +18,9 @@
 
 #include "net/in6/stream/tls/SocketServer.h"
 
-#include "core/socket/LogicalSocket.hpp"             // IWYU pragma: keep
-#include "core/socket/stream/tls/SocketAcceptor.hpp" // IWYU pragma: keep
+#include "core/socket/LogicalSocket.hpp"               // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketAcceptor.hpp"   // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketConnection.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,3 +29,4 @@
 template class core::socket::LogicalSocket<net::in6::stream::tls::config::ConfigSocketServer>;
 template class core::socket::stream::tls::SocketAcceptor<net::in6::stream::PhysicalServerSocket,
                                                          net::in6::stream::tls::config::ConfigSocketServer>;
+template class core::socket::stream::tls::SocketConnection<net::in6::stream::PhysicalServerSocket>;

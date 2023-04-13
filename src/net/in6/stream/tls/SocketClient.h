@@ -20,6 +20,7 @@
 #define NET_IN6_STREAM_TLS_SOCKETCLIENT_H
 
 #include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/SocketConnector.h"
 #include "net/in6/stream/SocketClient.h"                  // IWYU pragma: export
 #include "net/in6/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: export
@@ -41,5 +42,6 @@ namespace net::in6::stream::tls {
 extern template class core::socket::LogicalSocket<net::in6::stream::tls::config::ConfigSocketClient>;
 extern template class core::socket::stream::tls::SocketConnector<net::in6::stream::PhysicalClientSocket,
                                                                  net::in6::stream::tls::config::ConfigSocketClient>;
+extern template class core::socket::stream::tls::SocketConnection<net::in6::stream::PhysicalClientSocket>;
 
 #endif // NET_IN6_STREAM_TLS_SOCKETCLIENT_H

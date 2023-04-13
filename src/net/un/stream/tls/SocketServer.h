@@ -20,6 +20,7 @@
 #define NET_UN_STREAM_TLS_SOCKETSERVER_H
 
 #include "core/socket/stream/tls/SocketAcceptor.h"
+#include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/SocketServer.h"         // IWYU pragma: export
 #include "net/un/stream/SocketServer.h"                  // IWYU pragma: export
 #include "net/un/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: export
@@ -41,5 +42,6 @@ namespace net::un::stream::tls {
 extern template class core::socket::LogicalSocket<net::un::stream::tls::config::ConfigSocketServer>;
 extern template class core::socket::stream::tls::SocketAcceptor<net::un::stream::PhysicalServerSocket,
                                                                 net::un::stream::tls::config::ConfigSocketServer>;
+extern template class core::socket::stream::tls::SocketConnection<net::un::stream::PhysicalServerSocket>;
 
 #endif // NET_UN_STREAM_TLS_SOCKETSERVER_H

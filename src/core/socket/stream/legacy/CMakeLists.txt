@@ -7,6 +7,7 @@ set(CORE-SOCKET-STREAM-LEGACY_H
     SocketAcceptor.hpp
     SocketClient.h
     SocketConnection.h
+    SocketConnection.hpp
     SocketConnector.h
     SocketConnector.hpp
     SocketReader.h
