@@ -4,6 +4,7 @@ set(CORE-SOCKET-STREAM-LEGACY_CPP)
 
 set(CORE-SOCKET-STREAM-LEGACY_H
     SocketAcceptor.h
+    SocketAcceptor.hpp
     SocketClient.h
     SocketConnection.h
     SocketConnector.h

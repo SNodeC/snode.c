@@ -16,6 +16,7 @@ else(NOT OpenSSL_FOUND)
 
     set(CORE-SOCKET_STREAM-TLS_H
         SocketAcceptor.h
+        SocketAcceptor.hpp
         SocketClient.h
         SocketConnection.h
         SocketConnector.h
