@@ -29,10 +29,10 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename SocketT>
-    class SocketWriter : public core::socket::stream::SocketWriter<SocketT> {
+    template <typename PhysicalSocketT>
+    class SocketWriter : public core::socket::stream::SocketWriter<PhysicalSocketT> {
     private:
-        using Super = core::socket::stream::SocketWriter<SocketT>;
+        using Super = core::socket::stream::SocketWriter<PhysicalSocketT>;
         using Super::Super;
 
         ssize_t write(const char* junk, std::size_t junkLen) override {
