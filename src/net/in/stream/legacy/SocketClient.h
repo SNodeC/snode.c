@@ -19,7 +19,8 @@
 #ifndef NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/legacy/SocketClient.h"         // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketConnector.h"
 #include "net/in/stream/SocketClient.h"                     // IWYU pragma: export
 #include "net/in/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
 
@@ -38,5 +39,7 @@ namespace net::in::stream::legacy {
 } // namespace net::in::stream::legacy
 
 extern template class core::socket::LogicalSocket<net::in::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::stream::legacy::SocketConnector<net::in::stream::PhysicalClientSocket,
+                                                                    net::in::stream::legacy::config::ConfigSocketClient>;
 
 #endif // NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H

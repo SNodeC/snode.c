@@ -20,6 +20,7 @@ else(NOT OpenSSL_FOUND)
         SocketClient.h
         SocketConnection.h
         SocketConnector.h
+        SocketConnector.hpp
         SocketReader.h
         SocketServer.h
         SocketWriter.h

@@ -24,7 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/ssl_utils.h"
+#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -48,68 +48,11 @@ namespace core::socket::stream::tls {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::function<void(const SocketAddress&, int)>& onError,
-                        const std::shared_ptr<Config>& config)
-            : Super(
-                  socketContextFactory,
-                  [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
-                      socketConnection->startSSL(this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
-                      onConnect(socketConnection);
-                  },
-                  [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
-                      SSL* ssl = socketConnection->getSSL();
+                        const std::shared_ptr<Config>& config);
 
-                      if (ssl != nullptr) {
-                          SSL_set_connect_state(ssl);
-                          ssl_set_sni(ssl, this->config);
+        ~SocketConnector() override;
 
-                          socketConnection->doSSLHandshake(
-                              [onConnected, socketConnection]() -> void { // onSuccess
-                                  LOG(INFO) << "SSL/TLS initial handshake success";
-                                  onConnected(socketConnection);
-                                  socketConnection->onConnected();
-                              },
-                              [onError = this->onError, config = this->config]() -> void { // onTimeout
-                                  LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                                  onError(config->Remote::getAddress(), ETIMEDOUT);
-                              },
-                              [onError = this->onError, config = this->config](int sslErr) -> void { // onError
-                                  ssl_log("SSL/TLS initial handshake failed", sslErr);
-                                  onError(config->Remote::getAddress(), -sslErr);
-                              });
-                      } else {
-                          socketConnection->close();
-                          ssl_log_error("SSL/TLS initialization failed");
-                          this->onError(this->config->Remote::getAddress(), -SSL_ERROR_SSL);
-                      }
-                  },
-                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      socketConnection->stopSSL();
-                      onDisconnect(socketConnection);
-                  },
-                  onError,
-                  config) {
-        }
-
-        ~SocketConnector() override {
-            if (ctx != nullptr) {
-                ssl_ctx_free(ctx);
-            }
-        }
-
-        void initConnectEvent() override {
-            if (!config->getDisabled()) {
-                ctx = ssl_ctx_new(config);
-
-                if (ctx != nullptr) {
-                    Super::initConnectEvent();
-                } else {
-                    Super::onError(config->Remote::getAddress(), errno);
-                    Super::destruct();
-                }
-            } else {
-                Super::initConnectEvent();
-            }
-        }
+        void initConnectEvent() override;
 
     private:
         SSL_CTX* ctx = nullptr;
