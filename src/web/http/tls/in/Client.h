@@ -31,12 +31,6 @@ namespace web::http::tls::in {
     template <typename Request, typename Response>
     class Client : public web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response> {
         using web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>::Client;
-
-    protected:
-        using SocketClient = net::in::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
-
-    public:
-        using web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>::connect;
     };
 
 } // namespace web::http::tls::in

@@ -30,26 +30,7 @@ namespace web::http::tls::in {
 
     template <typename Request, typename Response>
     class Server : public web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response> {
-        using Super = web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response>;
-        using Super::Super;
-
-    public:
-        using SocketAddress = typename Super::SocketAddress;
-        using SocketConnection = typename Super::SocketConnection;
-
-        using Super::listen;
-
-        void listen(uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(port, Super::config->getBacklog(), onError);
-        }
-
-        void listen(const std::string& ipOrHostname, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(ipOrHostname, Super::config->getBacklog(), onError);
-        }
-
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
-            listen(ipOrHostname, port, Super::config->getBacklog(), onError);
-        }
+        using web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response>::Server;
     };
 
 } // namespace web::http::tls::in
