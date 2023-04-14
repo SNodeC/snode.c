@@ -19,16 +19,21 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H
 
-#include "core/socket/stream/SocketAcceptor.h"
-#include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/stream/SocketAcceptor.h" // IWYU pragma: export
+
+namespace core::socket::stream::tls {
+    template <typename PhysicalSocketT>
+    class SocketConnection;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
-#include "log/Logger.h"
-
 #include <map>
-#include <set> // IWYU pragma: export
+#include <set>    // IWYU pragma: export
+#include <string> // IWYU pragma: export
+
+typedef struct ssl_ctx_st SSL_CTX;
+typedef struct ssl_st SSL;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,18 +65,8 @@ namespace core::socket::stream::tls {
         void initAcceptEvent() override;
 
         SSL_CTX* getMasterSniCtx(const std::string& serverNameIndication);
-
         SSL_CTX* getPoolSniCtx(const std::string& serverNameIndication);
-
-        SSL_CTX* getSniCtx(const std::string& serverNameIndication) {
-            SSL_CTX* sniSslCtx = getMasterSniCtx(serverNameIndication);
-
-            if (sniSslCtx == nullptr) {
-                sniSslCtx = getPoolSniCtx(serverNameIndication);
-            }
-
-            return sniSslCtx;
-        }
+        SSL_CTX* getSniCtx(const std::string& serverNameIndication);
 
         static int clientHelloCallback(SSL* ssl, int* al, void* arg);
 

@@ -30,6 +30,7 @@ namespace net::config {
 
 #include <map>
 #include <memory>
+#include <openssl/ssl.h> // IWYU pragma: export
 #include <set>
 #include <string>
 #include <variant>

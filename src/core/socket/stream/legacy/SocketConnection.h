@@ -19,9 +19,9 @@
 #ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETCONNECTION_H
 
-#include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/stream/legacy/SocketReader.h"
-#include "core/socket/stream/legacy/SocketWriter.h"
+#include "core/socket/stream/SocketConnection.h"    // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketReader.h" // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketWriter.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

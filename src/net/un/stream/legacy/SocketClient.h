@@ -19,14 +19,14 @@
 #ifndef NET_UN_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_UN_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/SocketConnection.h"
-#include "core/socket/stream/SocketConnectionFactory.h"
-#include "core/socket/stream/SocketConnector.h"
-#include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
-#include "core/socket/stream/legacy/SocketConnection.h"
-#include "core/socket/stream/legacy/SocketConnector.h"
+#include "core/socket/stream/legacy/SocketClient.h"         // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
 #include "net/un/stream/SocketClient.h"                     // IWYU pragma: export
 #include "net/un/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "core/socket/stream/SocketConnector.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,15 +46,8 @@ extern template class core::socket::LogicalSocket<net::un::stream::legacy::confi
 extern template class core::socket::stream::legacy::SocketConnector<net::un::stream::PhysicalClientSocket,
                                                                     net::un::stream::legacy::config::ConfigSocketClient>;
 extern template class core::socket::stream::legacy::SocketConnection<net::un::stream::PhysicalClientSocket>;
-extern template class core::socket::stream::SocketConnector<net::un::stream::PhysicalClientSocket,
-                                                            net::un::stream::legacy::config::ConfigSocketClient,
-                                                            core::socket::stream::legacy::SocketConnection>;
 extern template class core::socket::stream::SocketConnectionT<net::un::stream::PhysicalClientSocket,
                                                               core::socket::stream::legacy::SocketReader,
                                                               core::socket::stream::legacy::SocketWriter>;
-extern template class core::socket::stream::SocketConnectionFactory<
-    net::un::stream::PhysicalClientSocket,
-    net::un::stream::legacy::config::ConfigSocketClient,
-    core::socket::stream::legacy::SocketConnection<net::un::stream::PhysicalClientSocket>>;
 
 #endif // NET_UN_STREAM_LEGACY_SOCKETCLIENT_H

@@ -19,14 +19,14 @@
 #ifndef NET_IN_STREAM_LEGACY_SOCKETSERVER_H
 #define NET_IN_STREAM_LEGACY_SOCKETSERVER_H
 
-#include "core/socket/stream/SocketAcceptor.h"
-#include "core/socket/stream/SocketConnection.h"
-#include "core/socket/stream/SocketConnectionFactory.h"
-#include "core/socket/stream/legacy/SocketAcceptor.h"
-#include "core/socket/stream/legacy/SocketConnection.h"
+#include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketServer.h"         // IWYU pragma: export
 #include "net/in/stream/SocketServer.h"                     // IWYU pragma: export
 #include "net/in/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "core/socket/stream/SocketAcceptor.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,15 +46,8 @@ extern template class core::socket::LogicalSocket<net::in::stream::legacy::confi
 extern template class core::socket::stream::legacy::SocketAcceptor<net::in::stream::PhysicalServerSocket,
                                                                    net::in::stream::legacy::config::ConfigSocketServer>;
 extern template class core::socket::stream::legacy::SocketConnection<net::in::stream::PhysicalServerSocket>;
-extern template class core::socket::stream::SocketAcceptor<net::in::stream::PhysicalServerSocket,
-                                                           net::in::stream::legacy::config::ConfigSocketServer,
-                                                           core::socket::stream::legacy::SocketConnection>;
 extern template class core::socket::stream::SocketConnectionT<net::in::stream::PhysicalServerSocket,
                                                               core::socket::stream::legacy::SocketReader,
                                                               core::socket::stream::legacy::SocketWriter>;
-extern template class core::socket::stream::SocketConnectionFactory<
-    net::in::stream::PhysicalServerSocket,
-    net::in::stream::legacy::config::ConfigSocketServer,
-    core::socket::stream::legacy::SocketConnection<net::in::stream::PhysicalServerSocket>>;
 
 #endif // NET_IN_STREAM_LEGACY_SOCKETSERVER_H

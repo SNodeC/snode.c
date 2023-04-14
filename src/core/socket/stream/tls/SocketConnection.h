@@ -20,16 +20,17 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 
 #include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/stream/tls/SocketReader.h"
-#include "core/socket/stream/tls/SocketWriter.h"
-#include "core/socket/stream/tls/TLSShutdown.h"
+#include "core/socket/stream/tls/SocketReader.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketWriter.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "utils/Timeval.h"
 
 #include <cstddef>
-#include <string>
+
+typedef struct ssl_ctx_st SSL_CTX;
+typedef struct ssl_st SSL;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

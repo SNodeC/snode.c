@@ -26,8 +26,6 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <functional>
 #include <memory>
 

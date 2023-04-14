@@ -19,8 +19,12 @@
 #ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETCONNECTOR_H
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETCONNECTOR_H
 
-#include "core/socket/stream/SocketConnector.h"
-#include "core/socket/stream/legacy/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/stream/SocketConnector.h" // IWYU pragma: export
+
+namespace core::socket::stream::legacy {
+    template <typename PhysicalSocketT>
+    class SocketConnection;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

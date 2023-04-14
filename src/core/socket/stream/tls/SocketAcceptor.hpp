@@ -20,6 +20,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/socket/stream/tls/ssl_utils.h"
+#include "log/Logger.h"
+
 #include <algorithm>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -182,6 +185,17 @@ namespace core::socket::stream::tls {
         }
 
         return sniCtx;
+    }
+
+    template <typename PhysicalServerSocketT, typename ConfigT>
+    SSL_CTX* SocketAcceptor<PhysicalServerSocketT, ConfigT>::getSniCtx(const std::string& serverNameIndication) {
+        SSL_CTX* sniSslCtx = getMasterSniCtx(serverNameIndication);
+
+        if (sniSslCtx == nullptr) {
+            sniSslCtx = getPoolSniCtx(serverNameIndication);
+        }
+
+        return sniSslCtx;
     }
 
     template <typename PhysicalServerSocketT, typename ConfigT>

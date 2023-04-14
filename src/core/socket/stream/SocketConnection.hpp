@@ -17,8 +17,13 @@
  */
 
 #include "core/socket/stream/SocketConnection.h"
+#include "core/socket/stream/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
+
+#include <cstddef> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -110,6 +115,34 @@ namespace core::socket::stream {
               typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
         SocketReader::shutdown();
+    }
+
+    template <typename PhysicalSocket,
+              template <typename PhysicalSocketT>
+              typename SocketReader,
+              template <typename PhysicalSocketT>
+              typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
+        SocketWriter::shutdown([forceClose, this](int errnum) -> void {
+            if (errnum != 0) {
+                PLOG(INFO) << "SocketWriter::doWriteShutdown";
+            }
+            if (forceClose) {
+                close();
+            } else if (SocketWriter::isEnabled()) {
+                SocketWriter::disable();
+            }
+        });
+    }
+
+    template <typename PhysicalSocket,
+              template <typename PhysicalSocketT>
+              typename SocketReader,
+              template <typename PhysicalSocketT>
+              typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::setTimeout(const utils::Timeval& timeout) {
+        SocketReader::setTimeout(timeout);
+        SocketWriter::setTimeout(timeout);
     }
 
     template <typename PhysicalSocket,

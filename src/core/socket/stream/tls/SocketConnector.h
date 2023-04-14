@@ -19,12 +19,16 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 
-#include "core/socket/stream/SocketConnector.h"
-#include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/stream/SocketConnector.h" // IWYU pragma: export
+
+namespace core::socket::stream::tls {
+    template <typename PhysicalSocketT>
+    class SocketConnection;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
+typedef struct ssl_ctx_st SSL_CTX;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

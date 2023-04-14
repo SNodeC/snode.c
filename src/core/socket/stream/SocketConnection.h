@@ -20,11 +20,13 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/stream/SocketContext.h"
 
 namespace core::socket::stream {
+
     class SocketContextFactory;
-}
+    class SocketContext;
+
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,8 +34,7 @@ namespace utils {
     class Timeval;
 }
 
-#include "log/Logger.h"
-
+#include <cstddef>
 #include <functional>
 #include <memory>
 
@@ -98,24 +99,9 @@ namespace core::socket::stream {
         void close() final;
 
         void shutdownRead() final;
+        void shutdownWrite(bool forceClose) final;
 
-        void shutdownWrite(bool forceClose) final {
-            SocketWriter::shutdown([forceClose, this](int errnum) -> void {
-                if (errnum != 0) {
-                    PLOG(INFO) << "SocketWriter::doWriteShutdown";
-                }
-                if (forceClose) {
-                    close();
-                } else if (SocketWriter::isEnabled()) {
-                    SocketWriter::disable();
-                }
-            });
-        }
-
-        void setTimeout(const utils::Timeval& timeout) final {
-            SocketReader::setTimeout(timeout);
-            SocketWriter::setTimeout(timeout);
-        }
+        void setTimeout(const utils::Timeval& timeout) final;
 
         const SocketAddress& getLocalAddress() const override;
         const SocketAddress& getRemoteAddress() const override;

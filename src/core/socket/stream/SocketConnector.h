@@ -20,13 +20,18 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
-#include "core/socket/stream/SocketConnectionFactory.h"
+#include "core/socket/stream/SocketConnectionFactory.h" // IWYU pragma: export
+
+namespace core::socket::stream {
+
+    class SocketContextFactory;
+
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <memory>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

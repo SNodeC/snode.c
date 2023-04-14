@@ -20,16 +20,22 @@
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
-#include "core/socket/stream/SocketConnectionFactory.h"
+#include "core/socket/stream/SocketConnectionFactory.h" // IWYU pragma: export
 #include "net/un/dgram/Socket.h"
+
+namespace core::socket::stream {
+
+    template <typename PhysicalSocket, typename Config, typename SocketConnection>
+    class SocketConnectionFactory;
+
+    class SocketContextFactory;
+
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <functional>
 #include <memory>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

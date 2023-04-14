@@ -20,6 +20,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/socket/stream/tls/ssl_utils.h"
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream::tls {
