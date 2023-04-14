@@ -19,6 +19,7 @@
 #ifndef NET_UN_STREAM_TLS_SOCKETCLIENT_H
 #define NET_UN_STREAM_TLS_SOCKETCLIENT_H
 
+#include "core/socket/stream/SocketConnector.h"
 #include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/SocketConnector.h"
@@ -43,5 +44,8 @@ extern template class core::socket::LogicalSocket<net::un::stream::tls::config::
 extern template class core::socket::stream::tls::SocketConnector<net::un::stream::PhysicalClientSocket,
                                                                  net::un::stream::tls::config::ConfigSocketClient>;
 extern template class core::socket::stream::tls::SocketConnection<net::un::stream::PhysicalClientSocket>;
+extern template class core::socket::stream::SocketConnector<net::un::stream::PhysicalClientSocket,
+                                                            net::un::stream::tls::config::ConfigSocketClient,
+                                                            core::socket::stream::tls::SocketConnection>;
 
 #endif // NET_UN_STREAM_TLS_SOCKETCLIENT_H

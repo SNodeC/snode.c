@@ -62,78 +62,21 @@ namespace core::socket::stream {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::function<void(const SocketAddress&, int)>& onError,
-                        const std::shared_ptr<Config>& config)
-            : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
-            , core::eventreceiver::ConnectEventReceiver("SocketConnector")
-            , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
-            , onError(onError)
-            , config(config) {
-            InitConnectEventReceiver::span();
-        }
+                        const std::shared_ptr<Config>& config);
 
-        ~SocketConnector() override {
-            if (physicalSocket != nullptr) {
-                delete physicalSocket;
-            }
-        }
+        ~SocketConnector() override;
 
     protected:
-        void initConnectEvent() override {
-            if (!config->getDisabled()) {
-                physicalSocket = new PhysicalSocket();
-                if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                    onError(config->Remote::getAddress(), errno);
-                    destruct();
-                } else if (physicalSocket->bind(config->Local::getAddress()) < 0) {
-                    onError(config->Remote::getAddress(), errno);
-                    destruct();
-                } else if (physicalSocket->connect(config->Remote::getAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
-                    onError(config->Remote::getAddress(), errno);
-                    destruct();
-                } else {
-                    enable(physicalSocket->getFd());
-                }
-            } else {
-                destruct();
-            }
-        }
+        void initConnectEvent() override;
 
     private:
-        void connectEvent() override {
-            int cErrno = -1;
-
-            if ((cErrno = physicalSocket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
-                if (!physicalSocket->connectInProgress(cErrno)) {
-                    if (cErrno == 0) {
-                        disable();
-                        if (socketConnectionFactory.create(*physicalSocket, config)) {
-                            errno = errno == 0 ? cErrno : errno;
-                            onError(config->Remote::getAddress(), errno);
-                        }
-                    } else {
-                        disable();
-                        errno = cErrno;
-                        onError(config->Remote::getAddress(), errno);
-                    }
-                } else {
-                    // Do nothing: connect() still in progress
-                }
-            } else {
-                disable();
-                errno = cErrno;
-                onError(config->Remote::getAddress(), errno);
-            }
-        }
+        void connectEvent() override;
 
     protected:
-        void destruct() override {
-            delete this;
-        }
+        void destruct() override;
 
     private:
-        void unobservedEvent() override {
-            destruct();
-        }
+        void unobservedEvent() override;
 
         PhysicalSocket* physicalSocket = nullptr;
 

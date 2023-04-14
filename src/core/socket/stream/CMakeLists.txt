@@ -11,6 +11,7 @@ set(CORE_SOCKET_STREAM_H
     SocketConnection.h
     SocketConnectionFactory.h
     SocketConnector.h
+    SocketConnector.hpp
     SocketContext.h
     SocketContextFactory.h
     SocketReader.h

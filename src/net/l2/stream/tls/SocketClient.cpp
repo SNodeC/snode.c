@@ -19,6 +19,7 @@
 #include "net/l2/stream/tls/SocketClient.h"
 
 #include "core/socket/LogicalSocket.hpp"               // IWYU pragma: keep
+#include "core/socket/stream/SocketConnector.hpp"      // IWYU pragma: keep
 #include "core/socket/stream/tls/SocketConnection.hpp" // IWYU pragma: keep
 #include "core/socket/stream/tls/SocketConnector.hpp"  // IWYU pragma: keep
 
@@ -30,3 +31,6 @@ template class core::socket::LogicalSocket<net::l2::stream::tls::config::ConfigS
 template class core::socket::stream::tls::SocketConnector<net::l2::stream::PhysicalClientSocket,
                                                           net::l2::stream::tls::config::ConfigSocketClient>;
 template class core::socket::stream::tls::SocketConnection<net::l2::stream::PhysicalClientSocket>;
+template class core::socket::stream::SocketConnector<net::l2::stream::PhysicalClientSocket,
+                                                     net::l2::stream::tls::config::ConfigSocketClient,
+                                                     core::socket::stream::tls::SocketConnection>;
