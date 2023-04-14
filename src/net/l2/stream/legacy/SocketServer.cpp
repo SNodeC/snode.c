@@ -19,6 +19,7 @@
 #include "net/l2/stream/legacy/SocketServer.h"
 
 #include "core/socket/LogicalSocket.hpp"                  // IWYU pragma: keep
+#include "core/socket/stream/SocketAcceptor.hpp"          // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketAcceptor.hpp"   // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketConnection.hpp" // IWYU pragma: keep
 
@@ -30,3 +31,6 @@ template class core::socket::LogicalSocket<net::l2::stream::legacy::config::Conf
 template class core::socket::stream::legacy::SocketAcceptor<net::l2::stream::PhysicalServerSocket,
                                                             net::l2::stream::legacy::config::ConfigSocketServer>;
 template class core::socket::stream::legacy::SocketConnection<net::l2::stream::PhysicalServerSocket>;
+template class core::socket::stream::SocketAcceptor<net::l2::stream::PhysicalServerSocket,
+                                                    net::l2::stream::legacy::config::ConfigSocketServer,
+                                                    core::socket::stream::legacy::SocketConnection>;

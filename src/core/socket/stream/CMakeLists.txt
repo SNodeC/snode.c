@@ -6,6 +6,7 @@ set(CORE_SOCKET_STREAM_CPP SocketContext.cpp SocketContextFactory.cpp
 
 set(CORE_SOCKET_STREAM_H
     SocketAcceptor.h
+    SocketAcceptor.hpp
     SocketClient.h
     SocketConnection.h
     SocketConnectionFactory.h

@@ -19,6 +19,7 @@
 #ifndef NET_IN6_STREAM_TLS_SOCKETSERVER_H
 #define NET_IN6_STREAM_TLS_SOCKETSERVER_H
 
+#include "core/socket/stream/SocketAcceptor.h"
 #include "core/socket/stream/tls/SocketAcceptor.h"
 #include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/SocketServer.h"          // IWYU pragma: export
@@ -43,5 +44,8 @@ extern template class core::socket::LogicalSocket<net::in6::stream::tls::config:
 extern template class core::socket::stream::tls::SocketAcceptor<net::in6::stream::PhysicalServerSocket,
                                                                 net::in6::stream::tls::config::ConfigSocketServer>;
 extern template class core::socket::stream::tls::SocketConnection<net::in6::stream::PhysicalServerSocket>;
+extern template class core::socket::stream::SocketAcceptor<net::in6::stream::PhysicalServerSocket,
+                                                           net::in6::stream::tls::config::ConfigSocketServer,
+                                                           core::socket::stream::tls::SocketConnection>;
 
 #endif // NET_IN6_STREAM_TLS_SOCKETSERVER_H
