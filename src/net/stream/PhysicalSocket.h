@@ -16,23 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_PHYSICALCLIENTSOCKET_H
-#define NET_STREAM_PHYSICALCLIENTSOCKET_H
+#ifndef NET_STREAM_PHYSICALSOCKET_H
+#define NET_STREAM_PHYSICALSOCKET_H
 
-#include "net/stream/PhysicalSocket.h" // IWYU pragma: export
+#include "net/PhysicalSocket.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/stream/PhysicalSocket.hpp"
+// IWYU pragma: no_include "net/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::stream {
 
     template <typename SocketAddressT>
-    class PhysicalClientSocket : public net::stream::PhysicalSocket<SocketAddressT> {
+    class PhysicalSocket : public net::PhysicalSocket<SocketAddressT> {
     private:
-        using Super = net::stream::PhysicalSocket<SocketAddressT>;
+        using Super = net::PhysicalSocket<SocketAddressT>;
 
     public:
         using SocketAddress = SocketAddressT;
@@ -40,11 +40,12 @@ namespace net::stream {
         using Super::Super;
         using Super::operator=;
 
-        int connect(const SocketAddress& remoteAddress);
+    protected:
+        enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
-        virtual bool connectInProgress(int cErrno);
+        void shutdown(SHUT how);
     };
 
 } // namespace net::stream
 
-#endif // NET_STREAM_PHYSICALCLIENTSOCKET_H
+#endif // NET_STREAM_PHYSICALSOCKET_H

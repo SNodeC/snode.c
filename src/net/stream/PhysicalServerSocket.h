@@ -19,9 +19,9 @@
 #ifndef NET_STREAM_PHYSICALSERVERSOCKET_H
 #define NET_STREAM_PHYSICALSERVERSOCKET_H
 
-#include "net/PhysicalSocket.h" // IWYU pragma: export
+#include "net/stream/PhysicalSocket.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/PhysicalSocket.hpp"
+// IWYU pragma: no_include "net/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,9 +30,9 @@
 namespace net::stream {
 
     template <typename SocketAddressT>
-    class PhysicalServerSocket : public net::PhysicalSocket<SocketAddressT> {
+    class PhysicalServerSocket : public net::stream::PhysicalSocket<SocketAddressT> {
     private:
-        using Super = net::PhysicalSocket<SocketAddressT>;
+        using Super = net::stream::PhysicalSocket<SocketAddressT>;
 
     public:
         using SocketAddress = SocketAddressT;

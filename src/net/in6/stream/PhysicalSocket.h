@@ -19,7 +19,8 @@
 #ifndef NET_IN6_STREAM_PHYSICALSOCKET_H
 #define NET_IN6_STREAM_PHYSICALSOCKET_H
 
-#include "net/in6/PhysicalSocket.h" // IWYU pragma: export
+#include "net/in6/PhysicalSocket.h"    // IWYU pragma: export
+#include "net/stream/PhysicalSocket.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/in6/PhysicalSocket.hpp"
 
@@ -44,5 +45,7 @@ namespace net::in6::stream {
     };
 
 } // namespace net::in6::stream
+
+extern template class net::stream::PhysicalSocket<net::in6::SocketAddress>;
 
 #endif // NET_IN6_STREAM_PHYSICALSOCKET_H

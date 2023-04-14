@@ -19,7 +19,8 @@
 #ifndef NET_L2_STREAM_PHYSICALSOCKET_H
 #define NET_L2_STREAM_PHYSICALSOCKET_H
 
-#include "net/l2/PhysicalSocket.h" // IWYU pragma: export
+#include "net/l2/PhysicalSocket.h"     // IWYU pragma: export
+#include "net/stream/PhysicalSocket.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/l2/PhysicalSocket.hpp"
 
@@ -41,8 +42,13 @@ namespace net::l2::stream {
         PhysicalSocket();
 
         ~PhysicalSocket() override;
+
+    protected:
+        void shutdown(typename Super::SHUT how); // shutdown L2CAP sockets must be handled differently
     };
 
 } // namespace net::l2::stream
+
+extern template class net::stream::PhysicalSocket<net::l2::SocketAddress>;
 
 #endif // NET_L2_STREAM_PHYSICALSOCKET_H

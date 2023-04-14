@@ -50,6 +50,8 @@ set(NET_H
     config/ConfigTlsClient.h
     dgram/PeerSocket.h
     dgram/PeerSocket.hpp
+    stream/PhysicalSocket.h
+    stream/PhysicalSocket.hpp
     stream/PhysicalClientSocket.h
     stream/PhysicalClientSocket.hpp
     stream/PhysicalServerSocket.h

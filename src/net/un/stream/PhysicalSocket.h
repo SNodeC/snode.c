@@ -19,7 +19,8 @@
 #ifndef NET_UN_STREAM_PHYSICALSOCKET_H
 #define NET_UN_STREAM_PHYSICALSOCKET_H
 
-#include "net/un/PhysicalSocket.h" // IWYU pragma: export
+#include "net/stream/PhysicalSocket.h" // IWYU pragma: export
+#include "net/un/PhysicalSocket.h"     // IWYU pragma: export
 
 // IWYU pragma: no_include "net/un/PhysicalSocket.hpp"
 
@@ -44,5 +45,7 @@ namespace net::un::stream {
     };
 
 } // namespace net::un::stream
+
+extern template class net::stream::PhysicalSocket<net::un::SocketAddress>;
 
 #endif // NET_UN_STREAM_PHYSICALSOCKET_H

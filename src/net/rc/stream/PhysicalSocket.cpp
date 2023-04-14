@@ -16,35 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_PHYSICALCLIENTSOCKET_H
-#define NET_STREAM_PHYSICALCLIENTSOCKET_H
+#include "net/rc/stream/PhysicalSocket.h"
 
-#include "net/stream/PhysicalSocket.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "net/stream/PhysicalSocket.hpp"
+#include "net/stream/PhysicalSocket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::stream {
+namespace net::rc::stream {} // namespace net::rc::stream
 
-    template <typename SocketAddressT>
-    class PhysicalClientSocket : public net::stream::PhysicalSocket<SocketAddressT> {
-    private:
-        using Super = net::stream::PhysicalSocket<SocketAddressT>;
-
-    public:
-        using SocketAddress = SocketAddressT;
-
-        using Super::Super;
-        using Super::operator=;
-
-        int connect(const SocketAddress& remoteAddress);
-
-        virtual bool connectInProgress(int cErrno);
-    };
-
-} // namespace net::stream
-
-#endif // NET_STREAM_PHYSICALCLIENTSOCKET_H
+template class net::stream::PhysicalSocket<net::rc::SocketAddress>;

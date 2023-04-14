@@ -43,9 +43,6 @@ namespace net::l2 {
         PhysicalSocket(int type, int protocol);
 
         ~PhysicalSocket() override;
-
-    protected:
-        void shutdown(typename Super::SHUT how); // shutdown L2CAP sockets must be handled differently
     };
 
 } // namespace net::l2

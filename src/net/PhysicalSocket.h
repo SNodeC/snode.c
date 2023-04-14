@@ -56,11 +56,6 @@ namespace net {
 
         int bind(const SocketAddress& bindAddress);
 
-    protected:
-        enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
-
-        void shutdown(SHUT how);
-
     public:
         bool isValid() const;
 

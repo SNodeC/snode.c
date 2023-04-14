@@ -112,11 +112,6 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    void PhysicalSocket<SocketAddress>::shutdown(SHUT how) {
-        core::system::shutdown(core::Descriptor::getFd(), how);
-    }
-
-    template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::setSockopt(int level, int optname, const void* optval, socklen_t optlen) const {
         return core::system::setsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
     }
