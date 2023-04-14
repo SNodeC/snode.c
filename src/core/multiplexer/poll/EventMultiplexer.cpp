@@ -100,7 +100,7 @@ namespace core::poll {
     void PollFdsManager::compress() {
         // cppcheck-suppress ignoredReturnValue
         // cppcheck-suppress uselessCallsRemove
-        std::remove_if(pollfds.begin(), pollfds.end(), [](const pollfd& pollFd) -> bool {
+        (void) std::remove_if(pollfds.begin(), pollfds.end(), [](const pollfd& pollFd) -> bool {
             return pollFd.fd < 0;
         });
 
