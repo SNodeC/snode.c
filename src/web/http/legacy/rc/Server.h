@@ -30,26 +30,7 @@ namespace web::http::legacy::rc {
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
     class Server : public web::http::server::Server<net::rc::stream::legacy::SocketServer, Request, Response> {
-        using Super = web::http::server::Server<net::rc::stream::legacy::SocketServer, Request, Response>;
-        using Super::Super;
-
-    public:
-        using SocketAddress = typename Super::SocketAddress;
-        using SocketConnection = typename Super::SocketConnection;
-
-        using web::http::server::Server<net::rc::stream::legacy::SocketServer, Request, Response>::listen;
-
-        void listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
-            Super::listen(channel, onError);
-        }
-
-        void listen(const std::string& address, const std::function<void(const SocketAddress&, int)>& onError) {
-            Super::listen(address, onError);
-        }
-
-        void listen(const std::string& address, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) {
-            Super::listen(address, channel, onError);
-        }
+        using web::http::server::Server<net::rc::stream::legacy::SocketServer, Request, Response>::Server;
     };
 
 } // namespace web::http::legacy::rc

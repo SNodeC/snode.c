@@ -31,12 +31,6 @@ namespace web::http::legacy::rc {
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
     class Client : public web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response> {
         using web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response>::Client;
-
-    protected:
-        using SocketClient = net::rc::stream::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
-
-    public:
-        using web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response>::connect;
     };
 
 } // namespace web::http::legacy::rc

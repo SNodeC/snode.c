@@ -31,12 +31,6 @@ namespace web::http::legacy::un {
     template <typename Request, typename Response>
     class Client : public web::http::client::Client<net::un::stream::legacy::SocketClient, Request, Response> {
         using web::http::client::Client<net::un::stream::legacy::SocketClient, Request, Response>::Client;
-
-    protected:
-        using SocketClient = net::un::stream::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
-
-    public:
-        using web::http::client::Client<net::un::stream::legacy::SocketClient, Request, Response>::connect;
     };
 
 } // namespace web::http::legacy::un

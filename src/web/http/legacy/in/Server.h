@@ -30,14 +30,7 @@ namespace web::http::legacy::in {
 
     template <typename Request, typename Response>
     class Server : public web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response> {
-        using Super = web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>;
-        using Super::Super;
-
-    public:
-        using SocketAddress = typename Super::SocketAddress;
-        using SocketConnection = typename Super::SocketConnection;
-
-        using web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>::listen;
+        using web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>::Server;
     };
 
 } // namespace web::http::legacy::in

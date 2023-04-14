@@ -30,18 +30,7 @@ namespace web::http::legacy::un {
 
     template <typename Request, typename Response>
     class Server : public web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response> {
-        using Super = web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>;
-        using Super::Super;
-
-    public:
-        using SocketAddress = typename Super::SocketAddress;
-        using SocketConnection = typename Super::SocketConnection;
-
-        using web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>::listen;
-
-        void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
-            Super::listen(sunPath, onError);
-        }
+        using web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>::Server;
     };
 
 } // namespace web::http::legacy::un
