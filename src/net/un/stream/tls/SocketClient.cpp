@@ -19,6 +19,7 @@
 #include "net/un/stream/tls/SocketClient.h"
 
 #include "core/socket/LogicalSocket.hpp"               // IWYU pragma: keep
+#include "core/socket/stream/SocketConnection.hpp"     // IWYU pragma: keep
 #include "core/socket/stream/SocketConnector.hpp"      // IWYU pragma: keep
 #include "core/socket/stream/tls/SocketConnection.hpp" // IWYU pragma: keep
 #include "core/socket/stream/tls/SocketConnector.hpp"  // IWYU pragma: keep
@@ -34,3 +35,6 @@ template class core::socket::stream::tls::SocketConnection<net::un::stream::Phys
 template class core::socket::stream::SocketConnector<net::un::stream::PhysicalClientSocket,
                                                      net::un::stream::tls::config::ConfigSocketClient,
                                                      core::socket::stream::tls::SocketConnection>;
+template class core::socket::stream::SocketConnectionT<net::un::stream::PhysicalClientSocket,
+                                                       core::socket::stream::tls::SocketReader,
+                                                       core::socket::stream::tls::SocketWriter>;

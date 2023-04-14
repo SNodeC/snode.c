@@ -88,59 +88,16 @@ namespace core::socket::stream {
                           const utils::Timeval& writeTimeout,
                           std::size_t readBlockSize,
                           std::size_t writeBlockSize,
-                          const utils::Timeval& terminateTimeout)
-            : SocketReader(
-                  [this](int errnum) -> void {
-                      onReadError(errnum);
-                  },
-                  readTimeout,
-                  readBlockSize,
-                  terminateTimeout)
-            , SocketWriter(
-                  [this](int errnum) -> void {
-                      onWriteError(errnum);
-                  },
-                  writeTimeout,
-                  writeBlockSize,
-                  terminateTimeout)
-            , localAddress(localAddress)
-            , remoteAddress(remoteAddress)
-            , onDisconnect(onDisconnect) {
-            SocketConnectionT::Descriptor::attach(fd);
+                          const utils::Timeval& terminateTimeout);
 
-            if (setSocketContext(socketContextFactory.get()) != nullptr) {
-                SocketReader::enable(fd);
-                SocketWriter::enable(fd);
-                SocketWriter::suspend();
-            }
-        }
-
-        ~SocketConnectionT() override {
-            if (socketContext != nullptr) {
-                onDisconnected();
-                onDisconnect();
-
-                delete socketContext;
-            }
-        }
+        ~SocketConnectionT() override;
 
     public:
-        int getFd() const {
-            return PhysicalSocket::getFd();
-        }
+        int getFd() const;
 
-        void close() final {
-            if (SocketWriter::isEnabled()) {
-                SocketWriter::disable();
-            }
-            if (SocketReader::isEnabled()) {
-                SocketReader::disable();
-            }
-        }
+        void close() final;
 
-        void shutdownRead() final {
-            SocketReader::shutdown();
-        }
+        void shutdownRead() final;
 
         void shutdownWrite(bool forceClose) final {
             SocketWriter::shutdown([forceClose, this](int errnum) -> void {
@@ -160,86 +117,30 @@ namespace core::socket::stream {
             SocketWriter::setTimeout(timeout);
         }
 
-        const SocketAddress& getRemoteAddress() const override {
-            return remoteAddress;
-        }
+        const SocketAddress& getLocalAddress() const override;
+        const SocketAddress& getRemoteAddress() const override;
 
-        const SocketAddress& getLocalAddress() const override {
-            return localAddress;
-        }
-
-        std::size_t readFromPeer(char* junk, std::size_t junkLen) final {
-            std::size_t ret = 0;
-
-            if (newSocketContext == nullptr) {
-                ret = SocketReader::readFromPeer(junk, junkLen);
-            } else {
-                VLOG(0) << "ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
-            }
-
-            return ret;
-        }
+        std::size_t readFromPeer(char* junk, std::size_t junkLen) final;
 
         using Super::sendToPeer;
+        void sendToPeer(const char* junk, std::size_t junkLen) final;
 
-        void sendToPeer(const char* junk, std::size_t junkLen) final {
-            if (newSocketContext == nullptr) {
-                SocketWriter::sendToPeer(junk, junkLen);
-            } else {
-                VLOG(0) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
-            }
-        }
+        void onWriteError(int errnum);
+        void onReadError(int errnum);
 
-        void onWriteError(int errnum) {
-            socketContext->onWriteError(errnum);
-        }
-        void onReadError(int errnum) {
-            socketContext->onReadError(errnum);
-        }
+        void onConnected();
 
-        void onConnected() {
-            socketContext->onConnected();
-        }
-
-        void onDisconnected() {
-            socketContext->onDisconnected();
-        }
+        void onDisconnected();
 
     private:
-        void onReceivedFromPeer(std::size_t available) final {
-            std::size_t consumed = socketContext->onReceivedFromPeer();
+        void onReceivedFromPeer(std::size_t available) final;
 
-            if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-                onDisconnected();
-                delete socketContext;
-                socketContext = newSocketContext;
-                newSocketContext = nullptr;
-                onConnected();
-            }
+        void readTimeout() final;
+        void writeTimeout() final;
 
-            if (available != 0 && consumed == 0) {
-                close();
-            }
-        }
+        void onExit() final;
 
-        void readTimeout() final {
-            close();
-        }
-
-        void writeTimeout() final {
-            close();
-        }
-
-        void onExit() final {
-            if (!exitProcessed) {
-                socketContext->onExit();
-                exitProcessed = true;
-            }
-        }
-
-        void unobservedEvent() final {
-            delete this;
-        }
+        void unobservedEvent() final;
 
     protected: // must be callable from subclasses
         SocketAddress localAddress{};

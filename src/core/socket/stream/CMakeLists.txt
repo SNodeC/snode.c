@@ -9,6 +9,7 @@ set(CORE_SOCKET_STREAM_H
     SocketAcceptor.hpp
     SocketClient.h
     SocketConnection.h
+    SocketConnection.hpp
     SocketConnectionFactory.h
     SocketConnector.h
     SocketConnector.hpp

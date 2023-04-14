@@ -19,6 +19,7 @@
 #ifndef NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
 
+#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketConnector.h"
 #include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketConnection.h"
@@ -47,5 +48,8 @@ extern template class core::socket::stream::legacy::SocketConnection<net::l2::st
 extern template class core::socket::stream::SocketConnector<net::l2::stream::PhysicalClientSocket,
                                                             net::l2::stream::legacy::config::ConfigSocketClient,
                                                             core::socket::stream::legacy::SocketConnection>;
+extern template class core::socket::stream::SocketConnectionT<net::l2::stream::PhysicalClientSocket,
+                                                              core::socket::stream::legacy::SocketReader,
+                                                              core::socket::stream::legacy::SocketWriter>;
 
 #endif // NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
