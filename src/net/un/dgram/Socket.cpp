@@ -18,7 +18,6 @@
 
 #include "net/un/dgram/Socket.h"
 
-#include "core/Descriptor.h"
 #include "net/dgram/PeerSocket.hpp" // IWYU pragma: keep
 #include "net/un/PhysicalSocket.hpp"
 
