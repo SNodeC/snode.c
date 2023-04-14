@@ -18,11 +18,12 @@
 
 #include "net/in6/stream/tls/SocketServer.h"
 
-#include "core/socket/LogicalSocket.hpp"               // IWYU pragma: keep
-#include "core/socket/stream/SocketAcceptor.hpp"       // IWYU pragma: keep
-#include "core/socket/stream/SocketConnection.hpp"     // IWYU pragma: keep
-#include "core/socket/stream/tls/SocketAcceptor.hpp"   // IWYU pragma: keep
-#include "core/socket/stream/tls/SocketConnection.hpp" // IWYU pragma: keep
+#include "core/socket/LogicalSocket.hpp"                  // IWYU pragma: keep
+#include "core/socket/stream/SocketAcceptor.hpp"          // IWYU pragma: keep
+#include "core/socket/stream/SocketConnection.hpp"        // IWYU pragma: keep
+#include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketAcceptor.hpp"      // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketConnection.hpp"    // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,3 +39,7 @@ template class core::socket::stream::SocketAcceptor<net::in6::stream::PhysicalSe
 template class core::socket::stream::SocketConnectionT<net::in6::stream::PhysicalServerSocket,
                                                        core::socket::stream::tls::SocketReader,
                                                        core::socket::stream::tls::SocketWriter>;
+template class core::socket::stream::SocketConnectionFactory<
+    net::in6::stream::PhysicalServerSocket,
+    net::in6::stream::tls::config::ConfigSocketServer,
+    core::socket::stream::tls::SocketConnection<net::in6::stream::PhysicalServerSocket>>;

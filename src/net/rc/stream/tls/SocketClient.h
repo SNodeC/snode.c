@@ -20,6 +20,7 @@
 #define NET_RC_STREAM_TLS_SOCKETCLIENT_H
 
 #include "core/socket/stream/SocketConnection.h"
+#include "core/socket/stream/SocketConnectionFactory.h"
 #include "core/socket/stream/SocketConnector.h"
 #include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnection.h"
@@ -51,5 +52,9 @@ extern template class core::socket::stream::SocketConnector<net::rc::stream::Phy
 extern template class core::socket::stream::SocketConnectionT<net::rc::stream::PhysicalClientSocket,
                                                               core::socket::stream::tls::SocketReader,
                                                               core::socket::stream::tls::SocketWriter>;
+extern template class core::socket::stream::SocketConnectionFactory<
+    net::rc::stream::PhysicalClientSocket,
+    net::rc::stream::tls::config::ConfigSocketClient,
+    core::socket::stream::tls::SocketConnection<net::rc::stream::PhysicalClientSocket>>;
 
 #endif // NET_RC_STREAM_TLS_SOCKETCLIENT_H

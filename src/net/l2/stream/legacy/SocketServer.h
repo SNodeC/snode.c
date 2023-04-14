@@ -21,6 +21,7 @@
 
 #include "core/socket/stream/SocketAcceptor.h"
 #include "core/socket/stream/SocketConnection.h"
+#include "core/socket/stream/SocketConnectionFactory.h"
 #include "core/socket/stream/legacy/SocketAcceptor.h"
 #include "core/socket/stream/legacy/SocketConnection.h"
 #include "core/socket/stream/legacy/SocketServer.h"         // IWYU pragma: export
@@ -51,5 +52,9 @@ extern template class core::socket::stream::SocketAcceptor<net::l2::stream::Phys
 extern template class core::socket::stream::SocketConnectionT<net::l2::stream::PhysicalServerSocket,
                                                               core::socket::stream::legacy::SocketReader,
                                                               core::socket::stream::legacy::SocketWriter>;
+extern template class core::socket::stream::SocketConnectionFactory<
+    net::l2::stream::PhysicalServerSocket,
+    net::l2::stream::legacy::config::ConfigSocketServer,
+    core::socket::stream::legacy::SocketConnection<net::l2::stream::PhysicalServerSocket>>;
 
 #endif // NET_L2_STREAM_LEGACY_SOCKETSERVER_H

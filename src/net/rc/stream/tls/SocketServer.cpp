@@ -18,11 +18,12 @@
 
 #include "net/rc/stream/tls/SocketServer.h"
 
-#include "core/socket/LogicalSocket.hpp"               // IWYU pragma: keep
-#include "core/socket/stream/SocketAcceptor.hpp"       // IWYU pragma: keep
-#include "core/socket/stream/SocketConnection.hpp"     // IWYU pragma: keep
-#include "core/socket/stream/tls/SocketAcceptor.hpp"   // IWYU pragma: keep
-#include "core/socket/stream/tls/SocketConnection.hpp" // IWYU pragma: keep
+#include "core/socket/LogicalSocket.hpp"                  // IWYU pragma: keep
+#include "core/socket/stream/SocketAcceptor.hpp"          // IWYU pragma: keep
+#include "core/socket/stream/SocketConnection.hpp"        // IWYU pragma: keep
+#include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketAcceptor.hpp"      // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketConnection.hpp"    // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,3 +39,7 @@ template class core::socket::stream::SocketAcceptor<net::rc::stream::PhysicalSer
 template class core::socket::stream::SocketConnectionT<net::rc::stream::PhysicalServerSocket,
                                                        core::socket::stream::tls::SocketReader,
                                                        core::socket::stream::tls::SocketWriter>;
+template class core::socket::stream::SocketConnectionFactory<
+    net::rc::stream::PhysicalServerSocket,
+    net::rc::stream::tls::config::ConfigSocketServer,
+    core::socket::stream::tls::SocketConnection<net::rc::stream::PhysicalServerSocket>>;
