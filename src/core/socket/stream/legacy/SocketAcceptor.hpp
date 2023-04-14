@@ -17,7 +17,6 @@
  */
 
 #include "core/socket/stream/legacy/SocketAcceptor.h"
-#include "core/socket/stream/legacy/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
