@@ -33,8 +33,8 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalSocketT>
-    core::socket::stream::tls::SocketConnection<PhysicalSocketT>::SocketConnection(
+    template <typename PhysicalSocket>
+    core::socket::stream::tls::SocketConnection<PhysicalSocket>::SocketConnection(
         int fd,
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const SocketAddress& localAddress,
@@ -60,15 +60,15 @@ namespace core::socket::stream::tls {
               terminateTimeout) {
     }
 
-    template <typename PhysicalSocketT>
-    SSL* core::socket::stream::tls::SocketConnection<PhysicalSocketT>::getSSL() const {
+    template <typename PhysicalSocket>
+    SSL* core::socket::stream::tls::SocketConnection<PhysicalSocket>::getSSL() const {
         return ssl;
     }
 
-    template <typename PhysicalSocketT>
-    SSL* core::socket::stream::tls::SocketConnection<PhysicalSocketT>::startSSL(SSL_CTX* ctx,
-                                                                                const utils::Timeval& sslInitTimeout,
-                                                                                const utils::Timeval& sslShutdownTimeout) {
+    template <typename PhysicalSocket>
+    SSL* core::socket::stream::tls::SocketConnection<PhysicalSocket>::startSSL(SSL_CTX* ctx,
+                                                                               const utils::Timeval& sslInitTimeout,
+                                                                               const utils::Timeval& sslShutdownTimeout) {
         this->sslInitTimeout = sslInitTimeout;
         this->sslShutdownTimeout = sslShutdownTimeout;
         if (ctx != nullptr) {
@@ -88,8 +88,8 @@ namespace core::socket::stream::tls {
         return ssl;
     }
 
-    template <typename PhysicalSocketT>
-    void core::socket::stream::tls::SocketConnection<PhysicalSocketT>::stopSSL() {
+    template <typename PhysicalSocket>
+    void core::socket::stream::tls::SocketConnection<PhysicalSocket>::stopSSL() {
         if (ssl != nullptr) {
             SSL_free(ssl);
 
@@ -99,10 +99,10 @@ namespace core::socket::stream::tls {
         }
     }
 
-    template <typename PhysicalSocketT>
-    void core::socket::stream::tls::SocketConnection<PhysicalSocketT>::doSSLHandshake(const std::function<void()>& onSuccess,
-                                                                                      const std::function<void()>& onTimeout,
-                                                                                      const std::function<void(int)>& onError) {
+    template <typename PhysicalSocket>
+    void core::socket::stream::tls::SocketConnection<PhysicalSocket>::doSSLHandshake(const std::function<void()>& onSuccess,
+                                                                                     const std::function<void()>& onTimeout,
+                                                                                     const std::function<void(int)>& onError) {
         if (!SocketReader::isSuspended()) {
             SocketReader::suspend();
         }
@@ -127,11 +127,11 @@ namespace core::socket::stream::tls {
             sslInitTimeout);
     }
 
-    template <typename PhysicalSocketT>
-    void core::socket::stream::tls::SocketConnection<PhysicalSocketT>::doSSLShutdown(const std::function<void()>& onSuccess,
-                                                                                     const std::function<void()>& onTimeout,
-                                                                                     const std::function<void(int)>& onError,
-                                                                                     const utils::Timeval& shutdownTimeout) {
+    template <typename PhysicalSocket>
+    void core::socket::stream::tls::SocketConnection<PhysicalSocket>::doSSLShutdown(const std::function<void()>& onSuccess,
+                                                                                    const std::function<void()>& onTimeout,
+                                                                                    const std::function<void(int)>& onError,
+                                                                                    const utils::Timeval& shutdownTimeout) {
         int resumeSocketReader = false;
         int resumeSocketWriter = false;
 
@@ -177,8 +177,8 @@ namespace core::socket::stream::tls {
             shutdownTimeout);
     }
 
-    template <typename PhysicalSocketT>
-    void core::socket::stream::tls::SocketConnection<PhysicalSocketT>::doWriteShutdown() {
+    template <typename PhysicalSocket>
+    void core::socket::stream::tls::SocketConnection<PhysicalSocket>::doWriteShutdown() {
         if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
             VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
             if (SocketWriter::isEnabled()) {
@@ -194,8 +194,8 @@ namespace core::socket::stream::tls {
         }
     }
 
-    template <typename PhysicalSocketT>
-    void core::socket::stream::tls::SocketConnection<PhysicalSocketT>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
+    template <typename PhysicalSocket>
+    void core::socket::stream::tls::SocketConnection<PhysicalSocket>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
             doSSLShutdown(
                 [this, &onShutdown]() -> void { // thus send one

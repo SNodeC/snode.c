@@ -27,8 +27,8 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename PhysicalClientSocketT, typename ConfigT>
-    core::socket::stream::legacy::SocketConnector<PhysicalClientSocketT, ConfigT>::SocketConnector(
+    template <typename PhysicalClientSocket, typename Config>
+    core::socket::stream::legacy::SocketConnector<PhysicalClientSocket, Config>::SocketConnector(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,

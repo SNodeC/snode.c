@@ -32,8 +32,8 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    core::socket::stream::tls::SocketAcceptor<PhysicalServerSocketT, ConfigT>::SocketAcceptor(
+    template <typename PhysicalServerSocket, typename Config>
+    core::socket::stream::tls::SocketAcceptor<PhysicalServerSocket, Config>::SocketAcceptor(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
@@ -78,8 +78,8 @@ namespace core::socket::stream::tls {
               config) {
     }
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    SocketAcceptor<PhysicalServerSocketT, ConfigT>::~SocketAcceptor() {
+    template <typename PhysicalServerSocket, typename Config>
+    SocketAcceptor<PhysicalServerSocket, Config>::~SocketAcceptor() {
         if (masterSslCtx != nullptr) {
             ssl_ctx_free(masterSslCtx);
         }
@@ -97,8 +97,8 @@ namespace core::socket::stream::tls {
         }
     }
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    void SocketAcceptor<PhysicalServerSocketT, ConfigT>::initAcceptEvent() {
+    template <typename PhysicalServerSocket, typename Config>
+    void SocketAcceptor<PhysicalServerSocket, Config>::initAcceptEvent() {
         if (!config->getDisabled()) {
             masterSslCtx = ssl_ctx_new(config);
 
@@ -147,8 +147,8 @@ namespace core::socket::stream::tls {
         }
     }
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    SSL_CTX* SocketAcceptor<PhysicalServerSocketT, ConfigT>::getMasterSniCtx(const std::string& serverNameIndication) {
+    template <typename PhysicalServerSocket, typename Config>
+    SSL_CTX* SocketAcceptor<PhysicalServerSocket, Config>::getMasterSniCtx(const std::string& serverNameIndication) {
         SSL_CTX* sniSslCtx = nullptr;
 
         LOG(INFO) << "Search for sni = '" << serverNameIndication << "' in master certificate";
@@ -168,8 +168,8 @@ namespace core::socket::stream::tls {
         return sniSslCtx;
     }
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    SSL_CTX* SocketAcceptor<PhysicalServerSocketT, ConfigT>::getPoolSniCtx(const std::string& serverNameIndication) {
+    template <typename PhysicalServerSocket, typename Config>
+    SSL_CTX* SocketAcceptor<PhysicalServerSocket, Config>::getPoolSniCtx(const std::string& serverNameIndication) {
         SSL_CTX* sniCtx = nullptr;
 
         LOG(INFO) << "Search for sni = '" << serverNameIndication << "' in sni certificates";
@@ -190,8 +190,8 @@ namespace core::socket::stream::tls {
         return sniCtx;
     }
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    SSL_CTX* SocketAcceptor<PhysicalServerSocketT, ConfigT>::getSniCtx(const std::string& serverNameIndication) {
+    template <typename PhysicalServerSocket, typename Config>
+    SSL_CTX* SocketAcceptor<PhysicalServerSocket, Config>::getSniCtx(const std::string& serverNameIndication) {
         SSL_CTX* sniSslCtx = getMasterSniCtx(serverNameIndication);
 
         if (sniSslCtx == nullptr) {
@@ -201,8 +201,8 @@ namespace core::socket::stream::tls {
         return sniSslCtx;
     }
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    int SocketAcceptor<PhysicalServerSocketT, ConfigT>::clientHelloCallback(SSL* ssl, int* al, void* arg) {
+    template <typename PhysicalServerSocket, typename Config>
+    int SocketAcceptor<PhysicalServerSocket, Config>::clientHelloCallback(SSL* ssl, int* al, void* arg) {
         int ret = SSL_CLIENT_HELLO_SUCCESS;
 
         SocketAcceptor* socketAcceptor = static_cast<SocketAcceptor*>(arg);
@@ -228,8 +228,8 @@ namespace core::socket::stream::tls {
         return ret;
     }
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
-    bool SocketAcceptor<PhysicalServerSocketT, ConfigT>::match(const char* first, const char* second) {
+    template <typename PhysicalServerSocket, typename Config>
+    bool SocketAcceptor<PhysicalServerSocket, Config>::match(const char* first, const char* second) {
         // If we reach at the end of both strings, we are done
         if (*first == '\0' && *second == '\0')
             return true;

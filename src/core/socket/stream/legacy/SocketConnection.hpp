@@ -29,8 +29,8 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename PhysicalSocketT>
-    core::socket::stream::legacy::SocketConnection<PhysicalSocketT>::SocketConnection(
+    template <typename PhysicalSocket>
+    core::socket::stream::legacy::SocketConnection<PhysicalSocket>::SocketConnection(
         int fd,
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const SocketAddress& localAddress,

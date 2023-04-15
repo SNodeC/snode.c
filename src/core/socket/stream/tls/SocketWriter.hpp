@@ -32,8 +32,8 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalSocketT>
-    ssize_t core::socket::stream::tls::SocketWriter<PhysicalSocketT>::write(const char* junk, std::size_t junkLen) {
+    template <typename PhysicalSocket>
+    ssize_t core::socket::stream::tls::SocketWriter<PhysicalSocket>::write(const char* junk, std::size_t junkLen) {
         int ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
 
         if (ret <= 0) {
