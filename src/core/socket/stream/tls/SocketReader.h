@@ -24,12 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/ssl_utils.h"
-#include "log/Logger.h"
-#include "utils/PreserveErrno.h"
-
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+typedef struct ssl_st SSL;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,62 +36,7 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketReader<PhysicalSocketT>;
         using Super::Super;
 
-        ssize_t read(char* junk, std::size_t junkLen) override {
-            int sslShutdownState = SSL_get_shutdown(ssl);
-
-            int ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
-
-            if (ret <= 0) {
-                int ssl_err = SSL_get_error(ssl, ret);
-
-                switch (ssl_err) {
-                    case SSL_ERROR_NONE:
-                        break;
-                    case SSL_ERROR_WANT_READ:
-                        ret = -1;
-                        break;
-                    case SSL_ERROR_WANT_WRITE: {
-                        utils::PreserveErrno preserveErrno;
-
-                        LOG(INFO) << "SSL/TLS start renegotiation on read";
-                        doSSLHandshake(
-                            []() -> void {
-                                LOG(INFO) << "SSL/TLS renegotiation on read success";
-                            },
-                            []() -> void {
-                                LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
-                            },
-                            [](int ssl_err) -> void {
-                                ssl_log("SSL/TLS renegotiation", ssl_err);
-                            });
-                    }
-                        ret = -1;
-                        break;
-                    case SSL_ERROR_ZERO_RETURN: // received close_notify
-                        SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
-                        doWriteShutdown();
-                        errno = 0;
-                        ret = 0;
-                        break;
-                    case SSL_ERROR_SYSCALL: {
-                        utils::PreserveErrno preserveErrno;
-
-                        SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                        VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
-                        doWriteShutdown();
-                    }
-                        ret = -1;
-                        break;
-                    default:
-                        ssl_log("SSL/TLS error read failed", ssl_err);
-                        errno = EIO;
-                        ret = -1;
-                        break;
-                }
-            }
-
-            return ret;
-        }
+        ssize_t read(char* junk, std::size_t junkLen) override;
 
     protected:
         virtual void doWriteShutdown() = 0;

@@ -23,6 +23,7 @@ else(NOT OpenSSL_FOUND)
         SocketConnector.h
         SocketConnector.hpp
         SocketReader.h
+        SocketReader.hpp
         SocketServer.h
         SocketWriter.h
         TLSHandshake.h

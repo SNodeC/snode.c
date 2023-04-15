@@ -22,6 +22,7 @@
 #include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: keep
 #include "core/socket/stream/tls/SocketConnection.hpp"    // IWYU pragma: keep
 #include "core/socket/stream/tls/SocketConnector.hpp"     // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketReader.hpp"        // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -41,3 +42,4 @@ template class core::socket::stream::SocketConnectionFactory<
     net::un::stream::PhysicalClientSocket,
     net::un::stream::tls::config::ConfigSocketClient,
     core::socket::stream::tls::SocketConnection<net::un::stream::PhysicalClientSocket>>;
+template class core::socket::stream::tls::SocketReader<net::un::stream::PhysicalClientSocket>;
