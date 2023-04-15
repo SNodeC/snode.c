@@ -68,7 +68,7 @@ namespace core::socket::stream {
 
         void shutdown(const std::function<void(int)>& onShutdown);
 
-        void terminate() override;
+        void terminate() final;
 
     private:
         std::function<void(int)> onError;

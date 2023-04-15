@@ -34,7 +34,7 @@
 
 namespace net::l2 {
 
-    class SocketAddress : public net::SocketAddress<sockaddr_l2> {
+    class SocketAddress final : public net::SocketAddress<sockaddr_l2> {
     public:
         using net::SocketAddress<sockaddr_l2>::SocketAddress;
 

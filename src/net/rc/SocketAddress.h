@@ -34,7 +34,7 @@
 
 namespace net::rc {
 
-    class SocketAddress : public net::SocketAddress<sockaddr_rc> {
+    class SocketAddress final : public net::SocketAddress<sockaddr_rc> {
     public:
         using net::SocketAddress<sockaddr_rc>::SocketAddress;
 

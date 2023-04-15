@@ -32,7 +32,7 @@
 
 namespace net::l2::stream::tls::config {
 
-    class ConfigSocketClient : public net::stream::config::tls::ConfigSocketClient<net::l2::stream::config::ConfigSocketClient> {
+    class ConfigSocketClient final : public net::stream::config::tls::ConfigSocketClient<net::l2::stream::config::ConfigSocketClient> {
     public:
         explicit ConfigSocketClient(const std::string& name);
 

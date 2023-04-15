@@ -49,10 +49,10 @@ namespace core::socket::stream {
 
         using Super::sendToPeer;
 
-        void sendToPeer(const char* junk, std::size_t junkLen) const override;
-        std::size_t readFromPeer(char* junk, std::size_t junklen) const override;
+        void sendToPeer(const char* junk, std::size_t junkLen) const final;
+        std::size_t readFromPeer(char* junk, std::size_t junklen) const final;
 
-        void setTimeout(const utils::Timeval& timeout) override;
+        void setTimeout(const utils::Timeval& timeout) final;
 
         void shutdownRead();
         void shutdownWrite(bool forceClose = false);

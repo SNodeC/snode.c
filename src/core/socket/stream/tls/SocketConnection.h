@@ -37,7 +37,7 @@ typedef struct ssl_st SSL;
 namespace core::socket::stream::tls {
 
     template <typename PhysicalSocketT>
-    class SocketConnection
+    class SocketConnection final
         : public core::socket::stream::
               SocketConnectionT<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter> {
     private:

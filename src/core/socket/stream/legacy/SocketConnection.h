@@ -32,7 +32,7 @@
 namespace core::socket::stream::legacy {
 
     template <typename PhysicalSocketT>
-    class SocketConnection
+    class SocketConnection final
         : public core::socket::stream::
               SocketConnectionT<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter> {
     private:

@@ -33,7 +33,7 @@
 
 namespace net::in {
 
-    class SocketAddress : public net::SocketAddress<sockaddr_in> {
+    class SocketAddress final : public net::SocketAddress<sockaddr_in> {
     public:
         using net::SocketAddress<sockaddr_in>::SocketAddress;
 

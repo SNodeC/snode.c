@@ -76,16 +76,16 @@ namespace core::socket::stream {
     void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::acceptEvent() {
         int acceptsPerTick = config->getAcceptsPerTick();
 
-        PhysicalSocket clientPhysicalSocket;
+        PhysicalSocket physicalClientSocket;
         do {
             SocketAddress remoteAddress{};
-            clientPhysicalSocket = physicalSocket->accept4(remoteAddress, PhysicalSocket::Flags::NONBLOCK);
-            if (clientPhysicalSocket.isValid()) {
-                socketConnectionFactory.create(clientPhysicalSocket, config);
+            physicalClientSocket = physicalSocket->accept4(remoteAddress, PhysicalSocket::Flags::NONBLOCK);
+            if (physicalClientSocket.isValid()) {
+                socketConnectionFactory.create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                 PLOG(ERROR) << "accept";
             }
-        } while (--acceptsPerTick > 0 && clientPhysicalSocket.isValid());
+        } while (--acceptsPerTick > 0 && physicalClientSocket.isValid());
     }
 
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>

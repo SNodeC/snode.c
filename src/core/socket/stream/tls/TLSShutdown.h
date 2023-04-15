@@ -58,12 +58,12 @@ namespace core::socket::stream::tls {
                     const std::function<void(int)>& onError,
                     const utils::Timeval& timeout);
 
-        void readEvent() override;
-        void writeEvent() override;
-        void readTimeout() override;
-        void writeTimeout() override;
+        void readEvent() final;
+        void writeEvent() final;
+        void readTimeout() final;
+        void writeTimeout() final;
 
-        void unobservedEvent() override;
+        void unobservedEvent() final;
 
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;

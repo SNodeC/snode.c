@@ -35,7 +35,7 @@ namespace core::socket::stream::legacy {
 namespace core::socket::stream::legacy {
 
     template <typename PhysicalServerSocketT, typename ConfigT>
-    class SocketAcceptor
+    class SocketAcceptor final
         : private core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::legacy::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::legacy::SocketConnection>;

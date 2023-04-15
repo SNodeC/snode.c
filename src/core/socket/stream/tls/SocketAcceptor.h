@@ -40,7 +40,7 @@ typedef struct ssl_st SSL;
 namespace core::socket::stream::tls {
 
     template <typename PhysicalServerSocketT, typename ConfigT>
-    class SocketAcceptor
+    class SocketAcceptor final
         : private core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
@@ -59,10 +59,10 @@ namespace core::socket::stream::tls {
                        const std::function<void(const SocketAddress&, int)>& onError,
                        const std::shared_ptr<Config>& config);
 
-        ~SocketAcceptor() override;
+        ~SocketAcceptor() final;
 
     private:
-        void initAcceptEvent() override;
+        void initAcceptEvent() final;
 
         SSL_CTX* getMasterSniCtx(const std::string& serverNameIndication);
         SSL_CTX* getPoolSniCtx(const std::string& serverNameIndication);

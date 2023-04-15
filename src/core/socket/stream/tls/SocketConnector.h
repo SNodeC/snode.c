@@ -35,7 +35,7 @@ typedef struct ssl_ctx_st SSL_CTX;
 namespace core::socket::stream::tls {
 
     template <typename PhysicalClientSocketT, typename ConfigT>
-    class SocketConnector
+    class SocketConnector final
         : private core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
@@ -54,9 +54,9 @@ namespace core::socket::stream::tls {
                         const std::function<void(const SocketAddress&, int)>& onError,
                         const std::shared_ptr<Config>& config);
 
-        ~SocketConnector() override;
+        ~SocketConnector() final;
 
-        void initConnectEvent() override;
+        void initConnectEvent() final;
 
     private:
         SSL_CTX* ctx = nullptr;
