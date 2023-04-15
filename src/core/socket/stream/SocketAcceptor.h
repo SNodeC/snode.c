@@ -87,13 +87,13 @@ namespace core::socket::stream {
         void initAcceptEvent() override;
 
     private:
-        void acceptEvent() override;
+        void acceptEvent() final;
 
     protected:
-        void destruct() override;
+        void destruct() final;
 
     private:
-        void unobservedEvent() override;
+        void unobservedEvent() final;
 
         PrimaryPhysicalSocket* primaryPhysicalSocket = nullptr;
         SecondarySocket* secondaryPhysicalSocket = nullptr;

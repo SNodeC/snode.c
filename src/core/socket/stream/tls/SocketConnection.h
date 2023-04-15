@@ -71,7 +71,7 @@ namespace core::socket::stream::tls {
 
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
-                            const std::function<void(int)>& onError) override;
+                            const std::function<void(int)>& onError) final;
 
         void doSSLShutdown(const std::function<void()>& onSuccess,
                            const std::function<void()>& onTimeout,
@@ -80,9 +80,9 @@ namespace core::socket::stream::tls {
 
         using SocketWriter::doWriteShutdown;
 
-        void doWriteShutdown() override;
+        void doWriteShutdown() final;
 
-        void doWriteShutdown(const std::function<void(int)>& onShutdown) override;
+        void doWriteShutdown(const std::function<void(int)>& onShutdown) final;
 
         SSL* ssl = nullptr;
 

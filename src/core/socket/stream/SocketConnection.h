@@ -101,28 +101,29 @@ namespace core::socket::stream {
 
         void setTimeout(const utils::Timeval& timeout) final;
 
-        const SocketAddress& getLocalAddress() const override;
-        const SocketAddress& getRemoteAddress() const override;
+        const SocketAddress& getLocalAddress() const final;
+        const SocketAddress& getRemoteAddress() const final;
 
         std::size_t readFromPeer(char* junk, std::size_t junkLen) final;
 
         using Super::sendToPeer;
         void sendToPeer(const char* junk, std::size_t junkLen) final;
 
+    private:
+        void onReceivedFromPeer(std::size_t available) final;
+
+    protected:
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
         void onConnected();
-
         void onDisconnected();
 
     private:
-        void onReceivedFromPeer(std::size_t available) final;
+        void onExit() final;
 
         void readTimeout() final;
         void writeTimeout() final;
-
-        void onExit() final;
 
         void unobservedEvent() final;
 

@@ -75,13 +75,13 @@ namespace core::socket::stream {
         void initConnectEvent() override;
 
     private:
-        void connectEvent() override;
+        void connectEvent() final;
 
     protected:
-        void destruct() override;
+        void destruct() final;
 
     private:
-        void unobservedEvent() override;
+        void unobservedEvent() final;
 
         PhysicalSocket* physicalSocket = nullptr;
 

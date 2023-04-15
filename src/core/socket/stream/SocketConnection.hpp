@@ -200,6 +200,27 @@ namespace core::socket::stream {
               typename SocketReader,
               template <typename PhysicalSocketT>
               typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReceivedFromPeer(std::size_t available) {
+        std::size_t consumed = socketContext->onReceivedFromPeer();
+
+        if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+            onDisconnected();
+            delete socketContext;
+            socketContext = newSocketContext;
+            newSocketContext = nullptr;
+            onConnected();
+        }
+
+        if (available != 0 && consumed == 0) {
+            close();
+        }
+    }
+
+    template <typename PhysicalSocket,
+              template <typename PhysicalSocketT>
+              typename SocketReader,
+              template <typename PhysicalSocketT>
+              typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onWriteError(int errnum) {
         socketContext->onWriteError(errnum);
     }
@@ -236,19 +257,10 @@ namespace core::socket::stream {
               typename SocketReader,
               template <typename PhysicalSocketT>
               typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReceivedFromPeer(std::size_t available) {
-        std::size_t consumed = socketContext->onReceivedFromPeer();
-
-        if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            onDisconnected();
-            delete socketContext;
-            socketContext = newSocketContext;
-            newSocketContext = nullptr;
-            onConnected();
-        }
-
-        if (available != 0 && consumed == 0) {
-            close();
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onExit() {
+        if (!exitProcessed) {
+            socketContext->onExit();
+            exitProcessed = true;
         }
     }
 
@@ -268,18 +280,6 @@ namespace core::socket::stream {
               typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::writeTimeout() {
         close();
-    }
-
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onExit() {
-        if (!exitProcessed) {
-            socketContext->onExit();
-            exitProcessed = true;
-        }
     }
 
     template <typename PhysicalSocket,
