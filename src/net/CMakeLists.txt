@@ -14,7 +14,6 @@ set(NET_CPP
     PhysicalSocketOption.cpp
     SocketAddress.cpp
     config/ConfigInstance.cpp
-    config/ConfigCluster.cpp
     config/ConfigConnection.cpp
     config/ConfigLegacy.cpp
     config/ConfigListen.cpp
@@ -38,7 +37,6 @@ set(NET_H
     config/ConfigAddressRemote.h
     config/ConfigAddressRemote.hpp
     config/ConfigInstance.h
-    config/ConfigCluster.h
     config/ConfigConnection.h
     config/ConfigLegacy.h
     config/ConfigListen.h

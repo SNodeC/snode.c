@@ -20,7 +20,6 @@
 #define NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigAddressLocal.h"   // IWYU pragma: export
-#include "net/config/ConfigCluster.h"        // IWYU pragma: export
 #include "net/config/ConfigConnection.h"     // IWYU pragma: export
 #include "net/config/ConfigListen.h"         // IWYU pragma: export
 #include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
@@ -40,8 +39,7 @@ namespace net::stream::config {
         : public ConfigAddressT<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection
         , public net::config::ConfigPhysicalSocket
-        , public net::config::ConfigListen
-        , public net::config::ConfigCluster {
+        , public net::config::ConfigListen {
     public:
         using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
 

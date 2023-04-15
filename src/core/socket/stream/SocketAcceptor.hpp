@@ -44,55 +44,28 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
+    SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::~SocketAcceptor() {
+        if (physicalSocket != nullptr) {
+            delete physicalSocket;
+        }
+    }
+
+    template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
     void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
-            if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE ||
-                config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
-                primaryPhysicalSocket = new PrimaryPhysicalSocket();
-                if (primaryPhysicalSocket->open(config->getSocketOptions(), PrimaryPhysicalSocket::Flags::NONBLOCK) < 0) {
-                    onError(config->Local::getAddress(), errno);
-                    destruct();
-                } else if (primaryPhysicalSocket->bind(config->Local::getAddress()) < 0) {
-                    onError(config->Local::getAddress(), errno);
-                    destruct();
-                } else if (primaryPhysicalSocket->listen(config->getBacklog()) < 0) {
-                    onError(config->Local::getAddress(), errno);
-                    destruct();
-                } else if (config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
-                    VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName()) << " mode: PRIMARY";
-                    secondaryPhysicalSocket = new SecondarySocket();
-                    if (secondaryPhysicalSocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
-                        onError(config->Local::getAddress(), errno);
-                        destruct();
-                    } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/primary-" + config->getInstanceName())) <
-                               0) {
-                        onError(config->Local::getAddress(), errno);
-                        destruct();
-                    } else {
-                        onError(config->Local::getAddress(), 0);
-                        enable(primaryPhysicalSocket->getFd());
-                    }
-                } else {
-                    VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName()) << " mode: STANDALONE";
-                    onError(config->Local::getAddress(), 0);
-                    enable(primaryPhysicalSocket->getFd());
-                }
-            } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
-                       config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
-                secondaryPhysicalSocket = new SecondarySocket();
-                if (secondaryPhysicalSocket->open(SecondarySocket::Flags::NONBLOCK) < 0) {
-                    onError(config->Local::getAddress(), errno);
-                    destruct();
-                } else if (secondaryPhysicalSocket->bind(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName())) <
-                           0) {
-                    onError(config->Local::getAddress(), errno);
-                    destruct();
-                } else {
-                    VLOG(0) << (config->getInstanceName().empty() ? "Unnamed instance" : config->getInstanceName())
-                            << " mode: SECONDARY or PROXY";
-                    onError(config->Local::getAddress(), errno);
-                    enable(secondaryPhysicalSocket->getFd());
-                }
+            physicalSocket = new PhysicalSocket();
+            if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+                onError(config->Local::getAddress(), errno);
+                destruct();
+            } else if (physicalSocket->bind(config->Local::getAddress()) < 0) {
+                onError(config->Local::getAddress(), errno);
+                destruct();
+            } else if (physicalSocket->listen(config->getBacklog()) < 0) {
+                onError(config->Local::getAddress(), errno);
+                destruct();
+            } else {
+                onError(config->Local::getAddress(), 0);
+                enable(physicalSocket->getFd());
             }
         } else {
             destruct();
@@ -101,45 +74,18 @@ namespace core::socket::stream {
 
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
     void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::acceptEvent() {
-        if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE ||
-            config->getClusterMode() == Config::ConfigCluster::MODE::PRIMARY) {
-            PrimaryPhysicalSocket physicalSocket;
+        int acceptsPerTick = config->getAcceptsPerTick();
 
-            int acceptsPerTick = config->getAcceptsPerTick();
-
-            do {
-                SocketAddress remoteAddress{};
-                physicalSocket = primaryPhysicalSocket->accept4(remoteAddress, SOCK_NONBLOCK);
-                if (physicalSocket.isValid()) {
-                    if (config->getClusterMode() == Config::ConfigCluster::MODE::STANDALONE) {
-                        socketConnectionFactory.create(physicalSocket, config);
-                    } else {
-                        // Send descriptor to SECONDARY
-                        VLOG(0) << "Sending to secondary";
-                        secondaryPhysicalSocket->sendFd(SecondarySocket::SocketAddress("/tmp/secondary-" + config->getInstanceName()),
-                                                        physicalSocket.getFd());
-                    }
-                } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                    PLOG(ERROR) << "accept";
-                }
-            } while (--acceptsPerTick > 0 && physicalSocket.isValid());
-        } else if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY ||
-                   config->getClusterMode() == Config::ConfigCluster::MODE::PROXY) {
-            // Receive socketfd via SOCK_UNIX, SOCK_DGRAM
-            int fd = -1;
-
-            if (secondaryPhysicalSocket->recvFd(&fd) >= 0) {
-                PrimaryPhysicalSocket socket(fd);
-
-                if (config->getClusterMode() == Config::ConfigCluster::MODE::SECONDARY) {
-                    socketConnectionFactory.create(socket, config);
-                } else { // PROXY
-                    // Send to SECONDARY (TERTIARY)
-                }
-            } else {
-                PLOG(ERROR) << "read_fd";
+        PhysicalSocket clientPhysicalSocket;
+        do {
+            SocketAddress remoteAddress{};
+            clientPhysicalSocket = physicalSocket->accept4(remoteAddress, PhysicalSocket::Flags::NONBLOCK);
+            if (clientPhysicalSocket.isValid()) {
+                socketConnectionFactory.create(clientPhysicalSocket, config);
+            } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
+                PLOG(ERROR) << "accept";
             }
-        }
+        } while (--acceptsPerTick > 0 && clientPhysicalSocket.isValid());
     }
 
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
