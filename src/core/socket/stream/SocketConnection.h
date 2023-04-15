@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
-#include "core/socket/SocketConnection.h" // IWYU pragma: export
+#include "core/socket/SocketConnection.h"
 
 namespace core::socket::stream {
     class SocketContextFactory;

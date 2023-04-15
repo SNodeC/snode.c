@@ -19,7 +19,6 @@
 #include "net/in6/stream/legacy/SocketClient.h"
 
 #include "core/socket/LogicalSocket.hpp"                  // IWYU pragma: keep
-#include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketConnection.hpp" // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketConnector.hpp"  // IWYU pragma: keep
 

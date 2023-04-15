@@ -18,7 +18,7 @@
 
 // clang-format off
 #include "core/socket/stream/tls/SocketConnector.h"
-#include "core/socket/stream/SocketConnector.hpp" // IWYU pragma: export
+#include "core/socket/stream/SocketConnector.hpp"
 // clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

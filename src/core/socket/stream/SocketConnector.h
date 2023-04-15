@@ -20,7 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
-#include "core/socket/stream/SocketConnectionFactory.h" // IWYU pragma: export
+#include "core/socket/stream/SocketConnectionFactory.h"
 
 namespace core::socket::stream {
 

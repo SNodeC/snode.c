@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
 
-#include "core/socket/stream/SocketAcceptor.h" // IWYU pragma: export
+#include "core/socket/stream/SocketAcceptor.h"
 
 namespace core::socket::stream::legacy {
     template <typename PhysicalSocketT>

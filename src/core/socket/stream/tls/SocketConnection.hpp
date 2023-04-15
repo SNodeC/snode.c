@@ -22,6 +22,7 @@
 #include "core/socket/stream/tls/SocketWriter.hpp"
 #include "core/socket/stream/SocketConnection.hpp"
 // clang-format on
+
 #include "core/socket/stream/tls/TLSShutdown.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

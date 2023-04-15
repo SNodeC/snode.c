@@ -16,7 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketAcceptor.h" // IWYU pragma: export
+#include "core/socket/stream/SocketAcceptor.h"
+#include "core/socket/stream/SocketConnectionFactory.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

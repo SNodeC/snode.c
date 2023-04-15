@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETREADER_H
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETREADER_H
 
-#include "core/socket/stream/SocketReader.h" // IWYU pragma: export
+#include "core/socket/stream/SocketReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

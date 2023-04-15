@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 
-#include "core/socket/stream/SocketConnector.h" // IWYU pragma: export
+#include "core/socket/stream/SocketConnector.h"
 
 namespace core::socket::stream::tls {
     template <typename PhysicalSocketT>
