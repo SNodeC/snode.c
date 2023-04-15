@@ -37,35 +37,9 @@ namespace express::dispatcher {
                                          const std::string& parentMountPath,
                                          const express::MountPoint& mountPoint) {
         bool dispatched = false;
-        /*
-                VLOG(0) << "=======================================";
-                VLOG(0) << "Request: Path: " << controller.getRequest()->path;
-                VLOG(0) << "Request: Method: " << controller.getRequest()->method;
-                VLOG(0) << "Request: URL: " << controller.getRequest()->url;
-                VLOG(0) << "MountPoint: Relativ path: " << mountPoint.relativeMountPath;
-                VLOG(0) << "MountPoint: Method: " << mountPoint.method;
-                VLOG(0) << "Parent: Mount path: " << parentMountPath;
-        */
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
             std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
-            /*
-                        VLOG(0) << "Absolute mount path: " << absoluteMountPath;
-
-                        VLOG(0) << "---------------------------------------";
-                        VLOG(0) << "controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0: "
-                                << (controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0);
-                        VLOG(0) << "controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0: "
-                                << (controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0);
-                        VLOG(0) << "mountPoint.method == \"use\": " << (mountPoint.method == "use");
-                        VLOG(0) << "absoluteMountPath == controller.getRequest()->url: " << (absoluteMountPath ==
-               controller.getRequest()->url); VLOG(0) << "absoluteMountPath == controller.getRequest()->path: " << (absoluteMountPath ==
-               controller.getRequest()->path); VLOG(0) << "checkForUrlMatch(absoluteMountPath, controller.getRequest()->url): "
-                                << checkForUrlMatch(absoluteMountPath, controller.getRequest()->url);
-                        VLOG(0) << "controller.getRequest()->method == mountPoint.method: " << (controller.getRequest()->method ==
-               mountPoint.method); VLOG(0) << "mountPoint.method == \"all\": " << (mountPoint.method == "all");
-            */
-
             if (((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 ||
                   controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0) &&
                  mountPoint.method == "use") ||
@@ -81,8 +55,6 @@ namespace express::dispatcher {
                 lambda(*controller.getRequest(), *controller.getResponse());
             }
         }
-
-        //        VLOG(0) << "=======================================";
 
         return dispatched;
     }
