@@ -19,11 +19,9 @@
 #ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETREADER_H
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETREADER_H
 
-#include "core/socket/stream/SocketReader.h"
+#include "core/socket/stream/SocketReader.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "core/system/socket.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,9 +33,7 @@ namespace core::socket::stream::legacy {
         using Super = core::socket::stream::SocketReader<PhysicalSocketT>;
         using Super::Super;
 
-        ssize_t read(char* junk, std::size_t junkLen) override {
-            return core::system::recv(this->getFd(), junk, junkLen, 0);
-        }
+        ssize_t read(char* junk, std::size_t junkLen) override;
     };
 
 } // namespace core::socket::stream::legacy

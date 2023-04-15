@@ -16,7 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// clang-format off
 #include "core/socket/stream/legacy/SocketConnector.h"
+#include "core/socket/stream/SocketConnector.hpp" // IWYU pragma: export
+// clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -19,9 +19,7 @@
 #include "net/l2/stream/tls/SocketClient.h"
 
 #include "core/socket/LogicalSocket.hpp"                  // IWYU pragma: keep
-#include "core/socket/stream/SocketConnection.hpp"        // IWYU pragma: keep
 #include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: keep
-#include "core/socket/stream/SocketConnector.hpp"         // IWYU pragma: keep
 #include "core/socket/stream/tls/SocketConnection.hpp"    // IWYU pragma: keep
 #include "core/socket/stream/tls/SocketConnector.hpp"     // IWYU pragma: keep
 

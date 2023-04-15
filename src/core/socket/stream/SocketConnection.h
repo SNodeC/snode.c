@@ -22,10 +22,8 @@
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
 
 namespace core::socket::stream {
-
     class SocketContextFactory;
     class SocketContext;
-
 } // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

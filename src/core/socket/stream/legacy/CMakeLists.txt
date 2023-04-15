@@ -11,6 +11,7 @@ set(CORE-SOCKET-STREAM-LEGACY_H
     SocketConnector.h
     SocketConnector.hpp
     SocketReader.h
+    SocketReader.hpp
     SocketServer.h
     SocketWriter.h
 )

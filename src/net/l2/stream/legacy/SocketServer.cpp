@@ -19,11 +19,10 @@
 #include "net/l2/stream/legacy/SocketServer.h"
 
 #include "core/socket/LogicalSocket.hpp"                  // IWYU pragma: keep
-#include "core/socket/stream/SocketAcceptor.hpp"          // IWYU pragma: keep
-#include "core/socket/stream/SocketConnection.hpp"        // IWYU pragma: keep
 #include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketAcceptor.hpp"   // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketConnection.hpp" // IWYU pragma: keep
+#include "core/socket/stream/legacy/SocketReader.hpp"     // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,3 +42,4 @@ template class core::socket::stream::SocketConnectionFactory<
     net::l2::stream::PhysicalServerSocket,
     net::l2::stream::legacy::config::ConfigSocketServer,
     core::socket::stream::legacy::SocketConnection<net::l2::stream::PhysicalServerSocket>>;
+template class core::socket::stream::legacy::SocketReader<net::l2::stream::PhysicalServerSocket>;

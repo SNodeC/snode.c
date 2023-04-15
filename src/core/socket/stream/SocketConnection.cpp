@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketConnection.h"
+#include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
 
 #include "core/socket/stream/SocketContextFactory.h"
 
