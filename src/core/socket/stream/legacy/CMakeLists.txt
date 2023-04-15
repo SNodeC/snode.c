@@ -14,6 +14,7 @@ set(CORE-SOCKET-STREAM-LEGACY_H
     SocketReader.hpp
     SocketServer.h
     SocketWriter.h
+    SocketWriter.hpp
 )
 
 add_library(core-socket-stream-legacy INTERFACE)

@@ -43,3 +43,5 @@ template class core::socket::stream::SocketConnectionFactory<
     core::socket::stream::tls::SocketConnection<net::in::stream::PhysicalClientSocket>>;
 template class core::socket::stream::tls::SocketReader<net::in::stream::PhysicalClientSocket>;
 template class core::socket::stream::SocketReader<net::in::stream::PhysicalClientSocket>;
+template class core::socket::stream::tls::SocketWriter<net::in::stream::PhysicalClientSocket>;
+template class core::socket::stream::SocketWriter<net::in::stream::PhysicalClientSocket>;

@@ -28,7 +28,7 @@
 // IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
 // IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
 // IWYU pragma: no_include "core/socket/stream/SocketReader.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketReader.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketWriter.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

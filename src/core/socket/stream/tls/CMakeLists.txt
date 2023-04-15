@@ -26,6 +26,7 @@ else(NOT OpenSSL_FOUND)
         SocketReader.hpp
         SocketServer.h
         SocketWriter.h
+        SocketWriter.hpp
         TLSHandshake.h
         TLSShutdown.h
         ssl_utils.h

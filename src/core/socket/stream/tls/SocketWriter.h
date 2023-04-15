@@ -24,12 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/ssl_utils.h"
-#include "log/Logger.h"
-#include "utils/PreserveErrno.h"
-
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+typedef struct ssl_st SSL;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,52 +36,7 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketWriter<PhysicalSocketT>;
         using Super::Super;
 
-        ssize_t write(const char* junk, std::size_t junkLen) override {
-            int ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
-
-            if (ret <= 0) {
-                int ssl_err = SSL_get_error(ssl, ret);
-
-                switch (ssl_err) {
-                    case SSL_ERROR_NONE:
-                        break;
-                    case SSL_ERROR_WANT_READ: {
-                        utils::PreserveErrno preserveErrno;
-
-                        LOG(INFO) << "SSL/TLS start renegotiation on write";
-                        doSSLHandshake(
-                            []() -> void {
-                                LOG(INFO) << "SSL/TLS renegotiation on write success";
-                            },
-                            []() -> void {
-                                LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
-                            },
-                            [](int ssl_err) -> void {
-                                ssl_log("SSL/TLS renegotiation", ssl_err);
-                            });
-                    }
-                        ret = -1;
-                        break;
-                    case SSL_ERROR_WANT_WRITE:
-                        ret = -1;
-                        break;
-                    case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                        errno = EPIPE;
-                        ret = -1; // on the write side this means a TCP broken pipe
-                        break;
-                    case SSL_ERROR_SYSCALL:
-                        ret = -1;
-                        break;
-                    default:
-                        ssl_log("SSL/TLS write failed", ssl_err);
-                        errno = EIO;
-                        ret = -1;
-                        break;
-                }
-            }
-
-            return ret;
-        }
+        ssize_t write(const char* junk, std::size_t junkLen) override;
 
     protected:
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,

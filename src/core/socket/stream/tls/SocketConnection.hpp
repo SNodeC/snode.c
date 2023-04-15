@@ -19,6 +19,7 @@
 // clang-format off
 #include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/SocketReader.hpp"
+#include "core/socket/stream/tls/SocketWriter.hpp"
 #include "core/socket/stream/SocketConnection.hpp"
 // clang-format on
 #include "core/socket/stream/tls/TLSShutdown.h"

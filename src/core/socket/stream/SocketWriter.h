@@ -48,109 +48,27 @@ namespace core::socket::stream {
         explicit SocketWriter(const std::function<void(int)>& onError,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
-                              const utils::Timeval& terminateTimeout)
-            : core::eventreceiver::WriteEventReceiver("SocketWriter")
-            , onError(onError)
-            , terminateTimeout(terminateTimeout) {
-            setBlockSize(blockSize);
-            setTimeout(timeout);
-        }
+                              const utils::Timeval& terminateTimeout);
 
         ~SocketWriter() override = default;
 
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
-        void writeEvent() final {
-            doWrite();
-        }
+        void writeEvent() final;
 
-        void doWrite() {
-            if (!writeBuffer.empty()) {
-                std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
-                ssize_t retWrite = write(writeBuffer.data(), writeLen);
-
-                if (retWrite > 0) {
-                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-
-                    if (!isSuspended()) {
-                        suspend();
-                    }
-                    if (!writeBuffer.empty()) {
-                        if (writeBuffer.capacity() > writeBuffer.size() * 2) {
-                            writeBuffer.shrink_to_fit();
-                        }
-                        span();
-                    } else {
-                        writeBuffer.shrink_to_fit();
-
-                        if (markShutdown) {
-                            shutdown(onShutdown);
-                        }
-                    }
-                } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                    if (isSuspended()) {
-                        resume();
-                    }
-                } else {
-                    disable();
-                    onError(errno);
-                }
-            } else if (!isSuspended()) {
-                suspend();
-            }
-        }
+        void doWrite();
 
     protected:
-        void setBlockSize(std::size_t writeBlockSize) {
-            this->blockSize = writeBlockSize;
-        }
+        void setBlockSize(std::size_t writeBlockSize);
 
-        void sendToPeer(const char* junk, std::size_t junkLen) {
-            if (!shutdownInProgress && !markShutdown) {
-                if (writeBuffer.empty()) {
-                    resume();
-                }
+        void sendToPeer(const char* junk, std::size_t junkLen);
 
-                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-            }
-        }
+        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
 
-        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown) {
-            errno = 0;
+        void shutdown(const std::function<void(int)>& onShutdown);
 
-            LOG(TRACE) << "Do syscall shutdonw(WR)";
-
-            PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
-
-            onShutdown(errno);
-        }
-
-        void shutdown(const std::function<void(int)>& onShutdown) {
-            if (!shutdownInProgress) {
-                this->onShutdown = onShutdown;
-                if (writeBuffer.empty()) {
-                    shutdownInProgress = true;
-                    LOG(TRACE) << "Initiating shutdown process";
-                    doWriteShutdown(onShutdown);
-                } else {
-                    markShutdown = true;
-                }
-            }
-        }
-
-        void terminate() override {
-            if (!terminateInProgress) {
-                setTimeout(terminateTimeout);
-                shutdown([this]([[maybe_unused]] int errnum) -> void {
-                    if (errnum != 0) {
-                        PLOG(INFO) << "SocketWriter::doWriteShutdown";
-                    }
-                    disable();
-                });
-                terminateInProgress = true;
-            }
-        }
+        void terminate() override;
 
     private:
         std::function<void(int)> onError;

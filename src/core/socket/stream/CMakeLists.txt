@@ -20,6 +20,7 @@ set(CORE_SOCKET_STREAM_H
     SocketReader.hpp
     SocketServer.h
     SocketWriter.h
+    SocketWriter.hpp
 )
 
 add_library(
