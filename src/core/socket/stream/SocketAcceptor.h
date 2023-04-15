@@ -21,12 +21,8 @@
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
-#include "net/un/dgram/Socket.h"
 
 namespace core::socket::stream {
-
-    template <typename PhysicalSocket, typename Config, typename SocketConnection>
-    class SocketConnectionFactory;
 
     class SocketContextFactory;
 
@@ -49,15 +45,14 @@ namespace core::socket::stream {
         using Config = ConfigT;
 
     private:
-        using PrimaryPhysicalSocket = PhysicalServerSocketT;
-        using SecondarySocket = net::un::dgram::Socket;
+        using PhysicalSocket = PhysicalServerSocketT;
 
     protected:
-        using SocketAddress = typename PrimaryPhysicalSocket::SocketAddress;
-        using SocketConnection = SocketConnectionT<PrimaryPhysicalSocket>;
+        using SocketAddress = typename PhysicalSocket::SocketAddress;
+        using SocketConnection = SocketConnectionT<PhysicalSocket>;
 
     private:
-        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PrimaryPhysicalSocket, Config, SocketConnection>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>;
 
     public:
         SocketAcceptor() = delete;
@@ -74,14 +69,7 @@ namespace core::socket::stream {
                        const std::function<void(const SocketAddress&, int)>& onError,
                        const std::shared_ptr<Config>& config);
 
-        ~SocketAcceptor() override {
-            if (secondaryPhysicalSocket != nullptr) {
-                delete secondaryPhysicalSocket;
-            }
-            if (primaryPhysicalSocket != nullptr) {
-                delete primaryPhysicalSocket;
-            }
-        }
+        ~SocketAcceptor() override;
 
     protected:
         void initAcceptEvent() override;
@@ -95,8 +83,7 @@ namespace core::socket::stream {
     private:
         void unobservedEvent() final;
 
-        PrimaryPhysicalSocket* primaryPhysicalSocket = nullptr;
-        SecondarySocket* secondaryPhysicalSocket = nullptr;
+        PhysicalSocket* physicalSocket = nullptr;
 
         SocketConnectionFactory socketConnectionFactory;
 

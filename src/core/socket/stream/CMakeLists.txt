@@ -35,7 +35,7 @@ target_include_directories(
               "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(core-socket-stream PUBLIC core-socket net-un-dgram)
+target_link_libraries(core-socket-stream PUBLIC core-socket)
 
 set_target_properties(
     core-socket-stream PROPERTIES SOVERSION 1 OUTPUT_NAME

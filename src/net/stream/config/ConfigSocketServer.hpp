@@ -29,8 +29,7 @@ namespace net::stream::config {
         : ConfigAddress<net::config::ConfigAddressLocal>(instance)
         , net::config::ConfigConnection(instance)
         , net::config::ConfigPhysicalSocket(instance)
-        , net::config::ConfigListen(instance)
-        , net::config::ConfigCluster(instance) {
+        , net::config::ConfigListen(instance) {
     }
 
 } // namespace net::stream::config
