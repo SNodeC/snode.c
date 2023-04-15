@@ -21,7 +21,6 @@
 
 #include "core/socket/stream/legacy/SocketClient.h"         // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
-#include "core/socket/stream/legacy/SocketReader.hpp"       // IWYU pragma: keep
 #include "net/rc/stream/SocketClient.h"                     // IWYU pragma: export
 #include "net/rc/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
 
