@@ -31,17 +31,6 @@ template class core::socket::LogicalSocket<net::in6::stream::tls::config::Config
 template class core::socket::stream::tls::SocketConnector<net::in6::stream::PhysicalClientSocket,
                                                           net::in6::stream::tls::config::ConfigSocketClient>;
 template class core::socket::stream::tls::SocketConnection<net::in6::stream::PhysicalClientSocket>;
-template class core::socket::stream::SocketConnector<net::in6::stream::PhysicalClientSocket,
-                                                     net::in6::stream::tls::config::ConfigSocketClient,
-                                                     core::socket::stream::tls::SocketConnection>;
 template class core::socket::stream::SocketConnectionT<net::in6::stream::PhysicalClientSocket,
                                                        core::socket::stream::tls::SocketReader,
                                                        core::socket::stream::tls::SocketWriter>;
-template class core::socket::stream::SocketConnectionFactory<
-    net::in6::stream::PhysicalClientSocket,
-    net::in6::stream::tls::config::ConfigSocketClient,
-    core::socket::stream::tls::SocketConnection<net::in6::stream::PhysicalClientSocket>>;
-template class core::socket::stream::tls::SocketReader<net::in6::stream::PhysicalClientSocket>;
-template class core::socket::stream::SocketReader<net::in6::stream::PhysicalClientSocket>;
-template class core::socket::stream::tls::SocketWriter<net::in6::stream::PhysicalClientSocket>;
-template class core::socket::stream::SocketWriter<net::in6::stream::PhysicalClientSocket>;

@@ -31,17 +31,6 @@ template class core::socket::LogicalSocket<net::un::stream::legacy::config::Conf
 template class core::socket::stream::legacy::SocketConnector<net::un::stream::PhysicalClientSocket,
                                                              net::un::stream::legacy::config::ConfigSocketClient>;
 template class core::socket::stream::legacy::SocketConnection<net::un::stream::PhysicalClientSocket>;
-template class core::socket::stream::SocketConnector<net::un::stream::PhysicalClientSocket,
-                                                     net::un::stream::legacy::config::ConfigSocketClient,
-                                                     core::socket::stream::legacy::SocketConnection>;
 template class core::socket::stream::SocketConnectionT<net::un::stream::PhysicalClientSocket,
                                                        core::socket::stream::legacy::SocketReader,
                                                        core::socket::stream::legacy::SocketWriter>;
-template class core::socket::stream::SocketConnectionFactory<
-    net::un::stream::PhysicalClientSocket,
-    net::un::stream::legacy::config::ConfigSocketClient,
-    core::socket::stream::legacy::SocketConnection<net::un::stream::PhysicalClientSocket>>;
-template class core::socket::stream::legacy::SocketReader<net::un::stream::PhysicalClientSocket>;
-template class core::socket::stream::SocketReader<net::un::stream::PhysicalClientSocket>;
-template class core::socket::stream::legacy::SocketWriter<net::un::stream::PhysicalClientSocket>;
-template class core::socket::stream::SocketWriter<net::un::stream::PhysicalClientSocket>;
