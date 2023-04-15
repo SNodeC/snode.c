@@ -19,6 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETSERVER_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETSERVER_H
 
+#include "core/socket/LogicalSocket.h"             // IWYU pragma: export
 #include "core/socket/stream/SocketServer.h"       // IWYU pragma: export
 #include "core/socket/stream/tls/SocketAcceptor.h" // IWYU pragma: export
 
