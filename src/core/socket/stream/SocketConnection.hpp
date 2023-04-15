@@ -290,4 +290,5 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() {
         delete this;
     }
+
 } // namespace core::socket::stream

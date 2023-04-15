@@ -16,8 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketAcceptor.hpp" // IWYU pragma: export
+// clang-format off
 #include "core/socket/stream/tls/SocketAcceptor.h"
+#include "core/socket/stream/SocketAcceptor.hpp" // IWYU pragma: export
+// clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

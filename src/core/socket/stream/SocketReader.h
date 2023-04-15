@@ -48,93 +48,25 @@ namespace core::socket::stream {
         explicit SocketReader(const std::function<void(int)>& onError,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
-                              const utils::Timeval& terminateTimeout)
-            : core::eventreceiver::ReadEventReceiver("SocketReader")
-            , onError(onError)
-            , terminateTimeout(terminateTimeout) {
-            setBlockSize(blockSize);
-            setTimeout(timeout);
-        }
+                              const utils::Timeval& terminateTimeout);
 
     private:
         virtual void onReceivedFromPeer(std::size_t available) = 0;
 
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
-        void readEvent() final {
-            std::size_t available = doRead();
+        void readEvent() final;
 
-            if (available > 0) {
-                onReceivedFromPeer(available);
-            }
-        }
-
-        std::size_t doRead() {
-            errno = 0;
-
-            if (size == 0) {
-                cursor = 0;
-
-                std::size_t readLen = blockSize - size;
-                ssize_t retRead = read(readBuffer.data() + size, readLen);
-
-                if (retRead > 0) {
-                    size += static_cast<std::size_t>(retRead);
-
-                    if (!isSuspended()) {
-                        suspend();
-                    }
-                    span();
-                } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                    if (isSuspended()) {
-                        resume();
-                    }
-                } else {
-                    LOG(TRACE) << "Received EOF";
-                    disable();
-                    onError(errno);
-                }
-            } else {
-                span();
-            }
-
-            return size;
-        }
+        std::size_t doRead();
 
     protected:
-        void setBlockSize(std::size_t readBlockSize) {
-            readBuffer.resize(readBlockSize);
-            this->blockSize = readBlockSize;
-        }
+        void setBlockSize(std::size_t readBlockSize);
 
-        std::size_t readFromPeer(char* junk, std::size_t junkLen) {
-            std::size_t maxReturn = std::min(junkLen, size);
+        std::size_t readFromPeer(char* junk, std::size_t junkLen);
 
-            std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, junk);
+        void shutdown();
 
-            cursor += maxReturn;
-            size -= maxReturn;
-
-            return maxReturn;
-        }
-
-        void shutdown() {
-            if (!shutdownTriggered) {
-                PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
-                shutdownTriggered = true;
-            }
-        }
-
-        void terminate() override {
-            if (!terminateInProgress) {
-                setTimeout(terminateTimeout);
-                // shutdown();
-                // do not shutdown our read side because we try to do a full tcp shutdown sequence.
-                // In case we do not receive a TCP-FIN (or equivalent depending on the protocol) the
-                // connection is hard closed after "terminateTimeout".
-                terminateInProgress = true;
-            }
-        }
+        void terminate() override;
 
     private:
         std::function<void(int)> onError;

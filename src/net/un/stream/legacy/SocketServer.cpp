@@ -43,3 +43,4 @@ template class core::socket::stream::SocketConnectionFactory<
     net::un::stream::legacy::config::ConfigSocketServer,
     core::socket::stream::legacy::SocketConnection<net::un::stream::PhysicalServerSocket>>;
 template class core::socket::stream::legacy::SocketReader<net::un::stream::PhysicalServerSocket>;
+template class core::socket::stream::SocketReader<net::un::stream::PhysicalServerSocket>;
