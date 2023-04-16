@@ -78,9 +78,7 @@ namespace core::socket::stream::tls {
                            const std::function<void(int)>& onError,
                            const utils::Timeval& shutdownTimeout);
 
-        using SocketWriter::doWriteShutdown;
-
-        void doWriteShutdown() final;
+        void doSSLShutdown() final;
 
         void doWriteShutdown(const std::function<void(int)>& onShutdown) final;
 

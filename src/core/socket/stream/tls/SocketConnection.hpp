@@ -178,7 +178,7 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket>
-    void core::socket::stream::tls::SocketConnection<PhysicalSocket>::doWriteShutdown() {
+    void core::socket::stream::tls::SocketConnection<PhysicalSocket>::doSSLShutdown() {
         if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
             VLOG(0) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
             if (SocketWriter::isEnabled()) {

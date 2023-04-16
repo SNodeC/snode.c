@@ -66,7 +66,7 @@ namespace core::socket::stream::tls {
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
-                    doWriteShutdown();
+                    doSSLShutdown();
                     errno = 0;
                     ret = 0;
                     break;
@@ -75,7 +75,7 @@ namespace core::socket::stream::tls {
 
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
                     VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
-                    doWriteShutdown();
+                    doSSLShutdown();
                 }
                     ret = -1;
                     break;
