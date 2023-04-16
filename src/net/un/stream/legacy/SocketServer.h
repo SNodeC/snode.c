@@ -19,8 +19,10 @@
 #ifndef NET_UN_STREAM_LEGACY_SOCKETSERVER_H
 #define NET_UN_STREAM_LEGACY_SOCKETSERVER_H
 
+#include "core/socket/LogicalSocket.h"                      // IWYU pragma: export
+#include "core/socket/stream/SocketServer.h"                // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketAcceptor.h"       // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
-#include "core/socket/stream/legacy/SocketServer.h"         // IWYU pragma: export
 #include "net/un/stream/SocketServer.h"                     // IWYU pragma: export
 #include "net/un/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: export
 
@@ -37,10 +39,12 @@
 namespace net::un::stream::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketServer =
-        net::un::stream::SocketServer<core::socket::stream::legacy::SocketServer<net::un::stream::PhysicalServerSocket,
-                                                                                 net::un::stream::legacy::config::ConfigSocketServer,
-                                                                                 SocketContextFactoryT>>;
+    using SocketServer = net::un::stream::SocketServer<core::socket::stream::SocketServer<
+        core::socket::LogicalSocket<net::un::stream::legacy::config::ConfigSocketServer>,
+        net::un::SocketAddress,
+        core::socket::stream::legacy::SocketAcceptor<net::un::stream::PhysicalServerSocket,
+                                                     net::un::stream::legacy::config::ConfigSocketServer>,
+        SocketContextFactoryT>>;
 
 } // namespace net::un::stream::legacy
 

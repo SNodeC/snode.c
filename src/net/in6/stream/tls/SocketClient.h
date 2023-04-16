@@ -19,8 +19,10 @@
 #ifndef NET_IN6_STREAM_TLS_SOCKETCLIENT_H
 #define NET_IN6_STREAM_TLS_SOCKETCLIENT_H
 
-#include "core/socket/stream/tls/SocketClient.h"          // IWYU pragma: export
+#include "core/socket/LogicalSocket.h"                    // IWYU pragma: export
+#include "core/socket/stream/SocketClient.h"              // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnection.h"      // IWYU pragma: export
+#include "core/socket/stream/tls/SocketConnector.h"       // IWYU pragma: export
 #include "net/in6/stream/SocketClient.h"                  // IWYU pragma: export
 #include "net/in6/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: export
 
@@ -37,10 +39,12 @@
 namespace net::in6::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketClient =
-        net::in6::stream::SocketClient<core::socket::stream::tls::SocketClient<net::in6::stream::PhysicalClientSocket,
-                                                                               net::in6::stream::tls::config::ConfigSocketClient,
-                                                                               SocketContextFactoryT>>;
+    using SocketClient = net::in6::stream::SocketClient<
+        core::socket::stream::SocketClient<core::socket::LogicalSocket<net::in6::stream::tls::config::ConfigSocketClient>,
+                                           net::in6::SocketAddress,
+                                           core::socket::stream::tls::SocketConnector<net::in6::stream::PhysicalClientSocket,
+                                                                                      net::in6::stream::tls::config::ConfigSocketClient>,
+                                           SocketContextFactoryT>>;
 
 } // namespace net::in6::stream::tls
 
