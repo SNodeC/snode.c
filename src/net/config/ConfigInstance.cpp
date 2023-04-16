@@ -39,6 +39,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include "log/Logger.h"
 #include "utils/Config.h"
 
 #include <cstdint>
@@ -58,6 +59,8 @@ namespace net::config {
                              "--disable",
                              [this]([[maybe_unused]] int64_t count) -> void {
                                  instanceSc->disabled(disableOpt->as<bool>());
+                                 instanceSc->required(!disableOpt->as<bool>());
+                                 utils::Config::needs_instance(instanceSc);
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
