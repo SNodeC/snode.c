@@ -19,7 +19,7 @@
 #include "log/Logger.h"
 #include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
-#include "web/http/server/SocketContext.h"
+#include "web/http/server/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

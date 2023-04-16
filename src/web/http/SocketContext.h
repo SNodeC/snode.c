@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXT_H
 #define WEB_HTTP_SOCKETCONTEXT_H
 
-#include "core/socket/stream/SocketContext.h"
+#include "core/socket/stream/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

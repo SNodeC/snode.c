@@ -17,8 +17,8 @@
  */
 
 #include "core/socket/SocketAddress.h"
-#include "core/socket/SocketConnection.h"
-#include "web/http/client/SocketContext.h"
+#include "core/socket/stream/SocketConnection.h"
+#include "web/http/client/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

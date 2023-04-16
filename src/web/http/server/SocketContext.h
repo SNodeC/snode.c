@@ -19,13 +19,9 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXT_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
-#include "web/http/SocketContext.h"
+#include "web/http/SocketContext.h" // IWYU pragma: export
 #include "web/http/server/RequestContextBase.h"
 #include "web/http/server/RequestParser.h"
-
-namespace core::socket::stream {
-    class SocketConnection;
-} // namespace core::socket::stream
 
 namespace web::http::server {
     class Request;
@@ -41,8 +37,6 @@ namespace web::http::server {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
-
-    using SocketContextSuper = web::http::SocketContext;
 
     template <typename RequestT, typename ResponseT>
     class SocketContext : public web::http::SocketContext {
