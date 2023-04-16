@@ -857,9 +857,9 @@ echoClient.connect(...);
 
 In case `SocketServer` and `SocketClient` instances have been created using the constructors not expecting the three callbacks this callbacks can be attached to this instances afterwards by using the methods
 
-- `void onConnect(const std::function<SocketConnection*>& onConnect)`
-- `void onConnected(const std::function<SocketConnection*>& onConnected)`
-- `void onDisconnected(const std::function<SocketConnection*>& onDisconnected)`
+- `void setOnConnect(const std::function<SocketConnection*>& onConnect)`
+- `void setOnConnected(const std::function<SocketConnection*>& onConnected)`
+- `void setOnDisconnected(const std::function<SocketConnection*>& onDisconnected)`
 
 like for example
 
@@ -870,15 +870,15 @@ using SocketConnection = EchoServer::SocketConnection;
 
 EchoServer echoServer;
 
-echoServer.onConnect([] (SocketConnection* socketConnection) -> void {
+echoServer.setOnConnect([] (SocketConnection* socketConnection) -> void {
     std::cout << "Connection to peer estableshed" << std::endl;
 });
 
-echoServer.onConnected([] (SocketConnection* socketConnection) -> void {
+echoServer.setOnConnected([] (SocketConnection* socketConnection) -> void {
     std::cout << "Connection to peer ready to be used" << std::endl;
 });
     
-echoServer.onDisconnected([] (SocketConnection* socketConnection) -> void {
+echoServer.setOnDisconnected([] (SocketConnection* socketConnection) -> void {
     std::cout << "Connection to peer closed" << std::endl;
 });
 
@@ -894,15 +894,15 @@ using SocketConnection = EchoClient::SocketConnection;
 
 EchoClient echoClient;
 
-echoClient.onConnect([] (SocketConnection* socketConnection) -> void {
+echoClient.setOnConnect([] (SocketConnection* socketConnection) -> void {
     std::cout << "Connection to peer estableshed" << std::endl;
 });
 
-echoClient.onConnected([] (SocketConnection* socketConnection) -> void {
+echoClient.setOnConnected([] (SocketConnection* socketConnection) -> void {
     std::cout << "Connection to peer ready to be used" << std::endl;
 });
     
-echoClient.onDisconnected([] (SocketConnection* socketConnection) -> void {
+echoClient.setOnDisconnected([] (SocketConnection* socketConnection) -> void {
     std::cout << "Connection to peer closed" << std::endl;
 });
 

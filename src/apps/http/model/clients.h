@@ -135,7 +135,7 @@ namespace apps::http::tls {
                 VLOG(0) << "     Reason: " << reason;
             });
 
-        client.onConnect([&client](SocketConnection* socketConnection) -> void { // onConnect
+        client.setOnConnect([&client](SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect " << client.getConfig().getInstanceName();
 
             VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
@@ -152,7 +152,7 @@ namespace apps::http::tls {
             // }
         });
 
-        client.onConnected([&client](SocketConnection* socketConnection) -> void { // onConnected
+        client.setOnConnected([&client](SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected " << client.getConfig().getInstanceName();
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -219,7 +219,7 @@ namespace apps::http::tls {
             }
         });
 
-        client.onDisconnect([&client](SocketConnection* socketConnection) -> void { // onDisconnect
+        client.setOnDisconnect([&client](SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect " << client.getConfig().getInstanceName();
 
             VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();

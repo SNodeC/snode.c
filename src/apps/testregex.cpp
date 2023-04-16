@@ -245,14 +245,14 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        legacyApp.onConnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
+        legacyApp.setOnConnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnect:";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
-        legacyApp.onDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
+        legacyApp.setOnDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnDisconnect:";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -273,14 +273,14 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.onConnect([](tls::in::WebApp::SocketConnection* socketConnection) -> void {
+        tlsApp.setOnConnect([](tls::in::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnect:";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
-        tlsApp.onConnected([](tls::in::WebApp::SocketConnection* socketConnection) {
+        tlsApp.setOnConnected([](tls::in::WebApp::SocketConnection* socketConnection) {
             VLOG(0) << "OnConnected:";
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -348,7 +348,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.onDisconnect([](tls::in::WebApp::SocketConnection* socketConnection) -> void {
+        tlsApp.setOnDisconnect([](tls::in::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnDisconnect:";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

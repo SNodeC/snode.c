@@ -54,9 +54,9 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onDisconnect)
             : Super(name)
             , socketContextFactory(std::make_shared<SocketContextFactory>())
-            , _onConnect(onConnect)
-            , _onConnected(onConnected)
-            , _onDisconnect(onDisconnect) {
+            , onConnect(onConnect)
+            , onConnected(onConnected)
+            , onDisconnect(onDisconnect) {
         }
 
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
@@ -94,7 +94,7 @@ namespace core::socket::stream {
         }
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const {
-            new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, onError, Super::config);
+            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, Super::config);
         }
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const {
@@ -111,16 +111,16 @@ namespace core::socket::stream {
             connect(remoteAddress, onError);
         }
 
-        void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
-            _onConnect = onConnect;
+        void setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {
+            this->onConnect = onConnect;
         }
 
-        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
-            _onConnected = onConnected;
+        void setOnConnected(const std::function<void(SocketConnection*)>& onConnected) {
+            this->onConnected = onConnected;
         }
 
-        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
-            _onDisconnect = onDisconnect;
+        void setOnDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
+            this->onDisconnect = onDisconnect;
         }
 
         std::shared_ptr<SocketContextFactory> getSocketContextFactory() {
@@ -131,9 +131,9 @@ namespace core::socket::stream {
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
     protected:
-        std::function<void(SocketConnection*)> _onConnect;
-        std::function<void(SocketConnection*)> _onConnected;
-        std::function<void(SocketConnection*)> _onDisconnect;
+        std::function<void(SocketConnection*)> onConnect;
+        std::function<void(SocketConnection*)> onConnected;
+        std::function<void(SocketConnection*)> onDisconnect;
     };
 
 } // namespace core::socket::stream

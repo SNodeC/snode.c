@@ -77,7 +77,7 @@ namespace apps::http::tls {
     WebApp getWebApp(const std::string& name, const std::string& rootPath) {
         WebApp webApp(name, getRouter(rootPath));
 
-        webApp.onConnect([&webApp](SocketConnection* socketConnection) -> void { // onConnect
+        webApp.setOnConnect([&webApp](SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect " << webApp.getConfig().getInstanceName();
 
             VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
@@ -94,7 +94,7 @@ namespace apps::http::tls {
             // }
         });
 
-        webApp.onConnected([&webApp](SocketConnection* socketConnection) -> void { // onConnected
+        webApp.setOnConnected([&webApp](SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected " << webApp.getConfig().getInstanceName();
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -161,7 +161,7 @@ namespace apps::http::tls {
             }
         });
 
-        webApp.onDisconnect([&webApp](SocketConnection* socketConnection) -> void { // onDisconnect
+        webApp.setOnDisconnect([&webApp](SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect " << webApp.getConfig().getInstanceName();
 
             VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
