@@ -125,9 +125,6 @@ install(
     COMPONENT http-server
 )
 
-message("HTTP-Server install destination: " ${HTTP_SERVER_INSTALL_LIBDIR})
-message("HTTP-Server install rpath: " "${HTTP_RPATH};${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}")
-
 # HTTP_SERVER_COMPILE_LIBDIR   // Compile to HTTP_SERVER_INSTALL_LIBDIR   //
 # Install to
 
