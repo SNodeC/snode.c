@@ -1415,8 +1415,6 @@ Sections:
        Configuration of socket behaviour for instance 'echo'
   server
        Configuration of server socket for instance 'echo'
-  cluster
-       Configuration of clustering mode for instance 'echo'
 ```
 
 on screen.
@@ -1454,7 +1452,6 @@ This port number can now be overridden on the command line so, that the `echo` l
 
 ```shell
 command@line:~/> echoserver echo local --port 8080
-2023-03-11 18:53:12 0000000000001: echo mode: STANDALONE
 Success: Echo server listening on 0.0.0.0:8080
 ```
 
@@ -1469,7 +1466,6 @@ to the command line above. If *echoserver* is now started without command line a
 
 ```shell
 command@line:~/> echoserver
-2023-03-11 18:59:46 0000000000001: echo mode: STANDALONE
 Success: Echo server listening on 0.0.0.0:8080
 ```
 
@@ -1523,7 +1519,6 @@ command@line:~/> echoserver echo local --port
 Command line error: Argument for --port: 1 required port:UINT in [0 - 65535] missing
 
 command@line:~/> echoserver echo local --port 8080
-2023-03-11 19:26:36 0000000000001: echo mode: STANDALONE
 Success: Echo server listening on 0.0.0.0:8080
 ```
 
@@ -1534,7 +1529,6 @@ command@line:~/> echoserver echo local --port 8080 -w
 Writing config file: /home/[user]/.config/snode.c/echoserver.conf
 
 command@line:~/> echoserver
-2023-03-11 19:29:18 0000000000001: echo mode: STANDALONE
 Success: Echo server listening on 0.0.0.0:8080
 ```
 
@@ -1831,8 +1825,6 @@ Sections:
        Configuration of socket behaviour for instance 'echo'
   server
        Configuration of server socket for instance 'echo'
-  cluster
-       Configuration of clustering mode for instance 'echo'
   tls  Configuration of SSL/TLS behaviour for instance 'echo'
 ```
 
