@@ -32,6 +32,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
 
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
@@ -124,6 +125,8 @@ cpack_add_component(db-mariadb DEPENDS core)
 
 cpack_add_component(
     apps
+    DISPLAY_NAME "Applications"
+    DESCRIPTION "We install Applications"
     DEPENDS http-server-express
             http-client
             net-in-stream-tls
@@ -138,5 +141,7 @@ cpack_add_component(
             net-un-stream-legacy
             core-socket-stream-legacy
             core-socket-stream-tls
+            websocket-server
+            websocket-client
             db-mariadb
 )

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.18)
 
 project(snode.c-code)
 
+include(GNUInstallDirs)
+
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 # set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
@@ -9,7 +11,6 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 
 set(SNODEC_INTREE_BUILD "YES")
 
-include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(iwyu)
 
