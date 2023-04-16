@@ -22,6 +22,14 @@
 #include "log/Logger.h"
 #include "utils/Config.h"
 
+#if (STREAM_TYPE == TLS) // tls
+
+#include "core/socket/stream/tls/ssl_version.h"
+
+#include <variant>
+
+#endif // (STREAM_TYPE == TLS)
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;

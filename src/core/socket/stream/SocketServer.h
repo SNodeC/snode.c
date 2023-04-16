@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 #include <cstddef>
 #include <functional> // IWYU pragma: export
@@ -37,12 +39,9 @@ namespace core::socket::stream {
         using SocketAcceptor = SocketAcceptorT;
         using SocketContextFactory = SocketContextFactoryT;
 
-    protected:
+    public:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = SocketAddressT;
-
-    public:
-        SocketServer() = delete;
 
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
@@ -59,6 +58,34 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect)
             : SocketServer("", onConnect, onConnected, onDisconnect) {
+        }
+
+        explicit SocketServer(const std::string& name)
+            : SocketServer(
+                  name,
+                  [name](SocketConnection* socketConnection) -> void { // onConnect
+                      VLOG(0) << "OnConnect - " << name;
+
+                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
+                  },
+                  [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
+                      VLOG(0) << "OnConnected - " << name;
+                  },
+                  [name](SocketConnection* socketConnection) -> void { // onDisconnect
+                      VLOG(0) << "OnDisconnect " << name;
+
+                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
+                  }) {
+        }
+
+        explicit SocketServer()
+            : SocketServer("") {
         }
 
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const {

@@ -25,58 +25,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::legacy {
 
     template <typename PhysicalServerSocketT, typename ConfigT, typename SocketContextFactoryT>
-    class SocketServer
-        : public core::socket::stream::SocketServer<core::socket::LogicalSocket<ConfigT>,
-                                                    typename PhysicalServerSocketT::SocketAddress,
-                                                    core::socket::stream::legacy::SocketAcceptor<PhysicalServerSocketT, ConfigT>,
-                                                    SocketContextFactoryT> {
-    private:
-        using Super = core::socket::stream::SocketServer<core::socket::LogicalSocket<ConfigT>,
-                                                         typename PhysicalServerSocketT::SocketAddress,
-                                                         core::socket::stream::legacy::SocketAcceptor<PhysicalServerSocketT, ConfigT>,
-                                                         SocketContextFactoryT>;
-
-    public:
-        using SocketConnection = typename Super::SocketConnection;
-        using SocketAddress = typename Super::SocketAddress;
-
-        using Super::Super;
-
-        explicit SocketServer(const std::string& name)
-            : SocketServer(
-                  name,
-                  [name](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect - " << name;
-
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
-                  },
-                  [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected - " << name;
-                  },
-                  [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect " << name;
-
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
-                  }) {
-        }
-
-        explicit SocketServer()
-            : SocketServer("") {
-        }
-    };
+    using SocketServer = core::socket::stream::SocketServer<core::socket::LogicalSocket<ConfigT>,
+                                                            typename PhysicalServerSocketT::SocketAddress,
+                                                            core::socket::stream::legacy::SocketAcceptor<PhysicalServerSocketT, ConfigT>,
+                                                            SocketContextFactoryT>;
 
 } // namespace core::socket::stream::legacy
 

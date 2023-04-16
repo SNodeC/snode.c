@@ -28,7 +28,7 @@ namespace core::socket::stream::tls {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
+#include <map>    // IWYU pragma: export
 #include <set>    // IWYU pragma: export
 #include <string> // IWYU pragma: export
 
@@ -40,7 +40,7 @@ typedef struct ssl_st SSL;
 namespace core::socket::stream::tls {
 
     template <typename PhysicalServerSocketT, typename ConfigT>
-    class SocketAcceptor final
+    class SocketAcceptor
         : private core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
@@ -59,7 +59,7 @@ namespace core::socket::stream::tls {
                        const std::function<void(const SocketAddress&, int)>& onError,
                        const std::shared_ptr<Config>& config);
 
-        ~SocketAcceptor() final;
+        ~SocketAcceptor() override;
 
     private:
         void initAcceptEvent() final;

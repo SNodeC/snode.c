@@ -26,6 +26,9 @@
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
 
+#include <openssl/ssl.h>    // IWYU pragma: export
+#include <openssl/x509v3.h> // IWYU pragma: export
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream::tls {

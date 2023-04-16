@@ -30,7 +30,6 @@ namespace net::config {
 
 #include <map>
 #include <memory>
-#include <openssl/ssl.h> // IWYU pragma: export
 #include <set>
 #include <string>
 #include <variant>
@@ -39,7 +38,6 @@ namespace net::config {
 
 namespace core::socket::stream::tls {
 
-    //    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig);
     SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsServer>& configTls);
     SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsClient>& configTls);
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert);

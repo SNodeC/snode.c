@@ -32,9 +32,12 @@
 #include <openssl/asn1.h>
 #include <openssl/err.h>
 #include <openssl/obj_mac.h>
+#include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <string>
+#include <utility> // IWYU pragma: keep
+#include <variant>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <bits/utility.h>

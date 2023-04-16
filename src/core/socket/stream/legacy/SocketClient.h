@@ -32,51 +32,10 @@
 namespace core::socket::stream::legacy {
 
     template <typename PhysicalClientSocketT, typename ConfigT, typename SocketContextFactoryT>
-    class SocketClient
-        : public core::socket::stream::SocketClient<core::socket::LogicalSocket<ConfigT>,
-                                                    typename PhysicalClientSocketT::SocketAddress,
-                                                    core::socket::stream::legacy::SocketConnector<PhysicalClientSocketT, ConfigT>,
-                                                    SocketContextFactoryT> {
-    private:
-        using Super = core::socket::stream::SocketClient<core::socket::LogicalSocket<ConfigT>,
-                                                         typename PhysicalClientSocketT::SocketAddress,
-                                                         core::socket::stream::legacy::SocketConnector<PhysicalClientSocketT, ConfigT>,
-                                                         SocketContextFactoryT>;
-
-    public:
-        using SocketConnection = typename Super::SocketConnection;
-        using SocketAddress = typename Super::SocketAddress;
-
-        using Super::Super;
-
-        explicit SocketClient(const std::string& name)
-            : SocketClient(
-                  name,
-                  [name](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect " << name;
-
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
-                  },
-                  [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected " << name;
-                  },
-                  [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect " << name;
-
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
-                  }) {
-        }
-
-        explicit SocketClient()
-            : SocketClient("") {
-        }
-    };
+    using SocketClient = core::socket::stream::SocketClient<core::socket::LogicalSocket<ConfigT>,
+                                                            typename PhysicalClientSocketT::SocketAddress,
+                                                            core::socket::stream::legacy::SocketConnector<PhysicalClientSocketT, ConfigT>,
+                                                            SocketContextFactoryT>;
 
 } // namespace core::socket::stream::legacy
 

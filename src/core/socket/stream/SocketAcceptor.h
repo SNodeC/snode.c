@@ -69,7 +69,7 @@ namespace core::socket::stream {
         void initAcceptEvent() override;
 
     private:
-        void acceptEvent() final;
+        void acceptEvent() override;
 
     protected:
         void destruct() final;

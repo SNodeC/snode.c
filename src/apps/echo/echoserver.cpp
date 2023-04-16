@@ -23,7 +23,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #if (STREAM_TYPE == TLS)
-#include <string> // IWYU pragma: keep
+#include "core/socket/stream/tls/ssl_version.h"
+
+#include <variant>
 #endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

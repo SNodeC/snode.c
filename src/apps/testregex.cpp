@@ -23,12 +23,16 @@
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
-#include <cstddef>
 #include <iostream>
-#include <openssl/asn1.h>
-#include <openssl/crypto.h>
-#include <openssl/obj_mac.h>
-#include <openssl/x509.h>
+#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/x509v3.h>
+
+// IWYU pragma: no_include <openssl/ssl3.h>
+// IWYU pragma: no_include <openssl/x509.h>
+// IWYU pragma: no_include <openssl/types.h>
+// IWYU pragma: no_include <openssl/asn1.h>
+// IWYU pragma: no_include <openssl/obj_mac.h>
+// IWYU pragma: no_include <openssl/crypto.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
