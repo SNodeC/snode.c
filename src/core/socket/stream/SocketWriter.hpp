@@ -20,6 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
@@ -85,7 +87,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket>
     void SocketWriter<PhysicalSocket>::sendToPeer(const char* junk, std::size_t junkLen) {
-        if (!shutdownInProgress && !markShutdown) {
+        if (!shutdownInProgress && !markShutdown && isEnabled()) {
             if (writeBuffer.empty()) {
                 resume();
             }

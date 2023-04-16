@@ -39,7 +39,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include "log/Logger.h"
 #include "utils/Config.h"
 
 #include <cstdint>
