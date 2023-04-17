@@ -49,7 +49,6 @@ add_compile_options(
     -Werror
     -Wall
     -Wextra
-    -Wno-psabi # needed for RaspberryPi
     -Wconversion
     -Wpedantic
     -Wconversion
@@ -58,20 +57,27 @@ add_compile_options(
     -Wfloat-equal
     -pedantic-errors
     -fexec-charset=UTF-8
-    -Wno-shadow
+    -Wno-shadow # yes we do
+    -Wno-psabi # needed for RaspberryPi
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(
         -Weverything
-        -Wno-c++98-compat
+# None nested namespaces is realy old fashon
         -Wno-c++98-compat-pedantic
+# Hm, with compound singletons difficult to avoid
         -Wno-exit-time-destructors
-        -Wno-global-constructors
+# again, with compound singletons difficult to avoid
+        -Wno-global-constructors # same, we have global compund variables
+# Yes, we do! Of course
         -Wno-shadow-field
-        -Wno-shadow-field-in-constructor
+# Not avoidable, realy - not realy a problem nowerdays! Compiler should padd
         -Wno-padded
+# Oh, mysql/mariadb has some strange identifier
         -Wno-reserved-identifier
+        -Wno-reserved-macro-identifier
+# Later, we want to have UML in doxygen documentation
         -Wno-documentation-unknown-command
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
