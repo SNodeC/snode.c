@@ -27,15 +27,6 @@
 namespace net {
 
     template <typename SocketAddress>
-    PhysicalSocket<SocketAddress>::PhysicalSocket(int fd)
-        : Descriptor(fd) {
-        socklen_t optLen = sizeof(domain);
-        getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
-        getSockopt(SOL_SOCKET, SO_TYPE, &type, &optLen);
-        getSockopt(SOL_SOCKET, SO_PROTOCOL, &protocol, &optLen);
-    }
-
-    template <typename SocketAddress>
     PhysicalSocket<SocketAddress>::PhysicalSocket(int domain, int type, int protocol)
         : Descriptor(-1)
         , domain(domain)
@@ -44,23 +35,24 @@ namespace net {
     }
 
     template <typename SocketAddress>
+    PhysicalSocket<SocketAddress>::PhysicalSocket(int fd)
+        : Descriptor(fd) {
+        socklen_t optLen = sizeof(domain);
+        getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
+
+        optLen = sizeof(type);
+        getSockopt(SOL_SOCKET, SO_TYPE, &type, &optLen);
+
+        optLen = sizeof(protocol);
+        getSockopt(SOL_SOCKET, SO_PROTOCOL, &protocol, &optLen);
+    }
+
+    template <typename SocketAddress>
     PhysicalSocket<SocketAddress>::PhysicalSocket(const PhysicalSocket& physicalSocket)
         : Descriptor(physicalSocket.getFd()) {
         domain = physicalSocket.domain;
         type = physicalSocket.type;
         protocol = physicalSocket.protocol;
-    }
-
-    template <typename SocketAddress>
-    PhysicalSocket<SocketAddress>& PhysicalSocket<SocketAddress>::operator=(int fd) {
-        Super::operator=(fd);
-
-        socklen_t optLen = sizeof(domain);
-        getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
-        getSockopt(SOL_SOCKET, SO_TYPE, &type, &optLen);
-        getSockopt(SOL_SOCKET, SO_PROTOCOL, &protocol, &optLen);
-
-        return *this;
     }
 
     template <typename SocketAddress>

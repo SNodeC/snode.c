@@ -42,8 +42,6 @@ namespace net::l2 {
         PhysicalSocket(int type, int protocol);
         PhysicalSocket(const PhysicalSocket&) = default;
 
-        using Super::operator=;
-
         ~PhysicalSocket() override;
     };
 

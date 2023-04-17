@@ -28,19 +28,22 @@ namespace core {
     class Descriptor {
     public:
         Descriptor() = delete;
-        explicit Descriptor(int fd);
         Descriptor(const Descriptor& d) = delete;
         Descriptor(Descriptor&& d) = delete;
 
-        Descriptor& operator=(const int& fd);
+    protected:
+        explicit Descriptor(int fd);
+
+        Descriptor& operator=(int fd);
         Descriptor& operator=(const Descriptor& descriptor) = delete;
         Descriptor& operator=(Descriptor&& descriptor) = delete;
 
         virtual ~Descriptor();
 
+    public:
         int getFd() const;
 
-        void dontClose();
+        void setDontClose(bool dontClose = true);
 
     private:
         int fd = -1;

@@ -42,8 +42,6 @@ namespace net::un {
         PhysicalSocket(int type, int protocol);
         PhysicalSocket(const PhysicalSocket&) = default;
 
-        using Super::operator=;
-
         ~PhysicalSocket() override;
 
         int bind(const SocketAddress& bindAddress);

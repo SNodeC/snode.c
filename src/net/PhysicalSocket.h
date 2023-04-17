@@ -48,8 +48,6 @@ namespace net {
         PhysicalSocket(int domain, int type, int protocol);
         PhysicalSocket(const PhysicalSocket& physicalSocket);
 
-        PhysicalSocket& operator=(int fd);
-
         ~PhysicalSocket() override;
 
     public:

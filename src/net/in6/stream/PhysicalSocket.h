@@ -41,8 +41,6 @@ namespace net::in6::stream {
         PhysicalSocket();
         PhysicalSocket(const PhysicalSocket&) = default;
 
-        using Super::operator=;
-
         ~PhysicalSocket() override;
     };
 

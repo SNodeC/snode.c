@@ -30,7 +30,7 @@ namespace core {
         : fd(fd) {
     }
 
-    Descriptor& Descriptor::operator=(const int& fd) {
+    Descriptor& Descriptor::operator=(int fd) {
         this->fd = fd;
 
         return *this;
@@ -47,8 +47,8 @@ namespace core {
         return fd;
     }
 
-    void Descriptor::dontClose() {
-        autoClose = false;
+    void Descriptor::setDontClose(bool dontClose) {
+        autoClose = !dontClose;
     }
 
 } // namespace core
