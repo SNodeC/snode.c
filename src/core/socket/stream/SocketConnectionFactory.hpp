@@ -49,7 +49,7 @@ namespace core::socket::stream {
             if (physicalSocket.getSockname(localAddress) == 0 && physicalSocket.getPeername(remoteAddress) == 0) {
                 physicalSocket.dontClose();
 
-                socketConnection = new SocketConnection(physicalSocket.getFd(),
+                socketConnection = new SocketConnection(physicalSocket,
                                                         socketContextFactory,
                                                         localAddress,
                                                         remoteAddress,

@@ -35,7 +35,6 @@ namespace core::socket::stream {
               template <typename PhysicalSocketT>
               typename SocketWriter>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(
-        int fd,
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const SocketAddress& localAddress,
         const SocketAddress& remoteAddress,
@@ -62,11 +61,9 @@ namespace core::socket::stream {
         , localAddress(localAddress)
         , remoteAddress(remoteAddress)
         , onDisconnect(onDisconnect) {
-        SocketConnectionT::Descriptor::attach(fd);
-
         if (setSocketContext(socketContextFactory.get()) != nullptr) {
-            SocketReader::enable(fd);
-            SocketWriter::enable(fd);
+            SocketReader::enable(getFd());
+            SocketWriter::enable(getFd());
             SocketWriter::suspend();
         }
     }

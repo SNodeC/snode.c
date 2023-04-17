@@ -35,7 +35,7 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocket>
     core::socket::stream::tls::SocketConnection<PhysicalSocket>::SocketConnection(
-        int fd,
+        PhysicalSocket& physicalSocket,
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const SocketAddress& localAddress,
         const SocketAddress& remoteAddress,
@@ -45,8 +45,8 @@ namespace core::socket::stream::tls {
         std::size_t readBlockSize,
         std::size_t writeBlockSize,
         const utils::Timeval& terminateTimeout)
-        : Super(
-              fd,
+        : PhysicalSocket(physicalSocket)
+        , Super(
               socketContextFactory,
               localAddress,
               remoteAddress,

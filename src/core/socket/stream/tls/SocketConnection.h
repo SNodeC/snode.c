@@ -51,7 +51,7 @@ namespace core::socket::stream::tls {
     public:
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketConnection(int fd,
+        SocketConnection(PhysicalSocket& physicalSocket,
                          const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,

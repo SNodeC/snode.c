@@ -78,8 +78,7 @@ namespace core::socket::stream {
         SocketConnectionT() = delete;
 
     protected:
-        SocketConnectionT(int fd,
-                          const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
+        SocketConnectionT(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                           const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const std::function<void()>& onDisconnect,

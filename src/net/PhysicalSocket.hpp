@@ -44,6 +44,15 @@ namespace net {
     }
 
     template <typename SocketAddress>
+    PhysicalSocket<SocketAddress>::PhysicalSocket(const PhysicalSocket& physicalSocket) {
+        core::Descriptor::attach(physicalSocket.getFd());
+
+        domain = physicalSocket.domain;
+        type = physicalSocket.type;
+        protocol = physicalSocket.protocol;
+    }
+
+    template <typename SocketAddress>
     PhysicalSocket<SocketAddress>& PhysicalSocket<SocketAddress>::operator=(int fd) {
         core::Descriptor::attach(fd);
 

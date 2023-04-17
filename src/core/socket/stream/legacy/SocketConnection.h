@@ -39,14 +39,14 @@ namespace core::socket::stream::legacy {
         using Super = core::socket::stream::
             SocketConnectionT<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter>;
 
-        using Socket = PhysicalSocketT;
+        using PhysicalSocket = PhysicalSocketT;
         using SocketReader = typename Super::SocketReader;
         using SocketWriter = typename Super::SocketWriter;
 
     public:
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketConnection(int fd,
+        SocketConnection(PhysicalSocket& physicalSocket,
                          const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
