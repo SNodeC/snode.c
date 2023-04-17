@@ -27,9 +27,8 @@
 namespace net {
 
     template <typename SocketAddress>
-    PhysicalSocket<SocketAddress>::PhysicalSocket(int fd) {
-        core::Descriptor::attach(fd);
-
+    PhysicalSocket<SocketAddress>::PhysicalSocket(int fd)
+        : Descriptor(fd) {
         socklen_t optLen = sizeof(domain);
         getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
         getSockopt(SOL_SOCKET, SO_TYPE, &type, &optLen);
@@ -38,15 +37,15 @@ namespace net {
 
     template <typename SocketAddress>
     PhysicalSocket<SocketAddress>::PhysicalSocket(int domain, int type, int protocol)
-        : domain(domain)
+        : Descriptor(-1)
+        , domain(domain)
         , type(type)
         , protocol(protocol) {
     }
 
     template <typename SocketAddress>
-    PhysicalSocket<SocketAddress>::PhysicalSocket(const PhysicalSocket& physicalSocket) {
-        core::Descriptor::attach(physicalSocket.getFd());
-
+    PhysicalSocket<SocketAddress>::PhysicalSocket(const PhysicalSocket& physicalSocket)
+        : Descriptor(physicalSocket.getFd()) {
         domain = physicalSocket.domain;
         type = physicalSocket.type;
         protocol = physicalSocket.protocol;
@@ -54,7 +53,7 @@ namespace net {
 
     template <typename SocketAddress>
     PhysicalSocket<SocketAddress>& PhysicalSocket<SocketAddress>::operator=(int fd) {
-        core::Descriptor::attach(fd);
+        Super::operator=(fd);
 
         socklen_t optLen = sizeof(domain);
         getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
@@ -70,7 +69,7 @@ namespace net {
 
     template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::open(Flags flags) {
-        return Super::attach(core::system::socket(domain, type | flags, protocol));
+        return Super::operator=(core::system::socket(domain, type | flags, protocol)).getFd();
     }
 
     template <typename SocketAddress>

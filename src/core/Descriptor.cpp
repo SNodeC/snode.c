@@ -26,15 +26,21 @@
 
 namespace core {
 
+    Descriptor::Descriptor(int fd)
+        : fd(fd) {
+    }
+
+    Descriptor& Descriptor::operator=(const int& fd) {
+        this->fd = fd;
+
+        return *this;
+    }
+
     Descriptor::~Descriptor() {
         if (autoClose && fd >= 0) {
             core::system::close(fd);
             fd = -1;
         }
-    }
-
-    int Descriptor::attach(int fd) {
-        return this->fd = fd;
     }
 
     int Descriptor::getFd() const {

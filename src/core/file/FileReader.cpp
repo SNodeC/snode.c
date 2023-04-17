@@ -32,8 +32,8 @@
 namespace core::file {
 
     FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name)
-        : EventReceiver(name) {
-        attach(fd);
+        : core::Descriptor(fd)
+        , EventReceiver(name) {
         Source::connect(sink);
 
         span();

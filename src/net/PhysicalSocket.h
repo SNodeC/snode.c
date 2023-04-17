@@ -42,7 +42,7 @@ namespace net {
         using SocketAddress = SocketAddressT;
 
         PhysicalSocket() = delete;
-        PhysicalSocket(int fd);
+        explicit PhysicalSocket(int fd);
         PhysicalSocket(int domain, int type, int protocol);
 
         PhysicalSocket(const PhysicalSocket& physicalSocket);
