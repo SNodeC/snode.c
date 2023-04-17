@@ -45,7 +45,6 @@ namespace net {
         using SocketAddress = SocketAddressT;
 
         PhysicalSocket() = delete;
-        explicit PhysicalSocket(int fd);
         PhysicalSocket(int domain, int type, int protocol);
         PhysicalSocket(const PhysicalSocket& physicalSocket);
 
@@ -54,6 +53,8 @@ namespace net {
         ~PhysicalSocket() override;
 
     public:
+        explicit PhysicalSocket(int fd);
+
         int open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags);
 
         int bind(const SocketAddress& bindAddress);
