@@ -39,26 +39,25 @@ namespace net {
         using Super = core::Descriptor;
 
     public:
+        enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
+
+    protected:
         using SocketAddress = SocketAddressT;
 
         PhysicalSocket() = delete;
         explicit PhysicalSocket(int fd);
         PhysicalSocket(int domain, int type, int protocol);
-
         PhysicalSocket(const PhysicalSocket& physicalSocket);
 
         PhysicalSocket& operator=(int fd);
 
         ~PhysicalSocket() override;
 
-        enum Flags { NONE = 0, NONBLOCK = SOCK_NONBLOCK, CLOEXIT = SOCK_CLOEXEC };
-
-        int open(Flags flags);
+    public:
         int open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags);
 
         int bind(const SocketAddress& bindAddress);
 
-    public:
         bool isValid() const;
 
         int getSockError() const;

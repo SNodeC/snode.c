@@ -68,13 +68,8 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::open(Flags flags) {
-        return Super::operator=(core::system::socket(domain, type | flags, protocol)).getFd();
-    }
-
-    template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags) {
-        int ret = open(flags);
+        int ret = Super::operator=(core::system::socket(domain, type | flags, protocol)).getFd();
 
         if (ret >= 0) {
             for (const auto& [optName, socketOption] : socketOptions) {
