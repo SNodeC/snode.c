@@ -37,9 +37,11 @@ namespace net::in::stream {
 
     public:
         using Super::Super;
-        using Super::operator=;
 
         PhysicalSocket();
+        PhysicalSocket(const PhysicalSocket&) = default;
+
+        using Super::operator=;
 
         ~PhysicalSocket() override;
     };

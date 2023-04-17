@@ -40,6 +40,8 @@ namespace net::un::stream {
     public:
         using Super::Super;
 
+        PhysicalClientSocket(const PhysicalClientSocket&) = default;
+
         ~PhysicalClientSocket() override;
 
         using Super::operator=;

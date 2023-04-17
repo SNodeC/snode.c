@@ -24,6 +24,10 @@
 
 namespace core::file {
 
+    File::File()
+        : Descriptor(-1) {
+    }
+
     File::~File() {
     }
 

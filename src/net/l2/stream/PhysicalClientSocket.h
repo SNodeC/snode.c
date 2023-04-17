@@ -40,6 +40,8 @@ namespace net::l2::stream {
     public:
         using Super::Super;
 
+        PhysicalClientSocket(const PhysicalClientSocket&) = default;
+
         ~PhysicalClientSocket() override;
 
         using Super::operator=;

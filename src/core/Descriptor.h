@@ -27,14 +27,12 @@ namespace core {
 
     class Descriptor {
     public:
-        explicit Descriptor(int fd);
-
-        Descriptor& operator=(const int& fd);
-
         Descriptor() = delete;
+        explicit Descriptor(int fd);
         Descriptor(const Descriptor& d) = delete;
         Descriptor(Descriptor&& d) = delete;
 
+        Descriptor& operator=(const int& fd);
         Descriptor& operator=(const Descriptor& descriptor) = delete;
         Descriptor& operator=(Descriptor&& descriptor) = delete;
 

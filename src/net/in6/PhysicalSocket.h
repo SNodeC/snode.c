@@ -38,9 +38,11 @@ namespace net::in6 {
 
     public:
         using Super::Super;
-        using Super::operator=;
 
         PhysicalSocket(int type, int protocol);
+        PhysicalSocket(const PhysicalSocket&) = default;
+
+        using Super::operator=;
 
         ~PhysicalSocket() override;
     };

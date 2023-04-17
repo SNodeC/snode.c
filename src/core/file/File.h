@@ -28,9 +28,7 @@ namespace core::file {
 
     class File : virtual public core::Descriptor {
     public:
-        File()
-            : Descriptor(-1) {
-        }
+        File();
 
         ~File() override;
     };
