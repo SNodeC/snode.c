@@ -25,7 +25,6 @@
 #include "log/Logger.h"
 
 #include <nlohmann/json.hpp>
-#include <type_traits>
 #include <utility>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
@@ -70,7 +69,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    nlohmann::json RetainTree::toJson() const {
+    nlohmann::json RetainTree::toJson() {
         return head.toJson();
     }
 
@@ -147,7 +146,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    nlohmann::json RetainTree::TopicLevel::toJson() const {
+    nlohmann::json RetainTree::TopicLevel::toJson() {
         nlohmann::json json;
 
         if (!message.getMessage().empty()) {

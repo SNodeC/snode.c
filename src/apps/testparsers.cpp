@@ -26,7 +26,7 @@
 #include <functional>
 #include <map>
 #include <string>
-#include <type_traits>
+#include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
 
@@ -53,13 +53,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
                 VLOG(0) << "++    Query: " << queryField << " = " << queryValue;
             }
         },
-        [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
+        [](std::map<std::string, std::string>& header, std::map<std::string, std::string>& cookies) -> void {
             VLOG(0) << "++    Header: ";
-            for (const auto& [headerField, headerFieldValue] : header) {
+            for (auto& [headerField, headerFieldValue] : header) {
                 VLOG(0) << "++      " << headerField << " = " << headerFieldValue;
             }
             VLOG(0) << "++    Cookie: ";
-            for (const auto& [cookieName, cookieValue] : cookies) {
+            for (auto& [cookieName, cookieValue] : cookies) {
                 VLOG(0) << "++      " << cookieName << " = " << cookieValue;
             }
         },
@@ -107,16 +107,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
+        [](std::map<std::string, std::string>& headers, std::map<std::string, web::http::CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
-            for (const auto& [field, value] : headers) {
+            for (auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;
             }
 
             VLOG(0) << "++   Cookies:";
-            for (const auto& [name, cookie] : cookies) {
+            for (auto& [name, cookie] : cookies) {
                 VLOG(0) << "++     " + name + " = " + cookie.getValue();
-                for (const auto& [option, value] : cookie.getOptions()) {
+                for (auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "++       " + option + " = " + value;
                 }
             }

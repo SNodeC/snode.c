@@ -26,7 +26,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <type_traits>
 #include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
@@ -65,7 +64,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceivers) {
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
@@ -122,11 +121,11 @@ namespace core {
         return maxFd;
     }
 
-    utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
+    utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         if (!observedEventReceiversDirty) {
-            for (const auto& [fd, eventReceivers] : observedEventReceivers) {
+            for (auto& [fd, eventReceivers] : observedEventReceivers) {
                 nextTimeout = std::min(eventReceivers.front()->getTimeout(currentTime), nextTimeout);
             }
         } else {
@@ -137,7 +136,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::exit() {
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceivers) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->onExit();
             }
@@ -145,7 +144,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::stop() {
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceivers) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->terminate();
             }

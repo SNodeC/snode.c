@@ -43,7 +43,7 @@ namespace iot::mqtt::server::broker {
         void retain(Message&& message);
         void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
 
-        nlohmann::json toJson() const;
+        nlohmann::json toJson();
         void fromJson(const nlohmann::json& json);
 
         void clear();
@@ -58,7 +58,7 @@ namespace iot::mqtt::server::broker {
             void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
 
             TopicLevel& fromJson(const nlohmann::json& json);
-            nlohmann::json toJson() const;
+            nlohmann::json toJson();
 
             void clear();
 

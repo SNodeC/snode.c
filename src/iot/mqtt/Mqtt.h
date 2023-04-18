@@ -96,9 +96,8 @@ namespace iot::mqtt {
 
         uint16_t getPacketIdentifier();
 
-        void send(iot::mqtt::ControlPacket&& controlPacket) const;
-        void send(iot::mqtt::ControlPacket& controlPacket) const;
-        void send(std::vector<char>&& data) const;
+        void send(const iot::mqtt::ControlPacket& controlPacket) const;
+        void send(const std::vector<char>& data) const;
 
         static void printStandardHeader(const iot::mqtt::ControlPacket& packet);
 

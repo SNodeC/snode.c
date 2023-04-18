@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <type_traits>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::select {
@@ -79,7 +77,7 @@ namespace core::select {
     int DescriptorEventPublisher::spanActiveEvents() {
         int count = 0;
 
-        for (const auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceivers) {
             if (fdSet.isSet(fd)) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;

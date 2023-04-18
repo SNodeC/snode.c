@@ -70,9 +70,9 @@ namespace apps::http::legacy {
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (const auto& [name, cookie] : response.cookies) {
+                for (auto& [name, cookie] : response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (const auto& [option, value] : cookie.getOptions()) {
+                    for (auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }
@@ -119,9 +119,9 @@ namespace apps::http::tls {
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (const auto& [name, cookie] : response.cookies) {
+                for (auto& [name, cookie] : response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (const auto& [option, value] : cookie.getOptions()) {
+                    for (auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }

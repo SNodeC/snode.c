@@ -24,13 +24,14 @@
 #include "log/Logger.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/tls/SocketClient.h"
+#include "web/http/CookieOptions.h"
 #include "web/http/client/ResponseParser.h"
 
 #include <map>
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509v3.h>
 #include <string>
-#include <type_traits>
+#include <utility>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <bits/utility.h>
@@ -40,10 +41,6 @@
 // IWYU pragma: no_include <openssl/asn1.h>
 // IWYU pragma: no_include <openssl/obj_mac.h>
 // IWYU pragma: no_include <openssl/crypto.h>
-
-namespace web::http {
-    class CookieOptions;
-}
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -55,16 +52,16 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
+        [](std::map<std::string, std::string>& headers, std::map<std::string, web::http::CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
-            for (const auto& [field, value] : headers) {
+            for (auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;
             }
 
             VLOG(0) << "++   Cookies:";
-            for (const auto& [name, cookie] : cookies) {
+            for (auto& [name, cookie] : cookies) {
                 VLOG(0) << "++     " + name + " = " + cookie.getValue();
-                for (const auto& [option, value] : cookie.getOptions()) {
+                for (auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "++       " + option + " = " + value;
                 }
             }

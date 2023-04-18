@@ -25,7 +25,7 @@
 #include "web/http/legacy/in/Client.h"
 #include "web/http/tls/in/Client.h"
 
-#include <type_traits>
+#include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
 // IWYU pragma: no_include <openssl/ssl3.h>
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (const auto& [name, cookie] : response.cookies) {
+                for (auto& [name, cookie] : response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
@@ -101,14 +101,14 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (const auto& [field, value] : response.headers) {
+                for (auto& [field, value] : response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (const auto& [name, cookie] : response.cookies) {
+                for (auto& [name, cookie] : response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (const auto& [option, value] : cookie.getOptions()) {
+                    for (auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }

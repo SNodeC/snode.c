@@ -25,7 +25,6 @@
 #include <list>
 #include <memory>
 #include <stdexcept>
-#include <type_traits>
 #include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
@@ -61,7 +60,7 @@ namespace net::config {
 
         section->final_callback([this](void) -> void {
             std::list<std::string> vaultyDomainConfigs;
-            for (const auto& [domain, sniMap] : sniCerts) {
+            for (auto& [domain, sniMap] : sniCerts) {
                 if (sniMap.begin()->first.empty()) {
                     sniCertsOpt //
                         ->clear();

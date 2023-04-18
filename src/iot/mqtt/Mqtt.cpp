@@ -166,15 +166,11 @@ namespace iot::mqtt {
         }
     }
 
-    void Mqtt::send(ControlPacket&& controlPacket) const {
+    void Mqtt::send(const ControlPacket& controlPacket) const {
         send(controlPacket.serialize());
     }
 
-    void Mqtt::send(ControlPacket& controlPacket) const {
-        send(controlPacket.serialize());
-    }
-
-    void Mqtt::send(std::vector<char>&& data) const {
+    void Mqtt::send(const std::vector<char>& data) const {
         LOG(DEBUG) << dataToHexString(data);
 
         mqttContext->send(data.data(), data.size());

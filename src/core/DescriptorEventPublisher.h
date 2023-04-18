@@ -62,7 +62,7 @@ namespace core {
         int getObservedEventReceiverCount() const;
         int getMaxFd() const;
 
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void exit();
         void stop();

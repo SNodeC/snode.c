@@ -48,7 +48,7 @@ namespace iot::mqtt::server::broker {
         bool unsubscribe(std::string topic, const std::string& clientId);
         bool unsubscribe(const std::string& clientId);
 
-        nlohmann::json toJson() const;
+        nlohmann::json toJson();
         void fromJson(const nlohmann::json& json);
 
         void clear() {
@@ -70,7 +70,7 @@ namespace iot::mqtt::server::broker {
             bool unsubscribe(const std::string& clientId);
 
             TopicLevel& fromJson(const nlohmann::json& json);
-            nlohmann::json toJson() const;
+            nlohmann::json toJson();
 
             void clear();
 
