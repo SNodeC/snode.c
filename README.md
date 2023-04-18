@@ -670,25 +670,13 @@ using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
 
 as can be seen in the Echo-Demo-Application above.
 
-### SocketAddress Classes
-
-| Network Layer       | `SocketAddress`                                              |
-| ------------------- | ------------------------------------------------------------ |
-| IPv4                | [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) |
-| IPv6                | [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) |
-| Unix Domain Sockets | [`net::un::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) |
-| Bluetooth RFCOMM    | [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) |
-| Bluetooth L2CAP     | [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) |
-
-### SocketAddress Header Files
-
-| Network Layer       | `SocketAddress`                                              |
-| ------------------- | ------------------------------------------------------------ |
-| IPv4                | [`net/in/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2_socket_address_8h.html) |
-| IPv6                | [`net/in6/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2_socket_address_8h.html) |
-| Unix Domain Sockets | [`net/un/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2_socket_address_8h.html) |
-| Bluetooth RFCOMM    | [`net/rc/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2_socket_address_8h.html) |
-| Bluetooth L2CAP     | [`net/l2/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2_socket_address_8h.html) |
+| Network Layer       | `SocketAddress` Classes                                      | SocketAddress Header Files                                   |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| IPv4                | [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | [`net/in/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2_socket_address_8h.html) |
+| IPv6                | [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | [`net/in6/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2_socket_address_8h.html) |
+| Unix Domain Sockets | [`net::un::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | [`net/un/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2_socket_address_8h.html) |
+| Bluetooth RFCOMM    | [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | [`net/rc/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2_socket_address_8h.html) |
+| Bluetooth L2CAP     | [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | [`net/l2/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2_socket_address_8h.html) |
 
 Each `SocketAddress` class provides it's very specific set of constructors.
 
@@ -724,10 +712,10 @@ Additionally the `SocketConnection` objects of a SSL/TLS `SocketServer` or `Sock
 
 which returns a pointer to the `SSL` structure of *openssl* used for encryption, authenticating and authorization. Using this SSL structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the `onConnect` callback and add all kinds of authentication and authorization logic directly in the `onConnected` callback.
 
-| SocketConnection | Classes                                                      | Header Files                                                 |
-| ---------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Legacy           | [`core::socket::stream::legacy::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
-| SSL/TLS          | [`core::socket::stream::tls::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
+| Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
+| ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
+| SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
 
 ### Most Important common SocketConnection Methods
 
