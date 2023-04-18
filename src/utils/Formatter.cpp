@@ -83,7 +83,7 @@ namespace CLI {
                             defaultValue = "\"\"";
                         }
                     }
-                    if ((write_description && opt->has_description()) || default_also) {
+                    if (write_description && opt->has_description() && (default_also || !value.empty())) {
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
                         if (default_also) {
                             out << commentChar << name << valueDelimiter << defaultValue << "\n";
