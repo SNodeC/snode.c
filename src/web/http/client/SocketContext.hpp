@@ -48,8 +48,8 @@ namespace web::http::client {
                   response.statusCode = statusCode;
                   response.reason = reason;
               },
-              [&response = this->response](std::map<std::string, std::string>& headers,
-                                           std::map<std::string, web::http::CookieOptions>& cookies) -> void {
+              [&response = this->response](const std::map<std::string, std::string>& headers,
+                                           const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
                   response.headers = std::move(headers);
                   response.cookies = std::move(cookies);
               },

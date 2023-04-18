@@ -50,8 +50,8 @@ namespace web::http::client {
 
         // switch to protected later on
     public:
-        std::string header(const std::string& key, int i = 0) const;
-        std::string cookie(const std::string& key) const;
+        const std::string& header(const std::string& key, int i = 0) const;
+        const std::string& cookie(const std::string& key) const;
         std::string httpVersion;
         std::string statusCode;
         std::string reason;

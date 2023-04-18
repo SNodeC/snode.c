@@ -63,14 +63,14 @@ namespace web::http::server {
                       VLOG(3) << "     " << query << ": " << value;
                   }
               },
-              [&requestContexts = this->requestContexts](std::map<std::string, std::string>& header,
-                                                         std::map<std::string, std::string>& cookies) -> void {
+              [&requestContexts = this->requestContexts](const std::map<std::string, std::string>& header,
+                                                         const std::map<std::string, std::string>& cookies) -> void {
                   Request& request = requestContexts.back()->request;
 
                   request.headers = std::move(header);
 
                   VLOG(3) << "++ Headers:";
-                  for (auto [field, value] : request.headers) {
+                  for (auto& [field, value] : request.headers) {
                       if (field == "connection" && httputils::ci_contains(value, "close")) {
                           request.connectionState = ConnectionState::Close;
                       } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {

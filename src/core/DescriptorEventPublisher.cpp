@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <type_traits>
 #include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
@@ -121,7 +122,7 @@ namespace core {
         return maxFd;
     }
 
-    utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) {
+    utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         if (!observedEventReceiversDirty) {

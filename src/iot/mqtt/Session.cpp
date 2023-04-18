@@ -21,7 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <nlohmann/json.hpp>
-#include <utility>
+#include <type_traits>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 // IWYU pragma: no_include <bits/utility.h>
@@ -34,7 +34,7 @@ namespace iot::mqtt {
         fromJson(json);
     }
 
-    nlohmann::json Session::toJson() {
+    nlohmann::json Session::toJson() const {
         nlohmann::json json;
 
         std::vector<nlohmann::json> publishJsonVector;

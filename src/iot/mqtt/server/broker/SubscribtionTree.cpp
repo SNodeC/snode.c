@@ -27,6 +27,7 @@
 
 #include <nlohmann/json.hpp>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
@@ -189,7 +190,7 @@ namespace iot::mqtt::server::broker {
         return subscribers.empty() && topicLevels.empty();
     }
 
-    nlohmann::json SubscribtionTree::TopicLevel::toJson() {
+    nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
         nlohmann::json json;
 
         for (auto& [topicLevelName, topicLevel] : topicLevels) {
@@ -232,7 +233,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    nlohmann::json SubscribtionTree::toJson() {
+    nlohmann::json SubscribtionTree::toJson() const {
         return head.toJson();
     }
 

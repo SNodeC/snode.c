@@ -29,7 +29,7 @@
 
 namespace web::http::server {
 
-    std::string Request::get(const std::string& key, int i) const {
+    const std::string& Request::get(const std::string& key, int i) const {
         std::string tmpKey = key;
         httputils::to_lower(tmpKey);
 
@@ -48,7 +48,7 @@ namespace web::http::server {
         return nullstr;
     }
 
-    std::string Request::cookie(const std::string& key) const {
+    const std::string& Request::cookie(const std::string& key) const {
         std::map<std::string, std::string>::const_iterator it = cookies.find(key);
 
         if (it != cookies.end()) {
@@ -58,7 +58,7 @@ namespace web::http::server {
         return nullstr;
     }
 
-    std::string Request::query(const std::string& key) const {
+    const std::string& Request::query(const std::string& key) const {
         std::map<std::string, std::string>::const_iterator it = queries.find(key);
 
         if (it != queries.end()) {
