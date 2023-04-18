@@ -1,5 +1,9 @@
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
+    get_filename_component(
+        SNODEC_DOC_ROOTDIR "${CMAKE_SOURCE_DIR}/../snode.c-doc/" ABSOLUTE
+    )
+
     option(
         BUILD_DOCUMENTATION
         "Create and install the HTML based API documentation (requires Doxygen)"
