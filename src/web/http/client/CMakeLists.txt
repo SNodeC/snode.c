@@ -24,14 +24,6 @@ set(HTTPCLIENT_H
     SocketContextFactory.h
     SocketContextUpgradeFactory.h
     SocketContextUpgradeFactorySelector.h
-    ../legacy/in/Client.h
-    ../legacy/in6/Client.h
-    ../legacy/rc/Client.h
-    ../legacy/un/Client.h
-    ../tls/in/Client.h
-    ../tls/in6/Client.h
-    ../tls/rc/Client.h
-    ../tls/un/Client.h
 )
 
 add_library(http-client SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H})

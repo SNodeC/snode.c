@@ -37,7 +37,7 @@ namespace web::http::client {
         : socketContext(clientContext) {
     }
 
-    const std::string& Response::header(const std::string& key, int i) const {
+    std::string Response::header(const std::string& key, int i) const {
         std::string tmpKey = key;
         httputils::to_lower(tmpKey);
 
@@ -56,7 +56,7 @@ namespace web::http::client {
         return nullstr;
     }
 
-    const std::string& Response::cookie(const std::string& key) const {
+    std::string Response::cookie(const std::string& key) const {
         std::map<std::string, CookieOptions>::const_iterator it = cookies.find(key);
 
         if (it != cookies.end()) {

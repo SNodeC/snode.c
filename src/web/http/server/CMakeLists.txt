@@ -26,14 +26,6 @@ set(HTTPSERVER_H
     SocketContextFactory.h
     SocketContextUpgradeFactory.h
     SocketContextUpgradeFactorySelector.h
-    ../legacy/in/Server.h
-    ../legacy/in6/Server.h
-    ../legacy/rf/Server.h
-    ../legacy/un/Server.h
-    ../tls/in/Server.h
-    ../tls/in6/Server.h
-    ../tls/rf/Server.h
-    ../tls/un/Server.h
 )
 
 add_library(http-server SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_h})
