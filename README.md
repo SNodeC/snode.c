@@ -47,8 +47,6 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Application Layer](#application-layer)
 * [Existing Server- and Client-Classes](#existing-server--and-client-classes)
    * [SocketAddress](#socketaddress)
-      * [SocketAddress Classes](#socketaddress-classes)
-      * [SocketAddress Header Files](#socketaddress-header-files)
       * [SocketAddress Constructors](#socketaddress-constructors)
    * [SocketConnection](#socketconnection)
       * [Most Important common SocketConnection Methods](#most-important-common-socketconnection-methods)
@@ -114,7 +112,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Sun Apr 16 17:43:23 UTC 2023 -->
+<!-- Added by: runner, at: Tue Apr 18 13:56:19 UTC 2023 -->
 
 <!--te-->
 
