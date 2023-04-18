@@ -69,33 +69,33 @@ namespace CLI {
                     std::string value =
                         detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, characterQuote);
 
-                    bool isDefault = false;
-                    if (value.empty() && default_also) {
+                    std::string defaultValue{};
+                    if (default_also) {
                         if (!opt->get_default_str().empty()) {
-                            value = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote);
+                            defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote);
                         } else if (opt->get_expected_min() == 0) {
-                            value = "false";
+                            defaultValue = "false";
                         } else if (opt->get_run_callback_for_default()) {
-                            value = "\"\""; // empty string default value
+                            defaultValue = "\"\""; // empty string default value
                         } else if (opt->get_required()) {
-                            value = "\"<REQUIRED>\"";
+                            defaultValue = "\"<REQUIRED>\"";
                         } else {
-                            value = "\"\"";
+                            defaultValue = "\"\"";
                         }
-                        isDefault = true;
                     }
-
+                    if ((write_description && opt->has_description()) || default_also) {
+                        out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
+                        if (default_also) {
+                            out << commentChar << name << valueDelimiter << defaultValue << "\n";
+                        }
+                    }
                     if (!value.empty()) {
                         if (!opt->get_fnames().empty()) {
                             value = opt->get_flag_value(name, value);
                         }
-                        if (write_description && opt->has_description()) {
-                            out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
-                        }
-                        if (isDefault) {
-                            name = commentChar + name;
-                        }
                         out << name << valueDelimiter << value << "\n\n";
+                    } else {
+                        out << "\n";
                     }
                 }
             }
