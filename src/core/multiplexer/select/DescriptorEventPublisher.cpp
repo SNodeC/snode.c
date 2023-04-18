@@ -44,8 +44,15 @@ namespace core::select {
     }
 
     void FdSet::zero() {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
         FD_ZERO(&registered);
         FD_ZERO(&active);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     }
 
     fd_set& FdSet::get() {

@@ -4,6 +4,19 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(MARIADB mariadb)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(
+# Oh, mysql/mariadb has some strange identifier
+        -Wno-reserved-macro-identifier
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    # using Intel C++
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # using Visual Studio C++
+endif()
+
 if(MARIADB_FOUND)
 
     set(MARIADB_CPP

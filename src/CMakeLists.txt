@@ -74,9 +74,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-shadow-field
 # Not avoidable, realy - not realy a problem nowerdays! Compiler should padd
         -Wno-padded
-# Oh, mysql/mariadb has some strange identifier
-        -Wno-reserved-identifier
-        -Wno-reserved-macro-identifier
 # Later, we want to have UML in doxygen documentation
         -Wno-documentation-unknown-command
     )

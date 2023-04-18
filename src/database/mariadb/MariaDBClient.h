@@ -20,9 +20,16 @@
 #ifndef DATABASE_MARIADB_MARIADBCLIENT
 #define DATABASE_MARIADB_MARIADBCLIENT
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-macro-identifier"
+#endif
 #include "database/mariadb/MariaDBClientASyncAPI.h"
 #include "database/mariadb/MariaDBClientSyncAPI.h"
 #include "database/mariadb/MariaDBConnectionDetails.h" // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 namespace database::mariadb {
     class MariaDBCommand;
@@ -33,7 +40,14 @@ namespace database::mariadb {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <mysql.h> // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-macro-identifier"
+#endif
+#include <mysql.h> // IWYU pragma: export#ifdef __clang__
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 // IWYU pragma: no_include "mysql.h"
 
