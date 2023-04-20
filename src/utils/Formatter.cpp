@@ -31,10 +31,8 @@ namespace CLI {
     ConfigFormatter::~ConfigFormatter() {
     }
 
-    CLI11_INLINE std::string ConfigFormatter::to_config(const App* app,
-                                                        bool default_also,
-                                                        bool write_description,
-                                                        std::string prefix) const { // cppcheck-suppress passedByValue
+    CLI11_INLINE std::string
+    ConfigFormatter::to_config(const App* app, bool default_also, bool write_description, std::string prefix) const {
         std::stringstream out;
         std::string commentLead;
         commentLead.push_back(commentChar);
@@ -85,9 +83,9 @@ namespace CLI {
                     }
                     if (write_description && opt->has_description() && (default_also || !value.empty())) {
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
-                        if (default_also) {
-                            out << commentChar << name << valueDelimiter << defaultValue << "\n";
-                        }
+                    }
+                    if (default_also) {
+                        out << commentChar << name << valueDelimiter << defaultValue << "\n";
                     }
                     if (!value.empty()) {
                         if (!opt->get_fnames().empty()) {
