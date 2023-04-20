@@ -23,6 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/PreserveErrno.h"
 
 #include <cerrno>
 
@@ -38,6 +39,8 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+        utils::PreserveErrno preserveErrno;
+
         epoll_event ePollEvent{};
 
         ePollEvent.data.ptr = eventReceiver;
@@ -55,6 +58,8 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxDel(int fd) {
+        utils::PreserveErrno preserveErrno;
+
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr) == 0 || errno == EBADF) {
             interestCount--;
 
@@ -66,6 +71,8 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) {
+        utils::PreserveErrno preserveErrno;
+
         epoll_event ePollEvent{};
 
         ePollEvent.data.ptr = eventReceiver;
