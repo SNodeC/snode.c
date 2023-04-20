@@ -24,10 +24,6 @@
 #include "net/config/ConfigListen.h"         // IWYU pragma: export
 #include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
 
-namespace net::config {
-    class ConfigInstance;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
