@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <unordered_map>
 #include <utility>
 
@@ -65,7 +63,6 @@ namespace core::poll {
             pollfd& pollFd = pollfds[pollFdsIndices.find(fd)->second.index];
 
             if ((pollFd.events == events) != 0 && (pollFd.revents & revents) != 0) {
-                LOG(TRACE) << "POLL " << getName() << " DEP fired";
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
                 eventReceiver->span();

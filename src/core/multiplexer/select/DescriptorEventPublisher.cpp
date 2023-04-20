@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::select {
@@ -88,7 +86,6 @@ namespace core::select {
 
         for (auto& [fd, eventReceivers] : observedEventReceivers) {
             if (fdSet.isSet(fd)) {
-                LOG(TRACE) << "SELECT " << getName() << " DEP fired";
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
                 eventReceiver->span();

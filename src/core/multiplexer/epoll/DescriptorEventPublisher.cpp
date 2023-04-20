@@ -22,7 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
@@ -130,7 +129,6 @@ namespace core::epoll {
             epoll_event& ev = ePollEvents.getEvents()[i];
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ev.data.ptr);
             if (eventReceiver != nullptr && (ev.events & revents) != 0) {
-                LOG(TRACE) << "EPOLL " << getName() << " DEP fired";
                 eventCounter++;
                 eventReceiver->span();
             }
