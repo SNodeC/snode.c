@@ -15,7 +15,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    mux-poll PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mux-poll
+    mux-poll PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-mux-poll
 )
 
 install(

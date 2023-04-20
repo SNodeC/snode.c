@@ -15,7 +15,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    mux-epoll PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mux-epoll
+    mux-epoll PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-mux-epoll
 )
 
 install(
