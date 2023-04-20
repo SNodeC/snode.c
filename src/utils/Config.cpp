@@ -740,9 +740,7 @@ namespace utils {
                     Daemon::erasePidFile(pidDirectory + "/" + applicationName + ".pid");
                 }
             }
-        }
-
-        if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
+        } else if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
             char buf[1024];
             while (read(STDIN_FILENO, buf, 1024) > 0)
                 ;
