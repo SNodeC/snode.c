@@ -71,7 +71,7 @@ namespace core::epoll {
         };
 
     public:
-        explicit DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events);
+        explicit DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents);
 
     private:
         void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
@@ -83,6 +83,7 @@ namespace core::epoll {
 
     private:
         EPollEvents ePollEvents;
+        uint32_t revents;
     };
 
 } // namespace core::epoll

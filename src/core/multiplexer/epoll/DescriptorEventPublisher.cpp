@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -92,9 +94,10 @@ namespace core::epoll {
         return static_cast<int>(interestCount);
     }
 
-    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events)
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents)
         : core::DescriptorEventPublisher(name)
-        , ePollEvents(epfd, events) {
+        , ePollEvents(epfd, events)
+        , revents(revents) {
     }
 
     void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
@@ -117,8 +120,10 @@ namespace core::epoll {
         int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
-            core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
-            if (eventReceiver != nullptr) {
+            epoll_event& ev = ePollEvents.getEvents()[i];
+            core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ev.data.ptr);
+            if (eventReceiver != nullptr && (ev.events & revents) != 0) {
+                LOG(TRACE) << "EPOLL " << getName() << " DEP fired";
                 eventCounter++;
                 eventReceiver->span();
             }
