@@ -61,6 +61,10 @@ add_compile_options(
     -Wno-psabi # needed for RaspberryPi
 )
 
+#https://stackoverflow.com/questions/11055569/linking-with-dynamic-library-with-dependencies
+add_link_options(
+    LINKER:--as-needed
+)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(
         -Weverything
@@ -95,4 +99,4 @@ add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
 
-install(CODE "execute_process(COMMAND ldconfig)" COMPONENT notneeded)
+#install(CODE "execute_process(COMMAND ldconfig)" COMPONENT notneeded)
