@@ -158,7 +158,7 @@ Some components are also copyrighted by Students
 
 Basically the architecture of every server and client application is the same and consists of three components.
 
--   Server respective client instance
+-   Server respective Client instance
 -   SocketContextFactory
 -   SocketContext
 
@@ -172,7 +172,7 @@ The client shall start sending text data to the server and the server shall refl
 
 The code of this demo application can be found on [github](https://github.com/VolkerChristian/echo).
 
-### SocketServer and SocketClient
+### SocketServer and SocketClient Instances
 
 For the server role we just need to create an object of type
 
@@ -188,25 +188,25 @@ net::in::stream::legacy::SocketClient<SocketContextFactory>
 
 called *client instance* is needed.
 
-A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` for creating a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
+A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` instances to create a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
 
-Both *instance-classes* have a *default constructor* and a *constructor expecting an instance name* as argument. 
+Both instance-classes have, among others, a *default constructor* and a *constructor expecting an instance name* as argument. 
 
 - When the default constructor is used to create the instance object this instance is called an *anonymous instance*.
 - In contrast to a *named instance* if the constructors expecting a `std::string` is used for instance creation. 
-- For named instances *command line arguments and configuration file entries are created automatically* to configure the instance.
+- For named instances *command line arguments and configuration file entries are automatically created* to configure the instance.
 
-Thus, for our echo application we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, which is the base class of all connection-oriented (stream) application protocols, and factories derived from `core::socket::stream::SocketContextFactory`.
+Therefore, for our echo application, we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (stream) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
 
 ### SocketContextFactories
 
 Let\'s focus on the SocketContextFactories for our server and client first.
 
-All what needs to be done is to implement a pure virtual method `create()`witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a concrete application SocketContext.
+All what needs to be done is to implement a pure virtual method `create()` witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a concrete application `SocketContext`.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the *physical connection* between the server and a client. Such a `core::socket::stream::SocketConnection` is needed by the `core::socket::stream::SocketContext` to handle the physical data transfer between server and client.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the *physical connection* between the server and a client. Such a `core::socket::stream::SocketConnection` is needed by the `core::socket::stream::SocketContext` to *handle the physical data transfer* between server and client.
 
-#### Echo-Server ContextFactory
+#### Echo-Server `SocketContextFactory`
 
 The `create()` method of our `EchoServerContextFactory` returns the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
 
@@ -224,7 +224,7 @@ private:
 };
 ```
 
-#### Echo-Client ContextFactory
+#### Echo-Client `SocketContextFactory`
 
 The `create()` method of our `EchoClientContextFactory` returns the `EchoClientContext` whose implementation is also presented in the [SocketContexts](#SocketContexts) section below.
 
@@ -246,21 +246,21 @@ That\'s easy, isn\'t it?
 
 ### SocketContexts
 
-It is also not difficult to implement the SocketContext classes for the server and the client.
+It is also not difficult to implement the `SocketContext` classes for the server and the client.
 
 -   Remember, the required functionality: The server shall reflect the received data back to the client!
 -   And also remember we need to derive from the base class `core::socket::stream::SocketContext`.
--   And at last remember that the class  `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the SocketConnection to the constructor of the base `core::socket::stream::SocketContext`  class.
+-   And at last remember that the class  `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`.
 
-The base class `core::socket::stream::SocketContext` provides *some virtual methods* which can be overridden in an concrete SocketContext class. These methods will be *called by the framework automatically*.
+The base class `core::socket::stream::SocketContext` provides *some virtual methods* which can be overridden in an concrete `SocketContext` class. These methods will be *called by the framework automatically*.
 
-#### Echo-Server Context
+#### Echo-Server `SocketContext`
 
 For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some data have already been received from the client. Nevertheless, for more information of what is going on in behind the methods `onConnected` and `onDisconnected` are overridden also.
 
-In the `onReceivedFromPeer()` method we can fetch data already received by SNode.C by using the `readFromPeer()` method provided by the `core::socket::stream::SocketContext` class.
+In the `onReceivedFromPeer()` method we can retrieve data that has already been received by SNode.C using the `readFromPeer()` method provided by the `core::socket::stream::SocketContext` class.
 
-Sending data to the client is done using the method `sendToPeer()` which is also provided by the `core::socket::stream::SocketContext` class.
+Sending data to the client is done using the method `sendToPeer()`, which is also provided by the `core::socket::stream::SocketContext` class.
 
 ``` c++
 #include <core/socket/SocketAddress.h>
@@ -305,11 +305,11 @@ private:
 };
 ```
 
-#### Echo-Client Context
+#### Echo-Client `SocketContext`
 
-The echo client SocketContext in contrast to the server SocketContext, *needs* an overridden `onConnected` method, to initiate the ping-pong data exchange.
+The echo client `SocketContext`, unlike the server `SocketContext`, *needs* an overridden `onConnected` method to *initiate* the ping-pong data exchange.
 
-Like in the `EchoServerContext` `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` method. In addition `sendToPeer()` is also used in the `onConnected()` method to initiate the ping-pong data exchange.
+Like in the `EchoServerContext`, `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` method. In addition `sendToPeer()` is also used in the `onConnected()` method to initiate the ping-pong data exchange.
 
 ``` c++
 #include <core/socket/SocketAddress.h>
@@ -359,7 +359,7 @@ private:
 
 ### Main Applications for Server and Client
 
-Now we can put all together and implement the server and client main applications. Here *anonymous instances* are used, thus we will not get command line arguments automatically.
+Now we can put everything together and implement the main server and client applications. Here *anonymous instances* are used. Thus, we will not get command line arguments automatically.
 
 Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
 
@@ -375,9 +375,9 @@ and at the end of the main applications the *event-loop* of SNode.C is started b
 
 The server instance `echoServer` must be *activated* by calling `echoServer.listen()`.
 
-SNode.C provides a view overloaded `listen()` methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a lambda function as last argument. Here we use IPv4 and the `listen()` method which expects a port number as argument.
+SNode.C provides a view overloaded `listen()` methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOMM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a *lambda function* as last argument. Here we use IPv4 and the `listen()` method which expects a port number as argument.
 
-If we would have created a named server instance than a special `listen()` method which only expects the lambda function as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+If we would have created a named server instance than a special `listen()` method which only expects the *lambda function* as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
 ``` c++
 #include "EchoServerContextFactory.h"
@@ -415,11 +415,11 @@ int main(int argc, char* argv[]) {
 
 #### Echo-Client Main Application
 
-The client instance `echoClient` must *connect* to the server by calling `echoClient.connect()`.
+The client instance `echoClient` must be *activated* by calling `echoClient.connect()`.
 
-Equivalent to the server instance a client instance provides a view overloaded `connect()` methods whose arguments also vary depending on the network layer used. Here it is assumed that we talk to an IPv4 server which runs on the same machine (localhost) as the client. Thus we pass the hostname "localhost" and port number 8001 to the `connect()` method.
+Equivalent to the server instance a client instance provides a view overloaded `connect()` methods whose arguments also vary depending on the network layer used. Here it is assumed that we talk to an IPv4 server which runs on the same machine (`localhost`) as the client. Thus we pass the host name `localhost` and port number `8001` to the `connect()` method.
 
-If we would have created a named client instance than a special `connect()` method which only expects the lambda function can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+If we would have created a named client instance than a special `connect()` method which only expects the *lambda function* can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
 ``` cpp
 #include "EchoClientContextFactory.h"
@@ -652,15 +652,15 @@ As said above in the transport layer section, SSL/TLS encryption is provided tra
 
 # Existing Server- and Client-Classes
 
-Before focusing explicitly on the Server- and Client-Classes a few common aspects for all network/transport-layer combinations needs to be known.
+Before focusing explicitly on the server and client classes a few common aspects for all network/transport-layer combinations needs to be known.
 
-## SocketAddress
+## `SocketAddress`
 
 Every network layer provides its specific `SocketAddress` class. In typical scenarios you need not bother about these classes as they are managed internally by the framework.
 
-Nevertheless, for the sake of completeness, all implemented `SocketAddress` classes along with the header files they are declared in are listed below.
+Nevertheless, for the sake of completeness, all currently supported `SocketAddress` classes along with the header files they are declared in are listed below.
 
-Every *SocketServer* and *SocketClient* class has it's specific `SocketAddress` type attached as nested data type. Thus, one can always get the correct `SocketAddress` type buy just
+Every `SocketServer` and `SocketClient` class has it's specific `SocketAddress` type attached as nested data type. Thus, one can always get the correct `SocketAddress` type buy just
 
 ```cpp
 using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
@@ -678,7 +678,7 @@ as can be seen in the Echo-Demo-Application above.
 
 Each `SocketAddress` class provides it's very specific set of constructors.
 
-### SocketAddress Constructors
+### `SocketAddress` Constructors
 
 The default constructors of all `SocketAddress` classes creates wild-card `SocketAddress` objects. For a `SocketClient` for exampe, which uses such a wild-card `SocketAddress` as *local address* the operating system chooses a valid `sockaddr` structure automatically.
 
@@ -690,15 +690,15 @@ The default constructors of all `SocketAddress` classes creates wild-card `Socke
 | [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
 | [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
 
-## SocketConnection
+## `SocketConnection`
 
-Every network layer also provides its specific `SocketConnection` class. This `SocketConnection` represents the physical connection to the peer. Equivalent to the `SocketAddress` type each `SocketServer` and `SocketClient` class provides its correct `SocketConnection` as nested data type. This type can be obtained from a concrete `SocketServer` or `SocketClient` class using
+Every network layer also provides its specific `SocketConnection` class. Such a `SocketConnection` object represents the *physical connection* to the peer. Equivalent to the `SocketAddress` type, each `SocketServer` and `SocketClient` class provides its correct `SocketConnection` as nested data type. This type can be obtained from a concrete `SocketServer` or `SocketClient` class using
 
 ```c++
 using SocketConnection = <ConcreteServerOrClientType>::SocketConnection;
 ```
 
-Each `SocketConnection` object provides among others the method
+Each `SocketConnection` object provides, among others, the method
 
 - `int socketConnection->getFd()`
 
@@ -708,18 +708,19 @@ Additionally the `SocketConnection` objects of a SSL/TLS `SocketServer` or `Sock
 
 - `SSL* socketConnection->getSSL()`
 
-which returns a pointer to the `SSL` structure of *openssl* used for encryption, authenticating and authorization. Using this SSL structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the `onConnect` callback and add all kinds of authentication and authorization logic directly in the `onConnected` callback.
+which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the `onConnect()` callback, discussed below, and add all kinds of authentication and authorization logic directly in the `onConnected()` callback, also discussed below.
 
 | Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
 | SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
 
-### Most Important common SocketConnection Methods
+### Most Important common `SocketConnection` Methods
 
 | Method                                                       | Explanation                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | `int getFd()`                                                | Returns the underlying descriptor used for communication.    |
+| `SSL* getSSL()`                                              | Returns the pointer to the OpenSSL SSL structure.            |
 | `void sendToPeer(const char* junk, std::size_t junkLen)` <br/>`void sendToPeer(const std::string& data)`<br />`void sendToPeer(const std::vector<int8_t>& data)`<br />`void sendToPeer(const std::vector<char>& data)` | Enqueue data to be sent to peer.                             |
 | `std::size_t readFromPeer(char* junk, std::size_t junkLen)`  | Read already received data from peer.                        |
 | `void shutdownRead()`<br/>`void shuddownWrite()`             | Shut down socket either for reading or writing.              |
@@ -729,7 +730,7 @@ which returns a pointer to the `SSL` structure of *openssl* used for encryption,
 
 ## Constructors of `SocketServer` and `SocketClient` Classes
 
-Beside the already discussed constructors of the `SocketServer` and `SocketClient` classes, each of them provides two additional constructors which expect three callback `std::function`s as arguments. This callback functions are called by SNode.C during connection establishmentand connection shutdown between server and clients.
+Beside the already discussed constructors of the `SocketServer` and `SocketClient` classes, each of them provides two additional constructors which expect three callback `std::function`s as arguments. This callback functions are called by SNode.C during connection establishment and connection shutdown between server and clients.
 
 Thus the full list of constructors of the `SocketServer` and `SocketClient` classes is:
 
@@ -771,9 +772,9 @@ SocketClient(const std::string& name,
 
 All three callbacks expect a pointer to a `SocketConnection` as argument. This `SocketConnection` can be used to modify all aspects of the physical connection.
 
-***Important***: Do not confuse this callbacks with the overridden `onConnected()` and `onDisconnected()` methods of a `SocketConetext` as this virtual methods are called in case a `SocketContext` has been created or destroyed successfully.
+***Important***: Do not confuse this callbacks with the overridden `onConnected()` and `onDisconnected()` methods of a `SocketConetext` as this virtual methods are called in case a `SocketContext` object has been created successfully or before being destroyed.
 
-#### The `onConnect` Callback
+#### The `onConnect()` Callback
 
 This callback is called after a SOCK_STREAM connection has been created successful.
 
@@ -785,15 +786,15 @@ and for a `SocketServer` after an internal successful call to
 
 - `connect()`
 
-This does not necessarily mean that the connection is ready for communication. Especially in case of an SSL/TLS connection the initial SSL/TLS handshake has not been done yet.
+This does not necessarily mean that the connection is ready for communication. Especially in case of an SSL/TLS connection the initial SSL/TLS handshake has yet not been done.
 
-#### The `onConnected` Callback
+#### The `onConnected()` Callback
 
 This callback is called after the connection has fully established and is ready for communication. In case of an SSL/TLS connection the initial SSL/TLS handshake has been successfully finished.
 
-In case of an legacy connection `onConnected` is called immediately after `onConnect` because no additional handshake needs to be done.
+In case of an legacy connection `onConnected()` is called immediately after `onConnect()` because no additional handshake needs to be done.
 
-#### The `onDisconnected` Callback
+#### The `onDisconnected()` Callback
 
 As the name suggests this callback is executed after a connection to the peer has been shut down.
 
@@ -841,7 +842,7 @@ echoClient.connect(...);
 
 ### Attaching the Callbacks to `SocketServer` and `SocketClient` Instances
 
-In case `SocketServer` and `SocketClient` instances have been created using the constructors not expecting the three callbacks this callbacks can be attached to this instances afterwards by using the methods
+In case `SocketServer` and `SocketClient` instances have been created using the constructors not expecting those three callbacks they can be attached to this instances afterwards by using the methods
 
 - `void setOnConnect(const std::function<SocketConnection*>& onConnect)`
 - `void setOnConnected(const std::function<SocketConnection*>& onConnected)`
@@ -1067,7 +1068,7 @@ using StatusFunction = const std::function<void(const <ConcreteServerOrClientTyp
 
 [^2]: "Without parameter" is not completely right because every `connect()` method expects a `std::function` for status processing (error or success) as argument. 
 
-#### Specific connect() Methods
+#### Specific `connect()` Methods
 
 ##### IPv4 specific `connect()` Methods
 
@@ -1154,11 +1155,13 @@ For the L2CAP/SOCK_STREAM combination exist four specific `connect()` methods.
 
 # Configuration
 
-Each `SocketServer` and `SocketClient` instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP `SocketServer` needs to know at least the port number it should listen on, a `SocketClient` needs to now the host name or the IP address and the port number a server is listening on. And if an SSL/TLS instance is used certificates are necessary for successful encryption.
+Each `SocketServer` and `SocketClient` instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP `SocketServer` needs to know at least the port number it should listen on, a IPv4/TCP `SocketClient` needs to now the host name or the IPv4 address and the port number a server is listening on. And if an SSL/TLS instance is used certificates are necessary for successful encryption.
 
 There are many more configuration items but lets focus on those mentioned above.
 
-SNode.C provides three different ways to specify such configuration items. Nevertheless, internally all uses the same underlying configuration system, which is entirely based on the great [CLI11: Command line parser for C++11](https://github.com/CLIUtils/CLI11) library.
+## Three different Options for Configuration
+
+SNode.C provides three different options to specify such configuration items. Nevertheless, internally all uses the same underlying configuration system, which is entirely based on the great [CLI11: Command line parser for C++11](https://github.com/CLIUtils/CLI11) library.
 
 The configuration can either be done via
 
@@ -1166,9 +1169,11 @@ The configuration can either be done via
 - command line arguments for named instances
 - configuration files for named instances
 
+Command line and configuration file configuration is available and valid for server and client instances created before calling `core::SnodeC::init(int argc, char* argv[])`. For subsequently created instances, configuration can only be done with the C++ API.
+
 ## Configuration using the C++ API
 
-Each anonymous and named `SocketServer` and `SocketClient` instance provide an configuration object which could be obtained by calling the method `getConfig()` on the instance which returns a reference to that configuration object.
+Each anonymous and named `SocketServer` and `SocketClient` instance provide an configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
 
 For the `EchoServer` instance from the "Quick Starting Guide" section for example the configuration object can be obtained by just using
 
