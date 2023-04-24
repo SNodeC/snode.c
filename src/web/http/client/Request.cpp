@@ -124,7 +124,7 @@ namespace web::http::client {
             headersSent = true;
         }
 
-        socketContext->sendToPeer(junk, junkLen);
+        (void) socketContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {
             contentSent += junkLen;

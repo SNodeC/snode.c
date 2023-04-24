@@ -50,10 +50,10 @@ namespace core::socket {
         virtual ~SocketConnection();
 
     public:
-        virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
-        void sendToPeer(const std::string& data);
-        void sentToPeer(const std::vector<uint8_t>& data);
-        void sentToPeer(const std::vector<char>& data);
+        [[nodiscard]] virtual std::size_t sendToPeer(const char* junk, std::size_t junkLen) = 0;
+        [[nodiscard]] std::size_t sendToPeer(const std::string& data);
+        [[nodiscard]] std::size_t sentToPeer(const std::vector<uint8_t>& data);
+        [[nodiscard]] std::size_t sentToPeer(const std::vector<char>& data);
 
         virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 

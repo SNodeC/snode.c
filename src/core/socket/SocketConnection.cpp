@@ -27,16 +27,16 @@ namespace core::socket {
     SocketConnection::~SocketConnection() {
     }
 
-    void SocketConnection::sendToPeer(const std::string& data) {
-        sendToPeer(data.data(), data.size());
+    std::size_t SocketConnection::sendToPeer(const std::string& data) {
+        return sendToPeer(data.data(), data.size());
     }
 
-    void SocketConnection::sentToPeer(const std::vector<uint8_t>& data) {
-        sendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
+    std::size_t SocketConnection::sentToPeer(const std::vector<uint8_t>& data) {
+        return sendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
     }
 
-    void SocketConnection::sentToPeer(const std::vector<char>& data) {
-        sendToPeer(data.data(), data.size());
+    std::size_t SocketConnection::sentToPeer(const std::vector<char>& data) {
+        return sendToPeer(data.data(), data.size());
     }
 
 } // namespace core::socket

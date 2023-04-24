@@ -184,12 +184,16 @@ namespace core::socket::stream {
               typename SocketReader,
               template <typename PhysicalSocketT>
               typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* junk, std::size_t junkLen) {
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* junk, std::size_t junkLen) {
+        std::size_t ret = 0;
+
         if (newSocketContext == nullptr) {
-            SocketWriter::sendToPeer(junk, junkLen);
+            ret = SocketWriter::sendToPeer(junk, junkLen);
         } else {
             VLOG(0) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
         }
+
+        return ret;
     }
 
     template <typename PhysicalSocket,

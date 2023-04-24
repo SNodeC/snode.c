@@ -38,8 +38,8 @@ namespace core::socket::stream {
         return socketConnection;
     }
 
-    void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) const {
-        socketConnection->sendToPeer(junk, junkLen);
+    std::size_t SocketContext::sendToPeer(const char* junk, std::size_t junkLen) const {
+        return socketConnection->sendToPeer(junk, junkLen);
     }
 
     std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) const {

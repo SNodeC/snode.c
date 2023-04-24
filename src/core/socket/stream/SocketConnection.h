@@ -106,7 +106,7 @@ namespace core::socket::stream {
         std::size_t readFromPeer(char* junk, std::size_t junkLen) final;
 
         using Super::sendToPeer;
-        void sendToPeer(const char* junk, std::size_t junkLen) final;
+        [[nodiscard]] std::size_t sendToPeer(const char* junk, std::size_t junkLen) final;
 
     private:
         void onReceivedFromPeer(std::size_t available) final;

@@ -26,8 +26,8 @@
 
 namespace core::socket {
 
-    void SocketContext::sendToPeer(const std::string& data) const {
-        sendToPeer(data.data(), data.length());
+    std::size_t SocketContext::sendToPeer(const std::string& data) const {
+        return sendToPeer(data.data(), data.length());
     }
 
     void SocketContext::onWriteError(int errnum) {

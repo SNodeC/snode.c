@@ -235,28 +235,28 @@ namespace web::websocket {
         /* Facade to SocketContext used from WSTransmitter */
         void sendFrameData(uint8_t data) const override {
             if (!closeSent) {
-                sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
+                (void) sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
             }
         }
 
         void sendFrameData(uint16_t data) const override {
             if (!closeSent) {
                 uint16_t sendData = htobe16(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
+                (void) sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
             }
         }
 
         void sendFrameData(uint32_t data) const override {
             if (!closeSent) {
                 uint32_t sendData = htobe32(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
+                (void) sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
             }
         }
 
         void sendFrameData(uint64_t data) const override {
             if (!closeSent) {
                 uint64_t sendData = htobe64(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
+                (void) sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
             }
         }
 
@@ -267,7 +267,7 @@ namespace web::websocket {
                 do {
                     std::size_t sendJunkLen =
                         (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
-                    sendToPeer(frame + frameOffset, sendJunkLen);
+                    (void) sendToPeer(frame + frameOffset, sendJunkLen);
                     frameOffset += sendJunkLen;
                 } while (frameLength - frameOffset > 0);
             }

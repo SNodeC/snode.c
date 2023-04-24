@@ -47,7 +47,7 @@ namespace web::http::server {
 
     void RequestContextBase::sendToPeer(const char* junk, std::size_t junkLen) {
         if (socketContext != nullptr) {
-            socketContext->sendToPeer(junk, junkLen);
+            (void) socketContext->sendToPeer(junk, junkLen);
         }
     }
 

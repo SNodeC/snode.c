@@ -37,7 +37,7 @@ namespace apps::echo::model {
         VLOG(0) << "Echo connected";
 
         if (role == Role::CLIENT) {
-            sendToPeer("Hello peer! Nice to see you!!!");
+            (void) sendToPeer("Hello peer! Nice to see you!!!");
         }
     }
 
@@ -52,7 +52,7 @@ namespace apps::echo::model {
 
         if (junklen > 0) {
             VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
-            sendToPeer(junk, junklen);
+            (void) sendToPeer(junk, junklen);
         }
 
         return junklen;

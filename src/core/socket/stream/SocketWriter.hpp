@@ -86,14 +86,19 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket>
-    void SocketWriter<PhysicalSocket>::sendToPeer(const char* junk, std::size_t junkLen) {
+    std::size_t SocketWriter<PhysicalSocket>::sendToPeer(const char* junk, std::size_t junkLen) {
+        std::size_t ret = 0;
+
         if (!shutdownInProgress && !markShutdown && isEnabled()) {
             if (writeBuffer.empty()) {
                 resume();
             }
 
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            ret = junkLen;
         }
+
+        return ret;
     }
 
     template <typename PhysicalSocket>

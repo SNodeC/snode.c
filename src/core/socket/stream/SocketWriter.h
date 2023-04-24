@@ -60,7 +60,7 @@ namespace core::socket::stream {
     protected:
         void setBlockSize(std::size_t writeBlockSize);
 
-        void sendToPeer(const char* junk, std::size_t junkLen);
+        std::size_t sendToPeer(const char* junk, std::size_t junkLen);
 
         virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
 

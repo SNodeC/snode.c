@@ -225,7 +225,8 @@ namespace tls {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
 
-                socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+                (void) socketConnection->sendToPeer(
+                    "GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
@@ -270,7 +271,8 @@ namespace legacy {
             [](SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
 
-                socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+                (void) socketConnection->sendToPeer(
+                    "GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";

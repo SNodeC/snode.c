@@ -54,7 +54,7 @@ namespace iot::mqtt {
     }
 
     void SocketContext::send(const char* junk, std::size_t junklen) {
-        core::socket::stream::SocketContext::sendToPeer(junk, junklen);
+        (void) core::socket::stream::SocketContext::sendToPeer(junk, junklen);
     }
 
     void SocketContext::end(bool fatal) {
