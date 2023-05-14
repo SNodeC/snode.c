@@ -42,10 +42,6 @@ namespace core::socket::stream {
         return newSocketContext;
     }
 
-    bool SocketConnection::isValid() {
-        return socketContext != nullptr;
-    }
-
     core::socket::stream::SocketContext*
     SocketConnection::setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
         socketContext = socketContextFactory->create(this);
@@ -55,6 +51,22 @@ namespace core::socket::stream {
         }
 
         return socketContext;
+    }
+
+    bool SocketConnection::isValid() {
+        return socketContext != nullptr;
+    }
+
+    void SocketConnection::sendToPeer(const std::string& data) {
+        sendToPeer(data.data(), data.size());
+    }
+
+    void SocketConnection::sentToPeer(const std::vector<uint8_t>& data) {
+        sendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
+    }
+
+    void SocketConnection::sentToPeer(const std::vector<char>& data) {
+        sendToPeer(data.data(), data.size());
     }
 
 } // namespace core::socket::stream

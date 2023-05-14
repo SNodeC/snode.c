@@ -19,7 +19,9 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
-#include "core/socket/SocketConnection.h"
+namespace core::socket {
+    class SocketAddress;
+} // namespace core::socket
 
 namespace core::socket::stream {
     class SocketContextFactory;
@@ -33,22 +35,44 @@ namespace utils {
 }
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <memory>
+#include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
 
-    class SocketConnection : public core::socket::SocketConnection {
+    class SocketConnection {
     public:
         SocketConnection() = default;
 
-        ~SocketConnection() override;
+    protected:
+        virtual ~SocketConnection();
 
+    public:
         core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
         bool isValid();
+
+        virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
+        void sendToPeer(const std::string& data);
+        void sentToPeer(const std::vector<uint8_t>& data);
+        void sentToPeer(const std::vector<char>& data);
+
+        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
+
+        virtual void shutdownRead() = 0;
+        virtual void shutdownWrite(bool forceClose) = 0;
+
+        virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
+        virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
+
+        virtual void close() = 0;
+
+        virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
     protected:
         core::socket::stream::SocketContext* setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
@@ -67,7 +91,7 @@ namespace core::socket::stream {
         , protected SocketReaderT<PhysicalSocketT>
         , protected SocketWriterT<PhysicalSocketT> {
     protected:
-        using Super = core::socket::SocketConnection;
+        using Super = core::socket::stream::SocketConnection;
 
         using PhysicalSocket = PhysicalSocketT;
         using SocketReader = SocketReaderT<PhysicalSocket>;
