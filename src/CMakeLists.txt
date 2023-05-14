@@ -61,24 +61,23 @@ add_compile_options(
     -Wno-psabi # needed for RaspberryPi
 )
 
-#https://stackoverflow.com/questions/11055569/linking-with-dynamic-library-with-dependencies
-add_link_options(
-    LINKER:--as-needed
-)
+# https://stackoverflow.com/questions/11055569/linking-with-dynamic-library-with-dependencies
+add_link_options(LINKER:--as-needed)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(
         -Weverything
-# None nested namespaces is realy old fashon
+        # None nested namespaces is realy old fashon
         -Wno-c++98-compat-pedantic
-# Hm, with compound singletons difficult to avoid
+        # Hm, with compound singletons difficult to avoid
         -Wno-exit-time-destructors
-# again, with compound singletons difficult to avoid
+        # again, with compound singletons difficult to avoid
         -Wno-global-constructors # same, we have global compund variables
-# Yes, we do! Of course
+        # Yes, we do! Of course
         -Wno-shadow-field
-# Not avoidable, realy - not realy a problem nowerdays! Compiler should padd
+        # Not avoidable, realy - not realy a problem nowerdays! Compiler should
+        # padd
         -Wno-padded
-# Later, we want to have UML in doxygen documentation
+        # Later, we want to have UML in doxygen documentation
         -Wno-documentation-unknown-command
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -99,4 +98,4 @@ add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
 
-#install(CODE "execute_process(COMMAND ldconfig)" COMPONENT notneeded)
+# install(CODE "execute_process(COMMAND ldconfig)" COMPONENT notneeded)

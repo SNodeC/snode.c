@@ -99,6 +99,7 @@ namespace iot::mqtt::server::broker {
 
         return this->message.getMessage().empty() && subTopicLevels.empty();
     }
+
     void RetainTree::TopicLevel::appear(const std::string& clientId, const std::string& topic, uint8_t qoS) {
         appear(clientId, topic, qoS, false);
     }

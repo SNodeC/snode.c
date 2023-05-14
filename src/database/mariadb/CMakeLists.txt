@@ -6,7 +6,7 @@ pkg_check_modules(MARIADB mariadb)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(
-# Oh, mysql/mariadb has some strange identifier
+        # Oh, mysql/mariadb has some strange identifier
         -Wno-reserved-macro-identifier
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
