@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
@@ -69,7 +67,6 @@ namespace core::socket::stream {
                     resume();
                 }
             } else {
-                LOG(TRACE) << "Received EOF";
                 onError(errno);
                 disable();
             }
