@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN6_CPP SocketAddress.cpp config/ConfigAddress.cpp)
+set(NET-IN6_CPP SocketAddress.cpp PhysicalSocket.cpp config/ConfigAddress.cpp)
 
 set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
               config/ConfigAddress.h

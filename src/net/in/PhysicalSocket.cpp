@@ -16,21 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/PhysicalSocket.h" // IWYU pragma: export
+// clang-format off
+#include "net/in/SocketAddress.h"
+#include "net/PhysicalSocket.hpp"
+// clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::l2 {
+namespace net::in {} // namespace net::in
 
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    l2::PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
-        : Super(PF_BLUETOOTH, type, protocol) {
-    }
-
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
-    }
-
-} // namespace net::l2
+template class net::PhysicalSocket<net::in::SocketAddress>;

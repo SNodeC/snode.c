@@ -20,7 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
+#include <map>
+#include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

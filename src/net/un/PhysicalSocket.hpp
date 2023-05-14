@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/PhysicalSocket.hpp"  // IWYU pragma: export
 #include "net/un/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -53,5 +52,3 @@ namespace net::un {
     }
 
 } // namespace net::un
-
-template class net::PhysicalSocket<net::un::SocketAddress>;
