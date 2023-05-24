@@ -62,7 +62,7 @@ namespace core::poll {
         for (auto& [fd, eventReceivers] : observedEventReceivers) {
             pollfd& pollFd = pollfds[pollFdsIndices.find(fd)->second.index];
 
-            if ((pollFd.events == events) != 0 && (pollFd.revents & revents) != 0) {
+            if ((pollFd.events & events) != 0 && (pollFd.revents & revents) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
                 eventReceiver->span();
