@@ -161,9 +161,6 @@ namespace utils {
 
         logger::Logger::init();
 
-        logger::Logger::setLogLevel(0);
-        logger::Logger::setVerboseLevel(0);
-
         struct passwd* pw = nullptr;
         struct group* gr = nullptr;
 
@@ -613,6 +610,9 @@ namespace utils {
             // Do not process ParseError here but on second parse pass
         }
 
+        logger::Logger::setLogLevel(logLevelOpt->as<int>());
+        logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+
         app.allow_extras(false);
     }
 
@@ -718,11 +718,6 @@ namespace utils {
             std::cout << "Error: " << e.get_name() << " " << e.what() << std::endl;
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
             std::cout << std::endl << app.get_footer() << std::endl;
-        }
-
-        if (ret) { // cppcheck-suppress knownConditionTrueFalse
-            logger::Logger::setLogLevel(logLevelOpt->as<int>());
-            logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
         }
 
         return ret;
