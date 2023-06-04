@@ -22,6 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -52,6 +53,8 @@ namespace core::epoll {
 
         event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::EX];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::EX], &event);
+
+        LOG(TRACE) << "IO-Multiplexer: epoll";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout) {

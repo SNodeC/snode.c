@@ -22,6 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Timeval.h"
 
 #include <algorithm>
@@ -130,6 +131,7 @@ namespace core::poll {
               new core::poll::DescriptorEventPublisher("READ", pollFdsManager, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
               new core::poll::DescriptorEventPublisher("WRITE", pollFdsManager, POLLOUT, POLLOUT),
               new core::poll::DescriptorEventPublisher("EXCEPT", pollFdsManager, POLLPRI, POLLPRI)) {
+        LOG(TRACE) << "IO-Multiplexer: poll";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut) {

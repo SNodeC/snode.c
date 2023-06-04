@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/select.h"
+#include "log/Logger.h"
 #include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,6 +38,7 @@ namespace core::select {
         : core::EventMultiplexer(new core::select::DescriptorEventPublisher("READ", fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
                                  new core::select::DescriptorEventPublisher("WRITE", fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
                                  new core::select::DescriptorEventPublisher("EXCEPT", fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
+        LOG(TRACE) << "IO-Multiplexer: select";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut) {
