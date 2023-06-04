@@ -16,10 +16,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(
-    core-socket PUBLIC snodec::core snodec::mux-${IO_Multiplexer}
-                       snodec::logger snodec::utils
-)
+target_link_libraries(core-socket PUBLIC snodec::core)
 
 set_target_properties(
     core-socket PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-socket
