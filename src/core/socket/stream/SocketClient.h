@@ -65,6 +65,28 @@ namespace core::socket::stream {
             : SocketClient("", onConnect, onConnected, onDisconnect) {
         }
 
+        SocketClient(const std::string& name,
+                     SocketContextFactory* socketContextFactory,
+                     const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect)
+            : Super(name)
+            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
+            , onConnect(onConnect)
+            , onConnected(onConnected)
+            , onDisconnect(onDisconnect) {
+        }
+        SocketClient(SocketContextFactory* socketContextFactory,
+                     const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect)
+            : SocketClient("", socketContextFactory, onConnect, onConnected, onDisconnect)
+            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
+            , onConnect(onConnect)
+            , onConnected(onConnected)
+            , onDisconnect(onDisconnect) {
+        }
+
         explicit SocketClient(const std::string& name)
             : SocketClient(
                   name,
@@ -91,6 +113,35 @@ namespace core::socket::stream {
 
         explicit SocketClient()
             : SocketClient("") {
+        }
+
+        SocketClient(const std::string& name, SocketContextFactory* socketContextFactory)
+            : SocketClient(
+                  name,
+                  socketContextFactory,
+                  [name](SocketConnection* socketConnection) -> void { // onConnect
+                      VLOG(0) << "OnConnect " << name;
+
+                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
+                  },
+                  [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
+                      VLOG(0) << "OnConnected " << name;
+                  },
+                  [name](SocketConnection* socketConnection) -> void { // onDisconnect
+                      VLOG(0) << "OnDisconnect " << name;
+
+                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
+                  }) {
+        }
+
+        explicit SocketClient(SocketContextFactory* socketContextFactory)
+            : SocketClient("", socketContextFactory) {
         }
 
         void connect(const std::function<void(const SocketAddress&, int)>& onError) const {
