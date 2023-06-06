@@ -28,8 +28,11 @@
 #include "utils/Timeval.h"
 #include "utils/system/signal.h"
 
+#include <chrono> // IWYU pragma: keep
 #include <cstdlib>
 #include <string>
+
+// IWYU pragma: no_include <bits/chrono.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -178,10 +181,21 @@ namespace core {
             EventLoop::instance().eventMultiplexer.exit();
         }
 
+        utils::Timeval timeout = 1;
         do {
+            auto t1 = std::chrono::high_resolution_clock::now();
+
             EventLoop::instance().eventMultiplexer.stop();
-            tickStatus = EventLoop::instance()._tick(1); // TODO: Do not waste CPU time
-        } while (tickStatus == TickStatus::SUCCESS);
+
+            utils::Timeval timeoutOp = timeout;
+            tickStatus = EventLoop::instance()._tick(timeoutOp);
+
+            auto t2 = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double> seconds = t2 - t1;
+
+            timeout -= seconds.count();
+        } while (tickStatus == TickStatus::SUCCESS && timeout > 0);
 
         DynamicLoader::execDlCloseAll();
 
