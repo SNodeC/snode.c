@@ -65,28 +65,6 @@ namespace core::socket::stream {
             : SocketClient("", onConnect, onConnected, onDisconnect) {
         }
 
-        SocketClient(const std::string& name,
-                     SocketContextFactory* socketContextFactory,
-                     const std::function<void(SocketConnection*)>& onConnect,
-                     const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
-            : Super(name)
-            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
-        }
-        SocketClient(SocketContextFactory* socketContextFactory,
-                     const std::function<void(SocketConnection*)>& onConnect,
-                     const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
-            : SocketClient("", socketContextFactory, onConnect, onConnected, onDisconnect)
-            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
-        }
-
         explicit SocketClient(const std::string& name)
             : SocketClient(
                   name,
@@ -111,8 +89,31 @@ namespace core::socket::stream {
                   }) {
         }
 
-        explicit SocketClient()
+        SocketClient()
             : SocketClient("") {
+        }
+
+        SocketClient(const std::string& name,
+                     SocketContextFactory* socketContextFactory,
+                     const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect)
+            : Super(name)
+            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
+            , onConnect(onConnect)
+            , onConnected(onConnected)
+            , onDisconnect(onDisconnect) {
+        }
+
+        SocketClient(SocketContextFactory* socketContextFactory,
+                     const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect)
+            : SocketClient("", socketContextFactory, onConnect, onConnected, onDisconnect)
+            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
+            , onConnect(onConnect)
+            , onConnected(onConnected)
+            , onDisconnect(onDisconnect) {
         }
 
         SocketClient(const std::string& name, SocketContextFactory* socketContextFactory)
