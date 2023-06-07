@@ -109,11 +109,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect)
-            : SocketClient("", socketContextFactory, onConnect, onConnected, onDisconnect)
-            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
+            : SocketClient("", socketContextFactory, onConnect, onConnected, onDisconnect) {
         }
 
         SocketClient(const std::string& name, SocketContextFactory* socketContextFactory)

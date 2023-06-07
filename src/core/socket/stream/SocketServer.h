@@ -104,11 +104,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect)
-            : SocketServer("", socketContextFactory, onConnect, onConnected, onDisconnect)
-            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
+            : SocketServer("", socketContextFactory, onConnect, onConnected, onDisconnect) {
         }
 
         SocketServer(const std::string& name, SocketContextFactory* socketContextFactory)
