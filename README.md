@@ -158,7 +158,7 @@ Some components are also copyrighted by Students
 
 Basically the architecture of every server and client application is the same and consists of three components.
 
--   Server respective Client instance
+-   SocketServer respective SocketClient instance
 -   SocketContextFactory
 -   SocketContext
 
@@ -992,7 +992,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific `listen()`
 
 ##### Bluetooth RFCOMM specific `listen()` Methods
 
-IPv4 The type `StatusFunction` is defined as
+The type `StatusFunction` is defined as
 
 ```cpp
 using StatusFunction = const std::function<void(const net::rc::SocketAddress&, int)>;
@@ -1009,7 +1009,7 @@ For the RFCOMM/SOCK_STREAM combination exist four specific `listen()` methods.
 
 ##### Bluetooth L2CAP specific `listen()` Methods
 
-IPv4 The type `StatusFunction` is defined as
+The type `StatusFunction` is defined as
 
 ```cpp
 using StatusFunction = const std::function<void(const net::l2::SocketAddress&, int)>;
@@ -1169,7 +1169,7 @@ The configuration can either be done via
 - command line arguments for named instances
 - configuration files for named instances
 
-Command line and configuration file configuration is available and valid for server and client instances created before calling `core::SnodeC::init(int argc, char* argv[])`. For subsequently created instances, configuration can only be done with the C++ API.
+Command line and configuration file configuration is available and valid for server and client instances created before calling `core::SnodeC::start()`. For subsequently created instances, configuration can only be done with the C++ API.
 
 ## Configuration using the C++ API
 
@@ -2131,7 +2131,7 @@ int main(int argc, char* argv[]) {
     // The macro 
     //    APPLICATION(req, res)
     // expands to 
-    //    ([[maybe_unused]] express::Request& (req), [[maybe_unused]] express::Response& (res)
+    //    ([[maybe_unused]] express::Request& (req), [[maybe_unused]] express::Response& (res))
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
                  "    <head>"
@@ -2171,9 +2171,9 @@ int main(int argc, char* argv[]) {
                  "    <body>"
                  "        <h1>Thank you, we received your file!</h1>"
                  "        <h2>Content:</h2>"
-                 "<pre>" +
+                 "        <pre>" +
                  std::string(reinterpret_cast<char*>(req.body.data())) +
-                 "</pre>"
+                 "        </pre>"
                  "    </body>"
                  "</html>");
     });
