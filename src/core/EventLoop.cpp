@@ -209,6 +209,7 @@ namespace core {
     }
 
     void EventLoop::stoponsig(int sig) {
+        LOG(INFO) << "Received signal " << sig;
         stopsig = sig;
         stop();
     }
