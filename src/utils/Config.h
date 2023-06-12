@@ -116,6 +116,7 @@ namespace utils {
         static CLI::Option* enforceLogFileOpt;
         static CLI::Option* logLevelOpt;
         static CLI::Option* verboseLevelOpt;
+        static CLI::Option* quietOpt;
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 

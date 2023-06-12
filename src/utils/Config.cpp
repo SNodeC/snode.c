@@ -139,6 +139,7 @@ namespace utils {
     CLI::Option* Config::enforceLogFileOpt = nullptr;
     CLI::Option* Config::logLevelOpt = nullptr;
     CLI::Option* Config::verboseLevelOpt = nullptr;
+    CLI::Option* Config::quietOpt = nullptr;
 
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::HelpFormatter>();
 
@@ -314,6 +315,16 @@ namespace utils {
                                       ->check(CLI::Range(0, 10))
                                       ->group(app.get_formatter()->get_label("Persistent Options"));
 
+                quietOpt = app.add_flag_function( //
+                                  "-q{true},!-u,--quiet",
+                                  utils::ResetToDefault(quietOpt),
+                                  "Quiet mode") //
+                               ->take_last()
+                               ->default_val("false")
+                               ->type_name("bool")
+                               ->check(CLI::IsMember({"true", "false"}))
+                               ->group(app.get_formatter()->get_label("Persistent Options"));
+
                 logFileOpt = app.add_option_function<std::string>( //
                                     "--log-file",
                                     utils::ResetToDefault(logFileOpt),
@@ -324,7 +335,7 @@ namespace utils {
                                  ->group(app.get_formatter()->get_label("Persistent Options"));
 
                 enforceLogFileOpt = app.add_flag_function( //
-                                           "--enforce-log-file",
+                                           "-e{true},!-n,--enforce-log-file",
                                            utils::ResetToDefault(enforceLogFileOpt),
                                            "Enforce writing of logs to file for foreground applications") //
                                         ->take_last()
@@ -610,8 +621,12 @@ namespace utils {
             // Do not process ParseError here but on second parse pass
         }
 
-        logger::Logger::setLogLevel(logLevelOpt->as<int>());
-        logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+        if (!quietOpt->as<bool>()) {
+            logger::Logger::setLogLevel(logLevelOpt->as<int>());
+            logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+        } else {
+            logger::Logger::quiet();
+        }
 
         app.allow_extras(false);
     }

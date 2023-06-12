@@ -30,6 +30,7 @@
 #include <poll.h>
 #include <pwd.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <syscall.h>
 #include <unistd.h>
 
@@ -63,6 +64,7 @@ namespace utils {
                 /* An error occurred */
                 throw DaemonizeError("First fork()");
             } else if (pid > 0) {
+                waitpid(pid, nullptr, 0); // Wait for the first child to exit
                 /* Success: Let the parent terminate */
                 throw DaemonizeSuccess();
             } else if (setsid() < 0) {
@@ -79,8 +81,18 @@ namespace utils {
                     throw DaemonizeError("Second fork()");
                 } else if (pid > 0) {
                     /* Success: Let the second parent terminate */
+                    std::ofstream pidFile(pidFileName, std::ofstream::out);
+
+                    if (!pidFile.good()) {
+                        kill(pid, SIGTERM);
+                        throw DaemonizeError("Writing pid file '" + pidFileName);
+                    } else {
+                        pidFile << pid << std::endl;
+                        pidFile.close();
+                    }
                     throw DaemonizeSuccess();
                 } else {
+                    waitpid(getppid(), nullptr, 0); // Wait for the parent (first child) to exit
                     struct passwd* pw = nullptr;
                     struct group* gr = nullptr;
 
@@ -101,29 +113,19 @@ namespace utils {
                     } else if (seteuid(pw->pw_uid) != 0) {
                         throw DaemonizeError("seteuid()");
                     } else {
-                        /* Try to write PID of daemon to lockfile */
-                        std::ofstream pidFile(pidFileName, std::ofstream::out);
+                        /* Set new file permissions */
+                        umask(0);
+                        chdir("/");
 
-                        if (!pidFile.good()) {
-                            throw DaemonizeError("Writing pid file '" + pidFileName);
-                        } else {
-                            pidFile << getpid() << std::endl;
-                            pidFile.close();
+                        close(STDIN_FILENO);
+                        close(STDOUT_FILENO);
+                        close(STDERR_FILENO);
 
-                            /* Set new file permissions */
-                            umask(0);
-                            chdir("/");
-
-                            close(STDIN_FILENO);
-                            close(STDOUT_FILENO);
-                            close(STDERR_FILENO);
-
-                            if (std::freopen("/dev/null", "r", stdin) == nullptr) {
-                            }
-                            if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
-                            }
-                            if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
-                            }
+                        if (std::freopen("/dev/null", "r", stdin) == nullptr) {
+                        }
+                        if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
+                        }
+                        if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
                         }
                     }
                 }
