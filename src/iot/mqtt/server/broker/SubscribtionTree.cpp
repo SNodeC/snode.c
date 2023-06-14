@@ -27,7 +27,6 @@
 
 #include <nlohmann/json.hpp>
 #include <string>
-#include <type_traits>
 #include <utility>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>

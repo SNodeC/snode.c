@@ -25,10 +25,10 @@
 #include "log/Logger.h"
 
 #include <nlohmann/json.hpp>
-#include <type_traits>
 #include <utility>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

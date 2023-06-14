@@ -26,7 +26,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <type_traits>
 #include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
