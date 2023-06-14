@@ -53,8 +53,9 @@ namespace core::socket::stream::tls {
         , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
         ReadEventReceiver::enable(fd);
-        WriteEventReceiver::enable(fd);
         ReadEventReceiver::suspend();
+
+        WriteEventReceiver::enable(fd);
         WriteEventReceiver::suspend();
 
         int ret = SSL_shutdown(ssl);

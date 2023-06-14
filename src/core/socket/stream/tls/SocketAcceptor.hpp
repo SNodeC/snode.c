@@ -111,9 +111,6 @@ namespace core::socket::stream::tls {
                     LOG(INFO) << "SSL_CTX for (san)'" << san << "' as master installed";
                 }
 
-                SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
-                forceSni = config->getForceSni();
-
                 for (const auto& [domain, sniCertConf] : config->getSniCerts()) {
                     if (!sniCertConf.empty()) {
                         SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
@@ -134,10 +131,13 @@ namespace core::socket::stream::tls {
                                 LOG(INFO) << "SSL_CTX for (san)'" << san << "' as server name indication (sni) installed";
                             }
                         } else {
-                            LOG(INFO) << "Can not create SSL_CTX for domain '" << domain << "'";
+                            LOG(INFO) << "Can not create SNI_SSL_CTX for domain '" << domain << "'";
                         }
                     }
                 }
+                forceSni = config->getForceSni();
+
+                SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
 
                 Super::initAcceptEvent();
             } else {
