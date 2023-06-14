@@ -1270,9 +1270,9 @@ Options (non-persistent):
        Display program version information and exit
   -s,--show-config
        Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
+  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
        Write config file and exit
-  --config-file configfile:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
+  --config-file configfile:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
        Read an config file
   --instance-map name=mapped_name 
        Instance name mapping used to make an instance known under an alias name also in a config file
@@ -1290,15 +1290,17 @@ Options (persistent):
        Log level
   -v,--verbose-level level:INT in [0 - 10] [0] 
        Verbose level
-  --log-file logfile:NOT DIR [/home/<user>/.local/log/snode.c/echoserver.log] 
+  -q{true},-u{false},--quiet={true,false} [false] 
+       Quiet mode
+  --log-file logfile:NOT DIR [/home/voc/.local/log/snode.c/httpserver-tls-in.log] 
        Logfile path
-  --enforce-log-file={true,false} [false] 
+  -e{true},-n{false},--enforce-log-file={true,false} [false] 
        Enforce writing of logs to file for foreground applications
   -d{true},-f{false},--daemonize={true,false} [false] 
        Start application as daemon
-  --user-name username [<user>]  Needs: --daemonize 
+  --user-name username [voc]  Needs: --daemonize 
        Run daemon under specific user permissions
-  --group-name groupname [<user>]  Needs: --daemonize 
+  --group-name groupname [voc]  Needs: --daemonize 
        Run daemon under specific group permissions
 ```
 
@@ -1351,15 +1353,17 @@ Options (persistent):
        Log level
   -v,--verbose-level level:INT in [0 - 10] [0] 
        Verbose level
-  --log-file logfile:NOT DIR [/home/<user>/.local/log/snode.c/echoserver.log] 
+  -q{true},-u{false},--quiet={true,false} [false] 
+       Quiet mode
+  --log-file logfile:NOT DIR [/home/voc/.local/log/snode.c/httpserver-tls-in.log] 
        Logfile path
-  --enforce-log-file={true,false} [false] 
+  -e{true},-n{false},--enforce-log-file={true,false} [false] 
        Enforce writing of logs to file for foreground applications
   -d{true},-f{false},--daemonize={true,false} [false] 
        Start application as daemon
-  --user-name username [<user>]  Needs: --daemonize 
+  --user-name username [voc]  Needs: --daemonize 
        Run daemon under specific user permissions
-  --group-name groupname [<user>]  Needs: --daemonize 
+  --group-name groupname [voc]  Needs: --daemonize 
        Run daemon under specific group permissions
 
 Instances:
