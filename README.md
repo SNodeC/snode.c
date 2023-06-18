@@ -158,9 +158,9 @@ Some components are also copyrighted by Students
 
 Basically the architecture of every server and client application is the same and consists of three components.
 
--   SocketServer respective SocketClient instance
--   SocketContextFactory
--   SocketContext
+-   *SocketServer* respective *SocketClient* instance
+-   *SocketContextFactory*
+-   *SocketContext*
 
 Let\'s have a look at how these three components are related to each other by implementing a simple networking application.
 
@@ -180,35 +180,35 @@ For the server role we just need to create an object of type
 net::in::stream::legacy::SocketServer<SocketContextFactory>
 ```
 
-called a *server instance* and for the client role an object of type
+called a [*server instance*](#server) and for the client role an object of type
 
 ``` c++
 net::in::stream::legacy::SocketClient<SocketContextFactory>
 ```
 
-called *client instance* is needed.
+called [*client instance*](#client) is needed.
 
-A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` is used internally by the `SocketServer` and the `SocketClient` instances to create a concrete `SocketContext` object for each established connection. This `SocketContext` represents a concrete application protocol.
+A class *SocketContextFactory* is used for both instances as template argument. Such a *SocketContextFactory* **needs to be provided by the user** and is used internally by the *SocketServer* and the *SocketClient* instances to create a concrete *SocketContext* object for each established connection. This *SocketContext* **also needs to be provided by the user** and represents a **concrete application protocol**.
 
-Both instance-classes have, among others, a *default constructor* and a *constructor expecting an instance name* as argument. 
+Both, *SocketServer* and *SocketClient* classes have, among others, a **default constructor** and a **constructor expecting an instance name** as argument. 
 
-- When the default constructor is used to create the instance object this instance is called an *anonymous instance*.
-- In contrast to a *named instance* if the constructors expecting a `std::string` is used for instance creation. 
-- For named instances *command line arguments and configuration file entries are automatically created* to configure the instance.
+- When the default constructor is used to create the instance object this instance is called an **anonymous instance**.
+- In contrast to a **named instance** if the constructors expecting a `std::string` is used for instance creation. 
+- For ***named instances*** **command line arguments and configuration file entries are automatically created**.
 
 Therefore, for our echo application, we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (stream) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
 
 ### SocketContextFactories
 
-Let\'s focus on the SocketContextFactories for our server and client first.
+Let\'s focus on the *SocketContextFactories* for our server and client first.
 
-All what needs to be done is to implement a pure virtual method `create()` witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a concrete application `SocketContext`.
+All what needs to be done is to implement a pure virtual method *create* witch expects a pointer to a `core::socket::stream::SocketConnection` object as argument and returns a pointer to a concrete application *SocketContext*.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the *physical connection* between the server and a client. Such a `core::socket::stream::SocketConnection` is needed by the `core::socket::stream::SocketContext` to *handle the physical data transfer* between server and client.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the **logical connection** between the server and a client. Such a `core::socket::stream::SocketConnection` is needed by the `core::socket::stream::SocketContext` to **handle the data transfer** between server and client.
 
-#### Echo-Server `SocketContextFactory`
+#### Echo-Server *SocketContextFactory*
 
-The `create()` method of our `EchoServerContextFactory` returns the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
+The `create()` method of our `EchoServerContextFactory` returns a pointer to the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
 
 Note, that the pointer to the  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
@@ -224,9 +224,9 @@ private:
 };
 ```
 
-#### Echo-Client `SocketContextFactory`
+#### Echo-Client *SocketContextFactory*
 
-The `create()` method of our `EchoClientContextFactory` returns the `EchoClientContext` whose implementation is also presented in the [SocketContexts](#SocketContexts) section below.
+The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContexts](#SocketContexts) section below.
 
 Note, that the pointer to the  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
@@ -246,21 +246,30 @@ That\'s easy, isn\'t it?
 
 ### SocketContexts
 
-It is also not difficult to implement the `SocketContext` classes for the server and the client.
+It is also not difficult to implement the *SocketContext* classes for the server and the client.
 
--   Remember, the required functionality: The server shall reflect the received data back to the client!
--   And also remember we need to derive from the base class `core::socket::stream::SocketContext`.
--   And at last remember that the class  `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`.
+-   Remember, the required functionality: 
+    -   The client shall start sending data to the server
+    -   The server shall reflect the received data back to the client
+    -   Also, the client shall reflect the received data back to the server
 
-The base class `core::socket::stream::SocketContext` provides *some virtual methods* which can be overridden in an concrete `SocketContext` class. These methods will be *called by the framework automatically*.
+-   Also remember: 
+    -   We need to derive the `EchoServerContext` and `EchoClientContext` from the base class `core::socket::stream::SocketContext`
 
-#### Echo-Server `SocketContext`
+-   And at last remember:
+    -    The base class  `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection`  to handle the physical data exchange
+    -   Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`
 
-For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some data have already been received from the client. Nevertheless, for more information of what is going on in behind the methods `onConnected` and `onDisconnected` are overridden also.
 
-In the `onReceivedFromPeer()` method we can retrieve data that has already been received by SNode.C using the `readFromPeer()` method provided by the `core::socket::stream::SocketContext` class.
+The base class `core::socket::stream::SocketContext` provides *some virtual methods* which can be overridden in an concrete *SocketContext* class. These methods will be *called by the framework automatically*.
 
-Sending data to the client is done using the method `sendToPeer()`, which is also provided by the `core::socket::stream::SocketContext` class.
+#### Echo-Server *SocketContext*
+
+For our echo server application it would be sufficient to override the *onReceivedFromPeer* method only. This method is called by the framework in case some data have already been received from the client. Nevertheless, for more information of what is going on in behind the methods *onConnected* and *onDisconnected* are overridden also.
+
+In the *onReceivedFromPeer* method, which is called by the framework in case data have already been received, we can retrieve that data using the *readFromPeer* method provided by the `core::socket::stream::SocketContext` class.
+
+Sending data to the client is done using the method *sendToPeer*, which is also provided by the `core::socket::stream::SocketContext` class.
 
 ``` c++
 #include <core/socket/SocketAddress.h>
@@ -305,11 +314,11 @@ private:
 };
 ```
 
-#### Echo-Client `SocketContext`
+#### Echo-Client *SocketContext*
 
-The echo client `SocketContext`, unlike the server `SocketContext`, *needs* an overridden `onConnected` method to *initiate* the ping-pong data exchange.
+The echo client *SocketContext*, unlike the server *SocketContext*, *needs* an overridden *onConnected* method to *initiate* the ping-pong data exchange.
 
-Like in the `EchoServerContext`, `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` method. In addition `sendToPeer()` is also used in the `onConnected()` method to initiate the ping-pong data exchange.
+Like in the `EchoServerContext`, *readFromPeer* and *sendToPeer* is used in the *onReceivedFromPeer* method. In addition *sendToPeer* is also used in the *onConnected* method to initiate the ping-pong data exchange.
 
 ``` c++
 #include <core/socket/SocketAddress.h>
@@ -375,9 +384,7 @@ and at the end of the main applications the *event-loop* of SNode.C is started b
 
 The server instance `echoServer` must be *activated* by calling `echoServer.listen()`.
 
-SNode.C provides a view overloaded `listen()` methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOMM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a *lambda function* as last argument. Here we use IPv4 and the `listen()` method which expects a port number as argument.
-
-If we would have created a named server instance than a special `listen()` method which only expects the *lambda function* as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+SNode.C provides a view [overloaded *listen*](#listen-methods) methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOMM, L2CAP, or unix domain sockets) used. Though, every *listen* method expects a *lambda function* as one of its arguments. Here we use IPv4 and the *listen* method which expects a port number - here *8001* - as argument. Note that we do not bind the `echoServer` to a specific network interface. Thus it can be contacted via all active physical network interfaces.
 
 ``` c++
 #include "EchoServerContextFactory.h"
@@ -413,13 +420,13 @@ int main(int argc, char* argv[]) {
 }
 ```
 
+If we would have created a named server instance than a *special* *listen* method which only expects the *lambda function* as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+
 #### Echo-Client Main Application
 
 The client instance `echoClient` must be *activated* by calling `echoClient.connect()`.
 
-Equivalent to the server instance a client instance provides a view overloaded `connect()` methods whose arguments also vary depending on the network layer used. Here it is assumed that we talk to an IPv4 server which runs on the same machine (`localhost`) as the client. Thus we pass the host name `localhost` and port number `8001` to the `connect()` method.
-
-If we would have created a named client instance than a special `connect()` method which only expects the *lambda function* can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+Equivalent to the server instance a client instance provides a view [overloaded *connect*](#connect-methods) methods whose arguments also vary depending on the network layer used. Here it is assumed that we talk to an IPv4 server which runs on the same machine (*localhost*) as the client. Thus we pass the host name *localhost* and port number *8001* as arguments to the *connect* method.
 
 ``` cpp
 #include "EchoClientContextFactory.h"
@@ -456,7 +463,21 @@ int main(int argc, char* argv[]) {
 }
 ```
 
+If we would have created a named client instance than a special *connect* method which only expects the *lambda function* can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+
 ### CMakeLists.txt file for Building and Installing our *echoserver* and *echoclient*
+
+In the `CMakeLists.txt` file used to build the Echo server/client application one finds nothing special. Both executables, `echoserver` and `echoclient` are defined using *add_executable* of *CMake*.
+
+But a bit attention should be payed to the two lines *target_link_libraries*. In our application we need support for an unencrypted (**legacy**), IPv4 (**ip**), TCP (**stream**) connection. Thus we need to link the `echoserver` and `echoclient` executable against the `libsnodec-net-in-stream-legacy.so` library. To get the *CMake* configuration of that library we need to include the target `net-in-stream-legacy` which is a component of the `snodec` framework using
+
+```cmake
+find_package(snodec COMPONENTS net-in-stream-legacy)
+```
+
+This library transitively depends on all other necessary and only necessary SNode.C, third party, and system libraries to get a fully linked an runnable application.
+
+Thus, the `CMakeLists.txt` file looks like
 
 ```cmake
 cmake_minimum_required(VERSION 3.3)
@@ -489,8 +510,8 @@ The echo application shows the typical architecture of servers and clients using
 
 - The user needs to provide the application protocol layer by implementing the classe
 
-  - SocketContextFactory and
-  - SocketContext
+  - *SocketContextFactory* and
+  - *SocketContext*
 
   which need be be derived from the base classes
 
@@ -500,11 +521,11 @@ The echo application shows the typical architecture of servers and clients using
 
 - The framework provides
 
-  - ready to use server and client template classes for each network/transport layer combination.
+  - ready to use *SocketServer* and *SocktClient* template classes for each network/transport layer combination.
 
 # Installation
 
-SNode.C depends on some external libraries. Some of these libraries are directly included in the framework.
+The installation of SNode.C is straight forward. In the first step all necessary tools and libraries are installed. Afterwards SNode.C can be cloned and compiled.
 
 ## Minimum required Compiler Versions
 
@@ -526,9 +547,13 @@ SNode.C is known to compile and run successfull on
 -   Arm architecture (32 and 64 bit)
     -   Tested on Raspberry Pi
 
-## Tools
+## Requirements and Dependencies
 
-### Required
+SNode.C requires some external tools and depends on some external libraries. Some of the libraries are directly included in the framework.
+
+### Tools
+
+#### Mandatory
 
 -   git ([<https://git-scm.com/>](https://git-scm.com/))
 -   cmake ([<https://cmake.org/>](https://cmake.org/))
@@ -536,31 +561,30 @@ SNode.C is known to compile and run successfull on
 -   ninja ([<https://ninja-build.org/>](https://ninja-build.org/))
 -   g++ ([<https://gcc.gnu.org/>](https://gcc.gnu.org/)) or
 -   clang ([<https://clang.llvm.org/>](https://clang.llvm.org/))
--   pkg-config
-    ([<https://www.freedesktop.org/wiki/Software/pkg-config/>](https://www.freedesktop.org/wiki/Software/pkg-config/))
+-   pkg-config ([<https://www.freedesktop.org/wiki/Software/pkg-config/>](https://www.freedesktop.org/wiki/Software/pkg-config/))
 
-### Optional
+#### Optional
 
 -   iwyu ([<https://include-what-you-use.org/>](https://include-what-you-use.org/))
 -   clang-format ([<https://clang.llvm.org/docs/ClangFormat.html>](https://clang.llvm.org/docs/ClangFormat.html))
 -   cmake-format ([<https://cmake-format.readthedocs.io/>](https://cmake-format.readthedocs.io/))
 -   doxygen ([<https://www.doxygen.nl/>](https://www.doxygen.nl/))
 
-## Libraries
+### Libraries
 
-### Required
+#### Mandatory
 
 -   Easylogging development files ([<https://github.com/amrayn/easyloggingpp/>](https://github.com/amrayn/easyloggingpp/))
 -   OpenSSL development files ([<https://www.openssl.org/>](https://www.openssl.org/))
 -   Nlohmann-JSON development files([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
 
-### Optional
+#### Optional
 
 -   Bluez development files ([<http://www.bluez.org/>](http://www.bluez.org/))
 -   LibMagic development files ([<https://www.darwinsys.com/file/>](https://www.darwinsys.com/file/))
 -   MariaDB client development files ([<https://mariadb.org/>](https://mariadb.org/))
 
-### In-Framework
+#### In-Framework
 
 This libraries are already integrated directly in SNode.C. Thus they need not be installed by hand
 
@@ -568,7 +592,7 @@ This libraries are already integrated directly in SNode.C. Thus they need not be
 
 ## Installation on Debian Style Systems (x86-64, Arm)
 
-### Dependencies
+### Tools and Dependencies
 
 To install all dependencies on Debian style systems just run
 
@@ -608,7 +632,6 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 
 -   Easy to use and extend
 -   Clear and clean architecture
--   Object orientated
 -   Single-threaded
 -   Single-tasking
 -   Event driven
@@ -617,30 +640,40 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 -   Support for single shot and interval timer
 -   Sophisticated configuration system controlled either by code, command line, or configuration file
 -   Daemonize server and client if requested
+-   Support for all three major multiplexer API's epoll, poll, and select
+-   Micro-library architecture: Every individual feature/functionality is provided in it's separate library
 
 ## Network Layer
 
-SNode.C currently supports five different network layer protocols.
+SNode.C currently supports five different network layer protocols, each living in it's own C++ namespace.
 
--   Internet Protocol version 4 (IPv4)
--   Internet Protocol version 6 (IPv6)
--   Unix Domain Sockets
--   Bluetooth Radio Frequency Communication (RFCOMM)
--   Bluetooth Logical Link Control and Adaptation Protocol (L2CAP)
+| Network Layer                                                | C++ Namespace Name |
+| ------------------------------------------------------------ | ------------------ |
+| Internet Protocol version 4 (IPv4)                           | `net::ip`          |
+| Internet Protocol version 6 (IPv6)                           | `net::ip6`         |
+| Unix Domain Sockets                                          | `net::un`          |
+| Bluetooth Radio Frequency Communication (RFCOMM)             | `net::rc`          |
+| Bluetooth Logical Link Control and Adaptation Protocol (L2CAP) | `net::l2`          |
 
 ## Transport Layer
 
-Currently only connection-oriented protocols (SOCK_STREAM) for all supported network layer and transport layer combinations are implemented (for IPv4 and IPv6 this means TCP).
+Currently only connection-oriented protocols (**C++ namespace name** `<network_layer_namespace>::stream`) for all supported [network layer](#network-layer) and [connection layer](#connection-layer) combinations are implemented (for IPv4 and IPv6 this means TCP).
 
 -   Every transport layer protocol provides a common base API which makes it very easy to create servers and clients for all different network layers supported.
--   New application protocols can be connected to the transport layer very easily by just implementing a `SocketContextFactory` and a `SocketContext` class.
--   Transparently offers SSL/TLS encryption provided by OpenSSL for each supported transport layer protocol and thus, also for all application level protocols.
-    -   Support of X.509 certificates.
-    -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers).
+
+## Connection Layer
+
+The connection layer is responsible for preparing data to be send to the peer or to be read by a *SocketContext* using the *sendToPeer* and *readFromPeer* methods. Two versions of this layer exist. One for **unencrypted** communication (**C++ namespace name** `<transport_layer_namespace>::legacy`) and one for **SSL/TLS encrypted** communication (**C++ namespace name** `<transport_layer_namespace>::tls`).
+
+-   New application protocols can be connected to the connection layer very easily by just implementing a *SocketContextFactory* and a *SocketContext* class and passing the *SocketContextFactory* class as template argument to concrete *SocketServer* and *SocketClient* classes.
+-   The SSL/TLS version Transparently offers encryption provided by OpenSSL for each supported transport layer protocol and thus, also for all application level protocols.
+    -   Support of X.509 certificates
+    -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers)
+    -   Support for individual SNI certificates
 
 ## Application Layer
 
-In-framework server and client support currently exist for the application level protocols
+In-framework server and client support designed as sub-frameworks currently exist for the application level protocols
 
 -   HTTP/1.1
 -   WebSocket version 13
@@ -648,19 +681,19 @@ In-framework server and client support currently exist for the application level
 -   MQTT via WebSockets
 -   High-Level Web API layer with JSON support very similar to the API of node.js/express.
 
-As said above in the transport layer section, SSL/TLS encryption is provided transparently for all of these application layer protocols.
+As already mentioned above in the [transport layer](#transport-layer) section, SSL/TLS encryption is provided transparently for all of these application layer protocols.
 
 # Existing Server- and Client-Classes
 
-Before focusing explicitly on the server and client classes a few common aspects for all network/transport-layer combinations needs to be known.
+Before focusing explicitly on the *SocketServer* and *SocketClient* classes a few common aspects for all network/transport-layer combinations needs to be known.
 
-## `SocketAddress`
+## *SocketAddress*
 
-Every network layer provides its specific `SocketAddress` class. In typical scenarios you need not bother about these classes as they are managed internally by the framework.
+Every network layer provides its specific *SocketAddress* class. In typical scenarios you need not bother about these classes as objects of it are managed internally by the framework.
 
-Nevertheless, for the sake of completeness, all currently supported `SocketAddress` classes along with the header files they are declared in are listed below.
+Nevertheless, for the sake of completeness, all currently supported *SocketAddress* classes along with the header files they are declared in are listed below.
 
-Every `SocketServer` and `SocketClient` class has it's specific `SocketAddress` type attached as nested data type. Thus, one can always get the correct `SocketAddress` type buy just
+Every *SocketServer* and *SocketClient* class has it's specific *SocketAddress* type attached as nested data type. Thus, one can always get the correct *SocketAddress* type buy just
 
 ```cpp
 using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
@@ -668,7 +701,7 @@ using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
 
 as can be seen in the Echo-Demo-Application above.
 
-| Network Layer       | `SocketAddress` Classes                                      | SocketAddress Header Files                                   |
+| Network Layer       | *SocketAddress* Classes                                      | SocketAddress Header Files                                   |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | IPv4                | [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | [`net/in/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2_socket_address_8h.html) |
 | IPv6                | [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | [`net/in6/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2_socket_address_8h.html) |
@@ -676,11 +709,11 @@ as can be seen in the Echo-Demo-Application above.
 | Bluetooth RFCOMM    | [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | [`net/rc/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2_socket_address_8h.html) |
 | Bluetooth L2CAP     | [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | [`net/l2/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2_socket_address_8h.html) |
 
-Each `SocketAddress` class provides it's very specific set of constructors.
+Each *SocketAddress* class provides it's very specific set of constructors.
 
-### `SocketAddress` Constructors
+### *SocketAddress* Constructors
 
-The default constructors of all `SocketAddress` classes creates wild-card `SocketAddress` objects. For a `SocketClient` for exampe, which uses such a wild-card `SocketAddress` as *local address* the operating system chooses a valid `sockaddr` structure automatically.
+The default constructors of all *SocketAddress* classes creates wild-card *SocketAddress* objects. For a *SocketClient* for exampe, which uses such a wild-card *SocketAddress* as *local address* the operating system chooses a valid `sockaddr` structure for the local side of the connection automatically.
 
 | SocketAddress                                                | Constructors                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -690,32 +723,39 @@ The default constructors of all `SocketAddress` classes creates wild-card `Socke
 | [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
 | [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
 
-## `SocketConnection`
+## *SocketConnection*
 
-Every network layer also provides its specific `SocketConnection` class. Such a `SocketConnection` object represents the *physical connection* to the peer. Equivalent to the `SocketAddress` type, each `SocketServer` and `SocketClient` class provides its correct `SocketConnection` as nested data type. This type can be obtained from a concrete `SocketServer` or `SocketClient` class using
+Every network layer uses its specific *SocketConnection* class. Such a *SocketConnection* object represents the logical connection to the peer and is an specialization of one of the two template classes 
+
+- `core::socket::stream::legacy::SocketConnection` or
+- `core::socket::stream::tls::SocketConnection` 
+
+which itself are derived from the non template base class `core::socket::stream::SocketConnection`.
+
+Equivalent to the *SocketAddress* type, each *SocketServer* and *SocketClient* class provides its correct *SocketConnection* as nested data type. This type can be obtained from a concrete *SocketServer* or *SocketClient* class using
 
 ```c++
 using SocketConnection = <ConcreteServerOrClientType>::SocketConnection;
 ```
 
-Each `SocketConnection` object provides, among others, the method
+Each *SocketConnection* object provides, among others, the method
 
-- `int socketConnection->getFd()`
+- `int getFd()`
 
 which returns the underlying descriptor used for communication.
 
-Additionally the `SocketConnection` objects of a SSL/TLS `SocketServer` or `SocketClient` class provides the method
+Additionally the *SocketConnection* objects of a *SSL/TLS* *SocketServer* or *SSL/TLS SocketClient* class provides the method
 
-- `SSL* socketConnection->getSSL()`
+- `SSL* getSSL()`
 
-which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the `onConnect()` callback, discussed below, and add all kinds of authentication and authorization logic directly in the `onConnected()` callback, also discussed below.
+which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the [*onConnect* callback](#the-onconnect-callback), discussed below, and add all kinds of authentication and authorization logic directly in the [*onConnected* callback](#the-onconnected-callback), also discussed below.
 
 | Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
 | SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
 
-### Most Important common `SocketConnection` Methods
+### Most Important common *SocketConnection* Methods
 
 | Method                                                       | Explanation                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -728,79 +768,111 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 | `void setTimeout(utils::Timeval& timeout)`                   | Set the inactivity timeout of a connection (default 60 seconds).<br/>If no data has been transfered within this amount of time<br/>the connection is terminated. |
 | `bool isValid()`                                             | Check if a connection has been created successfully.         |
 
-## Constructors of `SocketServer` and `SocketClient` Classes
+## Constructors of *SocketServer* and *SocketClient* Classes
 
-Beside the already discussed constructors of the `SocketServer` and `SocketClient` classes, each of them provides two additional constructors which expect three callback `std::function`s as arguments. This callback functions are called by SNode.C during connection establishment and connection shutdown between server and clients.
+Beside the already discussed constructors of the *SocketServer* and *SocketClient* classes, each of them provides two additional constructors which expect three callback `std::function`s as arguments. This callback functions are called by SNode.C during connection establishment and connection shutdown between server and clients.
 
-Thus the full list of constructors of the `SocketServer` and `SocketClient` classes is:
+And furthermore an equivalent set of four constructors additionally expecting a pointer to a concrete *SocketContextFactory* are also provided.
 
-### Constructors of `SocketServer` Classes
+Thus the full list of constructors of the *SocketServer* and *SocketClient* classes is:
+
+### Constructors of *SocketServer* Classes
 
 ```c++
 SocketServer()
-    
+
 SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect)
-    
+
 SocketServer(const std::string& name)
-    
+
 SocketServer(const std::string& name,
              const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect)
+
+SocketServer(SocketContextFactory* socketContextFactory)
+    
+SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConnect,
+             const std::function<void(SocketServer::SocketConnection*)>& onConnected,
+             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
+             SocketContextFactory* socketContextFactory)
+    
+SocketServer(const std::string& name, SocketContextFactory* socketContextFactory)
+    
+SocketServer(const std::string& name,
+             const std::function<void(SocketServer::SocketConnection*)>& onConnect,
+             const std::function<void(SocketServer::SocketConnection*)>& onConnected,
+             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
+             SocketContextFactory* socketContextFactory)
 ```
 
-### Constructors of `SocketClient` Classes
+### Constructors of *SocketClient* Classes
 
 ```c++
 SocketClient()
-    
+
 SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect)
-    
+
 SocketClient(const std::string& name)
-    
+
 SocketClient(const std::string& name,
              const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect)
+
+SocketClient(SocketContextFactory* socketContextFactory)
+
+SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
+             const std::function<void(SocketClient::SocketConnection*)>& onConnected,
+             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
+			 SocketContextFactory* socketContextFactory)
+
+SocketClient(const std::string& name, SocketContextFactory* socketContextFactory)
+
+SocketClient(const std::string& name,
+             const std::function<void(SocketClient::SocketConnection*)>& onConnect,
+             const std::function<void(SocketClient::SocketConnection*)>& onConnected,
+             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
+             SocketContextFactory* socketContextFactory)
 ```
 
 ### Constructor Callbacks
 
-All three callbacks expect a pointer to a `SocketConnection` as argument. This `SocketConnection` can be used to modify all aspects of the physical connection.
+***Important***: Do not confuse this callbacks with the overridden *onConnected* and *onDisconnected* methods of a *SocketContext* as this virtual methods are called in case a *SocketContext* object has been created successfully or before being destroyed.
 
-***Important***: Do not confuse this callbacks with the overridden `onConnected()` and `onDisconnected()` methods of a `SocketConetext` as this virtual methods are called in case a `SocketContext` object has been created successfully or before being destroyed.
+All three callbacks *onConnect*, *onConnected*, and *onDisconnected* have to expect a pointer to a *SocketConnection* object as argument. This *SocketConnection* can be used to modify all aspects of a connection.
 
-#### The `onConnect()` Callback
+#### The *onConnect* Callback
 
-This callback is called after a SOCK_STREAM connection has been created successful.
+This callback is called after a connection oriented connection has been created successful.
 
-For a `SocketServer` this means after an internal successful call to
+For a *SocketServer* this means after an successful internal call to
 
-- `accept()`
+- *accept*
 
-and for a `SocketServer` after an internal successful call to
+and for a *SocketServer* after an successful internal call to
 
-- `connect()`
+- *connect*
 
 This does not necessarily mean that the connection is ready for communication. Especially in case of an SSL/TLS connection the initial SSL/TLS handshake has yet not been done.
 
-#### The `onConnected()` Callback
+#### The *onConnected* Callback
 
 This callback is called after the connection has fully established and is ready for communication. In case of an SSL/TLS connection the initial SSL/TLS handshake has been successfully finished.
 
-In case of an legacy connection `onConnected()` is called immediately after `onConnect()` because no additional handshake needs to be done.
+In case of an legacy connection *onConnected* is called immediately after *onConnect* because no additional handshake needs to be done.
 
-#### The `onDisconnected()` Callback
+#### The *onDisconnected* Callback
 
 As the name suggests this callback is executed after a connection to the peer has been shut down.
 
 ### Attaching the Callbacks during Instance Creation
 
-For a concrete `SocketServer` instance (here an anonymous instance) the constructors expecting callbacks are used like
+For a concrete *SocketServer* instance (here an anonymous instance) the constructors expecting callbacks are used like
 
 ```c++
 using EchoServer = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
@@ -820,7 +892,7 @@ EchoServer echoServer([] (SocketConnection* socketConnection) -> void {
 echoServer.listen(...);
 ```
 
-and for a concrete `SocketClient` class like
+and for a concrete *SocketClient* class like
 
 ```c++
 using EchoClient = net::in::stream::legacy::SocketServer<EchoClientContextFactory>;
@@ -840,9 +912,9 @@ EchoClient echoClient([] (SocketConnection* socketConnection) -> void {
 echoClient.connect(...);
 ```
 
-### Attaching the Callbacks to `SocketServer` and `SocketClient` Instances
+### Attaching the Callbacks to Already Existing *SocketServer* and *SocketClient* Instances
 
-In case `SocketServer` and `SocketClient` instances have been created using the constructors not expecting those three callbacks they can be attached to this instances afterwards by using the methods
+In case *SocketServer* and *SocketClient* instances have been created using the constructors not expecting those three callbacks they can be attached to this instances afterwards by using the methods
 
 - `void setOnConnect(const std::function<SocketConnection*>& onConnect)`
 - `void setOnConnected(const std::function<SocketConnection*>& onConnected)`
@@ -900,7 +972,9 @@ echoClient.connect(...);
 
 ### SocketServer Classes
 
-| Network Layer       | Legacy Connection                                            | SSL/TLS Connection                                           |
+Each *SocketServer* template class expects a concrete *SocketContextFactory* as template argument. This mandatory template argument has been hidden in the following *SocketServer* types table.
+
+| Network Layer       | Legacy Types                                                 | SSL/TLS Types                                                |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | IPv4                | [`net::in::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
 | IPv6                | [`net::in6::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) |
@@ -911,7 +985,7 @@ echoClient.connect(...);
 ### SocketServer Header Files
 
 
-| Network Layer       | Legacy Connection                                            | SSL/TLS Connection                                           |
+| Network Layer       | Legacy Header Files                                          | SSL/TLS Header Files                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | IPv4                | [`net/in/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_server_8h.html) | [`net/in/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_server_8h.html) |
 | IPv6                | [`net/in6/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_server_8h.html) | [`net/in6/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_server_8h.html) |
@@ -921,9 +995,9 @@ echoClient.connect(...);
 
 ### Listen Methods
 
-As already mentioned above, each `SocketServer` class provides its own specific set of `listen()` methods. But some `listen()` methods are common to all `SocketServer` classes.
+As already mentioned above, for convenience each *SocketServer* class provides its own specific set of *listen* methods. The implementation of this specific *listen* methods rely on some *listen* methods common to all *SocketServer* classes.
 
-#### Common `listen()` Methods
+#### Common *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -931,17 +1005,23 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const <ConcreteServerOrClientType>::SocketAddress&, int)>;
 ```
 
-| `listen()`Method Type                                        | `listen()` Methods common to all SocketServer Classes        |
+The type `SocketAddress` is defined as
+
+```c++
+using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
+```
+
+| *listen* Methods common to all SocketServer Classes          | *listen* Method Arguments                                    |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Listen without parameter[^1]                                 | `void listen(StatusFunction& onError)`                       |
-| Listen expecting a `SocketAddress` as argument               | `void listen(const SocketAddress& localAddress, StatusFunction& onError)` |
-| Listen expecting a `SocketAddress` and a backlog as argument | `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onError)` |
+| `void listen(StatusFunction& onError)`                       | Listen without parameter[^1]                                 |
+| `void listen(const SocketAddress& localAddress, StatusFunction& onError)` | Listen expecting a *SocketAddress* as argument               |
+| `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onError)` | Listen expecting a *SocketAddress* and a backlog as argument |
 
-[^1]: "Without parameter" is not completely right because every `listen()` method expects a reference to a `std::function` for status processing (error or success) as argument.
+[^1]: "Without parameter" is not completely right because every *listen* method expects a reference to a `std::function` for status processing (error or success) as argument.
 
-#### Specific `listen()` Methods
+#### Specific *listen* Methods
 
-##### IPv4 specific `listen()` Methods
+##### IPv4 specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -949,16 +1029,16 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::in::SocketAddress&, int)>;
 ```
 
-For the IPv4/SOCK_STREAM combination exist four specific `listen()` methods.
+For the IPv4/SOCK_STREAM combination exist four specific *listen* methods.
 
-| IPv4 `listen()` Methods                                      |
+| IPv4 *listen* Methods                                        |
 | ------------------------------------------------------------ |
 | `void listen(uint16_t port, StatusFunction& onError)`        |
 | `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
 
-##### IPv6 specific `listen()` Methods
+##### IPv6 specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -966,16 +1046,16 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::in6::SocketAddress&, int)>;
 ```
 
-For the IPv6/SOCK_STREAM combination exist four specific `listen()` methods.
+For the IPv6/SOCK_STREAM combination exist four specific *listen* methods.
 
-| IPv6 `listen()` Methods                                      |
+| IPv6 *listen* Methods                                        |
 | ------------------------------------------------------------ |
 | `void listen(uint16_t port, StatusFunction& onError)`        |
 | `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
 
-##### Unix Domain Socket specific `listen()` Methods
+##### Unix Domain Socket specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -983,14 +1063,14 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::un::SocketAddress&, int)>;
 ```
 
-For the Unix Domain Socket/SOCK_STREAM combination exist two specific `listen()` methods.
+For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* methods.
 
-| Unix-Domain `listen()` Methods                               |
+| Unix-Domain *listen* Methods                                 |
 | ------------------------------------------------------------ |
 | `void listen(const std::string& sunPath, StatusFunction& onError)` |
 | `void listen(const std::string& sunPath, int backlog, StatusFunction& onError)` |
 
-##### Bluetooth RFCOMM specific `listen()` Methods
+##### Bluetooth RFCOMM specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -998,16 +1078,16 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::rc::SocketAddress&, int)>;
 ```
 
-For the RFCOMM/SOCK_STREAM combination exist four specific `listen()` methods.
+For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods.
 
-| Bluetooth RFCOMM `listen()` Methods                          |
+| Bluetooth RFCOMM *listen* Methods                            |
 | ------------------------------------------------------------ |
 | `void listen(uint8_t channel, StatusFunction& onError)`      |
 | `void listen(uint8_t channel, int backlog, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onError)` |
 
-##### Bluetooth L2CAP specific `listen()` Methods
+##### Bluetooth L2CAP specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1015,9 +1095,9 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::l2::SocketAddress&, int)>;
 ```
 
-For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
+For the L2CAP/SOCK_STREAM combination exist four specific *listen* methods.
 
-| Bluetooth L2CAP `listen()` Methods                           |
+| Bluetooth L2CAP *listen* Methods                             |
 | ------------------------------------------------------------ |
 | `void listen(uint16_t psm, StatusFunction& onError)`         |
 | `void listen(uint16_t psm, int backlog, StatusFunction& onError)` |
@@ -1028,8 +1108,10 @@ For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
 
 ### SocketClient Classes
 
+Each *SocketClient* template class expects a concrete *SocketContextFactory* as template argument. This mandatory template argument is hidden in the following*SocketClient* types table.
 
-| Network Layer       | Legacy Connection                                            | SSL/TLS Connection                                           |
+
+| Network Layer       | Legacy Types                                                 | SSL/TLS Types                                                |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | IPv4                | [`net::in::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
 | IPv6                | [`net::in6::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls.html) |
@@ -1040,7 +1122,7 @@ For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
 ### SocketClient Header Files
 
 
-| Network Layer       | Legacy Connection                                            | SSL/TLS Connection                                           |
+| Network Layer       | Legacy Header Files                                          | SSL/TLS Header Files                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | IPv4                | [`net/in/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_client_8h.html) | [`net/in/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_client_8h.html) |
 | IPv6                | [`net/in6/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_client_8h.html) | [`net/in6/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_client_8h.html) |
@@ -1050,9 +1132,9 @@ For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
 
 ### Connect Methods
 
-As already mentioned above, each `SocketClient` class provides its own specific set of `connect()` methods. But some `connect()` methods are common to all `SocketClient` classes.
+As already mentioned above, for convenience each *SocketClient* class provides its own specific set of *connect* methods. The implementation of this specific *connect* methods rely on some listen methods common to all *SocketClient* classes.
 
-#### Common `connect()` Methods
+#### Common *connect* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1060,17 +1142,23 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const <ConcreteServerOrClientType>::SocketAddress&, int)>;
 ```
 
-| `connect()`Method Type                             | `connect()` Methods common to all SocketServer Classes       |
-| -------------------------------------------------- | ------------------------------------------------------------ |
-| Connect without parameter[^2]                      | `void connect(StatusFunction& onError)`                      |
-| Connect expecting a `SocketAddress` as argument    | `void connect(const SocketAddress& remoteAddress, StatusFunction& onError)` |
-| Connect expecting two `SocketAddress`s as argument | `void connect(const SocketAddress& remoteAddress, const SocketAddress& localAddress, StatusFunction& onError)` |
+The type `SocketAddress` is defined as
 
-[^2]: "Without parameter" is not completely right because every `connect()` method expects a `std::function` for status processing (error or success) as argument. 
+```c++
+using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
+```
 
-#### Specific `connect()` Methods
+| *connect* Methods common to all SocketServer Classes         | *connect* Method Arguments                         |
+| ------------------------------------------------------------ | -------------------------------------------------- |
+| `void connect(StatusFunction& onError)`                      | Connect without parameter[^2]                      |
+| `void connect(const SocketAddress& remoteAddress, StatusFunction& onError)` | Connect expecting a *SocketAddress* as argument    |
+| `void connect(const SocketAddress& remoteAddress, const SocketAddress& localAddress, StatusFunction& onError)` | Connect expecting two *SocketAddress*s as argument |
 
-##### IPv4 specific `connect()` Methods
+[^2]: "Without parameter" is not completely right because every *connect* method expects a `std::function` for status processing (error or success) as argument. 
+
+#### Specific *connect* Methods
+
+##### IPv4 specific *connect* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1078,16 +1166,16 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::in::SocketAddress&, int)>;
 ```
 
-For the IPv4/SOCK_STREAM combination exist four specific `connect()` methods.
+For the IPv4/SOCK_STREAM combination exist four specific *connect* methods.
 
-| IPv4 `connect()` Methods                                     |
+| IPv4 *connect* Methods                                       |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
-##### IPv6 specific `connect()` Methods
+##### IPv6 specific *connect* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1095,16 +1183,16 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::in6::SocketAddress&, int)>;
 ```
 
-For the IPv6/SOCK_STREAM combination exist four specific `connect()` methods.
+For the IPv6/SOCK_STREAM combination exist four specific *connect* methods.
 
-| IPv6 `connect()` Methods                                     |
+| IPv6 *connect* Methods                                       |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
-##### Unix Domain Socket specific `connect()` Methods
+##### Unix Domain Socket specific *connect* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1112,14 +1200,14 @@ The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::un::SocketAddress&, int)>;
 ```
 
-For the Unix Domain Socket/SOCK_STREAM combination exist two specific `connect()` methods.
+For the Unix Domain Socket/SOCK_STREAM combination exist two specific *connect* methods.
 
-| Unix-Domain `connect()` Methods                              |
+| Unix-Domain *connect* Methods                                |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& sunPath, StatusFunction& onError)` |
 | `void connect(const std::string& remoteSunPath, const std::string& localSunPath, StatusFunction& onError)` |
 
-##### Bluetooth RFCOMM specific `connect()` Methods
+##### Bluetooth RFCOMM specific *connect* Methods
 
 IPv4 The type `StatusFunction` is defined as
 
@@ -1127,16 +1215,16 @@ IPv4 The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::rc::SocketAddress&, int)>;
 ```
 
-For the RFCOMM/SOCK_STREAM combination exist four specific `connect()` methods.
+For the RFCOMM/SOCK_STREAM combination exist four specific *connect* methods.
 
-| Bluetooth RFCOMM `connect()` Methods                         |
+| Bluetooth RFCOMM *connect* Methods                           |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint8_t channel, uint8_t bindChannel, StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, StatusFunction& onError)` |
 
-##### Bluetooth L2CAP specific `connect()` Methods
+##### Bluetooth L2CAP specific *connect* Methods
 
 IPv4 The type `StatusFunction` is defined as
 
@@ -1144,9 +1232,9 @@ IPv4 The type `StatusFunction` is defined as
 using StatusFunction = const std::function<void(const net::l2::SocketAddress&, int)>;
 ```
 
-For the L2CAP/SOCK_STREAM combination exist four specific `connect()` methods.
+For the L2CAP/SOCK_STREAM combination exist four specific *connect* methods.
 
-| Bluetooth L2CAP `connect()` Methods                          |
+| Bluetooth L2CAP *connect* Methods                            |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& btAddress, uint16_t psm, StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint16_t psm, uint16_t bindPsm, StatusFunction& onError)` |
@@ -1155,7 +1243,7 @@ For the L2CAP/SOCK_STREAM combination exist four specific `connect()` methods.
 
 # Configuration
 
-Each `SocketServer` and `SocketClient` instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP `SocketServer` needs to know at least the port number it should listen on, a IPv4/TCP `SocketClient` needs to now the host name or the IPv4 address and the port number a server is listening on. And if an SSL/TLS instance is used certificates are necessary for successful encryption.
+Each *SocketServer* and *SocketClient* instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP *SocketServer* needs to know at least the port number it should listen on and a IPv4/TCP *SocketClient* needs to now the host name or the IPv4 address and the port number a server is listening on. And if an SSL/TLS instance is used certificates are necessary for successful encryption.
 
 There are many more configuration items but lets focus on those mentioned above.
 
@@ -1166,14 +1254,16 @@ SNode.C provides three different options to specify such configuration items. Ne
 The configuration can either be done via
 
 - the provided C++ API directly in the source code for anonymous and named instances
+- configuration files and
 - command line arguments for named instances
-- configuration files for named instances
 
-Command line and configuration file configuration is available and valid for server and client instances created before calling `core::SnodeC::start()`. For subsequently created instances, configuration can only be done with the C++ API.
+**Important:** Command line configuration takes precedence over configuration file configuration, which in turn takes precedence over C++ API configuration.
+
+**Important:** Command line and configuration file options are available and valid for server and client instances created before calling `core::SnodeC::start()`. For subsequently created instances, configuration can only be done using the C++ API.
 
 ## Configuration using the C++ API
 
-Each anonymous and named `SocketServer` and `SocketClient` instance provide an configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
+Each anonymous and named *SocketServer* and *SocketClient* instance provide an configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
 
 For the `EchoServer` instance from the "Quick Starting Guide" section for example the configuration object can be obtained by just using
 
@@ -1191,9 +1281,9 @@ EchoServer echoServer;
 echoServer.getConfig().setPort(8001);
 ```
 
-This is what the `listen()` method which expects a port number as argument does automatically.
+This is what the *listen* method which expects a port number as argument does automatically.
 
-Thus, if the port number is configured by using `setPort()` the `listen()` method which only takes a `std::function` as argument can be use and the `EchoServer` could also be started by
+Thus, if the port number is configured by using `setPort()` the *listen* method which only takes a `std::function` as argument can be use and the `EchoServer` could also be started by
 
 ```cpp
 EchoServer echoServer;
@@ -1210,7 +1300,7 @@ echoServer.listen([](const SocketAddress& socketAddress, int err) -> void { // L
 
 The same technique can be used to configure the  `EchoClient` instance. 
 
-Though, because a `SocketClient` has two independent sets of IP-Addresses/host names and port numbers, one for the remote side and one for the local side, one need to be more specific in which of these addresses shall be configured. Here the remote address is configured explicitly.
+Though, because a *SocketClient* has two independent sets of IP-Addresses/host names and port numbers, one for the remote side and one for the local side, one need to be more specific in which of these addresses shall be configured. Here the remote address is configured explicitly.
 
 ```cpp
 EchoServer echoClient;
@@ -1230,11 +1320,11 @@ Other configuration items can be configured in the very same way but for most op
 
 ### List of all Configuration Items
 
-All `SocketServer` and `SocketClient` instances share some common [configuration options](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1config.html).
+All *SocketServer* and *SocketClient* instances share some common [configuration options](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1config.html).
 
 Network layer specific configuration options:
 
-| Network Layer       | Address                                                      | Transport Layer                                              | Legacy                                                       | TLS                                                          |
+| Network Layer       | SocketAddress                                                | Transport Layer                                              | Legacy Connection Layer                                      | TLS Connection Layer                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | IPv4                | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls_1_1config.html) |
 | IPv6                | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls_1_1config.html) |
@@ -1244,11 +1334,11 @@ Network layer specific configuration options:
 
 ## Configuration via the Command Line
 
-Each application gets a set of common command line options which control the behavior of the application in general. An overview of those option can be printed on screen by adding `--help` or `--help-all` on the command line. 
+Each application as such gets a set of command line options which control the behavior of the application in general. An overview of those option can be printed on screen by adding `--help` or `--help-all` on the command line. 
 
-### Introduction to the Command Line Interface using the `EchoServer` from above
+### Application Configuration
 
-For instance 
+In case of the `EchoServer` demo application
 
 ```shell
 command@line:~/> echoserver --help
@@ -1304,14 +1394,14 @@ Options (persistent):
        Run daemon under specific group permissions
 ```
 
-- Persistent options can be stored in the configuration file by appending `-w` on the command line.
-- Non-persistent options are never stored in the configuration file.
+- Persistent options can be stored in a configuration file by appending `-w` on the command line.
+- Non-persistent options are never stored in a configuration file.
 
-#### Instance Configuration
+### Instance Configuration
 
-Each named `SocketServer` and `SocketClient` instance get their specific set of command line options accessible by specifying the name of the instance on the command line.
+Each named *SocketServer* and *SocketClient* instance get their specific set of command line options accessible by specifying the name of the instance on the command line.
 
-Thus, for instance if the `EchoServer` instance is created using and instance name as argument to the server instance constructor like for example 
+Thus, for instance if the `EchoServer` instance is created using and instance name as argument to the constructor like for example 
 
 ```cpp
 EchoServer echoServer("echo"); // Create named server instance
@@ -1416,7 +1506,9 @@ on screen.
 
 #### Sections
 
-As one can see, there exists some sections for the instance *echo* each offering specific configuration items for specific instance behavior categories. Most important for a `SocketServer` instance is the section *local*,
+As one can see, there exists some sections for the instance *echo* each offering specific configuration items for specific instance behavior categories.
+
+Most important for a *SocketServer* instance is the section *local*,
 
 ```shell
 command@line:~/> echoserver echo local --help
@@ -1435,7 +1527,7 @@ Options (persistent):
        Port number
 ```
 
-which offer configuration options to configure the hostname or IP-Address and port number the physical server socket should be bound to. Note, that the default value of the port number is `[8001]`, what is this port number used to activate the `echo` instance:
+which offer configuration options to configure the host name or IP-Address and port number the physical server socket should be bound to. Note, that the default value of the port number is `[8001]`, what is this port number used to activate the `echo` instance:
 
 ```cpp
 echoServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
@@ -1482,9 +1574,9 @@ All section names following an instance name are treaded as sections modifying t
 
 One can switch between sections by just specifying a different section name.
 
-### Using the Parameterless `listen()` Methods when no Configuration File exists
+### Using the Parameterless *listen* Methods when no Configuration File exists
 
-In case the parameterless `listen()` method is used for activating a server instance for example like
+In case the parameterless *listen* method is used for activating a server instance for example like
 
 ```cpp
 EchoServer echoServer("echo"); // Create server instance
@@ -1545,7 +1637,7 @@ echoClient.connect([](const SocketAddress& socketAddress,
 });
 ```
 
-where the parameterless `connect()` method is used. A terminal session would look like:
+where the parameterless *connect* method is used. A terminal session would look like:
 
 ```shell
 command@line:~/> echoclient
@@ -1744,7 +1836,7 @@ In most scenarios it is sufficient to specify a CA-certificate, a certificate ch
 
 ***Important**:* CA-certificate, certificate chain, and certificate key needs to be in *PEM format*.
 
-In case a CA-certificate is configured either on the server and/or the client side a certificate request is send to the peer during the initial SSL/TLS handshake. In case the peer answers with an certificate response this response can be validated in-code in the `onConnected` callback of a `SocketServer` or `SocketClient` class.
+In case a CA-certificate is configured either on the server and/or the client side a certificate request is send to the peer during the initial SSL/TLS handshake. In case the peer answers with an certificate response this response can be validated in-code in the `onConnected` callback of a *SocketServer* or *SocketClient* class.
 
 ***Warning***: Passwords either provided in-code or on the command line are not obfuscated in memory during runtime. Thus it is a good idea to not specify a password in-code or on the command line. In that case OpenSSL asks for the password during application startup. This password is only used internally by OpenSSL and is removed from memory as soon as the keys have been decrypted.
 
@@ -1903,7 +1995,7 @@ All supported network layers (IPv4, IPv6, Unix-Domain Sockets, RFCOMM, and L2CAP
 
 Via this section socket options can be configured.
 
-#### Common *socket* Options for `SocketServer` and `SocketClient` Instances
+#### Common *socket* Options for *SocketServer* and *SocketClient* Instances
 
 Some configuration options are common for all SocketServer and SocketClient instances
 
@@ -1911,13 +2003,13 @@ Some configuration options are common for all SocketServer and SocketClient inst
 | ------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------ |
 | `--reuse-address=[true, false]` | `instance.getConfig().setReuseAddress(bool reuse = true)` | This flag turns on address reuse. Thus if a socket is left in a TIME_WAIT state after application shutdown the address and port/channel/psm number tuple can be reused immediately.<br />***Recommendation***: Leave on `false` for production but set to `true` during development. |
 
-#### Specific *socket* Options for IPv4 and IPv6 `SocketServer` 
+#### Specific *socket* Options for IPv4 and IPv6 *SocketServer* 
 
 | Command Line Configuration   | In-Code Configuration                                  | Description                                                  |
 | ---------------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
 | `--reuse-port=[true, false]` | `instance.getConfig().setReusePort(bool reuse = true)` | This flag turns on port reuse so multiple server applications can listening on the same address and port number tuple simultaneously.<br />With this option set to `true` one can start an server application multiple times and the operating system (Linux) routes incoming client connection requests randomly to one of the running application instances. So one can achieve a simple load balancing/multitasking application. |
 
-#### Specific *socket* Options for IPv6 `SocketServer` and `SocketClient`
+#### Specific *socket* Options for IPv6 *SocketServer* and *SocketClient*
 
 | Command Line Configuration  | In-Code Configuration                                | Description                                                  |
 | --------------------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
