@@ -93,8 +93,6 @@ namespace web::websocket {
 
         template <typename SubProtocolT, typename RequestT, typename ResponseT>
         friend class web::websocket::SocketContextUpgrade;
-
-        friend SocketContextUpgrade;
     };
 
 } // namespace web::websocket

@@ -89,10 +89,10 @@ namespace core::socket::stream {
         }
 
         SocketServer(const std::string& name,
-                     SocketContextFactory* socketContextFactory,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     SocketContextFactory* socketContextFactory)
             : Super(name)
             , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
             , onConnect(onConnect)
@@ -100,17 +100,16 @@ namespace core::socket::stream {
             , onDisconnect(onDisconnect) {
         }
 
-        SocketServer(SocketContextFactory* socketContextFactory,
-                     const std::function<void(SocketConnection*)>& onConnect,
+        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
-            : SocketServer("", socketContextFactory, onConnect, onConnected, onDisconnect) {
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     SocketContextFactory* socketContextFactory)
+            : SocketServer("", onConnect, onConnected, onDisconnect, socketContextFactory) {
         }
 
         SocketServer(const std::string& name, SocketContextFactory* socketContextFactory)
             : SocketServer(
                   name,
-                  socketContextFactory,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
                       VLOG(0) << "OnConnect " << name;
 
@@ -129,7 +128,8 @@ namespace core::socket::stream {
                                      socketConnection->getLocalAddress().toString();
                       VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
-                  }) {
+                  },
+                  socketContextFactory) {
         }
 
         explicit SocketServer(SocketContextFactory* socketContextFactory)
