@@ -2,6 +2,21 @@ cmake_minimum_required(VERSION 3.18)
 
 project(snode.c-code)
 
+
+if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12.2)
+        message(FATAL_ERROR "GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION} " to old! Version required: >= 12.2")
+    else()
+        message("Good: GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION} " >= 12.2")
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13.0)
+        message(FATAL_ERROR "CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION} " to old! Version required: >= 13.0")
+    else()
+        message("Good: CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION} " >= 13.0")
+    endif()
+endif()
+
 include(GNUInstallDirs)
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
