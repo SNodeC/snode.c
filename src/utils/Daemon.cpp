@@ -178,9 +178,9 @@ namespace utils {
     }
 
     void Daemon::erasePidFile(const std::string& pidFileName) {
-        (void) seteuid(getuid());               // In case  we are here seteguid can not fail
-        (void) setegid(getgid());               // In case we are here setegid can not fail
-        (void) std::remove(pidFileName.data()); // In case we are here std::remove can not fail
+        (void) seteuid(getuid());             // In case  we are here seteguid can not fail
+        (void) setegid(getgid());             // In case we are here setegid can not fail
+        std::filesystem::remove(pidFileName); // In case we are here std::Filesystem::remove can not fail
     }
 
     DaemonizeSuccess::~DaemonizeSuccess() {
