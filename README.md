@@ -1836,7 +1836,7 @@ Equivalent to all other configuration options SSL/TLS encryption can be configur
 
 In most scenarios it is sufficient to specify a CA-certificate, a certificate chain, a certificate key and, in case the key is encrypted, a password.
 
-***Important**:* CA-certificate, certificate chain, and certificate key needs to be in *PEM format*.
+***Important***: CA-certificate, certificate chain, and certificate key needs to be in *PEM format*.
 
 In case a CA-certificate is configured either on the server and/or the client side a certificate request is send to the peer during the initial SSL/TLS handshake. In case the peer answers with an certificate response this response can be validated in-code in the `onConnected` callback of a *SocketServer* or *SocketClient* class.
 
@@ -2017,7 +2017,7 @@ Some configuration options are common for all SocketServer and SocketClient inst
 | --------------------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
 | `--ipv6-only=[true, false]` | `instance.getConfig().setIPv6Only(bool only = true)` | By default if a IPv6 socket is created on Linux it is a dual-stack socket also using IPv4 addresses. In case this flag is set to `true` a pure IPv6 socket is created. |
 
-# Using more than one Instance in an Application
+# Using More Than One Instance in an Application
 
 SNode.C is designed to run multiple Server and Client Instances in one Application.
 
