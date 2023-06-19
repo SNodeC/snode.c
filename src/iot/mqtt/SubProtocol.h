@@ -32,7 +32,7 @@ namespace iot::mqtt::server {
 }
 
 #include "core/EventReceiver.h"
-#include "core/socket/SocketConnection.h"
+#include "core/socket/stream/SocketConnection.h"
 #include "iot/mqtt/MqttContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
