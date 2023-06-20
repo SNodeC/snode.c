@@ -2,18 +2,27 @@ cmake_minimum_required(VERSION 3.18)
 
 project(snode.c-code)
 
-
-if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12.2)
-        message(FATAL_ERROR "GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION} " to old! Version required: >= 12.2")
+        message(
+            FATAL_ERROR "GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION}
+                        " to old! Version required: >= 12.2"
+        )
     else()
-        message("Good: GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION} " >= 12.2")
+        message("Good: GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION}
+                " >= 12.2"
+        )
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13.0)
-        message(FATAL_ERROR "CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION} " to old! Version required: >= 13.0")
+        message(
+            FATAL_ERROR "CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION}
+                        " to old! Version required: >= 13.0"
+        )
     else()
-        message("Good: CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION} " >= 13.0")
+        message("Good: CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION}
+                " >= 13.0"
+        )
     endif()
 endif()
 
@@ -81,7 +90,9 @@ add_link_options(LINKER:--as-needed)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
         # Yes, there are some unsafe-buffer-usage
-        set(DISABLED_WARNINGS_CLANG -Wno-unsafe-buffer-usage)
+        set(DISABLED_WARNINGS_CLANG -Wno-unsafe-buffer-usage
+                                    -Wno-cast-function-type-strict
+        )
     endif()
     add_compile_options(
         -Weverything
