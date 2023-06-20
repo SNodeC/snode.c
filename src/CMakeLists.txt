@@ -79,6 +79,10 @@ add_compile_options(
 # https://stackoverflow.com/questions/11055569/linking-with-dynamic-library-with-dependencies
 add_link_options(LINKER:--as-needed)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
+        # Yes, there are some unsafe-buffer-usage
+        set(DISABLED_WARNINGS_CLANG -Wno-unsafe-buffer-usage)
+    endif()
     add_compile_options(
         -Weverything
         # None nested namespaces is realy old fashon
@@ -94,6 +98,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-padded
         # Later, we want to have UML in doxygen documentation
         -Wno-documentation-unknown-command
+        ${DISABLED_WARNINGS_CLANG}
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
