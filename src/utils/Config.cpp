@@ -201,7 +201,7 @@ namespace utils {
                             ~std::filesystem::perms::others_all);
                     struct group* gr = nullptr; // cppcheck-suppress shadowVariable
                     if ((gr = getgrnam("snodec")) != nullptr) {
-                        if (chown(configDirectory.c_str(), -1, gr->gr_gid) < 0) {
+                        if (chown(configDirectory.c_str(), geteuid(), gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << configDirectory << "' to 'snodec'" << std::endl;
                         }
                     } else {
@@ -223,7 +223,7 @@ namespace utils {
                                                      ~std::filesystem::perms::others_all);
                     struct group* gr = nullptr; // cppcheck-suppress shadowVariable
                     if ((gr = getgrnam("snodec")) != nullptr) {
-                        if (chown(logDirectory.c_str(), -1, gr->gr_gid) < 0) {
+                        if (chown(logDirectory.c_str(), geteuid(), gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec'" << std::endl;
                         }
                     } else {
@@ -245,7 +245,7 @@ namespace utils {
                                                      ~std::filesystem::perms::others_all);
                     struct group* gr = nullptr; // cppcheck-suppress shadowVariable
                     if ((gr = getgrnam("snodec")) != nullptr) {
-                        if (chown(pidDirectory.c_str(), -1, gr->gr_gid) < 0) {
+                        if (chown(pidDirectory.c_str(), geteuid(), gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec'" << std::endl;
                         }
                     } else {
