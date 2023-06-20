@@ -105,7 +105,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
          * [Common <em>socket</em> Options for <em>SocketServer</em> and <em>SocketClient</em> Instances](#common-socket-options-for-socketserver-and-socketclient-instances)
          * [Specific <em>socket</em> Options for IPv4 and IPv6 <em>SocketServer</em>](#specific-socket-options-for-ipv4-and-ipv6-socketserver)
          * [Specific <em>socket</em> Options for IPv6 <em>SocketServer</em> and <em>SocketClient</em>](#specific-socket-options-for-ipv6-socketserver-and-socketclient)
-* [Using more than one Instance in an Application](#using-more-than-one-instance-in-an-application)
+* [Using More Than One Instance in an Application](#using-more-than-one-instance-in-an-application)
 * [Highlevel WEB-API a'la Node.JS-Express](#highlevel-web-api-ala-nodejs-express)
 * [Websockets](#websockets)
 * [Example Applications](#example-applications)
@@ -114,7 +114,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Sun Jun 18 15:24:35 UTC 2023 -->
+<!-- Added by: runner, at: Tue Jun 20 11:44:02 UTC 2023 -->
 
 <!--te-->
 
