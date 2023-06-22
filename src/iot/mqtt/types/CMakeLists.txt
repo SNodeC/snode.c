@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wno-weak-template-vtables)
+    set(DISABLED_WARNINGS -Wno-weak-template-vtables)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -36,7 +36,10 @@ set(MQTT_TYPES_H
 add_library(mqtt-types STATIC ${MQTT_TYPES_CPP} ${MQTT_TYPES_H})
 add_library(snodec::mqtt-types ALIAS mqtt-types)
 
-set_property(TARGET mqtt-types PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_target_properties(
+    mqtt-types PROPERTIES POSITION_INDEPENDENT_CODE ON COMPILE_FLAGS
+                                                       "${DISABLED_WARNINGS}"
+)
 
 target_include_directories(
     mqtt-types PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"

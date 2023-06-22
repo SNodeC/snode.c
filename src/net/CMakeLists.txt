@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wno-weak-template-vtables)
+    set(DISABLED_WARNINGS -Wno-weak-template-vtables)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -78,7 +78,12 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(net PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net)
+set_target_properties(
+    net
+    PROPERTIES SOVERSION 1
+               OUTPUT_NAME snodec-net
+               COMPILE_FLAGS "${DISABLED_WARNINGS}"
+)
 
 install(
     TARGETS net

@@ -5,9 +5,8 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(MARIADB mariadb)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(
-        # Oh, mysql/mariadb has some strange identifier
-        -Wno-reserved-macro-identifier
+    set(# Oh, mysql/mariadb has some strange identifier
+        DISABLED_WARNINGS -Wno-reserved-macro-identifier
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
@@ -18,7 +17,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 if(MARIADB_FOUND)
-
     set(MARIADB_CPP
         MariaDBClient.cpp
         MariaDBClientASyncAPI.cpp
@@ -66,6 +64,7 @@ if(MARIADB_FOUND)
 
     add_library(db-mariadb SHARED ${MARIADB_CPP} ${MARIADB_H})
     add_library(snodec::db-mariadb ALIAS db-mariadb)
+
     target_link_libraries(db-mariadb PUBLIC snodec::core ${MARIADB_LIBRARIES})
     target_include_directories(
         db-mariadb
@@ -74,7 +73,10 @@ if(MARIADB_FOUND)
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
     set_target_properties(
-        db-mariadb PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-db-mariadb
+        db-mariadb
+        PROPERTIES SOVERSION 1
+                   OUTPUT_NAME snodec-db-mariadb
+                   COMPILE_FLAGS "${DISABLED_WARNINGS}"
     )
     install(
         TARGETS db-mariadb

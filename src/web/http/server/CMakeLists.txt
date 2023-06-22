@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wno-weak-template-vtables)
+    set(DISABLED_WARNINGS -Wno-weak-template-vtables)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -91,6 +91,7 @@ set_target_properties(
         HTTP_SERVER_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/snode.c"
         EXPORT_PROPERTIES
         "HTTP_SERVER_INCLUDE_DIRS;HTTP_SERVER_UPGRADE_INSTALL_LIBDIR"
+        COMPILE_FLAGS "${DISABLED_WARNINGS}"
 )
 
 install(

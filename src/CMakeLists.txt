@@ -90,9 +90,7 @@ add_link_options(LINKER:--as-needed)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
         # Yes, there are some unsafe-buffer-usage
-        set(DISABLED_WARNINGS_CLANG -Wno-unsafe-buffer-usage
-                                    -Wno-cast-function-type-strict
-        )
+        set(DISABLED_WARNINGS_CLANG -Wno-unsafe-buffer-usage)
     endif()
     add_compile_options(
         -Weverything

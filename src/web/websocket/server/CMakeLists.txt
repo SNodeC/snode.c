@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.18)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wno-weak-template-vtables)
+    set(DISABLED_WARNINGS "-Wno-weak-template-vtables")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
+        set(DISABLED_WARNINGS
+            "${DISABLED_WARNINGS} -Wno-cast-function-type-strict"
+        )
+    endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -68,6 +73,7 @@ set_target_properties(
         "${CMAKE_INSTALL_PREFIX}/include/snode.c"
         EXPORT_PROPERTIES
         "WEBSOCKET_SUBPROTOCOL_SERVER_INCLUDE_DIRS;WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR"
+        COMPILE_FLAGS "${DISABLED_WARNINGS}"
 )
 
 target_include_directories(
