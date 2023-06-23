@@ -317,6 +317,67 @@ namespace utils {
                     ->disable_flag_override()
                     ->trigger_on_parse();
 
+                app.add_flag( //
+                       "-s,--show-config",
+                       "Show current configuration and exit") //
+                    ->configurable(false)
+                    ->disable_flag_override();
+
+                app.add_option("-w,--write-config",
+                               "Write config file and exit") //
+                    ->configurable(false)
+                    ->default_val(configDirectory + "/" + applicationName + ".conf")
+                    ->type_name("[configfile]")
+                    ->check(!CLI::ExistingDirectory)
+                    ->expected(0, 1);
+
+                app.set_config( //
+                       "-c,--config-file",
+                       configDirectory + "/" + applicationName + ".conf",
+                       "Read an config file",
+                       false) //
+                    ->take_all()
+                    ->type_name("configfile")
+                    ->check(!CLI::ExistingDirectory);
+
+                app.add_option( //
+                       "-i,--instance-map",
+                       "Instance name mapping used to make an instance known under an alias name also in a config file")
+                    ->configurable(false)
+                    ->type_name("name=mapped_name")
+                    ->each([](const std::string& item) -> void {
+                        const auto it = item.find('=');
+                        if (it != item.npos) {
+                            prefixMap[item.substr(0, it)] = item.substr(it + 1);
+                        } else {
+                            throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
+                        }
+                    });
+
+                app.add_flag( //
+                       "-k,--kill",
+                       "Kill running daemon") //
+                    ->configurable(false)
+                    ->disable_flag_override();
+
+                app.add_flag( //
+                       "--commandline",
+                       "Print a template command line showing required options only and exit")
+                    ->configurable(false)
+                    ->disable_flag_override();
+
+                app.add_flag( //
+                       "--commandline-full",
+                       "Print a template command line showing all possible options and exit")
+                    ->configurable(false)
+                    ->disable_flag_override();
+
+                app.add_flag( //
+                       "--commandline-configured",
+                       "Print a template command line showing all required and configured options and exit") //
+                    ->configurable(false)
+                    ->disable_flag_override();
+
                 app.set_version_flag( //
                     "--version",
                     "0.9.8");
@@ -368,43 +429,6 @@ namespace utils {
                                         ->check(CLI::IsMember({"true", "false"}))
                                         ->group(app.get_formatter()->get_label("Persistent Options"));
 
-                app.add_flag( //
-                       "-s,--show-config",
-                       "Show current configuration and exit") //
-                    ->configurable(false)
-                    ->disable_flag_override();
-
-                app.add_option("-w,--write-config",
-                               "Write config file and exit") //
-                    ->configurable(false)
-                    ->default_val(configDirectory + "/" + applicationName + ".conf")
-                    ->type_name("[configfile]")
-                    ->check(!CLI::ExistingDirectory)
-                    ->expected(0, 1);
-
-                app.set_config( //
-                       "--config-file",
-                       configDirectory + "/" + applicationName + ".conf",
-                       "Read an config file",
-                       false) //
-                    ->take_all()
-                    ->type_name("configfile")
-                    ->check(!CLI::ExistingDirectory);
-
-                app.add_option( //
-                       "--instance-map",
-                       "Instance name mapping used to make an instance known under an alias name also in a config file")
-                    ->configurable(false)
-                    ->type_name("name=mapped_name")
-                    ->each([](const std::string& item) -> void {
-                        const auto it = item.find('=');
-                        if (it != item.npos) {
-                            prefixMap[item.substr(0, it)] = item.substr(it + 1);
-                        } else {
-                            throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
-                        }
-                    });
-
                 daemonizeOpt = app.add_flag_function( //
                                       "-d{true},!-f,--daemonize",
                                       utils::ResetToDefault(daemonizeOpt),
@@ -414,12 +438,6 @@ namespace utils {
                                    ->type_name("bool")
                                    ->check(CLI::IsMember({"true", "false"}))
                                    ->group(app.get_formatter()->get_label("Persistent Options"));
-
-                app.add_flag( //
-                       "-k,--kill",
-                       "Kill running daemon") //
-                    ->configurable(false)
-                    ->disable_flag_override();
 
                 userNameOpt = app.add_option_function<std::string>( //
                                      "--user-name",
@@ -438,24 +456,6 @@ namespace utils {
                                    ->type_name("groupname")
                                    ->needs(daemonizeOpt)
                                    ->group(app.get_formatter()->get_label("Persistent Options"));
-
-                app.add_flag( //
-                       "--commandline",
-                       "Print a template command line showing required options only and exit")
-                    ->configurable(false)
-                    ->disable_flag_override();
-
-                app.add_flag( //
-                       "--commandline-full",
-                       "Print a template command line showing all possible options and exit")
-                    ->configurable(false)
-                    ->disable_flag_override();
-
-                app.add_flag( //
-                       "--commandline-configured",
-                       "Print a template command line showing all required and configured options and exit") //
-                    ->configurable(false)
-                    ->disable_flag_override();
 
                 parse1(); // for stopDaemon and pre init application options
 
