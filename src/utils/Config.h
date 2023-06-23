@@ -99,7 +99,6 @@ namespace utils {
         static CLI::Option* add_flag(const std::string& name, const std::string& description = "");
         static CLI::Option* add_flag(const std::string& name, bool& variable, const std::string& description = "");
 
-    private:
         static int argc;
         static char** argv;
         static CLI::App app;
