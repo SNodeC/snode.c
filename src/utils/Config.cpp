@@ -288,7 +288,7 @@ namespace utils {
                 app.option_defaults()->group(app.get_formatter()->get_label("None Persistent Options"));
 
                 std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
-                app.config_formatter(configFormatter);
+                app.config_formatter(std::static_pointer_cast<CLI::Config>(configFormatter));
 
                 app.description("Configuration for Application '" + applicationName + "'");
 
