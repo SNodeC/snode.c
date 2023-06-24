@@ -272,6 +272,7 @@ namespace iot::mqtt {
 
         return deliver;
     }
+
     void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
         LOG(DEBUG) << "Received PUBACK:";
         LOG(DEBUG) << "================";
