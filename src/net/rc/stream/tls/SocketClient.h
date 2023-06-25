@@ -19,8 +19,6 @@
 #ifndef NET_RC_STREAM_TLS_SOCKETCLIENT_H
 #define NET_RC_STREAM_TLS_SOCKETCLIENT_H
 
-#include "core/socket/LogicalSocket.h"                   // IWYU pragma: export
-#include "core/socket/stream/SocketClient.h"             // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnection.h"     // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnector.h"      // IWYU pragma: export
 #include "net/rc/stream/SocketClient.h"                  // IWYU pragma: export
@@ -39,11 +37,9 @@
 namespace net::rc::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::rc::stream::SocketClient<core::socket::stream::SocketClient<
-        core::socket::LogicalSocket<net::rc::stream::tls::config::ConfigSocketClient>,
-        net::rc::SocketAddress,
+    using SocketClient = net::rc::stream::SocketClient<
         core::socket::stream::tls::SocketConnector<net::rc::stream::PhysicalClientSocket, net::rc::stream::tls::config::ConfigSocketClient>,
-        SocketContextFactoryT>>;
+        SocketContextFactoryT>;
 
 } // namespace net::rc::stream::tls
 

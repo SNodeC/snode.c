@@ -19,8 +19,6 @@
 #ifndef NET_IN_STREAM_TLS_SOCKETSERVER_H
 #define NET_IN_STREAM_TLS_SOCKETSERVER_H
 
-#include "core/socket/LogicalSocket.h"                   // IWYU pragma: export
-#include "core/socket/stream/SocketServer.h"             // IWYU pragma: export
 #include "core/socket/stream/tls/SocketAcceptor.h"       // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnection.h"     // IWYU pragma: export
 #include "net/in/stream/SocketServer.h"                  // IWYU pragma: export
@@ -39,11 +37,9 @@
 namespace net::in::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = net::in::stream::SocketServer<core::socket::stream::SocketServer<
-        core::socket::LogicalSocket<net::in::stream::tls::config::ConfigSocketServer>,
-        net::in::SocketAddress,
+    using SocketServer = net::in::stream::SocketServer<
         core::socket::stream::tls::SocketAcceptor<net::in::stream::PhysicalServerSocket, net::in::stream::tls::config::ConfigSocketServer>,
-        SocketContextFactoryT>>;
+        SocketContextFactoryT>;
 
 } // namespace net::in::stream::tls
 

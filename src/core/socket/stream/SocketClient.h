@@ -19,6 +19,8 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
+#include "core/socket/LogicalSocket.h" // IWYU pragma: export
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -32,21 +34,22 @@
 
 namespace core::socket::stream {
 
-    template <typename LogicalSocketT, typename SocketAddressT, typename SocketConnectorT, typename SocketContextFactoryT>
-    class SocketClient : public LogicalSocketT {
+    template <typename SocketConnectorT, typename SocketContextFactoryT>
+    class SocketClient : public core::socket::LogicalSocket<typename SocketConnectorT::Config> {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
         !include core/socket/stream/pu/SocketClient.pu
         @enduml
         */
     private:
-        using Super = LogicalSocketT;
         using SocketConnector = SocketConnectorT;
         using SocketContextFactory = SocketContextFactoryT;
 
+        using Super = core::socket::LogicalSocket<typename SocketConnector::Config>;
+
     public:
         using SocketConnection = typename SocketConnector::SocketConnection;
-        using SocketAddress = SocketAddressT;
+        using SocketAddress = typename SocketConnector::SocketAddress;
 
         SocketClient(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,

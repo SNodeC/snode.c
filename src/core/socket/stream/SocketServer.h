@@ -19,6 +19,8 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 #define CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 
+#include "core/socket/LogicalSocket.h" // IWYU pragma: export
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -32,16 +34,17 @@
 
 namespace core::socket::stream {
 
-    template <typename LogicalSocketT, typename SocketAddressT, typename SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public LogicalSocketT {
+    template <typename SocketAcceptorT, typename SocketContextFactoryT>
+    class SocketServer : public core::socket::LogicalSocket<typename SocketAcceptorT::Config> {
     private:
-        using Super = LogicalSocketT;
         using SocketAcceptor = SocketAcceptorT;
         using SocketContextFactory = SocketContextFactoryT;
 
+        using Super = core::socket::LogicalSocket<typename SocketAcceptor::Config>;
+
     public:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
-        using SocketAddress = SocketAddressT;
+        using SocketAddress = typename SocketAcceptor::SocketAddress;
 
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,

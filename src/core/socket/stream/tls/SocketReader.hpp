@@ -25,9 +25,6 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
-#include <openssl/err.h>
-#include <openssl/ssl.h>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream::tls {

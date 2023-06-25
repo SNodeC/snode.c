@@ -39,10 +39,11 @@ namespace core::socket::stream::legacy {
         : private core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::legacy::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::legacy::SocketConnection>;
+
+    public:
         using SocketAddress = typename Super::SocketAddress;
         using Config = ConfigT;
 
-    public:
         using SocketConnection = typename Super::SocketConnection;
 
         SocketAcceptor(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,

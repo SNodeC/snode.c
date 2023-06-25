@@ -24,7 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-typedef struct ssl_st SSL;
+#include <openssl/err.h>
+#include <openssl/ssl.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

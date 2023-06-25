@@ -19,8 +19,6 @@
 #ifndef NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_L2_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/LogicalSocket.h"                      // IWYU pragma: export
-#include "core/socket/stream/SocketClient.h"                // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketConnector.h"      // IWYU pragma: export
 #include "net/l2/stream/SocketClient.h"                     // IWYU pragma: export
@@ -39,12 +37,10 @@
 namespace net::l2::stream::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::l2::stream::SocketClient<core::socket::stream::SocketClient<
-        core::socket::LogicalSocket<net::l2::stream::legacy::config::ConfigSocketClient>,
-        net::l2::SocketAddress,
-        core::socket::stream::legacy::SocketConnector<net::l2::stream::PhysicalClientSocket,
-                                                      net::l2::stream::legacy::config::ConfigSocketClient>,
-        SocketContextFactoryT>>;
+    using SocketClient =
+        net::l2::stream::SocketClient<core::socket::stream::legacy::SocketConnector<net::l2::stream::PhysicalClientSocket,
+                                                                                    net::l2::stream::legacy::config::ConfigSocketClient>,
+                                      SocketContextFactoryT>;
 
 } // namespace net::l2::stream::legacy
 

@@ -44,10 +44,11 @@ namespace core::socket::stream::tls {
         : private core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
     private:
         using Super = core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
+
+    public:
         using SocketAddress = typename Super::SocketAddress;
         using Config = ConfigT;
 
-    public:
         using SocketConnection = typename Super::SocketConnection;
 
         using Super::config;

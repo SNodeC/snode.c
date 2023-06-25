@@ -19,8 +19,6 @@
 #ifndef NET_IN6_STREAM_TLS_SOCKETSERVER_H
 #define NET_IN6_STREAM_TLS_SOCKETSERVER_H
 
-#include "core/socket/LogicalSocket.h"                    // IWYU pragma: export
-#include "core/socket/stream/SocketServer.h"              // IWYU pragma: export
 #include "core/socket/stream/tls/SocketAcceptor.h"        // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnection.h"      // IWYU pragma: export
 #include "net/in6/stream/SocketServer.h"                  // IWYU pragma: export
@@ -39,12 +37,10 @@
 namespace net::in6::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = net::in6::stream::SocketServer<
-        core::socket::stream::SocketServer<core::socket::LogicalSocket<net::in6::stream::tls::config::ConfigSocketServer>,
-                                           net::in6::SocketAddress,
-                                           core::socket::stream::tls::SocketAcceptor<net::in6::stream::PhysicalServerSocket,
-                                                                                     net::in6::stream::tls::config::ConfigSocketServer>,
-                                           SocketContextFactoryT>>;
+    using SocketServer =
+        net::in6::stream::SocketServer<core::socket::stream::tls::SocketAcceptor<net::in6::stream::PhysicalServerSocket,
+                                                                                 net::in6::stream::tls::config::ConfigSocketServer>,
+                                       SocketContextFactoryT>;
 
 } // namespace net::in6::stream::tls
 
