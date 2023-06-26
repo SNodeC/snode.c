@@ -32,10 +32,15 @@
 
 namespace net::l2::stream {
 
-    template <typename SocketConnectorT, typename SocketContextFactoryT>
-    class SocketClient : public core::socket::stream::SocketClient<SocketConnectorT, SocketContextFactoryT> {
+    template <template <typename PhysicalClientSocket, typename ConfigClientSocketT> typename SocketConnectorT,
+              typename ConfigClientSocketT,
+              typename SocketContextFactoryT>
+    class SocketClient
+        : public core::socket::stream::SocketClient<SocketConnectorT<net::l2::stream::PhysicalClientSocket, ConfigClientSocketT>,
+                                                    SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketClient<SocketConnectorT, SocketContextFactoryT>;
+        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::l2::stream::PhysicalClientSocket, ConfigClientSocketT>,
+                                                         SocketContextFactoryT>;
 
     public:
         using Super::Super;

@@ -32,10 +32,15 @@
 
 namespace net::in::stream {
 
-    template <typename SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public core::socket::stream::SocketServer<SocketAcceptorT, SocketContextFactoryT> {
+    template <template <typename PhysicalServerSocket, typename ConfigSocketServer> typename SocketAcceptorT,
+              typename ConfigSocketServerT,
+              typename SocketContextFactoryT>
+    class SocketServer
+        : public core::socket::stream::SocketServer<SocketAcceptorT<net::in::stream::PhysicalServerSocket, ConfigSocketServerT>,
+                                                    SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketServer<SocketAcceptorT, SocketContextFactoryT>;
+        using Super = core::socket::stream::SocketServer<SocketAcceptorT<net::in::stream::PhysicalServerSocket, ConfigSocketServerT>,
+                                                         SocketContextFactoryT>;
 
     public:
         using Super::Super;
