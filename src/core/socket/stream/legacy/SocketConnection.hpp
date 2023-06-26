@@ -18,8 +18,6 @@
 
 // clang-format off
 #include "core/socket/stream/legacy/SocketConnection.h"
-#include "core/socket/stream/legacy/SocketReader.hpp"
-#include "core/socket/stream/legacy/SocketWriter.hpp"
 #include "core/socket/stream/SocketConnection.hpp"
 // clang-format on
 
