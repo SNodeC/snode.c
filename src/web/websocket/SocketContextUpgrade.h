@@ -41,6 +41,7 @@ namespace web::websocket {
 #include "log/Logger.h"
 
 #include <cstdint>
+#include <endian.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
