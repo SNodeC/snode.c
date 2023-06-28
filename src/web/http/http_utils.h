@@ -21,9 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <bits/types/struct_tm.h> // for tm
 #include <string>
 #include <utility>
+
+// IWYU pragma: no_include <bits/types/struct_tm.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

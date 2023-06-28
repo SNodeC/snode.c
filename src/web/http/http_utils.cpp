@@ -28,6 +28,7 @@
 #include <sstream>
 #include <sys/stat.h>
 // IWYU pragma: no_include <bits/struct_stat.h>
+// IWYU pragma: no_include <bits/types/struct_tm.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
