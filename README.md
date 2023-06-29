@@ -548,6 +548,12 @@ SNode.C is known to compile and run successfull on
     -   Tested on HP ZBook 15 G8
 -   Arm architecture (32 and 64 bit)
     -   Tested on Raspberry Pi
+-   OpenWrt 23.05.0-rc1
+    23.05.0 is the first OpenWrt version bundling a GCC compiler version (12.3) sufficient to compile SNode.C.
+    -   Tested targets
+        -   ath79
+        -   ipq806x
+
 
 ## Requirements and Dependencies
 
