@@ -58,38 +58,6 @@ set(HTTP_SERVER_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}/server")
 
 set(HTTP_SERVER_RPATH "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_INSTALL_LIBDIR}")
 
-message("HTTP_COMPILE_LIBDIR: " "${HTTP_COMPILE_LIBDIR}")
-message("HTTP_SERVER_COMPILE_LIBDIR: " "${HTTP_SERVER_COMPILE_LIBDIR}")
-message("HTTP_SERVER_INSTALL_LIBDIR: " "${HTTP_SERVER_INSTALL_LIBDIR}")
-message("HTTP_UPGRADE_COMPILE_LIBDIR: " "${HTTP_UPGRADE_COMPILE_LIBDIR}")
-message("HTTP_UPGRADE_INSTALL_LIBDIR: " "${HTTP_UPGRADE_INSTALL_LIBDIR}")
-message("HTTP_SERVER_UPGRADE_COMPILE_LIBDIR: "
-        "${HTTP_SERVER_UPGRADE_COMPILE_LIBDIR}"
-)
-message("HTTP_SERVER_UPGRADE_INSTALL_LIBDIR: "
-        "${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
-)
-
-message("HTTP_SERVER_RPATH: " "${HTTP_SERVER_RPATH}")
-
-# HTTP_COMPILE_LIBDIR:
-# /home/voc/projects/snodec/build/build-snode.c-Desktop_CLANG-Debug-CheckInclude/snode.c/http
-
-# HTTP_SERVER_COMPILE_LIBDIR:
-# /home/voc/projects/snodec/build/build-snode.c-Desktop_CLANG-Debug-CheckInclude/snode.c/http/server
-
-# HTTP_UPGRADE_COMPILE_LIBDIR:
-# /home/voc/projects/snodec/build/build-snode.c-Desktop_CLANG-Debug-CheckInclude/snode.c/http/upgrade
-# HTTP_SERVER_UPGRADE_COMPILE_LIBDIR:
-# /home/voc/projects/snodec/build/build-snode.c-Desktop_CLANG-Debug-CheckInclude/snode.c/http/upgrade/server
-
-# HTTP_SERVER_INSTALL_LIBDIR: lib/snode.c/http/server
-# HTTP_UPGRADE_INSTALL_LIBDIR: lib/snode.c/http/upgrade
-# HTTP_SERVER_UPGRADE_INSTALL_LIBDIR: lib/snode.c/http/upgrade/server
-
-# HTTP_SERVER_RPATH:
-# /usr/local/lib/snode.c/http/usr/local/lib/snode.c/http/upgrade/server
-
 set_target_properties(
     http-server
     PROPERTIES SOVERSION 1
