@@ -29,8 +29,8 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [CMakeLists.txt file for Building and Installing our <em>echoserver</em> and <em>echoclient</em>](#cmakeliststxt-file-for-building-and-installing-our-echoserver-and-echoclient)
    * [Summary](#summary)
 * [Installation](#installation)
-   * [Minimum required Compiler Versions](#minimum-required-compiler-versions)
    * [Supported Systems and Hardware](#supported-systems-and-hardware)
+   * [Minimum required Compiler Versions](#minimum-required-compiler-versions)
    * [Requirements and Dependencies](#requirements-and-dependencies)
       * [Tools](#tools)
          * [Mandatory](#mandatory)
@@ -40,7 +40,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
          * [Optional](#optional-1)
          * [In-Framework](#in-framework)
    * [Installation on Debian Style Systems (x86-64, Arm)](#installation-on-debian-style-systems-x86-64-arm)
-      * [Tools and Dependencies](#tools-and-dependencies)
+      * [Requirements and Dependencies](#requirements-and-dependencies-1)
       * [SNode.C](#snodec)
 * [Design Decisions and Features](#design-decisions-and-features)
    * [Network Layer](#network-layer)
@@ -114,7 +114,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Thu Jun 29 18:15:08 UTC 2023 -->
+<!-- Added by: runner, at: Sat Jul  1 18:06:42 UTC 2023 -->
 
 <!--te-->
 
