@@ -529,15 +529,6 @@ The echo application shows the typical architecture of servers and clients using
 
 The installation of SNode.C is straight forward. In the first step all necessary tools and libraries are installed. Afterwards SNode.C can be cloned and compiled.
 
-## Minimum required Compiler Versions
-
-The only version-critical dependencies are the C++ compilers.
-
-Either *GCC* or *clang* can be used but they need to be of an up to date version because SNode.C uses some new C++20 features internally.
-
-- GCC 12.2
-- Clang 13.0
-
 ## Supported Systems and Hardware
 
 The main development of SNode.C takes place on an Debian style linux system. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
@@ -554,6 +545,17 @@ SNode.C is known to compile and run successfull on
         -   ath79
         -   ipq806x
 
+
+Finally SNode.C compiles under current debian stable (bookworm). Thus, if your distribution contains all necessary requirements and dependencies in versions equal or later than debian stable SNode.C should compile successful.
+
+## Minimum required Compiler Versions
+
+The only really version-critical dependencies are the C++ compilers.
+
+Either *GCC* or *clang* can be used but they need to be of an up to date version because SNode.C uses some new C++20 features internally.
+
+- GCC 12.2
+- Clang 13.0
 
 ## Requirements and Dependencies
 
@@ -600,7 +602,7 @@ This libraries are already integrated directly in SNode.C. Thus they need not be
 
 ## Installation on Debian Style Systems (x86-64, Arm)
 
-### Tools and Dependencies
+### Requirements and Dependencies
 
 To install all dependencies on Debian style systems just run
 
@@ -627,9 +629,9 @@ cd build
 cmake ../snode.c
 make
 sudo make install
+sudo ldconfig
 sudo groupadd --system snodec
 sudo usermod -a -G snodec root
-sudo ldconfig
 ```
 
 As SNode.C uses C++ templates a lot the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3 if just one core is activated for compilation).
@@ -1364,15 +1366,13 @@ Options (non-persistent):
        Print this help message and exit
   -a,--help-all
        Print this help message, expand instances and exit
-  --version
-       Display program version information and exit
   -s,--show-config
        Show current configuration and exit
   -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
        Write config file and exit
-  --config-file configfile:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
+  -c,--config-file configfile:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
        Read an config file
-  --instance-map name=mapped_name 
+  -i,--instance-map name=mapped_name 
        Instance name mapping used to make an instance known under an alias name also in a config file
   -k,--kill
        Kill running daemon
@@ -1382,6 +1382,8 @@ Options (non-persistent):
        Print a template command line showing all possible options and exit
   --commandline-configured
        Print a template command line showing all required and configured options and exit
+  --version
+       Display program version information and exit
 
 Options (persistent):
   -l,--log-level level:INT in [0 - 6] [3] 
@@ -1427,15 +1429,13 @@ Options (non-persistent):
        Print this help message and exit
   -a,--help-all
        Print this help message, expand instances and exit
-  --version
-       Display program version information and exit
   -s,--show-config
        Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
+  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
        Write config file and exit
-  --config-file configfile:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
+  -c,--config-file configfile:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
        Read an config file
-  --instance-map name=mapped_name 
+  -i,--instance-map name=mapped_name 
        Instance name mapping used to make an instance known under an alias name also in a config file
   -k,--kill
        Kill running daemon
@@ -1445,6 +1445,9 @@ Options (non-persistent):
        Print a template command line showing all possible options and exit
   --commandline-configured
        Print a template command line showing all required and configured options and exit
+  --version
+       Display program version information and exit
+
 
 Options (persistent):
   -l,--log-level level:INT in [0 - 6] [3] 
