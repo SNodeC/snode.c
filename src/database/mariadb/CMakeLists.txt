@@ -65,7 +65,9 @@ if(LIBMARIADB_FOUND)
     add_library(db-mariadb SHARED ${MARIADB_CPP} ${MARIADB_H})
     add_library(snodec::db-mariadb ALIAS db-mariadb)
 
-    target_link_libraries(db-mariadb PUBLIC snodec::core ${LIBMARIADB_LIBRARIES})
+    target_link_libraries(
+        db-mariadb PUBLIC snodec::core ${LIBMARIADB_LIBRARIES}
+    )
     target_include_directories(
         db-mariadb
         PUBLIC ${LIBMARIADB_INCLUDE_DIRS}

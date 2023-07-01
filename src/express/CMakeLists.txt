@@ -97,11 +97,12 @@ get_target_property(HTTP_INSTALL_LIBDIR snodec::http HTTP_INSTALL_LIBDIR)
 
 set_target_properties(
     http-server-express
-    PROPERTIES SOVERSION 1
-               OUTPUT_NAME snodec-http-server-express
-               INSTALL_RPATH
-               "${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR}"
-               LIBRARY_OUTPUT_DIRECTORY ${HTTP_SERVER_COMPILE_LIBDIR}
+    PROPERTIES
+        SOVERSION 1
+        OUTPUT_NAME snodec-http-server-express
+        INSTALL_RPATH
+        "${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR}"
+        LIBRARY_OUTPUT_DIRECTORY ${HTTP_SERVER_COMPILE_LIBDIR}
 )
 
 install(
