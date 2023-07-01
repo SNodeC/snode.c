@@ -538,12 +538,12 @@ SNode.C is known to compile and run successfull on
 -   x86-64 architecture
     -   Tested on HP ZBook 15 G8
 -   Arm architecture (32 and 64 bit)
-    -   Tested on Raspberry Pi
+    -   Tested on Raspberry Pi 3 and 4
 -   OpenWrt 23.05.0-rc1
     23.05.0 is the first OpenWrt version bundling a GCC compiler version (12.3) sufficient to compile SNode.C.
-    -   Tested targets
-        -   ath79
-        -   ipq806x
+    -   Tested architectures
+        -   mips_24kc (tested with target ath79)
+        -   arm_cortex-a7_neon-vfpv4 (tested with target ipq806x)
 
 
 Finally SNode.C compiles under current debian stable (bookworm). Thus, if your distribution contains all necessary requirements and dependencies in versions equal or later than debian stable SNode.C should compile successful.

@@ -16,6 +16,7 @@ set(HTTPCLIENT_CPP
 )
 
 set(HTTPCLIENT_H
+    Client.h
     Request.h
     Response.h
     ResponseParser.h
@@ -28,18 +29,6 @@ set(HTTPCLIENT_H
 
 add_library(http-client SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H})
 add_library(snodec::http-client ALIAS http-client)
-
-if(LIBMAGIC_FOUND)
-    target_compile_definitions(http-client PUBLIC HAS_LIBMAGIC)
-else(LIBMAGIC_FOUND)
-    message(
-        WARNING
-            " libmagic-dev not found:\n"
-            "    libmagic is used for the automatic detection of Mime-type files.\n"
-            "    SNode.C has some built-in knowledge of mime types which, compared to libmime,\n"
-            "    is not as reliable. So you should install libmagic-dev for better mime type detection."
-    )
-endif(LIBMAGIC_FOUND)
 
 target_include_directories(
     http-client
@@ -66,31 +55,32 @@ get_target_property(
 )
 set(HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}/client")
 
-set(HTTP_CLIENT_RPATH
-    "${HTTP_RPATH};${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_INSTALL_LIBDIR}"
-)
+set(HTTP_CLIENT_RPATH "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_INSTALL_LIBDIR}")
 
 set_target_properties(
     http-client
-    PROPERTIES
-        SOVERSION 1
-        OUTPUT_NAME snodec-http-client
-        BUILD_RPATH "${HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR}"
-        INSTALL_RPATH
-        "${HTTP_RPATH};${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}"
-        LIBRARY_OUTPUT_DIRECTORY ${HTTP_CLIENT_COMPILE_LIBDIR}
-        HTTP_CLIENT_COMPILE_LIBDIR "${HTTP_CLIENT_COMPILE_LIBDIR}"
-        HTTP_CLIENT_INSTALL_LIBDIR "${HTTP_CLIENT_INSTALL_LIBDIR}"
-        HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR
-        "${HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR}"
-        HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR
-        "${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}"
-        HTTP_CLIENT_RPATH "${HTTP_CLIENT_RPATH}"
-        HTTP_CLIENT_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/snode.c"
-        EXPORT_PROPERTIES
-        "HTTP_CLIENT_INCLUDE_DIRS;HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR"
-        COMPILE_FLAGS "${DISABLED_WARNINGS}"
+    PROPERTIES SOVERSION 1
+               OUTPUT_NAME snodec-http-client
+               LIBRARY_OUTPUT_DIRECTORY "${HTTP_CLIENT_COMPILE_LIBDIR}"
+               COMPILE_FLAGS "${DISABLED_WARNINGS}"
+               BUILD_RPATH "${HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR}"
+               INSTALL_RPATH
+               "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}"
+               HTTP_CLIENT_COMPILE_LIBDIR "${HTTP_CLIENT_COMPILE_LIBDIR}"
+               HTTP_CLIENT_INSTALL_LIBDIR "${HTTP_CLIENT_INSTALL_LIBDIR}"
+               HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR
+               "${HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR}"
+               HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR
+               "${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}"
+               HTTP_CLIENT_RPATH "${HTTP_CLIENT_RPATH}"
+               HTTP_CLIENT_INCLUDE_DIRS
+               "${CMAKE_INSTALL_PREFIX}/include/snode.c"
+               EXPORT_PROPERTIES
+               "HTTP_CLIENT_INCLUDE_DIRS;HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR"
 )
+
+# target_compile_definitions(my_target PRIVATE FOO=1 BAR=1)
+# set_source_files_properties(foo.cpp PROPERTIES COMPILE_DEFINITIONS -DFOO=1)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/

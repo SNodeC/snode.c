@@ -31,18 +31,6 @@ set(HTTPSERVER_H
 add_library(http-server SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_h})
 add_library(snodec::http-server ALIAS http-server)
 
-if(LIBMAGIC_FOUND)
-    target_compile_definitions(http-server PUBLIC HAS_LIBMAGIC)
-else(LIBMAGIC_FOUND)
-    message(
-        WARNING
-            " libmagic-dev not found:\n"
-            "    libmagic is used for the automatic detection of Mime-type files.\n"
-            "    SNode.C has some built-in knowledge of mime types which, compared to libmime,\n"
-            "    is not as reliable. So you should install libmagic-dev for better mime type detection."
-    )
-endif(LIBMAGIC_FOUND)
-
 target_include_directories(
     http-server
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -68,30 +56,61 @@ get_target_property(
 )
 set(HTTP_SERVER_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}/server")
 
-set(HTTP_SERVER_RPATH
-    "${HTTP_RPATH};${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_INSTALL_LIBDIR}"
+set(HTTP_SERVER_RPATH "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_INSTALL_LIBDIR}")
+
+message("HTTP_COMPILE_LIBDIR: " "${HTTP_COMPILE_LIBDIR}")
+message("HTTP_SERVER_COMPILE_LIBDIR: " "${HTTP_SERVER_COMPILE_LIBDIR}")
+message("HTTP_SERVER_INSTALL_LIBDIR: " "${HTTP_SERVER_INSTALL_LIBDIR}")
+message("HTTP_UPGRADE_COMPILE_LIBDIR: " "${HTTP_UPGRADE_COMPILE_LIBDIR}")
+message("HTTP_UPGRADE_INSTALL_LIBDIR: " "${HTTP_UPGRADE_INSTALL_LIBDIR}")
+message("HTTP_SERVER_UPGRADE_COMPILE_LIBDIR: "
+        "${HTTP_SERVER_UPGRADE_COMPILE_LIBDIR}"
 )
+message("HTTP_SERVER_UPGRADE_INSTALL_LIBDIR: "
+        "${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
+)
+
+message("HTTP_SERVER_RPATH: " "${HTTP_SERVER_RPATH}")
+
+# HTTP_COMPILE_LIBDIR:
+# /home/voc/projects/snodec/build/build-snode.c-Desktop_CLANG-Debug-CheckInclude/snode.c/http
+
+# HTTP_SERVER_COMPILE_LIBDIR:
+# /home/voc/projects/snodec/build/build-snode.c-Desktop_CLANG-Debug-CheckInclude/snode.c/http/server
+
+# HTTP_UPGRADE_COMPILE_LIBDIR:
+# /home/voc/projects/snodec/build/build-snode.c-Desktop_CLANG-Debug-CheckInclude/snode.c/http/upgrade
+# HTTP_SERVER_UPGRADE_COMPILE_LIBDIR:
+# /home/voc/projects/snodec/build/build-snode.c-Desktop_CLANG-Debug-CheckInclude/snode.c/http/upgrade/server
+
+# HTTP_SERVER_INSTALL_LIBDIR: lib/snode.c/http/server
+# HTTP_UPGRADE_INSTALL_LIBDIR: lib/snode.c/http/upgrade
+# HTTP_SERVER_UPGRADE_INSTALL_LIBDIR: lib/snode.c/http/upgrade/server
+
+# HTTP_SERVER_RPATH:
+# /usr/local/lib/snode.c/http/usr/local/lib/snode.c/http/upgrade/server
 
 set_target_properties(
     http-server
-    PROPERTIES
-        SOVERSION 1
-        OUTPUT_NAME snodec-http-server
-        BUILD_RPATH "${HTTP_SERVER_UPGRADE_COMPILE_LIBDIR}"
-        INSTALL_RPATH
-        "${HTTP_RPATH};${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
-        LIBRARY_OUTPUT_DIRECTORY ${HTTP_SERVER_COMPILE_LIBDIR}
-        HTTP_SERVER_COMPILE_LIBDIR "${HTTP_SERVER_COMPILE_LIBDIR}"
-        HTTP_SERVER_INSTALL_LIBDIR "${HTTP_SERVER_INSTALL_LIBDIR}"
-        HTTP_SERVER_UPGRADE_COMPILE_LIBDIR
-        "${HTTP_SERVER_UPGRADE_COMPILE_LIBDIR}"
-        HTTP_SERVER_UPGRADE_INSTALL_LIBDIR
-        "${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
-        HTTP_SERVER_RPATH "${HTTP_SERVER_RPATH}"
-        HTTP_SERVER_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/snode.c"
-        EXPORT_PROPERTIES
-        "HTTP_SERVER_INCLUDE_DIRS;HTTP_SERVER_UPGRADE_INSTALL_LIBDIR"
-        COMPILE_FLAGS "${DISABLED_WARNINGS}"
+    PROPERTIES SOVERSION 1
+               OUTPUT_NAME snodec-http-server
+               LIBRARY_OUTPUT_DIRECTORY "${HTTP_SERVER_COMPILE_LIBDIR}"
+               COMPILE_FLAGS "${DISABLED_WARNINGS}"
+               BUILD_RPATH
+               "${HTTP_COMPILE_LIBDIR};${HTTP_SERVER_UPGRADE_COMPILE_LIBDIR}"
+               INSTALL_RPATH
+               "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
+               HTTP_SERVER_COMPILE_LIBDIR "${HTTP_SERVER_COMPILE_LIBDIR}"
+               HTTP_SERVER_INSTALL_LIBDIR "${HTTP_SERVER_INSTALL_LIBDIR}"
+               HTTP_SERVER_UPGRADE_COMPILE_LIBDIR
+               "${HTTP_SERVER_UPGRADE_COMPILE_LIBDIR}"
+               HTTP_SERVER_UPGRADE_INSTALL_LIBDIR
+               "${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
+               HTTP_SERVER_RPATH "${HTTP_SERVER_RPATH}"
+               HTTP_SERVER_INCLUDE_DIRS
+               "${CMAKE_INSTALL_PREFIX}/include/snode.c"
+               EXPORT_PROPERTIES
+               "HTTP_SERVER_INCLUDE_DIRS;HTTP_SERVER_UPGRADE_INSTALL_LIBDIR"
 )
 
 install(
