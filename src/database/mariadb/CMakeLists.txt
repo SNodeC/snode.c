@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 
 find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(MARIADB mariadb)
+pkg_check_modules(LIBMARIADB libmariadb)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(# Oh, mysql/mariadb has some strange identifier
@@ -16,7 +16,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
 
-if(MARIADB_FOUND)
+if(LIBMARIADB_FOUND)
     set(MARIADB_CPP
         MariaDBClient.cpp
         MariaDBClientASyncAPI.cpp
@@ -65,10 +65,10 @@ if(MARIADB_FOUND)
     add_library(db-mariadb SHARED ${MARIADB_CPP} ${MARIADB_H})
     add_library(snodec::db-mariadb ALIAS db-mariadb)
 
-    target_link_libraries(db-mariadb PUBLIC snodec::core ${MARIADB_LIBRARIES})
+    target_link_libraries(db-mariadb PUBLIC snodec::core ${LIBMARIADB_LIBRARIES})
     target_include_directories(
         db-mariadb
-        PUBLIC ${MARIADB_INCLUDE_DIRS}
+        PUBLIC ${LIBMARIADB_INCLUDE_DIRS}
                "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
@@ -100,4 +100,4 @@ if(MARIADB_FOUND)
         PATTERN "cmake" EXCLUDE
     )
 
-endif(MARIADB_FOUND)
+endif(LIBMARIADB_FOUND)
