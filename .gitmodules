@@ -1,0 +1,3 @@
+[submodule "supplement/vocfeeds"]
+	path = supplement/vocfeeds
+	url = ../vocfeeds.git
