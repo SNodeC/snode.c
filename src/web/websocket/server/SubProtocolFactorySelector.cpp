@@ -32,11 +32,11 @@ namespace web::websocket::server {
 
     SubProtocolFactorySelector::~SubProtocolFactorySelector() {
     }
-
-    void SubProtocolFactorySelector::link(const std::string& subProtocolName, void* (*getSubProtocolFactory)()) {
-        SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
-    }
-
+    /*
+        void SubProtocolFactorySelector::link(const std::string& subProtocolName, web::websocket::SubProtocolFactory<SubProtocol>
+       *(*getSubProtocolFactory)()) { SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
+        }
+    */
     void SubProtocolFactorySelector::allowDlOpen() {
         SubProtocolFactorySelector::instance()->Super::allowDlOpen();
     }

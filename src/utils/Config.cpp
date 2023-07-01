@@ -475,6 +475,10 @@ namespace utils {
                         std::exit(EXIT_SUCCESS);
                     }
                 }
+
+                for (const std::string& opt : app.remaining_for_passthrough()) {
+                    std::cout << "********: " << opt << std::endl;
+                }
             }
         }
 

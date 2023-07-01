@@ -129,9 +129,11 @@ namespace web::websocket {
             onlyLinked = false;
         }
 
-        void link(const std::string& subProtocolName, void* (*subProtocolFactory)()) {
+        template <typename SubProtocolFactory>
+        void link(const std::string& subProtocolName, SubProtocolFactory* (*subProtocolFactory)()) {
             onlyLinked = true;
-            linkedSubProtocolFactories[subProtocolName] = reinterpret_cast<SubProtocolFactory* (*) ()>(subProtocolFactory);
+            linkedSubProtocolFactories[subProtocolName] =
+                reinterpret_cast<SubProtocolFactorySelector::SubProtocolFactory* (*) ()>(subProtocolFactory);
         }
 
     private:

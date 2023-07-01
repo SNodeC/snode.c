@@ -19,6 +19,7 @@
 #ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 #define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
+#include "apps/websocket/subprotocol/client/echo/EchoFactory.h"
 #include "web/websocket/SubProtocolFactory.h"
 
 namespace web::websocket {
@@ -49,6 +50,6 @@ namespace apps::websocket::subprotocol::echo::server {
 
 } // namespace apps::websocket::subprotocol::echo::server
 
-extern "C" void* echoServerSubProtocolFactory();
+extern "C" apps::websocket::subprotocol::echo::server::EchoFactory* echoServerSubProtocolFactory();
 
 #endif // APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H

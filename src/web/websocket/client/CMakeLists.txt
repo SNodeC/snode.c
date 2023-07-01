@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.18)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(DISABLED_WARNINGS "-Wno-weak-template-vtables")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
-        set(DISABLED_WARNINGS
-            "${DISABLED_WARNINGS} -Wno-cast-function-type-strict"
+        set(DISABLED_WARNINGS "${DISABLED_WARNINGS}"
+                              # -Wno-cast-function-type-strict"
         )
     endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
