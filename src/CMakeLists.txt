@@ -89,8 +89,8 @@ add_compile_options(
 add_link_options(LINKER:--as-needed)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
-        # Yes, there are some unsafe-buffer-usage
-        set(DISABLED_WARNINGS_CLANG -Wno-unsafe-buffer-usage)
+        # Yes, there are some unsafe-buffer-usage set(DISABLED_WARNINGS_CLANG
+        # -Wno-unsafe-buffer-usage)
     endif()
     add_compile_options(
         -Weverything
@@ -107,7 +107,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-padded
         # Later, we want to have UML in doxygen documentation
         -Wno-documentation-unknown-command
-        ${DISABLED_WARNINGS_CLANG}
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
@@ -116,6 +115,49 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
+
+set(COMPILE_OPTIONS
+    -Werror
+    -Wall
+    -Wextra
+    -Wconversion
+    -Wpedantic
+    -Wconversion
+    -Wuninitialized
+    -Wunreachable-code
+    -Wfloat-equal
+    -pedantic-errors
+    -fexec-charset=UTF-8
+    -Wno-shadow # yes we do
+    -Wno-psabi # needed for RaspberryPi
+)
+
+# set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
+# "$<$<CXX_COMPILER_ID:Clang>:-Weverything$<SEMICOLON>-Wno-padded$<SEMICOLON>-Wno-exit-time-destructors>")
+set(COMPILE_OPTIONS ${COMPILE_OPTIONS} $<$<CXX_COMPILER_ID:Clang>:-Weverything>)
+set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
+                    $<$<CXX_COMPILER_ID:Clang>:-Wno-c++98-compat-pedantic>
+)
+set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
+                    $<$<CXX_COMPILER_ID:Clang>:-Wno-exit-time-destructors>
+)
+set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
+                    $<$<CXX_COMPILER_ID:Clang>:-Wno-global-constructors>
+)
+set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
+                    $<$<CXX_COMPILER_ID:Clang>:-Wno-shadow-field>
+)
+set(COMPILE_OPTIONS ${COMPILE_OPTIONS} $<$<CXX_COMPILER_ID:Clang>:-Wno-padded>)
+set(COMPILE_OPTIONS
+    ${COMPILE_OPTIONS}
+    $<$<CXX_COMPILER_ID:Clang>:-Wno-documentation-unknown-command>
+)
+set(COMPILE_OPTIONS
+    ${COMPILE_OPTIONS}
+    $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-unsafe-buffer-usage>
+)
+
+add_compile_options(${COMPILE_OPTIONS})
 
 add_subdirectory(log)
 add_subdirectory(utils)

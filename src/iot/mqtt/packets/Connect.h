@@ -29,6 +29,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define MQTT_VERSION_3_1_1 0x04
+#define MQTT_VERSION_5_0 0x05
 
 namespace iot::mqtt::packets {
 
