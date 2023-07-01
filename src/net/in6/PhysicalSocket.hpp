@@ -20,10 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifndef DUAL_STACK
-#include <netinet/in.h>
-#endif // DUAL_STACK
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6 {
