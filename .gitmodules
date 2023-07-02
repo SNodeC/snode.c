@@ -1,0 +1,3 @@
+[submodule "supplement/owrt-snodec-feed"]
+	path = supplement/owrt-snodec-feed
+	url = https://github.com/VolkerChristian/owrt-snodec-feed
