@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
+set(SNODEC_IOT_MQTT_SERVER_RPATH "${SNODEC_IOT_MQTT_RPATH};${SNODEC_IOT_MQTT_RPATH}/server")
+
 add_subdirectory(packets)
 add_subdirectory(broker)
 
@@ -33,6 +35,8 @@ set_target_properties(
                INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
                IOT_MQTT_SERVER_INCLUDE_DIRS
                "${CMAKE_INSTALL_PREFIX}/include/snode.c"
+               IOT_MQTT_SERVER_RPATH "${SNODEC_IOT_MQTT_SERVER_RPATH}"
+               EXPORT_PROPERTIES "IOT_MQTT_SERVER_RPATH"
 )
 
 install(

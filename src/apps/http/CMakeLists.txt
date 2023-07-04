@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
-get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_LIST_DIR} NAME)
+get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
+get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
 
 set(IN 1)
 set(IN6 2)
@@ -32,9 +33,6 @@ set(HTTPSERVER_H model/servers.h)
 
 set(HTTPSERVERCLIENTCERT_CPP httpserverclientcert.cpp)
 set(HTTPSERVERCLIENTCERT_H model/servers.h)
-
-get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
-get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
 
 set(NETS "in" "in6" "un")
 if(BLUEZ_FOUND)

@@ -119,5 +119,5 @@ foreach(_comp ${snodec_FIND_COMPONENTS})
     endif()
 endforeach()
 
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 add_link_options(LINKER:--as-needed)

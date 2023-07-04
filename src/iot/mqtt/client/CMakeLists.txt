@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 
+set(SNODEC_IOT_MQTT_CLIENT_RPATH "${SNODEC_IOT_MQTT_RPATH};${SNODEC_IOT_MQTT_RPATH}/client")
+
+message("***************** ${SNODEC_IOT_MQTT_CLIENT_RPATH}")
 add_subdirectory(packets)
 
 set(MQTT_CLIENT_CPP ControlPacketDeserializer.cpp Mqtt.cpp)
@@ -27,6 +30,8 @@ set_target_properties(
                INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
                IOT_MQTT_CLIENT_INCLUDE_DIRS
                "${CMAKE_INSTALL_PREFIX}/include/snode.c"
+               IOT_MQTT_CLIENT_RPATH "${SNODEC_IOT_MQTT_CLIENT_RPATH}"
+               EXPORT_PROPERTIES "IOT_MQTT_CLIENT_RPATH"
 )
 
 install(

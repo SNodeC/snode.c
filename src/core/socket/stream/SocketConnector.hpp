@@ -73,23 +73,45 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::connectEvent() {
         int cErrno = -1;
 
+        int tmpErrno = errno;
+        PLOG(INFO) << "************ Eins";
+        errno = tmpErrno;
         if ((cErrno = physicalSocket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
+            tmpErrno = errno;
+            PLOG(INFO) << "************ Zwei";
+            errno = tmpErrno;
             if (!physicalSocket->connectInProgress(cErrno)) {
+                tmpErrno = errno;
+                PLOG(INFO) << "************ Drei";
+                errno = tmpErrno;
                 if (cErrno == 0) {
+                    tmpErrno = errno;
+                    PLOG(INFO) << "************ < Vier 1";
+                    errno = tmpErrno;
+                    PLOG(INFO) << "************ < Vier 2";
                     disable();
+                    PLOG(INFO) << "************ < Vier 3";
                     if (socketConnectionFactory.create(*physicalSocket, config)) {
+                        PLOG(INFO) << "************ Fünf";
                         errno = errno == 0 ? cErrno : errno;
                         onError(config->Remote::getAddress(), errno);
                     }
                 } else {
+                    PLOG(INFO) << "************ Sechs";
                     disable();
                     errno = cErrno;
                     onError(config->Remote::getAddress(), errno);
                 }
             } else {
+                tmpErrno = errno;
+                PLOG(INFO) << "************ Sieben";
+                errno = tmpErrno;
                 // Do nothing: connect() still in progress
             }
         } else {
+            tmpErrno = errno;
+            PLOG(INFO) << "************ Acht";
+            errno = tmpErrno;
             disable();
             errno = cErrno;
             onError(config->Remote::getAddress(), errno);
