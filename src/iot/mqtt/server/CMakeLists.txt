@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(SNODEC_IOT_MQTT_SERVER_RPATH "${SNODEC_IOT_MQTT_RPATH};${SNODEC_IOT_MQTT_RPATH}/server")
+set(SNODEC_IOT_MQTT_SERVER_RPATH
+    "${SNODEC_IOT_MQTT_RPATH};${SNODEC_IOT_MQTT_RPATH}/server"
+)
 
 add_subdirectory(packets)
 add_subdirectory(broker)

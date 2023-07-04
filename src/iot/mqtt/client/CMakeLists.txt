@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(SNODEC_IOT_MQTT_CLIENT_RPATH "${SNODEC_IOT_MQTT_RPATH};${SNODEC_IOT_MQTT_RPATH}/client")
+set(SNODEC_IOT_MQTT_CLIENT_RPATH
+    "${SNODEC_IOT_MQTT_RPATH};${SNODEC_IOT_MQTT_RPATH}/client"
+)
 
-message("***************** ${SNODEC_IOT_MQTT_CLIENT_RPATH}")
 add_subdirectory(packets)
 
 set(MQTT_CLIENT_CPP ControlPacketDeserializer.cpp Mqtt.cpp)
