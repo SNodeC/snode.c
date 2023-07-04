@@ -24,9 +24,11 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <iomanip> // std::setw
 #include <sstream>
 #include <sys/stat.h>
+
 // IWYU pragma: no_include <bits/struct_stat.h>
 // IWYU pragma: no_include <bits/types/struct_tm.h>
 
@@ -139,6 +141,7 @@ namespace httputils {
         }
 
         (void) strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", tm);
+        errno = 0; // Errno can be modified by strftime even though there is no error
 
         return std::string(buf);
     }
@@ -159,6 +162,7 @@ namespace httputils {
         stat(filePath.c_str(), &attrib); // TODO: to core::system
 
         (void) strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime))); // TODO: to core::system
+        errno = 0; // Errno can be modified by strftime even though there is no error
 
         return std::string(buf);
     }
