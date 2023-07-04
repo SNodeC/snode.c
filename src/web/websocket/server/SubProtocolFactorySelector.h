@@ -23,12 +23,14 @@
 
 namespace web::websocket {
     template <typename SubProtocolT>
-    class SubProtocolFactory;
+    class SubProtocolFactory; // IWYU pragma: keep
 
     namespace server {
         class SubProtocol;
     } // namespace server
 } // namespace web::websocket
+
+// IWYU pragma: no_include "web/websocket/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -61,6 +63,8 @@ namespace web::websocket::server {
         static void allowDlOpen();
 
     private:
+        SubProtocolFactory* load(const std::string& subProtocolName, Role role) override;
+
         SubProtocolFactorySelector() = default;
     };
 

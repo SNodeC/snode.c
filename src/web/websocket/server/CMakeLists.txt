@@ -56,6 +56,13 @@ set(WEBSOCKETSERVER_H
 add_library(websocket-server SHARED ${WEBSOCKETSERVER_CPP} ${WEBSOCKETSERVER_H})
 add_library(snodec::websocket-server ALIAS websocket-server)
 
+set_source_files_properties(
+    SubProtocolFactorySelector.cpp
+    PROPERTIES
+        COMPILE_DEFINITIONS
+        -DWEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR}\"
+)
+
 set_target_properties(
     websocket-server
     PROPERTIES

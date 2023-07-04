@@ -18,6 +18,8 @@
 
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
+#include "web/websocket/SubProtocolFactory.h" // IWYU pragma: keep
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,13 +34,16 @@ namespace web::websocket::server {
 
     SubProtocolFactorySelector::~SubProtocolFactorySelector() {
     }
-    /*
-        void SubProtocolFactorySelector::link(const std::string& subProtocolName, web::websocket::SubProtocolFactory<SubProtocol>
-       *(*getSubProtocolFactory)()) { SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
-        }
-    */
+
     void SubProtocolFactorySelector::allowDlOpen() {
         SubProtocolFactorySelector::instance()->Super::allowDlOpen();
+    }
+
+    SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName, Role role) {
+        std::string subProtocolLibraryFile = WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR "/libsnodec-websocket-" + subProtocolName + ".so";
+        std::string subProtocolFactoryFunctionName = subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory";
+
+        return Super::load(subProtocolName, subProtocolLibraryFile, subProtocolFactoryFunctionName);
     }
 
 } // namespace web::websocket::server

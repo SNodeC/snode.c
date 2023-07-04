@@ -48,23 +48,23 @@ namespace web::websocket {
         SubProtocolFactorySelector() = default;
         virtual ~SubProtocolFactorySelector() = default;
 
-        SubProtocolFactory* load(const std::string& subProtocolName, Role role) {
+        virtual SubProtocolFactory* load(const std::string& subProtocolName, Role role) = 0;
+
+        SubProtocolFactory* load(const std::string& subProtocolName,
+                                 const std::string& subProtocolLibraryFile,
+                                 const std::string& subProtocolFactoryFunctionName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
-            std::string libFile = "libsnodec-websocket-" + subProtocolName + ".so";
-
-            void* handle = dlOpen(libFile, RTLD_LAZY | RTLD_GLOBAL);
+            void* handle = dlOpen(subProtocolLibraryFile, RTLD_LAZY | RTLD_GLOBAL);
 
             if (handle != nullptr) {
-                std::string subProtocolFactoryFunctionName =
-                    subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory";
                 SubProtocolFactory* (*getSubProtocolFactory)() =
                     reinterpret_cast<SubProtocolFactory* (*) ()>(core::DynamicLoader::dlSym(handle, subProtocolFactoryFunctionName));
                 if (getSubProtocolFactory != nullptr) {
                     subProtocolFactory = getSubProtocolFactory();
                     if (subProtocolFactory != nullptr) {
                         subProtocolFactory->setHandle(handle);
-                        VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
+                        VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolName;
                     } else {
                         VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
                         core::DynamicLoader::dlClose(handle);
