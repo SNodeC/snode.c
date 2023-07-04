@@ -48,7 +48,7 @@ namespace web::websocket {
         SubProtocolFactorySelector() = default;
         virtual ~SubProtocolFactorySelector() = default;
 
-        virtual SubProtocolFactory* load(const std::string& subProtocolName, Role role) = 0;
+        virtual SubProtocolFactory* load(const std::string& subProtocolName) = 0;
 
         SubProtocolFactory* load(const std::string& subProtocolName,
                                  const std::string& subProtocolLibraryFile,
@@ -90,7 +90,7 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
-        SubProtocolFactory* select(const std::string& subProtocolName, Role role) {
+        SubProtocolFactory* select(const std::string& subProtocolName, Role) {
             SubProtocolFactory* subProtocolFactory = select(subProtocolName);
 
             if (subProtocolFactory == nullptr) {
@@ -98,7 +98,7 @@ namespace web::websocket {
                     SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
                     subProtocolFactory = plugin();
                 } else if (!onlyLinked) {
-                    subProtocolFactory = load(subProtocolName, role);
+                    subProtocolFactory = load(subProtocolName);
                 }
 
                 if (subProtocolFactory != nullptr) {

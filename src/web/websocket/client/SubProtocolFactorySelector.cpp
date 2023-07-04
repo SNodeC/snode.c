@@ -39,9 +39,9 @@ namespace web::websocket::client {
         SubProtocolFactorySelector::instance()->Super::allowDlOpen();
     }
 
-    SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName, Role role) {
+    SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
         std::string subProtocolLibraryFile = WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR "/libsnodec-websocket-" + subProtocolName + ".so";
-        std::string subProtocolFactoryFunctionName = subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory";
+        std::string subProtocolFactoryFunctionName = subProtocolName + "ClientSubProtocolFactory";
         return Super::load(subProtocolName, subProtocolLibraryFile, subProtocolFactoryFunctionName);
     }
 

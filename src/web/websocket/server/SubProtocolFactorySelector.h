@@ -63,7 +63,7 @@ namespace web::websocket::server {
         static void allowDlOpen();
 
     private:
-        SubProtocolFactory* load(const std::string& subProtocolName, Role role) override;
+        SubProtocolFactory* load(const std::string& subProtocolName) override;
 
         SubProtocolFactorySelector() = default;
     };
