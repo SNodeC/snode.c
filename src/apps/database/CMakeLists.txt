@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-if(MARIADB_FOUND)
+if(LIBMARIADB_FOUND)
 
     add_executable(testmariadb testmariadb.cpp)
     target_link_libraries(testmariadb PRIVATE snodec::db-mariadb)
@@ -14,4 +14,4 @@ if(MARIADB_FOUND)
                                         COMPONENT apps
     )
 
-endif(MARIADB_FOUND)
+endif(LIBMARIADB_FOUND)

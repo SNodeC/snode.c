@@ -88,7 +88,7 @@ install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                    COMPONENT apps
 )
 
-if(MARIADB_FOUND)
+if(LIBMARIADB_FOUND)
     add_executable(testregex testregex.cpp)
     target_link_libraries(
         testregex
@@ -102,7 +102,7 @@ if(MARIADB_FOUND)
     install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                       COMPONENT apps
     )
-endif(MARIADB_FOUND)
+endif(LIBMARIADB_FOUND)
 
 add_executable(warema-jalousien warema-jalousien.cpp)
 target_link_libraries(

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-if(MARIADB_FOUND)
+if(LIBMARIADB_FOUND)
 
     get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
 
@@ -10,4 +10,4 @@ if(MARIADB_FOUND)
     add_subdirectory(client_app)
     add_subdirectory(resource_server)
 
-endif(MARIADB_FOUND)
+endif(LIBMARIADB_FOUND)
