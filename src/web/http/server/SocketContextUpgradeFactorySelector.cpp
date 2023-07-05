@@ -31,6 +31,15 @@
 
 namespace web::http::server {
 
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
+        std::string socketContextUpgradeFactoryLibraryFile =
+            HTTP_SERVER_UPGRADE_INSTALL_LIBDIR "/libsnodec-" + socketContextUpgradeName + "-server.so";
+        std::string socketContextUpgradeFactoryFunctionName = socketContextUpgradeName + "ServerContextUpgradeFactory";
+
+        return Super::load(socketContextUpgradeName, socketContextUpgradeFactoryLibraryFile, socketContextUpgradeFactoryFunctionName);
+    }
+
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
@@ -52,7 +61,7 @@ namespace web::http::server {
 
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::SERVER);
+            socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res);

@@ -28,6 +28,15 @@
 
 namespace web::http::client {
 
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
+        std::string socketContextUpgradeFactoryLibraryFile =
+            HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR "/libsnodec-" + socketContextUpgradeName + "-client.so";
+        std::string socketContextUpgradeFactoryFunctionName = socketContextUpgradeName + "ClientContextUpgradeFactory";
+
+        return Super::load(socketContextUpgradeName, socketContextUpgradeFactoryLibraryFile, socketContextUpgradeFactoryFunctionName);
+    }
+
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
@@ -35,8 +44,7 @@ namespace web::http::client {
     }
 
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory =
-            select(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::CLIENT);
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = select(upgradeContextName);
 
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->prepare(req); // Fill in the missing header fields into the request object
@@ -53,7 +61,7 @@ namespace web::http::client {
         if (!upgradeContextName.empty()) {
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName, web::http::SocketContextUpgrade<Request, Response>::Role::CLIENT);
+            socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->web::http::SocketContextUpgradeFactory<Request, Response>::prepare(

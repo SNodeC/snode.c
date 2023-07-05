@@ -57,39 +57,42 @@ namespace web::http {
 
     template <typename SocketContextUpgradeFactory>
     SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& upgradeContextName,
-                                                                           typename SocketContextUpgrade::Role role) {
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& socketContextUpgradeName,
+                                                                           const std::string& socketContextUpgradeFactoryLibraryFile,
+                                                                           const std::string& socketContextUpgradeFactoryFunctionName) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        std::string libFile =
-            "libsnodec-" + upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so";
+        //        std::string socketContextUpgradeFactoryLibraryFile =
+        //            "libsnodec-" + upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so";
 
-        void* handle = dlOpen(libFile, RTLD_LAZY | RTLD_GLOBAL);
+        void* handle = dlOpen(socketContextUpgradeFactoryLibraryFile, RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
-            std::string socketContextUpgradeFactoryName =
-                upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "Server" : "Client") + "ContextUpgradeFactory";
-            SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
-                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryName));
+            //            std::string socketContextUpgradeFactoryFunctionName =
+            //                socketContextUpgradeName + (role == SocketContextUpgrade::Role::SERVER ? "Server" : "Client") +
+            //                "ContextUpgradeFactory";
+
+            SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(
+                core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryFunctionName));
 
             if (getSocketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory = getSocketContextUpgradeFactory();
 
                 if (socketContextUpgradeFactory != nullptr) {
                     if (add(socketContextUpgradeFactory, handle)) {
-                        VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
+                        VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeName;
                     } else {
-                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
+                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeName;
                         delete socketContextUpgradeFactory;
                         socketContextUpgradeFactory = nullptr;
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    VLOG(0) << "SocketContextUpgradeFactory not created: " << upgradeContextName;
+                    VLOG(0) << "SocketContextUpgradeFactory not created: " << socketContextUpgradeName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {
-                VLOG(0) << "Optaining function \"" << socketContextUpgradeFactoryName
+                VLOG(0) << "Optaining function \"" << socketContextUpgradeFactoryFunctionName
                         << "\" in plugin failed: " << core::DynamicLoader::dlError();
                 core::DynamicLoader::dlClose(handle);
             }
@@ -100,27 +103,26 @@ namespace web::http {
 
     template <typename SocketContextUpgradeFactory>
     SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(const std::string& upgradeContextName,
-                                                                             typename SocketContextUpgrade::Role role) {
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(const std::string& socketContextUpgradeName) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        if (socketContextUpgradePlugins.contains(upgradeContextName)) {
-            socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
-        } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
-            socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
+        if (socketContextUpgradePlugins.contains(socketContextUpgradeName)) {
+            socketContextUpgradeFactory = socketContextUpgradePlugins[socketContextUpgradeName].socketContextUpgradeFactory;
+        } else if (linkedSocketContextUpgradePlugins.contains(socketContextUpgradeName)) {
+            socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[socketContextUpgradeName]();
             add(socketContextUpgradeFactory);
         } else if (!onlyLinked) {
-            socketContextUpgradeFactory = load(upgradeContextName, role);
+            socketContextUpgradeFactory = load(socketContextUpgradeName);
         }
 
         return socketContextUpgradeFactory;
     }
 
     template <typename SocketContextUpgradeFactory>
-    void SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::link(const std::string& upgradeContextName,
+    void SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::link(const std::string& socketContextUpgradeName,
                                                                                 SocketContextUpgradeFactory* (*linkedPlugin)()) {
-        if (!linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
-            linkedSocketContextUpgradePlugins[upgradeContextName] = linkedPlugin;
+        if (!linkedSocketContextUpgradePlugins.contains(socketContextUpgradeName)) {
+            linkedSocketContextUpgradePlugins[socketContextUpgradeName] = linkedPlugin;
         }
 
         onlyLinked = true;

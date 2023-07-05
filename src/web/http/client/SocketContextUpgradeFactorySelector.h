@@ -39,6 +39,8 @@ namespace web::http::client {
         using Super::load;
         using Super::select;
 
+        SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName) override;
+
     public:
         static SocketContextUpgradeFactorySelector* instance();
 

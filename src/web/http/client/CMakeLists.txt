@@ -10,6 +10,26 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
 
+get_target_property(HTTP_COMPILE_LIBDIR snodec::http HTTP_COMPILE_LIBDIR)
+set(HTTP_CLIENT_COMPILE_LIBDIR "${HTTP_COMPILE_LIBDIR}/client")
+
+get_target_property(HTTP_INSTALL_LIBDIR snodec::http HTTP_INSTALL_LIBDIR)
+set(HTTP_CLIENT_INSTALL_LIBDIR "${HTTP_INSTALL_LIBDIR}/client")
+
+get_target_property(
+    HTTP_UPGRADE_COMPILE_LIBDIR snodec::http HTTP_UPGRADE_COMPILE_LIBDIR
+)
+set(HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR "${HTTP_UPGRADE_COMPILE_LIBDIR}/client")
+
+get_target_property(
+    HTTP_UPGRADE_INSTALL_LIBDIR snodec::http HTTP_UPGRADE_INSTALL_LIBDIR
+)
+set(HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}/client")
+
+set(HTTP_CLIENT_RPATH
+    "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_INSTALL_LIBDIR}"
+)
+
 set(HTTPCLIENT_CPP
     Request.cpp Response.cpp ResponseParser.cpp SocketContextUpgradeFactory.cpp
     SocketContextUpgradeFactorySelector.cpp
@@ -30,6 +50,13 @@ set(HTTPCLIENT_H
 add_library(http-client SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H})
 add_library(snodec::http-client ALIAS http-client)
 
+set_source_files_properties(
+    SocketContextUpgradeFactorySelector.cpp
+    PROPERTIES
+        COMPILE_DEFINITIONS
+        -DHTTP_CLIENT_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}\"
+)
+
 target_include_directories(
     http-client
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -38,26 +65,6 @@ target_include_directories(
 )
 
 target_link_libraries(http-client PUBLIC snodec::http)
-
-get_target_property(HTTP_COMPILE_LIBDIR snodec::http HTTP_COMPILE_LIBDIR)
-set(HTTP_CLIENT_COMPILE_LIBDIR "${HTTP_COMPILE_LIBDIR}/client")
-
-get_target_property(HTTP_INSTALL_LIBDIR snodec::http HTTP_INSTALL_LIBDIR)
-set(HTTP_CLIENT_INSTALL_LIBDIR "${HTTP_INSTALL_LIBDIR}/client")
-
-get_target_property(
-    HTTP_UPGRADE_COMPILE_LIBDIR snodec::http HTTP_UPGRADE_COMPILE_LIBDIR
-)
-set(HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR "${HTTP_UPGRADE_COMPILE_LIBDIR}/client")
-
-get_target_property(
-    HTTP_UPGRADE_INSTALL_LIBDIR snodec::http HTTP_UPGRADE_INSTALL_LIBDIR
-)
-set(HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}/client")
-
-set(HTTP_CLIENT_RPATH
-    "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_INSTALL_LIBDIR}"
-)
 
 set_target_properties(
     http-client

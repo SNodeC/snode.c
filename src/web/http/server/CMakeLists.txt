@@ -10,6 +10,26 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
 
+get_target_property(HTTP_COMPILE_LIBDIR snodec::http HTTP_COMPILE_LIBDIR)
+set(HTTP_SERVER_COMPILE_LIBDIR "${HTTP_COMPILE_LIBDIR}/server")
+
+get_target_property(HTTP_INSTALL_LIBDIR snodec::http HTTP_INSTALL_LIBDIR)
+set(HTTP_SERVER_INSTALL_LIBDIR "${HTTP_INSTALL_LIBDIR}/server")
+
+get_target_property(
+    HTTP_UPGRADE_COMPILE_LIBDIR snodec::http HTTP_UPGRADE_COMPILE_LIBDIR
+)
+set(HTTP_SERVER_UPGRADE_COMPILE_LIBDIR "${HTTP_UPGRADE_COMPILE_LIBDIR}/server")
+
+get_target_property(
+    HTTP_UPGRADE_INSTALL_LIBDIR snodec::http HTTP_UPGRADE_INSTALL_LIBDIR
+)
+set(HTTP_SERVER_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}/server")
+
+set(HTTP_SERVER_RPATH
+    "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_INSTALL_LIBDIR}"
+)
+
 set(HTTPSERVER_CPP
     Request.cpp RequestContextBase.cpp RequestParser.cpp Response.cpp
     SocketContextUpgradeFactory.cpp SocketContextUpgradeFactorySelector.cpp
@@ -31,6 +51,13 @@ set(HTTPSERVER_H
 add_library(http-server SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_h})
 add_library(snodec::http-server ALIAS http-server)
 
+set_source_files_properties(
+    SocketContextUpgradeFactorySelector.cpp
+    PROPERTIES
+        COMPILE_DEFINITIONS
+        -DHTTP_SERVER_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}\"
+)
+
 target_include_directories(
     http-server
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -39,26 +66,6 @@ target_include_directories(
 )
 
 target_link_libraries(http-server PUBLIC snodec::http)
-
-get_target_property(HTTP_COMPILE_LIBDIR snodec::http HTTP_COMPILE_LIBDIR)
-set(HTTP_SERVER_COMPILE_LIBDIR "${HTTP_COMPILE_LIBDIR}/server")
-
-get_target_property(HTTP_INSTALL_LIBDIR snodec::http HTTP_INSTALL_LIBDIR)
-set(HTTP_SERVER_INSTALL_LIBDIR "${HTTP_INSTALL_LIBDIR}/server")
-
-get_target_property(
-    HTTP_UPGRADE_COMPILE_LIBDIR snodec::http HTTP_UPGRADE_COMPILE_LIBDIR
-)
-set(HTTP_SERVER_UPGRADE_COMPILE_LIBDIR "${HTTP_UPGRADE_COMPILE_LIBDIR}/server")
-
-get_target_property(
-    HTTP_UPGRADE_INSTALL_LIBDIR snodec::http HTTP_UPGRADE_INSTALL_LIBDIR
-)
-set(HTTP_SERVER_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}/server")
-
-set(HTTP_SERVER_RPATH
-    "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR};${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_INSTALL_LIBDIR}"
-)
 
 set_target_properties(
     http-server
