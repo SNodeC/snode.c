@@ -93,5 +93,3 @@ install(
 
 add_subdirectory(server)
 add_subdirectory(client)
-
-# HTTP_COMPILE_LIBDIR HTTP_INSTALL_LIBDIR

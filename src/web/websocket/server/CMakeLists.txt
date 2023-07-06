@@ -116,10 +116,3 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT websocket-server
 )
-
-# HTTP_SERVER_UPGRADE_COMPILE_LIBDIR   // Compile to
-# HTTP_SERVER_UPGRADE_INSTALL_LIBDIR   // Install to
-
-# WEBSOCKET_SERVER_SUBPROTOCOL_COMPILE_LIBDIR   // RPATH to | Subprotocol server
-# libraries Compile to WEBSOCKET_SERVER_SUBPROTOCOL_INSTALL_LIBDIR   // RPATH to
-# | Subprotocol server libraries Install to

@@ -115,10 +115,3 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT websocket-client
 )
-
-# HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR   // Compile to
-# HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR   // Install to
-
-# WEBSOCKET_CLIENT_SUBPROTOCOL_COMPILE_LIBDIR   // RPATH to | Subprotocol client
-# libraries Compile to WEBSOCKET_CLIENT_SUBPROTOCOL_INSTALL_LIBDIR   // RPATH to
-# | Subprotocol client libraries Install to

@@ -31,6 +31,15 @@
 
 namespace iot::mqtt {
 
+    OnDataEvent::OnDataEvent(const std::function<void(const utils::Timeval&)>& event)
+        : core::EventReceiver("WS-OnData")
+        , event(event) {
+    }
+
+    void OnDataEvent::onEvent(const utils::Timeval& currentTime) {
+        event(currentTime);
+    }
+
     template <typename WSSubProtocolRole>
     SubProtocol<WSSubProtocolRole>::SubProtocol(web::websocket::SubProtocolContext* subProtocolContext,
                                                 const std::string& name,

@@ -48,15 +48,10 @@ namespace iot::mqtt {
 
     class OnDataEvent : public core::EventReceiver {
     public:
-        explicit OnDataEvent(const std::function<void(const utils::Timeval& currentTime)>& event)
-            : core::EventReceiver("WS-OnData")
-            , event(event) {
-        }
+        explicit OnDataEvent(const std::function<void(const utils::Timeval& currentTime)>& event);
 
     private:
-        void onEvent(const utils::Timeval& currentTime) override {
-            event(currentTime);
-        }
+        void onEvent(const utils::Timeval& currentTime) override;
 
         std::function<void(const utils::Timeval& currentTime)> event;
     };

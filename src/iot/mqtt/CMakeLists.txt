@@ -40,7 +40,13 @@ target_include_directories(
                 "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(mqtt PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt)
+set_target_properties(
+    mqtt
+    PROPERTIES SOVERSION 1
+               OUTPUT_NAME snodec-mqtt
+               IOT_MQTT_RPATH "${SNODEC_IOT_MQTT_RPATH}"
+               EXPORT_PROPERTIES "IOT_MQTT_RPATH"
+)
 
 install(
     TARGETS mqtt
