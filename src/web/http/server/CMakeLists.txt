@@ -55,7 +55,7 @@ set_source_files_properties(
     SocketContextUpgradeFactorySelector.cpp
     PROPERTIES
         COMPILE_DEFINITIONS
-        -DHTTP_SERVER_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}\"
+        HTTP_SERVER_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}\"
 )
 
 target_include_directories(
