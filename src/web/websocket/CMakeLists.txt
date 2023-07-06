@@ -42,7 +42,7 @@ set_target_properties(
     websocket
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${HTTP_UPGRADE_COMPILE_LIBDIR}"
                SOVERSION 1
-               OUTPUT_NAME "snodec-websocket" # PREFIX "sc"
+               OUTPUT_NAME "snodec-websocket"
                LIBRARY_OUTPUT_DIRECTORY ${HTTP_UPGRADE_COMPILE_LIBDIR}
                WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
                ${WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR}
