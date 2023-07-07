@@ -594,7 +594,7 @@ SNode.C requires some external tools and depends on some external libraries. Som
 
 -   Bluez (version belonging to target version) development files ([<http://www.bluez.org/>](http://www.bluez.org/))
 -   LibMagic (v5.37 and later) development files ([<https://www.darwinsys.com/file/>](https://www.darwinsys.com/file/))
--   MariaDB client development files ([<https://mariadb.org/>](https://mariadb.org/))
+-   LibMariaDB (v2.1.0 and later) client MariaDB Connector/C development files ([<https://mariadb.org/>](https://mariadb.org/))
 
 #### In-Framework
 
@@ -642,11 +642,27 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 
 ## Deploment on OpenWRT
 
+As starting point it is assumed that local **ssh** and **sftp** access to the router exist and that the router is connected to the **Internet** via the **WAN** port.
+
+Deploying SNode.C **for the first time** on an OpenWRT router involves four tasks:
+
+1. Cross Compile SNode.C
+2. Prepare Deployment
+3. Deploy SNode.C
+4. Finish Deployment
+
+**Subsequent** deployments involve only two tasks:
+
+1. Cross Compile SNode.C
+2. Deploy SNode.C
+
+***Note:*** All four tasks must be processed successfully in the given order.
+
 ### Cross Compile SNode.C
 
-SNode.C needs to be cross compiled on an host linux system to be install able on OpenWRT. Don't be afraid about cross compiling it is strait forward.
+SNode.C needs to be cross compiled on an host linux system to be deployed on OpenWRT. Don't be afraid about cross compiling it is strait forward.
 
-- **Checkout Submodule:** First a **submodule** of the SNode.C source code needs to be **checked out** from github. From the root  directory **\<SNODEC_DIR\>** of an already cloned Snode.C directory tree run
+- **Checkout Submodule:** First a submodule of the SNode.C source code needs to be checked out from github. From the root  directory **\<SNODEC_DIR\>** of an already cloned Snode.C directory tree run
 
   ```sh
   cd <SNODEC_DIR>
@@ -655,9 +671,9 @@ SNode.C needs to be cross compiled on an host linux system to be install able on
 
   which clones the submodule **owrt-snodec-feed** into the directory **<SNODEC_DIR>/supplement/owrt-snodec-feed**.
 
-- **Download SDK:** Second, download and extract an **SDK-package** of version  **23.05.0-rc1** or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory **\<DIR\>**.
+- **Download SDK:** Second, download and extract an SDK-package of version  **23.05.0-rc1** or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory **\<DIR\>**.
 
-  For example to download the SDK for the **Netgear MR8300 Wireless Router** (soc: IPQ4019) run 
+  For example to download the SDK for the Netgear MR8300 Wireless Router (soc: **IPQ4019**) run 
 
   ```sh
   cd <DIR>
@@ -665,7 +681,7 @@ SNode.C needs to be cross compiled on an host linux system to be install able on
   tar xf openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz
   ```
 
-  to create a child directory **openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64** what form now on will be refer as **<SDK_DIR>**.
+  to extracted the sdk child directory **openwrt-sdk-\<version\>-\<architecture\>\_\<ccversion\>\<libc\>\_\<abi\>.Linux-x86_64** what from now on is referred as **<SDK_DIR>**.
 
 - **Patch Feeds:** Third step is to patch the default OpenWRT package feeds to add the **snodec-feed** by executing the script `patch-sdk.sh` from the **owrt-snodec-feed** submodule of Snode.C.
 
@@ -684,20 +700,20 @@ SNode.C needs to be cross compiled on an host linux system to be install able on
   ```
   
 
-The last two steps (**Patch Feeds** and **Cross Compile** (at most the last one)) take some time as at first all **feed definitions** are **downloaded** from the OpenWRT servers and from github and **installed** locally. Afterwards all dependent and indirect dependent **packages** are **build recursively**. At the end SNode.C is build.
+The last two steps (**Patch Feeds** and **Cross Compile** (at most the last one)) take some time as at first all feed definitions are downloaded from the OpenWRT servers and from github and installed locally. Afterwards all dependent and indirect dependent packages are build recursively. At the end SNode.C is build.
 
-***Note:*** For all build dependencies **ipk-package**s will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
+***Note:*** For all build dependencies **ipk-packages** will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
 
 ### Prepare Deployment (only once)
 
-If SNode.C is installed the first time on an OpenWRT Router some **additional packages** build in the previous step needs to be deployed by hand. This is due the fact, that these packages needs to be of an later version than currently contained in the OpenWRT feeds.
+If SNode.C is installed the first time on an OpenWRT Router some **packages** also build in the previous step need to be deployed by hand even though they are part of the official OpenWRT feeds. This is because these packages must be of a newer version than what is currently included in the OpenWRT feeds.
 
 These packages are:
 
 - **file** and 
 - **libmagic**
 
-To deploy these packages on an OpenWRT router enter the **ipk-package directory** using
+To deploy these packages on an OpenWRT router **enter** the ipk-package **directory** using
 
 ```sh
 cd <SDK_DIR>/bin/packages/<architecture>/snodec
@@ -747,7 +763,7 @@ on the router. Use the option `--force-reinstall` in cast you want to reinstall 
 
 ### Finish Deployment (only once)
 
-The last step, which also must be executed only once, creates a new **unix group** named **snodec** with a free to choose **group-id \<gid\>** and adds the user **root** to that group. 
+The last step, which also must be executed only once, creates a new unix group named **snodec** with a free to choose group-id **\<gid\>** and adds the user **root** to that group.  The group **snodec** does not have to be a system group.
 
 ```sh
 ssh root@<router-ip>
