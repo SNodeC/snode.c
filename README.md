@@ -44,8 +44,8 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [SNode.C](#snodec)
    * [Deploment on OpenWRT](#deploment-on-openwrt)
       * [Cross Compile SNode.C](#cross-compile-snodec)
-      * [Prepare Deployment on OpenWRT (only once)](#prepare-deployment-on-openwrt-only-once)
-      * [Deploy SNode.C on OpenWRT](#deploy-snodec-on-openwrt)
+      * [Prepare Deployment (only once)](#prepare-deployment-only-once)
+      * [Deploy SNode.C](#deploy-snodec)
       * [Finish Deployment (only once)](#finish-deployment-only-once)
 * [Design Decisions and Features](#design-decisions-and-features)
    * [Network Layer](#network-layer)
@@ -119,7 +119,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Fri Jul  7 17:18:06 UTC 2023 -->
+<!-- Added by: runner, at: Fri Jul  7 19:07:54 UTC 2023 -->
 
 <!--te-->
 
