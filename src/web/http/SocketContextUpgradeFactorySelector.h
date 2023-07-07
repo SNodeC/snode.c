@@ -75,7 +75,6 @@ namespace web::http {
     private:
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
-        //        std::list<std::string> searchPaths;
 
         bool onlyLinked = false;
     };

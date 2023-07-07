@@ -62,16 +62,9 @@ namespace web::http {
                                                                            const std::string& socketContextUpgradeFactoryFunctionName) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        //        std::string socketContextUpgradeFactoryLibraryFile =
-        //            "libsnodec-" + upgradeContextName + (role == SocketContextUpgrade::Role::SERVER ? "-server" : "-client") + ".so";
-
         void* handle = dlOpen(socketContextUpgradeFactoryLibraryFile, RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
-            //            std::string socketContextUpgradeFactoryFunctionName =
-            //                socketContextUpgradeName + (role == SocketContextUpgrade::Role::SERVER ? "Server" : "Client") +
-            //                "ContextUpgradeFactory";
-
             SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(
                 core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryFunctionName));
 
