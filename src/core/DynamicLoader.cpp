@@ -40,7 +40,7 @@ namespace core {
             dlOpenedLibraries[handle].refCount++;
             LOG(TRACE) << "dlOpen file = " << libFile << ": success";
         } else {
-            LOG(WARNING) << "dlOpen " << DynamicLoader::dlError();
+            LOG(WARNING) << "dlOpen file = " << libFile << ": " << DynamicLoader::dlError();
         }
 
         return handle;
