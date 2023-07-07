@@ -536,7 +536,7 @@ The installation of SNode.C is straight forward. In the first step all necessary
 
 ## Supported Systems and Hardware
 
-The main development of SNode.C takes place on an Debian *sid* style linux system. Since debian *bookworm* SNode.C compiles also on *stable*. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
+The main development of SNode.C takes place on an Debian *sid* style linux system. Since debian *bookworm* SNode.C compiles on *stable*. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
 
 SNode.C is known to compile and run successfull on
 
@@ -551,7 +551,7 @@ SNode.C is known to compile and run successfull on
 
 ## Minimum required Compiler Versions
 
-The only really version-critical dependencies are the C++ compilers.
+The most version-critical dependencies are the C++ compilers.
 
 Either *GCC* or *clang* can be used but they need to be of an up to date version because SNode.C uses some new C++20 features internally.
 
@@ -586,14 +586,14 @@ SNode.C requires some external tools and depends on some external libraries. Som
 
 #### Mandatory
 
--   Easylogging development files ([<https://github.com/amrayn/easyloggingpp/>](https://github.com/amrayn/easyloggingpp/))
--   OpenSSL development files ([<https://www.openssl.org/>](https://www.openssl.org/))
--   Nlohmann-JSON development files([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
+-   Easylogging (v9.97.0) development files ([<https://github.com/amrayn/easyloggingpp/>](https://github.com/amrayn/easyloggingpp/))
+-   OpenSSL (v1.1, v3.0, v3.1) development files ([<https://www.openssl.org/>](https://www.openssl.org/))
+-   Nlohmann-JSON (v3.11.2) development files ([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
 
 #### Optional
 
--   Bluez development files ([<http://www.bluez.org/>](http://www.bluez.org/))
--   LibMagic development files ([<https://www.darwinsys.com/file/>](https://www.darwinsys.com/file/))
+-   Bluez (version belonging to target version) development files ([<http://www.bluez.org/>](http://www.bluez.org/))
+-   LibMagic (v5.37 and later) development files ([<https://www.darwinsys.com/file/>](https://www.darwinsys.com/file/))
 -   MariaDB client development files ([<https://mariadb.org/>](https://mariadb.org/))
 
 #### In-Framework
@@ -644,9 +644,9 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 
 ### Cross Compile SNode.C
 
-SNode.C needs to be cross compiled on an host linux system. Don't be afraid about cross compiling it is strait forward.
+SNode.C needs to be cross compiled on an host linux system to be install able on OpenWRT. Don't be afraid about cross compiling it is strait forward.
 
-- First a **submodule** of the SNode.C source code must be **checked out** from github. From the root  directory **\<SNODEC_DIR\>** of an already cloned Snode.C directory tree run
+- **Checkout Submodule:** First a **submodule** of the SNode.C source code needs to be **checked out** from github. From the root  directory **\<SNODEC_DIR\>** of an already cloned Snode.C directory tree run
 
   ```sh
   cd <SNODEC_DIR>
@@ -655,7 +655,9 @@ SNode.C needs to be cross compiled on an host linux system. Don't be afraid abou
 
   which clones the submodule **owrt-snodec-feed** into the directory **<SNODEC_DIR>/supplement/owrt-snodec-feed**.
 
-- Second, download and extract an SDK-package version greater or equal than ***23.05.0-rc1*** from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory \<DIR\>. For example to do download the SDK for the **Netgear MR8300 Wireless Router** run 
+- **Download SDK:** Second, download and extract an **SDK-package** of version  **23.05.0-rc1** or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory **\<DIR\>**.
+
+  For example to download the SDK for the **Netgear MR8300 Wireless Router** (soc: IPQ4019) run 
 
   ```sh
   cd <DIR>
@@ -663,44 +665,45 @@ SNode.C needs to be cross compiled on an host linux system. Don't be afraid abou
   tar xf openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz
   ```
 
-  to create a child directory **openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64** what i for now refer as **<SDK_DIR>**.
+  to create a child directory **openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64** what form now on will be refer as **<SDK_DIR>**.
 
-- Third step is to patch the default OpenWRT package feeds to add the *snodec-feed* by executing the script `patch-sdk.sh` checked out from github in the first step.
+- **Patch Feeds:** Third step is to patch the default OpenWRT package feeds to add the **snodec-feed** by executing the script `patch-sdk.sh` from the **owrt-snodec-feed** submodule of Snode.C.
 
   ```sh
   cd <SDK_DIR>
   <SNODEC_DIR>/supplement/owrt-sndoec-feed/patch-sdk.sh
+  ./scripts/feeds update -a
+  ./scripts/feeds install -a
   ```
 
-- The next steps are updating the feeds, installing the feeds, and **cross compiling** SNode.C.
+- **Cross Compile:** The next step is **cross compiling** SNode.C.
 
   ```sh
   cd <SDK_DIR>
-  ./scripts/feeds update -a
-  ./scripts/feeds install -a
   make package/snodec/compile
   ```
+  
 
-  This steps (at most the last one) take some time as at first all **feed definitions** are **downloaded** from the OpenWRT servers and from github and **installed** locally. Afterwards all dependent and indirect dependent **packages** are **build recursively**. At the end SNode.C is build.
+The last two steps (**Patch Feeds** and **Cross Compile** (at most the last one)) take some time as at first all **feed definitions** are **downloaded** from the OpenWRT servers and from github and **installed** locally. Afterwards all dependent and indirect dependent **packages** are **build recursively**. At the end SNode.C is build.
 
-  ***Note:*** For all build dependencies **ipk-package**s will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
+***Note:*** For all build dependencies **ipk-package**s will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
 
-### Prepare Deployment on OpenWRT (only once)
+### Prepare Deployment (only once)
 
-If SNode.C is installed the first time on an OpenWRT Router some **additional packages** build in the previous step needs to be installed. This is due the fact, that these packages needs to be of an later version than currently contained in the OpenWRT feeds.
+If SNode.C is installed the first time on an OpenWRT Router some **additional packages** build in the previous step needs to be deployed by hand. This is due the fact, that these packages needs to be of an later version than currently contained in the OpenWRT feeds.
 
 These packages are:
 
-- *file* and 
-- *libmagic*
+- **file** and 
+- **libmagic**
 
-To deploy these packages on an OpenWRT router enter the ipk-package directory using
+To deploy these packages on an OpenWRT router enter the **ipk-package directory** using
 
 ```sh
 cd <SDK_DIR>/bin/packages/<architecture>/snodec
 ```
 
-download the necessary packages to the router
+**download** the necessary packages to the router
 
 ```sh
 sftp root@<router-ip>
@@ -710,7 +713,7 @@ put libmagic_<version>_<architecture>.ipk
 exit
 ```
 
-and install it by running
+and **install** it on the router by running
 
 ```sh
 ssh root@<router-ip>
@@ -722,7 +725,7 @@ exit
 
 by hand.
 
-### Deploy SNode.C on OpenWRT
+### Deploy SNode.C
 
 After preparation for the deployment, which needs do be done only once, SNode.C can be deployed in a very similar way.
 
@@ -744,19 +747,19 @@ on the router. Use the option `--force-reinstall` in cast you want to reinstall 
 
 ### Finish Deployment (only once)
 
-As the last step create a new unix group **snodec** with a free to choose **group-id** \<gid\> and add **root** to that group. 
+The last step, which also must be executed only once, creates a new **unix group** named **snodec** with a free to choose **group-id \<gid\>** and adds the user **root** to that group. 
 
 ```sh
 ssh root@<router-ip>
 echo "snodec:x:<gid>:root" >> /etc/group
-exit
+exit 
 ```
 
-needs to be added. 
+This new group is used in the group management of config-, log-, and pid-files.
 
-This new group is used in the group management of config-, log-, and run-files.
+***Note:*** A logout/login is necessary to activate the new group assignment.
 
-**Note:** A logout/login is necessary to activate the new group assignment.
+***Warning:*** Choose a group-id not already used.
 
 # Design Decisions and Features
 
