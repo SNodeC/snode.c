@@ -531,7 +531,7 @@ The installation of SNode.C is straight forward. In the first step all necessary
 
 ## Supported Systems and Hardware
 
-The main development of SNode.C takes place on an Debian style linux system. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
+The main development of SNode.C takes place on an Debian *sid* style linux system. Since debian *bookworm* SNode.C compiles also on *stable*. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
 
 SNode.C is known to compile and run successfull on
 
@@ -539,14 +539,10 @@ SNode.C is known to compile and run successfull on
     -   Tested on HP ZBook 15 G8
 -   Arm architecture (32 and 64 bit)
     -   Tested on Raspberry Pi 3 and 4
--   OpenWrt 23.05.0-rc1
-    23.05.0 is the first OpenWrt version bundling a GCC compiler version (12.3) sufficient to compile SNode.C.
-    -   Tested architectures
-        -   mips_24kc (tested with target ath79)
-        -   arm_cortex-a7_neon-vfpv4 (tested with target ipq806x)
-
-
-Finally SNode.C compiles under current debian stable (bookworm). Thus, if your distribution contains all necessary requirements and dependencies in versions equal or later than debian stable SNode.C should compile successful.
+-   OpenWrt 23.05.0-rc1 and later
+    -   Tested architectures (all others are supposed to be supported also)
+        -   arm_cortex-a7_neon-vfpv4 (tested on soc ipq806x)
+        -   mips_24kc (tested on soc ath79)
 
 ## Minimum required Compiler Versions
 
@@ -554,8 +550,8 @@ The only really version-critical dependencies are the C++ compilers.
 
 Either *GCC* or *clang* can be used but they need to be of an up to date version because SNode.C uses some new C++20 features internally.
 
-- GCC 12.2
-- Clang 13.0
+- GCC 12.2 and later
+- Clang 13.0 and later
 
 ## Requirements and Dependencies
 
@@ -579,6 +575,7 @@ SNode.C requires some external tools and depends on some external libraries. Som
 -   clang-format ([<https://clang.llvm.org/docs/ClangFormat.html>](https://clang.llvm.org/docs/ClangFormat.html))
 -   cmake-format ([<https://cmake-format.readthedocs.io/>](https://cmake-format.readthedocs.io/))
 -   doxygen ([<https://www.doxygen.nl/>](https://www.doxygen.nl/))
+-   wget ([https://savannah.gnu.org/git/?group=wget](https://savannah.gnu.org/git/?group=wget))
 
 ### Libraries
 
@@ -637,6 +634,124 @@ sudo usermod -a -G snodec root
 As SNode.C uses C++ templates a lot the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3 if just one core is activated for compilation).
 
 It is a good idea to utilize all processor cores and threads for compilation. Thus e.g. on a Raspberry Pi append `-j4` to the `make`  or `ninja` command.
+
+## Deploment on OpenWRT
+
+### Cross Compile SNode.C
+
+SNode.C needs to be cross compiled on an host linux system. Don't be afraid about cross compiling it is strait forward.
+
+- First a **submodule** of the SNode.C source code must be **checked out** from github. From the root  directory **\<SNODEC_DIR\>** of an already cloned Snode.C directory tree run
+
+  ```sh
+  cd <SNODEC_DIR>
+  git submodule update --init
+  ```
+
+  which clones the submodule **owrt-snodec-feed** into the directory **<SNODEC_DIR>/supplement/owrt-snodec-feed**.
+
+- Second, download and extract an SDK-package version greater or equal than ***23.05.0-rc1*** from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory \<DIR\>. For example to do download the SDK for the **Netgear MR8300 Wireless Router** run 
+
+  ```sh
+  cd <DIR>
+  wget https://downloads.openwrt.org/releases/23.05.0-rc1/targets/ipq40xx/generic/openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz
+  tar xf openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz
+  ```
+
+  to create a child directory **openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64** what i for now refer as **<SDK_DIR>**.
+
+- Third step is to patch the default OpenWRT package feeds to add the *snodec-feed* by executing the script `patch-sdk.sh` checked out from github in the first step.
+
+  ```sh
+  cd <SDK_DIR>
+  <SNODEC_DIR>/supplement/owrt-sndoec-feed/patch-sdk.sh
+  ```
+
+- The next steps are updating the feeds, installing the feeds, and **cross compiling** SNode.C.
+
+  ```sh
+  cd <SDK_DIR>
+  ./scripts/feeds update -a
+  ./scripts/feeds install -a
+  make package/snodec/compile
+  ```
+
+  This steps (at most the last one) take some time as at first all **feed definitions** are **downloaded** from the OpenWRT servers and from github and **installed** locally. Afterwards all dependent and indirect dependent **packages** are **build recursively**. At the end SNode.C is build.
+
+  ***Note:*** For all build dependencies **ipk-package**s will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
+
+### Prepare Deployment on OpenWRT (only once)
+
+If SNode.C is installed the first time on an OpenWRT Router some **additional packages** build in the previous step needs to be installed. This is due the fact, that these packages needs to be of an later version than currently contained in the OpenWRT feeds.
+
+These packages are:
+
+- *file* and 
+- *libmagic*
+
+To deploy these packages on an OpenWRT router enter the ipk-package directory using
+
+```sh
+cd <SDK_DIR>/bin/packages/<architecture>/snodec
+```
+
+download the necessary packages to the router
+
+```sh
+sftp root@<router-ip>
+cd /tmp
+put file_<version>_<architecture>.ipk
+put libmagic_<version>_<architecture>.ipk
+exit
+```
+
+and install it by running
+
+```sh
+ssh root@<router-ip>
+cd /tmp
+opkg --install files_<version>_<architecture>.ipk
+opkg --install libmagic_<version>_<architecture>.ipk
+exit
+```
+
+by hand.
+
+### Deploy SNode.C on OpenWRT
+
+After preparation for the deployment, which needs do be done only once, SNode.C can be deployed in a very similar way.
+
+The **snodec\_\<version\>\_\<architecture\>.ipk** package must be downloaded to and installed by executing
+
+```sh
+cd <SDK_DIR>/bin/packages/<architecture>/snodec
+sftp root@<router-ip>
+cd /tmp
+put snodec_<version>_<architecture>.ipk
+exit
+ssh root@<router-ip>
+cd /tmp
+opkg [--force-reinstall] install snodec_<version>_<architecture>.ipk
+exit
+```
+
+on the router. Use the option `--force-reinstall` in cast you want to reinstall the same version by overwriting the currently installed files.
+
+### Finish Deployment (only once)
+
+As the last step create a new unix group **snodec** with a free to choose **group-id** \<gid\> and add **root** to that group. 
+
+```sh
+ssh root@<router-ip>
+echo "snodec:x:<gid>:root" >> /etc/group
+exit
+```
+
+needs to be added. 
+
+This new group is used in the group management of config-, log-, and run-files.
+
+**Note:** A logout/login is necessary to activate the new group assignment.
 
 # Design Decisions and Features
 
