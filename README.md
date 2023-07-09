@@ -656,62 +656,76 @@ Deploying SNode.C **for the first time** on an OpenWRT router involves four task
 1. Cross Compile SNode.C
 2. Deploy SNode.C
 
-***Note:*** All four tasks must be processed successfully in the given order.
+***Note:*** All two or four tasks must be finished successfully in the given order.
 
 ### Cross Compile SNode.C
 
 SNode.C needs to be cross compiled on an host linux system to be deployed on OpenWRT. Don't be afraid about cross compiling it is strait forward.
 
-- **Checkout Submodule:** First a submodule of the SNode.C source code needs to be checked out from github. From the root  directory **\<SNODEC_DIR\>** of an already cloned Snode.C directory tree run
+- **Download SDK:** First, download and extract an SDK-package of version  **23.05.0-rc1** or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory **\<DIR\>**.
 
-  ```sh
-  cd <SNODEC_DIR>
-  git submodule update --init
-  ```
-
-  which clones the submodule **owrt-snodec-feed** into the directory **<SNODEC_DIR>/supplement/owrt-snodec-feed**.
-
-- **Download SDK:** Second, download and extract an SDK-package of version  **23.05.0-rc1** or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory **\<DIR\>**.
-
-  For example to download the SDK for the Netgear MR8300 Wireless Router (soc: **IPQ4019**) run 
+  For example to download and use the SDK version 23.05.0-rc1 for the Netgear MR8300 Wireless Router (soc: **IPQ4019**) run 
 
   ```sh
   cd <DIR>
-  wget https://downloads.openwrt.org/releases/23.05.0-rc1/targets/ipq40xx/generic/openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz
-  tar xf openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz
+  wget -qO - https://downloads.openwrt.org/releases/23.05.0-rc1/targets/ipq40xx/generic/openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz | tar Jx
   ```
 
-  to extracted the sdk child directory **openwrt-sdk-\<version\>-\<architecture\>\_\<ccversion\>\<libc\>\_\<abi\>.Linux-x86_64** what from now on is referred as **<SDK_DIR>**.
+  to create the sdk directory **openwrt-sdk-\<version\>-\<architecture\>\_\<ccversion\>\<libc\>\_\<abi\>.Linux-x86_64** what from now on is referred as **<SDK_DIR>**.
 
-- **Patch Feeds:** Third step is to patch the default OpenWRT package feeds to add the **snodec-feed** by executing the script `patch-sdk.sh` from the **owrt-snodec-feed** submodule of Snode.C.
+- **Configure the SDK:** In this step the SDK is configured.
 
   ```sh
   cd <SDK_DIR>
-  <SNODEC_DIR>/supplement/owrt-sndoec-feed/patch-sdk.sh
-  ./scripts/feeds update -a
-  ./scripts/feeds install -a
+  make menuconfig
   ```
+  No special settings are required. Thus, just select **\<save\>** and confirm writing the `.config` file.
 
-- **Cross Compile:** The next step is **cross compiling** SNode.C.
+- **Patch Feeds:** Third step is to patch the default OpenWRT package feeds to add the snodec feed by executing.
 
   ```sh
   cd <SDK_DIR>
-  make package/snodec/compile
+  echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;merge" >> feeds.conf.default
   ```
-  
 
-The last two steps (**Patch Feeds** and **Cross Compile** (at most the last one)) take some time as at first all feed definitions are downloaded from the OpenWRT servers and from github and installed locally. Afterwards all dependent and indirect dependent packages are build recursively. At the end SNode.C is build.
+- **Install Packages:** The fourth step is to install all source packages needed to compile SNode.C from the correct feeds.
 
-***Note:*** For all build dependencies **ipk-packages** will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
+  ```sh
+  cd <SDK_DIR>
+  ./scripts/feeds update base packages snodec         # Only the feeds base, packages, and snodec are necessary
+  ./scripts/feeds install snodec                      # Prepare snodec and it's dependencies for cross compilation
+  ./scripts/feeds uninstall nlohmannjson file         # Make sure the packages nlohmannjson and file are taken from feed 
+  ./scripts/feeds install -p snodec nlohmannjson file # snodec. They need to be of a newer version than the one in OpenWRT
+  ```
+
+- **Cross Compile:** The next step is cross compiling SNode.C.
+
+  ```sh
+  cd <SDK_DIR>
+  make [-j<thread-count>] package/snodec/compile
+  ```
+
+The last two steps, **Install Packages**, and **Cross Compile** (at most the last one) take some time as 
+
+1. all feed and package definitions necessary to cross compile SNode.C are downloaded and installed locally from the OpenWRT servers and from github,
+2. the sources of all dependent and indirect dependent packages are downloaded from upstream and build recursively and
+3. SNode.C is cloned from github and cross compiled.
+
+To utilize as many CPU-threads as possible for compiling use the switch `-j<thread-count>` where **\<thread-count\>** is the number of threads dedicated to cross compile SNode.C and its dependencies.
+
+***Note:*** For SNode.C and all it's build dependencies **ipk-packages** will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
 
 ### Prepare Deployment (only once)
 
 If SNode.C is installed the first time on an OpenWRT Router some **packages** also build in the previous step need to be deployed by hand even though they are part of the official OpenWRT feeds. This is because these packages must be of a newer version than what is currently included in the OpenWRT feeds.
 
-These packages are:
+Don't bother about the binary compatibility of those updated packages with the standard OpenWRT packages as they are binary equivalent to their  corespondent default OpenWRT packages and the functionality is also the same. Only the feature sets have been extended.
 
-- **file** and 
+These packages are
+
 - **libmagic**
+
+which is a sub-package of package **file**.
 
 To deploy these packages on an OpenWRT router **enter** the ipk-package **directory** using
 
@@ -724,7 +738,6 @@ cd <SDK_DIR>/bin/packages/<architecture>/snodec
 ```sh
 sftp root@<router-ip>
 cd /tmp
-put file_<version>_<architecture>.ipk
 put libmagic_<version>_<architecture>.ipk
 exit
 ```
@@ -734,7 +747,6 @@ and **install** it on the router by running
 ```sh
 ssh root@<router-ip>
 cd /tmp
-opkg --install files_<version>_<architecture>.ipk
 opkg --install libmagic_<version>_<architecture>.ipk
 exit
 ```
