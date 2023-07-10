@@ -1,3 +1,7 @@
 [submodule "supplement/owrt-snodec-feed"]
 	path = supplement/owrt-snodec-feed
 	url = https://github.com/VolkerChristian/owrt-snodec-feed
+[submodule "supplement/owrt-packages"]
+	path = supplement/owrt-packages
+	url = https://github.com/VolkerChristian/owrt-packages
+	branch = merge
