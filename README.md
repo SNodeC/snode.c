@@ -8,7 +8,6 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
 
 # Table of Content
 <!--ts-->
-
 * [Simple NODE in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
@@ -43,6 +42,11 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
       * [SNode.C](#snodec)
    * [Deploment on OpenWRT](#deploment-on-openwrt)
       * [Cross Compile SNode.C](#cross-compile-snodec)
+         * [Download SDK](#download-sdk)
+         * [Patch Feeds](#patch-feeds)
+         * [Install Packages](#install-packages)
+         * [Configure the SDK](#configure-the-sdk)
+         * [Cross Compile](#cross-compile)
       * [Prepare Deployment (only once)](#prepare-deployment-only-once)
       * [Deploy SNode.C](#deploy-snodec)
       * [Finish Deployment (only once)](#finish-deployment-only-once)
@@ -118,7 +122,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Sun Jul  9 11:57:58 UTC 2023 -->
+<!-- Added by: runner, at: Mon Jul 10 20:08:50 UTC 2023 -->
 
 <!--te-->
 
