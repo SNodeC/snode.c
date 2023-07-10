@@ -149,6 +149,8 @@ set(COMPILE_OPTIONS
 
 add_compile_options(${COMPILE_OPTIONS})
 
+set(SOVERSION 1)
+
 add_subdirectory(log)
 add_subdirectory(utils)
 add_subdirectory(core)
