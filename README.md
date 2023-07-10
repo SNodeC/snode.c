@@ -1,15 +1,14 @@
 # Simple NODE in C++ (SNode.C)
 
-**Claim**: It has certainly never been easier to develop WEB and networking applications in C++ (Please refute me in case).
+[SNode.C](https://volkerchristian.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extensible event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
 
-[SNode.C](https://volkerchristian.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extendable event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
-
-The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [**Interactive Media**](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the departement [**Informatics, Communications and Media**](https://www.fh-ooe.at/en/hagenberg-campus/) at the [**University of Applied Sciences Upper Austria, Campus Hagenberg**](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
+The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [**Interactive Media**](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [**Informatics, Communications and Media**](https://www.fh-ooe.at/en/hagenberg-campus/) at the [**University of Applied Sciences Upper Austria, Campus Hagenberg**](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
 
 Main focus (but not only) of the framework is "Machine to Machine" (M2M) communication and here especially the field of "Internet of Things" (IoT).
 
 # Table of Content
 <!--ts-->
+
 * [Simple NODE in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
@@ -662,48 +661,77 @@ Deploying SNode.C **for the first time** on an OpenWRT router involves four task
 
 SNode.C needs to be cross compiled on an host linux system to be deployed on OpenWRT. Don't be afraid about cross compiling it is strait forward.
 
-- **Download SDK:** First, download and extract an SDK-package of version  **23.05.0-rc1** or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory **\<DIR\>**.
+#### Download SDK
 
-  For example to download and use the SDK version 23.05.0-rc1 for the Netgear MR8300 Wireless Router (soc: **IPQ4019**) run 
+First, download and extract an SDK-package of version  **23.05.0-rc1** or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory **\<DIR\>**.
 
-  ```sh
-  cd <DIR>
-  wget -qO - https://downloads.openwrt.org/releases/23.05.0-rc1/targets/ipq40xx/generic/openwrt-sdk-23.05.0-rc1-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz | tar Jx
-  ```
+For example to download and use the SDK version 23.05.0-rc1 for the Netgear MR8300 Wireless Router (soc: **IPQ4019**) run 
 
-  to create the sdk directory **openwrt-sdk-\<version\>-\<architecture\>\_\<ccversion\>\<libc\>\_\<abi\>.Linux-x86_64** what from now on is referred as **<SDK_DIR>**.
+```sh
+cd <DIR>
+wget -qO - https://downloads.openwrt.org/releases/23.05.0-rc2/targets/ipq40xx/generic/openwrt-sdk-23.05.0-rc2-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz | tar Jx
+```
 
-- **Configure the SDK:** In this step the SDK is configured.
+to create the sdk directory **openwrt-sdk-\<version\>-\<architecture\>-\<atype\>\_\<compiler\>-\<cverstion\>\_\<libc\>\_\<abi\>.Linux-x86_64** what from now on is referred as **<SDK_DIR>**.
 
-  ```sh
-  cd <SDK_DIR>
-  make menuconfig
-  ```
-  No special settings are required. Thus, just select **\<save\>** and confirm writing the `.config` file.
+In this example the values of the placeholder are:
 
-- **Patch Feeds:** Third step is to patch the default OpenWRT package feeds to add the snodec feed by executing.
+- \<version> = 23.05.0-rc2
 
-  ```sh
-  cd <SDK_DIR>
-  echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;merge" >> feeds.conf.default
-  ```
+- \<architecture\> = ipq40xx\_
 
-- **Install Packages:** The fourth step is to install all source packages needed to compile SNode.C from the correct feeds.
+- \<atype\> = generic
 
-  ```sh
-  cd <SDK_DIR>
-  ./scripts/feeds update base packages snodec         # Only the feeds base, packages, and snodec are necessary
-  ./scripts/feeds install snodec                      # Prepare snodec and it's dependencies for cross compilation
-  ./scripts/feeds uninstall nlohmannjson file         # Make sure the packages nlohmannjson and file are taken from feed 
-  ./scripts/feeds install -p snodec nlohmannjson file # snodec. They need to be of a newer version than the one in OpenWRT
-  ```
+- \<compiler\> = gcc
 
-- **Cross Compile:** The next step is cross compiling SNode.C.
+- \<cverstion\> = 12.3.0
 
-  ```sh
-  cd <SDK_DIR>
-  make [-j<thread-count>] package/snodec/compile
-  ```
+- \<libc\> = musl
+
+- \<abi\> = eabi
+
+#### Patch Feeds
+
+Third step is to patch the default OpenWRT package feeds to add the snodec feed by executing.
+
+```sh
+cd <SDK_DIR>
+echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;merge" >> feeds.conf.default
+```
+
+#### Install Packages
+
+The fourth step is to install all source packages needed to compile SNode.C from the correct feeds.
+
+```sh
+cd <SDK_DIR>
+./scripts/feeds update base packages snodec         # Only the feeds base, packages, and snodec are necessary
+./scripts/feeds install snodec                      # Prepare snodec and it's dependencies for cross compilation
+./scripts/feeds uninstall nlohmannjson file         # Make sure the packages nlohmannjson and file are taken from feed 
+./scripts/feeds install -p snodec nlohmannjson file # snodec. They need to be of a newer version than the one in OpenWRT
+```
+
+#### Configure the SDK
+
+In this step the SDK is configured.
+
+```sh
+cd <SDK_DIR>
+make menuconfig
+```
+
+No special settings are required. Thus, just select **\<save\>** and confirm writing the `.config` file.
+
+#### Cross Compile
+
+Now SNode.C can be 
+
+```sh
+cd <SDK_DIR>
+make package/snodec/compile
+```
+
+cross compiled.
 
 The last two steps, **Install Packages**, and **Cross Compile** (at most the last one) take some time as 
 
@@ -711,7 +739,7 @@ The last two steps, **Install Packages**, and **Cross Compile** (at most the las
 2. the sources of all dependent and indirect dependent packages are downloaded from upstream and build recursively and
 3. SNode.C is cloned from github and cross compiled.
 
-To utilize as many CPU-threads as possible for compiling use the switch `-j<thread-count>` where **\<thread-count\>** is the number of threads dedicated to cross compile SNode.C and its dependencies.
+To parallelize the compilation use the switch `-j<thread-count>`  of make where \<thread-count\> is the number of CPU-threads dedicated to cross compile SNode.C and its dependencies.
 
 ***Note:*** For SNode.C and all it's build dependencies **ipk-packages** will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
 
@@ -794,7 +822,7 @@ This new group is used in the group management of config-, log-, and pid-files.
 -   Easy to use and extend
 -   Clear and clean architecture
 -   Single-threaded
--   Single-tasking
+-   Single tasking
 -   Event driven
 -   Layer based
 -   Modular
@@ -802,7 +830,7 @@ This new group is used in the group management of config-, log-, and pid-files.
 -   Sophisticated configuration system controlled either by code, command line, or configuration file
 -   Daemonize server and client if requested
 -   Support for all three major multiplexer API's epoll, poll, and select
--   Micro-library architecture: Every individual feature/functionality is provided in it's separate library
+-   Micro library architecture: Each individual feature/functionality is provided in its corresponding library.
 
 ## Network Layer
 
@@ -840,7 +868,7 @@ In-framework server and client support designed as sub-frameworks currently exis
 -   WebSocket version 13
 -   MQTT version 3.1.1 (version 5.0 is in preparation)
 -   MQTT via WebSockets
--   High-Level Web API layer with JSON support very similar to the API of node.js/express.
+-   High-Level web API layer with JSON support very similar to the API of node.js/express.
 
 As already mentioned above in the [transport layer](#transport-layer) section, SSL/TLS encryption is provided transparently for all of these application layer protocols.
 
