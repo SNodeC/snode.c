@@ -29,8 +29,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-rc-stream-legacy PROPERTIES SOVERSION 1 OUTPUT_NAME
-                                                snodec-net-rc-stream-legacy
+    net-rc-stream-legacy PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+                                    OUTPUT_NAME snodec-net-rc-stream-legacy
 )
 
 install(

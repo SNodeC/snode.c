@@ -48,7 +48,9 @@ target_include_directories(
     INTERFACE ${EASYLOGGINGPP_INCLUDE_DIR}
 )
 
-set_target_properties(logger PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-logger)
+set_target_properties(
+    logger PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-logger
+)
 
 install(
     TARGETS logger

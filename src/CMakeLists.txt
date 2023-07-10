@@ -42,19 +42,6 @@ set(IO_Multiplexer
 set_property(CACHE IO_Multiplexer PROPERTY STRINGS ${IO_Multiplexers})
 message(STATUS "I/O-Multiplexer selected: '${IO_Multiplexer}'")
 
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    NO_CHECK_REQUIRED_COMPONENTS_MACRO
-)
-
-install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT "core"
-)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -149,7 +136,7 @@ set(COMPILE_OPTIONS
 
 add_compile_options(${COMPILE_OPTIONS})
 
-set(SOVERSION 1)
+set(SNODEC_SOVERSION 1)
 
 add_subdirectory(log)
 add_subdirectory(utils)
@@ -160,5 +147,18 @@ add_subdirectory(express)
 add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT "core"
+)
 
 # install(CODE "execute_process(COMMAND ldconfig)" COMPONENT notneeded)

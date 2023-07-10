@@ -100,7 +100,9 @@ target_link_libraries(
     PUBLIC snodec::logger snodec::utils ${CMAKE_DL_LIBS}
 )
 
-set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)
+set_target_properties(
+    core PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-core
+)
 
 install(
     TARGETS core

@@ -26,7 +26,8 @@ if(BLUEZ_FOUND)
     )
 
     set_target_properties(
-        net-l2 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-l2
+        net-l2 PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                        snodec-net-l2
     )
 
     install(

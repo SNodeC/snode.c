@@ -76,7 +76,7 @@ if(LIBMARIADB_FOUND)
     )
     set_target_properties(
         db-mariadb
-        PROPERTIES SOVERSION 1
+        PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                    OUTPUT_NAME snodec-db-mariadb
                    COMPILE_FLAGS "${DISABLED_WARNINGS}"
     )

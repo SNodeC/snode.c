@@ -29,7 +29,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    mqtt-fast PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-mqtt-fast
+    mqtt-fast PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                       snodec-mqtt-fast
 )
 
 install(

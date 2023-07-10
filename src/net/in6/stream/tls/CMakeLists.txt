@@ -28,8 +28,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-in6-stream-tls PROPERTIES SOVERSION 1 OUTPUT_NAME
-                                              snodec-net-in6-stream-tls
+    net-in6-stream-tls PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+                                  OUTPUT_NAME snodec-net-in6-stream-tls
 )
 
 install(

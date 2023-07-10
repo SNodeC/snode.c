@@ -18,7 +18,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(net-un PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-un)
+set_target_properties(
+    net-un PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-un
+)
 
 install(
     TARGETS net-un

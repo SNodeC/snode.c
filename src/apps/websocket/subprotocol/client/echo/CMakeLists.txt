@@ -33,7 +33,7 @@ set_target_properties(
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY
                "${WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR}"
                OUTPUT_NAME "snodec-websocket-echo"
-               SOVERSION 1 # PREFIX "ssp"
+               SOVERSION ${SNODEC_SOVERSION} # PREFIX "ssp"
 )
 
 install(TARGETS echoclientsubprotocol

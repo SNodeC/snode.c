@@ -29,7 +29,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un-stream PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-un-stream
+    net-un-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                           snodec-net-un-stream
 )
 
 install(

@@ -120,3 +120,5 @@ foreach(_comp ${snodec_FIND_COMPONENTS})
 endforeach()
 
 add_link_options(LINKER:--as-needed)
+
+set(SNODEC_SOVERSION @SNODEC_SOVERSION@)

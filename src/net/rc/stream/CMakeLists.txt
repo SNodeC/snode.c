@@ -29,7 +29,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-rc-stream PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-rc-stream
+    net-rc-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                           snodec-net-rc-stream
 )
 
 install(

@@ -42,7 +42,7 @@ target_include_directories(
 
 set_target_properties(
     mqtt
-    PROPERTIES SOVERSION 1
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-mqtt
                IOT_MQTT_RPATH "${SNODEC_IOT_MQTT_RPATH}"
                EXPORT_PROPERTIES "IOT_MQTT_RPATH"

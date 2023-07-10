@@ -80,7 +80,7 @@ target_include_directories(
 
 set_target_properties(
     net
-    PROPERTIES SOVERSION 1
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-net
                COMPILE_FLAGS "${DISABLED_WARNINGS}"
 )

@@ -54,7 +54,7 @@ set_source_files_properties(
     SocketContextUpgradeFactorySelector.cpp
     PROPERTIES
         COMPILE_DEFINITIONS
-        "HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}\";SOVERSION=\"${SOVERSION}\""
+        "HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR}\";SOVERSION=\"${SNODEC_SOVERSION}\""
 )
 
 target_include_directories(
@@ -69,7 +69,7 @@ target_link_libraries(http-client PUBLIC snodec::http)
 set_target_properties(
     http-client
     PROPERTIES
-        SOVERSION 1
+        SOVERSION ${SNODEC_SOVERSION}
         OUTPUT_NAME snodec-http-client
         LIBRARY_OUTPUT_DIRECTORY "${HTTP_CLIENT_COMPILE_LIBDIR}"
         COMPILE_FLAGS "${DISABLED_WARNINGS}"

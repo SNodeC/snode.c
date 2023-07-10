@@ -15,7 +15,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    mux-select PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-mux-select
+    mux-select PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                        snodec-core-mux-select
 )
 
 install(

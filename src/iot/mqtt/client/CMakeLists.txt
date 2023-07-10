@@ -26,7 +26,7 @@ target_include_directories(
 
 set_target_properties(
     mqtt-client
-    PROPERTIES SOVERSION 1
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-mqtt-client
                INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
                IOT_MQTT_CLIENT_INCLUDE_DIRS

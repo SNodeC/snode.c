@@ -38,8 +38,8 @@ target_include_directories(
 target_link_libraries(core-socket-stream PUBLIC core-socket)
 
 set_target_properties(
-    core-socket-stream PROPERTIES SOVERSION 1 OUTPUT_NAME
-                                              snodec-core-socket-stream
+    core-socket-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+                                  OUTPUT_NAME snodec-core-socket-stream
 )
 
 install(

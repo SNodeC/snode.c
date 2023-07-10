@@ -18,7 +18,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(net-in PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-in)
+set_target_properties(
+    net-in PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-in
+)
 
 install(
     TARGETS net-in

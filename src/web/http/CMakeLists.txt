@@ -55,7 +55,7 @@ target_link_libraries(http PUBLIC ${LIBMAGIC_LIBRARIES})
 
 set_target_properties(
     http
-    PROPERTIES SOVERSION 1
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-http
                LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
                HTTP_COMPILE_LIBDIR ${HTTP_COMPILE_LIBDIR}

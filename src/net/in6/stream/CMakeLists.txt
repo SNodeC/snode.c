@@ -29,7 +29,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-in6-stream PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-in6-stream
+    net-in6-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+                              OUTPUT_NAME snodec-net-in6-stream
 )
 
 install(

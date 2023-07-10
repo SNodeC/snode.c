@@ -26,7 +26,8 @@ if(BLUEZ_FOUND)
     )
 
     set_target_properties(
-        net-rc PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-rc
+        net-rc PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                        snodec-net-rc
     )
 
     install(

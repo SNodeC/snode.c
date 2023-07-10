@@ -27,8 +27,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-l2-stream-tls PROPERTIES SOVERSION 1 OUTPUT_NAME
-                                             snodec-net-l2-stream-tls
+    net-l2-stream-tls PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+                                 OUTPUT_NAME snodec-net-l2-stream-tls
 )
 
 install(
