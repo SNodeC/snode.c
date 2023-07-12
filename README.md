@@ -709,9 +709,9 @@ The fourth step is to install all source packages needed to compile SNode.C from
 
 ```sh
 cd <SDK_DIR>
-./scripts/feeds update base packages snode.c         # Only the feeds base, packages, and snodec are necessary
-./scripts/feeds install snodec                      # Prepare snodec and it's dependencies for cross compilation
-./scripts/feeds uninstall nlohmannjson file         # Make sure the packages nlohmannjson and file are taken from feed 
+./scripts/feeds update base packages snodec         # Only the feeds base, packages, and snodec are necessary
+./scripts/feeds install snode.c                     # Prepare snodec and it's dependencies for cross compilation
+./scripts/feeds uninstall nlohmannjson file         # Make sure the packages nlohmannjson and file are taken from feed
 ./scripts/feeds install -p snodec nlohmannjson file # snodec. They need to be of a newer version than the one in OpenWRT
 ```
 
@@ -721,10 +721,10 @@ In this step the SDK is configured.
 
 ```sh
 cd <SDK_DIR>
-make menuconfig
+make defconfig
 ```
 
-No special settings are required. Thus, just select **\<save\>** and confirm writing the `.config` file.
+is configured. Default values for all configuration options can be used safely.
 
 #### Cross Compile
 
@@ -732,7 +732,7 @@ Now SNode.C can be
 
 ```sh
 cd <SDK_DIR>
-make package/snode.c/compile
+make package/snodec/compile
 ```
 
 cross compiled.
