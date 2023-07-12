@@ -43,11 +43,12 @@ int main(int argc, char* argv[]) {
         .flags = 0,
     };
 
-    // CREATE DATABASE 'snodec';
-    // CREATE TABLE 'snodec' ('username' text NOT NULL, 'password' text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    // CREATE USER 'snodec'@localhost IDENTIFIED BY 'pentium5'
-    // GRANT ALL PRIVILEGES ON *.* TO 'snodec'@localhost
-    // GRANT ALL PRIVILEGES ON 'snodec'.'snodec' TO 'snodec'@localhost
+    // CREATE DATABASE snodec;
+    // CREATE TABLE snodec (username text NOT NULL, password text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    // CREATE USER 'snodec'@localhost IDENTIFIED BY 'pentium5';
+    // GRANT ALL PRIVILEGES ON *.* TO 'snodec'@localhost;
+    // GRANT ALL PRIVILEGES ON snodec.snodec TO 'snodec'@localhost;
+    // FLUSH PRIVILEGES;
 
     database::mariadb::MariaDBClient db1(details);
 
