@@ -536,6 +536,11 @@ namespace utils {
                     value = mode == CLI::CallForCommandline::Mode::ALL ? "\"\"" : "";
                 }
 
+                if (value.empty() && option->count() > 0 &&
+                    (mode == CLI::CallForCommandline::Mode::ALL || mode == CLI::CallForCommandline::Mode::CONFIGURED)) {
+                    value = "\"\"";
+                }
+
                 if (!value.empty()) {
                     out << "--" << option->get_single_name() << ((option->get_items_expected_max() == 0) ? "=" : " ") << value << " ";
                 }
