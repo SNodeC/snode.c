@@ -732,7 +732,7 @@ Now SNode.C can be
 
 ```sh
 cd <SDK_DIR>
-make package/snodec/compile
+make package/snode.c/compile
 ```
 
 cross compiled.
