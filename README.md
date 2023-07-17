@@ -882,7 +882,7 @@ In-framework server and client support designed as sub-frameworks currently exis
 
 As already mentioned above in the [transport layer](#transport-layer) section, SSL/TLS encryption is provided transparently for all of these application layer protocols.
 
-# Existing SocketServer- and SocketClient-Classes
+# Existing *SocketServer* and *SocketClient* Classes
 
 Before focusing explicitly on the *SocketServer* and *SocketClient* classes a few common aspects for all network/transport-layer combinations needs to be known.
 
@@ -1041,13 +1041,13 @@ SocketClient(const std::string& name,
              SocketContextFactory* socketContextFactory)
 ```
 
-#### Constructor Callbacks
+### Constructor Callbacks
 
 ***Important***: Do not confuse this callbacks with the overridden *onConnected* and *onDisconnected* methods of a *SocketContext* as this virtual methods are called in case a *SocketContext* object has been created successfully or before being destroyed.
 
 All three callbacks *onConnect*, *onConnected*, and *onDisconnected* have to expect a pointer to a *SocketConnection* object as argument. This *SocketConnection* can be used to modify all aspects of a connection.
 
-##### The *onConnect* Callback
+#### The *onConnect* Callback
 
 This callback is called after a connection oriented connection has been created successful.
 
@@ -1061,17 +1061,17 @@ and for a *SocketServer* after an successful internal call to
 
 This does not necessarily mean that the connection is ready for communication. Especially in case of an SSL/TLS connection the initial SSL/TLS handshake has yet not been done.
 
-##### The *onConnected* Callback
+#### The *onConnected* Callback
 
 This callback is called after the connection has fully established and is ready for communication. In case of an SSL/TLS connection the initial SSL/TLS handshake has been successfully finished.
 
 In case of an legacy connection *onConnected* is called immediately after *onConnect* because no additional handshake needs to be done.
 
-##### The *onDisconnected* Callback
+#### The *onDisconnected* Callback
 
 As the name suggests this callback is executed after a connection to the peer has been shut down.
 
-##### Attaching the Callbacks during Instance Creation
+#### Attaching the Callbacks during Instance Creation
 
 For a concrete *SocketServer* instance (here an anonymous instance) the constructors expecting callbacks are used like
 
@@ -1113,7 +1113,7 @@ EchoClient echoClient([] (SocketConnection* socketConnection) -> void {
 echoClient.connect(...);
 ```
 
-##### Attaching the Callbacks to Already Existing *SocketServer* and *SocketClient* Instances
+#### Attaching the Callbacks to Already Existing *SocketServer* and *SocketClient* Instances
 
 In case *SocketServer* and *SocketClient* instances have been created using the constructors not expecting those three callbacks they can be attached to this instances afterwards by using the methods
 
@@ -1218,9 +1218,7 @@ using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 
 [^1]: "Without parameter" is not completely right because every *listen* method expects a reference to a `std::function` for status processing (error or success) as argument.
 
-#### Specific *listen* Methods
-
-##### IPv4 specific *listen* Methods
+#### IPv4 specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1237,7 +1235,7 @@ For the IPv4/SOCK_STREAM combination exist four specific *listen* methods.
 | `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
 
-##### IPv6 specific *listen* Methods
+#### IPv6 specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1254,7 +1252,7 @@ For the IPv6/SOCK_STREAM combination exist four specific *listen* methods.
 | `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
 
-##### Unix Domain Socket specific *listen* Methods
+#### Unix Domain Socket specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1269,7 +1267,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* m
 | `void listen(const std::string& sunPath, StatusFunction& onError)` |
 | `void listen(const std::string& sunPath, int backlog, StatusFunction& onError)` |
 
-##### Bluetooth RFCOMM specific *listen* Methods
+#### Bluetooth RFCOMM specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1286,7 +1284,7 @@ For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods.
 | `void listen(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onError)` |
 
-##### Bluetooth L2CAP specific *listen* Methods
+#### Bluetooth L2CAP specific *listen* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1329,7 +1327,7 @@ Each *SocketClient* template class expects a concrete *SocketContextFactory* as 
 
 ### Connect Methods
 
-As already mentioned above, for convenience each *SocketClient* class provides its own specific set of *connect* methods. The implementation of this specific *connect* methods rely on some listen methods common to all *SocketClient* classes.
+As already mentioned above, for convenience each *SocketClient* class provides its own specific set of *connect* methods. The implementation of this specific *connect* methods rely on some *connect* methods common to all *SocketClient* classes.
 
 #### Common *connect* Methods
 
@@ -1353,9 +1351,7 @@ using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 
 [^2]: "Without parameter" is not completely right because every *connect* method expects a `std::function` for status processing (error or success) as argument. 
 
-#### Specific *connect* Methods
-
-##### IPv4 specific *connect* Methods
+#### IPv4 specific *connect* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1372,7 +1368,7 @@ For the IPv4/SOCK_STREAM combination exist four specific *connect* methods.
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
-##### IPv6 specific *connect* Methods
+#### IPv6 specific *connect* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1389,7 +1385,7 @@ For the IPv6/SOCK_STREAM combination exist four specific *connect* methods.
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
 
-##### Unix Domain Socket specific *connect* Methods
+#### Unix Domain Socket specific *connect* Methods
 
 The type `StatusFunction` is defined as
 
@@ -1404,7 +1400,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific *connect* 
 | `void connect(const std::string& sunPath, StatusFunction& onError)` |
 | `void connect(const std::string& remoteSunPath, const std::string& localSunPath, StatusFunction& onError)` |
 
-##### Bluetooth RFCOMM specific *connect* Methods
+#### Bluetooth RFCOMM specific *connect* Methods
 
 IPv4 The type `StatusFunction` is defined as
 
@@ -1421,7 +1417,7 @@ For the RFCOMM/SOCK_STREAM combination exist four specific *connect* methods.
 | `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,StatusFunction& onError)` |
 | `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, StatusFunction& onError)` |
 
-##### Bluetooth L2CAP specific *connect* Methods
+#### Bluetooth L2CAP specific *connect* Methods
 
 IPv4 The type `StatusFunction` is defined as
 
