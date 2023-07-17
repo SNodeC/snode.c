@@ -883,11 +883,13 @@ In-framework server and client support designed as sub-frameworks currently exis
 
 As already mentioned above in the [transport layer](#transport-layer) section, SSL/TLS encryption is provided transparently for all of these application layer protocols.
 
-# Existing Server- and Client-Classes
+# Existing SocketServer- and SocketClient-Classes
 
 Before focusing explicitly on the *SocketServer* and *SocketClient* classes a few common aspects for all network/transport-layer combinations needs to be known.
 
-## *SocketAddress*
+## Common Aspects of Server and Client Classes
+
+### *SocketAddress*
 
 Every network layer provides its specific *SocketAddress* class. In typical scenarios you need not bother about these classes as objects of it are managed internally by the framework.
 
@@ -911,7 +913,7 @@ as can be seen in the Echo-Demo-Application above.
 
 Each *SocketAddress* class provides it's very specific set of constructors.
 
-### *SocketAddress* Constructors
+#### *SocketAddress* Constructors
 
 The default constructors of all *SocketAddress* classes creates wild-card *SocketAddress* objects. For a *SocketClient* for exampe, which uses such a wild-card *SocketAddress* as *local address* the operating system chooses a valid `sockaddr` structure for the local side of the connection automatically.
 
@@ -923,7 +925,7 @@ The default constructors of all *SocketAddress* classes creates wild-card *Socke
 | [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
 | [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
 
-## *SocketConnection*
+### *SocketConnection*
 
 Every network layer uses its specific *SocketConnection* class. Such a *SocketConnection* object represents the logical connection to the peer and is an specialization of one of the two template classes 
 
@@ -955,7 +957,7 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 | Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
 | SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
 
-### Most Important common *SocketConnection* Methods
+#### Most Important common *SocketConnection* Methods
 
 | Method                                                       | Explanation                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -968,7 +970,7 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 | `void setTimeout(utils::Timeval& timeout)`                   | Set the inactivity timeout of a connection (default 60 seconds).<br/>If no data has been transfered within this amount of time<br/>the connection is terminated. |
 | `bool isValid()`                                             | Check if a connection has been created successfully.         |
 
-## Constructors of *SocketServer* and *SocketClient* Classes
+### Constructors of *SocketServer* and *SocketClient* Classes
 
 Beside the already discussed constructors of the *SocketServer* and *SocketClient* classes, each of them provides two additional constructors which expect three callback `std::function`s as arguments. This callback functions are called by SNode.C during connection establishment and connection shutdown between server and clients.
 
@@ -976,7 +978,7 @@ And furthermore an equivalent set of four constructors additionally expecting a 
 
 Thus the full list of constructors of the *SocketServer* and *SocketClient* classes is:
 
-### Constructors of *SocketServer* Classes
+#### Constructors of *SocketServer* Classes
 
 ```c++
 SocketServer()
@@ -1008,7 +1010,7 @@ SocketServer(const std::string& name,
              SocketContextFactory* socketContextFactory)
 ```
 
-### Constructors of *SocketClient* Classes
+#### Constructors of *SocketClient* Classes
 
 ```c++
 SocketClient()
@@ -1040,13 +1042,13 @@ SocketClient(const std::string& name,
              SocketContextFactory* socketContextFactory)
 ```
 
-### Constructor Callbacks
+#### Constructor Callbacks
 
 ***Important***: Do not confuse this callbacks with the overridden *onConnected* and *onDisconnected* methods of a *SocketContext* as this virtual methods are called in case a *SocketContext* object has been created successfully or before being destroyed.
 
 All three callbacks *onConnect*, *onConnected*, and *onDisconnected* have to expect a pointer to a *SocketConnection* object as argument. This *SocketConnection* can be used to modify all aspects of a connection.
 
-#### The *onConnect* Callback
+##### The *onConnect* Callback
 
 This callback is called after a connection oriented connection has been created successful.
 
@@ -1060,17 +1062,17 @@ and for a *SocketServer* after an successful internal call to
 
 This does not necessarily mean that the connection is ready for communication. Especially in case of an SSL/TLS connection the initial SSL/TLS handshake has yet not been done.
 
-#### The *onConnected* Callback
+##### The *onConnected* Callback
 
 This callback is called after the connection has fully established and is ready for communication. In case of an SSL/TLS connection the initial SSL/TLS handshake has been successfully finished.
 
 In case of an legacy connection *onConnected* is called immediately after *onConnect* because no additional handshake needs to be done.
 
-#### The *onDisconnected* Callback
+##### The *onDisconnected* Callback
 
 As the name suggests this callback is executed after a connection to the peer has been shut down.
 
-### Attaching the Callbacks during Instance Creation
+##### Attaching the Callbacks during Instance Creation
 
 For a concrete *SocketServer* instance (here an anonymous instance) the constructors expecting callbacks are used like
 
@@ -1112,7 +1114,7 @@ EchoClient echoClient([] (SocketConnection* socketConnection) -> void {
 echoClient.connect(...);
 ```
 
-### Attaching the Callbacks to Already Existing *SocketServer* and *SocketClient* Instances
+##### Attaching the Callbacks to Already Existing *SocketServer* and *SocketClient* Instances
 
 In case *SocketServer* and *SocketClient* instances have been created using the constructors not expecting those three callbacks they can be attached to this instances afterwards by using the methods
 
@@ -1168,9 +1170,7 @@ echoClient.setOnDisconnected([] (SocketConnection* socketConnection) -> void {
 echoClient.connect(...);
 ```
 
-## Server
-
-### SocketServer Classes
+## SocketServer Classes
 
 Each *SocketServer* template class expects a concrete *SocketContextFactory* as template argument. This mandatory template argument has been hidden in the following *SocketServer* types table.
 
@@ -1304,9 +1304,7 @@ For the L2CAP/SOCK_STREAM combination exist four specific *listen* methods.
 | `void listen(const std::string& btAddress, uint16_t psm, StatusFunction& onError)` |
 | `void listen(const std::string& btAddress, uint16_t psm, int backlog, StatusFunction& onError)` |
 
-## Client
-
-### SocketClient Classes
+## SocketClient Classes
 
 Each *SocketClient* template class expects a concrete *SocketContextFactory* as template argument. This mandatory template argument is hidden in the following*SocketClient* types table.
 
@@ -2236,316 +2234,4 @@ In that case the Main-Application would look like
 #include <net/in/stream/legacy/SocketServer.h>
 #include <net/rc/stream/legacy/SocketServer.h>
 #include <net/un/stream/legacy/SocketServer.h>
-#include <string.h>
-#include <string>
-
-int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv);
-
-    using EchoServerIn = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
-    using SocketAddressIn = EchoServerIn::SocketAddress;
-
-    EchoServerIn echoServerIn;
-    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, int err) -> void { // IPv4, port 8001
-        if (err == 0) {
-            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
-        } else {
-            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                      << ": " << strerror(err) << std::endl;
-        }
-    });
-
-    using EchoServerUn = net::un::stream::legacy::SocketServer<EchoServerContextFactory>;
-    using SocketAddressUn = EchoServerUn::SocketAddress;
-
-    EchoServerUn echoServerUn;
-    echoServerUn.listen(
-        "/tmp/echoserver", [](const SocketAddressUn& socketAddress, int err) -> void { // Unix-domain socket /tmp/echoserver
-            if (err == 0) {
-                std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
-            } else {
-                std::cout << "Error: Echo server listening on " 
-                          << socketAddress.toString() << ": " << strerror(err) << std::endl;
-            }
-        });
-
-    using EchoServerRc = net::rc::stream::legacy::SocketServer<EchoServerContextFactory>;
-    using SocketAddressRc = EchoServerRc::SocketAddress;
-
-    EchoServerRc echoServerRc;
-    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, int err) -> void { // Bluetooth RFCOMM on channel 16
-        if (err == 0) {
-            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
-        } else {
-            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                      << ": " << strerror(err) << std::endl;
-        }
-    });
-
-    return core::SNodeC::start(); // Start the event loop, daemonize if requested.
-}
-```
-
-and the client application with an additional Unix-Domain socket instance look like
-
-```c++
-#include "EchoClientContextFactory.h"
-
-#include <core/SNodeC.h>
-#include <iostream>
-#include <net/in/stream/legacy/SocketClient.h>
-#include <net/un/stream/legacy/SocketClient.h>
-#include <string.h>
-#include <string>
-
-int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv);
-
-    static std::string ipv4("IPv4 Socket");
-    using EchoClientIn = net::in::stream::legacy::SocketClient<EchoClientContextFactory<ipv4>>;
-    using SocketAddressIn = EchoClientIn::SocketAddress;
-
-    EchoClientIn echoClientIn; // Create client instance
-    echoClientIn.connect("localhost",
-                         8001,
-                         [](const SocketAddressIn& socketAddress,
-                            int err) -> void { // Connect to server
-                             if (err == 0) {
-                                 std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
-                             } else {
-                                 std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
-                                           << ": " << strerror(err) << std::endl;
-                             }
-                         });
-
-    static std::string unixDomain("Unix-Domain Socket");
-    using EchoClientUn = net::un::stream::legacy::SocketClient<EchoClientContextFactory<unixDomain>>;
-    using SocketAddressUn = EchoClientUn::SocketAddress;
-
-    EchoClientUn echoClientUn; // Create client instance
-    echoClientUn.connect("/tmp/echoserver",
-                         [](const SocketAddressUn& socketAddress,
-                            int err) -> void { // Connect to server
-                             if (err == 0) {
-                                 std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
-                             } else {
-                                 std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
-                                           << ": " << strerror(err) << std::endl;
-                             }
-                         });
-
-    return core::SNodeC::start(); // Start the event loop, daemonize if requested.
-}
-```
-
-The `EchoClientContextFactory` and the `EchoClientContext` has also be changed slightly to expect now a `std::string` as non-type template argument which is appended in the ping-pong initiation to the string send to the server to distinguish both instances in the output of the application.
-
-# Application Leyer Protocols APIs
-
-## Basic HTTP-Server and HTTP-Client API
-
-To be written
-
-## Highlevel WEB-API a'la Node.JS-Express
-
-To be written
-
-## WebSockets
-
-To be written
-
-## Basic MQTT-Server an MQTT-Client API
-
-To be written
-
-## MQTT Over WebSocket
-
-To be written
-
-# Database Support
-
-## MariaDB
-
-To be written
-
-# Example Applications
-
-## HTTP/S Web-Server for Static HTML-Pages
-
-This application uses the high-level web API *express* which is very similar to the API of node.js/express. The `StaticMiddleware` is used to deliver the static HTML-pages.
-
-The use of X.509 certificates for encrypted communication is demonstrated also.
-
-``` cpp
-#include <express/legacy/in/WebApp.h>
-#include <express/tls/in/WebApp.h>
-#include <express/middleware/StaticMiddleware.h>
-#include <log/Logger.h>
-#include <utils/Config.h>
-int main(int argc, char* argv[]) {
-    utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
-
-    express::WebApp::init(argc, argv);
-    
-    using LegacyWebApp = express::legacy::in::WebApp;
-    using LegacySocketAddress = LegacyWebApp::SocketAddress;
-
-    LegacyWebApp legacyApp;
-    legacyApp.getConfig().setReuseAddress();
-
-    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
-
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
-        }
-    });
-
-    using TLSWebApp = express::tls::in::WebApp;
-    using TLSSocketAddress = TLSWebApp::SocketAddress;
-
-    TLSWebApp tlsApp;
-    tlsApp.getConfig().setReuseAddress();
-
-    tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
-    tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
-    tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
-
-    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
-
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
-        }
-    });
-
-    return express::WebApp::start();
-}
-```
-
-## Receive Data via HTTP-Post Request
-
-The high-level web API provides the methods `get()`, `post()`, `put()`, etc like node.js/express.
-
-``` cpp
-#include <express/legacy/in/WebApp.h>
-#include <express/tls/in/WebApp.h>
-#include <log/Logger.h>
-
-int main(int argc, char* argv[]) {
-    express::WebApp::init(argc, argv);
-
-    using LegacyWebApp = express::legacy::in::WebApp;
-    using LegacySocketAddress = LegacyWebApp::SocketAddress;
-
-    LegacyWebApp legacyApp;
-    legacyApp.getConfig().setReuseAddress();
-
-    // The macro 
-    //    APPLICATION(req, res)
-    // expands to 
-    //    ([[maybe_unused]] express::Request& (req), [[maybe_unused]] express::Response& (res))
-    legacyApp.get("/", [] APPLICATION(req, res) {
-        res.send("<html>"
-                 "    <head>"
-                 "        <style>"
-                 "            main {"
-                 "                min-height: 30em;"
-                 "                padding: 3em;"
-                 "                background-image: repeating-radial-gradient( circle at 0 0, #fff, #ddd 50px);"
-                 "            }"
-                 "            input[type=\"file\"] {"
-                 "                display: block;"
-                 "                margin: 2em;"
-                 "                padding: 2em;"
-                 "                border: 1px dotted;"
-                 "            }"
-                 "        </style>"
-                 "    </head>"
-                 "    <body>"
-                 "        <h1>File-Upload with input type=\"file\"</h1>"
-                 "        <main>"
-                 "            <h2>Send us something fancy!</h2>"
-                 "            <form method=\"post\" enctype=\"multipart/form-data\">"
-                 "                <label> Select a text file (*.txt, *.html etc.) from your computer."
-                 "                    <input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
-                 "                </label>"
-                 "                <button>… and off we go!</button>"
-                 "            </form>"
-                 "        </main>"
-                 "    </body>"
-                 "</html>");
-    });
-
-    legacyApp.post("/", [] APPLICATION(req, res) {
-        req.body.push_back(0);
-
-        res.send("<html>"
-                 "    <body>"
-                 "        <h1>Thank you, we received your file!</h1>"
-                 "        <h2>Content:</h2>"
-                 "        <pre>" +
-                 std::string(reinterpret_cast<char*>(req.body.data())) +
-                 "        </pre>"
-                 "    </body>"
-                 "</html>");
-    });
-
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "LegacyWebApp listening on " << socketAddress.toString();
-        }
-    });
-
-    using TLSWebApp = express::tls::in::WebApp;
-    using TLSSocketAddress = TLSWebApp::SocketAddress;
-
-    TLSWebApp tlsApp;
-    
-    tlsApp.getConfig().setReuseAddress();
-
-    tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
-    tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
-    tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
-
-    tlsApp.use(legacyApp);
-
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "TLSWebApp listening on " << socketAddress.toString();
-        }
-    });
-
-    return express::WebApp::start();
-}
-```
-
-## Extract Server and Client Information (host name, IP, port, SSL/TLS information)
-
-``` cpp
-To be documented soon
-```
-
-## Using Regular Expressions in Routes
-
-``` cpp
-To be documented soon
-```
-
-
-
-<!-- <p align="center"><img src="docs/assets/README/015_architecture.svg" alt="015_architecture" style="zoom:200%;" style="display: block; margin: 0 auto"/>
-</p> -->
-
+#include <
