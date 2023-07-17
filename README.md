@@ -2329,11 +2329,31 @@ int main(int argc, char* argv[]) {
 
 The `EchoClientContextFactory` and the `EchoClientContext` has also be changed slightly to expect now a `std::string` as non-type template argument which is appended in the ping-pong initiation to the string send to the server to distinguish both instances in the output of the application.
 
-# Highlevel WEB-API a'la Node.JS-Express
+# Application Leyer Protocols APIs
+
+## Basic HTTP-Server and HTTP-Client API
 
 To be written
 
-# Websockets
+## Highlevel WEB-API a'la Node.JS-Express
+
+To be written
+
+## WebSockets
+
+To be written
+
+## Basic MQTT-Server an MQTT-Client API
+
+To be written
+
+## MQTT Over WebSocket
+
+To be written
+
+# Database Support
+
+## MariaDB
 
 To be written
 
