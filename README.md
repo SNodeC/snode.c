@@ -1454,7 +1454,7 @@ The configuration can either be done via
 
 **Important:** Command line and configuration file options are available and valid for server and client instances created before calling `core::SnodeC::start()`. For subsequently created instances, configuration can only be done using the C++ API.
 
-## Configuration using the C++ API
+### Configuration using the C++ API
 
 Each anonymous and named *SocketServer* and *SocketClient* instance provide an configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
 
@@ -1511,7 +1511,7 @@ echoClient.connect([](const SocketAddress& socketAddress, int err) -> void { // 
 
 Other configuration items can be configured in the very same way but for most option items sane default values are already predefined. 
 
-### List of all Configuration Items
+#### List of all Configuration Items
 
 All *SocketServer* and *SocketClient* instances share some common [configuration options](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1config.html).
 
@@ -1525,11 +1525,11 @@ Network layer specific configuration options:
 | Bluetooth RFCOMM    | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls_1_1config.html) |
 | Bluetoot L2CAP      | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls_1_1config.html) |
 
-## Configuration via the Command Line
+### Configuration via the Command Line
 
 Each application as such gets a set of command line options which control the behavior of the application in general. An overview of those option can be printed on screen by adding `--help` or `--help-all` on the command line. 
 
-### Application Configuration
+#### Application Configuration
 
 In case of the `EchoServer` demo application
 
@@ -1590,7 +1590,7 @@ Options (persistent):
 - Persistent options can be stored in a configuration file by appending `-w` on the command line.
 - Non-persistent options are never stored in a configuration file.
 
-### Instance Configuration
+#### Instance Configuration
 
 Each named *SocketServer* and *SocketClient* instance get their specific set of command line options accessible by specifying the name of the instance on the command line.
 
@@ -1698,7 +1698,7 @@ Sections:
 
 on screen.
 
-#### Sections
+##### Sections
 
 As one can see, there exists some sections for the instance *echo* each offering specific configuration items for specific instance behavior categories.
 
@@ -1754,21 +1754,7 @@ the in the configuration file stored port number `8080` is used instead of the p
 
 All existing configuration options specified directly in the application code can be overridden on the command line and/or the configuration file in that way.
 
-### Anatomy of the Command Line Interface
-
-The command line interface follows a well defined structure, for example
-
-```shell
-command@line:~/> serverorclientexecutable --app-opt1 val1 --app-opt2 val2 instance1 --inst-opt1 val11 --int-opt2 val12 section11 --sec1-opt1 val111 --sec1-opt2 val112 section12 --sec2-opt1 val121 --sec2-opt2 val122 instance2 --inst-opt1 val21 --inst-opt2 val22 section21 --sec1-opt1 val211 --sec1-opt2 val212 section22 --sec2-opt1 val221 --sec2-opt2 val222
-```
-
-if two instances with instance names *instance1* and *instance2* are present in the executable.
-
-All section names following an instance name are treaded as sections modifying that instance as long as no other instance name is specified. In case a further instance name is given, than all sections following that second instance name are treaded as sections modifying that second instance.
-
-One can switch between sections by just specifying a different section name.
-
-### Using the Parameterless *listen* Methods when no Configuration File exists
+##### Using the Parameterless *listen* Methods when no Configuration File exists
 
 In case the parameterless *listen* method is used for activating a server instance for example like
 
@@ -1813,7 +1799,7 @@ command@line:~/> echoserver
 Success: Echo server listening on 0.0.0.0:8080
 ```
 
-### Command Line Configuration of the Client Instance `EchoClient`
+##### Using the Parameterless *connect* Methods when no Configuration File exists
 
 A client instance is configured in the very same way. 
 
@@ -1884,7 +1870,25 @@ Data to reflect: Hello peer! It's nice talking to you!!!
 ...
 ```
 
-## Configuration via a Configuration File
+#### Anatomy of the Command Line Interface
+
+The command line interface follows a well defined structure, for example
+
+```shell
+command@line:~/> serverorclientexecutable --app-opt1 val1 --app-opt2 val2 instance1 --inst-opt1 val11 --int-opt2 val12 section11 --sec1-opt1 val111 --sec1-opt2 val112 section12 --sec2-opt1 val121 --sec2-opt2 val122 instance2 --inst-opt1 val21 --inst-opt2 val22 section21 --sec1-opt1 val211 --sec1-opt2 val212 section22 --sec2-opt1 val221 --sec2-opt2 val222
+```
+
+if two instances with instance names *instance1* and *instance2* are present in the executable.
+
+All section names following an instance name are treaded as sections modifying that instance as long as no other instance name is specified. In case a further instance name is given, than all sections following that second instance name are treaded as sections modifying that second instance.
+
+One can switch between sections by just specifying a different section name.
+
+### Configuration via a Configuration File
+
+For every application a configuration file can be generated by appending the switch `-w` or `--write-config` to the command line. Optionally `--write-config` takes an filename as value. If no filename is provided a default filename is used (see [Default Name of a Configuration File](#Default-Name-of-a-Configuration-File)).
+
+#### Configuration File Format
 
 Each configuration option which is marked as *persistent* in the help output can also be configured via a configuration file. The names of the entries for options in such an configuration file follow a well defined structure.
 
@@ -2000,7 +2004,7 @@ echo.local.port=8080
 
 ***Note***: Options with default values, which includes option values configured in-code, are commented in the configuration file.
 
-### Default Name of a Configuration File
+#### Default Name of a Configuration File
 
 The default name of a configuration file is simple the application name to which `.conf` is appended.
 
@@ -2009,7 +2013,7 @@ Thus, for the *echoserver* and the *echoclient* the names of their configuration
 - `echoserver.conf`
 - `echoclient.conf`
 
-### Location of Configuration Files
+#### Default Location of Configuration Files
 
 Configuration files are stored in directories following the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html). So these directories differ if an application is run as ordinary user or the root user.
 
