@@ -2220,4 +2220,315 @@ In that case the Main-Application would look like
 #include <net/in/stream/legacy/SocketServer.h>
 #include <net/rc/stream/legacy/SocketServer.h>
 #include <net/un/stream/legacy/SocketServer.h>
-#include <
+#include <string.h>
+#include <string>
+
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
+
+    using EchoServerIn = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressIn = EchoServerIn::SocketAddress;
+
+    EchoServerIn echoServerIn;
+    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, int err) -> void { // IPv4, port 8001
+        if (err == 0) {
+            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
+        } else {
+            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
+                      << ": " << strerror(err) << std::endl;
+        }
+    });
+
+    using EchoServerUn = net::un::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressUn = EchoServerUn::SocketAddress;
+
+    EchoServerUn echoServerUn;
+    echoServerUn.listen(
+        "/tmp/echoserver", [](const SocketAddressUn& socketAddress, int err) -> void { // Unix-domain socket /tmp/echoserver
+            if (err == 0) {
+                std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
+            } else {
+                std::cout << "Error: Echo server listening on " 
+                          << socketAddress.toString() << ": " << strerror(err) << std::endl;
+            }
+        });
+
+    using EchoServerRc = net::rc::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressRc = EchoServerRc::SocketAddress;
+
+    EchoServerRc echoServerRc;
+    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, int err) -> void { // Bluetooth RFCOMM on channel 16
+        if (err == 0) {
+            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
+        } else {
+            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
+                      << ": " << strerror(err) << std::endl;
+        }
+    });
+
+    return core::SNodeC::start(); // Start the event loop, daemonize if requested.
+}
+```
+
+and the client application with an additional Unix-Domain socket instance look like
+
+```c++
+#include "EchoClientContextFactory.h"
+
+#include <core/SNodeC.h>
+#include <iostream>
+#include <net/in/stream/legacy/SocketClient.h>
+#include <net/un/stream/legacy/SocketClient.h>
+#include <string.h>
+#include <string>
+
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
+
+    static std::string ipv4("IPv4 Socket");
+    using EchoClientIn = net::in::stream::legacy::SocketClient<EchoClientContextFactory<ipv4>>;
+    using SocketAddressIn = EchoClientIn::SocketAddress;
+
+    EchoClientIn echoClientIn; // Create client instance
+    echoClientIn.connect("localhost",
+                         8001,
+                         [](const SocketAddressIn& socketAddress,
+                            int err) -> void { // Connect to server
+                             if (err == 0) {
+                                 std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
+                             } else {
+                                 std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
+                                           << ": " << strerror(err) << std::endl;
+                             }
+                         });
+
+    static std::string unixDomain("Unix-Domain Socket");
+    using EchoClientUn = net::un::stream::legacy::SocketClient<EchoClientContextFactory<unixDomain>>;
+    using SocketAddressUn = EchoClientUn::SocketAddress;
+
+    EchoClientUn echoClientUn; // Create client instance
+    echoClientUn.connect("/tmp/echoserver",
+                         [](const SocketAddressUn& socketAddress,
+                            int err) -> void { // Connect to server
+                             if (err == 0) {
+                                 std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
+                             } else {
+                                 std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
+                                           << ": " << strerror(err) << std::endl;
+                             }
+                         });
+
+    return core::SNodeC::start(); // Start the event loop, daemonize if requested.
+}
+```
+
+The `EchoClientContextFactory` and the `EchoClientContext` has also be changed slightly to expect now a `std::string` as non-type template argument which is appended in the ping-pong initiation to the string send to the server to distinguish both instances in the output of the application.
+
+# Application Leyer Protocols APIs
+
+## Basic HTTP-Server and HTTP-Client API
+
+To be written
+
+## Highlevel WEB-API a'la Node.JS-Express
+
+To be written
+
+## WebSockets
+
+To be written
+
+## Basic MQTT-Server an MQTT-Client API
+
+To be written
+
+## MQTT Over WebSocket
+
+To be written
+
+# Database Support
+
+## MariaDB
+
+To be written
+
+# Example Applications
+
+## HTTP/S Web-Server for Static HTML-Pages
+
+This application uses the high-level web API *express* which is very similar to the API of node.js/express. The `StaticMiddleware` is used to deliver the static HTML-pages.
+
+The use of X.509 certificates for encrypted communication is demonstrated also.
+
+``` cpp
+#include <express/legacy/in/WebApp.h>
+#include <express/tls/in/WebApp.h>
+#include <express/middleware/StaticMiddleware.h>
+#include <log/Logger.h>
+#include <utils/Config.h>
+int main(int argc, char* argv[]) {
+    utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
+
+    express::WebApp::init(argc, argv);
+    
+    using LegacyWebApp = express::legacy::in::WebApp;
+    using LegacySocketAddress = LegacyWebApp::SocketAddress;
+
+    LegacyWebApp legacyApp;
+    legacyApp.getConfig().setReuseAddress();
+
+    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+        }
+    });
+
+    using TLSWebApp = express::tls::in::WebApp;
+    using TLSSocketAddress = TLSWebApp::SocketAddress;
+
+    TLSWebApp tlsApp;
+    tlsApp.getConfig().setReuseAddress();
+
+    tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
+    tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
+    tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
+
+    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+        }
+    });
+
+    return express::WebApp::start();
+}
+```
+
+## Receive Data via HTTP-Post Request
+
+The high-level web API provides the methods `get()`, `post()`, `put()`, etc like node.js/express.
+
+``` cpp
+#include <express/legacy/in/WebApp.h>
+#include <express/tls/in/WebApp.h>
+#include <log/Logger.h>
+
+int main(int argc, char* argv[]) {
+    express::WebApp::init(argc, argv);
+
+    using LegacyWebApp = express::legacy::in::WebApp;
+    using LegacySocketAddress = LegacyWebApp::SocketAddress;
+
+    LegacyWebApp legacyApp;
+    legacyApp.getConfig().setReuseAddress();
+
+    // The macro 
+    //    APPLICATION(req, res)
+    // expands to 
+    //    ([[maybe_unused]] express::Request& (req), [[maybe_unused]] express::Response& (res))
+    legacyApp.get("/", [] APPLICATION(req, res) {
+        res.send("<html>"
+                 "    <head>"
+                 "        <style>"
+                 "            main {"
+                 "                min-height: 30em;"
+                 "                padding: 3em;"
+                 "                background-image: repeating-radial-gradient( circle at 0 0, #fff, #ddd 50px);"
+                 "            }"
+                 "            input[type=\"file\"] {"
+                 "                display: block;"
+                 "                margin: 2em;"
+                 "                padding: 2em;"
+                 "                border: 1px dotted;"
+                 "            }"
+                 "        </style>"
+                 "    </head>"
+                 "    <body>"
+                 "        <h1>File-Upload with input type=\"file\"</h1>"
+                 "        <main>"
+                 "            <h2>Send us something fancy!</h2>"
+                 "            <form method=\"post\" enctype=\"multipart/form-data\">"
+                 "                <label> Select a text file (*.txt, *.html etc.) from your computer."
+                 "                    <input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
+                 "                </label>"
+                 "                <button>… and off we go!</button>"
+                 "            </form>"
+                 "        </main>"
+                 "    </body>"
+                 "</html>");
+    });
+
+    legacyApp.post("/", [] APPLICATION(req, res) {
+        req.body.push_back(0);
+
+        res.send("<html>"
+                 "    <body>"
+                 "        <h1>Thank you, we received your file!</h1>"
+                 "        <h2>Content:</h2>"
+                 "        <pre>" +
+                 std::string(reinterpret_cast<char*>(req.body.data())) +
+                 "        </pre>"
+                 "    </body>"
+                 "</html>");
+    });
+
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) -> void {
+        if (errnum != 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "LegacyWebApp listening on " << socketAddress.toString();
+        }
+    });
+
+    using TLSWebApp = express::tls::in::WebApp;
+    using TLSSocketAddress = TLSWebApp::SocketAddress;
+
+    TLSWebApp tlsApp;
+    
+    tlsApp.getConfig().setReuseAddress();
+
+    tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
+    tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
+    tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
+
+    tlsApp.use(legacyApp);
+
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) -> void {
+        if (errnum != 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "TLSWebApp listening on " << socketAddress.toString();
+        }
+    });
+
+    return express::WebApp::start();
+}
+```
+
+## Extract Server and Client Information (host name, IP, port, SSL/TLS information)
+
+``` cpp
+To be documented soon
+```
+
+## Using Regular Expressions in Routes
+
+``` cpp
+To be documented soon
+```
+
+
+
+<!-- <p align="center"><img src="docs/assets/README/015_architecture.svg" alt="015_architecture" style="zoom:200%;" style="display: block; margin: 0 auto"/>
+</p> -->
