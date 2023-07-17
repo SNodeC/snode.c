@@ -702,7 +702,7 @@ In this example the values of the placeholder are:
 
 #### Patch Feeds
 
-Third step is to patch the default OpenWRT package feeds to add the snodec feed by executing.
+Second step is to patch the default OpenWRT package feeds to add the snodec feed by executing.
 
 ```sh
 cd <SDK_DIR>
@@ -711,7 +711,7 @@ echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;merge"
 
 #### Install Packages
 
-The fourth step is to install all source packages needed to compile SNode.C from the correct feeds.
+The third step is to install all source packages needed to compile SNode.C from the correct feeds.
 
 ```sh
 cd <SDK_DIR>
@@ -723,7 +723,7 @@ cd <SDK_DIR>
 
 #### Configure the SDK
 
-In this step the SDK is configured.
+In the fourth step the SDK is configured.
 
 ```sh
 cd <SDK_DIR>
@@ -734,14 +734,14 @@ is configured. Default values for all configuration options can be used safely.
 
 #### Cross Compile
 
-Now SNode.C can be 
+The last step is to
 
 ```sh
 cd <SDK_DIR>
 make package/snode.c/compile
 ```
 
-cross compiled.
+cross compiled SNode.C.
 
 The last two steps, **Install Packages**, and **Cross Compile** (at most the last one) take some time as 
 
