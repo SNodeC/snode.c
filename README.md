@@ -114,8 +114,21 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
          * [Specific <em>socket</em> Options for IPv4 and IPv6 <em>SocketServer</em>](#specific-socket-options-for-ipv4-and-ipv6-socketserver)
          * [Specific <em>socket</em> Options for IPv6 <em>SocketServer</em> and <em>SocketClient</em>](#specific-socket-options-for-ipv6-socketserver-and-socketclient)
 * [Using More Than One Instance in an Application](#using-more-than-one-instance-in-an-application)
+* [Application Leyer Protocols APIs](#application-leyer-protocols-apis)
+   * [Basic HTTP-Server and HTTP-Client API](#basic-http-server-and-http-client-api)
+   * [Highlevel WEB-API a'la Node.JS-Express](#highlevel-web-api-ala-nodejs-express)
+   * [WebSockets](#websockets)
+   * [Basic MQTT-Server an MQTT-Client API](#basic-mqtt-server-an-mqtt-client-api)
+   * [MQTT Over WebSocket](#mqtt-over-websocket)
+* [Database Support](#database-support)
+   * [MariaDB](#mariadb)
+* [Example Applications](#example-applications)
+   * [HTTP/S Web-Server for Static HTML-Pages](#https-web-server-for-static-html-pages)
+   * [Receive Data via HTTP-Post Request](#receive-data-via-http-post-request)
+   * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
+   * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Mon Jul 17 17:36:53 UTC 2023 -->
+<!-- Added by: runner, at: Mon Jul 17 17:46:31 UTC 2023 -->
 
 <!--te-->
 
