@@ -553,7 +553,8 @@ SNode.C is known to compile and run successfull on
     -   Tested on Raspberry Pi 3 and 4
 -   OpenWrt 23.05.0-rc1 and later
     -   Tested architectures (all others are supposed to be supported also)
-        -   arm_cortex-a7_neon-vfpv4 (tested on soc ipq806x)
+        -   arm_cortex-a7_neon-vfpv4 (tested on socs ipq806x-generic and ipq40xx-generic)
+        -   aarch64_cortext-a54 (tested on soc mediatek-filogic)
         -   mips_24kc (tested on soc ath79)
 
 ## Minimum required Compiler Versions
