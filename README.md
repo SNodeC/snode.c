@@ -783,7 +783,7 @@ and **install** it on the router by running
 ```sh
 ssh root@<router-ip>
 cd /tmp
-opkg --install libmagic_<version>_<architecture>.ipk
+opkg install libmagic_<version>_<architecture>.ipk
 exit
 ```
 
