@@ -43,7 +43,9 @@
 
 #include "log/Logger.h"
 
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <fcntl.h>
 #include <filesystem>
 #include <grp.h>
@@ -162,6 +164,7 @@ namespace utils {
 
         logger::Logger::init();
 
+        uid_t euid = 0;
         struct passwd* pw = nullptr;
         struct group* gr = nullptr;
 
@@ -169,7 +172,7 @@ namespace utils {
             success = false;
         } else if ((gr = getgrgid(pw->pw_gid)) == nullptr) {
             success = false;
-        } else if (geteuid() == 0) {
+        } else if ((euid = geteuid()) == 0) {
             configDirectory = "/etc/snode.c";
             logDirectory = "/var/log/snode.c";
             pidDirectory = "/var/run/snode.c";
@@ -190,290 +193,291 @@ namespace utils {
             }
         }
 
+        applicationName = std::filesystem::path(argv[0]).filename();
+
+        if (success && !std::filesystem::exists(configDirectory)) {
+            if (std::filesystem::create_directories(configDirectory)) {
+                std::filesystem::permissions(
+                    configDirectory,
+                    (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
+                        ~std::filesystem::perms::others_all);
+                struct group* gr = nullptr; // cppcheck-suppress shadowVariable
+                if ((gr = getgrnam("snodec")) != nullptr) {
+                    if (chown(configDirectory.c_str(), euid, gr->gr_gid) < 0) {
+                        std::cout << "Warning: Can not set group ownership of '" << configDirectory << "' to 'snodec':" << strerror(errno)
+                                  << std::endl;
+                    }
+                } else {
+                    std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
+                    std::cout << "       and add the current user to this group." << std::endl;
+                    std::filesystem::remove(configDirectory);
+                    success = false;
+                }
+            } else {
+                std::cout << "Error: Can not create directory '" << configDirectory << "'" << std::endl;
+                success = false;
+            }
+        }
+
+        if (success && !std::filesystem::exists(logDirectory)) {
+            if (std::filesystem::create_directories(logDirectory)) {
+                std::filesystem::permissions(logDirectory,
+                                             (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
+                                                 ~std::filesystem::perms::others_all);
+                struct group* gr = nullptr; // cppcheck-suppress shadowVariable
+                if ((gr = getgrnam("snodec")) != nullptr) {
+                    if (chown(logDirectory.c_str(), euid, gr->gr_gid) < 0) {
+                        std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
+                                  << std::endl;
+                    }
+                } else {
+                    std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
+                    std::cout << "       and add the current user to this group." << std::endl;
+                    std::filesystem::remove(configDirectory);
+                    success = false;
+                }
+            } else {
+                std::cout << "Error: Can not create directory '" << logDirectory << "'" << std::endl;
+                success = false;
+            }
+        }
+
+        if (success && !std::filesystem::exists(pidDirectory)) {
+            if (std::filesystem::create_directories(pidDirectory)) {
+                std::filesystem::permissions(pidDirectory,
+                                             (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
+                                                 ~std::filesystem::perms::others_all);
+                struct group* gr = nullptr; // cppcheck-suppress shadowVariable
+                if ((gr = getgrnam("snodec")) != nullptr) {
+                    if (chown(pidDirectory.c_str(), euid, gr->gr_gid) < 0) {
+                        std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
+                                  << std::endl;
+                    }
+                } else {
+                    std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup." << std::endl;
+                    std::cout << "       and add the current user to this group." << std::endl;
+                    std::filesystem::remove(configDirectory);
+                    success = false;
+                }
+            } else {
+                std::cout << "Error: Can not create directory '" << pidDirectory << "'" << std::endl;
+                success = false;
+            }
+        }
+
         if (success) {
-            applicationName = std::filesystem::path(argv[0]).filename();
+            sectionFormatter->label("SUBCOMMAND", "SECTION");
+            sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
+            sectionFormatter->label("PERSISTENT", "");
+            sectionFormatter->label("Persistent Options", "Options (persistent)");
+            sectionFormatter->label("None Persistent Options", "Options (none persistent)");
+            sectionFormatter->label("Usage", "\nUsage");
+            sectionFormatter->label("bool:{true,false}", "{true,false}");
+            sectionFormatter->column_width(7);
 
-            if (!std::filesystem::exists(configDirectory)) {
-                if (std::filesystem::create_directories(configDirectory)) {
-                    std::filesystem::permissions(
-                        configDirectory,
-                        (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
-                            ~std::filesystem::perms::others_all);
-                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                    if ((gr = getgrnam("snodec")) != nullptr) {
-                        if (chown(configDirectory.c_str(), geteuid(), gr->gr_gid) < 0) {
-                            std::cout << "Warning: Can not set group ownership of '" << configDirectory << "' to 'snodec'" << std::endl;
-                        }
+            app.configurable(false);
+            app.set_help_flag();
+            app.allow_config_extras();
+
+            app.formatter(std::make_shared<CLI::HelpFormatter>());
+            app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
+            app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
+            app.get_formatter()->label("PERSISTENT", "");
+            app.get_formatter()->label("Persistent Options", "Options (persistent)");
+            app.get_formatter()->label("None Persistent Options", "Options (none persistent)");
+            app.get_formatter()->label("Usage", "\nUsage");
+            app.get_formatter()->label("bool:{true,false}", "{true,false}");
+            app.get_formatter()->column_width(7);
+
+            app.option_defaults()->take_last();
+            app.option_defaults()->group(app.get_formatter()->get_label("None Persistent Options"));
+
+            std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
+            app.config_formatter(std::static_pointer_cast<CLI::Config>(configFormatter));
+
+            app.description("Configuration for Application '" + applicationName + "'");
+
+            app.footer("Application '" + applicationName +
+                       "' powered by SNode.C\n"
+                       "(C) 2019-2023 Volker Christian\n"
+                       "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
+
+            app.add_flag_callback( //
+                   "-h,--help",
+                   []() {
+                       throw CLI::CallForHelp();
+                   },
+                   "Print this help message and exit") //
+                ->configurable(false)
+                ->disable_flag_override()
+                ->trigger_on_parse();
+
+            app.add_flag_callback( //
+                   "-a,--help-all",
+                   []() {
+                       throw CLI::CallForAllHelp();
+                   },
+                   "Print this help message, expand instances and exit")
+                ->configurable(false)
+                ->disable_flag_override()
+                ->trigger_on_parse();
+
+            app.add_flag( //
+                   "-s,--show-config",
+                   "Show current configuration and exit") //
+                ->configurable(false)
+                ->disable_flag_override();
+
+            app.add_option("-w,--write-config",
+                           "Write config file and exit") //
+                ->configurable(false)
+                ->default_val(configDirectory + "/" + applicationName + ".conf")
+                ->type_name("[configfile]")
+                ->check(!CLI::ExistingDirectory)
+                ->expected(0, 1);
+
+            app.set_config( //
+                   "-c,--config-file",
+                   configDirectory + "/" + applicationName + ".conf",
+                   "Read an config file",
+                   false) //
+                ->take_all()
+                ->type_name("configfile")
+                ->check(!CLI::ExistingDirectory);
+
+            app.add_option( //
+                   "-i,--instance-map",
+                   "Instance name mapping used to make an instance known under an alias name also in a config file")
+                ->configurable(false)
+                ->type_name("name=mapped_name")
+                ->each([](const std::string& item) -> void {
+                    const auto it = item.find('=');
+                    if (it != item.npos) {
+                        prefixMap[item.substr(0, it)] = item.substr(it + 1);
                     } else {
-                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
-                        std::cout << "       and add the current user to this group." << std::endl;
-                        std::filesystem::remove(configDirectory);
-                        success = false;
+                        throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
                     }
-                } else {
-                    std::cout << "Error: Can not create directory '" << configDirectory << "'" << std::endl;
-                    success = false;
-                }
-            }
+                });
 
-            if (!std::filesystem::exists(logDirectory)) {
-                if (std::filesystem::create_directories(logDirectory)) {
-                    std::filesystem::permissions(logDirectory,
-                                                 (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
-                                                     ~std::filesystem::perms::others_all);
-                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                    if ((gr = getgrnam("snodec")) != nullptr) {
-                        if (chown(logDirectory.c_str(), geteuid(), gr->gr_gid) < 0) {
-                            std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec'" << std::endl;
-                        }
-                    } else {
-                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
-                        std::cout << "       and add the current user to this group." << std::endl;
-                        std::filesystem::remove(configDirectory);
-                        success = false;
-                    }
-                } else {
-                    std::cout << "Error: Can not create directory '" << logDirectory << "'" << std::endl;
-                    success = false;
-                }
-            }
+            app.add_flag( //
+                   "-k,--kill",
+                   "Kill running daemon") //
+                ->configurable(false)
+                ->disable_flag_override();
 
-            if (!std::filesystem::exists(pidDirectory)) {
-                if (std::filesystem::create_directories(pidDirectory)) {
-                    std::filesystem::permissions(pidDirectory,
-                                                 (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
-                                                     ~std::filesystem::perms::others_all);
-                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                    if ((gr = getgrnam("snodec")) != nullptr) {
-                        if (chown(pidDirectory.c_str(), geteuid(), gr->gr_gid) < 0) {
-                            std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec'" << std::endl;
-                        }
-                    } else {
-                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup." << std::endl;
-                        std::cout << "       and add the current user to this group." << std::endl;
-                        std::filesystem::remove(configDirectory);
-                        success = false;
-                    }
-                } else {
-                    std::cout << "Error: Can not create directory '" << pidDirectory << "'" << std::endl;
-                    success = false;
-                }
-            }
+            app.add_flag( //
+                   "--commandline",
+                   "Print a template command line showing required options only and exit")
+                ->configurable(false)
+                ->disable_flag_override();
 
-            if (success) {
-                sectionFormatter->label("SUBCOMMAND", "SECTION");
-                sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
-                sectionFormatter->label("PERSISTENT", "");
-                sectionFormatter->label("Persistent Options", "Options (persistent)");
-                sectionFormatter->label("None Persistent Options", "Options (none persistent)");
-                sectionFormatter->label("Usage", "\nUsage");
-                sectionFormatter->label("bool:{true,false}", "{true,false}");
-                sectionFormatter->column_width(7);
+            app.add_flag( //
+                   "--commandline-full",
+                   "Print a template command line showing all possible options and exit")
+                ->configurable(false)
+                ->disable_flag_override();
 
-                app.configurable(false);
-                app.set_help_flag();
-                app.allow_config_extras();
+            app.add_flag( //
+                   "--commandline-configured",
+                   "Print a template command line showing all required and configured options and exit") //
+                ->configurable(false)
+                ->disable_flag_override();
 
-                app.formatter(std::make_shared<CLI::HelpFormatter>());
-                app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
-                app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
-                app.get_formatter()->label("PERSISTENT", "");
-                app.get_formatter()->label("Persistent Options", "Options (persistent)");
-                app.get_formatter()->label("None Persistent Options", "Options (none persistent)");
-                app.get_formatter()->label("Usage", "\nUsage");
-                app.get_formatter()->label("bool:{true,false}", "{true,false}");
-                app.get_formatter()->column_width(7);
+            app.set_version_flag( //
+                "--version",
+                "0.9.8");
 
-                app.option_defaults()->take_last();
-                app.option_defaults()->group(app.get_formatter()->get_label("None Persistent Options"));
+            logLevelOpt = app.add_option_function<std::string>( //
+                                 "-l,--log-level",
+                                 utils::ResetToDefault(logLevelOpt),
+                                 "Log level") //
+                              ->default_val(3)
+                              ->type_name("level")
+                              ->check(CLI::Range(0, 6))
+                              ->group(app.get_formatter()->get_label("Persistent Options"));
 
-                std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
-                app.config_formatter(std::static_pointer_cast<CLI::Config>(configFormatter));
-
-                app.description("Configuration for Application '" + applicationName + "'");
-
-                app.footer("Application '" + applicationName +
-                           "' powered by SNode.C\n"
-                           "(C) 2019-2023 Volker Christian\n"
-                           "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
-
-                app.add_flag_callback( //
-                       "-h,--help",
-                       []() {
-                           throw CLI::CallForHelp();
-                       },
-                       "Print this help message and exit") //
-                    ->configurable(false)
-                    ->disable_flag_override()
-                    ->trigger_on_parse();
-
-                app.add_flag_callback( //
-                       "-a,--help-all",
-                       []() {
-                           throw CLI::CallForAllHelp();
-                       },
-                       "Print this help message, expand instances and exit")
-                    ->configurable(false)
-                    ->disable_flag_override()
-                    ->trigger_on_parse();
-
-                app.add_flag( //
-                       "-s,--show-config",
-                       "Show current configuration and exit") //
-                    ->configurable(false)
-                    ->disable_flag_override();
-
-                app.add_option("-w,--write-config",
-                               "Write config file and exit") //
-                    ->configurable(false)
-                    ->default_val(configDirectory + "/" + applicationName + ".conf")
-                    ->type_name("[configfile]")
-                    ->check(!CLI::ExistingDirectory)
-                    ->expected(0, 1);
-
-                app.set_config( //
-                       "-c,--config-file",
-                       configDirectory + "/" + applicationName + ".conf",
-                       "Read an config file",
-                       false) //
-                    ->take_all()
-                    ->type_name("configfile")
-                    ->check(!CLI::ExistingDirectory);
-
-                app.add_option( //
-                       "-i,--instance-map",
-                       "Instance name mapping used to make an instance known under an alias name also in a config file")
-                    ->configurable(false)
-                    ->type_name("name=mapped_name")
-                    ->each([](const std::string& item) -> void {
-                        const auto it = item.find('=');
-                        if (it != item.npos) {
-                            prefixMap[item.substr(0, it)] = item.substr(it + 1);
-                        } else {
-                            throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
-                        }
-                    });
-
-                app.add_flag( //
-                       "-k,--kill",
-                       "Kill running daemon") //
-                    ->configurable(false)
-                    ->disable_flag_override();
-
-                app.add_flag( //
-                       "--commandline",
-                       "Print a template command line showing required options only and exit")
-                    ->configurable(false)
-                    ->disable_flag_override();
-
-                app.add_flag( //
-                       "--commandline-full",
-                       "Print a template command line showing all possible options and exit")
-                    ->configurable(false)
-                    ->disable_flag_override();
-
-                app.add_flag( //
-                       "--commandline-configured",
-                       "Print a template command line showing all required and configured options and exit") //
-                    ->configurable(false)
-                    ->disable_flag_override();
-
-                app.set_version_flag( //
-                    "--version",
-                    "0.9.8");
-
-                logLevelOpt = app.add_option_function<std::string>( //
-                                     "-l,--log-level",
-                                     utils::ResetToDefault(logLevelOpt),
-                                     "Log level") //
-                                  ->default_val(3)
+            verboseLevelOpt = app.add_option_function<std::string>( //
+                                     "-v,--verbose-level",
+                                     utils::ResetToDefault(verboseLevelOpt),
+                                     "Verbose level") //
+                                  ->default_val(0)
                                   ->type_name("level")
-                                  ->check(CLI::Range(0, 6))
+                                  ->check(CLI::Range(0, 10))
                                   ->group(app.get_formatter()->get_label("Persistent Options"));
 
-                verboseLevelOpt = app.add_option_function<std::string>( //
-                                         "-v,--verbose-level",
-                                         utils::ResetToDefault(verboseLevelOpt),
-                                         "Verbose level") //
-                                      ->default_val(0)
-                                      ->type_name("level")
-                                      ->check(CLI::Range(0, 10))
-                                      ->group(app.get_formatter()->get_label("Persistent Options"));
+            quietOpt = app.add_flag_function( //
+                              "-q{true},!-u,--quiet",
+                              utils::ResetToDefault(quietOpt),
+                              "Quiet mode") //
+                           ->take_last()
+                           ->default_val("false")
+                           ->type_name("bool")
+                           ->check(CLI::IsMember({"true", "false"}))
+                           ->group(app.get_formatter()->get_label("Persistent Options"));
 
-                quietOpt = app.add_flag_function( //
-                                  "-q{true},!-u,--quiet",
-                                  utils::ResetToDefault(quietOpt),
-                                  "Quiet mode") //
+            logFileOpt = app.add_option_function<std::string>( //
+                                "--log-file",
+                                utils::ResetToDefault(logFileOpt),
+                                "Logfile path") //
+                             ->default_val(logDirectory + "/" + applicationName + ".log")
+                             ->type_name("logfile")
+                             ->check(!CLI::ExistingDirectory)
+                             ->group(app.get_formatter()->get_label("Persistent Options"));
+
+            enforceLogFileOpt = app.add_flag_function( //
+                                       "-e{true},!-n,--enforce-log-file",
+                                       utils::ResetToDefault(enforceLogFileOpt),
+                                       "Enforce writing of logs to file for foreground applications") //
+                                    ->take_last()
+                                    ->default_val("false")
+                                    ->type_name("bool")
+                                    ->check(CLI::IsMember({"true", "false"}))
+                                    ->group(app.get_formatter()->get_label("Persistent Options"));
+
+            daemonizeOpt = app.add_flag_function( //
+                                  "-d{true},!-f,--daemonize",
+                                  utils::ResetToDefault(daemonizeOpt),
+                                  "Start application as daemon") //
                                ->take_last()
                                ->default_val("false")
                                ->type_name("bool")
                                ->check(CLI::IsMember({"true", "false"}))
                                ->group(app.get_formatter()->get_label("Persistent Options"));
 
-                logFileOpt = app.add_option_function<std::string>( //
-                                    "--log-file",
-                                    utils::ResetToDefault(logFileOpt),
-                                    "Logfile path") //
-                                 ->default_val(logDirectory + "/" + applicationName + ".log")
-                                 ->type_name("logfile")
-                                 ->check(!CLI::ExistingDirectory)
-                                 ->group(app.get_formatter()->get_label("Persistent Options"));
+            userNameOpt = app.add_option_function<std::string>( //
+                                 "--user-name",
+                                 utils::ResetToDefault(userNameOpt),
+                                 "Run daemon under specific user permissions") //
+                              ->default_val(pw->pw_name)
+                              ->type_name("username")
+                              ->needs(daemonizeOpt)
+                              ->group(app.get_formatter()->get_label("Persistent Options"));
 
-                enforceLogFileOpt = app.add_flag_function( //
-                                           "-e{true},!-n,--enforce-log-file",
-                                           utils::ResetToDefault(enforceLogFileOpt),
-                                           "Enforce writing of logs to file for foreground applications") //
-                                        ->take_last()
-                                        ->default_val("false")
-                                        ->type_name("bool")
-                                        ->check(CLI::IsMember({"true", "false"}))
-                                        ->group(app.get_formatter()->get_label("Persistent Options"));
+            groupNameOpt = app.add_option_function<std::string>( //
+                                  "--group-name",
+                                  utils::ResetToDefault(groupNameOpt),
+                                  "Run daemon under specific group permissions")
+                               ->default_val(gr->gr_name)
+                               ->type_name("groupname")
+                               ->needs(daemonizeOpt)
+                               ->group(app.get_formatter()->get_label("Persistent Options"));
 
-                daemonizeOpt = app.add_flag_function( //
-                                      "-d{true},!-f,--daemonize",
-                                      utils::ResetToDefault(daemonizeOpt),
-                                      "Start application as daemon") //
-                                   ->take_last()
-                                   ->default_val("false")
-                                   ->type_name("bool")
-                                   ->check(CLI::IsMember({"true", "false"}))
-                                   ->group(app.get_formatter()->get_label("Persistent Options"));
+            parse1(); // for stopDaemon and pre init application options
 
-                userNameOpt = app.add_option_function<std::string>( //
-                                     "--user-name",
-                                     utils::ResetToDefault(userNameOpt),
-                                     "Run daemon under specific user permissions") //
-                                  ->default_val(pw->pw_name)
-                                  ->type_name("username")
-                                  ->needs(daemonizeOpt)
-                                  ->group(app.get_formatter()->get_label("Persistent Options"));
+            //                app.all_config_files(!prefixMap.empty());
 
-                groupNameOpt = app.add_option_function<std::string>( //
-                                      "--group-name",
-                                      utils::ResetToDefault(groupNameOpt),
-                                      "Run daemon under specific group permissions")
-                                   ->default_val(gr->gr_name)
-                                   ->type_name("groupname")
-                                   ->needs(daemonizeOpt)
-                                   ->group(app.get_formatter()->get_label("Persistent Options"));
-
-                parse1(); // for stopDaemon and pre init application options
-
-                //                app.all_config_files(!prefixMap.empty());
-
-                if (app["--kill"]->count() > 0) {
-                    try {
-                        utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
-                    } catch (const DaemonizeError& e) {
-                        std::cout << "Daemonize error: " << e.what() << std::endl;
-                        std::exit(EXIT_FAILURE);
-                    } catch (const DaemonizeFailure& e) {
-                        std::cout << "Daemonize failure: " << e.what() << std::endl;
-                        std::exit(EXIT_FAILURE);
-                    } catch (const DaemonizeSuccess&) {
-                        std::cout << "Daemon stopped" << std::endl;
-                        std::exit(EXIT_SUCCESS);
-                    }
+            if (app["--kill"]->count() > 0) {
+                try {
+                    utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+                } catch (const DaemonizeError& e) {
+                    std::cout << "Daemonize error: " << e.what() << std::endl;
+                    std::exit(EXIT_FAILURE);
+                } catch (const DaemonizeFailure& e) {
+                    std::cout << "Daemonize failure: " << e.what() << std::endl;
+                    std::exit(EXIT_FAILURE);
+                } catch (const DaemonizeSuccess&) {
+                    std::cout << "Daemon stopped" << std::endl;
+                    std::exit(EXIT_SUCCESS);
                 }
             }
         }
