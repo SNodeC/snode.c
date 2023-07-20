@@ -155,8 +155,15 @@ configure_package_config_file(
     NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
 
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake
+    VERSION "${snode.c_VERSION_MAJOR}.${snode.c_VERSION_MINOR}"
+    COMPATIBILITY SameMajorVersion
+)
+
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT "core"
 )
