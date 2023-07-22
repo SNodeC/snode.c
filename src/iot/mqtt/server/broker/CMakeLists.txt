@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.18)
 
 set(IOT_MQTT_SERVER_BROKER_CPP Broker.cpp Message.cpp Session.cpp
                                SubscribtionTree.cpp RetainTree.cpp

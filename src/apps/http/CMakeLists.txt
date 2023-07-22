@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.18)
 
 get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
 get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
