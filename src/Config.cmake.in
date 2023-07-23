@@ -60,28 +60,30 @@ set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils)
 set(utils_DEPENDENCIES logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
-    list(JOIN ${_comp}_DEPENDENCIES ", " TMP_COMP_DEPENDENCIES)
-    if(NOT "${TMP_COMP_DEPENDENCIES}" STREQUAL "")
-        message("Loading dependencies of component " ${_comp} ": "
-                "${TMP_COMP_DEPENDENCIES}"
-        )
-        foreach(_depcomp ${${_comp}_DEPENDENCIES})
-            if("${${_depcomp}_LOADED}" STREQUAL "")
+    if("${${_comp}_LOADED}" STREQUAL "")
+        list(JOIN ${_comp}_DEPENDENCIES ", " TMP_COMP_DEPENDENCIES)
+        if(NOT "${TMP_COMP_DEPENDENCIES}" STREQUAL "")
+            message("Loading dependencies of component " ${_comp} ": "
+                    "${TMP_COMP_DEPENDENCIES}"
+            )
+            foreach(_depcomp ${${_comp}_DEPENDENCIES})
                 load_component_with_dependencies(${_depcomp})
-            else()
-                message("Already loaded: " ${_depcomp})
-            endif()
-        endforeach()
+            endforeach()
+        endif()
+        message("Loading component: " ${_comp})
+        include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Targets.cmake")
+        include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Options.cmake"
+                OPTIONAL RESULT_VARIABLE ${_comp}_OPTIONS_FILE
+        )
+        if(NOT "${${_comp}_OPTIONS_FILE}" STREQUAL "NOTFOUND")
+            message("  " ${_comp} ": Options loaded from "
+                    ${${_comp}_OPTIONS_FILE}
+            )
+        endif()
+        set(${_comp}_LOADED true)
+    else()
+        message("Already loaded: " ${_comp})
     endif()
-    message("Loading component: " ${_comp})
-    include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Targets.cmake")
-    include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Options.cmake" OPTIONAL
-            RESULT_VARIABLE ${_comp}_OPTIONS_FILE
-    )
-    if(NOT "${${_comp}_OPTIONS_FILE}" STREQUAL "NOTFOUND")
-        message("  " ${_comp} ": Options loaded from " ${${_comp}_OPTIONS_FILE})
-    endif()
-    set(${_comp}_LOADED true)
 endmacro()
 
 set(_supported_components
@@ -111,6 +113,8 @@ set(_supported_components
     mqtt-server
     mqtt-client
 )
+
+include(CMakeFindDependencyMacro)
 
 set(snodec_FOUND True)
 foreach(_comp ${snodec_FIND_COMPONENTS})
