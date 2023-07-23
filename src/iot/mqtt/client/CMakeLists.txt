@@ -16,7 +16,7 @@ add_library(snodec::mqtt-client ALIAS mqtt-client)
 target_link_libraries(
     mqtt-client
     PUBLIC snodec::mqtt
-    PRIVATE snodec::mqtt-client-packets
+    PRIVATE snodec::mqtt-client-packets ${NLOHMANN_JSON_LIBRARIES}
 )
 
 target_include_directories(

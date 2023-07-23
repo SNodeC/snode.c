@@ -19,6 +19,8 @@ target_include_directories(
     mqtt-broker PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
+target_link_libraries(mqtt-broker PRIVATE ${NLOHMANN_JSON_LIBRARIES})
+
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/iot/mqtt/server/broker
