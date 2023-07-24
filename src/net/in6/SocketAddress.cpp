@@ -53,23 +53,22 @@ namespace net::in6 {
 
     void SocketAddress::setHost(const std::string& ipOrHostname) {
         struct addrinfo hints {};
-        struct addrinfo* res = nullptr;
-        struct addrinfo* resalloc = nullptr;
-
         std::memset(&hints, 0, sizeof(hints));
 
-        /* We only care about IPV6 results */
+        /* We only care about IPv6 results */
         hints.ai_family = AF_INET6;
         hints.ai_socktype = 0;
         hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
 
+        struct addrinfo* res = nullptr;
+        // Can lead to memmory leaks https://bugzilla.redhat.com/show_bug.cgi?id=1903512
         int err = core::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
         if (err != 0) {
             throw net::BadSocketAddress("IPv6 error not resolvable: " + ipOrHostname);
         }
 
-        resalloc = res;
+        struct addrinfo* resalloc = res;
 
         while (res) {
             /* Check to make sure we have a valid AF_INET6 address */
