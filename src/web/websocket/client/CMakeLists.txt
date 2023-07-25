@@ -25,6 +25,10 @@ get_target_property(
     HTTP_CLIENT_UPGRADE_INSTALL_LIBDIR
 )
 
+get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
+
+get_target_property(HTTP_RPATH snodec::http HTTP_RPATH)
+
 get_target_property(
     WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR snodec::websocket
     WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
@@ -69,7 +73,8 @@ set_target_properties(
         LIBRARY_OUTPUT_DIRECTORY "${HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR}"
         SOVERSION ${SNODEC_SOVERSION} # PREFIX "sc"
         BUILD_RPATH "${WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR}"
-        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}"
+        INSTALL_RPATH
+        "${HTTP_CLIENT_RPATH};${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}"
         WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR
         "${WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR}"
         WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR
@@ -88,7 +93,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(websocket-client PUBLIC snodec::websocket)
+target_link_libraries(
+    websocket-client PUBLIC snodec::websocket snodec::http-client
+)
 
 install(
     TARGETS websocket-client

@@ -15,6 +15,11 @@ get_target_property(
     WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR
 )
 
+get_target_property(
+    HTTP_SERVER_UPGRADE_INSTALL_LIBDIR snodec::http-server
+    HTTP_SERVER_UPGRADE_INSTALL_LIBDIR
+)
+
 set(ECHOSERVERSUBPROTOCOL_CPP Echo.cpp EchoFactory.cpp)
 
 set(ECHOSERVERSUBPROTOCOL_H Echo.h EchoFactory.h)
@@ -28,12 +33,16 @@ target_include_directories(
     echoserversubprotocol PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
+target_link_libraries(echoserversubprotocol PUBLIC snodec::websocket-server)
+
 set_target_properties(
     echoserversubprotocol
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY
                "${WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR}"
                OUTPUT_NAME "snodec-websocket-echo"
                SOVERSION ${SNODEC_SOVERSION} # PREFIX "ssp"
+               INSTALL_RPATH
+               "${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
 )
 
 install(TARGETS echoserversubprotocol

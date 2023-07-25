@@ -9,7 +9,7 @@ set(NET-UN_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
 add_library(net-un SHARED ${NET-UN_CPP} ${NET-UN_H})
 add_library(snodec::net-un ALIAS net-un)
 
-target_link_libraries(net-un PUBLIC snodec::net)
+target_link_libraries(net-un PUBLIC snodec::net snodec::core-socket)
 
 target_include_directories(
     net-un

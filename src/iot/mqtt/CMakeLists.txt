@@ -43,7 +43,11 @@ if(NLOHMANN_JSON_FOUND)
                     "$<INSTALL_INTERFACE:include/snode.c>"
     )
 
-    target_link_libraries(mqtt PRIVATE ${NLOHMANN_JSON_LIBRARIES})
+    target_link_libraries(
+        mqtt
+        PRIVATE snodec::mqtt-packets
+        PUBLIC snodec::core-socket-stream ${NLOHMANN_JSON_LIBRARIES}
+    )
 
     set_target_properties(
         mqtt

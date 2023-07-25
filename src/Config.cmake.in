@@ -1,17 +1,28 @@
 @PACKAGE_INIT@
 
+# Logger
+set(logger_DEPENDENCIES "")
+
+# Utils
+set(utils_DEPENDENCIES logger)
+
 # Core
+set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils)
 set(core-socket_DEPENDENCIES core)
 set(core-socket-stream_DEPENDENCIES core-socket)
 set(core-socket-stream-legacy_DEPENDENCIES core-socket-stream)
 set(core-socket-stream-tls_DEPENDENCIES core-socket-stream)
 
+# Database
+set(db-mariadb_DEPENDENCIES core)
+
 # Base network code
-set(net-in_DEPENDENCIES net)
-set(net-in6_DEPENDENCIES net)
-set(net-l2_DEPENDENCIES net)
-set(net-rc_DEPENDENCIES net)
-set(net-un_DEPENDENCIES net)
+set(net_DEPENDENCIES core)
+set(net-in_DEPENDENCIES net core-socket)
+set(net-in6_DEPENDENCIES net core-socket)
+set(net-l2_DEPENDENCIES net core-socket)
+set(net-rc_DEPENDENCIES net core-socket)
+set(net-un_DEPENDENCIES net core-socket)
 
 # Base network-stream code
 set(net-in-stream_DEPENDENCIES net-in)
@@ -20,14 +31,14 @@ set(net-l2-stream_DEPENDENCIES net-l2)
 set(net-rc-stream_DEPENDENCIES net-rc)
 set(net-un-stream_DEPENDENCIES net-un)
 
-# Particular legacy network-stream code
+# Legacy network-stream code
 set(net-in-stream-legacy_DEPENDENCIES net-in-stream core-socket-stream-legacy)
 set(net-in6-stream-legacy_DEPENDENCIES net-in6-stream core-socket-stream-legacy)
 set(net-l2-stream-legacy_DEPENDENCIES net-l2-stream core-socket-stream-legacy)
 set(net-rc-stream-legacy_DEPENDENCIES net-rc-stream core-socket-stream-legacy)
 set(net-un-stream-legacy_DEPENDENCIES net-un-stream core-socket-stream-legacy)
 
-# Particular tls network-stream code
+# Tls network-stream code
 set(net-in-stream-tls_DEPENDENCIES net-in-stream core-socket-stream-tls)
 set(net-in6-stream-tls_DEPENDENCIES net-in6-stream core-socket-stream-tls)
 set(net-l2-stream-tls_DEPENDENCIES net-l2-stream core-socket-stream-tls)
@@ -38,26 +49,20 @@ set(net-un-stream-tls_DEPENDENCIES net-un-stream core-socket-stream-tls)
 set(net-un-dgram_DEPENDENCIES net-un)
 
 # HTTP
+set(http_DEPENDENCIES core-socket-stream)
 set(http-server_DEPENDENCIES http)
 set(http-client_DEPENDENCIES http)
 set(http-server-express_DEPENDENCIES http-server)
 
 # Websocket
+set(websocket_DEPENDENCIES logger)
 set(websocket-server_DEPENDENCIES websocket http-server)
 set(websocket-client_DEPENDENCIES websocket http-client)
 
 # MQTT
+set(mqtt_DEPENDENCIES core-socket-stream)
 set(mqtt-server_DEPENDENCIES mqtt)
 set(mqtt-client_DEPENDENCIES mqtt)
-
-# Database
-set(db-mariadb_DEPENDENCIES core)
-
-# core
-set(core_DEPENDENCIES mux-@IO_Multiplexer@ utils)
-
-# utils
-set(utils_DEPENDENCIES logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
     if("${${_comp}_LOADED}" STREQUAL "")

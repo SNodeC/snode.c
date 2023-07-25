@@ -8,8 +8,12 @@ set(LOGGER_CPP Logger.cpp ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc)
 
 set(LOGGER_H Logger.h)
 
+set(TMP_CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${CMAKE_CXX_INCLUDE_WHAT_YOU_USE})
+# Do not use easylogging++.cc
+unset(CMAKE_CXX_INCLUDE_WHAT_YOU_USE)
 add_library(logger SHARED ${LOGGER_CPP} ${LOGGER_H})
 add_library(snodec::logger ALIAS logger)
+set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${TMP_CMAKE_CXX_INCLUDE_WHAT_YOU_USE})
 
 set(EASYLOGGING_COMPILE_FLAGS
     "\

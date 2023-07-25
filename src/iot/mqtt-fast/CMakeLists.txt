@@ -21,6 +21,7 @@ add_library(snodec::mqtt-fast ALIAS mqtt-fast)
 
 target_link_libraries(
     mqtt-fast PRIVATE snodec::mqtt-fast-types snodec::mqtt-fast-packets
+                      snodec::core-socket-stream
 )
 
 target_include_directories(

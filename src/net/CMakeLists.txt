@@ -78,6 +78,8 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
+target_link_libraries(net PUBLIC snodec::core)
+
 set_target_properties(
     net
     PROPERTIES SOVERSION ${SNODEC_SOVERSION}

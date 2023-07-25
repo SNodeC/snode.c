@@ -38,6 +38,8 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
+target_link_libraries(websocket PUBLIC snodec::logger)
+
 set_target_properties(
     websocket
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${HTTP_UPGRADE_COMPILE_LIBDIR}"

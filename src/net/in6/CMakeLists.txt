@@ -15,7 +15,7 @@ if(${DUAL_STACK})
     target_compile_definitions(net-in6 PRIVATE DUAL_STACK=true)
 endif()
 
-target_link_libraries(net-in6 PUBLIC snodec::net)
+target_link_libraries(net-in6 PUBLIC snodec::net snodec::core-socket)
 
 target_include_directories(
     net-in6

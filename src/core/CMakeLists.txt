@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
+add_subdirectory(multiplexer)
+
 set(CORE_CPP
     Descriptor.cpp
     DescriptorEventPublisher.cpp
@@ -138,5 +140,4 @@ install(
     COMPONENT core
 )
 
-add_subdirectory(multiplexer)
 add_subdirectory(socket)

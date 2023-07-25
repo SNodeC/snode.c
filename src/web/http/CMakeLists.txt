@@ -51,7 +51,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(http PUBLIC ${LIBMAGIC_LIBRARIES})
+target_link_libraries(
+    http PUBLIC snodec::core-socket-stream ${LIBMAGIC_LIBRARIES}
+)
 
 set_target_properties(
     http
@@ -62,6 +64,7 @@ set_target_properties(
                HTTP_INSTALL_LIBDIR ${HTTP_INSTALL_LIBDIR}
                HTTP_UPGRADE_COMPILE_LIBDIR ${HTTP_UPGRADE_COMPILE_LIBDIR}
                HTTP_UPGRADE_INSTALL_LIBDIR ${HTTP_UPGRADE_INSTALL_LIBDIR}
+               HTTP_RPATH ${HTTP_INSTALL_LIBDIR}
                EXPORT_PROPERTIES HTTP_UPGRADE_INSTALL_LIBDIR
 )
 
