@@ -49,7 +49,6 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
          * [Cross Compile](#cross-compile)
       * [Prepare Deployment (only once)](#prepare-deployment-only-once)
       * [Deploy SNode.C](#deploy-snodec)
-      * [Finish Deployment (only once)](#finish-deployment-only-once)
 * [Design Decisions and Features](#design-decisions-and-features)
    * [Network Layer](#network-layer)
    * [Transport Layer](#transport-layer)
@@ -126,7 +125,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
    * [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
-<!-- Added by: runner, at: Tue Jul 18 14:51:55 UTC 2023 -->
+<!-- Added by: runner, at: Thu Jul 27 23:50:49 UTC 2023 -->
 
 <!--te-->
 
