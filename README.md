@@ -652,12 +652,11 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 
 As starting point it is assumed that local **ssh** and **sftp** access to the router exist and that the router is connected to the **Internet** via the **WAN** port.
 
-Deploying SNode.C **for the first time** on an OpenWRT router involves four tasks:
+Deploying SNode.C **for the first time** on an OpenWRT router involves three tasks:
 
 1. Cross Compile SNode.C
 2. Prepare Deployment
 3. Deploy SNode.C
-4. Finish Deployment
 
 **Subsequent** deployments involve only two tasks:
 
@@ -810,21 +809,9 @@ exit
 
 on the router. Use the option `--force-reinstall` in cast you want to reinstall the same version by overwriting the currently installed files.
 
-### Finish Deployment (only once)
-
-The last step, which also must be executed only once, creates a new unix group named **snodec** with a free to choose group-id **\<gid\>** and adds the user **root** to that group.  The group **snodec** does not have to be a system group.
-
-```sh
-ssh root@<router-ip>
-echo "snodec:x:<gid>:root" >> /etc/group
-exit 
-```
-
-This new group is used in the group management of config-, log-, and pid-files.
+During package installation a new *unix group* with member *root* is created used in the group management of config-, log-, and pid-files.
 
 ***Note:*** A logout/login is necessary to activate the new group assignment.
-
-***Warning:*** Choose a group-id not already used.
 
 # Design Decisions and Features
 
