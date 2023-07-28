@@ -32,14 +32,14 @@
 
 namespace net::in6::stream {
 
-    template <template <typename PhysicalClientSocket, typename ConfigClientSocketT> typename SocketConnectorT,
-              typename ConfigClientSocketT,
+    template <template <typename PhysicalClientSocket, typename ConfigSocketClientT> typename SocketConnectorT,
+              typename ConfigSocketClientT,
               typename SocketContextFactoryT>
     class SocketClient
-        : public core::socket::stream::SocketClient<SocketConnectorT<net::in6::stream::PhysicalClientSocket, ConfigClientSocketT>,
+        : public core::socket::stream::SocketClient<SocketConnectorT<net::in6::stream::PhysicalClientSocket, ConfigSocketClientT>,
                                                     SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::in6::stream::PhysicalClientSocket, ConfigClientSocketT>,
+        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::in6::stream::PhysicalClientSocket, ConfigSocketClientT>,
                                                          SocketContextFactoryT>;
 
     public:
