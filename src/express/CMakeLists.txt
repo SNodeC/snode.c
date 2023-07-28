@@ -80,8 +80,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    http-server-express
-    PUBLIC snodec::http-server ${NLOHMANN_JSON_LIBRARIES}
+    http-server-express PUBLIC snodec::http-server ${NLOHMANN_JSON_LIBRARIES}
 )
 
 get_target_property(
