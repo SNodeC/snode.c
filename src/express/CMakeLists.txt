@@ -81,8 +81,7 @@ target_include_directories(
 
 target_link_libraries(
     http-server-express
-    PUBLIC snodec::http-server
-    PRIVATE ${NLOHMANN_JSON_LIBRARIES}
+    PUBLIC snodec::http-server ${NLOHMANN_JSON_LIBRARIES}
 )
 
 get_target_property(
