@@ -80,11 +80,7 @@ set(CORE_H
     timer/Timer.h
 )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set_source_files_properties(
-        EventLoop.cpp PROPERTIES COMPILE_FLAGS "-Wno-disabled-macro-expansion"
-    )
-endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+set_source_files_properties(EventLoop.cpp PROPERTIES COMPILE_FLAGS $<$<CXX_COMPILER_ID:Clang>:-Wno-disabled-macro-expansion>)
 
 add_library(core SHARED ${CORE_CPP} ${CORE_H})
 add_library(snodec::core ALIAS core)

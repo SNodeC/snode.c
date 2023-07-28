@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wno-missing-prototypes)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # using GCC
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    # using Intel C++
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # using Visual Studio C++
-endif()
+add_compile_options($<$<CXX_COMPILER_ID:Clang>:-Wno-missing-prototypes>)
 
 get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
 get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)

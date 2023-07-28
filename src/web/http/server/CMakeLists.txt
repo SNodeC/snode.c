@@ -1,15 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(DISABLED_WARNINGS -Wno-weak-template-vtables)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # using GCC
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    # using Intel C++
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # using Visual Studio C++
-endif()
-
 get_target_property(HTTP_COMPILE_LIBDIR snodec::http HTTP_COMPILE_LIBDIR)
 set(HTTP_SERVER_COMPILE_LIBDIR "${HTTP_COMPILE_LIBDIR}/server")
 
@@ -73,7 +63,6 @@ set_target_properties(
         SOVERSION ${SNODEC_SOVERSION}
         OUTPUT_NAME snodec-http-server
         LIBRARY_OUTPUT_DIRECTORY "${HTTP_SERVER_COMPILE_LIBDIR}"
-        COMPILE_FLAGS "${DISABLED_WARNINGS}"
         BUILD_RPATH "${HTTP_COMPILE_LIBDIR}"
         INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR}"
         HTTP_SERVER_COMPILE_LIBDIR "${HTTP_SERVER_COMPILE_LIBDIR}"

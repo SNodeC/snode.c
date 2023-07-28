@@ -1,20 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(DISABLED_WARNINGS "-Wno-weak-template-vtables")
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
-        set(DISABLED_WARNINGS "${DISABLED_WARNINGS}"
-                              # -Wno-cast-function-type-strict"
-        )
-    endif()
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # using GCC
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    # using Intel C++
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # using Visual Studio C++
-endif()
-
 get_target_property(
     HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR snodec::http-client
     HTTP_CLIENT_UPGRADE_COMPILE_LIBDIR
@@ -83,7 +68,6 @@ set_target_properties(
         "${CMAKE_INSTALL_PREFIX}/include/snode.c"
         EXPORT_PROPERTIES
         "WEBSOCKET_SUBPROTOCOL_CLIENT_INCLUDE_DIRS;WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR"
-        COMPILE_FLAGS "${DISABLED_WARNINGS}"
 )
 
 target_include_directories(

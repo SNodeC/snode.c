@@ -1,15 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(DISABLED_WARNINGS -Wno-weak-template-vtables)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # using GCC
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    # using Intel C++
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # using Visual Studio C++
-endif()
-
 set(NET_CPP
     PhysicalSocketOption.cpp
     SocketAddress.cpp
@@ -84,7 +74,6 @@ set_target_properties(
     net
     PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-net
-               COMPILE_FLAGS "${DISABLED_WARNINGS}"
 )
 
 install(

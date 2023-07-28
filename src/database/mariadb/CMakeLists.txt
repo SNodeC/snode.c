@@ -4,18 +4,6 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LIBMARIADB libmariadb)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(# Oh, mysql/mariadb has some strange identifier
-        DISABLED_WARNINGS -Wno-reserved-macro-identifier
-    )
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # using GCC
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    # using Intel C++
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # using Visual Studio C++
-endif()
-
 if(LIBMARIADB_FOUND)
     set(MARIADB_CPP
         MariaDBClient.cpp
@@ -68,23 +56,26 @@ if(LIBMARIADB_FOUND)
     target_link_libraries(
         db-mariadb PUBLIC snodec::core ${LIBMARIADB_LIBRARIES}
     )
+
     target_include_directories(
         db-mariadb
         PUBLIC ${LIBMARIADB_INCLUDE_DIRS}
                "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
+
     set_target_properties(
         db-mariadb
         PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                    OUTPUT_NAME snodec-db-mariadb
-                   COMPILE_FLAGS "${DISABLED_WARNINGS}"
     )
+
     install(
         TARGETS db-mariadb
         EXPORT snodec_db-mariadb_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT db-mariadb
     )
+
     install(
         EXPORT snodec_db-mariadb_Targets
         FILE snodec_db-mariadb_Targets.cmake
@@ -92,6 +83,7 @@ if(LIBMARIADB_FOUND)
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
         COMPONENT db-mariadb
     )
+
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION include/snode.c/database/mariadb
