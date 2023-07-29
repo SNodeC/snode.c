@@ -50,7 +50,7 @@ if(NLOHMANN_JSON_FOUND)
                    OUTPUT_NAME snodec-mqtt
     )
 
-    set(MQTT_INSTALL_DIR "/snode.c/iot/mqtt")
+    set(MQTT_INSTALL_DIR "snode.c/iot/mqtt")
 
     install(
         TARGETS mqtt
@@ -61,7 +61,7 @@ if(NLOHMANN_JSON_FOUND)
 
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}${MQTT_INSTALL_DIR}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}
         COMPONENT mqtt
         FILES_MATCHING
         PATTERN "*.h"

@@ -35,13 +35,13 @@ set_target_properties(
 install(
     TARGETS mqtt-server
     EXPORT snodec_mqtt-server_Targets
-    LIBRARY DESTINATION ${MQTT_INSTALL_DIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
             COMPONENT mqtt-server
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}${MQTT_INSTALL_DIR}/server
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}//${MQTT_INSTALL_DIR}/server
     COMPONENT mqtt-server
     FILES_MATCHING
     PATTERN "*.h"
