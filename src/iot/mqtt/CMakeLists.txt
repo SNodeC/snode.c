@@ -6,11 +6,6 @@ if(NLOHMANN_JSON_FOUND)
     add_subdirectory(packets)
     add_subdirectory(types)
 
-    set(SNODEC_IOT_MQTT_RPATH
-        "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt"
-        CACHE INTERNAL ""
-    )
-
     set(MQTT_CPP
         ControlPacket.cpp
         ControlPacketDeserializer.cpp
@@ -53,20 +48,20 @@ if(NLOHMANN_JSON_FOUND)
         mqtt
         PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                    OUTPUT_NAME snodec-mqtt
-                   IOT_MQTT_RPATH "${SNODEC_IOT_MQTT_RPATH}"
-                   EXPORT_PROPERTIES "IOT_MQTT_RPATH"
     )
+
+    set(MQTT_INSTALL_DIR "/snode.c/iot/mqtt")
 
     install(
         TARGETS mqtt
         EXPORT snodec_mqtt_Targets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
                 COMPONENT mqtt
     )
 
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION include/snode.c/iot/mqtt
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}${MQTT_INSTALL_DIR}
         COMPONENT mqtt
         FILES_MATCHING
         PATTERN "*.h"

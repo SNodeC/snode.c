@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(SNODEC_IOT_MQTT_SERVER_RPATH
-    "${SNODEC_IOT_MQTT_RPATH};${SNODEC_IOT_MQTT_RPATH}/server"
-)
-
 add_subdirectory(packets)
 add_subdirectory(broker)
 
@@ -34,23 +30,18 @@ set_target_properties(
     mqtt-server
     PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-mqtt-server
-               INSTALL_RPATH "${SNODEC_IOT_MQTT_RPATH}"
-               IOT_MQTT_SERVER_INCLUDE_DIRS
-               "${CMAKE_INSTALL_PREFIX}/include/snode.c"
-               IOT_MQTT_SERVER_RPATH "${SNODEC_IOT_MQTT_SERVER_RPATH}"
-               EXPORT_PROPERTIES "IOT_MQTT_SERVER_RPATH"
 )
 
 install(
     TARGETS mqtt-server
     EXPORT snodec_mqtt-server_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/iot/mqtt
+    LIBRARY DESTINATION ${MQTT_INSTALL_DIR}
             COMPONENT mqtt-server
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/iot/mqtt/server
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}${MQTT_INSTALL_DIR}/server
     COMPONENT mqtt-server
     FILES_MATCHING
     PATTERN "*.h"

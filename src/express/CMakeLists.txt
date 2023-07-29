@@ -91,8 +91,6 @@ get_target_property(
     HTTP_SERVER_INSTALL_LIBDIR snodec::http-server HTTP_SERVER_INSTALL_LIBDIR
 )
 
-get_target_property(HTTP_INSTALL_LIBDIR snodec::http HTTP_INSTALL_LIBDIR)
-
 set_target_properties(
     http-server-express
     PROPERTIES
