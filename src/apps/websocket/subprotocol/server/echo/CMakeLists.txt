@@ -25,34 +25,34 @@ set(ECHOSERVERSUBPROTOCOL_CPP Echo.cpp EchoFactory.cpp)
 set(ECHOSERVERSUBPROTOCOL_H Echo.h EchoFactory.h)
 
 add_library(
-    echoserversubprotocol SHARED ${ECHOSERVERSUBPROTOCOL_CPP}
+    websocket-echo-server SHARED ${ECHOSERVERSUBPROTOCOL_CPP}
                                  ${ECHOSERVERSUBPROTOCOL_H}
 )
 
 target_include_directories(
-    echoserversubprotocol PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    websocket-echo-server PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
-target_link_libraries(echoserversubprotocol PUBLIC snodec::websocket-server)
+target_link_libraries(websocket-echo-server PUBLIC snodec::websocket-server)
 
 set_target_properties(
-    echoserversubprotocol
+    websocket-echo-server
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY
                "${WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR}"
-               OUTPUT_NAME "snodec-websocket-echo"
+               OUTPUT_NAME "snodec-websocket-echo-server"
                SOVERSION ${SNODEC_SOVERSION} # PREFIX "ssp"
                INSTALL_RPATH
                "${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_UPGRADE_INSTALL_LIBDIR}"
 )
 
-install(TARGETS echoserversubprotocol
+install(TARGETS websocket-echo-server
         LIBRARY DESTINATION ${WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR}
                 COMPONENT apps
 )
 
 if(CHECK_INCLUDES)
     set_property(
-        TARGET echoserversubprotocol PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+        TARGET websocket-echo-server PROPERTY CXX_INCLUDE_WHAT_YOU_USE
                                               ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
