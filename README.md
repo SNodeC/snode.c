@@ -1616,7 +1616,6 @@ Options (non-persistent):
   --version
        Display program version information and exit
 
-
 Options (persistent):
   -l,--log-level level:INT in [0 - 6] [3] 
        Log level
