@@ -83,30 +83,22 @@ target_link_libraries(
     http-server-express PUBLIC snodec::http-server ${NLOHMANN_JSON_LIBRARIES}
 )
 
-get_target_property(
-    HTTP_SERVER_COMPILE_LIBDIR snodec::http-server HTTP_SERVER_COMPILE_LIBDIR
-)
+get_target_property(HTTP_COMPILE_LIBDIR snodec::http-server HTTP_COMPILE_LIBDIR)
 
-get_target_property(
-    HTTP_SERVER_INSTALL_LIBDIR snodec::http-server HTTP_SERVER_INSTALL_LIBDIR
-)
-
-get_target_property(HTTP_INSTALL_LIBDIR snodec::http HTTP_INSTALL_LIBDIR)
+get_target_property(HTTP_INSTALL_LIBDIR snodec::http-server HTTP_INSTALL_LIBDIR)
 
 set_target_properties(
     http-server-express
-    PROPERTIES
-        SOVERSION ${SNODEC_SOVERSION}
-        OUTPUT_NAME snodec-http-server-express
-        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${HTTP_SERVER_INSTALL_LIBDIR}}"
-        LIBRARY_OUTPUT_DIRECTORY ${HTTP_SERVER_COMPILE_LIBDIR}
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-http-server-express
+               INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR}}"
+               LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
 )
 
 install(
     TARGETS http-server-express
     EXPORT snodec_http-server-express_Targets
-    LIBRARY DESTINATION ${HTTP_SERVER_INSTALL_LIBDIR}
-            COMPONENT http-server-express
+    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-server-express
 )
 
 install(

@@ -13,7 +13,7 @@ if(SNODEC_INTREE_BUILD)
 
     set_target_properties(
         client_app PROPERTIES INSTALL_RPATH
-                              "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
+                              "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
     )
 
 endif(SNODEC_INTREE_BUILD)

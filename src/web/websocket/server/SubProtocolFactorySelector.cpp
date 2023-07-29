@@ -41,7 +41,7 @@ namespace web::websocket::server {
 
     SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
         std::string subProtocolLibraryFile =
-            WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR "/libsnodec-websocket-" + subProtocolName + "-server.so." SOVERSION;
+            WEBSOCKET_SUBPROTOCO_INSTALL_LIBDIR "/libsnodec-websocket-" + subProtocolName + "-server.so." SOVERSION;
         std::string subProtocolFactoryFunctionName = subProtocolName + "ServerSubProtocolFactory";
 
         return Super::load(subProtocolName, subProtocolLibraryFile, subProtocolFactoryFunctionName);

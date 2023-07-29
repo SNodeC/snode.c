@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
-get_target_property(HTTP_SERVER_RPATH snodec::http-server HTTP_SERVER_RPATH)
-get_target_property(HTTP_CLIENT_RPATH snodec::http-client HTTP_CLIENT_RPATH)
+get_target_property(HTTP_RPATH snodec::http-server HTTP_RPATH)
+get_target_property(HTTP_RPATH snodec::http-client HTTP_RPATH)
 
 set(IN 1)
 set(IN6 2)
@@ -70,8 +70,7 @@ foreach(NET IN LISTS NETS)
         )
         set_target_properties(
             httpserver-${STREAM}-${NET}
-            PROPERTIES INSTALL_RPATH
-                       "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
+            PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
         )
         target_compile_definitions(
             httpserver-${STREAM}-${NET}
@@ -87,8 +86,7 @@ foreach(NET IN LISTS NETS)
         )
         set_target_properties(
             httpclient-${STREAM}-${NET}
-            PROPERTIES INSTALL_RPATH
-                       "${CMAKE_INSTALL_RPATH};${HTTP_CLIENT_RPATH}"
+            PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
         )
         target_link_libraries(
             httpclient-${STREAM}-${NET}
@@ -110,8 +108,7 @@ foreach(NET IN LISTS NETS)
             )
             set_target_properties(
                 httpserverclientcert-${STREAM}-${NET}
-                PROPERTIES INSTALL_RPATH
-                           "${CMAKE_INSTALL_RPATH};${HTTP_SERVER_RPATH}"
+                PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
             )
             target_link_libraries(
                 httpserverclientcert-${STREAM}-${NET}
@@ -133,8 +130,7 @@ foreach(NET IN LISTS NETS)
             )
             set_target_properties(
                 httpclientclientcert-${STREAM}-${NET}
-                PROPERTIES INSTALL_RPATH
-                           "${CMAKE_INSTALL_RPATH};${HTTP_CLIENT_RPATH}"
+                PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
             )
             target_link_libraries(
                 httpclientclientcert-${STREAM}-${NET}
@@ -155,7 +151,7 @@ endforeach()
 add_executable(httplowlevelclient httplowlevelclient.cpp)
 set_target_properties(
     httplowlevelclient PROPERTIES INSTALL_RPATH
-                                  "${CMAKE_INSTALL_RPATH};${HTTP_CLIENT_RPATH}"
+                                  "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
 )
 target_link_libraries(
     httplowlevelclient PUBLIC snodec::net-in-stream-legacy
