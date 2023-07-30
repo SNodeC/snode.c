@@ -1,6 +1,7 @@
 # Custom target to generate a library dependency graph
 
-add_custom_target(graphviz
+add_custom_target(
+    graphviz
     COMMAND ${CMAKE_COMMAND} "--graphviz=foo.dot" .
     COMMAND dot -Tpdf foo.dot -o ${CMAKE_SOURCE_DIR}/SNodeC-Lib-Dependencies.pdf
     COMMAND rm foo.dot.*

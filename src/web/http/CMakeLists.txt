@@ -103,7 +103,9 @@ install(
 add_subdirectory(server)
 add_subdirectory(client)
 
-configure_file(snodec_http_Targets_Config.cmake.in snodec_http_Targets_Config.cmake)
+configure_file(
+    cmake/snodec_http_Targets_Config.cmake.in snodec_http_Targets_Config.cmake
+)
 
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/snodec_http_Targets_Config.cmake"

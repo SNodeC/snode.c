@@ -73,7 +73,9 @@ macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp _lspace _ladd)
                     "\'${TMP_COMP_DEPENDENCIES}\'"
             )
             foreach(_depcomp ${${_comp}_DEPENDENCIES})
-                load_component_with_dependencies(${_depcomp} "${_lspace}${_ladd}" "${_ladd}")
+                load_component_with_dependencies(
+                    ${_depcomp} "${_lspace}${_ladd}" "${_ladd}"
+                )
             endforeach()
             message("${_lspace}${_comp}: dependencies loaded ")
         endif()
