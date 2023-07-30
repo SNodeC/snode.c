@@ -25,7 +25,6 @@ set_source_files_properties(
     SocketContextUpgradeFactorySelector.cpp
     PROPERTIES
         COMPILE_DEFINITIONS
-        # $<$<CONFIG:Debug>:HTTP_UPGRADE_INSTALL_LIBDIR=\"${HTTP_UPGRADE_COMPILE_LIBDIR}\";SOVERSION=\"${SNODEC_SOVERSION}\">\
         "\
         $<$<CONFIG:Debug>:\
             HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\";\
@@ -44,6 +43,7 @@ set_source_files_properties(
             SOVERSION=\"${SNODEC_SOVERSION}\" \
         > \
         "
+        # $<$<CONFIG:Debug>:HTTP_UPGRADE_INSTALL_LIBDIR=\"${HTTP_UPGRADE_COMPILE_LIBDIR}\";SOVERSION=\"${SNODEC_SOVERSION}\">\
 )
 
 target_include_directories(
