@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.18)
 get_target_property(
     HTTP_UPGRADE_COMPILE_LIBDIR snodec::http HTTP_UPGRADE_COMPILE_LIBDIR
 )
-
 get_target_property(
     HTTP_UPGRADE_INSTALL_LIBDIR snodec::http HTTP_UPGRADE_INSTALL_LIBDIR
 )
@@ -11,11 +10,9 @@ get_target_property(
 set(WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
     "${HTTP_UPGRADE_COMPILE_LIBDIR}/websocket"
 )
-
 set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR
     "${HTTP_UPGRADE_INSTALL_LIBDIR}/websocket"
 )
-
 set(WEBSOCKET_INSTALL_INCLUDEDIR
     ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/web/websocket
 )

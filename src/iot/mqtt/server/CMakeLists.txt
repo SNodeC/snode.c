@@ -27,8 +27,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    mqtt-server PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                         snodec-mqtt-server
+    mqtt-server
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-mqtt-server
+               INSTALL_RPATH ${MQTT_RPATH}
 )
 
 install(
@@ -40,7 +42,7 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/server
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
     COMPONENT mqtt-server
     FILES_MATCHING
     PATTERN "*.h"

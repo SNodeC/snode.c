@@ -21,8 +21,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    mqtt-client PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                         snodec-mqtt-client
+    mqtt-client
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-mqtt-client
+               INSTALL_RPATH ${MQTT_RPATH}
 )
 
 install(

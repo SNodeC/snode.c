@@ -5,6 +5,8 @@ find_package(nlohmann_json 3.7.0)
 if(NLOHMANN_JSON_FOUND)
     set(MQTT_INSTALL_DIR "snode.c/iot/mqtt")
     set(MQTT_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR})
+    set(MQTT_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR})
+    set(MQTT_RPATH ${CMAKE_INSTALL_PREFIX}/${MQTT_INSTALL_LIBDIR})
 
     add_subdirectory(packets)
     add_subdirectory(types)
