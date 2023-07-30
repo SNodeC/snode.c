@@ -43,14 +43,13 @@ target_link_libraries(websocket PUBLIC snodec::logger)
 
 set_target_properties(
     websocket
-    PROPERTIES
-        OUTPUT_NAME "snodec-websocket"
-        LIBRARY_OUTPUT_DIRECTORY "${HTTP_UPGRADE_COMPILE_LIBDIR}"
-        SOVERSION ${SNODEC_SOVERSION}
-        WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
-        ${WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR}
-        WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR
-        ${WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR}
+    PROPERTIES OUTPUT_NAME "snodec-websocket"
+               LIBRARY_OUTPUT_DIRECTORY "${HTTP_UPGRADE_COMPILE_LIBDIR}"
+               SOVERSION ${SNODEC_SOVERSION}
+               WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
+               ${WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR}
+               WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR
+               ${WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR}
 )
 
 install(
@@ -85,7 +84,7 @@ add_subdirectory(client)
 
 configure_file(
     cmake/snodec_websocket_Targets_Config.cmake.in
-    snodec_websocket_Targets_Config.cmake
+    snodec_websocket_Targets_Config.cmake @ONLY
 )
 
 install(
