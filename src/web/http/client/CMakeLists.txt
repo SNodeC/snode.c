@@ -37,11 +37,11 @@ set_source_files_properties(
         $<IF:$<CONFIG:RelWithDebInfo>, \
             HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\"; \
             SOVERSION=\"${SNODEC_SOVERSION}\", \
+#       ELSE \
             HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\"; \
             SOVERSION=\"${SNODEC_SOVERSION}\" \
         >>>> \
         "
-        # $<$<CONFIG:Debug>:HTTP_UPGRADE_INSTALL_LIBDIR=\"${HTTP_UPGRADE_COMPILE_LIBDIR}\";SOVERSION=\"${SNODEC_SOVERSION}\">\
 )
 
 target_include_directories(
