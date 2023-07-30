@@ -46,7 +46,7 @@ target_include_directories(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/iot/mqtt/packets
+    DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/packets
     COMPONENT mqtt
     FILES_MATCHING
     PATTERN "*.h"

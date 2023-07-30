@@ -58,7 +58,7 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/web/websocket/client
+    DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}/client
     COMPONENT websocket-client
     FILES_MATCHING
     PATTERN "*.h"

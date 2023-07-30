@@ -25,7 +25,25 @@ set_source_files_properties(
     SocketContextUpgradeFactorySelector.cpp
     PROPERTIES
         COMPILE_DEFINITIONS
-        "HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\";SOVERSION=\"${SNODEC_SOVERSION}\""
+        # $<$<CONFIG:Debug>:HTTP_UPGRADE_INSTALL_LIBDIR=\"${HTTP_UPGRADE_COMPILE_LIBDIR}\";SOVERSION=\"${SNODEC_SOVERSION}\">\
+        "\
+        $<$<CONFIG:Debug>:\
+            HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\";\
+            SOVERSION=\"${SNODEC_SOVERSION}\" \
+        > \
+        $<$<CONFIG:Release>:\
+            HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\";\
+            SOVERSION=\"${SNODEC_SOVERSION}\" \
+        > \
+        $<$<CONFIG:MinSizeRel>: \
+            HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\";\
+            SOVERSION=\"${SNODEC_SOVERSION}\" \
+        > \
+        $<$<CONFIG:RelWithDebInfo>: \
+            HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\";\
+            SOVERSION=\"${SNODEC_SOVERSION}\" \
+        > \
+        "
 )
 
 target_include_directories(
@@ -55,7 +73,7 @@ set_target_properties(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${HTTP_INSTALL_DIR}/server
+    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/server
     COMPONENT http-server
     FILES_MATCHING
     PATTERN "*.h"

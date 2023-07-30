@@ -59,7 +59,7 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/web/websocket/server
+    DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}/server
     COMPONENT websocket-server
     FILES_MATCHING
     PATTERN "*.h"

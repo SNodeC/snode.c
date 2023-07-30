@@ -16,6 +16,8 @@ set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR
     "${HTTP_UPGRADE_INSTALL_LIBDIR}/websocket"
 )
 
+set(WEBSOCKET_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/web/websocket)
+
 set(WEBSOCKETBASE_CPP Receiver.cpp SubProtocolContext.cpp Transmitter.cpp)
 set(WEBSOCKETBASE_H
     Receiver.h
@@ -61,7 +63,7 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/web/websocket
+    DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}
     COMPONENT websocket
     FILES_MATCHING
     PATTERN "*.h"

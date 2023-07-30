@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.18)
 find_package(nlohmann_json 3.7.0)
 
 if(NLOHMANN_JSON_FOUND)
+    set(MQTT_INSTALL_DIR "snode.c/iot/mqtt")
+    set(MQTT_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR})
+
     add_subdirectory(packets)
     add_subdirectory(types)
 
@@ -48,8 +51,6 @@ if(NLOHMANN_JSON_FOUND)
         mqtt PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-mqtt
     )
 
-    set(MQTT_INSTALL_DIR "snode.c/iot/mqtt")
-
     install(
         TARGETS mqtt
         EXPORT snodec_mqtt_Targets
@@ -59,7 +60,7 @@ if(NLOHMANN_JSON_FOUND)
 
     install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}
+        DESTINATION ${MQTT_INSTALL_INCLUDEDIR}
         COMPONENT mqtt
         FILES_MATCHING
         PATTERN "*.h"
