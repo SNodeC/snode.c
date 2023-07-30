@@ -84,3 +84,12 @@ install(
 
 add_subdirectory(server)
 add_subdirectory(client)
+
+configure_file(snodec_websocket_Targets_Config.cmake.in snodec_websocket_Targets_Config.cmake)
+
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/snodec_websocket_Targets_Config.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT "core"
+)
+
