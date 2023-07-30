@@ -31,7 +31,7 @@ add_library(
 )
 add_library(snodec::mqtt-server-packets ALIAS mqtt-server-packets)
 
-target_link_libraries(mqtt-server-packets PUBLIC snodec::mqtt-packets)
+target_link_libraries(mqtt-server-packets PRIVATE snodec::mqtt-packets)
 
 set_property(TARGET mqtt-server-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 
