@@ -25,6 +25,9 @@ set_source_files_properties(
     PROPERTIES
         COMPILE_DEFINITIONS
         "\
+        $<$<CONFIG:>:\
+            HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\";\
+             SOVERSION=\"${SNODEC_SOVERSION}\">\
         $<$<CONFIG:Debug>:\
             HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\";\
             SOVERSION=\"${SNODEC_SOVERSION}\" \
