@@ -64,30 +64,30 @@ set(mqtt_DEPENDENCIES core-socket-stream)
 set(mqtt-server_DEPENDENCIES mqtt)
 set(mqtt-client_DEPENDENCIES mqtt)
 
-macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
+macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp _lspace _ladd)
     if("${${_comp}_LOADED}" STREQUAL "")
+        message("${_lspace}${_comp}: loading ...")
         list(JOIN ${_comp}_DEPENDENCIES ", " TMP_COMP_DEPENDENCIES)
         if(NOT "${TMP_COMP_DEPENDENCIES}" STREQUAL "")
-            message("Loading dependencies of component " ${_comp} ": "
-                    "${TMP_COMP_DEPENDENCIES}"
+            message("${_lspace}${_comp}: loading dependencies "
+                    "\'${TMP_COMP_DEPENDENCIES}\'"
             )
             foreach(_depcomp ${${_comp}_DEPENDENCIES})
-                load_component_with_dependencies(${_depcomp})
+                load_component_with_dependencies(${_depcomp} "${_lspace}${_ladd}" "${_ladd}")
             endforeach()
+            message("${_lspace}${_comp}: dependencies loaded ")
         endif()
-        message("Loading component: " ${_comp})
-        include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Targets.cmake")
-        include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Options.cmake"
-                OPTIONAL RESULT_VARIABLE ${_comp}_OPTIONS_FILE
+        include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Targets_Config.cmake"
+                OPTIONAL RESULT_VARIABLE ${_comp}_TARGETS_CONFIG_FILE
         )
-        if(NOT "${${_comp}_OPTIONS_FILE}" STREQUAL "NOTFOUND")
-            message("  " ${_comp} ": Options loaded from "
-                    ${${_comp}_OPTIONS_FILE}
-            )
+        if(NOT "${${_comp}_TARGETS_CONFIG_FILE}" STREQUAL "NOTFOUND")
+            message("${_lspace}${_comp}: configured")
         endif()
+        message("${_lspace}${_comp}: loaded")
+        include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Targets.cmake")
         set(${_comp}_LOADED true)
     else()
-        message("Already loaded: " ${_comp})
+        message("${_lspace}${_comp}: already loaded")
     endif()
 endmacro()
 
@@ -127,7 +127,7 @@ foreach(_comp ${snodec_FIND_COMPONENTS})
         set(snodec_FOUND False)
         set(snodec_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
     else()
-        load_component_with_dependencies(${_comp})
+        load_component_with_dependencies(${_comp} "" "  ")
     endif()
 endforeach()
 
