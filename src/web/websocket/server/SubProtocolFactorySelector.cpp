@@ -46,10 +46,12 @@ namespace web::websocket::server {
         std::string websocketSubprotocolInstallLibdir = WEBSOCKET_SUBPROTOCO_INSTALL_LIBDIR;
 
 #if !defined(NDEBUG)
-        if (const char* websocketSubprotocolInstallLibdirEng = std::getenv("WEBSOCKET_SUBPROTOCO_INSTALL_LIBDIR")) {
+        if (const char* websocketSubprotocolInstallLibdirEng = std::getenv("WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR")) {
+            LOG(WARNING) << "Overriding websocket subprotocol library dir";
             websocketSubprotocolInstallLibdir = std::string(websocketSubprotocolInstallLibdirEng);
         }
 #endif
+
         return Super::load(subProtocolName,
                            websocketSubprotocolInstallLibdir + "/libsnodec-websocket-" + websocketSubprotocolInstallLibraryFile,
                            websocketSubprotocolInstallFunctionName);
