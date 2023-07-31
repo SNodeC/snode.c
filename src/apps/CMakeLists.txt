@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.18)
 
 add_compile_options($<$<CXX_COMPILER_ID:Clang>:-Wno-missing-prototypes>)
 
-get_target_property(HTTP_RPATH snodec::http-server HTTP_RPATH)
-get_target_property(HTTP_RPATH snodec::http-client HTTP_RPATH)
+get_target_property(HTTP_INSTALL_RPATH snodec::http-server HTTP_INSTALL_RPATH)
+get_target_property(HTTP_INSTALL_RPATH snodec::http-client HTTP_INSTALL_RPATH)
 
 add_executable(snode.c main.cpp)
 target_link_libraries(snode.c PUBLIC snodec::core)
@@ -17,7 +17,7 @@ target_link_libraries(
                      snodec::net-in-stream-tls
 )
 set_target_properties(
-    testpost PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+    testpost PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                  COMPONENT apps
@@ -31,7 +31,7 @@ target_link_libraries(
 )
 set_target_properties(
     verysimpleserver PROPERTIES INSTALL_RPATH
-                                "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+                                "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                          COMPONENT apps
@@ -45,7 +45,7 @@ if(NLOHMANN_JSON_FOUND)
     )
     set_target_properties(
         jsonserver PROPERTIES INSTALL_RPATH
-                              "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+                              "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
     )
     install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                        COMPONENT apps
@@ -57,7 +57,7 @@ target_link_libraries(
     jsonclient PRIVATE snodec::http-client snodec::net-in-stream-legacy
 )
 set_target_properties(
-    jsonclient PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+    jsonclient PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                    COMPONENT apps
@@ -70,7 +70,7 @@ target_link_libraries(
 )
 set_target_properties(
     testparser PROPERTIES INSTALL_RPATH
-                          "${CMAKE_INSTALL_RPATH};${HTTP_RPATH};${HTTP_RPATH}"
+                          "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                    COMPONENT apps
@@ -85,7 +85,7 @@ if(LIBMARIADB_FOUND)
     )
     set_target_properties(
         testregex PROPERTIES INSTALL_RPATH
-                             "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+                             "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
     )
     install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                       COMPONENT apps
@@ -99,7 +99,7 @@ target_link_libraries(
 )
 set_target_properties(
     warema-jalousien PROPERTIES INSTALL_RPATH
-                                "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+                                "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                          COMPONENT apps
@@ -112,7 +112,7 @@ target_link_libraries(
             snodec::net-in6-stream-tls
 )
 set_target_properties(
-    vhostserver PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+    vhostserver PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                     COMPONENT apps
@@ -138,7 +138,7 @@ target_link_libraries(
 )
 set_target_properties(
     testbasicauthentication PROPERTIES INSTALL_RPATH
-                                       "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+                                       "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS testbasicauthentication
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps

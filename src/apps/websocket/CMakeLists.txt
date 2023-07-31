@@ -13,11 +13,11 @@ target_link_libraries(
                         snodec::net-in-stream-legacy snodec::net-in-stream-tls
 )
 
-get_target_property(HTTP_RPATH snodec::http-server HTTP_RPATH)
+get_target_property(HTTP_INSTALL_RPATH snodec::http-server HTTP_INSTALL_RPATH)
 
 set_target_properties(
     wsechoserver PROPERTIES INSTALL_RPATH
-                            "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+                            "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS wsechoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                      COMPONENT apps
@@ -33,11 +33,11 @@ target_link_libraries(
                          snodec::net-in-stream-tls
 )
 
-get_target_property(HTTP_RPATH snodec::http-client HTTP_RPATH)
+get_target_property(HTTP_INSTALL_RPATH snodec::http-client HTTP_INSTALL_RPATH)
 
 set_target_properties(
     wsechoclient PROPERTIES INSTALL_RPATH
-                            "${CMAKE_INSTALL_RPATH};${HTTP_RPATH}"
+                            "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS wsechoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                      COMPONENT apps

@@ -67,8 +67,8 @@ set_target_properties(
                OUTPUT_NAME snodec-http-server
                LIBRARY_OUTPUT_DIRECTORY "${HTTP_COMPILE_LIBDIR}"
                BUILD_RPATH "${HTTP_COMPILE_LIBDIR}"
-               INSTALL_RPATH ${HTTP_RPATH}
-               HTTP_RPATH "${HTTP_RPATH}"
+               INSTALL_RPATH ${HTTP_INSTALL_RPATH}
+               HTTP_INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
                HTTP_COMPILE_LIBDIR "${HTTP_COMPILE_LIBDIR}"
                HTTP_INSTALL_LIBDIR "${HTTP_INSTALL_LIBDIR}"
                HTTP_UPGRADE_COMPILE_LIBDIR "${HTTP_UPGRADE_COMPILE_LIBDIR}"
@@ -83,6 +83,7 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "pu" EXCLUDE
 )
 
 install(

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-get_target_property(HTTP_RPATH snodec::http-server HTTP_RPATH)
+get_target_property(HTTP_INSTALL_RPATH snodec::http-server HTTP_INSTALL_RPATH)
 
 set(WEBSOCKETSERVER_CPP
     GroupsManager.cpp SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp
@@ -30,7 +30,7 @@ set_target_properties(
         SOVERSION ${SNODEC_SOVERSION}
         BUILD_RPATH "${WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR}"
         INSTALL_RPATH
-        "${HTTP_RPATH};${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}"
+        "${HTTP_INSTALL_RPATH};${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}"
         WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
         "${WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR}"
         WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR

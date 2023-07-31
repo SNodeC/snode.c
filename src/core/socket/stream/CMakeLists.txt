@@ -58,6 +58,7 @@ install(
     PATTERN "." EXCLUDE
     PATTERN "legacy" EXCLUDE
     PATTERN "tls" EXCLUDE
+    PATTERN "pu" EXCLUDE
 )
 
 install(

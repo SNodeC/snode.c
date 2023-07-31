@@ -85,14 +85,14 @@ target_link_libraries(
 
 get_target_property(HTTP_COMPILE_LIBDIR snodec::http-server HTTP_COMPILE_LIBDIR)
 get_target_property(HTTP_INSTALL_LIBDIR snodec::http-server HTTP_INSTALL_LIBDIR)
-get_target_property(HTTP_RPATH snodec::http-server HTTP_RPATH)
+get_target_property(HTTP_INSTALL_RPATH snodec::http-server HTTP_INSTALL_RPATH)
 
 set_target_properties(
     http-server-express
     PROPERTIES OUTPUT_NAME snodec-http-server-express
                LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
                SOVERSION ${SNODEC_SOVERSION}
-               INSTALL_RPATH "${HTTP_RPATH}"
+               INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
 )
 
 install(
