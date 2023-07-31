@@ -44,7 +44,7 @@ namespace core {
         DynamicLoader() = delete;
         ~DynamicLoader() = delete;
 
-#define dlOpen(libFile, flags) core::DynamicLoader::dlRegisterHandle(::dlopen(libFile.c_str(), flags), libFile)
+#define dlOpen(libFile, flags) core::DynamicLoader::dlRegisterHandle(::dlopen((libFile).c_str(), flags), libFile)
 
         static void* dlRegisterHandle(void* handle, const std::string& libFile);
 
