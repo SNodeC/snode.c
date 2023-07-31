@@ -30,11 +30,20 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
-        std::string socketContextUpgradeFactoryLibraryFile =
-            HTTP_UPGRADE_INSTALL_LIBDIR "/libsnodec-" + socketContextUpgradeName + "-client.so." SOVERSION;
+        std::string socketContextUpgradeFactoryLibraryFile = socketContextUpgradeName + "-client.so." SOVERSION;
         std::string socketContextUpgradeFactoryFunctionName = socketContextUpgradeName + "ClientContextUpgradeFactory";
 
-        return Super::load(socketContextUpgradeName, socketContextUpgradeFactoryLibraryFile, socketContextUpgradeFactoryFunctionName);
+        std::string httpUpgradeInstallLibdir = HTTP_UPGRADE_INSTALL_LIBDIR;
+
+#if !defined(NDEBUG)
+        if (const char* httpUpgradeInstallLibdirEnv = std::getenv("HTTP_UPGRADE_INSTALL_LIBDIR")) {
+            httpUpgradeInstallLibdir = std::string(httpUpgradeInstallLibdirEnv);
+        }
+#endif
+
+        return Super::load(socketContextUpgradeName,
+                           httpUpgradeInstallLibdir + "/libsnodec-" + socketContextUpgradeFactoryLibraryFile,
+                           socketContextUpgradeFactoryFunctionName);
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {

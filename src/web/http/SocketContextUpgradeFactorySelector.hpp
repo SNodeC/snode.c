@@ -25,6 +25,7 @@
 
 #include "log/Logger.h"
 
+#include <cstdlib>
 #include <filesystem>
 #include <tuple>
 
