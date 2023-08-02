@@ -178,8 +178,8 @@ namespace utils {
             pidDirectory = "/var/run/snode.c";
         } else {
             const char* homedir = nullptr;
-            if ((homedir = getenv("XDG_CONFIG_HOME")) == nullptr) {
-                if ((homedir = getenv("HOME")) == nullptr) {
+            if ((homedir = std::getenv("XDG_CONFIG_HOME")) == nullptr) {
+                if ((homedir = std::getenv("HOME")) == nullptr) {
                     homedir = pw->pw_dir;
                 }
             }
