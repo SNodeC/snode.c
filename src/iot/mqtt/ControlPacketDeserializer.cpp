@@ -36,13 +36,7 @@ namespace iot::mqtt {
         std::size_t currentConsumed = deserializeVP(mqttContext);
         consumed += currentConsumed;
 
-        if (complete && consumed != this->getRemainingLength()) {
-            error = true;
-            complete = false;
-        } else if (!complete && consumed >= this->getRemainingLength()) {
-            // Error: Packet data incomplete
-            error = true;
-        }
+        error = (complete && consumed != this->getRemainingLength()) || (!complete && consumed >= this->getRemainingLength());
 
         return currentConsumed;
     }
