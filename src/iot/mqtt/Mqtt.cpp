@@ -102,7 +102,15 @@ namespace iot::mqtt {
             case 1:
                 consumed += controlPacketDeserializer->deserialize(mqttContext);
 
-                if (controlPacketDeserializer->isComplete()) {
+                if (controlPacketDeserializer->isError()) {
+                    LOG(TRACE) << "Control packet has error ... closing connection";
+                    mqttContext->end(true);
+
+                    delete controlPacketDeserializer;
+                    controlPacketDeserializer = nullptr;
+
+                    state = 0;
+                } else if (controlPacketDeserializer->isComplete()) {
                     deliverPacket(controlPacketDeserializer);
 
                     delete controlPacketDeserializer;
@@ -111,14 +119,6 @@ namespace iot::mqtt {
                     state = 0;
 
                     keepAliveTimer.restart();
-                } else if (controlPacketDeserializer->isError()) {
-                    LOG(TRACE) << "Control packet has error ... closing connection";
-                    mqttContext->end(true);
-
-                    delete controlPacketDeserializer;
-                    controlPacketDeserializer = nullptr;
-
-                    state = 0;
                 }
 
                 break;
