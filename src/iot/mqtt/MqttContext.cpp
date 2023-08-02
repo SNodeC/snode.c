@@ -39,7 +39,7 @@ namespace iot::mqtt {
         mqtt->onConnected();
     }
 
-    std::size_t MqttContext::onProcess() {
+    std::size_t MqttContext::onData() {
         return mqtt->onProcess();
     }
 

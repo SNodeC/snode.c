@@ -47,7 +47,7 @@ namespace iot::mqtt {
         : WSSubProtocolRole(subProtocolContext, name, PING_INTERVAL)
         , iot::mqtt::MqttContext(mqtt)
         , onData([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
-            iot::mqtt::MqttContext::onProcess();
+            iot::mqtt::MqttContext::onData();
 
             if (size > 0) {
                 onData.span();
