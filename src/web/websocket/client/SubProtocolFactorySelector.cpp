@@ -22,6 +22,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#if !defined(NDEBUG)
+#include "log/Logger.h"
+#endif
+
+#include <cstdlib>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::client {
