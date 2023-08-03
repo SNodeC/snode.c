@@ -24,9 +24,9 @@
 
 #if !defined(NDEBUG)
 #include "log/Logger.h"
-#endif
 
 #include <cstdlib>
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

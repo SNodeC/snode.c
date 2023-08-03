@@ -24,6 +24,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#if !defined(NDEBUG)
+#include "log/Logger.h"
+
+#include <cstdlib>
+#endif
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
