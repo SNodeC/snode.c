@@ -59,14 +59,14 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
+    SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
         utils::PreserveErrno preserveErrno;
 
         return SocketAddress(hostOpt->as<std::string>(), channelOpt->as<uint8_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+    void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
         setBtAddress(socketAddress.address());
         setChannel(socketAddress.channel());
     }

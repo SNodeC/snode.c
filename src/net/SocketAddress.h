@@ -24,7 +24,7 @@
 #include "core/socket/SocketAddress.h"
 #include "core/system/socket.h"
 
-#include <stdexcept>
+#include <stdexcept> // IWYU pragma: export
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -149,7 +149,7 @@ namespace core::socket::stream {
         }
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::config->Remote::setAddress(remoteAddress);
+            Super::config->Remote::setSocketAddress(remoteAddress);
 
             connect(onError);
         }
@@ -157,7 +157,7 @@ namespace core::socket::stream {
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& localAddress,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::config->Local::setAddress(localAddress);
+            Super::config->Local::setSocketAddress(localAddress);
 
             connect(remoteAddress, onError);
         }

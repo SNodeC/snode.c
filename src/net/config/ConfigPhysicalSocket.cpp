@@ -57,7 +57,7 @@ namespace net::config {
                                                          const std::string& typeName,
                                                          const std::string& defaultValue,
                                                          const CLI::Validator& validator) {
-        return net::config::ConfigPhysicalSocket::add_flag_function(
+        return net::config::ConfigSection::add_flag_function(
             opt,
             name,
             [this, &opt, optLevel, optName](int64_t) -> void {

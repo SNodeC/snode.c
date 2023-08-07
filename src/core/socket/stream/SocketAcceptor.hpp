@@ -55,16 +55,16 @@ namespace core::socket::stream {
         if (!config->getDisabled()) {
             physicalSocket = new PhysicalSocket();
             if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                onError(config->Local::getAddress(), errno);
+                onError(config->Local::getSocketAddress(), errno);
                 destruct();
-            } else if (physicalSocket->bind(config->Local::getAddress()) < 0) {
-                onError(config->Local::getAddress(), errno);
+            } else if (physicalSocket->bind(config->Local::getSocketAddress()) < 0) {
+                onError(config->Local::getSocketAddress(), errno);
                 destruct();
             } else if (physicalSocket->listen(config->getBacklog()) < 0) {
-                onError(config->Local::getAddress(), errno);
+                onError(config->Local::getSocketAddress(), errno);
                 destruct();
             } else {
-                onError(config->Local::getAddress(), 0);
+                onError(config->Local::getSocketAddress(), 0);
                 enable(physicalSocket->getFd());
             }
         } else {

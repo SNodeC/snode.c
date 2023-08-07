@@ -44,8 +44,8 @@ namespace net::config {
 
         virtual ~ConfigAddress() = default;
 
-        virtual SocketAddress getAddress() const = 0;
-        virtual void setAddress(const SocketAddress& address) = 0;
+        virtual SocketAddress getSocketAddress() const = 0;
+        virtual void setSocketAddress(const SocketAddress& address) = 0;
     };
 
 } // namespace net::config

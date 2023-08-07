@@ -53,13 +53,13 @@ namespace core::socket::stream {
         if (!config->getDisabled()) {
             physicalSocket = new PhysicalSocket();
             if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                onError(config->Remote::getAddress(), errno);
+                onError(config->Remote::getSocketAddress(), errno);
                 destruct();
-            } else if (physicalSocket->bind(config->Local::getAddress()) < 0) {
-                onError(config->Remote::getAddress(), errno);
+            } else if (physicalSocket->bind(config->Local::getSocketAddress()) < 0) {
+                onError(config->Remote::getSocketAddress(), errno);
                 destruct();
-            } else if (physicalSocket->connect(config->Remote::getAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
-                onError(config->Remote::getAddress(), errno);
+            } else if (physicalSocket->connect(config->Remote::getSocketAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
+                onError(config->Remote::getSocketAddress(), errno);
                 destruct();
             } else {
                 enable(physicalSocket->getFd());
@@ -87,12 +87,12 @@ namespace core::socket::stream {
                     disable();
                     if (socketConnectionFactory.create(*physicalSocket, config)) {
                         errno = errno == 0 ? cErrno : errno;
-                        onError(config->Remote::getAddress(), errno);
+                        onError(config->Remote::getSocketAddress(), errno);
                     }
                 } else {
                     disable();
                     errno = cErrno;
-                    onError(config->Remote::getAddress(), errno);
+                    onError(config->Remote::getSocketAddress(), errno);
                 }
             } else {
                 tmpErrno = errno;
@@ -104,7 +104,8 @@ namespace core::socket::stream {
             errno = tmpErrno;
             disable();
             errno = cErrno;
-            onError(config->Remote::getAddress(), errno);
+            // Try the next sockaddr (IPv4, IPv6)
+            onError(config->Remote::getSocketAddress(), errno);
         }
     }
 

@@ -51,8 +51,8 @@ namespace net::in::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
-        SocketAddress getAddress() const final;
-        void setAddress(const SocketAddress& socketAddress) final;
+        SocketAddress getSocketAddress() const final;
+        void setSocketAddress(const SocketAddress& socketAddress) final;
 
         std::string getIpOrHostname();
         void setIpOrHostname(const std::string& ipOrHostname);

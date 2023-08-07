@@ -144,7 +144,7 @@ namespace core::socket::stream {
         }
 
         void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::config->Local::setAddress(localAddress);
+            Super::config->Local::setSocketAddress(localAddress);
 
             listen(onError);
         }

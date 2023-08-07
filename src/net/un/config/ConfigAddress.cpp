@@ -51,14 +51,14 @@ namespace net::un::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getAddress() const {
+    SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
         utils::PreserveErrno preserveErrno;
 
         return SocketAddress(sunPathOpt->as<std::string>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setAddress(const SocketAddress& socketAddress) {
+    void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
         setSunPath(socketAddress.address());
     }
 
