@@ -51,7 +51,7 @@ namespace net::in {
         setPort(port);
     }
 
-    void SocketAddress::setHost(const std::string& ipOrHostname) {
+    SocketAddress SocketAddress::setHost(const std::string& ipOrHostname) {
         struct addrinfo hints {};
         memset(&hints, 0, sizeof(hints));
 
@@ -81,10 +81,14 @@ namespace net::in {
         }
 
         core::system::freeaddrinfo(resalloc);
+
+        return *this;
     }
 
-    void SocketAddress::setPort(uint16_t port) {
+    SocketAddress SocketAddress::setPort(uint16_t port) {
         sockAddr.sin_port = htons(port);
+
+        return *this;
     }
 
     uint16_t SocketAddress::port() const {

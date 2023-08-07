@@ -48,12 +48,16 @@ namespace net::rc {
         setChannel(channel);
     }
 
-    void SocketAddress::setBtAddress(const std::string& btAddress) {
+    SocketAddress SocketAddress::setBtAddress(const std::string& btAddress) {
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
+
+        return *this;
     }
 
-    void SocketAddress::setChannel(uint8_t channel) {
+    SocketAddress SocketAddress::setChannel(uint8_t channel) {
         sockAddr.rc_channel = channel;
+
+        return *this;
     }
 
     uint8_t SocketAddress::channel() const {

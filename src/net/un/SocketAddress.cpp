@@ -41,7 +41,7 @@ namespace net::un {
         setSunPath(sunPath);
     }
 
-    void SocketAddress::setSunPath(const std::string& sunPath) {
+    SocketAddress SocketAddress::setSunPath(const std::string& sunPath) {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
             std::size_t len = sunPath.length();
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
@@ -51,6 +51,8 @@ namespace net::un {
             throw net::BadSocketAddress("Unix-Domain error sun-path to long: Lenght is = " + std::to_string(sunPath.length()) +
                                         ", should be: " + std::to_string(sizeof(sockAddr.sun_path) - 1));
         }
+
+        return *this;
     }
 
     std::string SocketAddress::address() const {

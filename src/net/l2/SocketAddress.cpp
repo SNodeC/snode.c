@@ -48,12 +48,16 @@ namespace net::l2 {
         setPsm(psm);
     }
 
-    void SocketAddress::setBtAddress(const std::string& btAddress) {
+    SocketAddress SocketAddress::setBtAddress(const std::string& btAddress) {
         str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
+
+        return *this;
     }
 
-    void SocketAddress::setPsm(uint16_t psm) {
+    SocketAddress SocketAddress::setPsm(uint16_t psm) {
         sockAddr.l2_psm = htobs(psm);
+
+        return *this;
     }
 
     uint16_t SocketAddress::psm() const {

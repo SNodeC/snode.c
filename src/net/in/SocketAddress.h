@@ -42,8 +42,8 @@ namespace net::in {
         SocketAddress(const std::string& ipOrHostname, uint16_t port);
         explicit SocketAddress(uint16_t port);
 
-        void setHost(const std::string& ipOrHostname);
-        void setPort(uint16_t port);
+        SocketAddress setHost(const std::string& ipOrHostname);
+        SocketAddress setPort(uint16_t port);
 
         uint16_t port() const;
         std::string host() const;
