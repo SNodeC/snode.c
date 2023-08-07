@@ -63,10 +63,12 @@ namespace net::in6::config {
     protected:
         void hostRequired();
         void portRequired();
+        void setIpv6OnlyOpt(CLI::Option* iPv6OnlyOpt);
 
     private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
+        CLI::Option* ipv6OnlyOpt = nullptr;
     };
 
 } // namespace net::in6::config

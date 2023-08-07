@@ -51,7 +51,7 @@ namespace net::in6 {
         setPort(port);
     }
 
-    void SocketAddress::setHost(const std::string& ipOrHostname) {
+    SocketAddress SocketAddress::setHost(const std::string& ipOrHostname) {
         struct addrinfo hints {};
         std::memset(&hints, 0, sizeof(hints));
 
@@ -81,10 +81,20 @@ namespace net::in6 {
         }
 
         core::system::freeaddrinfo(resalloc);
+
+        return *this;
     }
 
-    void SocketAddress::setPort(uint16_t port) {
+    SocketAddress SocketAddress::setPort(uint16_t port) {
         sockAddr.sin6_port = htons(port);
+
+        return *this;
+    }
+
+    SocketAddress SocketAddress::setIpv6Only(bool ipv6Only) {
+        this->ipv6Only = ipv6Only;
+
+        return *this;
     }
 
     uint16_t SocketAddress::port() const {
@@ -99,6 +109,10 @@ namespace net::in6 {
             reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
 
         return ret == EAI_NONAME ? address() : ret >= 0 ? host : gai_strerror(ret);
+    }
+
+    bool SocketAddress::getIpv6Only() const {
+        return ipv6Only;
     }
 
     std::string SocketAddress::address() const {

@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -65,7 +66,7 @@ namespace net::in6::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
+        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()).setIpv6Only(ipv6OnlyOpt->as<bool>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -100,6 +101,13 @@ namespace net::in6::config {
         portOpt //
             ->default_val(port);
         Super::required(portOpt, false);
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setIpv6OnlyOpt(CLI::Option* iPv6OnlyOpt) {
+        utils::PreserveErrno preserveErrno;
+
+        this->ipv6OnlyOpt = iPv6OnlyOpt;
     }
 
 } // namespace net::in6::config

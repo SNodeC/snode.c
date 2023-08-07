@@ -60,6 +60,9 @@ namespace net::in6::stream::config {
                                                              "bool",
                                                              "false",
                                                              CLI::IsMember({"true", "false"}));
+
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setIpv6OnlyOpt(iPv6OnlyOpt);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::setIpv6OnlyOpt(iPv6OnlyOpt);
     }
 
     ConfigSocketClient::~ConfigSocketClient() {

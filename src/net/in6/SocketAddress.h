@@ -42,15 +42,20 @@ namespace net::in6 {
         SocketAddress(const std::string& ipOrHostname, uint16_t port);
         explicit SocketAddress(uint16_t port);
 
-        void setHost(const std::string& ipOrHostname);
-        void setPort(uint16_t port);
+        SocketAddress setHost(const std::string& ipOrHostname);
+        SocketAddress setPort(uint16_t port);
+        SocketAddress setIpv6Only(bool ipv6Only);
 
         uint16_t port() const;
         std::string host() const;
         std::string serv() const;
+        bool getIpv6Only() const;
 
         std::string address() const override;
         std::string toString() const override;
+
+    private:
+        bool ipv6Only;
     };
 
 } // namespace net::in6
