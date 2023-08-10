@@ -22,7 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/SocketAddress.h"
-#include "core/system/socket.h"
+#include "core/system/socket.h" // IWYU pragma: export
 
 #include <stdexcept> // IWYU pragma: export
 #include <string>
@@ -46,13 +46,12 @@ namespace net {
 
         SocketAddress(const SocketAddress& socketAddress);
 
+        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
         SocketAddress& operator=(const SocketAddress& socketAddress);
 
-        sockaddr& getSockAddr();
-        const sockaddr& getSockAddr() const;
-
-        socklen_t& getSockAddrLen();
-        const socklen_t& getSockAddrLen() const;
+        virtual const sockaddr& getSockAddr();
+        virtual const socklen_t& getSockAddrLen() const;
 
     protected:
         SockAddr sockAddr{0};

@@ -45,8 +45,8 @@ namespace net::in {
         SocketAddress setHost(const std::string& ipOrHostname);
         SocketAddress setPort(uint16_t port);
 
-        uint16_t port() const;
-        std::string host() const;
+        uint16_t getPort() const;
+        std::string getHost() const;
         std::string serv() const;
 
         std::string address() const override;

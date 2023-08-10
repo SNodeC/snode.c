@@ -54,17 +54,19 @@ namespace core::socket::stream {
     void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
             physicalSocket = new PhysicalSocket();
+            SocketAddress localAddress = config->Local::getSocketAddress();
+
             if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                onError(config->Local::getSocketAddress(), errno);
+                onError(localAddress, errno);
                 destruct();
-            } else if (physicalSocket->bind(config->Local::getSocketAddress()) < 0) {
-                onError(config->Local::getSocketAddress(), errno);
+            } else if (physicalSocket->bind(localAddress) < 0) {
+                onError(localAddress, errno);
                 destruct();
             } else if (physicalSocket->listen(config->getBacklog()) < 0) {
-                onError(config->Local::getSocketAddress(), errno);
+                onError(localAddress, errno);
                 destruct();
             } else {
-                onError(config->Local::getSocketAddress(), 0);
+                onError(localAddress, 0);
                 enable(physicalSocket->getFd());
             }
         } else {
@@ -77,8 +79,7 @@ namespace core::socket::stream {
         int acceptsPerTick = config->getAcceptsPerTick();
 
         do {
-            SocketAddress remoteAddress{};
-            PhysicalSocket physicalClientSocket(physicalSocket->accept4(remoteAddress, PhysicalSocket::Flags::NONBLOCK));
+            PhysicalSocket physicalClientSocket(physicalSocket->accept4(PhysicalSocket::Flags::NONBLOCK));
             if (physicalClientSocket.isValid()) {
                 socketConnectionFactory.create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {

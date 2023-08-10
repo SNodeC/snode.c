@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
@@ -70,8 +71,9 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setIpOrHostname(socketAddress.host());
-        setPort(socketAddress.port());
+        VLOG(0) << "########################## setSocketAddress()";
+        setIpOrHostname(socketAddress.getHost());
+        setPort(socketAddress.getPort());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -81,6 +83,7 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
+        VLOG(0) << "########################## setIpOrHostname()";
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
@@ -95,6 +98,7 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
+        VLOG(0) << "########################## setPort()";
         utils::PreserveErrno preserveErrno;
 
         portOpt //

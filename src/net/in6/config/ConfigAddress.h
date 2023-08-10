@@ -55,20 +55,21 @@ namespace net::in6::config {
         void setSocketAddress(const SocketAddress& socketAddress) final;
 
         std::string getIpOrHostname();
-        void setIpOrHostname(const std::string& ipOrHostname);
+        ConfigAddress& setIpOrHostname(const std::string& ipOrHostname);
 
         uint16_t getPort();
-        void setPort(uint16_t port);
+        ConfigAddress& setPort(uint16_t port);
 
     protected:
         void hostRequired();
         void portRequired();
-        void setIpv6OnlyOpt(CLI::Option* iPv6OnlyOpt);
+        void setAiFlags(int aiFlags);
 
     private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
-        CLI::Option* ipv6OnlyOpt = nullptr;
+
+        int aiFlags = 0;
     };
 
 } // namespace net::in6::config

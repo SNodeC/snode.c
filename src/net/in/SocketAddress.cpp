@@ -91,11 +91,11 @@ namespace net::in {
         return *this;
     }
 
-    uint16_t SocketAddress::port() const {
+    uint16_t SocketAddress::getPort() const {
         return (ntohs(sockAddr.sin_port));
     }
 
-    std::string SocketAddress::host() const {
+    std::string SocketAddress::getHost() const {
         utils::PreserveErrno preserveErrno;
 
         char host[NI_MAXHOST];
@@ -126,7 +126,7 @@ namespace net::in {
     }
 
     std::string SocketAddress::toString() const {
-        return host() + ":" + std::to_string(port());
+        return getHost() + ":" + std::to_string(getPort());
     }
 
 } // namespace net::in

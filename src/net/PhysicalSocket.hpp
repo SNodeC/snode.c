@@ -80,7 +80,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::bind(const SocketAddress& bindAddress) {
+    int PhysicalSocket<SocketAddress>::bind(SocketAddress &bindAddress) {
         int ret = core::system::bind(core::Descriptor::getFd(), &bindAddress.getSockAddr(), bindAddress.getSockAddrLen());
 
         if (ret == 0) {
@@ -115,15 +115,13 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getSockname(SocketAddress& socketAddress) {
-        socketAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
-        return core::system::getsockname(core::Descriptor::getFd(), &socketAddress.getSockAddr(), &socketAddress.getSockAddrLen());
+    int PhysicalSocket<SocketAddress>::getSockname(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen) {
+        return core::system::getsockname(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&localSockAddr), &localSockAddrLen);
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getPeername(SocketAddress& socketAddress) {
-        socketAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
-        return core::system::getpeername(core::Descriptor::getFd(), &socketAddress.getSockAddr(), &socketAddress.getSockAddrLen());
+    int PhysicalSocket<SocketAddress>::getPeername(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen) {
+        return core::system::getpeername(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&remoteSockAddr), &remoteSockAddrLen);
     }
 
     template <typename SocketAddress>

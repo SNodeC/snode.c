@@ -43,7 +43,7 @@ namespace net::un {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    int PhysicalSocket<PhysicalPeerSocket>::bind(const SocketAddress& bindAddress) {
+    int PhysicalSocket<PhysicalPeerSocket>::bind(SocketAddress &bindAddress) {
         int ret = Super::bind(bindAddress);
 
         doNotRemove = ret != 0 && errno == EADDRINUSE;

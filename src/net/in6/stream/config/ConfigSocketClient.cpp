@@ -39,10 +39,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include <netinet/in.h>
-#include <stdexcept>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::stream::config {
@@ -51,38 +47,9 @@ namespace net::in6::stream::config {
         : net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
-
-        net::config::ConfigPhysicalSocket::add_socket_option(iPv6OnlyOpt,
-                                                             "--ipv6-only",
-                                                             IPPROTO_IPV6,
-                                                             IPV6_V6ONLY,
-                                                             "Turn of IPv6 dual stack mode",
-                                                             "bool",
-                                                             "false",
-                                                             CLI::IsMember({"true", "false"}));
-
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setIpv6OnlyOpt(iPv6OnlyOpt);
-        net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::setIpv6OnlyOpt(iPv6OnlyOpt);
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
-    }
-
-    void ConfigSocketClient::setIPv6Only(bool iPv6Only) {
-        if (iPv6Only) {
-            addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 1);
-        } else {
-            removeSocketOption(IPV6_V6ONLY);
-        }
-
-        iPv6OnlyOpt //
-            ->default_val(iPv6Only ? "true" : "false")
-            ->take_all()
-            ->clear();
-    }
-
-    bool ConfigSocketClient::getIPv6Only() {
-        return iPv6OnlyOpt->as<bool>();
     }
 
 } // namespace net::in6::stream::config

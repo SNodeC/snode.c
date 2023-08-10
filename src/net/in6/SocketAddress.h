@@ -21,11 +21,16 @@
 
 #include "net/SocketAddress.h"
 
+namespace net::in6 {
+    class SocketAddrInfo;
+}
+
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <memory>
 #include <netinet/in.h>
 #include <string>
 
@@ -42,20 +47,31 @@ namespace net::in6 {
         SocketAddress(const std::string& ipOrHostname, uint16_t port);
         explicit SocketAddress(uint16_t port);
 
-        SocketAddress setHost(const std::string& ipOrHostname);
-        SocketAddress setPort(uint16_t port);
-        SocketAddress setIpv6Only(bool ipv6Only);
+        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
 
-        uint16_t port() const;
-        std::string host() const;
-        std::string serv() const;
-        bool getIpv6Only() const;
+        SocketAddress& setHost(const std::string& ipOrHostname);
+        SocketAddress& setPort(uint16_t port);
+
+        uint16_t getPort() const;
+        std::string getHost() const;
+        std::string getServ() const;
 
         std::string address() const override;
         std::string toString() const override;
 
+        SocketAddress setAiFlags(int aiFlags);
+
+        const sockaddr& getSockAddr() override;
+
+        bool hasNext();
+
     private:
-        bool ipv6Only;
+        std::shared_ptr<SocketAddrInfo> socketAddrInfo;
+        int aiFlags = 0;
+
+        std::string host = "";
+        uint16_t port = 0;
+        std::string serv = "";
     };
 
 } // namespace net::in6

@@ -28,7 +28,6 @@
 
 #include <cstdint>
 #include <limits>
-#include <stdexcept>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -66,13 +65,13 @@ namespace net::in6::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()).setIpv6Only(ipv6OnlyOpt->as<bool>());
+        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()).setAiFlags(aiFlags);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setIpOrHostname(socketAddress.host());
-        setPort(socketAddress.port());
+        setIpOrHostname(socketAddress.getHost());
+        setPort(socketAddress.getPort());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -81,12 +80,14 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
             ->default_val(ipOrHostname);
         Super::required(hostOpt, false);
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -95,19 +96,19 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
         utils::PreserveErrno preserveErrno;
 
         portOpt //
             ->default_val(port);
         Super::required(portOpt, false);
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setIpv6OnlyOpt(CLI::Option* iPv6OnlyOpt) {
-        utils::PreserveErrno preserveErrno;
-
-        this->ipv6OnlyOpt = iPv6OnlyOpt;
+    void ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
+        this->aiFlags = aiFlags;
     }
 
 } // namespace net::in6::config
