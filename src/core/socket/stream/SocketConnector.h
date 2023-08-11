@@ -35,13 +35,11 @@ namespace core::socket::stream {
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
-    public:
-        using Config = ConfigT;
-
     private:
         using PhysicalSocket = PhysicalClientSocketT;
 
     protected:
+        using Config = ConfigT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
         using SocketConnection = SocketConnectionT<PhysicalSocket>;
 

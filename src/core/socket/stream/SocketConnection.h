@@ -53,7 +53,7 @@ namespace core::socket::stream {
         virtual ~SocketConnection();
 
     public:
-        core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
+        SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
         bool isValid();
 

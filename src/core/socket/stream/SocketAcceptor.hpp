@@ -28,7 +28,7 @@
 namespace core::socket::stream {
 
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
-    core::socket::stream::SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::SocketAcceptor(
+    SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::SocketAcceptor(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
