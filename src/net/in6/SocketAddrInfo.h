@@ -16,19 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/SocketAddress.h"
+#ifndef NET_IN6_SOCKETADDRINFO_H
+#define NET_IN6_SOCKETADDRINFO_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/netdb.h" // IWYU pragma: export
+
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::in6 {
 
-    BadSocketAddress::BadSocketAddress(const std::string& errorMessage)
-        : runtime_error(errorMessage) {
-    }
+    class SocketAddrInfo {
+    public:
+        SocketAddrInfo() = default;
+        ~SocketAddrInfo();
 
-    BadSocketAddress::~BadSocketAddress() {
-    }
+        int init(const std::string& node, const std::string& service, const addrinfo& hints);
 
-} // namespace net
+        bool hasNext();
+        addrinfo* getAddrInfo();
+
+    private:
+        struct addrinfo* res = nullptr;
+        struct addrinfo* currentAddrInfo = nullptr;
+
+        std::string node;
+        std::string service;
+    };
+
+} // namespace net::in6
+
+#endif // NET_IN6_SOCKETADDRINFO_H

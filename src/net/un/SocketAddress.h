@@ -42,7 +42,7 @@ namespace net::un {
         SocketAddress();
         explicit SocketAddress(const std::string& sunPath);
 
-        void setSunPath(const std::string& sunPath);
+        SocketAddress setSunPath(const std::string& sunPath);
 
         std::string address() const override;
         std::string toString() const override;

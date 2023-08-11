@@ -48,22 +48,30 @@ namespace net::in::stream {
         using Super::listen;
 
         void listen(uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(port), onError);
+            Super::getConfig().Local::setPort(port);
+
+            listen(onError);
         }
 
         void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(port), backlog, onError);
+            Super::getConfig().Local::setPort(port).setBacklog(backlog);
+
+            listen(onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(ipOrHostname, port), onError);
+            Super::getConfig().Local::setIpOrHostname(ipOrHostname).setPort(port);
+
+            listen(onError);
         }
 
         void listen(const std::string& ipOrHostname,
                     uint16_t port,
                     int backlog,
                     const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(ipOrHostname, port), backlog, onError);
+            Super::getConfig().Local::setIpOrHostname(ipOrHostname).setPort(port).setBacklog(backlog);
+
+            listen(onError);
         }
     };
 

@@ -16,29 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/stream/PhysicalServerSocket.h"
+#ifndef NET_IN_SOCKETADDRINFO_H
+#define NET_IN_SOCKETADDRINFO_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h"
+#include "core/system/netdb.h" // IWYU pragma: export
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::in {
 
-    template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::listen(int backlog) {
-        return core::system::listen(Super::getFd(), backlog);
-    }
+    class SocketAddrInfo {
+    public:
+        SocketAddrInfo() = default;
+        ~SocketAddrInfo();
 
-    template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept() {
-        return core::system::accept(Super::getFd(), nullptr, nullptr);
-    }
+        int init(const std::string& node, const std::string& service, const addrinfo& hints);
 
-    template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept4(int flags) {
-        return core::system::accept4(Super::getFd(), nullptr, nullptr, flags);
-    }
+        bool hasNext();
+        addrinfo* getAddrInfo();
 
-} // namespace net::stream
+    private:
+        struct addrinfo* res = nullptr;
+        struct addrinfo* currentAddrInfo = nullptr;
+
+        std::string node;
+        std::string service;
+    };
+
+} // namespace net::in
+
+#endif // NET_IN_SOCKETADDRINFO_H

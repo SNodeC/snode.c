@@ -42,8 +42,8 @@ namespace net::stream {
 
         int listen(int backlog);
 
-        int accept(SocketAddress& remoteAddress);
-        int accept4(SocketAddress& remoteAddress, int flags);
+        int accept();
+        int accept4(int flags);
     };
 
 } // namespace net::stream

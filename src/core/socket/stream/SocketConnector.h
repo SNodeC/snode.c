@@ -81,6 +81,9 @@ namespace core::socket::stream {
 
         SocketConnectionFactory socketConnectionFactory;
 
+        SocketAddress localAddress;
+        SocketAddress remoteAddress;
+
     protected:
         std::function<void(const SocketAddress& socketAddress, int err)> onError;
 

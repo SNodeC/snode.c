@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
@@ -51,18 +53,35 @@ namespace core::socket::stream {
     template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
     void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::initConnectEvent() {
         if (!config->getDisabled()) {
-            physicalSocket = new PhysicalSocket();
-            if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                onError(config->Remote::getSocketAddress(), errno);
+            try {
+                physicalSocket = new PhysicalSocket();
+                localAddress = config->Local::getSocketAddress();
+                remoteAddress = config->Remote::getSocketAddress();
+
+                if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+                    onError(remoteAddress, errno);
+                    VLOG(0) << "############################### 1";
+                    destruct();
+                } else if (physicalSocket->bind(localAddress) < 0) {
+                    onError(remoteAddress, errno);
+                    VLOG(0) << "############################### 2";
+                    destruct();
+                    if (localAddress.hasNext()) {
+                    }
+                } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
+                    onError(remoteAddress, errno);
+                    VLOG(0) << "############################### 3";
+                    destruct();
+                    if (remoteAddress.hasNext()) {
+                    }
+                } else {
+                    enable(physicalSocket->getFd());
+                }
+            } catch (const SocketAddress::BadSocketAddress& badSocketAddress) {
+                errno = badSocketAddress.getErrCode();
+                LOG(ERROR) << badSocketAddress.what();
+                onError(remoteAddress, errno);
                 destruct();
-            } else if (physicalSocket->bind(config->Local::getSocketAddress()) < 0) {
-                onError(config->Remote::getSocketAddress(), errno);
-                destruct();
-            } else if (physicalSocket->connect(config->Remote::getSocketAddress()) < 0 && !physicalSocket->connectInProgress(errno)) {
-                onError(config->Remote::getSocketAddress(), errno);
-                destruct();
-            } else {
-                enable(physicalSocket->getFd());
             }
         } else {
             destruct();
@@ -73,39 +92,31 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::connectEvent() {
         int cErrno = -1;
 
-        int tmpErrno = errno;
-        errno = tmpErrno;
         if ((cErrno = physicalSocket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
-            tmpErrno = errno;
-            errno = tmpErrno;
             if (!physicalSocket->connectInProgress(cErrno)) {
-                tmpErrno = errno;
-                errno = tmpErrno;
                 if (cErrno == 0) {
-                    tmpErrno = errno;
-                    errno = tmpErrno;
                     disable();
                     if (socketConnectionFactory.create(*physicalSocket, config)) {
                         errno = errno == 0 ? cErrno : errno;
-                        onError(config->Remote::getSocketAddress(), errno);
+                        VLOG(0) << "############################### 4";
+                        onError(remoteAddress, errno);
                     }
                 } else {
                     disable();
                     errno = cErrno;
-                    onError(config->Remote::getSocketAddress(), errno);
+                    VLOG(0) << "############################### 5";
+                    onError(remoteAddress, errno);
+                    if (remoteAddress.hasNext()) {
+                    }
                 }
             } else {
-                tmpErrno = errno;
-                errno = tmpErrno;
                 // Do nothing: connect() still in progress
             }
         } else {
-            tmpErrno = errno;
-            errno = tmpErrno;
             disable();
             errno = cErrno;
-            // Try the next sockaddr (IPv4, IPv6)
-            onError(config->Remote::getSocketAddress(), errno);
+            VLOG(0) << "############################### 6";
+            onError(remoteAddress, errno);
         }
     }
 

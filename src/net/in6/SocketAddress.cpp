@@ -19,19 +19,23 @@
 #include "net/in6/SocketAddress.h"
 
 #include "net/SocketAddress.hpp"
+#include "net/in6/SocketAddrInfo.h"
+
+// IWYU pragma: no_include "core/socket/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/netdb.h"
 #include "utils/PreserveErrno.h"
 
+#include <cerrno>
 #include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6 {
 
-    SocketAddress::SocketAddress() {
+    SocketAddress::SocketAddress()
+        : socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         sockAddr.sin6_family = AF_INET6;
     }
 
@@ -51,54 +55,50 @@ namespace net::in6 {
         setPort(port);
     }
 
-    void SocketAddress::setHost(const std::string& ipOrHostname) {
-        struct addrinfo hints {};
-        std::memset(&hints, 0, sizeof(hints));
-
-        /* We only care about IPv6 results */
-        hints.ai_family = AF_INET6;
-        hints.ai_socktype = 0;
-        hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
-
-        struct addrinfo* res = nullptr;
-        // Can lead to memmory leaks https://bugzilla.redhat.com/show_bug.cgi?id=1903512
-        int err = core::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
-
-        if (err != 0) {
-            throw net::BadSocketAddress("IPv6 error not resolvable: " + ipOrHostname);
-        }
-
-        struct addrinfo* resalloc = res;
-
-        while (res) {
-            /* Check to make sure we have a valid AF_INET6 address */
-            if (res->ai_family == AF_INET6) {
-                sockAddr.sin6_addr = reinterpret_cast<sockaddr_in6*>(res->ai_addr)->sin6_addr;
-                break;
-            }
-
-            res = res->ai_next;
-        }
-
-        core::system::freeaddrinfo(resalloc);
-    }
-
-    void SocketAddress::setPort(uint16_t port) {
-        sockAddr.sin6_port = htons(port);
-    }
-
-    uint16_t SocketAddress::port() const {
-        return (ntohs(sockAddr.sin6_port));
-    }
-
-    std::string SocketAddress::host() const {
-        utils::PreserveErrno preserveErrno;
-
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+        : net::SocketAddress<SocketAddress::SockAddr>(sockAddr, sockAddrLen)
+        , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         char host[NI_MAXHOST];
-        int ret = core::system::getnameinfo(
-            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
+        char serv[NI_MAXSERV];
 
-        return ret == EAI_NONAME ? address() : ret >= 0 ? host : gai_strerror(ret);
+        int ret = core::system::getnameinfo(
+            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, NI_NUMERICSERV);
+
+        if (ret == 0) {
+            this->port = static_cast<uint16_t>(std::stoul(serv));
+
+            ret = core::system::getnameinfo(
+                reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
+        }
+        if (ret != 0) {
+            this->host = host;
+
+            ret = core::system::getnameinfo(
+                reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+        }
+        if (ret == 0) {
+            this->host = host;
+        } else {
+            this->host = gai_strerror(ret);
+        }
+    }
+
+    SocketAddress& SocketAddress::setHost(const std::string& ipOrHostname) {
+        this->host = ipOrHostname;
+        return *this;
+    }
+
+    SocketAddress& SocketAddress::setPort(uint16_t port) {
+        this->port = port;
+        return *this;
+    }
+
+    uint16_t SocketAddress::getPort() const {
+        return port;
+    }
+
+    std::string SocketAddress::getHost() const {
+        return host;
     }
 
     std::string SocketAddress::address() const {
@@ -111,7 +111,7 @@ namespace net::in6 {
         return ret >= 0 ? ip : gai_strerror(ret);
     }
 
-    std::string SocketAddress::serv() const {
+    std::string SocketAddress::getServ() const {
         utils::PreserveErrno preserveErrno;
 
         char serv[NI_MAXSERV];
@@ -122,7 +122,44 @@ namespace net::in6 {
     }
 
     std::string SocketAddress::toString() const {
-        return host() + ":" + std::to_string(port());
+        return getHost() + ":" + std::to_string(getPort());
+    }
+
+    SocketAddress& SocketAddress::setAiFlags(int aiFlags) {
+        this->aiFlags = aiFlags;
+
+        return *this;
+    }
+
+    const sockaddr& SocketAddress::getSockAddr() {
+        addrinfo hints{};
+
+        hints.ai_family = sockAddr.sin6_family;
+        hints.ai_socktype = 0;
+        hints.ai_flags = aiFlags | AI_ADDRCONFIG;
+
+        int aiErrCode = 0;
+
+        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
+            addrinfo* addrInfo = socketAddrInfo->getAddrInfo();
+            if (addrInfo != nullptr) {
+                sockAddr = *reinterpret_cast<SockAddr*>(addrInfo->ai_addr);
+            } else {
+                throw core::socket::SocketAddress::BadSocketAddress(
+                    "IPv6 '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                    aiErrCode == EAI_SYSTEM ? errno : EINVAL);
+            }
+        } else {
+            throw core::socket::SocketAddress::BadSocketAddress(
+                "IPv6 '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                aiErrCode == EAI_SYSTEM ? errno : EINVAL);
+        }
+
+        return reinterpret_cast<const sockaddr&>(sockAddr);
+    }
+
+    bool SocketAddress::hasNext() {
+        return socketAddrInfo->hasNext();
     }
 
 } // namespace net::in6

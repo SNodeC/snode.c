@@ -55,14 +55,14 @@ namespace net {
 
         int open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags);
 
-        int bind(const SocketAddress& bindAddress);
+        int bind(SocketAddress& bindAddress);
 
         bool isValid() const;
 
         int getSockError() const;
 
-        int getSockname(SocketAddress& socketAddress);
-        int getPeername(SocketAddress& socketAddress);
+        int getSockname(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen);
+        int getPeername(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen);
 
         const SocketAddress& getBindAddress() const;
 

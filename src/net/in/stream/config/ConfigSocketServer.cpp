@@ -39,6 +39,8 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include "core/system/netdb.h"
+
 #include <memory>
 #include <stdexcept>
 #include <sys/socket.h>
@@ -58,6 +60,7 @@ namespace net::in::stream::config {
                                                              "bool",
                                                              "false",
                                                              CLI::IsMember({"true", "false"}));
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
     }
 
     ConfigSocketServer::~ConfigSocketServer() {
