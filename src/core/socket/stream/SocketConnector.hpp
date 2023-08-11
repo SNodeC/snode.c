@@ -77,7 +77,7 @@ namespace core::socket::stream {
                 } else {
                     enable(physicalSocket->getFd());
                 }
-            } catch (const SocketAddress::BadSocketAddress& badSocketAddress) {
+            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 errno = badSocketAddress.getErrCode();
                 LOG(ERROR) << badSocketAddress.what();
                 onError(remoteAddress, errno);

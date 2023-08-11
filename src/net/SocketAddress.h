@@ -21,8 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/SocketAddress.h"
-#include "core/system/socket.h" // IWYU pragma: export
+#include "core/socket/SocketAddress.h" // IWYU pragma: export
+#include "core/system/socket.h"        // IWYU pragma: export
 
 #include <stdexcept> // IWYU pragma: export
 

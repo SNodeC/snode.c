@@ -19,7 +19,7 @@
 #ifndef NET_IN6_SOCKETADDRESS_H
 #define NET_IN6_SOCKETADDRESS_H
 
-#include "net/SocketAddress.h"
+#include "net/SocketAddress.h" // IWYU pragma: export
 
 namespace net::in6 {
     class SocketAddrInfo;
