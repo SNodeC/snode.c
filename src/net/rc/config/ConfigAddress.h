@@ -55,10 +55,10 @@ namespace net::rc::config {
         void setSocketAddress(const SocketAddress& socketAddress) final;
 
         std::string getBtAddress();
-        void setBtAddress(const std::string& btAddress);
+        ConfigAddress& setBtAddress(const std::string& btAddress);
 
         uint8_t getChannel();
-        void setChannel(uint8_t channel);
+        ConfigAddress& setChannel(uint8_t channel);
 
     protected:
         void hostRequired();

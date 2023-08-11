@@ -77,12 +77,14 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
             ->default_val(btAddress);
         Super::required(hostOpt, false);
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -91,12 +93,14 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setChannel(uint8_t channel) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setChannel(uint8_t channel) {
         utils::PreserveErrno preserveErrno;
 
         channelOpt //
             ->default_val<int>(channel);
         Super::required(channelOpt, false);
+
+        return *this;
     }
 
 } // namespace net::rc::config

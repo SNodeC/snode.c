@@ -21,11 +21,11 @@
 #include "net/SocketAddress.hpp"
 #include "net/in6/SocketAddrInfo.h"
 
+// IWYU pragma: no_include "core/socket/SocketAddress.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/PreserveErrno.h"
-
-#include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -53,7 +53,8 @@ namespace net::in6 {
     }
 
     SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
-        : net::SocketAddress<SocketAddress::SockAddr>(sockAddr, sockAddrLen) {
+        : net::SocketAddress<SocketAddress::SockAddr>(sockAddr, sockAddrLen)
+        , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         char host[NI_MAXHOST];
         char serv[NI_MAXSERV];
 
@@ -121,26 +122,28 @@ namespace net::in6 {
         return getHost() + ":" + std::to_string(getPort());
     }
 
-    SocketAddress SocketAddress::setAiFlags(int aiFlags) {
+    SocketAddress& SocketAddress::setAiFlags(int aiFlags) {
         this->aiFlags = aiFlags;
 
         return *this;
     }
 
     const sockaddr& SocketAddress::getSockAddr() {
-        struct addrinfo hints {};
-        std::memset(&hints, 0, sizeof(hints));
+        addrinfo hints{};
 
-        // We only care about IPv6 results
-        hints.ai_family = AF_INET6;
+        hints.ai_family = sockAddr.sin6_family;
         hints.ai_socktype = 0;
         hints.ai_flags = aiFlags | AI_ADDRCONFIG;
 
         if (socketAddrInfo->init(host, std::to_string(port), hints) == 0) {
             addrinfo* addrInfo = socketAddrInfo->getAddrInfo();
             if (addrInfo != nullptr) {
-                sockAddr = *reinterpret_cast<sockaddr_in6*>(addrInfo->ai_addr);
+                sockAddr = *reinterpret_cast<SockAddr*>(addrInfo->ai_addr);
+            } else {
+                throw core::socket::SocketAddress::BadSocketAddress("IPv6 error not resolvable: " + host);
             }
+        } else {
+            throw core::socket::SocketAddress::BadSocketAddress("IPv6 error not resolvable: " + host);
         }
 
         return reinterpret_cast<const sockaddr&>(sockAddr);

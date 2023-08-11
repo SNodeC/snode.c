@@ -59,7 +59,7 @@ namespace net::in6 {
         std::string address() const override;
         std::string toString() const override;
 
-        SocketAddress setAiFlags(int aiFlags);
+        SocketAddress& setAiFlags(int aiFlags);
 
         const sockaddr& getSockAddr() override;
 

@@ -66,7 +66,7 @@ namespace net::in::config {
     SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
         utils::PreserveErrno preserveErrno;
 
-        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
+        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()).setAiFlags(aiFlags);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -82,13 +82,15 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
         VLOG(0) << "########################## setIpOrHostname()";
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
             ->default_val(ipOrHostname);
         Super::required(hostOpt, false);
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -97,13 +99,20 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
         VLOG(0) << "########################## setPort()";
         utils::PreserveErrno preserveErrno;
 
         portOpt //
             ->default_val(port);
         Super::required(portOpt, false);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    void ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
+        this->aiFlags = aiFlags;
     }
 
 } // namespace net::in::config

@@ -53,21 +53,28 @@ namespace core::socket::stream {
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
     void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
-            physicalSocket = new PhysicalSocket();
             SocketAddress localAddress = config->Local::getSocketAddress();
 
-            if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+            try {
+                physicalSocket = new PhysicalSocket();
+
+                if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+                    onError(localAddress, errno);
+                    destruct();
+                } else if (physicalSocket->bind(localAddress) < 0) {
+                    onError(localAddress, errno);
+                    destruct();
+                } else if (physicalSocket->listen(config->getBacklog()) < 0) {
+                    onError(localAddress, errno);
+                    destruct();
+                } else {
+                    onError(localAddress, 0);
+                    enable(physicalSocket->getFd());
+                }
+            } catch (const SocketAddress::BadSocketAddress& badSocketAddress) {
+                PLOG(ERROR) << badSocketAddress.what();
                 onError(localAddress, errno);
                 destruct();
-            } else if (physicalSocket->bind(localAddress) < 0) {
-                onError(localAddress, errno);
-                destruct();
-            } else if (physicalSocket->listen(config->getBacklog()) < 0) {
-                onError(localAddress, errno);
-                destruct();
-            } else {
-                onError(localAddress, 0);
-                enable(physicalSocket->getFd());
             }
         } else {
             destruct();

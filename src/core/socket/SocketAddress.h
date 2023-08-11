@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <stdexcept> // IWYU pragma: export
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -29,6 +30,12 @@ namespace core::socket {
 
     class SocketAddress {
     public:
+        class BadSocketAddress : public std::runtime_error {
+        public:
+            explicit BadSocketAddress(const std::string& errorMessage);
+            ~BadSocketAddress() override;
+        };
+
         SocketAddress() = default;
         SocketAddress(const SocketAddress&) = default;
 

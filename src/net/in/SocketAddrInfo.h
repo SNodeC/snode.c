@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,22 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketAddress.h"
+#ifndef NET_IN_SOCKETADDRINFO_H
+#define NET_IN_SOCKETADDRINFO_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#include "core/system/netdb.h" // IWYU pragma: export
 
-namespace core::socket {
+#include <string>
 
-    SocketAddress::~SocketAddress() {
-    }
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-    SocketAddress::BadSocketAddress::BadSocketAddress(const std::string& errorMessage)
-        : runtime_error(errorMessage) {
-    }
+namespace net::in {
 
-    SocketAddress::BadSocketAddress::~BadSocketAddress() {
-    }
+    class SocketAddrInfo {
+    public:
+        SocketAddrInfo();
+        ~SocketAddrInfo();
 
-} // namespace core::socket
+        int init(const std::string& node, const std::string& service, const addrinfo& hints);
+
+        bool hasNext();
+        addrinfo* getAddrInfo();
+
+    private:
+        struct addrinfo* res = nullptr;
+        struct addrinfo* currentAddrInfo = nullptr;
+
+        std::string node;
+        std::string service;
+    };
+
+} // namespace net::in
+
+#endif // NET_IN_SOCKETADDRINFO_H

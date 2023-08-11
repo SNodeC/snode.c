@@ -21,11 +21,16 @@
 
 #include "net/SocketAddress.h"
 
+namespace net::in {
+    class SocketAddrInfo;
+}
+
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <memory>
 #include <netinet/in.h>
 #include <string>
 
@@ -42,15 +47,31 @@ namespace net::in {
         SocketAddress(const std::string& ipOrHostname, uint16_t port);
         explicit SocketAddress(uint16_t port);
 
-        SocketAddress setHost(const std::string& ipOrHostname);
-        SocketAddress setPort(uint16_t port);
+        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
+        SocketAddress& setHost(const std::string& ipOrHostname);
+        SocketAddress& setPort(uint16_t port);
 
         uint16_t getPort() const;
         std::string getHost() const;
-        std::string serv() const;
+        std::string getServ() const;
 
         std::string address() const override;
         std::string toString() const override;
+
+        SocketAddress& setAiFlags(int aiFlags);
+
+        const sockaddr& getSockAddr() override;
+
+        bool hasNext();
+
+    private:
+        std::shared_ptr<SocketAddrInfo> socketAddrInfo;
+        int aiFlags = 0;
+
+        std::string host = "";
+        uint16_t port = 0;
+        std::string serv = "";
     };
 
 } // namespace net::in

@@ -80,12 +80,14 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
             ->default_val(btAddress);
         Super::required(hostOpt, false);
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -94,12 +96,14 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
         utils::PreserveErrno preserveErrno;
 
         psmOpt //
             ->default_val(psm);
         Super::required(psmOpt, false);
+
+        return *this;
     }
 
 } // namespace net::l2::config

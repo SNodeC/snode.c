@@ -53,24 +53,27 @@ namespace core::socket::stream {
     template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
     void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::initConnectEvent() {
         if (!config->getDisabled()) {
-            physicalSocket = new PhysicalSocket();
-            localAddress = config->Local::getSocketAddress();
-            remoteAddress = config->Remote::getSocketAddress();
+            try {
+                physicalSocket = new PhysicalSocket();
+                localAddress = config->Local::getSocketAddress();
+                remoteAddress = config->Remote::getSocketAddress();
 
-            if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                VLOG(0) << "############################### 1";
+                if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+                    onError(remoteAddress, errno);
+                    destruct();
+                } else if (physicalSocket->bind(localAddress) < 0) {
+                    onError(remoteAddress, errno);
+                    destruct();
+                } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
+                    onError(remoteAddress, errno);
+                    destruct();
+                } else {
+                    enable(physicalSocket->getFd());
+                }
+            } catch (const SocketAddress::BadSocketAddress& badSocketAddress) {
+                PLOG(ERROR) << badSocketAddress.what();
                 onError(remoteAddress, errno);
                 destruct();
-            } else if (physicalSocket->bind(localAddress) < 0) {
-                VLOG(0) << "############################### 2";
-                onError(remoteAddress, errno);
-                destruct();
-            } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
-                VLOG(0) << "############################### 3";
-                onError(remoteAddress, errno);
-                destruct();
-            } else {
-                enable(physicalSocket->getFd());
             }
         } else {
             destruct();

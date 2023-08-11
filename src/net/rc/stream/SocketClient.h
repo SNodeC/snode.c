@@ -48,6 +48,8 @@ namespace net::rc::stream {
         using Super::connect;
 
         void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {
+            Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
+
             connect(SocketAddress(btAddress, channel), onError);
         }
 
@@ -55,14 +57,20 @@ namespace net::rc::stream {
                      uint8_t channel,
                      const std::string& bindBtAddress,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(btAddress, channel), SocketAddress(bindBtAddress), onError);
+            Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
+            Super::getConfig().Local::setBtAddress(bindBtAddress);
+
+            connect(onError);
         }
 
         void connect(const std::string& btAddress,
                      uint8_t channel,
                      uint8_t bindChannel,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(btAddress, channel), SocketAddress(bindChannel), onError);
+            Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
+            Super::getConfig().Local::setChannel(bindChannel);
+
+            connect(onError);
         }
 
         void connect(const std::string& btAddress,
@@ -70,7 +78,10 @@ namespace net::rc::stream {
                      const std::string& bindBtAddress,
                      uint8_t bindChannel,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(btAddress, channel), SocketAddress(bindBtAddress, bindChannel), onError);
+            Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
+            Super::getConfig().Local::setBtAddress(bindBtAddress).setChannel(bindChannel);
+
+            connect(onError);
         }
     };
 

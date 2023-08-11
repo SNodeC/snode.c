@@ -48,22 +48,30 @@ namespace net::l2::stream {
         using Super::listen;
 
         void listen(uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(psm), onError);
+            Super::getConfig().Local::setPsm(psm);
+
+            listen(onError);
         }
 
         void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(psm), backlog, onError);
+            Super::getConfig().Local::setPsm(psm).setBacklog(backlog);
+
+            listen(onError);
         }
 
         void listen(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
-            listen(SocketAddress(btAddress, psm), onError);
+            Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
+
+            listen(onError);
         }
 
         void listen(const std::string& btAddress,
                     uint16_t psm,
                     int backlog,
                     const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
-            listen(SocketAddress(btAddress, psm), backlog, onError);
+            Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm).setBacklog(backlog);
+
+            listen(onError);
         }
     };
 

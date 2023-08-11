@@ -19,19 +19,20 @@
 #include "net/in/SocketAddress.h"
 
 #include "net/SocketAddress.hpp"
+#include "net/in/SocketAddrInfo.h"
+
+// IWYU pragma: no_include "core/socket/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/netdb.h"
 #include "utils/PreserveErrno.h"
-
-#include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in {
 
-    SocketAddress::SocketAddress() {
+    SocketAddress::SocketAddress()
+        : socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         sockAddr.sin_family = AF_INET;
     }
 
@@ -51,58 +52,50 @@ namespace net::in {
         setPort(port);
     }
 
-    SocketAddress SocketAddress::setHost(const std::string& ipOrHostname) {
-        struct addrinfo hints {};
-        memset(&hints, 0, sizeof(hints));
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+        : net::SocketAddress<SocketAddress::SockAddr>(sockAddr, sockAddrLen)
+        , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
+        char host[NI_MAXHOST];
+        char serv[NI_MAXSERV];
 
-        /* We only care about IPv4 results */
-        hints.ai_family = AF_INET;
-        hints.ai_socktype = 0;
-        hints.ai_flags = AI_ADDRCONFIG;
+        int ret = core::system::getnameinfo(
+            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, NI_NUMERICSERV);
 
-        struct addrinfo* res = nullptr;
-        // Can lead to memmory leaks https://bugzilla.redhat.com/show_bug.cgi?id=1903512
-        int err = core::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
+        if (ret == 0) {
+            this->port = static_cast<uint16_t>(std::stoul(serv));
 
-        if (err != 0) {
-            throw net::BadSocketAddress("IPv4 error not resolvable: " + ipOrHostname);
+            ret = core::system::getnameinfo(
+                reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
         }
+        if (ret != 0) {
+            this->host = host;
 
-        struct addrinfo* resalloc = res;
-
-        while (res) {
-            /* Check to make sure we have a valid AF_INET address */
-            if (res->ai_family == AF_INET) {
-                sockAddr.sin_addr.s_addr = reinterpret_cast<sockaddr_in*>(res->ai_addr)->sin_addr.s_addr;
-                break;
-            }
-
-            res = res->ai_next;
+            ret = core::system::getnameinfo(
+                reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
         }
+        if (ret == 0) {
+            this->host = host;
+        } else {
+            this->host = gai_strerror(ret);
+        }
+    }
 
-        core::system::freeaddrinfo(resalloc);
-
+    SocketAddress& SocketAddress::setHost(const std::string& ipOrHostname) {
+        this->host = ipOrHostname;
         return *this;
     }
 
-    SocketAddress SocketAddress::setPort(uint16_t port) {
-        sockAddr.sin_port = htons(port);
-
+    SocketAddress& SocketAddress::setPort(uint16_t port) {
+        this->port = port;
         return *this;
     }
 
     uint16_t SocketAddress::getPort() const {
-        return (ntohs(sockAddr.sin_port));
+        return port;
     }
 
     std::string SocketAddress::getHost() const {
-        utils::PreserveErrno preserveErrno;
-
-        char host[NI_MAXHOST];
-        int ret = core::system::getnameinfo(
-            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
-
-        return ret == EAI_NONAME ? address() : ret >= 0 ? host : gai_strerror(ret);
+        return host;
     }
 
     std::string SocketAddress::address() const {
@@ -115,7 +108,7 @@ namespace net::in {
         return ret >= 0 ? ip : gai_strerror(ret);
     }
 
-    std::string SocketAddress::serv() const {
+    std::string SocketAddress::getServ() const {
         utils::PreserveErrno preserveErrno;
 
         char serv[NI_MAXSERV];
@@ -127,6 +120,37 @@ namespace net::in {
 
     std::string SocketAddress::toString() const {
         return getHost() + ":" + std::to_string(getPort());
+    }
+
+    SocketAddress& SocketAddress::setAiFlags(int aiFlags) {
+        this->aiFlags = aiFlags;
+
+        return *this;
+    }
+
+    const sockaddr& SocketAddress::getSockAddr() {
+        addrinfo hints{};
+
+        hints.ai_family = sockAddr.sin_family;
+        hints.ai_socktype = 0;
+        hints.ai_flags = aiFlags | AI_ADDRCONFIG;
+
+        if (socketAddrInfo->init(host, std::to_string(port), hints) == 0) {
+            addrinfo* addrInfo = socketAddrInfo->getAddrInfo();
+            if (addrInfo != nullptr) {
+                sockAddr = *reinterpret_cast<SockAddr*>(addrInfo->ai_addr);
+            } else {
+                throw core::socket::SocketAddress::BadSocketAddress("IPv6 error not resolvable: " + host);
+            }
+        } else {
+            throw core::socket::SocketAddress::BadSocketAddress("IPv6 error not resolvable: " + host);
+        }
+
+        return reinterpret_cast<const sockaddr&>(sockAddr);
+    }
+
+    bool SocketAddress::hasNext() {
+        return socketAddrInfo->hasNext();
     }
 
 } // namespace net::in

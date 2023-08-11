@@ -68,12 +68,14 @@ namespace net::un::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setSunPath(const std::string& sunPath) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSunPath(const std::string& sunPath) {
         utils::PreserveErrno preserveErrno;
 
         sunPathOpt //
             ->default_val(sunPath);
         Super::required(sunPathOpt, false);
+
+        return *this;
     }
 
 } // namespace net::un::config
