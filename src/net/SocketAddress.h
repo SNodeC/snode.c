@@ -25,17 +25,10 @@
 #include "core/system/socket.h" // IWYU pragma: export
 
 #include <stdexcept> // IWYU pragma: export
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
-
-    class BadSocketAddress : public std::runtime_error {
-    public:
-        explicit BadSocketAddress(const std::string& errorMessage);
-        ~BadSocketAddress() override;
-    };
 
     template <typename SockAddrT>
     class SocketAddress : public core::socket::SocketAddress {

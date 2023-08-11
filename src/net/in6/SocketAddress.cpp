@@ -27,6 +27,9 @@
 
 #include "utils/PreserveErrno.h"
 
+#include <cerrno>
+#include <cstring>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6 {
@@ -135,15 +138,21 @@ namespace net::in6 {
         hints.ai_socktype = 0;
         hints.ai_flags = aiFlags | AI_ADDRCONFIG;
 
-        if (socketAddrInfo->init(host, std::to_string(port), hints) == 0) {
+        int aiErrCode = 0;
+
+        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
             addrinfo* addrInfo = socketAddrInfo->getAddrInfo();
             if (addrInfo != nullptr) {
                 sockAddr = *reinterpret_cast<SockAddr*>(addrInfo->ai_addr);
             } else {
-                throw core::socket::SocketAddress::BadSocketAddress("IPv6 error not resolvable: " + host);
+                throw core::socket::SocketAddress::BadSocketAddress(
+                    "IPv6 '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                    aiErrCode == EAI_SYSTEM ? errno : EINVAL);
             }
         } else {
-            throw core::socket::SocketAddress::BadSocketAddress("IPv6 error not resolvable: " + host);
+            throw core::socket::SocketAddress::BadSocketAddress(
+                "IPv6 '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                aiErrCode == EAI_SYSTEM ? errno : EINVAL);
         }
 
         return reinterpret_cast<const sockaddr&>(sockAddr);

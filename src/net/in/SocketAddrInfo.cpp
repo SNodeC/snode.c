@@ -20,15 +20,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in {
-
-    SocketAddrInfo::SocketAddrInfo() {
-        VLOG(0) << "SocketAddrInfo::SocketAddrInfo()";
-    }
 
     SocketAddrInfo::~SocketAddrInfo() {
         if (res != nullptr) {
@@ -39,8 +33,6 @@ namespace net::in {
     int SocketAddrInfo::init(const std::string& node, const std::string& service, const addrinfo& hints) {
         int err = 0;
 
-        VLOG(0) << "SocketAddrInfo::init(" << node << ", " << service << ")";
-
         if (!node.empty() && !service.empty() && (this->node != node || this->service != service)) {
             this->node = node;
             this->service = service;
@@ -50,26 +42,21 @@ namespace net::in {
                 res = nullptr;
             }
 
-            err = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &res);
-
-            currentAddrInfo = res;
+            if ((err = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &res)) == 0) {
+                currentAddrInfo = res;
+            }
         }
 
         return err;
     }
 
     bool SocketAddrInfo::hasNext() {
-        if (currentAddrInfo->ai_next != nullptr) {
-            currentAddrInfo = currentAddrInfo->ai_next;
-        } else {
-            currentAddrInfo = nullptr;
-        }
+        currentAddrInfo = currentAddrInfo->ai_next;
 
         return currentAddrInfo != nullptr;
     }
 
     addrinfo* SocketAddrInfo::getAddrInfo() {
-        VLOG(0) << "GetAddrInfo: " << currentAddrInfo;
         return currentAddrInfo;
     }
 

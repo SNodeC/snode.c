@@ -20,8 +20,11 @@
 
 #include "net/SocketAddress.hpp"
 
+// IWYU pragma: no_include "core/socket/SocketAddress.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <cstddef>
 #include <cstring>
 
@@ -46,8 +49,11 @@ namespace net::un {
             sockAddr.sun_path[len] = 0;
             sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + len + 1);
         } else {
-            throw net::BadSocketAddress("Unix-Domain error sun-path to long: Lenght is = " + std::to_string(sunPath.length()) +
-                                        ", should be: " + std::to_string(sizeof(sockAddr.sun_path) - 1));
+            errno = EINVAL;
+            throw core::socket::SocketAddress::BadSocketAddress(
+                "Unix-Domain error sun-path to long: Lenght is = " + std::to_string(sunPath.length()) +
+                    ", should be: " + std::to_string(sizeof(sockAddr.sun_path) - 1),
+                EINVAL);
         }
 
         return *this;

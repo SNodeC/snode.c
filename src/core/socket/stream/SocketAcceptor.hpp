@@ -72,7 +72,8 @@ namespace core::socket::stream {
                     enable(physicalSocket->getFd());
                 }
             } catch (const SocketAddress::BadSocketAddress& badSocketAddress) {
-                PLOG(ERROR) << badSocketAddress.what();
+                errno = badSocketAddress.getErrCode();
+                LOG(ERROR) << badSocketAddress.what();
                 onError(localAddress, errno);
                 destruct();
             }

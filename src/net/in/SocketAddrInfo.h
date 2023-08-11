@@ -31,7 +31,7 @@ namespace net::in {
 
     class SocketAddrInfo {
     public:
-        SocketAddrInfo();
+        SocketAddrInfo() = default;
         ~SocketAddrInfo();
 
         int init(const std::string& node, const std::string& service, const addrinfo& hints);
