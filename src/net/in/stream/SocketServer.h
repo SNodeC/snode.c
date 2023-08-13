@@ -60,7 +60,7 @@ namespace net::in::stream {
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Local::setIpOrHostname(ipOrHostname).setPort(port);
+            Super::getConfig().Local::setHost(ipOrHostname).setPort(port);
 
             listen(onError);
         }
@@ -69,7 +69,7 @@ namespace net::in::stream {
                     uint16_t port,
                     int backlog,
                     const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Local::setIpOrHostname(ipOrHostname).setPort(port).setBacklog(backlog);
+            Super::getConfig().Local::setHost(ipOrHostname).setPort(port).setBacklog(backlog);
 
             listen(onError);
         }

@@ -32,7 +32,7 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddressLocal : protected net::config::ConfigAddress<SocketAddressT> {
+    class ConfigAddressLocal : public net::config::ConfigAddress<SocketAddressT> {
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
     protected:

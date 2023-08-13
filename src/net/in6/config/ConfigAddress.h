@@ -51,14 +51,20 @@ namespace net::in6::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
-        SocketAddress getSocketAddress() const final;
+    private:
+        SocketAddress* init() final;
+
+    public:
         void setSocketAddress(const SocketAddress& socketAddress) final;
 
-        std::string getIpOrHostname();
-        ConfigAddress& setIpOrHostname(const std::string& ipOrHostname);
+        std::string getHost();
+        ConfigAddress& setHost(const std::string& ipOrHostname);
 
         uint16_t getPort();
         ConfigAddress& setPort(uint16_t port);
+
+        bool getIpv4Mapped();
+        ConfigAddress& setIpv4Mapped(bool ipv4Mapped);
 
     protected:
         void hostRequired();
@@ -68,6 +74,7 @@ namespace net::in6::config {
     private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
+        CLI::Option* ipv4MappedOpt = nullptr;
 
         int aiFlags = 0;
     };

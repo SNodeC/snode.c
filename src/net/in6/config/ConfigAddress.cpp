@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/netdb.h"
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
@@ -49,6 +50,12 @@ namespace net::in6::config {
                           "port",
                           0,
                           CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
+        Super::add_flag(ipv4MappedOpt, //
+                        "--ipv4-mapped",
+                        "Resolve IPv4 mapped IPv6 addresses also",
+                        "bool",
+                        "false",
+                        CLI::IsMember({"true", "false"}));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -62,25 +69,24 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
-        utils::PreserveErrno preserveErrno;
-
-        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()).setAiFlags(aiFlags);
+    SocketAddress* ConfigAddress<ConfigAddressType>::init() {
+        return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
+                    ->setAiFlags(aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setIpOrHostname(socketAddress.getHost());
+        setHost(socketAddress.getHost());
         setPort(socketAddress.getPort());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    std::string ConfigAddress<ConfigAddressType>::getIpOrHostname() {
+    std::string ConfigAddress<ConfigAddressType>::getHost() {
         return hostOpt->as<std::string>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHost(const std::string& ipOrHostname) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
@@ -107,8 +113,23 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
+    bool ConfigAddress<ConfigAddressType>::getIpv4Mapped() {
+        return ipv4MappedOpt->as<bool>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setIpv4Mapped(bool ipv4Mapped) {
+        utils::PreserveErrno preserveErrno;
+
+        ipv4MappedOpt //
+            ->default_val(ipv4Mapped);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
-        this->aiFlags = aiFlags;
+        this->aiFlags |= aiFlags;
     }
 
 } // namespace net::in6::config
@@ -116,5 +137,6 @@ namespace net::in6::config {
 template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
+template class net::config::ConfigAddress<net::in6::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;

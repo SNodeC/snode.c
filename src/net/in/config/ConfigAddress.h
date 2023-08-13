@@ -51,11 +51,14 @@ namespace net::in::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
-        SocketAddress getSocketAddress() const final;
+    private:
+        SocketAddress* init() final;
+
+    public:
         void setSocketAddress(const SocketAddress& socketAddress) final;
 
-        std::string getIpOrHostname();
-        ConfigAddress& setIpOrHostname(const std::string& ipOrHostname);
+        std::string getHost();
+        ConfigAddress& setHost(const std::string& ipOrHostname);
 
         uint16_t getPort();
         ConfigAddress& setPort(uint16_t port);

@@ -59,10 +59,8 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
-        utils::PreserveErrno preserveErrno;
-
-        return SocketAddress(hostOpt->as<std::string>(), channelOpt->as<uint8_t>());
+    SocketAddress* ConfigAddress<ConfigAddressType>::init() {
+        return new SocketAddress(hostOpt->as<std::string>(), channelOpt->as<uint8_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -108,5 +106,6 @@ namespace net::rc::config {
 template class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
+template class net::config::ConfigAddress<net::rc::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::rc::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::rc::SocketAddress>;

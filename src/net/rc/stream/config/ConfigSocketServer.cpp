@@ -36,9 +36,6 @@ namespace net::rc::stream::config {
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
     }
 
-    ConfigSocketServer::~ConfigSocketServer() {
-    }
-
 } // namespace net::rc::stream::config
 
 template class net::stream::config::ConfigSocketServer<net::rc::config::ConfigAddress>;

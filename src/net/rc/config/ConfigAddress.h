@@ -51,7 +51,10 @@ namespace net::rc::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
-        SocketAddress getSocketAddress() const final;
+    private:
+        SocketAddress* init() final;
+
+    public:
         void setSocketAddress(const SocketAddress& socketAddress) final;
 
         std::string getBtAddress();
@@ -63,9 +66,6 @@ namespace net::rc::config {
     protected:
         void hostRequired();
         void channelRequired();
-
-    protected:
-        using Super::required;
 
         CLI::Option* hostOpt = nullptr;
         CLI::Option* channelOpt = nullptr;

@@ -51,10 +51,8 @@ namespace net::un::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
-        utils::PreserveErrno preserveErrno;
-
-        return SocketAddress(sunPathOpt->as<std::string>());
+    SocketAddress* ConfigAddress<ConfigAddressType>::init() {
+        return new SocketAddress(sunPathOpt->as<std::string>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -83,5 +81,6 @@ namespace net::un::config {
 template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
+template class net::config::ConfigAddress<net::un::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::un::SocketAddress>;

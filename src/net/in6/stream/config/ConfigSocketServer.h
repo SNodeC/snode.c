@@ -42,8 +42,6 @@ namespace net::in6::stream::config {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
-        ~ConfigSocketServer() override;
-
         void setReusePort(bool reusePort = true);
         bool getReusePort();
 

@@ -74,9 +74,6 @@ namespace net::in6::stream::config {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
     }
 
-    ConfigSocketServer::~ConfigSocketServer() {
-    }
-
     void ConfigSocketServer::setReusePort(bool reusePort) {
         if (reusePort) {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);

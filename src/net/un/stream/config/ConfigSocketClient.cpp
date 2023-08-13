@@ -31,9 +31,6 @@ namespace net::un::stream::config {
         net::un::config::ConfigAddress<net::config::ConfigAddressRemote>::sunPathRequired();
     }
 
-    ConfigSocketClient::~ConfigSocketClient() {
-    }
-
 } // namespace net::un::stream::config
 
 template class net::stream::config::ConfigSocketClient<net::un::config::ConfigAddress>;

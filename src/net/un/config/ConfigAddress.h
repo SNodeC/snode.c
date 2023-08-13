@@ -50,7 +50,10 @@ namespace net::un::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
-        SocketAddress getSocketAddress() const final;
+    private:
+        SocketAddress* init() final;
+
+    public:
         void setSocketAddress(const SocketAddress& socketAddress) final;
 
         std::string getSunPath();
@@ -60,8 +63,6 @@ namespace net::un::config {
         void sunPathRequired();
 
     private:
-        using Super::required;
-
         CLI::Option* sunPathOpt = nullptr;
     };
 

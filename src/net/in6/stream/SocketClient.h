@@ -48,17 +48,17 @@ namespace net::in6::stream {
         using Super::connect;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Remote::setIpOrHostname(ipOrHostname).setPort(port);
+            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
 
             connect(onError);
         }
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
-                     const std::string& bindIpOrHostname,
+                     const std::string& bindHost,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Remote::setIpOrHostname(ipOrHostname).setPort(port);
-            Super::getConfig().Local::setIpOrHostname(bindIpOrHostname);
+            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
+            Super::getConfig().Local::setHost(bindHost);
 
             connect(onError);
         }
@@ -67,7 +67,7 @@ namespace net::in6::stream {
                      uint16_t port,
                      uint16_t bindPort,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Remote::setIpOrHostname(ipOrHostname).setPort(port);
+            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
             Super::getConfig().Local::setPort(bindPort);
 
             connect(onError);
@@ -75,11 +75,11 @@ namespace net::in6::stream {
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
-                     const std::string& bindIpOrHostname,
+                     const std::string& bindHost,
                      uint16_t bindPort,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Remote::setIpOrHostname(ipOrHostname).setPort(port);
-            Super::getConfig().Local::setIpOrHostname(bindIpOrHostname).setPort(bindPort);
+            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
+            Super::getConfig().Local::setHost(bindHost).setPort(bindPort);
 
             connect(onError);
         }

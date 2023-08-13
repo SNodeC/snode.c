@@ -62,25 +62,23 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
-        utils::PreserveErrno preserveErrno;
-
-        return SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()).setAiFlags(aiFlags);
+    SocketAddress* ConfigAddress<ConfigAddressType>::init() {
+        return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))->setAiFlags(aiFlags);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setIpOrHostname(socketAddress.getHost());
+        setHost(socketAddress.getHost());
         setPort(socketAddress.getPort());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    std::string ConfigAddress<ConfigAddressType>::getIpOrHostname() {
+    std::string ConfigAddress<ConfigAddressType>::getHost() {
         return hostOpt->as<std::string>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHost(const std::string& ipOrHostname) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
@@ -108,7 +106,7 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
-        this->aiFlags = aiFlags;
+        this->aiFlags |= aiFlags;
     }
 
 } // namespace net::in::config
@@ -116,5 +114,6 @@ namespace net::in::config {
 template class net::in::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::in::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
+template class net::config::ConfigAddress<net::in::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::in::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::in::SocketAddress>;

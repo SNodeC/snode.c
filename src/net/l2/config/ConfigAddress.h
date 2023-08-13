@@ -51,7 +51,10 @@ namespace net::l2::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
-        SocketAddress getSocketAddress() const final;
+    private:
+        SocketAddress* init() final;
+
+    public:
         void setSocketAddress(const SocketAddress& socketAddress) final;
 
         std::string getBtAddress();
