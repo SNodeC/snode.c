@@ -70,17 +70,17 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setIpOrHostname(socketAddress.host());
+        setHost(socketAddress.host());
         setPort(socketAddress.port());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    std::string ConfigAddress<ConfigAddressType>::getIpOrHostname() {
+    std::string ConfigAddress<ConfigAddressType>::getHost() {
         return hostOpt->as<std::string>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setIpOrHostname(const std::string& ipOrHostname) {
+    void ConfigAddress<ConfigAddressType>::setHost(const std::string& ipOrHostname) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
