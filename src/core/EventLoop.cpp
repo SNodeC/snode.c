@@ -181,7 +181,7 @@ namespace core {
             EventLoop::instance().eventMultiplexer.exit();
         }
 
-        utils::Timeval timeout = 1;
+        utils::Timeval timeout = 2;
         do {
             auto t1 = std::chrono::high_resolution_clock::now();
 
