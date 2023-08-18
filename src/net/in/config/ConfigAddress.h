@@ -66,13 +66,17 @@ namespace net::in::config {
     protected:
         void hostRequired();
         void portRequired();
-        void setAiFlags(int aiFlags);
+        ConfigAddress& setAiFlags(int aiFlags);
+        ConfigAddress& setAiSocktype(int aiSocktype);
+        ConfigAddress& setAiProtocol(int aiProtocol);
 
     private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
 
         int aiFlags = 0;
+        int aiSocktype = 0;
+        int aiProtocol = 0;
     };
 
 } // namespace net::in::config

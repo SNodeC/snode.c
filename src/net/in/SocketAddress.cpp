@@ -131,11 +131,24 @@ namespace net::in {
         return *this;
     }
 
+    SocketAddress& SocketAddress::setAiSocktype(int aiSocktype) {
+        this->aiSocktype = aiSocktype;
+
+        return *this;
+    }
+
+    SocketAddress& SocketAddress::setAiProtocol(int aiProtocol) {
+        this->aiProtocol = aiProtocol;
+
+        return *this;
+    }
+
     const sockaddr& SocketAddress::getSockAddr() {
         addrinfo hints{};
 
-        hints.ai_family = sockAddr.sin_family;
-        hints.ai_socktype = 0;
+        hints.ai_family = PF_INET;
+        hints.ai_socktype = aiSocktype;
+        hints.ai_protocol = aiProtocol;
         hints.ai_flags = aiFlags | AI_ADDRCONFIG;
 
         int aiErrCode = 0;

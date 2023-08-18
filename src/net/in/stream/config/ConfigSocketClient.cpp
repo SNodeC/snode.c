@@ -22,6 +22,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h"
+
+#include <netinet/in.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in::stream::config {
@@ -30,6 +34,12 @@ namespace net::in::stream::config {
         : net::stream::config::ConfigSocketClient<net::in::config::ConfigAddress>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
+
+        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiSocktype(SOCK_STREAM);
+        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiProtocol(IPPROTO_TCP);
+
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM);
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
