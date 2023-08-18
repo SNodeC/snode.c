@@ -37,6 +37,22 @@ namespace net::config {
         : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
     }
 
+    template <typename SocketAddress>
+    ConfigAddress<SocketAddress>::~ConfigAddress() {
+        if (socketAddress != nullptr) {
+            delete socketAddress;
+        }
+    }
+
+    template <typename SocketAddress>
+    SocketAddress& ConfigAddress<SocketAddress>::getSocketAddress() {
+        if (socketAddress == nullptr) {
+            socketAddress = init();
+        }
+
+        return *socketAddress;
+    }
+
 } // namespace net::config
 
 #endif // NET_CONFIG_CONFIGADDRESS_HPP

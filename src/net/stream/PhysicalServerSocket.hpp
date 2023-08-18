@@ -32,15 +32,13 @@ namespace net::stream {
     }
 
     template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept(SocketAddress& remoteAddress) {
-        remoteAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
-        return core::system::accept(Super::getFd(), &remoteAddress.getSockAddr(), &remoteAddress.getSockAddrLen());
+    int PhysicalServerSocket<PhysicalSocket>::accept() {
+        return core::system::accept(Super::getFd(), nullptr, nullptr);
     }
 
     template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept4(SocketAddress& remoteAddress, int flags) {
-        remoteAddress.getSockAddrLen() = sizeof(typename SocketAddress::SockAddr);
-        return core::system::accept4(Super::getFd(), &remoteAddress.getSockAddr(), &remoteAddress.getSockAddrLen(), flags);
+    int PhysicalServerSocket<PhysicalSocket>::accept4(int flags) {
+        return core::system::accept4(Super::getFd(), nullptr, nullptr, flags);
     }
 
 } // namespace net::stream

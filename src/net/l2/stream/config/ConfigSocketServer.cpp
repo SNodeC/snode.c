@@ -31,9 +31,6 @@ namespace net::l2::stream::config {
         net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
     }
 
-    ConfigSocketServer::~ConfigSocketServer() {
-    }
-
 } // namespace net::l2::stream::config
 
 template class net::stream::config::ConfigSocketServer<net::l2::config::ConfigAddress>;

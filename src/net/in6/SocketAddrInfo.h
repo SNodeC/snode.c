@@ -16,29 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
-#define NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
-
-// clang-format off
-#include "net/stream/config/ConfigSocketClient.h" // IWYU pragma: export
-#include "net/rc/config/ConfigAddress.h"          // IWYU pragma: export
-// clang-format on
-
-namespace net::config {
-    class ConfigInstance;
-}
+#ifndef NET_IN6_SOCKETADDRINFO_H
+#define NET_IN6_SOCKETADDRINFO_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/netdb.h" // IWYU pragma: export
+
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rc::stream::config {
+namespace net::in6 {
 
-    class ConfigSocketClient : public net::stream::config::ConfigSocketClient<net::rc::config::ConfigAddress> {
+    class SocketAddrInfo {
     public:
-        explicit ConfigSocketClient(net::config::ConfigInstance* instance);
+        SocketAddrInfo() = default;
+        ~SocketAddrInfo();
+
+        int init(const std::string& node, const std::string& service, const addrinfo& hints);
+
+        bool hasNext();
+        addrinfo* getAddrInfo();
+
+    private:
+        struct addrinfo* addrInfo = nullptr;
+        struct addrinfo* currentAddrInfo = nullptr;
+
+        std::string node;
+        std::string service;
     };
 
-} // namespace net::rc::stream::config
+} // namespace net::in6
 
-#endif // NET_RC_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
+#endif // NET_IN6_SOCKETADDRINFO_H

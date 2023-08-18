@@ -63,6 +63,8 @@ namespace net::config {
             [this, &opt, optLevel, optName](int64_t) -> void {
                 if (opt->as<bool>()) {
                     socketOptionsMap.insert({optName, net::PhysicalSocketOption(optLevel, optName, 1)});
+                } else {
+                    socketOptionsMap.erase(optName);
                 }
 
                 (utils::ResetToDefault(opt))(opt->as<std::string>());

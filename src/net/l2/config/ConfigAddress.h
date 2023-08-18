@@ -51,14 +51,17 @@ namespace net::l2::config {
     public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
-        SocketAddress getSocketAddress() const final;
+    private:
+        SocketAddress* init() final;
+
+    public:
         void setSocketAddress(const SocketAddress& socketAddress) final;
 
         std::string getBtAddress();
-        void setBtAddress(const std::string& btAddress);
+        ConfigAddress& setBtAddress(const std::string& btAddress);
 
         uint16_t getPsm();
-        void setPsm(uint16_t psm);
+        ConfigAddress& setPsm(uint16_t psm);
 
     protected:
         void hostRequired();

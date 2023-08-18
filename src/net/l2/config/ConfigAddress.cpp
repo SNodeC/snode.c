@@ -62,10 +62,8 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress() const {
-        utils::PreserveErrno preserveErrno;
-
-        return SocketAddress(hostOpt->as<std::string>(), psmOpt->as<uint16_t>());
+    SocketAddress* ConfigAddress<ConfigAddressType>::init() {
+        return new SocketAddress(hostOpt->as<std::string>(), psmOpt->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -80,12 +78,14 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
             ->default_val(btAddress);
         Super::required(hostOpt, false);
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -94,12 +94,14 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
         utils::PreserveErrno preserveErrno;
 
         psmOpt //
             ->default_val(psm);
         Super::required(psmOpt, false);
+
+        return *this;
     }
 
 } // namespace net::l2::config
@@ -107,5 +109,6 @@ namespace net::l2::config {
 template class net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
+template class net::config::ConfigAddress<net::l2::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::l2::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::l2::SocketAddress>;

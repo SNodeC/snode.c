@@ -39,9 +39,12 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include "core/system/netdb.h"
+
 #include <memory>
 #include <stdexcept>
-#include <sys/socket.h>
+//#include <sys/socket.h>
+#include <netinet/in.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -58,6 +61,10 @@ namespace net::in::stream::config {
                                                              "bool",
                                                              "false",
                                                              CLI::IsMember({"true", "false"}));
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
+
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM);
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
     }
 
     ConfigSocketServer::~ConfigSocketServer() {

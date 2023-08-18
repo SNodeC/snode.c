@@ -27,7 +27,7 @@
 namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename Config, typename SocketConnection>
-    core::socket::stream::SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>::SocketConnectionFactory(
+    SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>::SocketConnectionFactory(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
@@ -44,15 +44,19 @@ namespace core::socket::stream {
         SocketConnection* socketConnection = nullptr;
 
         if (physicalSocket.isValid()) {
-            SocketAddress localAddress{};
-            SocketAddress remoteAddress{};
-            if (physicalSocket.getSockname(localAddress) == 0 && physicalSocket.getPeername(remoteAddress) == 0) {
+            typename SocketAddress::SockAddr localSockAddr;
+            typename SocketAddress::SockAddr remoteSockAddr;
+            socklen_t localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+            socklen_t remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+            if (physicalSocket.getSockname(localSockAddr, localSockAddrLen) == 0 &&
+                physicalSocket.getPeername(remoteSockAddr, remoteSockAddrLen) == 0) {
                 physicalSocket.setDontClose();
 
                 socketConnection = new SocketConnection(physicalSocket,
                                                         socketContextFactory,
-                                                        localAddress,
-                                                        remoteAddress,
+                                                        SocketAddress(localSockAddr, localSockAddrLen),
+                                                        SocketAddress(remoteSockAddr, remoteSockAddrLen),
                                                         onDisconnect,
                                                         config->getReadTimeout(),
                                                         config->getWriteTimeout(),

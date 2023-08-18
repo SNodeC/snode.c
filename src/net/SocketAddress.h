@@ -22,20 +22,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/SocketAddress.h" // IWYU pragma: export
-#include "core/system/socket.h"
+#include "core/system/socket.h"        // IWYU pragma: export
 
 #include <stdexcept> // IWYU pragma: export
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
-
-    class BadSocketAddress : public std::runtime_error {
-    public:
-        explicit BadSocketAddress(const std::string& errorMessage);
-        ~BadSocketAddress() override;
-    };
 
     template <typename SockAddrT>
     class SocketAddress : public core::socket::SocketAddress {
@@ -46,13 +39,12 @@ namespace net {
 
         SocketAddress(const SocketAddress& socketAddress);
 
+        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
         SocketAddress& operator=(const SocketAddress& socketAddress);
 
-        sockaddr& getSockAddr();
-        const sockaddr& getSockAddr() const;
-
-        socklen_t& getSockAddrLen();
-        const socklen_t& getSockAddrLen() const;
+        virtual const sockaddr& getSockAddr();
+        virtual const socklen_t& getSockAddrLen() const;
 
     protected:
         SockAddr sockAddr{0};

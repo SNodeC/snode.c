@@ -32,9 +32,6 @@ namespace net::l2::stream::config {
         net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::psmRequired();
     }
 
-    ConfigSocketClient::~ConfigSocketClient() {
-    }
-
 } // namespace net::l2::stream::config
 
 template class net::stream::config::ConfigSocketClient<net::l2::config::ConfigAddress>;

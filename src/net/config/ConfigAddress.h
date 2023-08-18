@@ -42,10 +42,18 @@ namespace net::config {
     protected:
         ConfigAddress(ConfigInstance* instance, const std::string& addressOptionName, const std::string& addressOptionDescription);
 
-        virtual ~ConfigAddress() = default;
+        virtual ~ConfigAddress();
 
-        virtual SocketAddress getSocketAddress() const = 0;
+    public:
+        SocketAddress& getSocketAddress();
+
+    private:
         virtual void setSocketAddress(const SocketAddress& address) = 0;
+
+    private:
+        virtual SocketAddress* init() = 0;
+
+        SocketAddress* socketAddress = nullptr;
     };
 
 } // namespace net::config

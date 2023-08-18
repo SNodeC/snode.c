@@ -48,29 +48,40 @@ namespace net::in6::stream {
         using Super::connect;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(ipOrHostname, port), onError);
+            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
+
+            connect(onError);
         }
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
-                     const std::string& bindIpOrHostname,
+                     const std::string& bindHost,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
+            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
+            Super::getConfig().Local::setHost(bindHost);
+
+            connect(onError);
         }
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      uint16_t bindPort,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindPort), onError);
+            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
+            Super::getConfig().Local::setPort(bindPort);
+
+            connect(onError);
         }
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
-                     const std::string& bindIpOrHostname,
+                     const std::string& bindHost,
                      uint16_t bindPort,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
+            Super::getConfig().Local::setHost(bindHost).setPort(bindPort);
+
+            connect(onError);
         }
     };
 

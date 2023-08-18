@@ -35,13 +35,11 @@ namespace core::socket::stream {
     class SocketConnector
         : protected core::eventreceiver::InitConnectEventReceiver
         , protected core::eventreceiver::ConnectEventReceiver {
-    public:
-        using Config = ConfigT;
-
     private:
         using PhysicalSocket = PhysicalClientSocketT;
 
     protected:
+        using Config = ConfigT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
         using SocketConnection = SocketConnectionT<PhysicalSocket>;
 
@@ -79,10 +77,17 @@ namespace core::socket::stream {
 
         PhysicalSocket* physicalSocket = nullptr;
 
-        SocketConnectionFactory socketConnectionFactory;
+        SocketAddress localAddress;
+        SocketAddress remoteAddress;
 
     protected:
-        std::function<void(const SocketAddress& socketAddress, int err)> onError;
+        std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;
+
+        std::function<void(SocketConnection*)> onConnect;
+        std::function<void(SocketConnection*)> onConnected;
+        std::function<void(SocketConnection*)> onDisconnect;
+
+        std::function<void(const SocketAddress&, int)> onError;
 
         std::shared_ptr<Config> config = nullptr;
     };

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.18)
 
 set(NET_CPP
     PhysicalSocketOption.cpp
-    SocketAddress.cpp
     config/ConfigInstance.cpp
     config/ConfigConnection.cpp
     config/ConfigLegacy.cpp

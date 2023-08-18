@@ -43,8 +43,8 @@ namespace net::rc {
         SocketAddress(const std::string& btAddress, uint8_t channel);
         explicit SocketAddress(uint8_t channel);
 
-        void setBtAddress(const std::string& btAddress);
-        void setChannel(uint8_t channel);
+        SocketAddress setBtAddress(const std::string& btAddress);
+        SocketAddress setChannel(uint8_t channel);
 
         uint8_t channel() const;
 

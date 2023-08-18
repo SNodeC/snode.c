@@ -43,8 +43,8 @@ namespace net::l2 {
         SocketAddress(const std::string& btAddress, uint16_t psm);
         explicit SocketAddress(uint16_t psm);
 
-        void setBtAddress(const std::string& btAddress);
-        void setPsm(uint16_t psm);
+        SocketAddress setBtAddress(const std::string& btAddress);
+        SocketAddress setPsm(uint16_t psm);
 
         uint16_t psm() const;
 

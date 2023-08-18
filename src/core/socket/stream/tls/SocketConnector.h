@@ -42,8 +42,7 @@ namespace core::socket::stream::tls {
 
     public:
         using SocketAddress = typename Super::SocketAddress;
-        using Config = ConfigT;
-
+        using Config = typename Super::Config;
         using SocketConnection = typename Super::SocketConnection;
 
         using Super::config;

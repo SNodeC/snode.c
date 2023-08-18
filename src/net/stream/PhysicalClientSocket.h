@@ -40,7 +40,7 @@ namespace net::stream {
         using Super::Super;
         using Super::operator=;
 
-        int connect(const SocketAddress& remoteAddress);
+        int connect(SocketAddress &remoteAddress);
 
         virtual bool connectInProgress(int cErrno);
     };

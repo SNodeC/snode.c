@@ -30,10 +30,6 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-}
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6::stream::config {
@@ -41,14 +37,6 @@ namespace net::in6::stream::config {
     class ConfigSocketClient : public net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress> {
     public:
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
-
-        ~ConfigSocketClient() override;
-
-        void setIPv6Only(bool iPv6Only = true);
-        bool getIPv6Only();
-
-    private:
-        CLI::Option* iPv6OnlyOpt = nullptr;
     };
 
 } // namespace net::in6::stream::config

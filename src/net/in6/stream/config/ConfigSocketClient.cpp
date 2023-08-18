@@ -22,26 +22,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wweak-vtables"
-#pragma clang diagnostic ignored "-Wcovered-switch-default"
-#endif
-#include "utils/CLI11.hpp" // IWYU pragma: export
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+#include "core/system/socket.h"
 
 #include <netinet/in.h>
-#include <stdexcept>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -52,34 +35,11 @@ namespace net::in6::stream::config {
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
 
-        net::config::ConfigPhysicalSocket::add_socket_option(iPv6OnlyOpt,
-                                                             "--ipv6-only",
-                                                             IPPROTO_IPV6,
-                                                             IPV6_V6ONLY,
-                                                             "Turn of IPv6 dual stack mode",
-                                                             "bool",
-                                                             "false",
-                                                             CLI::IsMember({"true", "false"}));
-    }
+        net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiSocktype(SOCK_STREAM);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiProtocol(IPPROTO_TCP);
 
-    ConfigSocketClient::~ConfigSocketClient() {
-    }
-
-    void ConfigSocketClient::setIPv6Only(bool iPv6Only) {
-        if (iPv6Only) {
-            addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 1);
-        } else {
-            removeSocketOption(IPV6_V6ONLY);
-        }
-
-        iPv6OnlyOpt //
-            ->default_val(iPv6Only ? "true" : "false")
-            ->take_all()
-            ->clear();
-    }
-
-    bool ConfigSocketClient::getIPv6Only() {
-        return iPv6OnlyOpt->as<bool>();
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
     }
 
 } // namespace net::in6::stream::config

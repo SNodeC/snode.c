@@ -35,13 +35,11 @@ namespace core::socket::stream {
     class SocketAcceptor
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
-    public:
-        using Config = ConfigT;
-
     private:
         using PhysicalSocket = PhysicalServerSocketT;
 
     protected:
+        using Config = ConfigT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
         using SocketConnection = SocketConnectionT<PhysicalSocket>;
 
@@ -79,9 +77,13 @@ namespace core::socket::stream {
 
         PhysicalSocket* physicalSocket = nullptr;
 
-        SocketConnectionFactory socketConnectionFactory;
-
     protected:
+        std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;
+
+        std::function<void(SocketConnection*)> onConnect;
+        std::function<void(SocketConnection*)> onConnected;
+        std::function<void(SocketConnection*)> onDisconnect;
+
         std::function<void(const SocketAddress&, int)> onError = nullptr;
 
         std::shared_ptr<Config> config;

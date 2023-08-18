@@ -61,6 +61,12 @@ namespace core {
             EventQueue();
             ~EventQueue();
 
+            EventQueue(const EventQueue&) = delete;
+            EventQueue(EventQueue&&) = delete;
+
+            EventQueue& operator=(const EventQueue&) = delete;
+            EventQueue& operator=(EventQueue&&) = delete;
+
             void insert(Event* event);
             void remove(Event* event);
             void execute(const utils::Timeval& currentTime);

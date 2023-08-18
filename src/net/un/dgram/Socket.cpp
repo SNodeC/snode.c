@@ -50,7 +50,7 @@ namespace net::un::dgram {
         } control_un;
 
         msghdr msg{};
-        msg.msg_name = &destAddress.getSockAddr();
+        msg.msg_name = const_cast<sockaddr*>(&destAddress.getSockAddr());
         msg.msg_namelen = destAddress.getSockAddrLen();
 
         msg.msg_control = control_un.control;

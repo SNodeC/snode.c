@@ -48,6 +48,8 @@ namespace net::l2::stream {
         using Super::connect;
 
         void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, int)>& onError) const {
+            Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
+
             connect(SocketAddress(btAddress, psm), onError);
         }
 
@@ -55,14 +57,20 @@ namespace net::l2::stream {
                      uint16_t psm,
                      const std::string& bindBtAddress,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(btAddress, psm), SocketAddress(bindBtAddress), onError);
+            Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
+            Super::getConfig().Local::setBtAddress(bindBtAddress);
+
+            connect(onError);
         }
 
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      uint16_t bindPsm,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(btAddress, psm), SocketAddress(bindPsm), onError);
+            Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
+            Super::getConfig().Local::setPsm(bindPsm);
+
+            connect(onError);
         }
 
         void connect(const std::string& btAddress,
@@ -70,7 +78,10 @@ namespace net::l2::stream {
                      const std::string& bindBtAddress,
                      uint16_t bindPsm,
                      const std::function<void(const SocketAddress&, int)>& onError) const {
-            connect(SocketAddress(btAddress, psm), SocketAddress(bindBtAddress, bindPsm), onError);
+            Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
+            Super::getConfig().Local::setBtAddress(bindBtAddress).setPsm(bindPsm);
+
+            connect(onError);
         }
     };
 
