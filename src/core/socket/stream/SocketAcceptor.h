@@ -77,9 +77,13 @@ namespace core::socket::stream {
 
         PhysicalSocket* physicalSocket = nullptr;
 
-        SocketConnectionFactory socketConnectionFactory;
-
     protected:
+        std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;
+
+        std::function<void(SocketConnection*)> onConnect;
+        std::function<void(SocketConnection*)> onConnected;
+        std::function<void(SocketConnection*)> onDisconnect;
+
         std::function<void(const SocketAddress&, int)> onError = nullptr;
 
         std::shared_ptr<Config> config;

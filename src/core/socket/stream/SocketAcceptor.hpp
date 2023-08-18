@@ -37,7 +37,10 @@ namespace core::socket::stream {
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
         , core::eventreceiver::AcceptEventReceiver("SocketAcceptor")
-        , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
+        , socketContextFactory(socketContextFactory)
+        , onConnect(onConnect)
+        , onConnected(onConnected)
+        , onDisconnect(onDisconnect)
         , onError(onError)
         , config(config) {
         InitAcceptEventReceiver::span();
@@ -71,6 +74,10 @@ namespace core::socket::stream {
                     onError(localAddress, 0);
                     enable(physicalSocket->getFd());
                 }
+
+                if (localAddress.hasNext()) {
+                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 errno = badSocketAddress.getErrCode();
                 LOG(ERROR) << badSocketAddress.what();
@@ -89,6 +96,7 @@ namespace core::socket::stream {
         do {
             PhysicalSocket physicalClientSocket(physicalSocket->accept4(PhysicalSocket::Flags::NONBLOCK));
             if (physicalClientSocket.isValid()) {
+                SocketConnectionFactory socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect);
                 socketConnectionFactory.create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                 PLOG(ERROR) << "accept";

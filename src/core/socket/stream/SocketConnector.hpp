@@ -37,7 +37,10 @@ namespace core::socket::stream {
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
         , core::eventreceiver::ConnectEventReceiver("SocketConnector")
-        , socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
+        , socketContextFactory(socketContextFactory)
+        , onConnect(onConnect)
+        , onConnected(onConnected)
+        , onDisconnect(onDisconnect)
         , onError(onError)
         , config(config) {
         InitConnectEventReceiver::span();
@@ -60,26 +63,28 @@ namespace core::socket::stream {
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
                     onError(remoteAddress, errno);
-                    VLOG(0) << "############################### 1";
                     destruct();
                 } else if (physicalSocket->bind(localAddress) < 0) {
                     onError(remoteAddress, errno);
-                    VLOG(0) << "############################### 2";
                     destruct();
+
                     if (localAddress.hasNext()) {
+                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     }
                 } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
                     onError(remoteAddress, errno);
-                    VLOG(0) << "############################### 3";
                     destruct();
+
                     if (remoteAddress.hasNext()) {
+                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     }
                 } else {
                     enable(physicalSocket->getFd());
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                errno = badSocketAddress.getErrCode();
                 LOG(ERROR) << badSocketAddress.what();
+
+                errno = badSocketAddress.getErrCode();
                 onError(remoteAddress, errno);
                 destruct();
             }
@@ -96,17 +101,19 @@ namespace core::socket::stream {
             if (!physicalSocket->connectInProgress(cErrno)) {
                 if (cErrno == 0) {
                     disable();
+                    SocketConnectionFactory socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect);
                     if (socketConnectionFactory.create(*physicalSocket, config)) {
                         errno = errno == 0 ? cErrno : errno;
-                        VLOG(0) << "############################### 4";
                         onError(remoteAddress, errno);
                     }
                 } else {
                     disable();
                     errno = cErrno;
-                    VLOG(0) << "############################### 5";
-                    onError(remoteAddress, errno);
+
                     if (remoteAddress.hasNext()) {
+                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(remoteAddress, errno);
                     }
                 }
             } else {
@@ -115,7 +122,6 @@ namespace core::socket::stream {
         } else {
             disable();
             errno = cErrno;
-            VLOG(0) << "############################### 6";
             onError(remoteAddress, errno);
         }
     }
