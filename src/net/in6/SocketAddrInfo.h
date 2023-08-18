@@ -40,7 +40,7 @@ namespace net::in6 {
         addrinfo* getAddrInfo();
 
     private:
-        struct addrinfo* res = nullptr;
+        struct addrinfo* addrInfo = nullptr;
         struct addrinfo* currentAddrInfo = nullptr;
 
         std::string node;

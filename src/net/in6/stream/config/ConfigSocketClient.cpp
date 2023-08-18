@@ -22,22 +22,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wweak-vtables"
-#pragma clang diagnostic ignored "-Wcovered-switch-default"
-#endif
-#include "utils/CLI11.hpp" // IWYU pragma: export
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+#include "core/system/socket.h"
+
+#include <netinet/in.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -47,6 +34,12 @@ namespace net::in6::stream::config {
         : net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
+
+        net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiSocktype(SOCK_STREAM);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiProtocol(IPPROTO_TCP);
+
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
     }
 
 } // namespace net::in6::stream::config

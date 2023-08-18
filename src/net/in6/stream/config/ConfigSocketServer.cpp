@@ -72,6 +72,9 @@ namespace net::in6::stream::config {
                                                              CLI::IsMember({"true", "false"}));
 
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
+
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
     }
 
     void ConfigSocketServer::setReusePort(bool reusePort) {

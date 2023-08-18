@@ -60,6 +60,8 @@ namespace net::in6 {
         std::string toString() const override;
 
         SocketAddress& setAiFlags(int aiFlags);
+        SocketAddress& setAiSocktype(int aiSocktype);
+        SocketAddress& setAiProtocol(int aiProtocol);
 
         const sockaddr& getSockAddr() override;
 
@@ -68,6 +70,8 @@ namespace net::in6 {
     private:
         std::shared_ptr<SocketAddrInfo> socketAddrInfo;
         int aiFlags = 0;
+        int aiSocktype = 0;
+        int aiProtocol = 0;
 
         std::string host = "";
         uint16_t port = 0;

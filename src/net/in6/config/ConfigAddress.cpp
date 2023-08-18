@@ -71,7 +71,9 @@ namespace net::in6::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
-                    ->setAiFlags(aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0));
+                    ->setAiFlags(aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0))
+                    .setAiSocktype(aiSocktype)
+                    .setAiProtocol(aiProtocol);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -128,8 +130,24 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
         this->aiFlags |= aiFlags;
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiSocktype(int aiSocktype) {
+        this->aiSocktype = aiSocktype;
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiProtocol(int aiProtocol) {
+        this->aiProtocol = aiProtocol;
+
+        return *this;
     }
 
 } // namespace net::in6::config

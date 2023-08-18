@@ -64,12 +64,14 @@ namespace net::in6::config {
         ConfigAddress& setPort(uint16_t port);
 
         bool getIpv4Mapped();
-        ConfigAddress& setIpv4Mapped(bool ipv4Mapped);
 
     protected:
         void hostRequired();
         void portRequired();
-        void setAiFlags(int aiFlags);
+        ConfigAddress& setAiFlags(int aiFlags);
+        ConfigAddress& setAiSocktype(int aiSocktype);
+        ConfigAddress& setAiProtocol(int aiProtocol);
+        ConfigAddress& setIpv4Mapped(bool ipv4Mapped = true);
 
     private:
         CLI::Option* hostOpt = nullptr;
@@ -77,6 +79,8 @@ namespace net::in6::config {
         CLI::Option* ipv4MappedOpt = nullptr;
 
         int aiFlags = 0;
+        int aiSocktype = 0;
+        int aiProtocol = 0;
     };
 
 } // namespace net::in6::config
