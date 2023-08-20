@@ -54,7 +54,8 @@ namespace net::un::stream {
         }
 
         void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Local::setSunPath(sunPath).setBacklog(backlog);
+            Super::getConfig().Local::setSunPath(sunPath);
+            Super::getConfig().setBacklog(backlog);
 
             listen(onError);
         }

@@ -54,7 +54,8 @@ namespace net::rc::stream {
         }
 
         void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Local::setChannel(channel).setBacklog(backlog);
+            Super::getConfig().Local::setChannel(channel);
+            Super::getConfig().setBacklog(backlog);
 
             listen(onError);
         }
@@ -69,7 +70,8 @@ namespace net::rc::stream {
                     uint8_t channel,
                     int backlog,
                     const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Local::setBtAddress(btAddress).setChannel(channel).setBacklog(backlog);
+            Super::getConfig().Local::setBtAddress(btAddress).setChannel(channel);
+            Super::getConfig().setBacklog(backlog);
 
             listen(onError);
         }

@@ -54,7 +54,8 @@ namespace net::l2::stream {
         }
 
         void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
-            Super::getConfig().Local::setPsm(psm).setBacklog(backlog);
+            Super::getConfig().Local::setPsm(psm);
+            Super::getConfig().setBacklog(backlog);
 
             listen(onError);
         }
@@ -69,7 +70,8 @@ namespace net::l2::stream {
                     uint16_t psm,
                     int backlog,
                     const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
-            Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm).setBacklog(backlog);
+            Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
+            Super::getConfig().setBacklog(backlog);
 
             listen(onError);
         }
