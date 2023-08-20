@@ -20,7 +20,29 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wweak-vtables"
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
+#endif
+#include "utils/CLI11.hpp" // IWYU pragma: export
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+#ifndef ACCEPT_TIMEOUT
+#define ACCEPT_TIMEOUT 0 // disable timeout
+#endif
 
 namespace net::stream::config {
 
@@ -30,6 +52,24 @@ namespace net::stream::config {
         , net::config::ConfigConnection(instance)
         , net::config::ConfigPhysicalSocket(instance)
         , net::config::ConfigListen(instance) {
+        net::config::ConfigPhysicalSocket::add_option(acceptTimeoutOpt, //
+                                                      "--accept-timeout",
+                                                      "Accept timeout",
+                                                      "timeout",
+                                                      ACCEPT_TIMEOUT,
+                                                      CLI::NonNegativeNumber);
+    }
+
+    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
+    void ConfigSocketServer<ConfigAddress>::setAcceptTimeout(const utils::Timeval& acceptTimeout) {
+        acceptTimeoutOpt //
+            ->default_val(acceptTimeout)
+            ->clear();
+    }
+
+    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
+    utils::Timeval ConfigSocketServer<ConfigAddress>::getAcceptTimeout() const {
+        return acceptTimeoutOpt->as<utils::Timeval>();
     }
 
 } // namespace net::stream::config

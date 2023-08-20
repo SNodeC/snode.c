@@ -36,7 +36,7 @@ namespace core::socket::stream {
         const std::function<void(const SocketAddress&, int)>& onError,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
-        , core::eventreceiver::ConnectEventReceiver("SocketConnector")
+        , core::eventreceiver::ConnectEventReceiver("SocketConnector", 0)
         , socketContextFactory(socketContextFactory)
         , onConnect(onConnect)
         , onConnected(onConnected)
@@ -56,28 +56,30 @@ namespace core::socket::stream {
     template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
     void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::initConnectEvent() {
         if (!config->getDisabled()) {
+            core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
+
             try {
                 physicalSocket = new PhysicalSocket();
-                localAddress = config->Local::getSocketAddress();
+                SocketAddress localAddress = config->Local::getSocketAddress();
                 remoteAddress = config->Remote::getSocketAddress();
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
                     onError(remoteAddress, errno);
                     destruct();
                 } else if (physicalSocket->bind(localAddress) < 0) {
-                    onError(remoteAddress, errno);
-                    destruct();
-
                     if (localAddress.hasNext()) {
                         new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(remoteAddress, errno);
                     }
-                } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
-                    onError(remoteAddress, errno);
                     destruct();
-
+                } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
                     if (remoteAddress.hasNext()) {
                         new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(remoteAddress, errno);
                     }
+                    destruct();
                 } else {
                     enable(physicalSocket->getFd());
                 }
@@ -95,33 +97,28 @@ namespace core::socket::stream {
 
     template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
     void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::connectEvent() {
-        int cErrno = -1;
+        int cErrno;
 
-        if ((cErrno = physicalSocket->getSockError()) >= 0) { //  >= 0->return valid : < 0->getsockopt failed errno = cErrno;
-            if (!physicalSocket->connectInProgress(cErrno)) {
-                if (cErrno == 0) {
-                    disable();
-                    SocketConnectionFactory socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect);
-                    if (socketConnectionFactory.create(*physicalSocket, config)) {
-                        errno = errno == 0 ? cErrno : errno;
-                        onError(remoteAddress, errno);
-                    }
-                } else {
-                    disable();
-                    errno = cErrno;
-
-                    if (remoteAddress.hasNext()) {
-                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                    } else {
-                        onError(remoteAddress, errno);
-                    }
-                }
-            } else {
-                // Do nothing: connect() still in progress
-            }
-        } else {
-            disable();
+        if (physicalSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
             errno = cErrno;
+            if (physicalSocket->connectInProgress(errno)) {
+                // Do nothing: connect() still in progress
+            } else {
+                disable();
+
+                if (errno == 0) {
+                    SocketConnectionFactory socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect);
+                    socketConnectionFactory.create(*physicalSocket, config);
+
+                    onError(remoteAddress, errno);
+                } else if (remoteAddress.hasNext()) {
+                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                } else {
+                    onError(remoteAddress, errno);
+                }
+            }
+        } else { // syscall error
+            disable();
             onError(remoteAddress, errno);
         }
     }
@@ -134,6 +131,18 @@ namespace core::socket::stream {
     template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
     void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::unobservedEvent() {
         destruct();
+    }
+
+    template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
+    void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::connectTimeout() {
+        disable();
+
+        if (remoteAddress.hasNext()) {
+            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+        } else {
+            errno = ETIMEDOUT;
+            onError(remoteAddress, errno);
+        }
     }
 
 } // namespace core::socket::stream

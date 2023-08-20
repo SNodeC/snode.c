@@ -29,13 +29,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_ACCEPT_INACTIVITY DescriptorEventReceiver::TIMEOUT::DISABLE
-
 namespace core::eventreceiver {
 
     class AcceptEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_ACCEPT_INACTIVITY);
+        AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout);
 
     private:
         virtual void acceptEvent() = 0;

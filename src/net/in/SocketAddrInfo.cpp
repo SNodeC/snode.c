@@ -57,13 +57,11 @@ namespace net::in {
     bool SocketAddrInfo::hasNext() {
         bool hasNext = false;
 
-        if (currentAddrInfo != nullptr) {
-            if (currentAddrInfo->ai_next != nullptr) {
-                hasNext = true;
-                currentAddrInfo = currentAddrInfo->ai_next;
-            } else {
-                currentAddrInfo = addrInfo;
-            }
+        if (currentAddrInfo != nullptr && currentAddrInfo->ai_next != nullptr) {
+            currentAddrInfo = currentAddrInfo->ai_next;
+            hasNext = true;
+        } else {
+            currentAddrInfo = addrInfo;
         }
 
         return hasNext;
@@ -88,6 +86,7 @@ namespace net::in {
                     struct sockaddr_in* p = (struct sockaddr_in*) currentAddrInfo->ai_addr;
 
                     defaultLogger->trace("AddressInfo:\n"
+                                         "   ai_next      = %v\n"
                                          "   ai_flags     = %v\n"
                                          "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
                                          "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
@@ -98,6 +97,7 @@ namespace net::in {
                                          "AF_INET6 = %v)\n"
                                          "                  sin_addr:     %v\n"
                                          "                  sin_port:     %v",
+                                         currentAddrInfo->ai_next,
                                          currentAddrInfo->ai_flags,
                                          currentAddrInfo->ai_family,
                                          PF_INET,
@@ -123,6 +123,7 @@ namespace net::in {
                     struct sockaddr_in6* p = (struct sockaddr_in6*) currentAddrInfo->ai_addr;
 
                     defaultLogger->trace("AddressInfo:\n"
+                                         "   ai_next      = %v\n"
                                          "   ai_flags     = %v\n"
                                          "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
                                          "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
@@ -135,6 +136,7 @@ namespace net::in {
                                          "                  sin_port:     %v\n"
                                          "                  sin6_flowinfo: %v\n"
                                          "                  sin6_scope_id: %v",
+                                         currentAddrInfo->ai_next,
                                          currentAddrInfo->ai_flags,
                                          currentAddrInfo->ai_family,
                                          PF_INET,

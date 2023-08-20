@@ -29,13 +29,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_CONNECT_INACTIVITY 10
-
 namespace core::eventreceiver {
 
     class ConnectEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_CONNECT_INACTIVITY);
+        ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout);
 
     private:
         virtual void connectEvent() = 0;
