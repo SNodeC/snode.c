@@ -1,5 +1,7 @@
 #include "log/Logger.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
@@ -16,6 +18,8 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
 
