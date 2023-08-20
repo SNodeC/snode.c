@@ -18,7 +18,6 @@
 
 #include "net/rc/stream/config/ConfigSocketServer.h"
 
-#include "net/config/ConfigSection.hpp"
 #include "net/stream/config/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
