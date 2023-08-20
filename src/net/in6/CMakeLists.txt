@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN6_CPP PhysicalSocket.cpp SocketAddress.cpp SocketAddrInfo.cpp config/ConfigAddress.cpp)
+set(NET-IN6_CPP PhysicalSocket.cpp SocketAddress.cpp SocketAddrInfo.cpp
+                config/ConfigAddress.cpp
+)
 
-set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h SocketAddrInfo.h
-              config/ConfigAddress.h
+set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
+              SocketAddrInfo.h config/ConfigAddress.h
 )
 
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})

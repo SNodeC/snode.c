@@ -17,7 +17,8 @@ target_link_libraries(
                      snodec::net-in-stream-tls
 )
 set_target_properties(
-    testpost PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+    testpost PROPERTIES INSTALL_RPATH
+                        "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                  COMPONENT apps
@@ -57,7 +58,8 @@ target_link_libraries(
     jsonclient PRIVATE snodec::http-client snodec::net-in-stream-legacy
 )
 set_target_properties(
-    jsonclient PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+    jsonclient PROPERTIES INSTALL_RPATH
+                          "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                    COMPONENT apps
@@ -69,8 +71,10 @@ target_link_libraries(
                        snodec::core-socket-stream snodec::logger
 )
 set_target_properties(
-    testparser PROPERTIES INSTALL_RPATH
-                          "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+    testparser
+    PROPERTIES
+        INSTALL_RPATH
+        "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                    COMPONENT apps
@@ -112,7 +116,8 @@ target_link_libraries(
             snodec::net-in6-stream-tls
 )
 set_target_properties(
-    vhostserver PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+    vhostserver PROPERTIES INSTALL_RPATH
+                           "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                     COMPONENT apps
@@ -137,8 +142,8 @@ target_link_libraries(
             snodec::net-in6-stream-tls
 )
 set_target_properties(
-    testbasicauthentication PROPERTIES INSTALL_RPATH
-                                       "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+    testbasicauthentication
+    PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS testbasicauthentication
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps

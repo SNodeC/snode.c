@@ -13,8 +13,8 @@ target_link_libraries(
 if(SNODEC_INTREE_BUILD)
 
     set_target_properties(
-        resource_server PROPERTIES INSTALL_RPATH
-                                   "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+        resource_server
+        PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
     )
 
 endif(SNODEC_INTREE_BUILD)
