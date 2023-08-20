@@ -22,6 +22,7 @@
 
 #include "log/Logger.h"
 
+#include <cstring>
 #include <netinet/in.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -71,6 +72,8 @@ namespace net::in6 {
         el::Logger* defaultLogger = el::Loggers::getLogger("default");
         static char hostBfr[NI_MAXHOST];
         static char servBfr[NI_MAXSERV];
+        std::memset(hostBfr, 0, NI_MAXHOST);
+        std::memset(servBfr, 0, NI_MAXSERV);
 
         if (currentAddrInfo != nullptr) {
             getnameinfo(currentAddrInfo->ai_addr,
@@ -80,89 +83,89 @@ namespace net::in6 {
                         servBfr,
                         sizeof(servBfr),
                         NI_NUMERICHOST | NI_NUMERICSERV);
-            switch (currentAddrInfo->ai_family) {
-                case PF_INET: // IPv4 address record.
-                {
-                    struct sockaddr_in* p = (struct sockaddr_in*) currentAddrInfo->ai_addr;
 
-                    defaultLogger->trace("AddressInfo:\n"
-                                         "   ai_next      = %v\n"
-                                         "   ai_flags     = %v\n"
-                                         "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
-                                         "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
-                                         "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
-                                         "   ai_addrlen   = %v (sockaddr_in = %v, "
-                                         "sockaddr_in6 = %v)\n"
-                                         "   ai_addr      = sin_family:   %v (AF_INET = %v, "
-                                         "AF_INET6 = %v)\n"
-                                         "                  sin_addr:     %v\n"
-                                         "                  sin_port:     %v",
-                                         currentAddrInfo->ai_next,
-                                         currentAddrInfo->ai_flags,
-                                         currentAddrInfo->ai_family,
-                                         PF_INET,
-                                         PF_INET6,
-                                         currentAddrInfo->ai_socktype,
-                                         SOCK_STREAM,
-                                         SOCK_DGRAM,
-                                         currentAddrInfo->ai_protocol,
-                                         IPPROTO_TCP,
-                                         IPPROTO_UDP,
-                                         currentAddrInfo->ai_addrlen,
-                                         sizeof(struct sockaddr_in),
-                                         sizeof(struct sockaddr_in6),
-                                         p->sin_family,
-                                         AF_INET,
-                                         AF_INET6,
-                                         hostBfr,
-                                         servBfr);
-                    break;
-                }              // End CASE of IPv4.
-                case PF_INET6: // IPv6 address record.
-                {
-                    struct sockaddr_in6* p = (struct sockaddr_in6*) currentAddrInfo->ai_addr;
+            struct sockaddr_in6* aiAddr = (struct sockaddr_in6*) currentAddrInfo->ai_addr;
 
-                    defaultLogger->trace("AddressInfo:\n"
-                                         "   ai_next      = %v\n"
-                                         "   ai_flags     = %v\n"
-                                         "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
-                                         "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
-                                         "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
-                                         "   ai_addrlen   = %v (sockaddr_in = %v, "
-                                         "sockaddr_in6 = %v)\n"
-                                         "   ai_addr      = sin_family:   %v (AF_INET = %v, "
-                                         "AF_INET6 = %v)\n"
-                                         "                  sin_addr:     %v\n"
-                                         "                  sin_port:     %v\n"
-                                         "                  sin6_flowinfo: %v\n"
-                                         "                  sin6_scope_id: %v",
-                                         currentAddrInfo->ai_next,
-                                         currentAddrInfo->ai_flags,
-                                         currentAddrInfo->ai_family,
-                                         PF_INET,
-                                         PF_INET6,
-                                         currentAddrInfo->ai_socktype,
-                                         SOCK_STREAM,
-                                         SOCK_DGRAM,
-                                         currentAddrInfo->ai_protocol,
-                                         IPPROTO_TCP,
-                                         IPPROTO_UDP,
-                                         currentAddrInfo->ai_addrlen,
-                                         sizeof(struct sockaddr_in),
-                                         sizeof(struct sockaddr_in6),
-                                         p->sin6_family,
-                                         AF_INET,
-                                         AF_INET6,
-                                         hostBfr,
-                                         servBfr,
-                                         p->sin6_flowinfo,
-                                         p->sin6_scope_id);
-                    break;
-                } // End CASE of IPv6.
-            }     // End SWITCH on protocol family.
+            defaultLogger->trace("AddressInfo:\n"
+                                 "   ai_next      = %v\n"
+                                 "   ai_flags     = %v\n"
+                                 "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
+                                 "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
+                                 "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
+                                 "   ai_addrlen   = %v (sockaddr_in = %v, "
+                                 "sockaddr_in6 = %v)\n"
+                                 "   ai_addr      = sin_family:   %v (AF_INET = %v, "
+                                 "AF_INET6 = %v)\n"
+                                 "                  sin_addr:     %v\n"
+                                 "                  sin_port:     %v\n"
+                                 "                  sin6_flowinfo: %v\n"
+                                 "                  sin6_scope_id: %v",
+                                 currentAddrInfo->ai_next,
+                                 currentAddrInfo->ai_flags,
+                                 currentAddrInfo->ai_family,
+                                 PF_INET,
+                                 PF_INET6,
+                                 currentAddrInfo->ai_socktype,
+                                 SOCK_STREAM,
+                                 SOCK_DGRAM,
+                                 currentAddrInfo->ai_protocol,
+                                 IPPROTO_TCP,
+                                 IPPROTO_UDP,
+                                 currentAddrInfo->ai_addrlen,
+                                 sizeof(struct sockaddr_in),
+                                 sizeof(struct sockaddr_in6),
+                                 aiAddr->sin6_family,
+                                 AF_INET,
+                                 AF_INET6,
+                                 hostBfr,
+                                 servBfr,
+                                 aiAddr->sin6_flowinfo,
+                                 aiAddr->sin6_scope_id);
         }
 
         return currentAddrInfo;
     }
 
 } // namespace net::in6
+
+/*
+#include <cstdint>
+#include <cstring>
+#include <format>
+
+         LOG(TRACE) << std::format("AddressInfo:\n"
+                                   "   ai_next      = {:#010x}\n"
+                                   "   ai_flags     = {:#2x}\n"
+                                   "   ai_family    = {} (PF_INET = {}, PF_INET6 = {})\n"
+                                   "   ai_socktype  = {} (SOCK_STREAM = {}, SOCK_DGRAM = {})\n"
+                                   "   ai_protocol  = {} (IPPROTO_TCP = {}, IPPROTO_UDP = {})\n"
+                                   "   ai_addrlen   = {} (sockaddr_in = {}, "
+                                   "sockaddr_in6 = {})\n"
+                                   "   ai_addr      = sin_family:   {} (AF_INET = {}, "
+                                   "AF_INET6 = {})\n"
+                                   "                  sin_addr:     {}\n"
+                                   "                  sin_port:     {}\n"
+                                   "                  sin6_flowinfo: {}\n"
+                                   "                  sin6_scope_id: {}",
+                                   reinterpret_cast<intptr_t>(currentAddrInfo->ai_next),
+                                   currentAddrInfo->ai_flags,
+                                   currentAddrInfo->ai_family,
+                                   PF_INET,
+                                   PF_INET6,
+                                   currentAddrInfo->ai_socktype,
+                                   static_cast<int>(SOCK_STREAM),
+                                   static_cast<int>(SOCK_DGRAM),
+                                   currentAddrInfo->ai_protocol,
+                                   static_cast<int>(IPPROTO_TCP),
+                                   static_cast<int>(IPPROTO_UDP),
+                                   currentAddrInfo->ai_addrlen,
+                                   sizeof(struct sockaddr_in),
+                                   sizeof(struct sockaddr_in6),
+                                   aiAddr->sin6_family,
+                                   AF_INET,
+                                   AF_INET6,
+                                   hostBfr,
+                                   servBfr,
+                                   aiAddr->sin6_flowinfo,
+                                   aiAddr->sin6_scope_id);
+*/
