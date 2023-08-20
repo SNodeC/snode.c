@@ -36,7 +36,7 @@ namespace core::socket::stream {
         const std::function<void(const SocketAddress&, int)>& onError,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
-        , core::eventreceiver::AcceptEventReceiver("SocketAcceptor")
+        , core::eventreceiver::AcceptEventReceiver("SocketAcceptor", 0)
         , socketContextFactory(socketContextFactory)
         , onConnect(onConnect)
         , onConnected(onConnected)
@@ -56,6 +56,8 @@ namespace core::socket::stream {
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
     void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
+            core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
+
             SocketAddress localAddress = config->Local::getSocketAddress();
 
             try {
@@ -79,8 +81,9 @@ namespace core::socket::stream {
                     new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                errno = badSocketAddress.getErrCode();
                 LOG(ERROR) << badSocketAddress.what();
+
+                errno = badSocketAddress.getErrCode();
                 onError(localAddress, errno);
                 destruct();
             }

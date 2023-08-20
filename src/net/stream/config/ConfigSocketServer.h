@@ -26,6 +26,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace CLI {
+    class Option;
+}
+
+namespace utils {
+    class Timeval;
+}
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::stream::config {
@@ -40,6 +48,12 @@ namespace net::stream::config {
         using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
 
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+
+        void setAcceptTimeout(const utils::Timeval& acceptTimeout);
+        utils::Timeval getAcceptTimeout() const;
+
+    private:
+        CLI::Option* acceptTimeoutOpt = nullptr;
     };
 
 } // namespace net::stream::config

@@ -18,6 +18,12 @@
 
 #include "utils/Config.h"
 
+#include "utils/Daemon.h"
+#include "utils/Formatter.h"
+#include "utils/ResetToDefault.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
@@ -34,12 +40,6 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
-
-#include "utils/Daemon.h"
-#include "utils/Formatter.h"
-#include "utils/ResetToDefault.h"
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 

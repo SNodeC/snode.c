@@ -59,7 +59,7 @@ namespace net {
 
         bool isValid() const;
 
-        int getSockError() const;
+        int getSockError(int& cErrno) const;
 
         int getSockname(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen);
         int getPeername(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen);

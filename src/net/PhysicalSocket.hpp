@@ -80,7 +80,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::bind(SocketAddress &bindAddress) {
+    int PhysicalSocket<SocketAddress>::bind(SocketAddress& bindAddress) {
         int ret = core::system::bind(core::Descriptor::getFd(), &bindAddress.getSockAddr(), bindAddress.getSockAddrLen());
 
         if (ret == 0) {
@@ -96,12 +96,12 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getSockError() const {
-        int cErrno = 0;
+    int PhysicalSocket<SocketAddress>::getSockError(int& cErrno) const {
         socklen_t cErrnoLen = sizeof(cErrno);
-        int err = getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
-        return err < 0 ? err : cErrno;
+        int ret = getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+
+        return ret;
     }
 
     template <typename SocketAddress>

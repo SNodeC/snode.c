@@ -25,6 +25,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
@@ -60,6 +61,8 @@ namespace net::in6 {
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         char host[NI_MAXHOST];
         char serv[NI_MAXSERV];
+        std::memset(host, 0, NI_MAXHOST);
+        std::memset(serv, 0, NI_MAXSERV);
 
         int ret = core::system::getnameinfo(
             reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, NI_NUMERICSERV);
@@ -149,7 +152,7 @@ namespace net::in6 {
         hints.ai_family = PF_INET6;
         hints.ai_socktype = aiSocktype;
         hints.ai_protocol = aiProtocol;
-        hints.ai_flags = aiFlags | AI_ADDRCONFIG;
+        hints.ai_flags = aiFlags | AI_ADDRCONFIG | AI_ALL;
 
         int aiErrCode = 0;
 

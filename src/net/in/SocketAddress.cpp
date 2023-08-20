@@ -60,6 +60,8 @@ namespace net::in {
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         char host[NI_MAXHOST];
         char serv[NI_MAXSERV];
+        std::memset(host, 0, NI_MAXHOST);
+        std::memset(serv, 0, NI_MAXSERV);
 
         int ret = core::system::getnameinfo(
             reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, NI_NUMERICSERV);
@@ -105,6 +107,8 @@ namespace net::in {
         utils::PreserveErrno preserveErrno;
 
         char ip[NI_MAXHOST];
+        std::memset(ip, 0, NI_MAXHOST);
+
         int ret = core::system::getnameinfo(
             reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
 
@@ -115,6 +119,8 @@ namespace net::in {
         utils::PreserveErrno preserveErrno;
 
         char serv[NI_MAXSERV];
+        std::memset(serv, 0, NI_MAXSERV);
+
         int ret =
             core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, 0);
 
@@ -149,7 +155,7 @@ namespace net::in {
         hints.ai_family = PF_INET;
         hints.ai_socktype = aiSocktype;
         hints.ai_protocol = aiProtocol;
-        hints.ai_flags = aiFlags | AI_ADDRCONFIG;
+        hints.ai_flags = aiFlags | AI_ADDRCONFIG | AI_ALL;
 
         int aiErrCode = 0;
 
@@ -159,12 +165,12 @@ namespace net::in {
                 sockAddr = *reinterpret_cast<SockAddr*>(addrInfo->ai_addr);
             } else {
                 throw core::socket::SocketAddress::BadSocketAddress(
-                    "IPv4 '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                    "IPv4 getaddrinfo for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                     aiErrCode == EAI_SYSTEM ? errno : EINVAL);
             }
         } else {
             throw core::socket::SocketAddress::BadSocketAddress(
-                "IPv4 '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                "IPv4 init for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                 aiErrCode == EAI_SYSTEM ? errno : EINVAL);
         }
 
