@@ -98,9 +98,9 @@ namespace net::config {
         return sniCerts;
     }
 
-    void
-    ConfigTlsServer::addSniCerts(std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCert) {
-        this->sniCerts.merge(sniCert);
+    void ConfigTlsServer::addSniCerts(
+        const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts) {
+        this->sniCerts.insert(sniCerts.begin(), sniCerts.end());
     }
 
     void ConfigTlsServer::addSniCert(const std::string& domain,
