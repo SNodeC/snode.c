@@ -39,6 +39,7 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #ifndef CONNECT_TIMEOUT
