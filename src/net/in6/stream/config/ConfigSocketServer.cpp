@@ -40,7 +40,6 @@
 #endif
 
 #include "core/system/netdb.h"
-#include "core/system/socket.h"
 
 #include <netinet/in.h>
 #include <stdexcept>
@@ -53,6 +52,10 @@ namespace net::in6::stream::config {
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::stream::config::ConfigSocketServer<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE)
+            .setAiSocktype(SOCK_STREAM)
+            .setAiProtocol(IPPROTO_TCP);
+
         net::config::ConfigPhysicalSocket::add_socket_option(reusePortOpt,
                                                              "--reuse-port",
                                                              SOL_SOCKET,
@@ -70,11 +73,6 @@ namespace net::in6::stream::config {
                                                              "bool",
                                                              "false",
                                                              CLI::IsMember({"true", "false"}));
-
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
-
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM);
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
     }
 
     void ConfigSocketServer::setReusePort(bool reusePort) {

@@ -37,7 +37,7 @@ namespace net::l2::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        Super::add_option(hostOpt, //
+        Super::add_option(btAddressOpt, //
                           "--host",
                           "Bluetooth address",
                           "xx:xx:xx:xx:xx:xx",
@@ -52,18 +52,18 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::required(hostOpt, true);
+    void ConfigAddress<ConfigAddressType>::btAddressRequired(bool required) {
+        Super::required(btAddressOpt, required);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::psmRequired() {
-        Super::required(psmOpt, true);
+    void ConfigAddress<ConfigAddressType>::psmRequired(bool required) {
+        Super::required(psmOpt, required);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return new SocketAddress(hostOpt->as<std::string>(), psmOpt->as<uint16_t>());
+        return new SocketAddress(btAddressOpt->as<std::string>(), psmOpt->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -74,16 +74,16 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     std::string ConfigAddress<ConfigAddressType>::getBtAddress() {
-        return hostOpt->as<std::string>();
+        return btAddressOpt->as<std::string>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         utils::PreserveErrno preserveErrno;
 
-        hostOpt //
+        btAddressOpt //
             ->default_val(btAddress);
-        Super::required(hostOpt, false);
+        Super::required(btAddressOpt, false);
 
         return *this;
     }

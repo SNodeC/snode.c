@@ -64,11 +64,11 @@ namespace net::l2::config {
         ConfigAddress& setPsm(uint16_t psm);
 
     protected:
-        void hostRequired();
-        void psmRequired();
+        void btAddressRequired(bool required = true);
+        void psmRequired(bool required = true);
 
     private:
-        CLI::Option* hostOpt = nullptr;
+        CLI::Option* btAddressOpt = nullptr;
         CLI::Option* psmOpt = nullptr;
     };
 

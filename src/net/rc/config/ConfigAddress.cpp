@@ -36,7 +36,7 @@ namespace net::rc::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
-        Super::add_option(hostOpt, //
+        Super::add_option(btAddressOpt, //
                           "--host",
                           "Bluetooth address",
                           "xx:xx:xx:xx:xx:xx",
@@ -49,18 +49,18 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::required(hostOpt, true);
+    void ConfigAddress<ConfigAddressType>::btAddressRequired(bool required) {
+        Super::required(btAddressOpt, required);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::channelRequired() {
-        Super::required(channelOpt, true);
+    void ConfigAddress<ConfigAddressType>::channelRequired(bool required) {
+        Super::required(channelOpt, required);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return new SocketAddress(hostOpt->as<std::string>(), channelOpt->as<uint8_t>());
+        return new SocketAddress(btAddressOpt->as<std::string>(), channelOpt->as<uint8_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -71,16 +71,16 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     std::string ConfigAddress<ConfigAddressType>::getBtAddress() {
-        return hostOpt->as<std::string>();
+        return btAddressOpt->as<std::string>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         utils::PreserveErrno preserveErrno;
 
-        hostOpt //
+        btAddressOpt //
             ->default_val(btAddress);
-        Super::required(hostOpt, false);
+        Super::required(btAddressOpt, false);
 
         return *this;
     }

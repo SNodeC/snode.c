@@ -60,7 +60,7 @@ namespace net::un::config {
         ConfigAddress& setSunPath(const std::string& sunPath);
 
     protected:
-        void sunPathRequired();
+        void sunPathRequired(bool required = true);
 
     private:
         CLI::Option* sunPathOpt = nullptr;

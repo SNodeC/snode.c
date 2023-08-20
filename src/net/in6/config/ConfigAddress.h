@@ -66,8 +66,10 @@ namespace net::in6::config {
         bool getIpv4Mapped();
 
     protected:
-        void hostRequired();
-        void portRequired();
+        void hostRequired(int required = true);
+        void portRequired(int required = true);
+
+    public:
         ConfigAddress& setAiFlags(int aiFlags);
         ConfigAddress& setAiSocktype(int aiSocktype);
         ConfigAddress& setAiProtocol(int aiProtocol);

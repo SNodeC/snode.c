@@ -52,13 +52,13 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::hostRequired() {
-        Super::required(hostOpt, true);
+    void ConfigAddress<ConfigAddressType>::hostRequired(int required) {
+        Super::required(hostOpt, required);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::portRequired() {
-        Super::required(portOpt, true);
+    void ConfigAddress<ConfigAddressType>::portRequired(int required) {
+        Super::required(portOpt, required);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

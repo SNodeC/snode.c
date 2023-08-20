@@ -34,12 +34,9 @@ namespace net::in::stream::config {
         : net::stream::config::ConfigSocketClient<net::in::config::ConfigAddress>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
+        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiSocktype(SOCK_STREAM).setAiProtocol(IPPROTO_TCP);
 
-        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiSocktype(SOCK_STREAM);
-        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiProtocol(IPPROTO_TCP);
-
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM);
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM).setAiProtocol(IPPROTO_TCP);
     }
 
     ConfigSocketClient::~ConfigSocketClient() {

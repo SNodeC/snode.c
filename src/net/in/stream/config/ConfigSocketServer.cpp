@@ -42,9 +42,8 @@
 #include "core/system/netdb.h"
 
 #include <memory>
-#include <stdexcept>
-//#include <sys/socket.h>
 #include <netinet/in.h>
+#include <stdexcept>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -53,6 +52,10 @@ namespace net::in::stream::config {
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::stream::config::ConfigSocketServer<net::in::config::ConfigAddress>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE)
+            .setAiSocktype(SOCK_STREAM)
+            .setAiProtocol(IPPROTO_TCP);
+
         net::config::ConfigPhysicalSocket::add_socket_option(reusePortOpt, //
                                                              "--reuse-port",
                                                              SOL_SOCKET,
@@ -61,10 +64,6 @@ namespace net::in::stream::config {
                                                              "bool",
                                                              "false",
                                                              CLI::IsMember({"true", "false"}));
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
-
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM);
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
     }
 
     ConfigSocketServer::~ConfigSocketServer() {

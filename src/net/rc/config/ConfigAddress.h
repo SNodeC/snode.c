@@ -64,10 +64,10 @@ namespace net::rc::config {
         ConfigAddress& setChannel(uint8_t channel);
 
     protected:
-        void hostRequired();
-        void channelRequired();
+        void btAddressRequired(bool required = true);
+        void channelRequired(bool required = true);
 
-        CLI::Option* hostOpt = nullptr;
+        CLI::Option* btAddressOpt = nullptr;
         CLI::Option* channelOpt = nullptr;
     };
 

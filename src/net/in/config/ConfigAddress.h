@@ -64,8 +64,10 @@ namespace net::in::config {
         ConfigAddress& setPort(uint16_t port);
 
     protected:
-        void hostRequired();
-        void portRequired();
+        void hostRequired(int required = true);
+        void portRequired(int required = true);
+
+    public:
         ConfigAddress& setAiFlags(int aiFlags);
         ConfigAddress& setAiSocktype(int aiSocktype);
         ConfigAddress& setAiProtocol(int aiProtocol);
