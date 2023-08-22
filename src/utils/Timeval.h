@@ -24,6 +24,8 @@
 #include "utils/system/time.h" // IWYU pragma: export
 
 struct timeval;
+struct timespec;
+
 #include <initializer_list>
 #include <iostream>
 
