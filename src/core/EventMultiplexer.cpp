@@ -149,6 +149,8 @@ namespace core {
 
             if (activeEventCount < 0 && errno != EINTR) {
                 tickStatus = TickStatus::ERROR;
+            } else if (errno == EINTR) {
+                tickStatus = TickStatus::INTERRUPTED;
             }
         } else {
             tickStatus = TickStatus::NO_OBSERVER;
@@ -176,11 +178,7 @@ namespace core {
     EventMultiplexer::EventQueue::EventQueue()
         : executeQueue(new std::list<Event*>())
         , publishQueue(new std::list<Event*>()) {
-        sigemptyset(&newSet);
-        sigaddset(&newSet, SIGPIPE);
-        sigaddset(&newSet, SIGINT);
-        sigaddset(&newSet, SIGTERM);
-        sigaddset(&newSet, SIGALRM);
+        sigfillset(&newSet);
     }
 
     EventMultiplexer::EventQueue::~EventQueue() {
@@ -199,13 +197,13 @@ namespace core {
     void EventMultiplexer::EventQueue::execute(const utils::Timeval& currentTime) {
         std::swap(executeQueue, publishQueue);
 
-        sigprocmask(SIG_BLOCK, &newSet, &oldSet);
+        sigprocmask(SIG_SETMASK, &newSet, &oldSet);
 
         for (Event* event : *executeQueue) {
             event->dispatch(currentTime);
         }
 
-        sigprocmask(SIG_SETMASK, &oldSet, &newSet);
+        sigprocmask(SIG_SETMASK, &oldSet, nullptr);
 
         executeQueue->clear();
     }

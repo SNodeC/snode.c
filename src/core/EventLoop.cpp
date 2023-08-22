@@ -136,12 +136,14 @@ namespace core {
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
 
-            while (tickStatus == TickStatus::SUCCESS && eventLoopState == State::RUNNING) {
+            while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && eventLoopState == State::RUNNING) {
                 tickStatus = EventLoop::instance()._tick(timeOut);
             }
 
             switch (tickStatus) {
                 case TickStatus::SUCCESS:
+                    [[fallthrough]];
+                case TickStatus::INTERRUPTED:
                     LOG(INFO) << "EventLoop terminated: Releasing resources";
                     break;
                 case TickStatus::NO_OBSERVER:
@@ -195,7 +197,7 @@ namespace core {
             std::chrono::duration<double> seconds = t2 - t1;
 
             timeout -= seconds.count();
-        } while (tickStatus == TickStatus::SUCCESS && timeout > 0);
+        } while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && timeout > 0);
 
         DynamicLoader::execDlCloseAll();
 
