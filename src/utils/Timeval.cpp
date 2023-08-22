@@ -21,6 +21,7 @@
 #include "utils/Timeval.h"
 
 #include <climits>
+#include <cstdint>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -135,7 +136,7 @@ namespace utils {
     }
 
     timespec Timeval::getTimespec() const {
-        return timespec{timeVal.tv_sec, timeVal.tv_usec * 1000};
+        return timespec{timeVal.tv_sec, static_cast<int32_t>(timeVal.tv_usec * 1000)};
     }
 
     int Timeval::getMs() const {
