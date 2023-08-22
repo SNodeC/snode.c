@@ -74,7 +74,7 @@ namespace core::poll {
         ~EventMultiplexer() override = default;
 
     private:
-        int monitorDescriptors(utils::Timeval& tickTimeOut) override;
+        int monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) override;
         void spanActiveEvents() override;
 
     private:

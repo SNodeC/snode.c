@@ -23,7 +23,10 @@
 
 // IWYU pragma: begin_exports
 
+#include <csignal>
 #include <sys/select.h>
+
+struct timespec;
 
 // IWYU pragma: end_exports
 
@@ -33,6 +36,7 @@ namespace core::system {
 
     // #include <sys/socket.h>
     int select(int nfds, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, struct timeval* timeout);
+    int pselect(int nfds, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, const timespec* timeout, const sigset_t* sigMask);
 
 } // namespace core::system
 

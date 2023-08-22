@@ -36,6 +36,11 @@ namespace core::system {
         return ::epoll_wait(epfd, events, maxevents, timeout);
     }
 
+    int epoll_pwait(int epfd, struct epoll_event* events, int maxevents, int timeout, const sigset_t* sigMask) {
+        errno = 0;
+        return ::epoll_pwait(epfd, events, maxevents, timeout, sigMask);
+    }
+
     int epoll_ctl(int epfd, int op, int fd, epoll_event* event) {
         errno = 0;
         return ::epoll_ctl(epfd, op, fd, event);

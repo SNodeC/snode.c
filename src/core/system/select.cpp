@@ -31,4 +31,9 @@ namespace core::system {
         return ::select(nfds, readfds, writefds, exceptfds, timeout);
     }
 
+    int pselect(int nfds, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, const struct timespec* timeout, const sigset_t* sigMask) {
+        errno = 0;
+        return ::pselect(nfds, readfds, writefds, exceptfds, timeout, sigMask);
+    }
+
 } // namespace core::system

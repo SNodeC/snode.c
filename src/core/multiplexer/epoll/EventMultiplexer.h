@@ -43,7 +43,7 @@ namespace core::epoll {
         ~EventMultiplexer() override = default;
 
     private:
-        int monitorDescriptors(utils::Timeval& tickTimeout) override;
+        int monitorDescriptors(utils::Timeval& tickTimeout, const sigset_t& sigMask) override;
         void spanActiveEvents() override;
 
         int epfd;

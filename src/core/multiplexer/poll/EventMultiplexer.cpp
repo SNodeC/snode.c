@@ -134,8 +134,10 @@ namespace core::poll {
         LOG(TRACE) << "IO-Multiplexer: poll";
     }
 
-    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut) {
-        return core::system::poll(pollFdsManager.getEvents(), pollFdsManager.getCurrentSize(), tickTimeOut.ms());
+    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {
+        timespec timeSpec = tickTimeOut.getTimespec();
+
+        return core::system::ppoll(pollFdsManager.getEvents(), pollFdsManager.getCurrentSize(), &timeSpec, &sigMask);
     }
 
     void EventMultiplexer::spanActiveEvents() {

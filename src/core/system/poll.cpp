@@ -31,4 +31,9 @@ namespace core::system {
         return ::poll(fds, nfds, timeout);
     }
 
+    int ppoll(struct pollfd* fds, nfds_t nfds, const timespec* timeout, const sigset_t* sigMask) {
+        errno = 0;
+        return ::ppoll(fds, nfds, timeout, sigMask);
+    }
+
 } // namespace core::system

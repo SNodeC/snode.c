@@ -76,9 +76,6 @@ namespace core {
         private:
             std::list<Event*>* executeQueue;
             std::list<Event*>* publishQueue;
-
-            sigset_t newSet{};
-            sigset_t oldSet{};
         };
 
     public:
@@ -92,7 +89,7 @@ namespace core {
         void span(core::Event* event);
         void relax(core::Event* event);
 
-        TickStatus tick(const utils::Timeval& tickTimeOut);
+        TickStatus tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask);
         void exit();
         void stop();
         void deletePublishedEvents();
@@ -106,13 +103,13 @@ namespace core {
         void executeEventQueue(const utils::Timeval& currentTime);
         void checkTimedOutEvents(const utils::Timeval& currentTime);
         void releaseExpiredResources(const utils::Timeval& currentTime);
-        TickStatus waitForEvents(const utils::Timeval& tickTimeOut, const utils::Timeval& currentTime);
+        TickStatus waitForEvents(const utils::Timeval& tickTimeOut, const utils::Timeval& currentTime, const sigset_t& sigMask);
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         virtual void spanActiveEvents() = 0;
 
-        virtual int monitorDescriptors(utils::Timeval& tickTimeOut) = 0;
+        virtual int monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) = 0;
 
     protected:
         std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;

@@ -32,6 +32,8 @@ namespace utils {
     class Timeval;
 }
 
+#include <csignal>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -69,6 +71,9 @@ namespace core {
 
     private:
         static int stopsig;
+
+        sigset_t newSet;
+        sigset_t oldSet;
 
         static unsigned long tickCounter;
 

@@ -77,7 +77,7 @@ namespace core {
     }
 
     void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
-        LOG(TRACE) << "Timer: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).msd() << " ms";
+        LOG(TRACE) << "Timer: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
 
         dispatchEvent();
     }

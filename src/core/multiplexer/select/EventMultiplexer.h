@@ -28,6 +28,8 @@ namespace utils {
     class Timeval;
 }
 
+#include <csignal>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::select {
@@ -42,7 +44,7 @@ namespace core::select {
         ~EventMultiplexer() override = default;
 
     private:
-        int monitorDescriptors(utils::Timeval& tickTimeOut) override;
+        int monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) override;
         void spanActiveEvents() override;
 
         FdSet fdSets[3];

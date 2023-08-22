@@ -84,10 +84,10 @@ namespace core {
                                });
     }
 
-    TickStatus EventMultiplexer::tick(const utils::Timeval& tickTimeOut) {
+    TickStatus EventMultiplexer::tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask) {
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
-        TickStatus tickStatus = waitForEvents(tickTimeOut, currentTime);
+        TickStatus tickStatus = waitForEvents(tickTimeOut, currentTime, sigMask);
 
         if (tickStatus == TickStatus::SUCCESS) {
             spanActiveEvents(currentTime);
@@ -139,13 +139,14 @@ namespace core {
         DynamicLoader::execDlCloseDeleyed();
     }
 
-    TickStatus EventMultiplexer::waitForEvents(const utils::Timeval& tickTimeOut, const utils::Timeval& currentTime) {
+    TickStatus
+    EventMultiplexer::waitForEvents(const utils::Timeval& tickTimeOut, const utils::Timeval& currentTime, const sigset_t& sigMask) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
             utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
 
-            activeEventCount = monitorDescriptors(nextTimeout);
+            activeEventCount = monitorDescriptors(nextTimeout, sigMask);
 
             if (activeEventCount < 0 && errno != EINTR) {
                 tickStatus = TickStatus::ERROR;
@@ -178,7 +179,6 @@ namespace core {
     EventMultiplexer::EventQueue::EventQueue()
         : executeQueue(new std::list<Event*>())
         , publishQueue(new std::list<Event*>()) {
-        sigfillset(&newSet);
     }
 
     EventMultiplexer::EventQueue::~EventQueue() {
@@ -197,13 +197,9 @@ namespace core {
     void EventMultiplexer::EventQueue::execute(const utils::Timeval& currentTime) {
         std::swap(executeQueue, publishQueue);
 
-        sigprocmask(SIG_SETMASK, &newSet, &oldSet);
-
         for (Event* event : *executeQueue) {
             event->dispatch(currentTime);
         }
-
-        sigprocmask(SIG_SETMASK, &oldSet, nullptr);
 
         executeQueue->clear();
     }

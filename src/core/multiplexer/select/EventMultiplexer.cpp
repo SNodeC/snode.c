@@ -41,12 +41,15 @@ namespace core::select {
         LOG(TRACE) << "IO-Multiplexer: select";
     }
 
-    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut) {
-        return core::system::select(getMaxFd() + 1,
-                                    &fdSets[core::EventMultiplexer::DISP_TYPE::RD].get(),
-                                    &fdSets[core::EventMultiplexer::DISP_TYPE::WR].get(),
-                                    &fdSets[core::EventMultiplexer::DISP_TYPE::EX].get(),
-                                    &tickTimeOut);
+    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {
+        timespec timeSpec = tickTimeOut.getTimespec();
+
+        return core::system::pselect(getMaxFd() + 1,
+                                     &fdSets[core::EventMultiplexer::DISP_TYPE::RD].get(),
+                                     &fdSets[core::EventMultiplexer::DISP_TYPE::WR].get(),
+                                     &fdSets[core::EventMultiplexer::DISP_TYPE::EX].get(),
+                                     &timeSpec,
+                                     &sigMask);
     }
 
     void EventMultiplexer::spanActiveEvents() {

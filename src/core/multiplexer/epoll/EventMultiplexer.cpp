@@ -57,8 +57,8 @@ namespace core::epoll {
         LOG(TRACE) << "IO-Multiplexer: epoll";
     }
 
-    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout) {
-        return core::system::epoll_wait(epfd, ePollEvents, 3, tickTimeout.ms());
+    int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout, const sigset_t& sigMask) {
+        return core::system::epoll_pwait(epfd, ePollEvents, 3, tickTimeout.getMs(), &sigMask);
     }
 
     void EventMultiplexer::spanActiveEvents() {

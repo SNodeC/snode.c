@@ -31,7 +31,6 @@
 
 namespace utils::system {
 
-    // #include <csignal>
     sighandler_t signal(int signum, sighandler_t handler);
 
 } // namespace utils::system

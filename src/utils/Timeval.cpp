@@ -134,7 +134,11 @@ namespace utils {
         return &timeVal;
     }
 
-    int Timeval::ms() const {
+    timespec Timeval::getTimespec() const {
+        return timespec{timeVal.tv_sec, timeVal.tv_usec * 1000};
+    }
+
+    int Timeval::getMs() const {
         int ms = 0;
 
         if (timeVal.tv_sec > INT_MAX - 1) {
@@ -146,7 +150,7 @@ namespace utils {
         return ms;
     }
 
-    double Timeval::msd() const {
+    double Timeval::getMsd() const {
         double msd = 0;
         if (timeVal.tv_sec > INT_MAX - 1) {
             msd = INT_MAX;

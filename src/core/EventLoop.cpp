@@ -59,6 +59,7 @@ namespace core {
         : eventMultiplexer(::EventMultiplexer())
 
     {
+        sigfillset(&newSet);
     }
 
     EventLoop& EventLoop::instance() {
@@ -89,7 +90,16 @@ namespace core {
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
         tickCounter++;
 
-        return eventMultiplexer.tick(tickTimeOut);
+        TickStatus tickStatus = TickStatus::INTERRUPTED;
+
+        sigprocmask(SIG_SETMASK, &newSet, &oldSet);
+
+        if (eventLoopState == State::RUNNING || eventLoopState == State::STOPING) {
+            tickStatus = eventMultiplexer.tick(tickTimeOut, oldSet);
+        }
+        sigprocmask(SIG_SETMASK, &oldSet, nullptr);
+
+        return tickStatus;
     }
 
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
@@ -98,21 +108,26 @@ namespace core {
             exit(1);
         }
 
-        sighandler_t oldSigPipeHandler = utils::system::signal(SIGPIPE, SIG_IGN);
+        struct sigaction sact;
+        sigemptyset(&sact.sa_mask);
+        sact.sa_flags = 0;
+        sact.sa_handler = SIG_IGN;
+
+        struct sigaction oldPipeAct {};
+        sigaction(SIGPIPE, &sact, &oldPipeAct);
 
         TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
 
-        utils::system::signal(SIGPIPE, oldSigPipeHandler);
+        sigaction(SIGPIPE, &oldPipeAct, nullptr);
 
         return tickStatus;
     }
 
     int EventLoop::start(const utils::Timeval& timeOut) {
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
-            struct sigaction sact {};
+            struct sigaction sact;
             sigemptyset(&sact.sa_mask);
             sact.sa_flags = 0;
-
             sact.sa_handler = SIG_IGN;
 
             struct sigaction oldPipeAct {};
@@ -154,9 +169,7 @@ namespace core {
                     break;
             }
 
-            if (eventLoopState == State::RUNNING) {
-                eventLoopState = State::STOPING;
-            }
+            eventLoopState = State::STOPING;
 
             sigaction(SIGPIPE, &oldPipeAct, nullptr);
             sigaction(SIGINT, &oldIntAct, nullptr);
@@ -173,7 +186,7 @@ namespace core {
     }
 
     void EventLoop::stop() {
-        eventLoopState = State::EXITING;
+        eventLoopState = State::STOPING;
     }
 
     void EventLoop::free() {

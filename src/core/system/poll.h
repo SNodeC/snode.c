@@ -23,7 +23,10 @@
 
 // IWYU pragma: begin_exports
 
+#include <csignal>
 #include <poll.h>
+
+struct timespec;
 
 // IWYU pragma: end_exports
 
@@ -32,6 +35,7 @@
 namespace core::system {
 
     int poll(struct pollfd* fds, nfds_t nfds, int timeout);
+    int ppoll(struct pollfd* fds, nfds_t nfds, const timespec* timeout, const sigset_t* sigMask);
 
 } // namespace core::system
 

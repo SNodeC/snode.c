@@ -23,6 +23,7 @@
 
 // IWYU pragma: begin_exports
 
+#include <csignal>
 #include <sys/epoll.h>
 
 // IWYU pragma: end_exports
@@ -33,6 +34,7 @@ namespace core::system {
 
     int epoll_create1(int flags);
     int epoll_wait(int epfd, struct epoll_event* events, int maxevents, int timeout);
+    int epoll_pwait(int epfd, struct epoll_event* events, int maxevents, int timeout, const sigset_t* sigMask);
     int epoll_ctl(int epfd, int op, int fd, struct epoll_event* event);
 
 } // namespace core::system
