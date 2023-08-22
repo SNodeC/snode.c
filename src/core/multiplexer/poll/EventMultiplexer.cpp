@@ -140,8 +140,8 @@ namespace core::poll {
         return core::system::ppoll(pollFdsManager.getEvents(), pollFdsManager.getCurrentSize(), &timeSpec, &sigMask);
     }
 
-    void EventMultiplexer::spanActiveEvents() {
-        if (activeEventCount > 0) {
+    void EventMultiplexer::spanActiveEvents(int activeDescriptorCount) {
+        if (activeDescriptorCount > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
                 descriptorEventPublisher->spanActiveEvents();
             }

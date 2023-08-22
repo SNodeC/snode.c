@@ -61,8 +61,8 @@ namespace core::epoll {
         return core::system::epoll_pwait(epfd, ePollEvents, 3, tickTimeout.getMs(), &sigMask);
     }
 
-    void EventMultiplexer::spanActiveEvents() {
-        for (int i = 0; i < activeEventCount; i++) {
+    void EventMultiplexer::spanActiveEvents(int activeDescriptorCount) {
+        for (int i = 0; i < activeDescriptorCount; i++) {
             if ((ePollEvents[i].events & EPOLLIN) != 0) {
                 static_cast<core::DescriptorEventPublisher*>(ePollEvents[i].data.ptr)->spanActiveEvents();
             }

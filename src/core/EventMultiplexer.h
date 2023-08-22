@@ -71,7 +71,7 @@ namespace core {
             void remove(Event* event);
             void execute(const utils::Timeval& currentTime);
             bool empty() const;
-            void deleteEvents();
+            void clear();
 
         private:
             std::list<Event*>* executeQueue;
@@ -89,34 +89,37 @@ namespace core {
         void span(core::Event* event);
         void relax(core::Event* event);
 
-        TickStatus tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask);
         void exit();
         void stop();
-        void deletePublishedEvents();
+        void clear();
 
-    protected:
-        int getObservedEventReceiverCount();
-        int getMaxFd();
+        TickStatus tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask);
 
     private:
-        void spanActiveEvents(const utils::Timeval& currentTime);
+        TickStatus waitForEvents(const utils::Timeval& tickTimeOut,
+                                 const utils::Timeval& currentTime,
+                                 const sigset_t& sigMask,
+                                 int& activeDescriptorCount);
+
+        void spanActiveEvents(const utils::Timeval& currentTime, int activeDescriptorCount);
         void executeEventQueue(const utils::Timeval& currentTime);
         void checkTimedOutEvents(const utils::Timeval& currentTime);
         void releaseExpiredResources(const utils::Timeval& currentTime);
-        TickStatus waitForEvents(const utils::Timeval& tickTimeOut, const utils::Timeval& currentTime, const sigset_t& sigMask);
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        virtual void spanActiveEvents() = 0;
+        virtual void spanActiveEvents(int activeDescriptorCount) = 0;
 
         virtual int monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) = 0;
 
     protected:
+        int maxFd();
+
         std::array<DescriptorEventPublisher*, DISP_COUNT> descriptorEventPublishers;
 
-        int activeEventCount = 0;
-
     private:
+        int observedEventReceiverCount();
+
         core::TimerEventPublisher* const timerEventPublisher;
 
         EventQueue eventQueue;

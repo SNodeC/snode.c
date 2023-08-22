@@ -60,7 +60,7 @@ namespace core {
         void releaseDisabledEvents(const utils::Timeval& currentTime);
 
         int getObservedEventReceiverCount() const;
-        int getMaxFd() const;
+        int maxFd() const;
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 

@@ -56,10 +56,7 @@ namespace core {
     }
 
     EventLoop::EventLoop()
-        : eventMultiplexer(::EventMultiplexer())
-
-    {
-        sigfillset(&newSet);
+        : eventMultiplexer(::EventMultiplexer()) {
     }
 
     EventLoop& EventLoop::instance() {
@@ -88,37 +85,49 @@ namespace core {
     }
 
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
+        TickStatus tickStatus = TickStatus::SUCCESS;
+
         tickCounter++;
 
-        TickStatus tickStatus = TickStatus::INTERRUPTED;
+        sigset_t newSet{};
+        sigset_t oldSet{};
 
-        sigprocmask(SIG_SETMASK, &newSet, &oldSet);
+        sigaddset(&newSet, SIGINT);
+        sigaddset(&newSet, SIGTERM);
+        sigaddset(&newSet, SIGALRM);
+        sigaddset(&newSet, SIGHUP);
+
+        sigprocmask(SIG_BLOCK, &newSet, &oldSet);
 
         if (eventLoopState == State::RUNNING || eventLoopState == State::STOPING) {
             tickStatus = eventMultiplexer.tick(tickTimeOut, oldSet);
         }
+
         sigprocmask(SIG_SETMASK, &oldSet, nullptr);
 
         return tickStatus;
     }
 
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
-        if (!(eventLoopState == State::INITIALIZED)) {
-            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
-            exit(1);
+        TickStatus tickStatus = TickStatus::ERROR;
+
+        if (eventLoopState == State::INITIALIZED) {
+            struct sigaction sact;
+            sigemptyset(&sact.sa_mask);
+            sact.sa_flags = 0;
+            sact.sa_handler = SIG_IGN;
+
+            struct sigaction oldPipeAct {};
+            sigaction(SIGPIPE, &sact, &oldPipeAct);
+
+            tickStatus = EventLoop::instance()._tick(timeOut);
+
+            sigaction(SIGPIPE, &oldPipeAct, nullptr);
+        } else {
+            EventLoop::instance().eventMultiplexer.clear();
+
+            PLOG(ERROR) << "SNodeC not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
         }
-
-        struct sigaction sact;
-        sigemptyset(&sact.sa_mask);
-        sact.sa_flags = 0;
-        sact.sa_handler = SIG_IGN;
-
-        struct sigaction oldPipeAct {};
-        sigaction(SIGPIPE, &sact, &oldPipeAct);
-
-        TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
-
-        sigaction(SIGPIPE, &oldPipeAct, nullptr);
 
         return tickStatus;
     }
@@ -161,15 +170,13 @@ namespace core {
                 case TickStatus::INTERRUPTED:
                     LOG(INFO) << "EventLoop terminated: Releasing resources";
                     break;
-                case TickStatus::NO_OBSERVER:
+                case TickStatus::NOOBSERVER:
                     LOG(INFO) << "EventLoop: No Observer - exiting";
                     break;
                 case TickStatus::ERROR:
-                    PLOG(ERROR) << "EventPublisher::span()";
+                    PLOG(ERROR) << "EventLoop::instance()._tick()";
                     break;
             }
-
-            eventLoopState = State::STOPING;
 
             sigaction(SIGPIPE, &oldPipeAct, nullptr);
             sigaction(SIGINT, &oldIntAct, nullptr);
@@ -177,12 +184,12 @@ namespace core {
             sigaction(SIGALRM, &oldAlarmAct, nullptr);
             sigaction(SIGHUP, &oldHupAct, nullptr);
         } else {
-            EventLoop::instance().eventMultiplexer.deletePublishedEvents();
+            EventLoop::instance().eventMultiplexer.clear();
         }
 
         free();
 
-        return -stopsig;
+        return stopsig;
     }
 
     void EventLoop::stop() {
@@ -190,6 +197,8 @@ namespace core {
     }
 
     void EventLoop::free() {
+        eventLoopState = State::STOPING;
+
         core::TickStatus tickStatus{};
 
         if (stopsig != 0) {
@@ -198,19 +207,19 @@ namespace core {
 
         utils::Timeval timeout = 2;
         do {
-            auto t1 = std::chrono::high_resolution_clock::now();
+            auto t1 = std::chrono::system_clock::now();
 
             EventLoop::instance().eventMultiplexer.stop();
 
             utils::Timeval timeoutOp = timeout;
             tickStatus = EventLoop::instance()._tick(timeoutOp);
 
-            auto t2 = std::chrono::high_resolution_clock::now();
+            auto t2 = std::chrono::system_clock::now();
 
             std::chrono::duration<double> seconds = t2 - t1;
 
             timeout -= seconds.count();
-        } while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && timeout > 0);
+        } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
 
         DynamicLoader::execDlCloseAll();
 

@@ -112,7 +112,7 @@ namespace core {
         return static_cast<int>(observedEventReceivers.size());
     }
 
-    int DescriptorEventPublisher::getMaxFd() const {
+    int DescriptorEventPublisher::maxFd() const {
         int maxFd = -1;
 
         if (!observedEventReceivers.empty()) {

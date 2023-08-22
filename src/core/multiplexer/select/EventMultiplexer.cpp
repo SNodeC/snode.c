@@ -44,7 +44,7 @@ namespace core::select {
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {
         timespec timeSpec = tickTimeOut.getTimespec();
 
-        return core::system::pselect(getMaxFd() + 1,
+        return core::system::pselect(maxFd() + 1,
                                      &fdSets[core::EventMultiplexer::DISP_TYPE::RD].get(),
                                      &fdSets[core::EventMultiplexer::DISP_TYPE::WR].get(),
                                      &fdSets[core::EventMultiplexer::DISP_TYPE::EX].get(),
@@ -52,8 +52,8 @@ namespace core::select {
                                      &sigMask);
     }
 
-    void EventMultiplexer::spanActiveEvents() {
-        if (activeEventCount > 0) {
+    void EventMultiplexer::spanActiveEvents(int activeDescriptorCount) {
+        if (activeDescriptorCount > 0) {
             for (core::DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
                 descriptorEventPublisher->spanActiveEvents();
             }

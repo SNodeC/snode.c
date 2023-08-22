@@ -72,9 +72,6 @@ namespace core {
     private:
         static int stopsig;
 
-        sigset_t newSet;
-        sigset_t oldSet;
-
         static unsigned long tickCounter;
 
         static core::State eventLoopState;

@@ -66,31 +66,15 @@ namespace core {
         eventQueue.remove(event);
     }
 
-    int EventMultiplexer::getObservedEventReceiverCount() {
-        return std::accumulate(descriptorEventPublishers.begin(),
-                               descriptorEventPublishers.end(),
-                               0,
-                               [](int count, DescriptorEventPublisher* descriptorEventPublisher) -> int {
-                                   return count + descriptorEventPublisher->getObservedEventReceiverCount();
-                               });
-    }
-
-    int EventMultiplexer::getMaxFd() {
-        return std::accumulate(descriptorEventPublishers.begin(),
-                               descriptorEventPublishers.end(),
-                               -1,
-                               [](int count, DescriptorEventPublisher* descriptorEventPublisher) -> int {
-                                   return std::max(descriptorEventPublisher->getMaxFd(), count);
-                               });
-    }
-
     TickStatus EventMultiplexer::tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask) {
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
-        TickStatus tickStatus = waitForEvents(tickTimeOut, currentTime, sigMask);
+        int activeDescriptorCount = 0;
+
+        TickStatus tickStatus = waitForEvents(tickTimeOut, currentTime, sigMask, activeDescriptorCount);
 
         if (tickStatus == TickStatus::SUCCESS) {
-            spanActiveEvents(currentTime);
+            spanActiveEvents(currentTime, activeDescriptorCount);
             executeEventQueue(currentTime);
             checkTimedOutEvents(currentTime);
             releaseExpiredResources(currentTime);
@@ -112,13 +96,36 @@ namespace core {
         timerEventPublisher->stop();
     }
 
-    void EventMultiplexer::deletePublishedEvents() {
-        eventQueue.deleteEvents();
+    void EventMultiplexer::clear() {
+        eventQueue.clear();
     }
 
-    void EventMultiplexer::spanActiveEvents(const utils::Timeval& currentTime) {
+    TickStatus EventMultiplexer::waitForEvents(const utils::Timeval& tickTimeOut,
+                                               const utils::Timeval& currentTime,
+                                               const sigset_t& sigMask,
+                                               int& activeDescriptorCount) {
+        TickStatus tickStatus = TickStatus::SUCCESS;
+
+        if (observedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
+            utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
+
+            activeDescriptorCount = monitorDescriptors(nextTimeout, sigMask);
+
+            if (activeDescriptorCount < 0 && errno != EINTR) {
+                tickStatus = TickStatus::ERROR;
+            } else if (errno == EINTR) {
+                tickStatus = TickStatus::INTERRUPTED;
+            }
+        } else {
+            tickStatus = TickStatus::NOOBSERVER;
+        }
+
+        return tickStatus;
+    }
+
+    void EventMultiplexer::spanActiveEvents(const utils::Timeval& currentTime, int activeDescriptorCount) {
         timerEventPublisher->spanActiveEvents(currentTime);
-        spanActiveEvents();
+        spanActiveEvents(activeDescriptorCount);
     }
 
     void EventMultiplexer::executeEventQueue(const utils::Timeval& currentTime) {
@@ -139,27 +146,6 @@ namespace core {
         DynamicLoader::execDlCloseDeleyed();
     }
 
-    TickStatus
-    EventMultiplexer::waitForEvents(const utils::Timeval& tickTimeOut, const utils::Timeval& currentTime, const sigset_t& sigMask) {
-        TickStatus tickStatus = TickStatus::SUCCESS;
-
-        if (getObservedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
-            utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
-
-            activeEventCount = monitorDescriptors(nextTimeout, sigMask);
-
-            if (activeEventCount < 0 && errno != EINTR) {
-                tickStatus = TickStatus::ERROR;
-            } else if (errno == EINTR) {
-                tickStatus = TickStatus::INTERRUPTED;
-            }
-        } else {
-            tickStatus = TickStatus::NO_OBSERVER;
-        }
-
-        return tickStatus;
-    }
-
     utils::Timeval EventMultiplexer::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
@@ -174,6 +160,24 @@ namespace core {
         }
 
         return nextTimeout;
+    }
+
+    int EventMultiplexer::observedEventReceiverCount() {
+        return std::accumulate(descriptorEventPublishers.begin(),
+                               descriptorEventPublishers.end(),
+                               0,
+                               [](int count, DescriptorEventPublisher* descriptorEventPublisher) -> int {
+                                   return count + descriptorEventPublisher->getObservedEventReceiverCount();
+                               });
+    }
+
+    int EventMultiplexer::maxFd() {
+        return std::accumulate(descriptorEventPublishers.begin(),
+                               descriptorEventPublishers.end(),
+                               -1,
+                               [](int count, DescriptorEventPublisher* descriptorEventPublisher) -> int {
+                                   return std::max(descriptorEventPublisher->maxFd(), count);
+                               });
     }
 
     EventMultiplexer::EventQueue::EventQueue()
@@ -208,7 +212,7 @@ namespace core {
         return publishQueue->empty();
     }
 
-    void EventMultiplexer::EventQueue::deleteEvents() {
+    void EventMultiplexer::EventQueue::clear() {
         std::swap(executeQueue, publishQueue);
 
         for (Event* event : *executeQueue) {
