@@ -98,10 +98,7 @@ namespace net {
     template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::getSockError(int& cErrno) const {
         socklen_t cErrnoLen = sizeof(cErrno);
-
-        int ret = getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
-
-        return ret;
+        return getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
     }
 
     template <typename SocketAddress>
