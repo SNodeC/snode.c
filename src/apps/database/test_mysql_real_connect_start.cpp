@@ -32,7 +32,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
 #ifndef SYNCHRONOUS
     mysql = mysql_init(nullptr);
-    std::cout << "mysql_options: " << mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0) << std::endl;
+    std::cout << "mysql_options: " << mysql_optionsv(mysql, MYSQL_OPT_NONBLOCK, 0) << std::endl;
 
     int status = mysql_real_connect_start(&ret, mysql, "localhost", "snodec", "pentium5", "snodec", 3306, "/run/mysqld/mysqld.sock", 0);
 
