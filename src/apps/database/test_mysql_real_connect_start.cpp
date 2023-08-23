@@ -20,14 +20,17 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <mysql/mysql.h>
+#include <mysql.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+// #define SYNCHRONOUS
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     MYSQL* mysql = nullptr;
     MYSQL* ret = nullptr;
 
+#ifndef SYNCHRONOUS
     mysql = mysql_init(nullptr);
     std::cout << "mysql_options: " << mysql_options(mysql, MYSQL_OPT_NONBLOCK, 0) << std::endl;
 
@@ -40,8 +43,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     if (ret == nullptr) {
         std::cout << "error mysql: " << mysql_error(mysql) << std::endl;
     } else {
+        std::cout << "mysql_real_connect_start: SUCCESS" << std::endl;
+    }
+#else
+    mysql = mysql_init(nullptr);
+
+    ret = mysql_real_connect(mysql, "localhost", "snodec", "pentium5", "snodec", 3306, "/run/mysqld/mysqld.sock", 0);
+
+    if (ret == nullptr) {
+        std::cout << "error mysql: " << mysql_error(mysql) << std::endl;
+    } else {
         std::cout << "mysql_real_connect: SUCCESS" << std::endl;
     }
+#endif
 
     return EXIT_SUCCESS;
 }
