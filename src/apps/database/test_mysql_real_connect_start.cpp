@@ -18,7 +18,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <mysql.h>
 
@@ -30,9 +32,23 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     MYSQL* mysql = nullptr;
     MYSQL* ret = nullptr;
 
-#ifndef SYNCHRONOUS
     mysql = mysql_init(nullptr);
-    std::cout << "mysql_options: " << mysql_optionsv(mysql, MYSQL_OPT_NONBLOCK, 0) << std::endl;
+
+#ifndef SYNCHRONOUS
+    std::size_t stackSize;
+    std::size_t* stackSizeP = nullptr;
+
+    if (argc > 1) {
+        stackSize = static_cast<std::size_t>(std::atoi(argv[1])); // It's a test, thus no error detection
+        stackSizeP = &stackSize;
+    }
+
+    int optRet = mysql_optionsv(mysql, MYSQL_OPT_NONBLOCK, static_cast<void*>(stackSizeP));
+
+    if (optRet > 0) {
+        std::cout << "mysql_options error: " << errno << " : " << strerror(errno) << std::endl;
+        std::cout << "mysql_options ret: " << ret << std::endl;
+    }
 
     int status = mysql_real_connect_start(&ret, mysql, "localhost", "snodec", "pentium5", "snodec", 3306, "/run/mysqld/mysqld.sock", 0);
 
