@@ -44,7 +44,7 @@ namespace database::mariadb {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-macro-identifier"
 #endif
-#include <mysql.h> // IWYU pragma: export#ifdef __clang__
+#include <mysql.h> // IWYU pragma: export
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
