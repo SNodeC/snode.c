@@ -25,6 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Config.h"
+
 #include <cstdlib>
 #include <functional>
 #include <string>
@@ -32,9 +34,12 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
+    utils::Config::add_string_option("--db-host", "Hostname of IP-Address of Server", "[hostname|IP-address]", "localhost", true);
+
     core::SNodeC::init(argc, argv);
+
     database::mariadb::MariaDBConnectionDetails details = {
-        .hostname = "localhost",
+        .hostname = utils::Config::get_string_option_value("--db-host"),
         .username = "snodec",
         .password = "pentium5",
         .database = "snodec",
