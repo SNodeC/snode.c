@@ -49,7 +49,6 @@ namespace database::mariadb {
     class MariaDBCommandStartEvent : private core::EventReceiver {
     public:
         MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
-        ~MariaDBCommandStartEvent() override;
 
         using core::EventReceiver::span;
 

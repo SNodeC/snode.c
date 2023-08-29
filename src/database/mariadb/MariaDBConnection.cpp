@@ -247,10 +247,6 @@ namespace database::mariadb {
         , mariaDBConnection(mariaDBConnection) {
     }
 
-    MariaDBCommandStartEvent::~MariaDBCommandStartEvent() {
-        core::EventReceiver::relax();
-    }
-
     void MariaDBCommandStartEvent::onEvent(const utils::Timeval& currentTime) {
         mariaDBConnection->commandStart(currentTime);
     }
