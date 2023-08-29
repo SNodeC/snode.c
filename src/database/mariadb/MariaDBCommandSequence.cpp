@@ -43,7 +43,7 @@ namespace database::mariadb {
         return commandSequence.empty();
     }
 
-    MariaDBCommandSequence& database::mariadb::MariaDBCommandSequence::execute_async(MariaDBCommand* mariaDBCommand) {
+    MariaDBCommandSequence& MariaDBCommandSequence::execute_async(MariaDBCommand* mariaDBCommand) {
         commandSequence.push_back(mariaDBCommand);
 
         return *this;
