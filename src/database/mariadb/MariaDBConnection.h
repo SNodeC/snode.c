@@ -53,10 +53,10 @@ namespace database::mariadb {
 
         using core::EventReceiver::span;
 
-        void span();
-
     private:
         void onEvent(const utils::Timeval& currentTime) override;
+
+        void destruct() override;
 
         MariaDBConnection* mariaDBConnection = nullptr;
     };

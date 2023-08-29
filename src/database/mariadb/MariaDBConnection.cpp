@@ -251,12 +251,12 @@ namespace database::mariadb {
         core::EventReceiver::relax();
     }
 
-    void MariaDBCommandStartEvent::span() {
-        core::EventReceiver::span();
-    }
-
     void MariaDBCommandStartEvent::onEvent(const utils::Timeval& currentTime) {
         mariaDBConnection->commandStart(currentTime);
+    }
+
+    void MariaDBCommandStartEvent::destruct() {
+        delete mariaDBConnection;
     }
 
 } // namespace database::mariadb
