@@ -87,6 +87,8 @@ install(
     PATTERN "cmake" EXCLUDE
     PATTERN "server" EXCLUDE
     PATTERN "client" EXCLUDE
+    PATTERN "legacy" EXCLUDE
+    PATTERN "tls" EXCLUDE
 )
 
 install(
@@ -108,5 +110,5 @@ configure_file(
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/snodec_http_Targets_Config.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT "core"
+    COMPONENT http
 )

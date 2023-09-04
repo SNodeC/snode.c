@@ -90,5 +90,5 @@ configure_file(
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/snodec_websocket_Targets_Config.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT "core"
+    COMPONENT websocket
 )

@@ -62,6 +62,22 @@ install(
 )
 
 install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../legacy/
+    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/legacy
+    COMPONENT http-client
+    FILES_MATCHING
+    PATTERN "Client.h"
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tls/
+    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/tls
+    COMPONENT http-client
+    FILES_MATCHING
+    PATTERN "Client.h"
+)
+
+install(
     TARGETS http-client
     EXPORT snodec_http-client_Targets
     LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-client
