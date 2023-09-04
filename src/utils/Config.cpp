@@ -802,6 +802,8 @@ namespace utils {
             ->option_defaults()
             ->configurable(!name.empty());
 
+        instance->set_help_flag();
+
         if (!prefixMap.empty()) {
             if (prefixMap.contains(name)) {
                 instance //
