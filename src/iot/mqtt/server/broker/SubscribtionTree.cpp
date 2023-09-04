@@ -67,8 +67,8 @@ namespace iot::mqtt::server::broker {
     }
 
     void SubscribtionTree::TopicLevel::appear(const std::string& clientId, const std::string& topic) {
-        if (subscribers.contains(clientId)) {
-            broker->appear(clientId, topic, subscribers[clientId]);
+        if (qoSMap.contains(clientId)) {
+            broker->appear(clientId, topic, qoSMap[clientId]);
         }
 
         for (auto& [topicLevel, subscribtion] : topicLevels) {
@@ -80,7 +80,7 @@ namespace iot::mqtt::server::broker {
         bool success = true;
 
         if (leafFound) {
-            subscribers[clientId] = qoS;
+            qoSMap[clientId] = qoS;
         } else {
             std::string::size_type slashPosition = topic.find('/');
 
@@ -107,7 +107,7 @@ namespace iot::mqtt::server::broker {
             LOG(TRACE) << "  Message: '" << message.getMessage() << "' ";
             LOG(TRACE) << "Distribute Publish for match ...";
 
-            for (auto& [clientId, clientQoS] : subscribers) {
+            for (auto& [clientId, clientQoS] : qoSMap) {
                 broker->sendPublish(clientId, message, clientQoS, false);
             }
 
@@ -120,7 +120,7 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish for match ...";
 
-                for (auto& [clientId, clientQoS] : nextHashLevel->second.subscribers) {
+                for (auto& [clientId, clientQoS] : nextHashLevel->second.qoSMap) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
 
@@ -149,7 +149,7 @@ namespace iot::mqtt::server::broker {
                 LOG(TRACE) << "Found match for topic filter: '.../" << topicLevel << "/#', topic: '" << message.getTopic()
                            << "', Message: '" << message.getMessage() << "'";
                 LOG(TRACE) << "Distribute Publish ...";
-                for (auto& [clientId, clientQoS] : foundNode->second.subscribers) {
+                for (auto& [clientId, clientQoS] : foundNode->second.qoSMap) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
                 LOG(TRACE) << "... completed!";
@@ -159,7 +159,7 @@ namespace iot::mqtt::server::broker {
 
     bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId, std::string topic, bool leafFound) {
         if (leafFound) {
-            subscribers.erase(clientId);
+            qoSMap.erase(clientId);
         } else {
             std::string::size_type slashPosition = topic.find('/');
 
@@ -173,11 +173,11 @@ namespace iot::mqtt::server::broker {
             }
         }
 
-        return subscribers.empty() && topicLevels.empty();
+        return qoSMap.empty() && topicLevels.empty();
     }
 
     bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId) {
-        subscribers.erase(clientId);
+        qoSMap.erase(clientId);
 
         for (auto it = topicLevels.begin(); it != topicLevels.end();) {
             if (it->second.unsubscribe(clientId)) {
@@ -187,7 +187,7 @@ namespace iot::mqtt::server::broker {
             }
         }
 
-        return subscribers.empty() && topicLevels.empty();
+        return qoSMap.empty() && topicLevels.empty();
     }
 
     nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
@@ -197,20 +197,20 @@ namespace iot::mqtt::server::broker {
             json["topic_filter"][topicLevelName] = topicLevel.toJson();
         }
 
-        for (const auto& [subscriber, qoS] : subscribers) {
-            json["subscribers"][subscriber] = qoS;
+        for (const auto& [subscriber, qoS] : qoSMap) {
+            json["qos_map"][subscriber] = qoS;
         }
 
         return json;
     }
 
     SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& json) {
-        subscribers.clear();
+        qoSMap.clear();
         topicLevels.clear();
 
-        if (json.contains("subscribers")) {
-            for (const auto& subscriber : json["subscribers"].items()) {
-                subscribers.emplace(subscriber.key(), subscriber.value());
+        if (json.contains("qos_map")) {
+            for (const auto& subscriber : json["qos_map"].items()) {
+                qoSMap.emplace(subscriber.key(), subscriber.value());
             }
         }
 

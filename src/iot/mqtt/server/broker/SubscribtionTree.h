@@ -75,7 +75,7 @@ namespace iot::mqtt::server::broker {
             void clear();
 
         private:
-            std::map<std::string, uint8_t> subscribers;
+            std::map<std::string, uint8_t> qoSMap;
 
             std::map<std::string, TopicLevel> topicLevels;
 

@@ -24,7 +24,6 @@
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 // IWYU pragma: no_include <bits/utility.h>
-// IWYU pragma: no_include <type_traits>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
