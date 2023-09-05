@@ -53,6 +53,8 @@ namespace iot::mqtt::client {
     Mqtt::Mqtt()
         : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
         if (!sessionStoreFileName.empty()) {
+            LOG(INFO) << "Restoring safed session ...";
+
             std::ifstream sessionStoreFile(sessionStoreFileName);
 
             if (sessionStoreFile.is_open()) {
@@ -63,17 +65,18 @@ namespace iot::mqtt::client {
 
                     session.fromJson(sessionStoreJson);
 
-                    LOG(TRACE) << "Persistent session data loaded successfull";
+                    LOG(TRACE) << "  ... Persistent session data loaded successfull";
                 } catch (const nlohmann::json::exception&) {
-                    LOG(TRACE) << "Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
+                    LOG(TRACE) << "  ... Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
 
                     session.clear();
                 }
                 sessionStoreFile.close();
                 std::remove(sessionStoreFileName.data());
             } else {
-                PLOG(TRACE) << "Could not read session store '" << sessionStoreFileName << "'";
+                PLOG(TRACE) << "  ... Could not read session store '" << sessionStoreFileName << "'";
             }
+            LOG(INFO) << "Restoring safed session done";
         } else {
             LOG(INFO) << "Session not reloaded: Session store filename empty";
         }

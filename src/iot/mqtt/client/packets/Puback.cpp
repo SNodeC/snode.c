@@ -41,8 +41,8 @@ namespace iot::mqtt::client::packets {
         return consumed;
     }
 
-    void Puback::deliverPacket(iot::mqtt::client::Mqtt* socketContext) {
-        socketContext->_onPuback(*this);
+    void Puback::deliverPacket(iot::mqtt::client::Mqtt* mqtt) {
+        mqtt->_onPuback(*this);
     }
 
 } // namespace iot::mqtt::client::packets

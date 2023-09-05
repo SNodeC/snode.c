@@ -57,8 +57,6 @@ namespace iot::mqtt::packets {
         iot::mqtt::types::UInt8 returnCode;
 
         bool sessionPresent = false;
-
-        int state = 0;
     };
 
 } // namespace iot::mqtt::packets

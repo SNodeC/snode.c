@@ -39,8 +39,8 @@ namespace iot::mqtt::client::packets {
         return 0;
     }
 
-    void Pingresp::deliverPacket(iot::mqtt::client::Mqtt* socketContext) {
-        socketContext->_onPingresp(*this);
+    void Pingresp::deliverPacket(iot::mqtt::client::Mqtt* mqtt) {
+        mqtt->_onPingresp(*this);
     }
 
 } // namespace iot::mqtt::client::packets
