@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 
-find_package(nlohmann_json 3.7.0)
+# find_package(nlohmann_json 3.7.0)
+
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(NLOHMANN_JSON nlohmann_json)
 
 if(NLOHMANN_JSON_FOUND)
     set(JSONMIDDLEWARE_CPP middleware/JsonMiddleware.cpp)
@@ -13,11 +17,6 @@ else(NLOHMANN_JSON_FOUND)
             "       sudo apt install nlohmann-json3-dev"
     )
 endif(NLOHMANN_JSON_FOUND)
-
-set(NLOHMANN_JSON_FOUND
-    ${NLOHMANN_JSON_FOUND}
-    CACHE INTERNAL "nlohmann found?" FORCE
-)
 
 set(HTTP_SERVER_EXPRESS_CPP
     Controller.cpp
