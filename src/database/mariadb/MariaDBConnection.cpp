@@ -124,7 +124,7 @@ namespace database::mariadb {
             currentCommand->setMariaDBConnection(this);
             checkStatus(currentCommand->commandStart(mysql, currentTime));
         } else if (mariaDBClient != nullptr) {
-            if (ReadEventReceiver::isSuspended()) {
+            if (ReadEventReceiver::isSuspended() && ReadEventReceiver::isEnabled()) {
                 ReadEventReceiver::resume();
             }
         } else {
@@ -163,7 +163,7 @@ namespace database::mariadb {
     void MariaDBConnection::checkStatus(int status) {
         if (connected) {
             if ((status & MYSQL_WAIT_READ) != 0) {
-                if (ReadEventReceiver::isSuspended()) {
+                if (ReadEventReceiver::isSuspended() && ReadEventReceiver::isEnabled()) {
                     ReadEventReceiver::resume();
                 }
             } else if (!ReadEventReceiver::isSuspended()) {
@@ -171,7 +171,7 @@ namespace database::mariadb {
             }
 
             if ((status & MYSQL_WAIT_WRITE) != 0) {
-                if (WriteEventReceiver::isSuspended()) {
+                if (WriteEventReceiver::isSuspended() && WriteEventReceiver::isEnabled()) {
                     WriteEventReceiver::resume();
                 }
             } else if (!WriteEventReceiver::isSuspended()) {
@@ -179,7 +179,7 @@ namespace database::mariadb {
             }
 
             if ((status & MYSQL_WAIT_EXCEPT) != 0) {
-                if (ExceptionalConditionEventReceiver::isSuspended()) {
+                if (ExceptionalConditionEventReceiver::isSuspended() && ExceptionalConditionEventReceiver::isEnabled()) {
                     ExceptionalConditionEventReceiver::resume();
                 }
             } else if (!ExceptionalConditionEventReceiver::isSuspended()) {

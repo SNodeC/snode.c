@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 
 find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(NLOHMANN_JSON nlohmann_json)
+pkg_check_modules(NLOHMANN_JSON nlohmann_json>=3.11)
 
 if(NLOHMANN_JSON_FOUND)
     set(JSONMIDDLEWARE_CPP middleware/JsonMiddleware.cpp)
