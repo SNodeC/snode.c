@@ -60,7 +60,7 @@ namespace web::http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        void upgrade(Request& req);
+        bool upgrade(Request& req);
 
         void sendFile(const std::string& file, const std::function<void(int err)>& onError);
 

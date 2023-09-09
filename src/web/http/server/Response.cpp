@@ -160,19 +160,23 @@ namespace web::http::server {
 @enduml
      */
 
-    void Response::upgrade(Request& req) {
+    bool Response::upgrade(Request& req) {
+        bool success = false;
+
         if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
             web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                requestContext->switchSocketContext(socketContextUpgradeFactory);
+                success = requestContext->switchSocketContext(socketContextUpgradeFactory) != nullptr;
             } else {
-                set("Connection", "close").status(404).end();
+                set("Connection", "close").status(404);
             }
         } else {
-            set("Connection", "close").status(400).end();
+            set("Connection", "close").status(400);
         }
+
+        return success;
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {

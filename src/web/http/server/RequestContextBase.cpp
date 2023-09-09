@@ -37,12 +37,16 @@ namespace web::http::server {
         socketContext = nullptr;
     }
 
-    void RequestContextBase::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory) {
+    core::socket::SocketContext*
+    RequestContextBase::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory) {
+        core::socket::SocketContext* newSocketContext = nullptr;
         if (socketContext != nullptr) {
-            socketContext->switchSocketContext(socketContextUpgradeFactory);
+            newSocketContext = socketContext->switchSocketContext(socketContextUpgradeFactory);
         } else {
             delete this;
         }
+
+        return newSocketContext;
     }
 
     void RequestContextBase::sendToPeer(const char* junk, std::size_t junkLen) {

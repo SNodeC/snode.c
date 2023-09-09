@@ -38,9 +38,9 @@ namespace core {
                 dlOpenedLibraries[handle].handle = handle;
             }
             dlOpenedLibraries[handle].refCount++;
-            LOG(TRACE) << "dlOpen file = " << libFile << ": success";
+            LOG(TRACE) << "dlOpen: " << libFile << ": success";
         } else {
-            LOG(WARNING) << "dlOpen file = " << libFile << ": " << DynamicLoader::dlError();
+            LOG(WARNING) << "dlOpen: " << DynamicLoader::dlError();
         }
 
         return handle;
@@ -124,7 +124,7 @@ namespace core {
             Library& library = dlOpenedLibraries[handle];
 
             if (execDlClose(library) != 0) {
-                LOG(WARNING) << "execDlCloseDeleyed file = " << library.fileName << ": " << DynamicLoader::dlError();
+                LOG(WARNING) << "execDlCloseDeleyed file = " << DynamicLoader::dlError();
             } else {
                 LOG(TRACE) << "execDlCloseDeleyed file = " << library.fileName << ": closed";
             }

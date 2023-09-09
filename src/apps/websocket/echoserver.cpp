@@ -108,10 +108,8 @@ int main(int argc, char* argv[]) {
             VLOG(1) << "upgrade: " << req.get("upgrade");
             VLOG(1) << "user-agent: " << req.get("user-agent");
 
-            if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
-                res.upgrade(req);
-            } else {
-                res.sendStatus(404);
+            if (!res.upgrade(req)) {
+                res.end();
             }
         });
 

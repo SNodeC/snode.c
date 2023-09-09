@@ -25,9 +25,12 @@ namespace web::http {
 
 } // namespace web::http
 
-namespace core::socket::stream {
-    class SocketContextFactory;
-}
+namespace core::socket {
+    class SocketContext;
+    namespace stream {
+        class SocketContextFactory;
+    }
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -45,7 +48,7 @@ namespace web::http::server {
 
         void socketContextGone();
 
-        void switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory);
+        core::socket::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeerCompleted();
