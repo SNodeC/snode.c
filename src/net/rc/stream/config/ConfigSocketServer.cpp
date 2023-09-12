@@ -31,7 +31,6 @@ namespace net::rc::stream::config {
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
 
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelOpt //
-            ->default_val(1)
             ->check(CLI::Range(1, 30));
     }
 
