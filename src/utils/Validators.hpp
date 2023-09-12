@@ -44,7 +44,7 @@ namespace CLI {
     class IsValue : public Validator {
     public:
         template <typename T>
-        IsValue(T val) {
+        explicit IsValue(T val) {
             std::stringstream out;
             out << detail::type_name<T>() << " is '" << val << "'";
             description(out.str());
