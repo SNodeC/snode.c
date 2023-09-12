@@ -22,6 +22,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
+#include <limits>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream::config {
@@ -29,6 +32,10 @@ namespace net::l2::stream::config {
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::stream::config::ConfigSocketServer<net::l2::config::ConfigAddress>(instance) {
         net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
+
+        net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmOpt //
+            ->default_val(0)
+            ->check(CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
     }
 
 } // namespace net::l2::stream::config

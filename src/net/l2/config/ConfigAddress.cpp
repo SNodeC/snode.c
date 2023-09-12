@@ -26,8 +26,6 @@
 
 #include "utils/PreserveErrno.h"
 
-#include <cstdint>
-#include <limits>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -46,9 +44,7 @@ namespace net::l2::config {
         Super::add_option(psmOpt, //
                           "--psm",
                           "Protocol service multiplexer",
-                          "psm",
-                          0,
-                          CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
+                          "psm");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

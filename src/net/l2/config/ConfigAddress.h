@@ -67,7 +67,6 @@ namespace net::l2::config {
         void btAddressRequired(bool required = true);
         void psmRequired(bool required = true);
 
-    private:
         CLI::Option* btAddressOpt = nullptr;
         CLI::Option* psmOpt = nullptr;
     };
