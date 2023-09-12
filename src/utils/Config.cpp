@@ -749,9 +749,9 @@ namespace utils {
                 throw;
             } catch (const CLI::ParseError& e) {
                 std::string what = e.what();
-                if (what == "[Option Group: ] is required") { // If CLI11 throws that error it means for us there are unconfigured
-                                                              // anonymous instances
-                    std::cout << "Bootstrap error: Configuration for anonymous instance(s) missing!" << std::endl;
+                if (what.find("[Option Group: ]") != std::string::npos) { // If CLI11 throws that error it means for us there are
+                                                                          // unconfigured anonymous instances
+                    std::cout << "Bootstrap error: Anonymous instance(s) not configured in source code!" << std::endl;
                 } else {
                     std::cout << "Command line error: " << what << std::endl;
                 }
