@@ -19,10 +19,8 @@
 #ifndef NET_IN6_STREAM_PHYSICALSERVERSOCKET_H
 #define NET_IN6_STREAM_PHYSICALSERVERSOCKET_H
 
-// clang-format off
 #include "net/in6/stream/PhysicalSocket.h"   // IWYU pragma: export
 #include "net/stream/PhysicalServerSocket.h" // IWYU pragma: export
-// clang-format on
 
 // IWYU pragma: no_include "net/in6/stream/PhysicalSocket.hpp"
 

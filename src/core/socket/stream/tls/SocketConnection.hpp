@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// clang-format off
+
 #include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/SocketConnection.hpp" // IWYU pragma: export
-// clang-format on
+
 
 #include "core/socket/stream/tls/TLSShutdown.h"
 
