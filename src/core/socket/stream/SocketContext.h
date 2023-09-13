@@ -69,7 +69,6 @@ namespace core::socket::stream {
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
 
-    protected:
         core::socket::stream::SocketConnection* socketConnection;
 
         template <typename PhysicalSocketT,
