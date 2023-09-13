@@ -59,7 +59,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     if (ret == nullptr) {
         std::cout << "error mysql: " << mysql_error(mysql) << std::endl;
     } else {
-        std::cout << "mysql_real_connect_start: SUCCESS" << std::endl;
+        std::cout << "mysql_real_connect_cont: SUCCESS" << std::endl;
     }
 #else
     mysql = mysql_init(nullptr);
