@@ -703,7 +703,7 @@ Second step is to patch the default OpenWRT package feeds to add the snodec feed
 
 ```sh
 cd <SDK_DIR>
-echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;merge" >> feeds.conf.default
+echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;vopenwrt-23.05" >> feeds.conf.default
 ```
 
 #### Install Packages
@@ -712,10 +712,8 @@ The third step is to install all source packages needed to compile SNode.C from 
 
 ```sh
 cd <SDK_DIR>
-./scripts/feeds update base packages snodec         # Only the feeds base, packages, and snodec are necessary
-./scripts/feeds install snode.c                     # Prepare snodec and it's dependencies for cross compilation
-./scripts/feeds uninstall nlohmannjson file         # Make sure the packages nlohmannjson and file are taken from feed
-./scripts/feeds install -p snodec nlohmannjson file # snodec. They need to be of a newer version than the one in OpenWRT
+./scripts/feeds update base snodec         # Only the feeds base and snodec are necessary
+./scripts/feeds install snode.c
 ```
 
 #### Configure the SDK
@@ -798,11 +796,11 @@ The **snodec\_\<version\>\_\<architecture\>.ipk** package must be downloaded to 
 cd <SDK_DIR>/bin/packages/<architecture>/snodec
 sftp root@<router-ip>
 cd /tmp
-put snode.c_<version>_<architecture>.ipk
+put snode.c-*_<version>_<architecture>.ipk
 exit
 ssh root@<router-ip>
 cd /tmp
-opkg [--force-reinstall] install snode.c_<version>_<architecture>.ipk
+opkg [--force-reinstall] install snode.c-*_<version>_<architecture>.ipk
 exit
 ```
 
