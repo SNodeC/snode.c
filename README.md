@@ -712,7 +712,7 @@ The third step is to install all source packages needed to compile SNode.C from 
 
 ```sh
 cd <SDK_DIR>
-./scripts/feeds update base snodec         # Only the feeds base and snodec are necessary
+./scripts/feeds update base snodec # Only the feeds base and snodec are necessary
 ./scripts/feeds install snode.c
 ```
 
