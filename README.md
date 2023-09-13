@@ -299,11 +299,11 @@ public:
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
-        std::cout << "Echo connected to " << socketConnection->getRemoteAddress().toString() << std::endl;
+        std::cout << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString() << std::endl;
     }
 
     void onDisconnected() override { // Called in case the connection has been closed.
-        std::cout << "Echo disconnected from " << socketConnection->getRemoteAddress().toString() << std::endl;
+        std::cout << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString() << std::endl;
     }
 
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
@@ -348,14 +348,14 @@ public:
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
-        std::cout << "Echo connected to " << socketConnection->getRemoteAddress().toString() << std::endl;
+        std::cout << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString() << std::endl;
 
         std::cout << "Initiating data exchange" << std::endl;
         sendToPeer("Hello peer! It's nice talking to you!!!\n"); // Initiate the ping-pong data exchange.
     }
 
     void onDisconnected() override { // Called in case the connection has been closed.
-        std::cout << "Echo disconnected from " << socketConnection->getRemoteAddress().toString() << std::endl;
+        std::cout << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString() << std::endl;
     }
 
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
@@ -404,7 +404,7 @@ SNode.C provides a view [overloaded *listen*](#listen-methods) methods whose arg
 #include <core/SNodeC.h>
 #include <iostream>
 #include <net/in/stream/legacy/SocketServer.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -425,7 +425,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
         } else {
             std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                      << ": " << strerror(err) << std::endl;
+                      << ": " << std::strerror(err) << std::endl;
         }
     });
 
@@ -446,7 +446,7 @@ Equivalent to the server instance a client instance provides a view [overloaded 
 #include <core/SNodeC.h>
 #include <iostream>
 #include <net/in/stream/legacy/SocketClient.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -468,7 +468,7 @@ int main(int argc, char* argv[]) {
                                std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
                            } else {
                                std::cout << "Error: Echo client connected to " << socketAddress.toString() 
-                                         << ": " << strerror(err) << std::endl;
+                                         << ": " << std::strerror(err) << std::endl;
                            }
                        });
 
@@ -2213,7 +2213,7 @@ In that case the Main-Application would look like
 #include <net/in/stream/legacy/SocketServer.h>
 #include <net/rc/stream/legacy/SocketServer.h>
 #include <net/un/stream/legacy/SocketServer.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -2228,7 +2228,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
         } else {
             std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                      << ": " << strerror(err) << std::endl;
+                      << ": " << std::strerror(err) << std::endl;
         }
     });
 
@@ -2242,7 +2242,7 @@ int main(int argc, char* argv[]) {
                 std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
             } else {
                 std::cout << "Error: Echo server listening on " 
-                          << socketAddress.toString() << ": " << strerror(err) << std::endl;
+                          << socketAddress.toString() << ": " << std::strerror(err) << std::endl;
             }
         });
 
@@ -2255,7 +2255,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
         } else {
             std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                      << ": " << strerror(err) << std::endl;
+                      << ": " << std::strerror(err) << std::endl;
         }
     });
 
@@ -2272,7 +2272,7 @@ and the client application with an additional Unix-Domain socket instance look l
 #include <iostream>
 #include <net/in/stream/legacy/SocketClient.h>
 #include <net/un/stream/legacy/SocketClient.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -2291,7 +2291,7 @@ int main(int argc, char* argv[]) {
                                  std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
                              } else {
                                  std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
-                                           << ": " << strerror(err) << std::endl;
+                                           << ": " << std::strerror(err) << std::endl;
                              }
                          });
 
@@ -2307,7 +2307,7 @@ int main(int argc, char* argv[]) {
                                  std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
                              } else {
                                  std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
-                                           << ": " << strerror(err) << std::endl;
+                                           << ": " << std::strerror(err) << std::endl;
                              }
                          });
 
