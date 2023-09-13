@@ -68,10 +68,10 @@ namespace net::un::config {
 
 } // namespace net::un::config
 
-extern template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
-extern template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
+// extern template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
+// extern template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
-extern template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
-extern template class net::config::ConfigAddressRemote<net::un::SocketAddress>;
+// extern template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
+// extern template class net::config::ConfigAddressRemote<net::un::SocketAddress>;
 
 #endif // NET_L2_CONFIG_CONFIGADDRESS_H

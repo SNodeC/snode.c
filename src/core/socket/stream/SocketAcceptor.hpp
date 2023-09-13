@@ -17,7 +17,7 @@
  */
 
 #include "core/socket/stream/SocketAcceptor.h"
-#include "core/socket/stream/SocketConnectionFactory.hpp"
+#include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

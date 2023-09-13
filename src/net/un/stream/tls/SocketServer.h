@@ -24,12 +24,6 @@
 #include "net/un/stream/SocketServer.h"                  // IWYU pragma: export
 #include "net/un/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "core/socket/stream/SocketAcceptor.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketReader.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketWriter.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -41,13 +35,5 @@ namespace net::un::stream::tls {
         SocketServer<core::socket::stream::tls::SocketAcceptor, net::un::stream::tls::config::ConfigSocketServer, SocketContextFactoryT>;
 
 } // namespace net::un::stream::tls
-
-extern template class core::socket::LogicalSocket<net::un::stream::tls::config::ConfigSocketServer>;
-extern template class core::socket::stream::tls::SocketAcceptor<net::un::stream::PhysicalServerSocket,
-                                                                net::un::stream::tls::config::ConfigSocketServer>;
-extern template class core::socket::stream::tls::SocketConnection<net::un::stream::PhysicalServerSocket>;
-extern template class core::socket::stream::SocketConnectionT<net::un::stream::PhysicalServerSocket,
-                                                              core::socket::stream::tls::SocketReader,
-                                                              core::socket::stream::tls::SocketWriter>;
 
 #endif // NET_UN_STREAM_TLS_SOCKETSERVER_H

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketWriter.hpp"
+#include "core/socket/stream/SocketWriter.hpp" // IWYU pragma: export
 #include "core/socket/stream/tls/SocketWriter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

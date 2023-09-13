@@ -54,6 +54,4 @@ namespace net::rc {
 
 } // namespace net::rc
 
-extern template class net::SocketAddress<sockaddr_rc>;
-
 #endif // NET_RC_SOCKETADDRESS_H

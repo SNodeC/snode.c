@@ -22,8 +22,6 @@
 #include "net/in/PhysicalSocket.h"     // IWYU pragma: export
 #include "net/stream/PhysicalSocket.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/in/PhysicalSocket.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -45,7 +43,5 @@ namespace net::in::stream {
     };
 
 } // namespace net::in::stream
-
-extern template class net::stream::PhysicalSocket<net::in::SocketAddress>;
 
 #endif // NET_IN_STREAM_PHYSICALSOCKET_H

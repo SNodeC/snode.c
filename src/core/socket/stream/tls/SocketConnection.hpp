@@ -18,7 +18,7 @@
 
 // clang-format off
 #include "core/socket/stream/tls/SocketConnection.h"
-#include "core/socket/stream/SocketConnection.hpp"
+#include "core/socket/stream/SocketConnection.hpp" // IWYU pragma: export
 // clang-format on
 
 #include "core/socket/stream/tls/TLSShutdown.h"

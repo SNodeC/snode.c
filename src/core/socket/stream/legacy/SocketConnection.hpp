@@ -18,7 +18,7 @@
 
 // clang-format off
 #include "core/socket/stream/legacy/SocketConnection.h"
-#include "core/socket/stream/SocketConnection.hpp"
+#include "core/socket/stream/SocketConnection.hpp" // IWYU pragma: export
 // clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

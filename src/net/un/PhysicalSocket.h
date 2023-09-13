@@ -22,9 +22,6 @@
 #include "net/PhysicalSocket.h"   // IWYU pragma: export
 #include "net/un/SocketAddress.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/PhysicalSocket.hpp"
-// IWYU pragma: no_include <map>
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -51,7 +48,5 @@ namespace net::un {
     };
 
 } // namespace net::un
-
-extern template class net::PhysicalSocket<net::un::SocketAddress>;
 
 #endif // NET_UN_PHYSICALSOCKET_H

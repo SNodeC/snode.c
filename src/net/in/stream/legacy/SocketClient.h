@@ -24,12 +24,6 @@
 #include "net/in/stream/SocketClient.h"                     // IWYU pragma: export
 #include "net/in/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "core/socket/stream/SocketConnector.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketReader.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketWriter.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -42,13 +36,5 @@ namespace net::in::stream::legacy {
                                                        SocketContextFactoryT>;
 
 } // namespace net::in::stream::legacy
-
-extern template class core::socket::LogicalSocket<net::in::stream::legacy::config::ConfigSocketClient>;
-extern template class core::socket::stream::legacy::SocketConnector<net::in::stream::PhysicalClientSocket,
-                                                                    net::in::stream::legacy::config::ConfigSocketClient>;
-extern template class core::socket::stream::legacy::SocketConnection<net::in::stream::PhysicalClientSocket>;
-extern template class core::socket::stream::SocketConnectionT<net::in::stream::PhysicalClientSocket,
-                                                              core::socket::stream::legacy::SocketReader,
-                                                              core::socket::stream::legacy::SocketWriter>;
 
 #endif // NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H

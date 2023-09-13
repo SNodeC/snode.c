@@ -24,7 +24,6 @@
 #include "net/stream/PhysicalServerSocket.h" // IWYU pragma: export
 // clang-format on
 
-// IWYU pragma: no_include "net/stream/PhysicalServerSocket.hpp"
 // IWYU pragma: no_include "net/in6/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -48,9 +47,5 @@ namespace net::in6::stream {
     };
 
 } // namespace net::in6::stream
-
-extern template class net::stream::PhysicalServerSocket<net::in6::SocketAddress>;
-extern template class net::in6::stream::PhysicalSocket<net::stream::PhysicalServerSocket>;
-extern template class net::in6::PhysicalSocket<net::stream::PhysicalServerSocket>;
 
 #endif // NET_IN6_STREAM_PHYSICALSERVERSOCKET_H

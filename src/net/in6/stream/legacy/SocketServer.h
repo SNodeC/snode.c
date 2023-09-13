@@ -24,12 +24,6 @@
 #include "net/in6/stream/SocketServer.h"                     // IWYU pragma: export
 #include "net/in6/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "core/socket/stream/SocketAcceptor.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketReader.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketWriter.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -42,13 +36,5 @@ namespace net::in6::stream::legacy {
                                                         SocketContextFactoryT>;
 
 } // namespace net::in6::stream::legacy
-
-extern template class core::socket::LogicalSocket<net::in6::stream::legacy::config::ConfigSocketServer>;
-extern template class core::socket::stream::legacy::SocketAcceptor<net::in6::stream::PhysicalServerSocket,
-                                                                   net::in6::stream::legacy::config::ConfigSocketServer>;
-extern template class core::socket::stream::legacy::SocketConnection<net::in6::stream::PhysicalServerSocket>;
-extern template class core::socket::stream::SocketConnectionT<net::in6::stream::PhysicalServerSocket,
-                                                              core::socket::stream::legacy::SocketReader,
-                                                              core::socket::stream::legacy::SocketWriter>;
 
 #endif // NET_IN6_STREAM_LEGACY_SOCKETSERVER_H
