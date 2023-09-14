@@ -77,7 +77,7 @@ namespace iot::mqtt::server {
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
         void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
-        void onExit() override;
+        void onExit(int sig) override;
 
         using Super::initSession;
         void initSession(const utils::Timeval& keepAlive);

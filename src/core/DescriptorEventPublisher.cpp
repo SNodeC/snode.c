@@ -136,10 +136,10 @@ namespace core {
         return nextTimeout;
     }
 
-    void DescriptorEventPublisher::exit() {
+    void DescriptorEventPublisher::sigExit(int sigNum) {
         for (auto& [fd, eventReceivers] : observedEventReceivers) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                eventReceiver->onExit();
+                eventReceiver->onExit(sigNum);
             }
         }
     }

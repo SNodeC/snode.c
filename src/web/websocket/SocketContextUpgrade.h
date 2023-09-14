@@ -229,8 +229,8 @@ namespace web::websocket {
             VLOG(0) << "Websocket disconnected";
         }
 
-        void onExit() override {
-            subProtocol->onExit();
+        void onExit(int sig) override {
+            subProtocol->onExit(sig);
         }
 
         /* Facade to SocketContext used from WSTransmitter */

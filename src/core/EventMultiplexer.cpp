@@ -83,9 +83,9 @@ namespace core {
         return tickStatus;
     }
 
-    void EventMultiplexer::exit() {
+    void EventMultiplexer::sigExit(int stopsig) {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->exit();
+            descriptorEventPublisher->sigExit(stopsig);
         }
     }
 

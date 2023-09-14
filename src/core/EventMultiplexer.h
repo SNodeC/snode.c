@@ -89,7 +89,7 @@ namespace core {
         void span(core::Event* event);
         void relax(core::Event* event);
 
-        void exit();
+        void sigExit(int sigNum);
         void stop();
         void clear();
 

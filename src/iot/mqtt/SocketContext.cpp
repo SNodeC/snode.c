@@ -37,8 +37,8 @@ namespace iot::mqtt {
         iot::mqtt::MqttContext::onDisconnected();
     }
 
-    void SocketContext::onExit() {
-        iot::mqtt::MqttContext::onExit();
+    void SocketContext::onExit(int sig) {
+        iot::mqtt::MqttContext::onExit(sig);
     }
 
     core::socket::stream::SocketConnection* SocketContext::getSocketConnection() {

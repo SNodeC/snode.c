@@ -24,6 +24,7 @@
 //
 
 #include <algorithm>
+#include <cstring>
 #include <iomanip>
 #include <ostream>
 
@@ -147,9 +148,10 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onExit() {
-        LOG(INFO) << "MQTT exit";
-        iot::mqtt::MqttContext::onExit();
+    void SubProtocol<WSSubProtocolRole>::onExit(int sig) {
+        LOG(INFO) << "SubProtocol 'mqtt' exit dot to '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
+
+        iot::mqtt::MqttContext::onExit(sig);
         this->sendClose();
     }
 

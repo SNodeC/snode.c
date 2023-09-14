@@ -254,9 +254,9 @@ namespace core::socket::stream {
               typename SocketReader,
               template <typename PhysicalSocketT>
               typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onExit() {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onExit(int sig) {
         if (!exitProcessed) {
-            socketContext->onExit();
+            socketContext->onExit(sig);
             exitProcessed = true;
         }
     }

@@ -31,7 +31,7 @@
 
 namespace utils::system {
 
-    sighandler_t signal(int signum, sighandler_t handler);
+    sighandler_t signal(int sig, sighandler_t handler);
 
 } // namespace utils::system
 

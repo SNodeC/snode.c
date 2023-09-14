@@ -149,7 +149,7 @@ namespace core {
         dispatchEvent();
     }
 
-    void DescriptorEventReceiver::onExit() {
+    void DescriptorEventReceiver::onExit([[maybe_unused]] int sig) {
     }
 
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {

@@ -30,6 +30,7 @@
 
 #include <chrono> // IWYU pragma: keep
 #include <cstdlib>
+#include <cstring>
 #include <string>
 
 // IWYU pragma: no_include <bits/chrono.h>
@@ -202,7 +203,7 @@ namespace core {
         core::TickStatus tickStatus{};
 
         if (stopsig != 0) {
-            EventLoop::instance().eventMultiplexer.exit();
+            EventLoop::instance().eventMultiplexer.sigExit(stopsig);
         }
 
         utils::Timeval timeout = 2;
@@ -233,7 +234,7 @@ namespace core {
     }
 
     void EventLoop::stoponsig(int sig) {
-        LOG(INFO) << "Received signal " << sig;
+        LOG(INFO) << "Received signal '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
         stopsig = sig;
         stop();
     }

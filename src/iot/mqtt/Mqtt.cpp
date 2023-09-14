@@ -32,6 +32,7 @@
 
 #include "log/Logger.h"
 
+#include <cstring>
 #include <iomanip>
 #include <ostream>
 #include <set>
@@ -130,7 +131,8 @@ namespace iot::mqtt {
     void Mqtt::onDisconnected() {
     }
 
-    void Mqtt::onExit() {
+    void Mqtt::onExit(int sig) {
+        LOG(INFO) << "MQTT exit due to '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
     }
 
     core::socket::stream::SocketConnection* Mqtt::getSocketConnection() {

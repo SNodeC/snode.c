@@ -22,6 +22,8 @@
 
 #include "log/Logger.h"
 
+#include <cstring>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MAX_FLYING_PINGS 3
@@ -71,8 +73,8 @@ namespace apps::websocket::subprotocol::echo::server {
         VLOG(0) << "Echo disconnected:";
     }
 
-    void Echo::onExit() {
-        VLOG(0) << "Echo exit:";
+    void Echo::onExit(int sig) {
+        VLOG(0) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
 
         sendClose();
     }

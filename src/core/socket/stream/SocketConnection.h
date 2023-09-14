@@ -143,7 +143,7 @@ namespace core::socket::stream {
         void onDisconnected();
 
     private:
-        void onExit() final;
+        void onExit(int sig) final;
 
         void readTimeout() final;
         void writeTimeout() final;

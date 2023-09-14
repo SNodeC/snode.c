@@ -64,7 +64,7 @@ namespace core {
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
-        void exit();
+        void sigExit(int sigNum);
         void stop();
 
         const std::string& getName() const;

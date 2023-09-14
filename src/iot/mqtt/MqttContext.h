@@ -55,7 +55,7 @@ namespace iot::mqtt {
         void onConnected();
         std::size_t onData();
         void onDisconnected();
-        void onExit();
+        void onExit(int sig);
 
     protected:
         Mqtt* mqtt;

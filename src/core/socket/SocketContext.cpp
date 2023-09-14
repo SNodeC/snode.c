@@ -22,6 +22,8 @@
 
 #include "log/Logger.h"
 
+#include <cstring>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket {
@@ -42,8 +44,8 @@ namespace core::socket {
         }
     }
 
-    void SocketContext::onExit() {
-        LOG(INFO) << "Protocol exit";
+    void SocketContext::onExit(int sig) {
+        LOG(INFO) << "Protocol exit due to '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
     }
 
 } // namespace core::socket

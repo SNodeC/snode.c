@@ -26,9 +26,9 @@
 
 namespace utils::system {
 
-    sighandler_t signal(int signum, sighandler_t handler) {
+    sighandler_t signal(int sig, sighandler_t handler) {
         errno = 0;
-        return ::signal(signum, handler);
+        return std::signal(sig, handler);
     }
 
 } // namespace utils::system

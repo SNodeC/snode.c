@@ -56,7 +56,7 @@ namespace core::socket {
     protected:
         virtual std::size_t onReceivedFromPeer() = 0;
 
-        virtual void onExit();
+        virtual void onExit(int sig);
 
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
