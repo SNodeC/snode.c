@@ -43,6 +43,20 @@ namespace net::config {
                           "bool",
                           "false",
                           CLI::IsMember({"true", "false"}));
+
+        add_flag(retryOpt, //
+                 "--retry",
+                 "Retry connect or listen automatically",
+                 "bool",
+                 "false",
+                 CLI::IsMember({"true", "false"}));
+
+        add_option(retryTriesOpt, //
+                   "--retry-tries",
+                   "Number of retry attempts bevore giving up (0 = unlimited)",
+                   "tries",
+                   0,
+                   CLI::TypeValidator<unsigned int>());
     }
 
     const std::map<int, const PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
@@ -105,6 +119,26 @@ namespace net::config {
 
     bool ConfigPhysicalSocket::getReuseAddress() {
         return reuseAddressOpt->as<bool>();
+    }
+
+    void ConfigPhysicalSocket::setRetry(bool retry) {
+        retryOpt //
+            ->default_val(retry)
+            ->clear();
+    }
+
+    bool ConfigPhysicalSocket::getRetry() {
+        return retryOpt->as<bool>();
+    }
+
+    void ConfigPhysicalSocket::setRetryTries(unsigned int tries) {
+        retryTriesOpt //
+            ->default_val(tries)
+            ->clear();
+    }
+
+    unsigned int ConfigPhysicalSocket::getRetryTries() {
+        return retryTriesOpt->as<unsigned int>();
     }
 
 } // namespace net::config

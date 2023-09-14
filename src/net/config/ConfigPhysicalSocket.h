@@ -56,6 +56,12 @@ namespace net::config {
         void setReuseAddress(bool reuseAddress = true);
         bool getReuseAddress();
 
+        void setRetry(bool retry = true);
+        bool getRetry();
+
+        void setRetryTries(unsigned int tries = 0); // 0 ... unlimmit
+        unsigned int getRetryTries();
+
     protected:
         CLI::Option* add_socket_option(CLI::Option*& opt,
                                        const std::string& name,
@@ -67,6 +73,8 @@ namespace net::config {
                                        const CLI::Validator& validator);
 
         CLI::Option* reuseAddressOpt = nullptr;
+        CLI::Option* retryOpt = nullptr;
+        CLI::Option* retryTriesOpt = nullptr;
 
         std::map<int, const net::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };

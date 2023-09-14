@@ -19,7 +19,9 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
+#include "core/SNodeC.h"
 #include "core/socket/LogicalSocket.h" // IWYU pragma: export
+#include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -144,11 +146,42 @@ namespace core::socket::stream {
             : SocketClient("", socketContextFactory) {
         }
 
-        void connect(const std::function<void(const SocketAddress&, int)>& onError) const {
+        void realConnect(const std::function<void(const SocketAddress&, int)>& onError) {
             new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, Super::config);
         }
 
-        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) const {
+        void connect(const std::function<void(const SocketAddress&, int)>& onError) {
+            if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
+                if (this->getConfig().getRetry()) {
+                    setOnDisconnect([client = *this, onError](SocketConnection* socketConnection) mutable -> void {
+                        VLOG(0) << "OnDisconnect";
+
+                        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+
+                        LOG(INFO) << "  ... retrying";
+                        core::timer::Timer::singleshotTimer(
+                            [client, onError]() mutable -> void {
+                                client.connect(onError);
+                            },
+                            1);
+                    });
+                }
+                realConnect([client = *this, onError](const SocketAddress& socketAddress, int errnum) -> void {
+                    onError(socketAddress, errnum);
+                    if (errnum != 0 && client.getConfig().getRetry()) {
+                        LOG(INFO) << "Retrying connect ...";
+                        core::timer::Timer::singleshotTimer(
+                            [client, onError]() mutable -> void {
+                                client.connect(onError);
+                            },
+                            1);
+                    }
+                });
+            }
+        }
+
+        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) {
             Super::config->Remote::setSocketAddress(remoteAddress);
 
             connect(onError);
@@ -156,7 +189,7 @@ namespace core::socket::stream {
 
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& localAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError) const {
+                     const std::function<void(const SocketAddress&, int)>& onError) {
             Super::config->Local::setSocketAddress(localAddress);
 
             connect(remoteAddress, onError);
