@@ -19,7 +19,9 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 #define CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 
+#include "core/SNodeC.h"
 #include "core/socket/LogicalSocket.h" // IWYU pragma: export
+#include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -139,8 +141,36 @@ namespace core::socket::stream {
             : SocketServer("", socketContextFactory) {
         }
 
+    private:
+        void realListen(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries) const {
+            if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
+                new SocketAcceptor(
+                    socketContextFactory,
+                    onConnect,
+                    onConnected,
+                    onDisconnect,
+                    [server = *this, onError, tries](const SocketAddress& socketAddress, int errnum) -> void {
+                        onError(socketAddress, errnum);
+
+                        if (server.getConfig().getRetry() &&
+                            (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries())) {
+                            if (errnum != 0 && server.getConfig().getRetry()) {
+                                LOG(INFO) << "Retrying ...";
+                                core::timer::Timer::singleshotTimer(
+                                    [server, onError, tries]() mutable -> void {
+                                        server.realListen(onError, tries + 1);
+                                    },
+                                    server.getConfig().getRetryTimeout());
+                            }
+                        }
+                    },
+                    Super::config);
+            }
+        }
+
+    public:
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const {
-            new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, Super::config);
+            realListen(onError, 0);
         }
 
         void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const {

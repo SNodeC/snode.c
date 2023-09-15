@@ -59,6 +59,9 @@ namespace net::config {
         void setRetry(bool retry = true);
         bool getRetry();
 
+        void setRetryTimeout(unsigned int sec);
+        unsigned int getRetryTimeout();
+
         void setRetryTries(unsigned int tries = 0); // 0 ... unlimmit
         unsigned int getRetryTries();
 
@@ -75,6 +78,7 @@ namespace net::config {
         CLI::Option* reuseAddressOpt = nullptr;
         CLI::Option* retryOpt = nullptr;
         CLI::Option* retryTriesOpt = nullptr;
+        CLI::Option* retryTimeoutOpt = nullptr;
 
         std::map<int, const net::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };

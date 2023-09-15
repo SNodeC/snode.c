@@ -146,39 +146,47 @@ namespace core::socket::stream {
             : SocketClient("", socketContextFactory) {
         }
 
-        void realConnect(const std::function<void(const SocketAddress&, int)>& onError) {
-            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, Super::config);
+    private:
+        void realConnect(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries) {
+            if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
+                new SocketConnector(
+                    socketContextFactory,
+                    onConnect,
+                    onConnected,
+                    [client = *this, onError](SocketConnection* socketConnection) mutable -> void {
+                        client.onDisconnect(socketConnection);
+
+                        if (client.getConfig().getRetry()) {
+                            LOG(INFO) << "Retrying ...";
+                            core::timer::Timer::singleshotTimer(
+                                [client, onError]() mutable -> void {
+                                    client.realConnect(onError, 0);
+                                },
+                                client.getConfig().getRetryTimeout());
+                        }
+                    },
+                    [client = *this, onError, tries](const SocketAddress& socketAddress, int errnum) -> void {
+                        onError(socketAddress, errnum);
+
+                        if (client.getConfig().getRetry() &&
+                            (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries())) {
+                            if (errnum != 0 && client.getConfig().getRetry()) {
+                                LOG(INFO) << "Retrying ...";
+                                core::timer::Timer::singleshotTimer(
+                                    [client, onError, tries]() mutable -> void {
+                                        client.realConnect(onError, tries + 1);
+                                    },
+                                    client.getConfig().getRetryTimeout());
+                            }
+                        }
+                    },
+                    Super::config);
+            }
         }
 
+    public:
         void connect(const std::function<void(const SocketAddress&, int)>& onError) {
-            if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
-                if (this->getConfig().getRetry()) {
-                    setOnDisconnect([client = *this, onError](SocketConnection* socketConnection) mutable -> void {
-                        VLOG(0) << "OnDisconnect";
-
-                        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-
-                        LOG(INFO) << "  ... retrying";
-                        core::timer::Timer::singleshotTimer(
-                            [client, onError]() mutable -> void {
-                                client.connect(onError);
-                            },
-                            1);
-                    });
-                }
-                realConnect([client = *this, onError](const SocketAddress& socketAddress, int errnum) -> void {
-                    onError(socketAddress, errnum);
-                    if (errnum != 0 && client.getConfig().getRetry()) {
-                        LOG(INFO) << "Retrying connect ...";
-                        core::timer::Timer::singleshotTimer(
-                            [client, onError]() mutable -> void {
-                                client.connect(onError);
-                            },
-                            1);
-                    }
-                });
-            }
+            realConnect(onError, 0);
         }
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) {

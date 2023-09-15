@@ -44,12 +44,28 @@ namespace net::config {
                           "false",
                           CLI::IsMember({"true", "false"}));
 
-        add_flag(retryOpt, //
-                 "--retry",
-                 "Retry connect or listen automatically",
-                 "bool",
-                 "false",
-                 CLI::IsMember({"true", "false"}));
+        add_flag_function(
+            retryOpt, //
+            "--retry",
+            [this](int64_t) -> void {
+                if (!this->retryOpt->as<bool>()) {
+                    this->retryTimeoutOpt->clear();
+                    this->retryTriesOpt->clear();
+                }
+                utils::ResetToDefault(this->retryOpt)(this->retryOpt->as<bool>());
+            },
+            "Automatically retry listen|connect",
+            "bool",
+            "false",
+            CLI::IsMember({"true", "false"}));
+
+        add_option(retryTimeoutOpt, //
+                   "--retry-timeout",
+                   "Timeout of the retry timer",
+                   "sec",
+                   1,
+                   CLI::TypeValidator<unsigned int>());
+        retryTimeoutOpt->needs(retryOpt);
 
         add_option(retryTriesOpt, //
                    "--retry-tries",
@@ -57,6 +73,7 @@ namespace net::config {
                    "tries",
                    0,
                    CLI::TypeValidator<unsigned int>());
+        retryTriesOpt->needs(retryOpt);
     }
 
     const std::map<int, const PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
@@ -129,6 +146,16 @@ namespace net::config {
 
     bool ConfigPhysicalSocket::getRetry() {
         return retryOpt->as<bool>();
+    }
+
+    void ConfigPhysicalSocket::setRetryTimeout(unsigned int sec) {
+        retryTimeoutOpt //
+            ->default_val(sec)
+            ->clear();
+    }
+
+    unsigned int ConfigPhysicalSocket::getRetryTimeout() {
+        return retryTimeoutOpt->as<unsigned int>();
     }
 
     void ConfigPhysicalSocket::setRetryTries(unsigned int tries) {
