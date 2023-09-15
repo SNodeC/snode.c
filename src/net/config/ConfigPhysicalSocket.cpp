@@ -51,6 +51,7 @@ namespace net::config {
                 if (!this->retryOpt->as<bool>()) {
                     this->retryTimeoutOpt->clear();
                     this->retryTriesOpt->clear();
+                    this->retryBaseOpt->clear();
                 }
                 utils::ResetToDefault(this->retryOpt)(this->retryOpt->as<bool>());
             },
@@ -74,6 +75,22 @@ namespace net::config {
                    0,
                    CLI::TypeValidator<unsigned int>());
         retryTriesOpt->needs(retryOpt);
+
+        add_option(retryBaseOpt, //
+                   "--retry-base",
+                   "Base of exponential backoff",
+                   "base",
+                   1.8,
+                   CLI::PositiveNumber);
+        retryBaseOpt->needs(retryOpt);
+
+        add_option(retryLimitOpt, //
+                   "--retry-limit",
+                   "Upper limit in seconds of retry timeout",
+                   "sec",
+                   0,
+                   CLI::NonNegativeNumber);
+        retryLimitOpt->needs(retryOpt);
     }
 
     const std::map<int, const PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
@@ -166,6 +183,26 @@ namespace net::config {
 
     unsigned int ConfigPhysicalSocket::getRetryTries() {
         return retryTriesOpt->as<unsigned int>();
+    }
+
+    void ConfigPhysicalSocket::setRetryBase(double base) {
+        retryBaseOpt //
+            ->default_val(base)
+            ->clear();
+    }
+
+    double ConfigPhysicalSocket::getRetryBase() {
+        return retryBaseOpt->as<double>();
+    }
+
+    void ConfigPhysicalSocket::setRetryLimit(unsigned int limit) {
+        retryLimitOpt //
+            ->default_val(limit)
+            ->clear();
+    }
+
+    unsigned int ConfigPhysicalSocket::getRetryLimit() {
+        return retryLimitOpt->as<unsigned int>();
     }
 
 } // namespace net::config

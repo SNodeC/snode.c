@@ -142,25 +142,34 @@ namespace core::socket::stream {
         }
 
     private:
-        void realListen(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries) const {
+        void realListen(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries, double retryTimeoutScale) const {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketAcceptor(
                     socketContextFactory,
                     onConnect,
                     onConnected,
                     onDisconnect,
-                    [server = *this, onError, tries](const SocketAddress& socketAddress, int errnum) -> void {
+                    [server = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress, int errnum) -> void {
                         onError(socketAddress, errnum);
 
                         if (server.getConfig().getRetry() &&
                             (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries())) {
                             if (errnum != 0 && server.getConfig().getRetry()) {
-                                LOG(INFO) << "Retrying ...";
+                                LOG(INFO) << "Retrying in "
+                                          << (server.getConfig().getRetryLimit() > 0
+                                                  ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                                     server.getConfig().getRetryLimit())
+                                                  : server.getConfig().getRetryTimeout() * retryTimeoutScale)
+                                          << " seconds";
+
                                 core::timer::Timer::singleshotTimer(
-                                    [server, onError, tries]() mutable -> void {
-                                        server.realListen(onError, tries + 1);
+                                    [server, onError, tries, retryTimeoutScale]() mutable -> void {
+                                        server.realListen(onError, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
                                     },
-                                    server.getConfig().getRetryTimeout());
+                                    server.getConfig().getRetryLimit() > 0
+                                        ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                           server.getConfig().getRetryLimit())
+                                        : server.getConfig().getRetryTimeout() * retryTimeoutScale);
                             }
                         }
                     },
@@ -170,7 +179,7 @@ namespace core::socket::stream {
 
     public:
         void listen(const std::function<void(const SocketAddress&, int)>& onError) const {
-            realListen(onError, 0);
+            realListen(onError, 0, 1);
         }
 
         void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const {

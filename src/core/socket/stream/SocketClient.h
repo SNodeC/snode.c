@@ -147,7 +147,7 @@ namespace core::socket::stream {
         }
 
     private:
-        void realConnect(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries) {
+        void realConnect(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries, double retryTimeoutScale) {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketConnector(
                     socketContextFactory,
@@ -160,23 +160,32 @@ namespace core::socket::stream {
                             LOG(INFO) << "Retrying ...";
                             core::timer::Timer::singleshotTimer(
                                 [client, onError]() mutable -> void {
-                                    client.realConnect(onError, 0);
+                                    client.realConnect(onError, 0, 1);
                                 },
                                 client.getConfig().getRetryTimeout());
                         }
                     },
-                    [client = *this, onError, tries](const SocketAddress& socketAddress, int errnum) -> void {
+                    [client = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress, int errnum) -> void {
                         onError(socketAddress, errnum);
 
                         if (client.getConfig().getRetry() &&
                             (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries())) {
                             if (errnum != 0 && client.getConfig().getRetry()) {
-                                LOG(INFO) << "Retrying ...";
+                                LOG(INFO) << "Retrying in "
+                                          << (client.getConfig().getRetryLimit() > 0
+                                                  ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                                     client.getConfig().getRetryLimit())
+                                                  : client.getConfig().getRetryTimeout() * retryTimeoutScale)
+                                          << " seconds";
+
                                 core::timer::Timer::singleshotTimer(
-                                    [client, onError, tries]() mutable -> void {
-                                        client.realConnect(onError, tries + 1);
+                                    [client, onError, tries, retryTimeoutScale]() mutable -> void {
+                                        client.realConnect(onError, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
                                     },
-                                    client.getConfig().getRetryTimeout());
+                                    client.getConfig().getRetryLimit() > 0
+                                        ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                           client.getConfig().getRetryLimit())
+                                        : client.getConfig().getRetryTimeout() * retryTimeoutScale);
                             }
                         }
                     },
@@ -186,7 +195,7 @@ namespace core::socket::stream {
 
     public:
         void connect(const std::function<void(const SocketAddress&, int)>& onError) {
-            realConnect(onError, 0);
+            realConnect(onError, 0, 1);
         }
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) {

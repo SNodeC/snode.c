@@ -65,6 +65,12 @@ namespace net::config {
         void setRetryTries(unsigned int tries = 0); // 0 ... unlimmit
         unsigned int getRetryTries();
 
+        void setRetryBase(double base);
+        double getRetryBase();
+
+        void setRetryLimit(unsigned int limit);
+        unsigned int getRetryLimit();
+
     protected:
         CLI::Option* add_socket_option(CLI::Option*& opt,
                                        const std::string& name,
@@ -79,6 +85,8 @@ namespace net::config {
         CLI::Option* retryOpt = nullptr;
         CLI::Option* retryTriesOpt = nullptr;
         CLI::Option* retryTimeoutOpt = nullptr;
+        CLI::Option* retryBaseOpt = nullptr;
+        CLI::Option* retryLimitOpt = nullptr;
 
         std::map<int, const net::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };
