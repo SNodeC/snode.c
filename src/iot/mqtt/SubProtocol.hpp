@@ -19,6 +19,7 @@
 #include "iot/mqtt/SubProtocol.h" // IWYU pragma: export
 #include "iot/mqtt/server/Mqtt.h"
 #include "log/Logger.h"
+#include "utils/system/signal.h"
 #include "web/websocket/SubProtocolContext.h"
 
 //
@@ -149,7 +150,8 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onExit(int sig) {
-        LOG(INFO) << "SubProtocol 'mqtt' exit dot to '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(INFO) << "SubProtocol 'mqtt' exit dot to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
+                  << ")";
 
         iot::mqtt::MqttContext::onExit(sig);
         this->sendClose();

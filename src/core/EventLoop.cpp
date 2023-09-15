@@ -234,7 +234,7 @@ namespace core {
     }
 
     void EventLoop::stoponsig(int sig) {
-        LOG(INFO) << "Received signal '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(INFO) << "Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
         stopsig = sig;
         stop();
     }

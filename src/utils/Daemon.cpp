@@ -20,8 +20,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/system/signal.h"
+
 #include <cerrno>
-#include <csignal>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>

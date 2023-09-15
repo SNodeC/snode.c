@@ -24,6 +24,8 @@
 // IWYU pragma: begin_exports
 
 #include <csignal>
+#include <map>
+#include <string>
 
 // IWYU pragma: end_exports
 
@@ -32,6 +34,8 @@
 namespace utils::system {
 
     sighandler_t signal(int sig, sighandler_t handler);
+
+    std::string sigabbrev_np(int sig);
 
 } // namespace utils::system
 

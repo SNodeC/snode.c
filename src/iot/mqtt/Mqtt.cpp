@@ -31,6 +31,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/system/signal.h"
 
 #include <cstring>
 #include <iomanip>
@@ -132,7 +133,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::onExit(int sig) {
-        LOG(INFO) << "MQTT exit due to '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(INFO) << "MQTT exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
     }
 
     core::socket::stream::SocketConnection* Mqtt::getSocketConnection() {

@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/system/signal.h"
 
 #include <cstring>
 
@@ -74,7 +75,8 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onExit(int sig) {
-        VLOG(0) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
+        VLOG(0) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
+                << ")";
 
         sendClose();
     }

@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/system/signal.h"
 
 #include <cstring>
 
@@ -45,7 +46,7 @@ namespace core::socket {
     }
 
     void SocketContext::onExit(int sig) {
-        LOG(INFO) << "Protocol exit due to '" << strsignal(sig) << "' (SIG" << sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(INFO) << "Protocol exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
     }
 
 } // namespace core::socket
