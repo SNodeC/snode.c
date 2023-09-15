@@ -52,6 +52,7 @@ namespace net::config {
                     this->retryTimeoutOpt->clear();
                     this->retryTriesOpt->clear();
                     this->retryBaseOpt->clear();
+                    this->retryLimitOpt->clear();
                 }
                 utils::ResetToDefault(this->retryOpt)(this->retryOpt->as<bool>());
             },
