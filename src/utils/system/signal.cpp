@@ -33,12 +33,12 @@ namespace utils::system {
 
     std::string sigabbrev_np(int sig) {
         static std::map<int, std::string> sigMap = {
-            {SIGHUP, "HUP"},   {SIGINT, "INT"},   {SIGQUIT, "QUIT"}, {SIGILL, "ILL"},       {SIGTRAP, "TRAP"},     {SIGABRT, "ABRT"},
-            {SIGIOT, "IOT"},   {SIGBUS, "BUS"},   {SIGFPE, "FPE"},   {SIGKILL, "KILL"},     {SIGUSR1, "USR1"},     {SIGSEGV, "SEGV"},
-            {SIGUSR2, "USR2"}, {SIGPIPE, "PIPE"}, {SIGALRM, "ALRM"}, {SIGTERM, "TERM"},     {SIGSTKFLT, "STKFLT"}, {SIGCHLD, "CHLD"},
-            {SIGCLD, "CLD "},  {SIGCONT, "CONT"}, {SIGSTOP, "STOP"}, {SIGTSTP, "TSTP"},     {SIGTTIN, "TTIN"},     {SIGTTOU, "TTOU"},
-            {SIGURG, "URG"},   {SIGXCPU, "XCPU"}, {SIGXFSZ, "XFSZ"}, {SIGVTALRM, "VTALRM"}, {SIGPROF, "PROF"},     {SIGWINCH, "WINCH"},
-            {SIGIO, "IO"},     {SIGPOLL, "POLL"}, {SIGPWR, "PWR"},   {SIGSYS, "SYS"}};
+            {SIGHUP, "HUP"},    {SIGINT, "INT"},   {SIGQUIT, "QUIT"}, {SIGILL, "ILL"},       {SIGTRAP, "TRAP"},     {SIGABRT, "ABRT"},
+            {SIGIOT, "IOT"},    {SIGBUS, "BUS"},   {SIGFPE, "FPE"},   {SIGKILL, "KILL"},     {SIGUSR1, "USR1"},     {SIGSEGV, "SEGV"},
+            {SIGUSR2, "USR2"},  {SIGPIPE, "PIPE"}, {SIGALRM, "ALRM"}, {SIGTERM, "TERM"},     {SIGSTKFLT, "STKFLT"}, {SIGCHLD, "CHLD"},
+            {SIGCHLD, "CHLD "}, {SIGCONT, "CONT"}, {SIGSTOP, "STOP"}, {SIGTSTP, "TSTP"},     {SIGTTIN, "TTIN"},     {SIGTTOU, "TTOU"},
+            {SIGURG, "URG"},    {SIGXCPU, "XCPU"}, {SIGXFSZ, "XFSZ"}, {SIGVTALRM, "VTALRM"}, {SIGPROF, "PROF"},     {SIGWINCH, "WINCH"},
+            {SIGIO, "IO"},      {SIGPOLL, "POLL"}, {SIGPWR, "PWR"},   {SIGSYS, "SYS"}};
 
         return sigMap.contains(sig) ? sigMap[sig] : "UNKNOWN";
     }
