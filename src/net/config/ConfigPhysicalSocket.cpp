@@ -66,7 +66,7 @@ namespace net::config {
                    "Timeout of the retry timer",
                    "sec",
                    1,
-                   CLI::TypeValidator<unsigned int>());
+                   CLI::NonNegativeNumber);
         retryTimeoutOpt->needs(retryOpt);
 
         add_option(retryTriesOpt, //
@@ -84,6 +84,14 @@ namespace net::config {
                    1.8,
                    CLI::PositiveNumber);
         retryBaseOpt->needs(retryOpt);
+
+        add_option(retryJitterOpt, //
+                   "--retry-jitter",
+                   "Maximum jitter in percent to apply randomly to calculated retry timeout (0 to disable)",
+                   "jitter",
+                   0,
+                   CLI::Range(0., 100.));
+        retryJitterOpt->needs(retryOpt);
 
         add_option(retryLimitOpt, //
                    "--retry-limit",
@@ -166,14 +174,14 @@ namespace net::config {
         return retryOpt->as<bool>();
     }
 
-    void ConfigPhysicalSocket::setRetryTimeout(unsigned int sec) {
+    void ConfigPhysicalSocket::setRetryTimeout(double sec) {
         retryTimeoutOpt //
             ->default_val(sec)
             ->clear();
     }
 
-    unsigned int ConfigPhysicalSocket::getRetryTimeout() {
-        return retryTimeoutOpt->as<unsigned int>();
+    double ConfigPhysicalSocket::getRetryTimeout() {
+        return retryTimeoutOpt->as<double>();
     }
 
     void ConfigPhysicalSocket::setRetryTries(unsigned int tries) {
@@ -204,6 +212,16 @@ namespace net::config {
 
     unsigned int ConfigPhysicalSocket::getRetryLimit() {
         return retryLimitOpt->as<unsigned int>();
+    }
+
+    void ConfigPhysicalSocket::setRetryJitter(double percent) {
+        retryJitterOpt //
+            ->default_val(percent)
+            ->clear();
+    }
+
+    double ConfigPhysicalSocket::getRetryJitter() {
+        return retryJitterOpt->as<double>();
     }
 
 } // namespace net::config

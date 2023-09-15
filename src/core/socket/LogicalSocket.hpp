@@ -25,6 +25,12 @@
 namespace core::socket {
 
     template <typename Config>
+    std::random_device LogicalSocket<Config>::rd;
+
+    template <typename Config>
+    std::mt19937 LogicalSocket<Config>::gen(rd());
+
+    template <typename Config>
     LogicalSocket<Config>::LogicalSocket(const std::string& name)
         : config(std::make_shared<Config>(name)) {
     }
@@ -36,6 +42,13 @@ namespace core::socket {
     template <typename Config>
     Config& LogicalSocket<Config>::getConfig() const {
         return *config;
+    }
+
+    template <typename Config>
+    double LogicalSocket<Config>::getRandomInRange(double ll, double ul) {
+        std::uniform_real_distribution<double> distr(static_cast<int>(ll), static_cast<int>(ul));
+
+        return distr(rd);
     }
 
 } // namespace core::socket

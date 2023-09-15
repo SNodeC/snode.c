@@ -31,6 +31,7 @@
 #include <cstddef>
 #include <functional> // IWYU pragma: export
 #include <memory>
+#include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -152,25 +153,24 @@ namespace core::socket::stream {
                     [server = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress, int errnum) -> void {
                         onError(socketAddress, errnum);
 
-                        if (server.getConfig().getRetry() &&
+                        if (errnum != 0 && server.getConfig().getRetry() &&
                             (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries())) {
-                            if (errnum != 0 && server.getConfig().getRetry()) {
-                                LOG(INFO) << "Retrying in "
-                                          << (server.getConfig().getRetryLimit() > 0
-                                                  ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                                     server.getConfig().getRetryLimit())
-                                                  : server.getConfig().getRetryTimeout() * retryTimeoutScale)
-                                          << " seconds";
+                            double relativeRetryTimeout = server.getConfig().getRetryLimit() > 0
+                                                              ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                                                 server.getConfig().getRetryLimit())
+                                                              : server.getConfig().getRetryTimeout() * retryTimeoutScale;
 
-                                core::timer::Timer::singleshotTimer(
-                                    [server, onError, tries, retryTimeoutScale]() mutable -> void {
-                                        server.realListen(onError, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
-                                    },
-                                    server.getConfig().getRetryLimit() > 0
-                                        ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                           server.getConfig().getRetryLimit())
-                                        : server.getConfig().getRetryTimeout() * retryTimeoutScale);
-                            }
+                            relativeRetryTimeout -=
+                                Super::getRandomInRange(-server.getConfig().getRetryJitter(), server.getConfig().getRetryJitter()) *
+                                relativeRetryTimeout / 100;
+
+                            LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
+
+                            core::timer::Timer::singleshotTimer(
+                                [server, onError, tries, retryTimeoutScale]() mutable -> void {
+                                    server.realListen(onError, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
+                                },
+                                relativeRetryTimeout);
                         }
                     },
                     Super::config);

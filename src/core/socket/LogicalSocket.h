@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
+#include <random>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -45,8 +46,13 @@ namespace core::socket {
 
         Config& getConfig() const;
 
+        static double getRandomInRange(double ll, double ul);
+
     protected:
         std::shared_ptr<Config> config;
+
+        static std::random_device rd;
+        static std::mt19937 gen;
     };
 
 } // namespace core::socket

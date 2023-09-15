@@ -153,40 +153,49 @@ namespace core::socket::stream {
                     socketContextFactory,
                     onConnect,
                     onConnected,
-                    [client = *this, onError](SocketConnection* socketConnection) mutable -> void {
+                    [client = *this, onError, retryTimeoutScale](SocketConnection* socketConnection) mutable -> void {
                         client.onDisconnect(socketConnection);
 
                         if (client.getConfig().getRetry()) {
-                            LOG(INFO) << "Retrying ...";
+                            double relativeRetryTimeout = client.getConfig().getRetryLimit() > 0
+                                                              ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                                                 client.getConfig().getRetryLimit())
+                                                              : client.getConfig().getRetryTimeout() * retryTimeoutScale;
+
+                            relativeRetryTimeout -=
+                                Super::getRandomInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) *
+                                relativeRetryTimeout / 100;
+
+                            LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
+
                             core::timer::Timer::singleshotTimer(
                                 [client, onError]() mutable -> void {
                                     client.realConnect(onError, 0, 1);
                                 },
-                                client.getConfig().getRetryTimeout());
+                                relativeRetryTimeout);
                         }
                     },
-                    [client = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress, int errnum) -> void {
+                    [client = *this, onError, retryTimeoutScale, tries](const SocketAddress& socketAddress, int errnum) -> void {
                         onError(socketAddress, errnum);
 
-                        if (client.getConfig().getRetry() &&
+                        if (errnum != 0 && client.getConfig().getRetry() &&
                             (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries())) {
-                            if (errnum != 0 && client.getConfig().getRetry()) {
-                                LOG(INFO) << "Retrying in "
-                                          << (client.getConfig().getRetryLimit() > 0
-                                                  ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                                     client.getConfig().getRetryLimit())
-                                                  : client.getConfig().getRetryTimeout() * retryTimeoutScale)
-                                          << " seconds";
+                            double relativeRetryTimeout = client.getConfig().getRetryLimit() > 0
+                                                              ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                                                 client.getConfig().getRetryLimit())
+                                                              : client.getConfig().getRetryTimeout() * retryTimeoutScale;
 
-                                core::timer::Timer::singleshotTimer(
-                                    [client, onError, tries, retryTimeoutScale]() mutable -> void {
-                                        client.realConnect(onError, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
-                                    },
-                                    client.getConfig().getRetryLimit() > 0
-                                        ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                           client.getConfig().getRetryLimit())
-                                        : client.getConfig().getRetryTimeout() * retryTimeoutScale);
-                            }
+                            relativeRetryTimeout -=
+                                Super::getRandomInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) *
+                                relativeRetryTimeout / 100;
+
+                            LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
+
+                            core::timer::Timer::singleshotTimer(
+                                [client, onError, tries, retryTimeoutScale]() mutable -> void {
+                                    client.realConnect(onError, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
+                                },
+                                relativeRetryTimeout);
                         }
                     },
                     Super::config);
