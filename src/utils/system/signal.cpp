@@ -21,6 +21,7 @@
 #include "utils/system/signal.h"
 
 #include <cerrno>
+#include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

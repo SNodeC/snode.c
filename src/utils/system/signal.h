@@ -24,7 +24,6 @@
 // IWYU pragma: begin_exports
 
 #include <csignal>
-#include <map>
 #include <string>
 
 // IWYU pragma: end_exports
