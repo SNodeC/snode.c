@@ -19,8 +19,10 @@
 #ifndef IOT_MQTT_CLIENT_MQTTSUBPROTOCOL_H
 #define IOT_MQTT_CLIENT_MQTTSUBPROTOCOL_H
 
-#include "iot/mqtt/SubProtocol.hpp"           // IWYU pragma: export
+#include "iot/mqtt/SubProtocol.h"             // IWYU pragma: export
 #include "web/websocket/client/SubProtocol.h" // IWYU pragma: keep
+
+// IWYU pragma: no_include "iot/mqtt/SubProtocol.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
