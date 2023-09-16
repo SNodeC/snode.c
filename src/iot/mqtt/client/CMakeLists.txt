@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.18)
 
+get_target_property(
+    HTTP_INSTALL_RPATH snodec::http HTTP_INSTALL_RPATH
+)
+
 add_subdirectory(packets)
 
-set(MQTT_CLIENT_CPP ControlPacketDeserializer.cpp Mqtt.cpp)
+set(MQTT_CLIENT_CPP ControlPacketDeserializer.cpp Mqtt.cpp SubProtocol.cpp)
 
 set(MQTT_CLIENT_H ControlPacketDeserializer.h Mqtt.h)
 
@@ -12,7 +16,7 @@ add_library(snodec::mqtt-client ALIAS mqtt-client)
 target_link_libraries(
     mqtt-client
     PUBLIC snodec::mqtt
-    PRIVATE snodec::mqtt-client-packets ${NLOHMANN_JSON_LIBRARIES}
+    PRIVATE snodec::websocket-client snodec::mqtt-client-packets ${NLOHMANN_JSON_LIBRARIES}
 )
 
 target_include_directories(
@@ -24,7 +28,7 @@ set_target_properties(
     mqtt-client
     PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-mqtt-client
-               INSTALL_RPATH ${MQTT_RPATH}
+               INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
 )
 
 install(

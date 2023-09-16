@@ -22,12 +22,14 @@
 #include "utils/system/signal.h"
 #include "web/websocket/SubProtocolContext.h"
 
-//
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
 #include <cstring>
 #include <iomanip>
 #include <ostream>
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define PING_INTERVAL 0
 

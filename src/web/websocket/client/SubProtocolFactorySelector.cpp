@@ -46,20 +46,20 @@ namespace web::websocket::client {
     }
 
     SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
-        std::string websocketSubprotocolInstallLibraryFile = subProtocolName + "-client.so." SOVERSION;
+        std::string websocketSubprotocolInstallLibraryFile = "/libsnodec-websocket-" + subProtocolName + "-client.so." SOVERSION;
         std::string websocketSubprotocolInstallFunctionName = subProtocolName + "ClientSubProtocolFactory";
 
         std::string websocketSubprotocolInstallLibdir = WEBSOCKET_SUBPROTOCO_INSTALL_LIBDIR;
 
 #if !defined(NDEBUG)
-        if (const char* websocketSubprotocolInstallLibdirEng = std::getenv("WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR")) {
+        if (const char* websocketSubprotocolInstallLibdirEnv = std::getenv("WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR")) {
             LOG(WARNING) << "Overriding websocket subprotocol library dir";
-            websocketSubprotocolInstallLibdir = std::string(websocketSubprotocolInstallLibdirEng);
+            websocketSubprotocolInstallLibdir = std::string(websocketSubprotocolInstallLibdirEnv);
         }
 #endif
 
         return Super::load(subProtocolName,
-                           websocketSubprotocolInstallLibdir + "/libsnodec-websocket-" + websocketSubprotocolInstallLibraryFile,
+                           websocketSubprotocolInstallLibdir + websocketSubprotocolInstallLibraryFile,
                            websocketSubprotocolInstallFunctionName);
     }
 
