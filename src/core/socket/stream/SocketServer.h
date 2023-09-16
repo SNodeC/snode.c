@@ -162,7 +162,7 @@ namespace core::socket::stream {
                                                               : server.getConfig().getRetryTimeout() * retryTimeoutScale;
                             relativeRetryTimeout -=
                                 utils::Random::getInRange(-server.getConfig().getRetryJitter(), server.getConfig().getRetryJitter()) *
-                                relativeRetryTimeout / 100;
+                                relativeRetryTimeout / 100.;
 
                             LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
 
