@@ -154,17 +154,14 @@ namespace core::socket::stream {
                     socketContextFactory,
                     onConnect,
                     onConnected,
-                    [client = *this, onError, retryTimeoutScale](SocketConnection* socketConnection) mutable -> void {
+                    [client = *this, onError](SocketConnection* socketConnection) mutable -> void {
                         client.onDisconnect(socketConnection);
 
                         if (client.getConfig().getRetry()) {
-                            double relativeRetryTimeout = client.getConfig().getRetryLimit() > 0
-                                                              ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                                                 client.getConfig().getRetryLimit())
-                                                              : client.getConfig().getRetryTimeout() * retryTimeoutScale;
-                            relativeRetryTimeout -=
-                                utils::Random::getInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) *
-                                relativeRetryTimeout / 100;
+                            double relativeRetryTimeout =
+                                client.getConfig().getRetryTimeout() *
+                                (1 - utils::Random::getInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) /
+                                         100.);
 
                             LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
 
@@ -175,7 +172,7 @@ namespace core::socket::stream {
                                 relativeRetryTimeout);
                         }
                     },
-                    [client = *this, onError, retryTimeoutScale, tries](const SocketAddress& socketAddress, int errnum) -> void {
+                    [client = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress, int errnum) -> void {
                         onError(socketAddress, errnum);
 
                         if (errnum != 0 && client.getConfig().getRetry() &&
@@ -186,7 +183,7 @@ namespace core::socket::stream {
                                                               : client.getConfig().getRetryTimeout() * retryTimeoutScale;
                             relativeRetryTimeout -=
                                 utils::Random::getInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) *
-                                relativeRetryTimeout / 100;
+                                relativeRetryTimeout / 100.;
 
                             LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
 
