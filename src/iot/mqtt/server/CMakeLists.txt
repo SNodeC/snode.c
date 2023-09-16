@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-get_target_property(
-    HTTP_INSTALL_RPATH snodec::http HTTP_INSTALL_RPATH
-)
+get_target_property(HTTP_INSTALL_RPATH snodec::http HTTP_INSTALL_RPATH)
 
 add_subdirectory(packets)
 add_subdirectory(broker)
@@ -63,24 +61,28 @@ install(
     COMPONENT mqtt-server
 )
 
-######################################################################################################
+# ##############################################################################
 
 set(MQTT_SERVER_WEBSOCKET_CPP SubProtocol.cpp)
 
 set(MQTT_SERVER_WEBSOCKET_H SubProtocol.h)
 
-add_library(mqtt-server-websocket SHARED ${MQTT_SERVER_WEBSOCKET_CPP} ${MQTT_SERVER_WEBSOCKET_H})
+add_library(
+    mqtt-server-websocket SHARED ${MQTT_SERVER_WEBSOCKET_CPP}
+                                 ${MQTT_SERVER_WEBSOCKET_H}
+)
 add_library(snodec::mqtt-server-websocket ALIAS mqtt-server)
 
 target_link_libraries(
     mqtt-server-websocket
     PUBLIC snodec::mqtt-server
-    PRIVATE snodec::websocket-server snodec::mqtt-broker snodec::mqtt-server-packets
+    PRIVATE snodec::websocket-server snodec::mqtt-broker
+            snodec::mqtt-server-packets
 )
 
 target_include_directories(
     mqtt-server-websocket PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                       "$<INSTALL_INTERFACE:include/snode.c>"
+                                 "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
