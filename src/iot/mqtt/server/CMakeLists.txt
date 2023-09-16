@@ -8,11 +8,11 @@ add_subdirectory(packets)
 add_subdirectory(broker)
 
 set(MQTT_SERVER_CPP Mqtt.cpp ControlPacketDeserializer.cpp
-                    SharedSocketContextFactory.cpp SocketContextFactory.cpp  SubProtocol.cpp
+                    SharedSocketContextFactory.cpp SocketContextFactory.cpp
 )
 
 set(MQTT_SERVER_H ControlPacketDeserializer.h Mqtt.h
-                  SharedSocketContextFactory.h SocketContextFactory.h SubProtocol.h
+                  SharedSocketContextFactory.h SocketContextFactory.h
 )
 
 add_library(mqtt-server SHARED ${MQTT_SERVER_CPP} ${MQTT_SERVER_H})
@@ -21,7 +21,7 @@ add_library(snodec::mqtt-server ALIAS mqtt-server)
 target_link_libraries(
     mqtt-server
     PUBLIC snodec::mqtt
-    PRIVATE snodec::websocket-server snodec::mqtt-broker snodec::mqtt-server-packets
+    PRIVATE snodec::mqtt-broker snodec::mqtt-server-packets
 )
 
 target_include_directories(
@@ -61,4 +61,58 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT mqtt-server
+)
+
+######################################################################################################
+
+set(MQTT_SERVER_WEBSOCKET_CPP SubProtocol.cpp)
+
+set(MQTT_SERVER_WEBSOCKET_H SubProtocol.h)
+
+add_library(mqtt-server-websocket SHARED ${MQTT_SERVER_WEBSOCKET_CPP} ${MQTT_SERVER_WEBSOCKET_H})
+add_library(snodec::mqtt-server-websocket ALIAS mqtt-server)
+
+target_link_libraries(
+    mqtt-server-websocket
+    PUBLIC snodec::mqtt snodec::mqtt-server
+    PRIVATE snodec::websocket-server snodec::mqtt-broker snodec::mqtt-server-packets
+)
+
+target_include_directories(
+    mqtt-server-websocket PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                       "$<INSTALL_INTERFACE:include/snode.c>"
+)
+
+set_target_properties(
+    mqtt-server-websocket
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-mqtt-server-websocket
+               INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
+)
+
+install(
+    TARGETS mqtt-server-websocket
+    EXPORT snodec_mqtt-server-websocket_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
+            COMPONENT mqtt-server-websocket
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
+    COMPONENT mqtt-server-websocket
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+    PATTERN "cmake" EXCLUDE
+    PATTERN "broker" EXCLUDE
+    PATTERN "packets" EXCLUDE
+)
+
+install(
+    EXPORT snodec_mqtt-server-websocket_Targets
+    FILE snodec_mqtt-server-websocket_Targets.cmake
+    NAMESPACE snodec::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT mqtt-server-websocket
 )

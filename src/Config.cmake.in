@@ -54,7 +54,7 @@ set(http-server_DEPENDENCIES http)
 set(http-client_DEPENDENCIES http)
 set(http-server-express_DEPENDENCIES http-server)
 
-# Websocket
+# WebSocket
 set(websocket_DEPENDENCIES logger)
 set(websocket-server_DEPENDENCIES websocket http-server)
 set(websocket-client_DEPENDENCIES websocket http-client)
@@ -63,6 +63,10 @@ set(websocket-client_DEPENDENCIES websocket http-client)
 set(mqtt_DEPENDENCIES core-socket-stream)
 set(mqtt-server_DEPENDENCIES mqtt)
 set(mqtt-client_DEPENDENCIES mqtt)
+
+# MQTT-WebSocket
+set(mqtt-server-websocket_DEPENDENCIES mqtt-server websocket-server)
+set(mqtt-client-websocket_DEPENDENCIES mqtt-client websocket-client)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp _lspace _ladd)
     if("${${_comp}_LOADED}" STREQUAL "")
@@ -119,6 +123,8 @@ set(_supported_components
     mqtt-fast
     mqtt-server
     mqtt-client
+    mqtt-server-websocket
+    mqtt-client-websocket
 )
 
 include(CMakeFindDependencyMacro)
