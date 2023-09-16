@@ -5,6 +5,7 @@ set(UTILS_CPP
     Daemon.cpp
     Formatter.cpp
     PreserveErrno.cpp
+    Random.cpp
     ResetToDefault.cpp
     Timeval.cpp
     Uuid.cpp
@@ -21,6 +22,7 @@ set(UTILS_H
     Daemon.h
     Formatter.h
     PreserveErrno.h
+    Random.h
     ResetToDefault.h
     Timeval.h
     Uuid.h

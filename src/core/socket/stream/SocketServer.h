@@ -26,6 +26,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/Random.h"
 
 #include <cerrno>
 #include <cstddef>
@@ -159,9 +160,8 @@ namespace core::socket::stream {
                                                               ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
                                                                                  server.getConfig().getRetryLimit())
                                                               : server.getConfig().getRetryTimeout() * retryTimeoutScale;
-
                             relativeRetryTimeout -=
-                                Super::getRandomInRange(-server.getConfig().getRetryJitter(), server.getConfig().getRetryJitter()) *
+                                utils::Random::getInRange(-server.getConfig().getRetryJitter(), server.getConfig().getRetryJitter()) *
                                 relativeRetryTimeout / 100;
 
                             LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";

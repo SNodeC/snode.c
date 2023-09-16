@@ -16,39 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_LOGICALSOCKET_H
-#define CORE_SOCKET_LOGICALSOCKET_H
+#include "Random.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
-#include <string>
+#include <random>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace core::socket {
+namespace utils {
 
-    template <typename ConfigT>
-    class LogicalSocket {
-    public:
-        using Config = ConfigT;
+    std::random_device Random::rd;
 
-        explicit LogicalSocket(const std::string& name);
+    double Random::getInRange(double ll, double ul) {
+        static std::mt19937 gen(rd());
 
-        LogicalSocket(const LogicalSocket&) = default;
-        LogicalSocket(LogicalSocket&&) = default;
+        std::uniform_real_distribution<double> distr(static_cast<int>(ll), static_cast<int>(ul));
 
-        LogicalSocket& operator=(const LogicalSocket&) = default;
-        LogicalSocket& operator=(LogicalSocket&&) = default;
+        return distr(gen);
+    }
 
-        virtual ~LogicalSocket();
-
-        Config& getConfig() const;
-
-    protected:
-        std::shared_ptr<Config> config;
-    };
-
-} // namespace core::socket
-
-#endif // CORE_SOCKET_LOGICALSOCKET_H
+} // namespace utils
