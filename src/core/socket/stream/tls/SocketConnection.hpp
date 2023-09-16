@@ -16,11 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/SocketConnection.hpp" // IWYU pragma: export
-
-
+#include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
