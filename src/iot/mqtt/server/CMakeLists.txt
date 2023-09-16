@@ -42,15 +42,12 @@ install(
 )
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    FILES
+    Mqtt.h
+    SharedSocketContextFactory.h
+    SocketContextFactory.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
     COMPONENT mqtt-server
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "broker" EXCLUDE
-    PATTERN "packets" EXCLUDE
 )
 
 install(
@@ -100,15 +97,10 @@ install(
 )
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    FILES
+    SubProtocol.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
     COMPONENT mqtt-server-websocket
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "broker" EXCLUDE
-    PATTERN "packets" EXCLUDE
 )
 
 install(
