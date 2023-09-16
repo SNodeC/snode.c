@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 3.18)
 
+get_target_property(
+    HTTP_INSTALL_RPATH snodec::http HTTP_INSTALL_RPATH
+)
+
 add_subdirectory(packets)
 add_subdirectory(broker)
 
 set(MQTT_SERVER_CPP Mqtt.cpp ControlPacketDeserializer.cpp
-                    SharedSocketContextFactory.cpp SocketContextFactory.cpp
+                    SharedSocketContextFactory.cpp SocketContextFactory.cpp  SubProtocol.cpp
 )
 
 set(MQTT_SERVER_H ControlPacketDeserializer.h Mqtt.h
-                  SharedSocketContextFactory.h SocketContextFactory.h
+                  SharedSocketContextFactory.h SocketContextFactory.h SubProtocol.h
 )
 
 add_library(mqtt-server SHARED ${MQTT_SERVER_CPP} ${MQTT_SERVER_H})
@@ -17,8 +21,7 @@ add_library(snodec::mqtt-server ALIAS mqtt-server)
 target_link_libraries(
     mqtt-server
     PUBLIC snodec::mqtt
-    PRIVATE snodec::mqtt-broker
-    PRIVATE snodec::mqtt-server-packets
+    PRIVATE snodec::websocket-server snodec::mqtt-broker snodec::mqtt-server-packets
 )
 
 target_include_directories(
@@ -30,7 +33,7 @@ set_target_properties(
     mqtt-server
     PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-mqtt-server
-               INSTALL_RPATH ${MQTT_RPATH}
+               INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
 )
 
 install(

@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,20 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H
-#define IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H
+#include "iot/mqtt/server/SubProtocol.h"
 
-#include "iot/mqtt/SubProtocol.h"             // IWYU pragma: export
-#include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
+#include "iot/mqtt/SubProtocol.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOUÖD_SKIP_THIS
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace iot::mqtt::server {
+namespace iot::mqtt::server {} // namespace iot::mqtt::server
 
-    using SubProtocol = iot::mqtt::SubProtocol<web::websocket::server::SubProtocol>;
-
-} // namespace iot::mqtt::server
-
-#endif // IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H
+template class iot::mqtt::SubProtocol<web::websocket::server::SubProtocol>;

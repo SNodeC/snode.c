@@ -8,7 +8,7 @@ add_subdirectory(packets)
 
 set(MQTT_CLIENT_CPP ControlPacketDeserializer.cpp Mqtt.cpp SubProtocol.cpp)
 
-set(MQTT_CLIENT_H ControlPacketDeserializer.h Mqtt.h)
+set(MQTT_CLIENT_H ControlPacketDeserializer.h Mqtt.h SubProtocol.h)
 
 add_library(mqtt-client SHARED ${MQTT_CLIENT_CPP} ${MQTT_CLIENT_H})
 add_library(snodec::mqtt-client ALIAS mqtt-client)
