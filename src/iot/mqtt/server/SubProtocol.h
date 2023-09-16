@@ -22,6 +22,8 @@
 #include "iot/mqtt/SubProtocol.h"             // IWYU pragma: export
 #include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
 
+// IWYU pragma: no_include "iot/mqtt/SubProtocol.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOUÖD_SKIP_THIS
