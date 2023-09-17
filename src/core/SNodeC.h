@@ -43,7 +43,7 @@ namespace core {
         static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
         static void stop();
         static TickStatus tick(const utils::Timeval& timeOut = 0);
-        static void free();
+        static void free(TickStatus tickStatus);
 
         static State state();
     };

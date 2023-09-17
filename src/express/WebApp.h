@@ -42,7 +42,7 @@ namespace express {
         static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
         static void stop();
         static core::TickStatus tick(const utils::Timeval& timeOut = 0);
-        static void free();
+        static void free(core::TickStatus tickStatus);
 
         static core::State state();
     };

@@ -134,6 +134,8 @@ namespace core {
     }
 
     int EventLoop::start(const utils::Timeval& timeOut) {
+        core::TickStatus tickStatus = TickStatus::SUCCESS;
+
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
             struct sigaction sact;
             sigemptyset(&sact.sa_mask);
@@ -159,8 +161,6 @@ namespace core {
 
             eventLoopState = State::RUNNING;
 
-            core::TickStatus tickStatus = TickStatus::SUCCESS;
-
             while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && eventLoopState == State::RUNNING) {
                 tickStatus = EventLoop::instance()._tick(timeOut);
             }
@@ -169,10 +169,10 @@ namespace core {
                 case TickStatus::SUCCESS:
                     [[fallthrough]];
                 case TickStatus::INTERRUPTED:
-                    LOG(INFO) << "EventLoop terminated: Releasing resources";
+                    LOG(INFO) << "EventLoop interrupted";
                     break;
                 case TickStatus::NOOBSERVER:
-                    LOG(INFO) << "EventLoop: No Observer - exiting";
+                    LOG(INFO) << "EventLoop: No Observer";
                     break;
                 case TickStatus::ERROR:
                     PLOG(ERROR) << "EventLoop::instance()._tick()";
@@ -188,7 +188,7 @@ namespace core {
             EventLoop::instance().eventMultiplexer.clear();
         }
 
-        free();
+        free(tickStatus);
 
         return stopsig;
     }
@@ -197,10 +197,16 @@ namespace core {
         eventLoopState = State::STOPING;
     }
 
-    void EventLoop::free() {
-        eventLoopState = State::STOPING;
+    void EventLoop::free(TickStatus tickStatus) {
+        std::string signal = "SIG" + utils::system::sigabbrev_np(stopsig);
 
-        core::TickStatus tickStatus{};
+        if (signal == "SIGUNKNOWN") {
+            signal = std::to_string(stopsig);
+        }
+
+        LOG(INFO) << "Sending 'onExit(" << signal << ") to all DescriptorEventReceivers";
+
+        eventLoopState = State::STOPING;
 
         if (stopsig != 0) {
             EventLoop::instance().eventMultiplexer.sigExit(stopsig);
@@ -208,6 +214,8 @@ namespace core {
 
         utils::Timeval timeout = 2;
         do {
+            LOG(INFO) << "Stopping all DescriptorEventReceivers";
+
             auto t1 = std::chrono::system_clock::now();
 
             EventLoop::instance().eventMultiplexer.stop();
@@ -222,11 +230,15 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
 
+        LOG(INFO) << "Closing all libraries opened during runntime";
+
         DynamicLoader::execDlCloseAll();
+
+        LOG(INFO) << "Terminating SNode.C";
 
         utils::Config::terminate();
 
-        LOG(INFO) << "All resources released";
+        LOG(INFO) << "All resources released ... BYE";
     }
 
     State EventLoop::state() {
