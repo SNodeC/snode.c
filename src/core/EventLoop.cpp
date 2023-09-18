@@ -204,7 +204,7 @@ namespace core {
             signal = std::to_string(stopsig);
         }
 
-        LOG(INFO) << "Sending 'onExit(" << signal << ") to all DescriptorEventReceivers";
+        LOG(INFO) << "Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
 
         eventLoopState = State::STOPING;
 
