@@ -161,12 +161,12 @@ namespace net::in6 {
                 sockAddr = *reinterpret_cast<SockAddr*>(addrInfo->ai_addr);
             } else {
                 throw core::socket::SocketAddress::BadSocketAddress(
-                    "IPv6 '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                    "IPv6 getaddrinfo for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                     aiErrCode == EAI_SYSTEM ? errno : EINVAL);
             }
         } else {
             throw core::socket::SocketAddress::BadSocketAddress(
-                "IPv6 '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                "IPv6 init for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                 aiErrCode == EAI_SYSTEM ? errno : EINVAL);
         }
 
