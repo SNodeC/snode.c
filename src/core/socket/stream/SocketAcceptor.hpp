@@ -67,19 +67,28 @@ namespace core::socket::stream {
                     onError(localAddress, errno);
                     destruct();
                 } else if (physicalSocket->bind(localAddress) < 0) {
-                    onError(localAddress, errno);
+                    if (localAddress.hasNext()) {
+                        new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(localAddress, errno);
+                    }
                     destruct();
                 } else if (physicalSocket->listen(config->getBacklog()) < 0) {
-                    onError(localAddress, errno);
+                    if (localAddress.hasNext()) {
+                        new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(localAddress, errno);
+                    }
                     destruct();
                 } else {
-                    onError(localAddress, 0);
+                    if (localAddress.hasNext()) {
+                        new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(localAddress, 0);
+                    }
                     enable(physicalSocket->getFd());
                 }
 
-                if (localAddress.hasNext()) {
-                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(ERROR) << badSocketAddress.what();
 
