@@ -59,8 +59,9 @@ namespace core::socket::stream {
             core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
 
             try {
-                physicalSocket = new PhysicalSocket();
                 SocketAddress localAddress = config->Local::getSocketAddress();
+
+                physicalSocket = new PhysicalSocket();
                 remoteAddress = config->Remote::getSocketAddress();
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
