@@ -154,7 +154,7 @@ namespace core::socket::stream {
                     socketContextFactory,
                     onConnect,
                     onConnected,
-                    [client = *this, onError](SocketConnection* socketConnection) mutable -> void {
+                    [client = *this, onError](SocketConnection* socketConnection) -> void {
                         client.onDisconnect(socketConnection);
 
                         if (client.getConfig().getRetry()) {
