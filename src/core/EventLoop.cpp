@@ -137,6 +137,8 @@ namespace core {
         core::TickStatus tickStatus = TickStatus::SUCCESS;
 
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
+            LOG(INFO) << "Starting Eventloop";
+
             struct sigaction sact;
             sigemptyset(&sact.sa_mask);
             sact.sa_flags = 0;
@@ -185,6 +187,8 @@ namespace core {
             sigaction(SIGALRM, &oldAlarmAct, nullptr);
             sigaction(SIGHUP, &oldHupAct, nullptr);
         } else {
+            LOG(INFO) << "Eventloop not started SNode.C not initialized or bootstraping failed";
+
             EventLoop::instance().eventMultiplexer.clear();
         }
 
