@@ -72,8 +72,8 @@ add_library(snodec::mqtt-server-websocket ALIAS mqtt-server)
 
 target_link_libraries(
     mqtt-server-websocket
-    PUBLIC snodec::mqtt-server
-    PRIVATE snodec::websocket-server snodec::mqtt-broker
+    PUBLIC snodec::mqtt-server snodec::websocket-server
+    PRIVATE snodec::mqtt-broker
             snodec::mqtt-server-packets
 )
 
