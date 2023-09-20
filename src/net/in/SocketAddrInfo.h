@@ -36,7 +36,7 @@ namespace net::in {
 
         int init(const std::string& node, const std::string& service, const addrinfo& hints);
 
-        bool hasNext();
+        bool useNext();
         const sockaddr* getSockAddr();
 
     private:

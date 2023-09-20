@@ -59,43 +59,34 @@ namespace core::socket::stream {
             core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
 
             try {
+                remoteAddress = config->Remote::getSocketAddress();
+                physicalSocket = new PhysicalSocket();
+
                 SocketAddress localAddress = config->Local::getSocketAddress();
 
-                physicalSocket = new PhysicalSocket();
-                remoteAddress = config->Remote::getSocketAddress();
+                int errnum = 0;
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                    int errnum = errno;
-                    PLOG(WARNING) << "SocketConnector::open '" << remoteAddress.toString() << "'";
-
-                    if (localAddress.hasNext()) {
-                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                    } else {
-                        onError(remoteAddress, errnum);
-                    }
-                    destruct();
+                    errnum = errno;
                 } else if (physicalSocket->bind(localAddress) < 0) {
-                    int errnum = errno;
+                    errnum = errno;
                     PLOG(WARNING) << "SocketConnector::bind '" << remoteAddress.toString() << "'";
-
-                    if (localAddress.hasNext()) {
-                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                    } else {
-                        onError(remoteAddress, errnum);
-                    }
-                    destruct();
                 } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
-                    int errnum = errno;
+                    errnum = errno;
                     PLOG(WARNING) << "SocketConnector::connect '" << remoteAddress.toString() << "'";
-
-                    if (remoteAddress.hasNext()) {
-                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                    } else {
-                        onError(remoteAddress, errnum);
-                    }
-                    destruct();
                 } else {
+                    errnum = 0;
                     enable(physicalSocket->getFd());
+                }
+
+                if (remoteAddress.useNext()) {
+                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                } else {
+                    onError(remoteAddress, errnum);
+                }
+
+                if (!isEnabled()) {
+                    destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(ERROR) << badSocketAddress.what();
@@ -129,7 +120,7 @@ namespace core::socket::stream {
                     int errnum = errno;
                     PLOG(WARNING) << "SocketConnector::connectInProgress '" << remoteAddress.toString() << "'";
 
-                    if (remoteAddress.hasNext()) {
+                    if (remoteAddress.useNext()) {
                         new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     } else {
                         onError(remoteAddress, errnum);
@@ -156,7 +147,7 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::connectTimeout() {
         disable();
 
-        if (remoteAddress.hasNext()) {
+        if (remoteAddress.useNext()) {
             new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
         } else {
             errno = ETIMEDOUT;

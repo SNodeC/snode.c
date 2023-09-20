@@ -58,50 +58,35 @@ namespace core::socket::stream {
         if (!config->getDisabled()) {
             core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
 
-            localAddress = config->Local::getSocketAddress();
-
             try {
+                localAddress = config->Local::getSocketAddress();
                 physicalSocket = new PhysicalSocket();
 
+                int errnum = 0;
+
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                    int errnum = errno;
+                    errnum = errno;
                     PLOG(WARNING) << "SocketAcceptor::open '" << localAddress.toString() << "'";
-
-                    if (localAddress.hasNext()) {
-                        new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                    } else {
-                        onError(localAddress, errnum);
-                    }
-                    destruct();
                 } else if (physicalSocket->bind(localAddress) < 0) {
-                    int errnum = errno;
+                    errnum = errno;
                     PLOG(WARNING) << "SocketAcceptor::bind '" << localAddress.toString() << "'";
-
-                    if (localAddress.hasNext()) {
-                        new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                    } else {
-                        onError(localAddress, errnum);
-                    }
-                    destruct();
                 } else if (physicalSocket->listen(config->getBacklog()) < 0) {
-                    int errnum = errno;
+                    errnum = errno;
                     PLOG(WARNING) << "SocketAcceptor::listen '" << localAddress.toString() << "'";
-
-                    if (localAddress.hasNext()) {
-                        new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                    } else {
-                        onError(localAddress, errnum);
-                    }
-                    destruct();
                 } else {
-                    if (localAddress.hasNext()) {
-                        new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                    } else {
-                        onError(localAddress, 0);
-                    }
+                    errnum = 0;
                     enable(physicalSocket->getFd());
                 }
 
+                if (localAddress.useNext()) {
+                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                } else {
+                    onError(localAddress, errnum);
+                }
+
+                if (!isEnabled()) {
+                    destruct();
+                }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(ERROR) << badSocketAddress.what();
 

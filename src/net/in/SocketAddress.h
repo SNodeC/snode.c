@@ -67,7 +67,7 @@ namespace net::in {
 
         const sockaddr& getSockAddr() override;
 
-        bool hasNext() override;
+        bool useNext() override;
 
     private:
         std::shared_ptr<SocketAddrInfo> socketAddrInfo;

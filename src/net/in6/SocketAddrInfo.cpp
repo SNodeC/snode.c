@@ -53,12 +53,12 @@ namespace net::in6 {
         return err;
     }
 
-    bool SocketAddrInfo::hasNext() {
-        bool hasNext = false;
+    bool SocketAddrInfo::useNext() {
+        bool useNext = false;
 
         if (currentAddrInfo != nullptr && currentAddrInfo->ai_next != nullptr) {
             currentAddrInfo = currentAddrInfo->ai_next;
-            hasNext = true;
+            useNext = true;
         } else {
             currentAddrInfo = addrInfo;
         }
@@ -67,9 +67,9 @@ namespace net::in6 {
 
         SocketAddrInfo::logAddressInfo("Next potentially used AddressInfo", currentAddrInfo);
 
-        LOG(TRACE) << "Has Next: " << hasNext;
+        LOG(TRACE) << "Has Next: " << useNext;
 
-        return hasNext;
+        return useNext;
     }
 
     const sockaddr* SocketAddrInfo::getSockAddr() {

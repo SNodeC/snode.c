@@ -179,8 +179,8 @@ namespace net::in6 {
         return reinterpret_cast<const sockaddr&>(sockAddr);
     }
 
-    bool SocketAddress::hasNext() {
-        return socketAddrInfo->hasNext();
+    bool SocketAddress::useNext() {
+        return socketAddrInfo->useNext();
     }
 
 } // namespace net::in6

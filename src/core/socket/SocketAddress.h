@@ -50,7 +50,7 @@ namespace core::socket {
 
         virtual ~SocketAddress();
 
-        virtual bool hasNext() {
+        virtual bool useNext() {
             return false;
         }
 
