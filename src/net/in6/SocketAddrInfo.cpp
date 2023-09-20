@@ -38,18 +38,16 @@ namespace net::in6 {
     int SocketAddrInfo::init(const std::string& node, const std::string& service, const addrinfo& hints) {
         int err = 0;
 
-        if (!node.empty() && !service.empty() && (this->node != node || this->service != service)) {
-            this->node = node;
-            this->service = service;
+        this->node = node;
+        this->service = service;
 
-            if (addrInfo != nullptr) {
-                freeaddrinfo(addrInfo);
-                addrInfo = nullptr;
-            }
+        if (addrInfo != nullptr) {
+            freeaddrinfo(addrInfo);
+            addrInfo = nullptr;
+        }
 
-            if ((err = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
-                currentAddrInfo = addrInfo;
-            }
+        if ((err = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
+            currentAddrInfo = addrInfo;
         }
 
         return err;
@@ -65,65 +63,71 @@ namespace net::in6 {
             currentAddrInfo = addrInfo;
         }
 
+        LOG(TRACE) << "Has Next?";
+
+        SocketAddrInfo::logAddressInfo("Next potentially used AddressInfo", currentAddrInfo);
+
+        LOG(TRACE) << "Has Next: " << hasNext;
+
         return hasNext;
     }
 
-    addrinfo* SocketAddrInfo::getAddrInfo() {
-        el::Logger* defaultLogger = el::Loggers::getLogger("default");
-        static char hostBfr[NI_MAXHOST];
-        static char servBfr[NI_MAXSERV];
-        std::memset(hostBfr, 0, NI_MAXHOST);
-        std::memset(servBfr, 0, NI_MAXSERV);
+    const sockaddr* SocketAddrInfo::getSockAddr() {
+        return currentAddrInfo != nullptr ? currentAddrInfo->ai_addr : nullptr;
+    }
 
-        if (currentAddrInfo != nullptr) {
-            getnameinfo(currentAddrInfo->ai_addr,
-                        currentAddrInfo->ai_addrlen,
+    void SocketAddrInfo::logAddressInfo(const std::string& title, const addrinfo* addrInfo) {
+        if (addrInfo != nullptr) {
+            el::Logger* defaultLogger = el::Loggers::getLogger("default");
+            static char hostBfr[NI_MAXHOST];
+            static char servBfr[NI_MAXSERV];
+            std::memset(hostBfr, 0, NI_MAXHOST);
+            std::memset(servBfr, 0, NI_MAXSERV);
+
+            getnameinfo(addrInfo->ai_addr,
+                        addrInfo->ai_addrlen,
                         hostBfr,
                         sizeof(hostBfr),
                         servBfr,
                         sizeof(servBfr),
                         NI_NUMERICHOST | NI_NUMERICSERV);
 
-            struct sockaddr_in6* aiAddr = (struct sockaddr_in6*) currentAddrInfo->ai_addr;
+            struct sockaddr_in* aiAddr = (struct sockaddr_in*) addrInfo->ai_addr;
 
-            defaultLogger->trace("AddressInfo:\n"
-                                 "   ai_next      = %v\n"
-                                 "   ai_flags     = %v\n"
-                                 "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
-                                 "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
-                                 "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
-                                 "   ai_addrlen   = %v (sockaddr_in = %v, "
-                                 "sockaddr_in6 = %v)\n"
-                                 "   ai_addr      = sin_family:   %v (AF_INET = %v, "
-                                 "AF_INET6 = %v)\n"
-                                 "                  sin_addr:     %v\n"
-                                 "                  sin_port:     %v\n"
-                                 "                  sin6_flowinfo: %v\n"
-                                 "                  sin6_scope_id: %v",
-                                 currentAddrInfo->ai_next,
-                                 currentAddrInfo->ai_flags,
-                                 currentAddrInfo->ai_family,
+            std::string format = title + ":\n"
+                                         "   ai_next      = %v\n"
+                                         "   ai_flags     = %v\n"
+                                         "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
+                                         "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
+                                         "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
+                                         "   ai_addrlen   = %v (sockaddr_in = %v, "
+                                         "sockaddr_in6 = %v)\n"
+                                         "   ai_addr      = sin_family:   %v (AF_INET = %v, "
+                                         "AF_INET6 = %v)\n"
+                                         "                  sin_addr:     %v\n"
+                                         "                  sin_port:     %v";
+
+            defaultLogger->trace(format.c_str(),
+                                 addrInfo->ai_next,
+                                 addrInfo->ai_flags,
+                                 addrInfo->ai_family,
                                  PF_INET,
                                  PF_INET6,
-                                 currentAddrInfo->ai_socktype,
+                                 addrInfo->ai_socktype,
                                  SOCK_STREAM,
                                  SOCK_DGRAM,
-                                 currentAddrInfo->ai_protocol,
+                                 addrInfo->ai_protocol,
                                  IPPROTO_TCP,
                                  IPPROTO_UDP,
-                                 currentAddrInfo->ai_addrlen,
+                                 addrInfo->ai_addrlen,
                                  sizeof(struct sockaddr_in),
                                  sizeof(struct sockaddr_in6),
-                                 aiAddr->sin6_family,
+                                 aiAddr->sin_family,
                                  AF_INET,
                                  AF_INET6,
                                  hostBfr,
-                                 servBfr,
-                                 aiAddr->sin6_flowinfo,
-                                 aiAddr->sin6_scope_id);
+                                 servBfr);
         }
-
-        return currentAddrInfo;
     }
 
 } // namespace net::in6

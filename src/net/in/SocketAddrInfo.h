@@ -37,9 +37,11 @@ namespace net::in {
         int init(const std::string& node, const std::string& service, const addrinfo& hints);
 
         bool hasNext();
-        addrinfo* getAddrInfo();
+        const sockaddr* getSockAddr();
 
     private:
+        static void logAddressInfo(const std::string& title, const addrinfo* addrInfo);
+
         struct addrinfo* addrInfo = nullptr;
         struct addrinfo* currentAddrInfo = nullptr;
 

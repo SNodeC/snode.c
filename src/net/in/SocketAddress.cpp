@@ -85,6 +85,34 @@ namespace net::in {
         }
     }
 
+    SocketAddress& SocketAddress::init() {
+        addrinfo hints{};
+
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = aiSocktype;
+        hints.ai_protocol = aiProtocol;
+        hints.ai_flags = aiFlags | AI_ADDRCONFIG | AI_ALL;
+
+        int aiErrCode = 0;
+
+        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
+            const sockaddr* baseSockAddr = socketAddrInfo->getSockAddr();
+            if (baseSockAddr != nullptr) {
+                sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
+            } else {
+                throw core::socket::SocketAddress::BadSocketAddress(
+                    "IPv4 getaddrinfo for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                    aiErrCode == EAI_SYSTEM ? errno : EINVAL);
+            }
+        } else {
+            throw core::socket::SocketAddress::BadSocketAddress(
+                "IPv4 init for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                aiErrCode == EAI_SYSTEM ? errno : EINVAL);
+        }
+
+        return *this;
+    }
+
     SocketAddress& SocketAddress::setHost(const std::string& ipOrHostname) {
         this->host = ipOrHostname;
         return *this;
@@ -150,29 +178,7 @@ namespace net::in {
     }
 
     const sockaddr& SocketAddress::getSockAddr() {
-        addrinfo hints{};
-
-        hints.ai_family = PF_INET;
-        hints.ai_socktype = aiSocktype;
-        hints.ai_protocol = aiProtocol;
-        hints.ai_flags = aiFlags | AI_ADDRCONFIG | AI_ALL;
-
-        int aiErrCode = 0;
-
-        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
-            addrinfo* addrInfo = socketAddrInfo->getAddrInfo();
-            if (addrInfo != nullptr) {
-                sockAddr = *reinterpret_cast<SockAddr*>(addrInfo->ai_addr);
-            } else {
-                throw core::socket::SocketAddress::BadSocketAddress(
-                    "IPv4 getaddrinfo for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
-                    aiErrCode == EAI_SYSTEM ? errno : EINVAL);
-            }
-        } else {
-            throw core::socket::SocketAddress::BadSocketAddress(
-                "IPv4 init for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
-                aiErrCode == EAI_SYSTEM ? errno : EINVAL);
-        }
+        sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
 
         return reinterpret_cast<const sockaddr&>(sockAddr);
     }

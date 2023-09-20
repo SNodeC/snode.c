@@ -66,7 +66,8 @@ namespace net::in::config {
         return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
                     ->setAiFlags(aiFlags)
                     .setAiSocktype(aiSocktype)
-                    .setAiProtocol(aiProtocol);
+                    .setAiProtocol(aiProtocol)
+                    .init();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

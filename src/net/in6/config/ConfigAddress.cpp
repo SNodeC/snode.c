@@ -73,7 +73,8 @@ namespace net::in6::config {
         return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
                     ->setAiFlags(aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0))
                     .setAiSocktype(aiSocktype)
-                    .setAiProtocol(aiProtocol);
+                    .setAiProtocol(aiProtocol)
+                    .init();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
