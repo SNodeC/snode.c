@@ -65,20 +65,33 @@ namespace core::socket::stream {
                 remoteAddress = config->Remote::getSocketAddress();
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                    onError(remoteAddress, errno);
-                    destruct();
-                } else if (physicalSocket->bind(localAddress) < 0) {
+                    int errnum = errno;
+                    PLOG(WARNING) << "SocketConnector::open '" << remoteAddress.toString() << "'";
+
                     if (localAddress.hasNext()) {
                         new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     } else {
-                        onError(remoteAddress, errno);
+                        onError(remoteAddress, errnum);
+                    }
+                    destruct();
+                } else if (physicalSocket->bind(localAddress) < 0) {
+                    int errnum = errno;
+                    PLOG(WARNING) << "SocketConnector::bind '" << remoteAddress.toString() << "'";
+
+                    if (localAddress.hasNext()) {
+                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(remoteAddress, errnum);
                     }
                     destruct();
                 } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
+                    int errnum = errno;
+                    PLOG(WARNING) << "SocketConnector::connect '" << remoteAddress.toString() << "'";
+
                     if (remoteAddress.hasNext()) {
                         new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     } else {
-                        onError(remoteAddress, errno);
+                        onError(remoteAddress, errnum);
                     }
                     destruct();
                 } else {
@@ -112,10 +125,15 @@ namespace core::socket::stream {
                     socketConnectionFactory.create(*physicalSocket, config);
 
                     onError(remoteAddress, errno);
-                } else if (remoteAddress.hasNext()) {
-                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                 } else {
-                    onError(remoteAddress, errno);
+                    int errnum = errno;
+                    PLOG(WARNING) << "SocketConnector::connectInProgress '" << remoteAddress.toString() << "'";
+
+                    if (remoteAddress.hasNext()) {
+                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(remoteAddress, errnum);
+                    }
                 }
             }
         } else { // syscall error

@@ -58,26 +58,39 @@ namespace core::socket::stream {
         if (!config->getDisabled()) {
             core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
 
-            SocketAddress localAddress = config->Local::getSocketAddress();
+            localAddress = config->Local::getSocketAddress();
 
             try {
                 physicalSocket = new PhysicalSocket();
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                    onError(localAddress, errno);
-                    destruct();
-                } else if (physicalSocket->bind(localAddress) < 0) {
+                    int errnum = errno;
+                    PLOG(WARNING) << "SocketAcceptor::open '" << localAddress.toString() << "'";
+
                     if (localAddress.hasNext()) {
                         new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     } else {
-                        onError(localAddress, errno);
+                        onError(localAddress, errnum);
+                    }
+                    destruct();
+                } else if (physicalSocket->bind(localAddress) < 0) {
+                    int errnum = errno;
+                    PLOG(WARNING) << "SocketAcceptor::bind '" << localAddress.toString() << "'";
+
+                    if (localAddress.hasNext()) {
+                        new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    } else {
+                        onError(localAddress, errnum);
                     }
                     destruct();
                 } else if (physicalSocket->listen(config->getBacklog()) < 0) {
+                    int errnum = errno;
+                    PLOG(WARNING) << "SocketAcceptor::listen '" << localAddress.toString() << "'";
+
                     if (localAddress.hasNext()) {
                         new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     } else {
-                        onError(localAddress, errno);
+                        onError(localAddress, errnum);
                     }
                     destruct();
                 } else {
@@ -111,7 +124,7 @@ namespace core::socket::stream {
                 SocketConnectionFactory socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect);
                 socketConnectionFactory.create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(ERROR) << "accept";
+                PLOG(ERROR) << "SocketAcceptor::accept '" << localAddress.toString() << "'";
             }
         } while (--acceptsPerTick > 0);
     }

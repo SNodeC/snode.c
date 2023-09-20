@@ -76,6 +76,7 @@ namespace core::socket::stream {
         void unobservedEvent() final;
 
         PhysicalSocket* physicalSocket = nullptr;
+        SocketAddress localAddress;
 
     protected:
         std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;
