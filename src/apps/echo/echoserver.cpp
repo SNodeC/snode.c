@@ -17,7 +17,6 @@
  */
 
 #include "core/SNodeC.h"
-#include "log/Logger.h"
 #include "model/servers.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -48,14 +47,8 @@ int main(int argc, char* argv[]) {
     server.getConfig().addSniCerts(sniCerts);
 #endif
 
-    server.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
-        }
+    server.listen([](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
     });
 
     return core::SNodeC::start();

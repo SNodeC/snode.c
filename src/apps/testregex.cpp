@@ -235,14 +235,8 @@ int main(int argc, char* argv[]) {
 
         legacyApp.use(router(db));
 
-        legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-            if (errnum < 0) {
-                PLOG(ERROR) << "OnError";
-            } else if (errnum > 0) {
-                PLOG(ERROR) << "OnError: " << socketAddress.toString();
-            } else {
-                VLOG(0) << "snode.c listening on " << socketAddress.toString();
-            }
+        legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
+            progressLog.logProgress();
         });
 
         legacyApp.setOnConnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
@@ -263,14 +257,8 @@ int main(int argc, char* argv[]) {
 
         tlsApp.use(legacyApp);
 
-        tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-            if (errnum < 0) {
-                PLOG(ERROR) << "OnError";
-            } else if (errnum > 0) {
-                PLOG(ERROR) << "OnError: " << socketAddress.toString();
-            } else {
-                VLOG(0) << "snode.c listening on " << socketAddress.toString();
-            }
+        tlsApp.listen(8088, [](const core::ProgressLog& progressLog) -> void {
+            progressLog.logProgress();
         });
 
         tlsApp.setOnConnect([](tls::in::WebApp::SocketConnection* socketConnection) -> void {

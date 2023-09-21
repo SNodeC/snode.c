@@ -47,7 +47,7 @@ namespace net::in6::stream {
 
         using Super::connect;
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) {
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const core::ProgressLog&)>& onError) {
             Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
 
             connect(onError);
@@ -56,7 +56,7 @@ namespace net::in6::stream {
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      const std::string& bindHost,
-                     const std::function<void(const SocketAddress&, int)>& onError) {
+                     const std::function<void(const core::ProgressLog&)>& onError) {
             Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
             Super::getConfig().Local::setHost(bindHost);
 
@@ -66,7 +66,7 @@ namespace net::in6::stream {
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      uint16_t bindPort,
-                     const std::function<void(const SocketAddress&, int)>& onError) {
+                     const std::function<void(const core::ProgressLog&)>& onError) {
             Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
             Super::getConfig().Local::setPort(bindPort);
 
@@ -77,7 +77,7 @@ namespace net::in6::stream {
                      uint16_t port,
                      const std::string& bindHost,
                      uint16_t bindPort,
-                     const std::function<void(const SocketAddress&, int)>& onError) {
+                     const std::function<void(const core::ProgressLog&)>& onError) {
             Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
             Super::getConfig().Local::setHost(bindHost).setPort(bindPort);
 

@@ -56,7 +56,7 @@ namespace core::socket::stream::tls {
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
-                       const std::function<void(const SocketAddress&, int)>& onError,
+                       const std::function<void(const core::ProgressLog&)>& onError,
                        const std::shared_ptr<Config>& config);
 
         ~SocketAcceptor() override;

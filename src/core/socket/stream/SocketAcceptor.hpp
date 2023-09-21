@@ -34,7 +34,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const SocketAddress&, int)>& onError,
+        const std::function<void(const core::ProgressLog&)>& onError,
         const std::shared_ptr<Config>& config,
         const std::shared_ptr<core::ProgressLog> progressLog)
         : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
@@ -65,46 +65,37 @@ namespace core::socket::stream {
                 localAddress = config->Local::getSocketAddress();
                 physicalSocket = new PhysicalSocket();
 
-                int errnum = 0;
-
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::open '" << localAddress.toString()
                                              << "'";
-                    errnum = errno;
-                    PLOG(WARNING) << "SocketAcceptor::open '" << localAddress.toString() << "'";
                 } else if (physicalSocket->bind(localAddress) < 0) {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::bind '" << localAddress.toString()
                                              << "'";
-                    errnum = errno;
-                    PLOG(WARNING) << "SocketAcceptor::bind '" << localAddress.toString() << "'";
-
                 } else if (physicalSocket->listen(config->getBacklog()) < 0) {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::listen '" << localAddress.toString()
                                              << "'";
-                    errnum = errno;
-                    PLOG(WARNING) << "SocketAcceptor::listen '" << localAddress.toString() << "'";
                 } else {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::listen '" << localAddress.toString()
                                              << "'";
-                    errnum = 0;
                     enable(physicalSocket->getFd());
                 }
 
                 if (localAddress.useNext()) {
                     new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
                 } else {
-                    onError(localAddress, errnum);
-                    progressLog->logProgress();
+                    onError(*progressLog.get());
                 }
 
                 if (!isEnabled()) {
                     destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(ERROR) << badSocketAddress.what();
-
                 errno = badSocketAddress.getErrCode();
-                onError(localAddress, errno);
+
+                progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::catch::badSocketAddress '"
+                                         << localAddress.toString() << "'";
+
+                onError(*progressLog.get());
                 destruct();
             }
         } else {
@@ -118,12 +109,20 @@ namespace core::socket::stream {
 
         do {
             PhysicalSocket physicalClientSocket(physicalSocket->accept4(PhysicalSocket::Flags::NONBLOCK));
+
             if (physicalClientSocket.isValid()) {
-                SocketConnectionFactory socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect);
-                socketConnectionFactory.create(physicalClientSocket, config);
+                if (!SocketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
+                         .create(physicalClientSocket, config)) {
+                    disable();
+                }
+
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(ERROR) << "SocketAcceptor::accept '" << localAddress.toString() << "'";
+                progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::accept4 failed '"
+                                         << localAddress.toString() << "'";
+                disable();
             }
+
+            onError(*progressLog.get());
         } while (--acceptsPerTick > 0);
     }
 

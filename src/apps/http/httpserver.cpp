@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/servers.h"
-#include "log/Logger.h"
 #include "utils/Config.h"
 
 #if (STREAM_TYPE == TLS) // tls
@@ -54,14 +53,8 @@ int main(int argc, char* argv[]) {
     webApp.getConfig().addSniCerts(sniCerts);
 #endif
 
-    webApp.listen([&webApp](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << webApp.getConfig().getInstanceName() << " listening on " << socketAddress.toString();
-        }
+    webApp.listen([](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
     });
 
     return WebApp::start();

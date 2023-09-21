@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/servers.h"
-#include "log/Logger.h"
 #include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -44,14 +43,8 @@ int main(int argc, char* argv[]) {
     //    webApp.addSniCerts(sniCerts);
     //    webApp.forceSni();
 #endif
-    webApp.listen([](const WebApp::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
-        }
+    webApp.listen([](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
     });
 
     return WebApp::start();

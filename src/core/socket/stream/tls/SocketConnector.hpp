@@ -37,7 +37,7 @@ namespace core::socket::stream::tls {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const SocketAddress&, int)>& onError,
+        const std::function<void(const core::ProgressLog&)>& onError,
         const std::shared_ptr<Config>& config)
         : Super(
               socketContextFactory,
@@ -58,18 +58,19 @@ namespace core::socket::stream::tls {
                               onConnected(socketConnection);
                               socketConnection->onConnected();
                           },
-                          [onError = this->onError, config = this->config]() -> void { // onTimeout
+                          [onError = this->onError, progressLog = Super::progressLog, config = this->config]() -> void { // onTimeout
                               LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                              onError(config->Remote::getSocketAddress(), ETIMEDOUT);
+                              onError(*progressLog.get());
                           },
-                          [onError = this->onError, config = this->config](int sslErr) -> void { // onError
+                          [onError = this->onError, progressLog = Super::progressLog, config = this->config](
+                              int sslErr) -> void { // onError
                               ssl_log("SSL/TLS initial handshake failed", sslErr);
-                              onError(config->Remote::getSocketAddress(), -sslErr);
+                              onError(*progressLog.get());
                           });
                   } else {
                       socketConnection->close();
                       ssl_log_error("SSL/TLS initialization failed");
-                      this->onError(this->config->Remote::getSocketAddress(), -SSL_ERROR_SSL);
+                      this->onError(*Super::progressLog.get());
                   }
               },
               [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -95,7 +96,7 @@ namespace core::socket::stream::tls {
             if (ctx != nullptr) {
                 Super::initConnectEvent();
             } else {
-                Super::onError(config->Remote::getSocketAddress(), errno);
+                Super::onError(*Super::progressLog.get());
                 Super::destruct();
             }
         } else {

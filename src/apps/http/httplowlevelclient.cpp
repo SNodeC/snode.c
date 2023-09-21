@@ -237,12 +237,8 @@ namespace tls {
 
         SocketAddress remoteAddress("localhost", 8088);
 
-        client.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " + std::to_string(err);
-            } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
-            }
+        client.connect(remoteAddress, [](const core::ProgressLog& progressLog) -> void {
+            progressLog.logProgress();
         });
 
         return client;
@@ -283,12 +279,8 @@ namespace legacy {
 
         SocketAddress remoteAddress("localhost", 8080);
 
-        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
-            } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
-            }
+        legacyClient.connect(remoteAddress, [](const core::ProgressLog& progressLog) -> void {
+            progressLog.logProgress();
         });
 
         return legacyClient;
@@ -304,29 +296,16 @@ int main(int argc, char* argv[]) {
 
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
-        legacyClient.connect(legacyRemoteAddress,
-                             [](const tls::SocketAddress& socketAddress, int errnum) -> void { // example.com:81 simulate connnect timeout
-                                 if (errnum < 0) {
-                                     PLOG(ERROR) << "OnError";
-                                 } else if (errnum > 0) {
-                                     PLOG(ERROR) << "OnError: " << socketAddress.toString();
-                                 } else {
-                                     VLOG(0) << "snode.c connecting to " << socketAddress.toString();
-                                 }
-                             });
+        legacyClient.connect(legacyRemoteAddress, [](const core::ProgressLog& progressLog) -> void {
+            progressLog.logProgress();
+        });
 
         tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
 
         tls::SocketClient tlsClient = tls::getClient();
 
-        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int errnum) -> void {
-            if (errnum < 0) {
-                PLOG(ERROR) << "OnError";
-            } else if (errnum > 0) {
-                PLOG(ERROR) << "OnError: " << socketAddress.toString();
-            } else {
-                VLOG(0) << "snode.c connecting to " << socketAddress.toString();
-            }
+        tlsClient.connect(tlsRemoteAddress, [](const core::ProgressLog& progressLog) -> void {
+            progressLog.logProgress();
         });
     }
 

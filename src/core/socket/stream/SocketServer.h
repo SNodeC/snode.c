@@ -19,6 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 #define CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 
+#include "core/ProgressLog.h" // IWYU pragma: export
 #include "core/SNodeC.h"
 #include "core/socket/LogicalSocket.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
@@ -144,17 +145,17 @@ namespace core::socket::stream {
         }
 
     private:
-        void realListen(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries, double retryTimeoutScale) const {
+        void realListen(const std::function<void(const core::ProgressLog&)>& onError, unsigned int tries, double retryTimeoutScale) const {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketAcceptor(
                     socketContextFactory,
                     onConnect,
                     onConnected,
                     onDisconnect,
-                    [server = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress, int errnum) -> void {
-                        onError(socketAddress, errnum);
+                    [server = *this, onError, tries, retryTimeoutScale](const core::ProgressLog& progressLog) -> void {
+                        onError(progressLog);
 
-                        if (errnum != 0 && server.getConfig().getRetry() &&
+                        if (progressLog.getHasErrors() != 0 && server.getConfig().getRetry() &&
                             (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries())) {
                             double relativeRetryTimeout = server.getConfig().getRetryLimit() > 0
                                                               ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
@@ -178,17 +179,17 @@ namespace core::socket::stream {
         }
 
     public:
-        void listen(const std::function<void(const SocketAddress&, int)>& onError) const {
+        void listen(const std::function<void(const core::ProgressLog&)>& onError) const {
             realListen(onError, 0, 1);
         }
 
-        void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, int)>& onError) const {
+        void listen(const SocketAddress& localAddress, const std::function<void(const core::ProgressLog&)>& onError) const {
             Super::config->Local::setSocketAddress(localAddress);
 
             listen(onError);
         }
 
-        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const core::ProgressLog&)>& onError) const {
             Super::config->Local::setBacklog(backlog);
 
             listen(localAddress, onError);

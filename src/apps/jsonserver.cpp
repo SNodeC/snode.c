@@ -36,20 +36,12 @@ int main(int argc, char* argv[]) {
 
     //    el::Loggers::setVModules("jsonserver*=0");
 
-    using SocketAddress = WebApp::SocketAddress;
-
     WebApp legacyApp("legacy-jsonserver");
 
     legacyApp.use(express::middleware::JsonMiddleware());
 
-    legacyApp.listen(8080, [](const SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
-        }
+    legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
     });
 
     legacyApp.post("/index.html", [] APPLICATION(req, res) {

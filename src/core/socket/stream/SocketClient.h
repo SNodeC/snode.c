@@ -19,6 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
+#include "core/ProgressLog.h" // IWYU pragma: export
 #include "core/SNodeC.h"
 #include "core/socket/LogicalSocket.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
@@ -148,7 +149,7 @@ namespace core::socket::stream {
         }
 
     private:
-        void realConnect(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries, double retryTimeoutScale) {
+        void realConnect(const std::function<void(const core::ProgressLog&)>& onError, unsigned int tries, double retryTimeoutScale) {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketConnector(
                     socketContextFactory,
@@ -172,10 +173,10 @@ namespace core::socket::stream {
                                 relativeRetryTimeout);
                         }
                     },
-                    [client = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress, int errnum) -> void {
-                        onError(socketAddress, errnum);
+                    [client = *this, onError, tries, retryTimeoutScale](const core::ProgressLog& progressLog) -> void {
+                        onError(progressLog);
 
-                        if (errnum != 0 && client.getConfig().getRetry() &&
+                        if (progressLog.getHasErrors() && client.getConfig().getRetry() &&
                             (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries())) {
                             double relativeRetryTimeout = client.getConfig().getRetryLimit() > 0
                                                               ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
@@ -199,11 +200,11 @@ namespace core::socket::stream {
         }
 
     public:
-        void connect(const std::function<void(const SocketAddress&, int)>& onError) {
+        void connect(const std::function<void(const core::ProgressLog&)>& onError) {
             realConnect(onError, 0, 1);
         }
 
-        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, int)>& onError) {
+        void connect(const SocketAddress& remoteAddress, const std::function<void(const core::ProgressLog&)>& onError) {
             Super::config->Remote::setSocketAddress(remoteAddress);
 
             connect(onError);
@@ -211,7 +212,7 @@ namespace core::socket::stream {
 
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& localAddress,
-                     const std::function<void(const SocketAddress&, int)>& onError) {
+                     const std::function<void(const core::ProgressLog&)>& onError) {
             Super::config->Local::setSocketAddress(localAddress);
 
             connect(remoteAddress, onError);

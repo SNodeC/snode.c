@@ -34,7 +34,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const SocketAddress&, int)>& onError,
+        const std::function<void(const core::ProgressLog&)>& onError,
         const std::shared_ptr<Config>& config,
         const std::shared_ptr<core::ProgressLog> progressLog)
         : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
@@ -67,28 +67,18 @@ namespace core::socket::stream {
 
                 SocketAddress localAddress = config->Local::getSocketAddress();
 
-                int errnum = 0;
-
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::open '" << remoteAddress.toString()
                                              << "'";
-                    errnum = errno;
-                    PLOG(WARNING) << "SocketConnector::open '" << remoteAddress.toString() << "'";
                 } else if (physicalSocket->bind(localAddress) < 0) {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::bind '" << remoteAddress.toString()
                                              << "'";
-
-                    errnum = errno;
-                    PLOG(WARNING) << "SocketConnector::bind '" << remoteAddress.toString() << "'";
                 } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::initial connect '"
                                              << remoteAddress.toString() << "'";
-                    errnum = errno;
-                    PLOG(WARNING) << "SocketConnector::connect '" << remoteAddress.toString() << "'";
                 } else {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::initial connect '"
                                              << remoteAddress.toString() << "'";
-                    errnum = 0;
                     enable(physicalSocket->getFd());
                 }
 
@@ -96,8 +86,7 @@ namespace core::socket::stream {
                     if (remoteAddress.useNext()) {
                         new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
                     } else {
-                        progressLog->logProgress();
-                        onError(remoteAddress, errnum);
+                        onError(*progressLog.get());
                     }
 
                     destruct();
@@ -106,7 +95,7 @@ namespace core::socket::stream {
                 LOG(ERROR) << badSocketAddress.what();
 
                 errno = badSocketAddress.getErrCode();
-                onError(remoteAddress, errno);
+                onError(*progressLog.get());
                 destruct();
             }
         } else {
@@ -126,29 +115,26 @@ namespace core::socket::stream {
                 disable();
 
                 if (errno == 0) {
-                    SocketConnectionFactory socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect);
-                    socketConnectionFactory.create(*physicalSocket, config);
+                    if (!SocketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
+                             .create(*physicalSocket, config)) {
+                        disable();
+                    }
 
-                    progressLog->logProgress();
-                    onError(remoteAddress, errno);
+                    onError(*progressLog.get());
                 } else {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::connectInProgress '"
                                              << remoteAddress.toString() << "'";
 
-                    int errnum = errno;
-                    PLOG(WARNING) << "SocketConnector::connectInProgress '" << remoteAddress.toString() << "'";
-
                     if (remoteAddress.useNext()) {
                         new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     } else {
-                        progressLog->logProgress();
-                        onError(remoteAddress, errnum);
+                        onError(*progressLog.get());
                     }
                 }
             }
         } else { // syscall error
             disable();
-            onError(remoteAddress, errno);
+            onError(*progressLog.get());
         }
     }
 
@@ -170,7 +156,7 @@ namespace core::socket::stream {
             new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
         } else {
             errno = ETIMEDOUT;
-            onError(remoteAddress, errno);
+            onError(*progressLog.get());
         }
     }
 

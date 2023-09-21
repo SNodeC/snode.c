@@ -17,7 +17,6 @@
  */
 
 #include "core/SNodeC.h"
-#include "log/Logger.h"
 #include "model/clients.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,17 +27,10 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     using SocketClient = apps::echo::model::STREAM::EchoSocketClient;
-    using SocketAddress = SocketClient::SocketAddress;
     SocketClient client = apps::echo::model::STREAM::getClient();
 
-    client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
-        }
+    client.connect([](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
     });
 
     return core::SNodeC::start();
