@@ -27,6 +27,10 @@
 #include <functional>
 #include <memory>
 
+namespace core {
+    class ProgressLog;
+}
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
@@ -59,8 +63,10 @@ namespace core::socket::stream {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::function<void(const SocketAddress&, int)>& onError,
-                       const std::shared_ptr<Config>& config);
+                       const std::shared_ptr<Config>& config,
+                       const std::shared_ptr<core::ProgressLog> progressLog = std::make_shared<core::ProgressLog>());
 
+    public:
         ~SocketAcceptor() override;
 
     protected:
@@ -88,6 +94,9 @@ namespace core::socket::stream {
         std::function<void(const SocketAddress&, int)> onError = nullptr;
 
         std::shared_ptr<Config> config;
+        std::shared_ptr<core::ProgressLog> progressLog;
+
+#define PROGLOG(level) progressLog->addEntry((level))
     };
 
 } // namespace core::socket::stream

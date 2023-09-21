@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/ProgressLog.h"
 #include "log/Logger.h"
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -34,7 +35,8 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, int)>& onError,
-        const std::shared_ptr<Config>& config)
+        const std::shared_ptr<Config>& config,
+        const std::shared_ptr<core::ProgressLog> progressLog)
         : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
         , core::eventreceiver::ConnectEventReceiver("SocketConnector", 0)
         , socketContextFactory(socketContextFactory)
@@ -42,7 +44,8 @@ namespace core::socket::stream {
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
         , onError(onError)
-        , config(config) {
+        , config(config)
+        , progressLog(progressLog) {
         InitConnectEventReceiver::span();
     }
 
@@ -67,25 +70,36 @@ namespace core::socket::stream {
                 int errnum = 0;
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::open '" << remoteAddress.toString()
+                                             << "'";
                     errnum = errno;
+                    PLOG(WARNING) << "SocketConnector::open '" << remoteAddress.toString() << "'";
                 } else if (physicalSocket->bind(localAddress) < 0) {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::bind '" << remoteAddress.toString()
+                                             << "'";
+
                     errnum = errno;
                     PLOG(WARNING) << "SocketConnector::bind '" << remoteAddress.toString() << "'";
                 } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::initial connect '"
+                                             << remoteAddress.toString() << "'";
                     errnum = errno;
                     PLOG(WARNING) << "SocketConnector::connect '" << remoteAddress.toString() << "'";
                 } else {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::initial connect '"
+                                             << remoteAddress.toString() << "'";
                     errnum = 0;
                     enable(physicalSocket->getFd());
                 }
 
-                if (remoteAddress.useNext()) {
-                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
-                } else {
-                    onError(remoteAddress, errnum);
-                }
-
                 if (!isEnabled()) {
+                    if (remoteAddress.useNext()) {
+                        new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
+                    } else {
+                        progressLog->logProgress();
+                        onError(remoteAddress, errnum);
+                    }
+
                     destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
@@ -115,14 +129,19 @@ namespace core::socket::stream {
                     SocketConnectionFactory socketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect);
                     socketConnectionFactory.create(*physicalSocket, config);
 
+                    progressLog->logProgress();
                     onError(remoteAddress, errno);
                 } else {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::connectInProgress '"
+                                             << remoteAddress.toString() << "'";
+
                     int errnum = errno;
                     PLOG(WARNING) << "SocketConnector::connectInProgress '" << remoteAddress.toString() << "'";
 
                     if (remoteAddress.useNext()) {
                         new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                     } else {
+                        progressLog->logProgress();
                         onError(remoteAddress, errnum);
                     }
                 }

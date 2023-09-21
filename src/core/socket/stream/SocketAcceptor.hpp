@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "core/ProgressLog.h"
 #include "core/socket/stream/SocketAcceptor.h"
 #include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: export
 
@@ -29,12 +30,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
     SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::SocketAcceptor(
-        const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+        const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, int)>& onError,
-        const std::shared_ptr<Config>& config)
+        const std::shared_ptr<Config>& config,
+        const std::shared_ptr<core::ProgressLog> progressLog)
         : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
         , core::eventreceiver::AcceptEventReceiver("SocketAcceptor", 0)
         , socketContextFactory(socketContextFactory)
@@ -42,7 +44,8 @@ namespace core::socket::stream {
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
         , onError(onError)
-        , config(config) {
+        , config(config)
+        , progressLog(progressLog) {
         InitAcceptEventReceiver::span();
     }
 
@@ -65,23 +68,33 @@ namespace core::socket::stream {
                 int errnum = 0;
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::open '" << localAddress.toString()
+                                             << "'";
                     errnum = errno;
                     PLOG(WARNING) << "SocketAcceptor::open '" << localAddress.toString() << "'";
                 } else if (physicalSocket->bind(localAddress) < 0) {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::bind '" << localAddress.toString()
+                                             << "'";
                     errnum = errno;
                     PLOG(WARNING) << "SocketAcceptor::bind '" << localAddress.toString() << "'";
+
                 } else if (physicalSocket->listen(config->getBacklog()) < 0) {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::listen '" << localAddress.toString()
+                                             << "'";
                     errnum = errno;
                     PLOG(WARNING) << "SocketAcceptor::listen '" << localAddress.toString() << "'";
                 } else {
+                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::listen '" << localAddress.toString()
+                                             << "'";
                     errnum = 0;
                     enable(physicalSocket->getFd());
                 }
 
                 if (localAddress.useNext()) {
-                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
                 } else {
                     onError(localAddress, errnum);
+                    progressLog->logProgress();
                 }
 
                 if (!isEnabled()) {

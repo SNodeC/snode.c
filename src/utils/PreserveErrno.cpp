@@ -24,8 +24,9 @@
 
 namespace utils {
 
-    PreserveErrno::PreserveErrno(int errnum)
-        : errnum(errnum) {
+    PreserveErrno::PreserveErrno(int newErrno)
+        : errnum(errno) {
+        errno = newErrno;
     }
 
     PreserveErrno::~PreserveErrno() {
