@@ -287,10 +287,7 @@ SNode.C provides a view [overloaded *listen*](#listen-methods) methods whose arg
 ``` c++
 #include "EchoServerContextFactory.h"
 #include <core/SNodeC.h>
-#include <iostream>
 #include <net/in/stream/legacy/SocketServer.h>
-#include <cstring>
-#include <string>
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv); // Initialize the framework.
@@ -324,10 +321,7 @@ Equivalent to the server instance a client instance provides a view [overloaded 
 ``` cpp
 #include "EchoClientContextFactory.h"
 #include <core/SNodeC.h>
-#include <iostream>
 #include <net/in/stream/legacy/SocketClient.h>
-#include <cstring>
-#include <string>
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv); // Initialize the framework.
