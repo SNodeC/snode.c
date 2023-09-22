@@ -420,13 +420,8 @@ int main(int argc, char* argv[]) {
 
     EchoServer echoServer; // Create anonymous server instance
 
-    echoServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
-        if (err == 0) {
-            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
-        } else {
-            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                      << ": " << std::strerror(err) << std::endl;
-        }
+    echoServer.listen(8001, [](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
     });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
@@ -462,15 +457,9 @@ int main(int argc, char* argv[]) {
 
     EchoClient echoClient; // Create anonymous client instance
 
-    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress,
-                          int err) -> void { // Connect to server
-                           if (err == 0) {
-                               std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
-                           } else {
-                               std::cout << "Error: Echo client connected to " << socketAddress.toString() 
-                                         << ": " << std::strerror(err) << std::endl;
-                           }
-                       });
+    echoClient.connect("localhost", 8001, [](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
+    });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
@@ -1184,7 +1173,7 @@ As already mentioned above, for convenience each *SocketServer* class provides i
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const <ConcreteServerOrClientType>::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 The type `SocketAddress` is defined as
@@ -1206,7 +1195,7 @@ using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::in::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the IPv4/SOCK_STREAM combination exist four specific *listen* methods.
@@ -1223,7 +1212,7 @@ For the IPv4/SOCK_STREAM combination exist four specific *listen* methods.
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::in6::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the IPv6/SOCK_STREAM combination exist four specific *listen* methods.
@@ -1240,7 +1229,7 @@ For the IPv6/SOCK_STREAM combination exist four specific *listen* methods.
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::un::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* methods.
@@ -1255,7 +1244,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* m
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::rc::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods.
@@ -1272,7 +1261,7 @@ For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods.
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::l2::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the L2CAP/SOCK_STREAM combination exist four specific *listen* methods.
@@ -1317,7 +1306,7 @@ As already mentioned above, for convenience each *SocketClient* class provides i
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const <ConcreteServerOrClientType>::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 The type `SocketAddress` is defined as
@@ -1339,7 +1328,7 @@ using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::in::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the IPv4/SOCK_STREAM combination exist four specific *connect* methods.
@@ -1356,7 +1345,7 @@ For the IPv4/SOCK_STREAM combination exist four specific *connect* methods.
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::in6::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the IPv6/SOCK_STREAM combination exist four specific *connect* methods.
@@ -1373,7 +1362,7 @@ For the IPv6/SOCK_STREAM combination exist four specific *connect* methods.
 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::un::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the Unix Domain Socket/SOCK_STREAM combination exist two specific *connect* methods.
@@ -1388,7 +1377,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific *connect* 
 IPv4 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::rc::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the RFCOMM/SOCK_STREAM combination exist four specific *connect* methods.
@@ -1405,7 +1394,7 @@ For the RFCOMM/SOCK_STREAM combination exist four specific *connect* methods.
 IPv4 The type `StatusFunction` is defined as
 
 ```cpp
-using StatusFunction = const std::function<void(const net::l2::SocketAddress&, int)>;
+using StatusFunction = const std::function<void(const core::ProgressLog&)>;
 ```
 
 For the L2CAP/SOCK_STREAM combination exist four specific *connect* methods.
@@ -1464,13 +1453,8 @@ Thus, if the port number is configured by using `setPort()` the *listen* method 
 ```cpp
 EchoServer echoServer;
 echoServer.getConfig().setPort(8001);
-echoServer.listen([](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
-	if (err == 0){
-        std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl
-    } else {
-        std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                  << ": " << perror("") << std::endl;
-    }
+echoServer.listen([](const core::ProgressLog& progressLog) -> void {
+    progressLog.logProgress();
 });
 ```
 
@@ -1482,13 +1466,8 @@ Though, because a *SocketClient* has two independent sets of IP-Addresses/host n
 EchoServer echoClient;
 echoClient.getConfig().Remote::setIpOrHostname("localhost");
 echoClient.getConfig().Remote::setPort(8001);
-echoClient.connect([](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
-	if (err == 0){
-        std::cout << "Success: Echo client connected to " << socketAddress.toString() << std::endl
-    } else {
-        std::cout << "Error: Echo client connected to " << socketAddress.toString() 
-                  << ": " << perror("") << std::endl;
-    }
+echoClient.connect([](const core::ProgressLog& progressLog) -> void {
+    progressLog.logProgress();
 });
 ```
 
