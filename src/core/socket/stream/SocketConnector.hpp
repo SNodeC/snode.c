@@ -63,9 +63,9 @@ namespace core::socket::stream {
 
             try {
                 remoteAddress = config->Remote::getSocketAddress();
-                physicalSocket = new PhysicalSocket();
-
                 SocketAddress localAddress = config->Local::getSocketAddress();
+
+                physicalSocket = new PhysicalSocket();
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
                     progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::open '" << remoteAddress.toString()
