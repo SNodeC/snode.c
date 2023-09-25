@@ -139,6 +139,8 @@ namespace core::socket::stream::tls {
 
                 Super::initAcceptEvent();
             } else {
+                LOG(ERROR) << "Master SSL/TLS certificate activation failed";
+
                 Super::onError(*Super::progressLog.get());
                 Super::destruct();
             }

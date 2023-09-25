@@ -23,6 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/PreserveErrno.h"
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,6 +60,8 @@ namespace core::socket::stream {
     template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
     void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
+            LOG(INFO) << "Instance '" << this->config->getInstanceName() << "' enabled";
+
             core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
 
             try {
@@ -83,22 +86,23 @@ namespace core::socket::stream {
                 if (localAddress.useNext()) {
                     new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
                 } else {
-                    onError(*progressLog.get());
+                    onError(*progressLog);
                 }
 
                 if (!isEnabled()) {
                     destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                errno = badSocketAddress.getErrCode();
+                utils::PreserveErrno pe(0);
+                progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::getLocalAddress '"
+                                         << localAddress.toString() << "': BadSocketAddress: " << badSocketAddress.what();
+                onError(*progressLog);
 
-                progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::catch::badSocketAddress '"
-                                         << localAddress.toString() << "'";
-
-                onError(*progressLog.get());
                 destruct();
             }
         } else {
+            LOG(INFO) << "Instance '" << this->config->getInstanceName() << "' disabled";
+
             destruct();
         }
     }
@@ -111,21 +115,12 @@ namespace core::socket::stream {
             PhysicalSocket physicalClientSocket(physicalSocket->accept4(PhysicalSocket::Flags::NONBLOCK));
 
             if (physicalClientSocket.isValid()) {
-                progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::accept4 failed '"
-                                         << localAddress.toString() << "'";
+                LOG(TRACE) << this->config->getInstanceName() << ": SocketAcceptor::accept4 success '" << localAddress.toString() << "'";
 
-                if (!SocketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
-                         .create(physicalClientSocket, config)) {
-                    disable();
-                }
-
+                SocketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::accept4 failed '"
-                                         << localAddress.toString() << "'";
-                disable();
+                PLOG(ERROR) << this->config->getInstanceName() << ": SocketAcceptor::accept4 failed '" << localAddress.toString() << "'";
             }
-
-            onError(*progressLog.get());
         } while (--acceptsPerTick > 0);
     }
 

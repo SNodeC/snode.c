@@ -74,17 +74,15 @@ namespace core {
     void ProgressLog::logProgress() const {
         utils::PreserveErrno p1;
 
-        VLOG(0) << "****************** LOG BEG ******************";
         for (const ProgressLogEntry& progressLogEntry : *progressLog.get()) {
             utils::PreserveErrno p2(progressLogEntry.errnum);
 
-            if (progressLogEntry.errnum == 0) {
+            if (errno == 0) {
                 VLOG(progressLogEntry.level) << progressLogEntry.message << ": " << std::strerror(progressLogEntry.errnum);
             } else {
                 PLOG(WARNING) << progressLogEntry.message;
             }
         }
-        VLOG(0) << "****************** LOG END ******************";
     }
 
 } // namespace core

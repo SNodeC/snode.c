@@ -60,12 +60,10 @@ namespace core::socket::stream::tls {
                           },
                           [onError = this->onError, progressLog = Super::progressLog, config = this->config]() -> void { // onTimeout
                               LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                              onError(*progressLog.get());
                           },
                           [onError = this->onError, progressLog = Super::progressLog, config = this->config](
                               int sslErr) -> void { // onError
                               ssl_log("SSL/TLS initial handshake failed", sslErr);
-                              onError(*progressLog.get());
                           });
                   } else {
                       socketConnection->close();

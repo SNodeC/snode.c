@@ -67,6 +67,8 @@ namespace core::socket::stream {
                     onConnect(socketConnection);
                     onConnected(socketConnection);
                 } else {
+                    LOG(ERROR) << "SocketConnectionFactory: Failed creating new SocketConnection";
+
                     delete socketConnection;
                     socketConnection = nullptr;
                 }

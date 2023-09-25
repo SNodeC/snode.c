@@ -64,11 +64,11 @@ namespace net::in {
             currentAddrInfo = addrInfo;
         }
 
-        LOG(TRACE) << "Has Next?";
-
-        SocketAddrInfo::logAddressInfo("Next potentially used AddressInfo", currentAddrInfo);
-
         LOG(TRACE) << "Has Next: " << useNext;
+
+        if (useNext) {
+            SocketAddrInfo::logAddressInfo("Next potentially used AddressInfo", currentAddrInfo);
+        }
 
         return useNext;
     }
