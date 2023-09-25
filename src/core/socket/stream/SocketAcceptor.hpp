@@ -111,6 +111,9 @@ namespace core::socket::stream {
             PhysicalSocket physicalClientSocket(physicalSocket->accept4(PhysicalSocket::Flags::NONBLOCK));
 
             if (physicalClientSocket.isValid()) {
+                progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::accept4 failed '"
+                                         << localAddress.toString() << "'";
+
                 if (!SocketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect)
                          .create(physicalClientSocket, config)) {
                     disable();

@@ -71,7 +71,8 @@ namespace net::stream::config {
 
     template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
     utils::Timeval ConfigSocketClient<ConfigAddress>::getConnectTimeout() const {
-        return connectTimeoutOpt->as<utils::Timeval>();
+        double connectTimeout = connectTimeoutOpt->as<double>();
+        return utils::Timeval(connectTimeout);
     }
 
 } // namespace net::stream::config

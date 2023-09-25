@@ -74,6 +74,7 @@ namespace core {
     void ProgressLog::logProgress() const {
         utils::PreserveErrno p1;
 
+        VLOG(0) << "****************** LOG BEG ******************";
         for (const ProgressLogEntry& progressLogEntry : *progressLog.get()) {
             utils::PreserveErrno p2(progressLogEntry.errnum);
 
@@ -83,6 +84,7 @@ namespace core {
                 PLOG(WARNING) << progressLogEntry.message;
             }
         }
+        VLOG(0) << "****************** LOG END ******************";
     }
 
 } // namespace core
