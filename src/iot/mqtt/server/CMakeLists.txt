@@ -42,10 +42,7 @@ install(
 )
 
 install(
-    FILES
-    Mqtt.h
-    SharedSocketContextFactory.h
-    SocketContextFactory.h
+    FILES Mqtt.h SharedSocketContextFactory.h SocketContextFactory.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
     COMPONENT mqtt-server
 )
@@ -73,8 +70,7 @@ add_library(snodec::mqtt-server-websocket ALIAS mqtt-server)
 target_link_libraries(
     mqtt-server-websocket
     PUBLIC snodec::mqtt-server snodec::websocket-server
-    PRIVATE snodec::mqtt-broker
-            snodec::mqtt-server-packets
+    PRIVATE snodec::mqtt-broker snodec::mqtt-server-packets
 )
 
 target_include_directories(
@@ -97,8 +93,7 @@ install(
 )
 
 install(
-    FILES
-    SubProtocol.h
+    FILES SubProtocol.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
     COMPONENT mqtt-server-websocket
 )

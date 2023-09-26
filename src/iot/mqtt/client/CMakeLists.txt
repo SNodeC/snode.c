@@ -37,8 +37,7 @@ install(
 )
 
 install(
-    FILES
-    Mqtt.h
+    FILES Mqtt.h
     DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/client
     COMPONENT mqtt-client
 )
@@ -66,8 +65,7 @@ add_library(snodec::mqtt-client-websocket ALIAS mqtt-client-websocket)
 target_link_libraries(
     mqtt-client-websocket
     PUBLIC snodec::mqtt-client snodec::websocket-client
-    PRIVATE snodec::mqtt-broker
-            snodec::mqtt-client-packets
+    PRIVATE snodec::mqtt-broker snodec::mqtt-client-packets
 )
 
 target_include_directories(
@@ -90,8 +88,7 @@ install(
 )
 
 install(
-    FILES
-    SubProtocol.h
+    FILES SubProtocol.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/client
     COMPONENT mqtt-client-websocket
 )
