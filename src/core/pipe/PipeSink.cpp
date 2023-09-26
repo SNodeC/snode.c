@@ -34,7 +34,7 @@
 namespace core::pipe {
 
     PipeSink::PipeSink(int fd)
-        : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd)) {
+        : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), 60) {
         ReadEventReceiver::enable(fd);
     }
 

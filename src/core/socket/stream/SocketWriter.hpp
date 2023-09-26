@@ -31,11 +31,10 @@ namespace core::socket::stream {
                                                                      const utils::Timeval& timeout,
                                                                      std::size_t blockSize,
                                                                      const utils::Timeval& terminateTimeout)
-        : core::eventreceiver::WriteEventReceiver("SocketWriter")
+        : core::eventreceiver::WriteEventReceiver("SocketWriter", timeout)
         , onError(onError)
         , terminateTimeout(terminateTimeout) {
         setBlockSize(blockSize);
-        setTimeout(timeout);
     }
 
     template <typename PhysicalSocket>

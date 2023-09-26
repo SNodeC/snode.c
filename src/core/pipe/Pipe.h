@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STREAM_PIPE_H
-#define STREAM_PIPE_H
+#ifndef CORE_PIPE_PIPE_H
+#define CORE_PIPE_PIPE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,4 +44,4 @@ namespace core::pipe {
 
 } // namespace core::pipe
 
-#endif // STREAM_PIPE_H
+#endif // CORE_PIPE_PIPE_H

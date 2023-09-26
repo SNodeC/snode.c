@@ -29,13 +29,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_WRITE_INACTIVITY 60
-
 namespace core::eventreceiver {
 
     class WriteEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        WriteEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_WRITE_INACTIVITY);
+        WriteEventReceiver(const std::string& name, const utils::Timeval& timeout);
 
     private:
         virtual void writeEvent() = 0;

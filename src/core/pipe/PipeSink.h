@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STREAM_PIPESINK_H
-#define STREAM_PIPESINK_H
+#ifndef CORE_PIPE_PIPESINK_H
+#define CORE_PIPE_PIPESINK_H
 
 #include "core/eventreceiver/ReadEventReceiver.h"
 
@@ -56,4 +56,4 @@ namespace core::pipe {
 
 } // namespace core::pipe
 
-#endif // STREAM_PIPESINK_H
+#endif // CORE_PIPE_PIPESINK_H

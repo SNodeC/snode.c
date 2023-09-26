@@ -29,13 +29,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_READ_INACTIVITY 60
-
 namespace core::eventreceiver {
 
     class ReadEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        ReadEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_READ_INACTIVITY);
+        ReadEventReceiver(const std::string& name, const utils::Timeval& timeout);
 
     private:
         virtual void readEvent() = 0;

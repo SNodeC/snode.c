@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STREAM_PIPESOURCE_H
-#define STREAM_PIPESOURCE_H
+#ifndef CORE_PIPE_PIPESOURCE_H
+#define CORE_PIPE_PIPESOURCE_H
 
 #include "core/eventreceiver/WriteEventReceiver.h"
 
@@ -61,4 +61,4 @@ namespace core::pipe {
 
 } // namespace core::pipe
 
-#endif // STREAM_PIPESOURCE_H
+#endif // CORE_PIPE_PIPESOURCE_H
