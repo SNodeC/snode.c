@@ -19,20 +19,12 @@
 #ifndef NET_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/config/ConfigAddressLocal.h"   // IWYU pragma: export
-#include "net/config/ConfigAddressRemote.h"  // IWYU pragma: export
-#include "net/config/ConfigConnection.h"     // IWYU pragma: export
-#include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
+#include "net/config/ConfigAddressLocal.h"         // IWYU pragma: export
+#include "net/config/ConfigAddressRemote.h"        // IWYU pragma: export
+#include "net/config/ConfigConnection.h"           // IWYU pragma: export
+#include "net/config/ConfigPhysicalSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-namespace CLI {
-    class Option;
-}
-
-namespace utils {
-    class Timeval;
-}
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,18 +35,12 @@ namespace net::stream::config {
         : public ConfigAddressT<net::config::ConfigAddressRemote>
         , public ConfigAddressT<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection
-        , public net::config::ConfigPhysicalSocket {
+        , public net::config::ConfigPhysicalSocketClient {
     public:
         using Remote = ConfigAddressT<net::config::ConfigAddressRemote>;
         using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
 
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
-
-        void setConnectTimeout(const utils::Timeval& connectTimeout);
-        utils::Timeval getConnectTimeout() const;
-
-    private:
-        CLI::Option* connectTimeoutOpt = nullptr;
     };
 
 } // namespace net::stream::config

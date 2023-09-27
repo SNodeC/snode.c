@@ -27,14 +27,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef DEFAULT_ACCEPTSPERTICK
-#define DEFAULT_ACCEPTSPERTICK 1
-#endif
-
-#ifndef DEFAULT_BACKLOG
-#define DEFAULT_BACKLOG 5
-#endif
-
 namespace net::config {
 
     ConfigListen::ConfigListen(ConfigInstance* instance)
@@ -44,13 +36,13 @@ namespace net::config {
                    "--backlog",
                    "Listen backlog",
                    "backlog",
-                   DEFAULT_BACKLOG,
+                   SNODEC_DEFAULT_BACKLOG,
                    CLI::PositiveNumber);
         add_option(acceptsPerTickOpt, //
                    "--accepts-per-tick",
                    "Accepts per tick",
                    "number",
-                   DEFAULT_ACCEPTSPERTICK,
+                   SNODEC_DEFAULT_ACCEPTS_PER_TICK,
                    CLI::PositiveNumber);
     }
 

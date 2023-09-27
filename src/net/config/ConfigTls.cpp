@@ -28,14 +28,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef DEFAULT_INITTIMEOUT
-#define DEFAULT_INITTIMEOUT 10
-#endif
-
-#ifndef DEFAULT_SHUTDOWNTIMEOUT
-#define DEFAULT_SHUTDOWNTIMEOUT 2
-#endif
-
 namespace net::config {
 
     ConfigTls::ConfigTls(ConfigInstance* instance)
@@ -92,13 +84,13 @@ namespace net::config {
                    "--init-timeout",
                    "SSL/TLS initialization timeout in seconds",
                    "timeout",
-                   DEFAULT_INITTIMEOUT,
+                   SNODEC_DEFAULT_TLS_INITTIMEOUT,
                    CLI::PositiveNumber);
         add_option(shutdownTimeoutOpt, //
                    "--shutdown-timeout",
                    "SSL/TLS shutdown timeout in seconds",
                    "timeout",
-                   DEFAULT_SHUTDOWNTIMEOUT,
+                   SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT,
                    CLI::PositiveNumber);
     }
 

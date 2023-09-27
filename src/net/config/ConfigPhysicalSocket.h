@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGPHYSICALSOCKET_H
 #define NET_CONFIG_CONFIGPHYSICALSOCKET_H
 
-#include "net/PhysicalSocketOption.h"
+#include "net/PhysicalSocketOption.h" // IWYU pragma: export
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace net::config {

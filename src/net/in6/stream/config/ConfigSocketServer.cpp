@@ -62,7 +62,7 @@ namespace net::in6::stream::config {
                                                              SO_REUSEPORT,
                                                              "Reuse socket address",
                                                              "bool",
-                                                             "false",
+                                                             SNODEC_DEFAULT_REUSE_PORT,
                                                              CLI::IsMember({"true", "false"}));
 
         net::config::ConfigPhysicalSocket::add_socket_option(iPv6OnlyOpt,
@@ -71,7 +71,7 @@ namespace net::in6::stream::config {
                                                              IPV6_V6ONLY,
                                                              "Turn of IPv6 dual stack mode",
                                                              "bool",
-                                                             "false",
+                                                             SNODEC_DEFAULT_IPV6_ONLY,
                                                              CLI::IsMember({"true", "false"}));
     }
 

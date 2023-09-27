@@ -16,11 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/config/ConfigSocketClient.h"
+#include "ConfigPhysicalSocketServer.h"
 
-#include "net/stream/config/ConfigSocketClient.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -39,23 +41,28 @@
 #pragma GCC diagnostic pop
 #endif
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::rc::stream::config {
+namespace net::config {
 
-    ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : net::stream::config::ConfigSocketClient<net::rc::config::ConfigAddress>(instance) {
-        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::btAddressRequired();
-        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::channelRequired();
-
-        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::channelOpt //
-            ->check(CLI::Range(1, 30));
-
-        net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelOpt //
-            ->default_val(0)
-            ->check(CLI::Range(0, 30));
+    ConfigPhysicalSocketServer::ConfigPhysicalSocketServer(ConfigInstance* instance)
+        : net::config::ConfigPhysicalSocket(instance) {
+        Super::add_option(acceptTimeoutOpt, //
+                          "--accept-timeout",
+                          "Accept timeout",
+                          "timeout",
+                          SNODEC_DEFAULT_ACCEPT_TIMEOUT,
+                          CLI::NonNegativeNumber);
     }
 
-} // namespace net::rc::stream::config
+    void ConfigPhysicalSocketServer::setAcceptTimeout(const utils::Timeval& acceptTimeout) {
+        acceptTimeoutOpt //
+            ->default_val(acceptTimeout)
+            ->clear();
+    }
 
-template class net::stream::config::ConfigSocketClient<net::rc::config::ConfigAddress>;
+    utils::Timeval ConfigPhysicalSocketServer::getAcceptTimeout() const {
+        return acceptTimeoutOpt->as<utils::Timeval>();
+    }
+
+} // namespace net::config

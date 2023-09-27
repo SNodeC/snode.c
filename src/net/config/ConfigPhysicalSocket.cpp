@@ -41,7 +41,7 @@ namespace net::config {
                           SO_REUSEADDR,
                           "Reuse socket address",
                           "bool",
-                          "false",
+                          SNODEC_DEFAULT_REUSE_ADDRESS,
                           CLI::IsMember({"true", "false"}));
 
         add_flag_function(
@@ -58,14 +58,14 @@ namespace net::config {
             },
             "Automatically retry listen|connect",
             "bool",
-            "false",
+            SNODEC_DEFAULT_RETRY,
             CLI::IsMember({"true", "false"}));
 
         add_option(retryTimeoutOpt, //
                    "--retry-timeout",
                    "Timeout of the retry timer",
                    "sec",
-                   1,
+                   SNODEC_DEFAULT_RETRY_TIMEOUT,
                    CLI::NonNegativeNumber);
         retryTimeoutOpt->needs(retryOpt);
 
@@ -73,7 +73,7 @@ namespace net::config {
                    "--retry-tries",
                    "Number of retry attempts bevore giving up (0 = unlimited)",
                    "tries",
-                   0,
+                   SNODEC_DEFAULT_RETRY_TRIES,
                    CLI::TypeValidator<unsigned int>());
         retryTriesOpt->needs(retryOpt);
 
@@ -81,7 +81,7 @@ namespace net::config {
                    "--retry-base",
                    "Base of exponential backoff",
                    "base",
-                   1.8,
+                   SNODEC_DEFAULT_RETRY_BASE,
                    CLI::PositiveNumber);
         retryBaseOpt->needs(retryOpt);
 
@@ -89,7 +89,7 @@ namespace net::config {
                    "--retry-jitter",
                    "Maximum jitter in percent to apply randomly to calculated retry timeout (0 to disable)",
                    "jitter",
-                   0,
+                   SNODEC_DEFAULT_RETRY_JITTER,
                    CLI::Range(0., 100.));
         retryJitterOpt->needs(retryOpt);
 
@@ -97,7 +97,7 @@ namespace net::config {
                    "--retry-limit",
                    "Upper limit in seconds of retry timeout",
                    "sec",
-                   0,
+                   SNODEC_DEFAULT_RETRY_LIMIT,
                    CLI::NonNegativeNumber);
         retryLimitOpt->needs(retryOpt);
     }

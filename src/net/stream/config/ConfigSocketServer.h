@@ -19,20 +19,12 @@
 #ifndef NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigAddressLocal.h"   // IWYU pragma: export
-#include "net/config/ConfigConnection.h"     // IWYU pragma: export
-#include "net/config/ConfigListen.h"         // IWYU pragma: export
-#include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
+#include "net/config/ConfigAddressLocal.h"         // IWYU pragma: export
+#include "net/config/ConfigConnection.h"           // IWYU pragma: export
+#include "net/config/ConfigListen.h"               // IWYU pragma: export
+#include "net/config/ConfigPhysicalSocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-namespace CLI {
-    class Option;
-}
-
-namespace utils {
-    class Timeval;
-}
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,18 +34,12 @@ namespace net::stream::config {
     class ConfigSocketServer
         : public ConfigAddressT<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection
-        , public net::config::ConfigPhysicalSocket
+        , public net::config::ConfigPhysicalSocketServer
         , public net::config::ConfigListen {
     public:
         using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
 
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
-
-        void setAcceptTimeout(const utils::Timeval& acceptTimeout);
-        utils::Timeval getAcceptTimeout() const;
-
-    private:
-        CLI::Option* acceptTimeoutOpt = nullptr;
     };
 
 } // namespace net::stream::config

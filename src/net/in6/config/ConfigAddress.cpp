@@ -52,9 +52,9 @@ namespace net::in6::config {
                           CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
         Super::add_flag(ipv4MappedOpt, //
                         "--ipv4-mapped",
-                        "Resolve IPv4 mapped IPv6 addresses also",
+                        "Resolve IPv4-mapped IPv6 addresses also",
                         "bool",
-                        "false",
+                        SNODEC_DEFAULT_IPV4_MAPPED,
                         CLI::IsMember({"true", "false"}));
     }
 

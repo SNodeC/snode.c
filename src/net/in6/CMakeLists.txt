@@ -8,6 +8,14 @@ set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
               SocketAddrInfo.h config/ConfigAddress.h
 )
 
+set(SNODEC_DEFAULT_IPV4_MAPPED $<IF:$<STREQUAL:${SNODEC_DEFAULT_IPV4_MAPPED},>,\"false\",\"true\">)
+set_source_files_properties(
+    config/ConfigAddress.cpp
+    PROPERTIES
+        COMPILE_DEFINITIONS
+        SNODEC_DEFAULT_IPV4_MAPPED=${SNODEC_DEFAULT_IPV4_MAPPED}
+)
+
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
 add_library(snodec::net-in6 ALIAS net-in6)
 

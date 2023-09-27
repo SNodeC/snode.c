@@ -27,26 +27,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef DEFAULT_READTIMEOUT
-#define DEFAULT_READTIMEOUT 60
-#endif
-
-#ifndef DEFAULT_WRITETIMEOUT
-#define DEFAULT_WRITETIMEOUT 60
-#endif
-
-#ifndef DEFAULT_READBLOCKSIZE
-#define DEFAULT_READBLOCKSIZE 16384
-#endif
-
-#ifndef DEFAULT_WRITEBLOCKSIZE
-#define DEFAULT_WRITEBLOCKSIZE 16384
-#endif
-
-#ifndef DEFAULT_TERMINATETIMEOUT
-#define DEFAULT_TERMINATETIMEOUT 1
-#endif
-
 namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
@@ -56,31 +36,31 @@ namespace net::config {
                    "--read-timeout",
                    "Read timeout in seconds",
                    "timeout",
-                   DEFAULT_READTIMEOUT,
+                   SNODEC_DEFAULT_READTIMEOUT,
                    CLI::PositiveNumber);
         add_option(writeTimeoutOpt, //
                    "--write-timeout",
                    "Write timeout in seconds",
                    "timeout",
-                   DEFAULT_WRITETIMEOUT,
+                   SNODEC_DEFAULT_WRITETIMEOUT,
                    CLI::PositiveNumber);
         add_option(readBlockSizeOpt, //
                    "--read-block-size",
                    "Read block size",
                    "size",
-                   DEFAULT_READBLOCKSIZE,
+                   SNODEC_DEFAULT_READBLOCKSIZE,
                    CLI::PositiveNumber);
         add_option(writeBlockSizeOpt, //
                    "--write-block-size",
                    "Write block size",
                    "size",
-                   DEFAULT_WRITEBLOCKSIZE,
+                   SNODEC_DEFAULT_WRITEBLOCKSIZE,
                    CLI::PositiveNumber);
         add_option(terminateTimeoutOpt, //
                    "--terminate-timeout",
                    "Terminate timeout",
                    "timeout",
-                   DEFAULT_TERMINATETIMEOUT,
+                   SNODEC_DEFAULT_TERMINATETIMEOUT,
                    CLI::PositiveNumber);
     }
 
