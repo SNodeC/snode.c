@@ -8,7 +8,7 @@ set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
               SocketAddrInfo.h config/ConfigAddress.h
 )
 
-set(SNODEC_DEFAULT_IPV4_MAPPED $<IF:$<STREQUAL:${SNODEC_DEFAULT_IPV4_MAPPED},>,\"false\",\"true\">)
+set(SNODEC_DEFAULT_IPV4_MAPPED $<IF:$<STREQUAL:${SNODEC_DEFAULT_IPV4_MAPPED},>,"false","true">)
 set_source_files_properties(
     config/ConfigAddress.cpp
     PROPERTIES
