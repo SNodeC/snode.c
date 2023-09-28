@@ -14,8 +14,8 @@ function(append_source_file_config source_file CONFIG_OPTION description default
 
     set_property(
       SOURCE ${source_file}
-      APPEND PROPERTY COMPILE_DEFINITIONS ${CONFIG_OPTION}=${value}
+      APPEND PROPERTY COMPILE_DEFINITIONS ${CONFIG_OPTION}=${${CONFIG_OPTION}}
     )
 
-    message(STATUS "Appending compile definition to '${source_file}': " '${CONFIG_OPTION}=${value}')
+    message(STATUS "Appending compile definition to '${source_file}': " '${CONFIG_OPTION}=${${CONFIG_OPTION}}')
 endfunction(append_source_file_config source_file CONFIG_OPTION description default_value)
