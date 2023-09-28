@@ -92,11 +92,11 @@ append_source_file_config(
 
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_REUSE_ADDRESS
-    "Reuse address" \"false\"
+    "Reuse address" \"false\" \"true\"
 )
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RECONNECT
-    "Reconnect after disconnect" \"false\"
+    "Reconnect after disconnect" \"false\" \"true\"
 )
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RECONNECT_TIME
@@ -104,7 +104,7 @@ append_source_file_config(
 )
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY
-    "Retry listen and connect" \"false\"
+    "Retry listen and connect" \"false\" \"true\"
 )
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_TIMEOUT

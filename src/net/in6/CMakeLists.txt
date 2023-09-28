@@ -10,7 +10,7 @@ set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
 
 append_source_file_config(
     config/ConfigAddress.cpp SNODEC_DEFAULT_IPV4_MAPPED
-    "IPv4-mapped IPv6 addresses" \"false\"
+    "IPv4-mapped IPv6 addresses" \"false\" \"true\"
 )
 
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
