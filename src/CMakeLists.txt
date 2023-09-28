@@ -32,9 +32,6 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(iwyu)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(AppendSourceFileConfig)
-
 set(IO_MULTIPLEXERS "epoll;poll;select")
 list(SUBLIST IO_MULTIPLEXERS 0 1 FIRST_IO_MULTIPLEXER)
 set(SNODEC_DEFAULT_IO_MULTIPLEXER
