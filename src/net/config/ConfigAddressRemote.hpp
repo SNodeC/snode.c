@@ -16,9 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGADDRESSREMOTE_HPP
-#define NET_CONFIG_CONFIGADDRESSREMOTE_HPP
-
 #include "net/config/ConfigAddress.hpp"     // IWYU pragma: export
 #include "net/config/ConfigAddressRemote.h" // IWYU pragma: export
 
@@ -36,5 +33,3 @@ namespace net::config {
     }
 
 } // namespace net::config
-
-#endif // NET_CONFIG_CONFIGADDRESSREMOTE_HPP
