@@ -8,13 +8,9 @@ set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
               SocketAddrInfo.h config/ConfigAddress.h
 )
 
-set(SNODEC_DEFAULT_IPV4_MAPPED
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_IPV4_MAPPED},>,"false","true">
-)
-set_source_files_properties(
-    config/ConfigAddress.cpp
-    PROPERTIES COMPILE_DEFINITIONS
-               SNODEC_DEFAULT_IPV4_MAPPED=${SNODEC_DEFAULT_IPV4_MAPPED}
+append_source_file_config(
+    config/ConfigAddress.cpp SNODEC_DEFAULT_IPV4_MAPPED
+    "IPv4-mapped IPv6 addresses" \"false\"
 )
 
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})

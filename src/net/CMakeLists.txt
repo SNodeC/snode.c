@@ -61,122 +61,88 @@ set(NET_H
     stream/config/tls/ConfigSocketServer.hpp
 )
 
-set(SNODEC_DEFAULT_READBLOCKSIZE
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_READBLOCKSIZE},>,16384,${SNODEC_DEFAULT_READBLOCKSIZE}>
+append_source_file_config(
+    config/ConfigConnection.cpp SNODEC_DEFAULT_READBLOCKSIZE
+    "Read block size in bytes" 16384
 )
-set(SNODEC_DEFAULT_WRITEBLOCKSIZE
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_WRITEBLOCKSIZE},>,16384,${SNODEC_DEFAULT_WRITEBLOCKSIZE}>
+append_source_file_config(
+    config/ConfigConnection.cpp SNODEC_DEFAULT_WRITEBLOCKSIZE
+    "Write block size in bytes" 16384
 )
-set(SNODEC_DEFAULT_READTIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_READTIMEOUT},>,60,${SNODEC_DEFAULT_READTIMEOUT}>
+append_source_file_config(
+    config/ConfigConnection.cpp SNODEC_DEFAULT_READTIMEOUT
+    "Read inactivity timeout in seconds" 60
 )
-set(SNODEC_DEFAULT_WRITETIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_WRITETIMEOUT},>,60,${SNODEC_DEFAULT_WRITETIMEOUT}>
+append_source_file_config(
+    config/ConfigConnection.cpp SNODEC_DEFAULT_WRITETIMEOUT
+    "Write inactivity timeout in seconds" 60
 )
-set(SNODEC_DEFAULT_TERMINATETIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_TERMINATETIMEOUT},>,1,${SNODEC_DEFAULT_TERMINATETIMEOUT}>
-)
-set_source_files_properties(
-    config/ConfigConnection.cpp
-    PROPERTIES
-        COMPILE_DEFINITIONS
-        "SNODEC_DEFAULT_READBLOCKSIZE=${SNODEC_DEFAULT_READBLOCKSIZE};\
-SNODEC_DEFAULT_WRITEBLOCKSIZE=${SNODEC_DEFAULT_WRITEBLOCKSIZE};\
-SNODEC_DEFAULT_READTIMEOUT=${SNODEC_DEFAULT_READTIMEOUT};\
-SNODEC_DEFAULT_WRITETIMEOUT=${SNODEC_DEFAULT_WRITETIMEOUT};\
-SNODEC_DEFAULT_TERMINATETIMEOUT=${SNODEC_DEFAULT_TERMINATETIMEOUT}"
+append_source_file_config(
+    config/ConfigConnection.cpp SNODEC_DEFAULT_TERMINATETIMEOUT
+    "Shutdown inactivity timeout in seconds" 1
 )
 
-set(SNODEC_DEFAULT_TLS_INITTIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_TLS_INITTIMEOUT},>,10,${SNODEC_DEFAULT_TLS_INITTIMEOUT}>
+append_source_file_config(
+    config/ConfigListen.cpp SNODEC_DEFAULT_ACCEPTS_PER_TICK "Accepts per tick"
+    1
 )
-set(SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT},>,2,${SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT}>
-)
-set_source_files_properties(
-    config/ConfigTls.cpp
-    PROPERTIES
-        COMPILE_DEFINITIONS
-        "SNODEC_DEFAULT_TLS_INITTIMEOUT=${SNODEC_DEFAULT_TLS_INITTIMEOUT};\
-SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT=${SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT}"
+append_source_file_config(
+    config/ConfigListen.cpp SNODEC_DEFAULT_BACKLOG "Listen backlog" 5
 )
 
-set(SNODEC_DEFAULT_ACCEPTS_PER_TICK
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_ACCEPTS_PER_TICK},>,1,${SNODEC_DEFAULT_ACCEPTS_PER_TICK}>
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_REUSE_ADDRESS
+    "Reuse address" \"false\"
 )
-set(SNODEC_DEFAULT_BACKLOG
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_BACKLOG},>,5,${SNODEC_DEFAULT_BACKLOG}>
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RECONNECT
+    "Reconnect after disconnect" \"false\"
 )
-set_source_files_properties(
-    config/ConfigListen.cpp
-    PROPERTIES
-        COMPILE_DEFINITIONS
-        "SNODEC_DEFAULT_ACCEPTS_PER_TICK=${SNODEC_DEFAULT_ACCEPTS_PER_TICK};\
-SNODEC_DEFAULT_BACKLOG=${SNODEC_DEFAULT_BACKLOG}"
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RECONNECT_TIME
+    "Reconnect time in seconds" 1
 )
-
-set(SNODEC_DEFAULT_REUSE_ADDRESS
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_REUSE_ADDRESS},>,"false","true">
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY
+    "Retry listen and connect" \"false\"
 )
-set(SNODEC_DEFAULT_RECONNECT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_RECONNECT},>,"false","true">
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_TIMEOUT
+    "Retry interval in seconds" 1
 )
-set(SNODEC_DEFAULT_RECONNECT_TIME
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_RECONNECT_TIME},>,1,${SNODEC_DEFAULT_RECONNECT_TIME}>
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_TRIES
+    "Upper limit of retry tries" 0
 )
-set(SNODEC_DEFAULT_RETRY
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_RETRY},>,"false","true">
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_BASE
+    "Base of exponential backoff" 1.8
 )
-set(SNODEC_DEFAULT_RETRY_TIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_RETRY_TIMEOUT},>,1,${SNODEC_DEFAULT_RETRY_TIMEOUT}>
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_JITTER
+    "Jitter of retry timeout in percent" 0
 )
-set(SNODEC_DEFAULT_RETRY_TRIES
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_RETRY_TRIES},>,0,${SNODEC_DEFAULT_RETRY_TRIES}>
-)
-set(SNODEC_DEFAULT_RETRY_BASE
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_RETRY_BASE},>,1.8,${SNODEC_DEFAULT_RETRY_BASE}>
-)
-set(SNODEC_DEFAULT_RETRY_JITTER
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_RETRY_JITTER},>,0,${SNODEC_DEFAULT_RETRY_JITTER}>
-)
-set(SNODEC_DEFAULT_TLS_INITTIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_TLS_INITTIMEOUT},>,10,${SNODEC_DEFAULT_TLS_INITTIMEOUT}>
-)
-set(SNODEC_DEFAULT_RETRY_LIMIT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_RETRY_LIMIT},>,0,${SNODEC_DEFAULT_RETRY_LIMIT}>
-)
-set_source_files_properties(
-    config/ConfigPhysicalSocket.cpp
-    PROPERTIES
-        COMPILE_DEFINITIONS
-        "SNODEC_DEFAULT_REUSE_ADDRESS=${SNODEC_DEFAULT_REUSE_ADDRESS};\
-SNODEC_DEFAULT_RECONNECT=${SNODEC_DEFAULT_RECONNECT};\
-SNODEC_DEFAULT_RECONNECT_TIME=${SNODEC_DEFAULT_RECONNECT_TIME};\
-SNODEC_DEFAULT_RETRY=${SNODEC_DEFAULT_RETRY};\
-SNODEC_DEFAULT_RETRY_TIMEOUT=${SNODEC_DEFAULT_RETRY_TIMEOUT};\
-SNODEC_DEFAULT_RETRY_TRIES=${SNODEC_DEFAULT_RETRY_TRIES};\
-SNODEC_DEFAULT_RETRY_BASE=${SNODEC_DEFAULT_RETRY_BASE};\
-SNODEC_DEFAULT_RETRY_JITTER=${SNODEC_DEFAULT_RETRY_JITTER};\
-SNODEC_DEFAULT_TLS_INITTIMEOUT=${SNODEC_DEFAULT_TLS_INITTIMEOUT};\
-SNODEC_DEFAULT_RETRY_LIMIT=${SNODEC_DEFAULT_RETRY_LIMIT}"
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_LIMIT
+    "Upper limit of retry timeout" 0
 )
 
-set(SNODEC_DEFAULT_ACCEPT_TIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_ACCEPT_TIMEOUT},>,0,${SNODEC_DEFAULT_ACCEPT_TIMEOUT}>
+append_source_file_config(
+    config/ConfigPhysicalSocketServer.cpp SNODEC_DEFAULT_ACCEPT_TIMEOUT
+    "Accept inactivity timeout in seconds" 0
 )
-set_source_files_properties(
-    config/ConfigPhysicalSocketServer.cpp
-    PROPERTIES COMPILE_DEFINITIONS
-               SNODEC_DEFAULT_ACCEPT_TIMEOUT=${SNODEC_DEFAULT_ACCEPT_TIMEOUT}
+append_source_file_config(
+    config/ConfigPhysicalSocketClient.cpp SNODEC_DEFAULT_CONNECT_TIMEOUT
+    "Connect timeout in seconds" 10
 )
 
-set(SNODEC_DEFAULT_CONNECT_TIMEOUT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_CONNECT_TIMEOUT},>,10,${SNODEC_DEFAULT_CONNECT_TIMEOUT}>
+append_source_file_config(
+    config/ConfigTls.cpp SNODEC_DEFAULT_TLS_INITTIMEOUT
+    "SSL/TLS initial handshake timeout in seconds" 10
 )
-set_source_files_properties(
-    config/ConfigPhysicalSocketClient.cpp
-    PROPERTIES COMPILE_DEFINITIONS
-               SNODEC_DEFAULT_CONNECT_TIMEOUT=${SNODEC_DEFAULT_CONNECT_TIMEOUT}
+append_source_file_config(
+    config/ConfigTls.cpp SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT
+    "SSL/TLS teardown timeout in seconds" 1
 )
 
 add_library(net SHARED ${NET_CPP} ${NET_H})

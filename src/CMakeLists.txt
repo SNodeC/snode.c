@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.18)
 
 project(snode.c-code)
 
+set(SNODEC_INTREE_BUILD "YES")
+
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12.2)
         message(
@@ -27,11 +29,11 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
 endif()
 
 include(GNUInstallDirs)
-
-set(SNODEC_INTREE_BUILD "YES")
-
 include(CMakePackageConfigHelpers)
 include(iwyu)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(AppendSourceFileConfig)
 
 set(IO_MULTIPLEXERS "epoll;poll;select")
 list(SUBLIST IO_MULTIPLEXERS 0 1 FIRST_IO_MULTIPLEXER)

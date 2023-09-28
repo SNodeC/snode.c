@@ -16,17 +16,13 @@ set(NET-IN6-STREAM_H
     config/ConfigSocketServer.h
 )
 
-set(SNODEC_DEFAULT_REUSE_PORT
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_REUSE_PORT},>,"false","true">
+append_source_file_config(
+    config/ConfigSocketServer.cpp SNODEC_DEFAULT_REUSE_PORT
+    "Reuse port (IPv4/IPv6)" \"false\"
 )
-set(SNODEC_DEFAULT_IPV6_ONLY
-    $<IF:$<STREQUAL:${SNODEC_DEFAULT_IPV6_ONLY},>,"false","true">
-)
-set_source_files_properties(
-    config/ConfigSocketServer.cpp
-    PROPERTIES COMPILE_DEFINITIONS
-               "SNODEC_DEFAULT_REUSE_PORT=${SNODEC_DEFAULT_REUSE_PORT};\
-SNODEC_DEFAULT_IPV6_ONLY=${SNODEC_DEFAULT_IPV6_ONLY}"
+append_source_file_config(
+    config/ConfigSocketServer.cpp SNODEC_DEFAULT_IPV6_ONLY "IPv6 only"
+    \"false\"
 )
 
 add_library(net-in6-stream SHARED ${NET-IN6-STREAM_CPP} ${NET-IN6-STREAM_H})
