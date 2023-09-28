@@ -56,6 +56,12 @@ namespace net::config {
         void setReuseAddress(bool reuseAddress = true);
         bool getReuseAddress();
 
+        bool getReconnect();
+        void setReconnect(bool reconnect = true);
+
+        double getReconnectTime();
+        void setReconnectTime(double time);
+
         void setRetry(bool retry = true);
         bool getRetry();
 
@@ -91,6 +97,8 @@ namespace net::config {
         CLI::Option* retryBaseOpt = nullptr;
         CLI::Option* retryLimitOpt = nullptr;
         CLI::Option* retryJitterOpt = nullptr;
+        CLI::Option* reconnectOpt = nullptr;
+        CLI::Option* reconnectTimeOpt = nullptr;
 
         std::map<int, const net::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };

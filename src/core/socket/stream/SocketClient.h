@@ -158,19 +158,16 @@ namespace core::socket::stream {
                     [client = *this, onError](SocketConnection* socketConnection) -> void {
                         client.onDisconnect(socketConnection);
 
-                        if (client.getConfig().getRetry()) {
-                            double relativeRetryTimeout =
-                                client.getConfig().getRetryTimeout() *
-                                (1 - utils::Random::getInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) /
-                                         100.);
+                        if (client.getConfig().getReconnect()) {
+                            double relativeReconnectTimeout = client.getConfig().getReconnectTime();
 
-                            LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
+                            LOG(INFO) << "Reconnecting in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
                                 [client, onError]() mutable -> void {
                                     client.realConnect(onError, 0, 1);
                                 },
-                                relativeRetryTimeout);
+                                relativeReconnectTimeout);
                         }
                     },
                     [client = *this, onError, tries, retryTimeoutScale](const core::ProgressLog& progressLog) -> void {
