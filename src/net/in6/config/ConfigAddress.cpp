@@ -54,7 +54,7 @@ namespace net::in6::config {
                         "--ipv4-mapped",
                         "Resolve IPv4-mapped IPv6 addresses also",
                         "bool",
-                        SNODEC_DEFAULT_IPV4_MAPPED,
+                        IPV4_MAPPED,
                         CLI::IsMember({"true", "false"}));
     }
 

@@ -65,86 +65,80 @@ set(NET_H
 )
 
 append_source_file_config(
-    config/ConfigConnection.cpp SNODEC_DEFAULT_READBLOCKSIZE
-    "Read block size in bytes" 16384
+    config/ConfigConnection.cpp READ_BLOCKSIZE "Read block size in bytes" 16384
 )
 append_source_file_config(
-    config/ConfigConnection.cpp SNODEC_DEFAULT_WRITEBLOCKSIZE
-    "Write block size in bytes" 16384
+    config/ConfigConnection.cpp WRITE_BLOCKSIZE "Write block size in bytes"
+    16384
 )
 append_source_file_config(
-    config/ConfigConnection.cpp SNODEC_DEFAULT_READTIMEOUT
+    config/ConfigConnection.cpp READ_TIMEOUT
     "Read inactivity timeout in seconds" 60
 )
 append_source_file_config(
-    config/ConfigConnection.cpp SNODEC_DEFAULT_WRITETIMEOUT
+    config/ConfigConnection.cpp WRITE_TIMEOUT
     "Write inactivity timeout in seconds" 60
 )
 append_source_file_config(
-    config/ConfigConnection.cpp SNODEC_DEFAULT_TERMINATETIMEOUT
+    config/ConfigConnection.cpp TERMINATE_TIMEOUT
     "Shutdown inactivity timeout in seconds" 1
 )
 
 append_source_file_config(
-    config/ConfigListen.cpp SNODEC_DEFAULT_ACCEPTS_PER_TICK "Accepts per tick"
+    config/ConfigListen.cpp ACCEPTS_PER_TICK "Accepts per tick" 1
+)
+append_source_file_config(config/ConfigListen.cpp BACKLOG "Listen backlog" 5)
+
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp REUSE_ADDRESS "Reuse address" \"false\"
+    \"true\"
+)
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp RECONNECT "Reconnect after disconnect"
+    \"false\" \"true\"
+)
+append_source_file_config(
+    config/ConfigPhysicalSocket.cpp RECONNECT_TIME "Reconnect time in seconds"
     1
 )
 append_source_file_config(
-    config/ConfigListen.cpp SNODEC_DEFAULT_BACKLOG "Listen backlog" 5
-)
-
-append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_REUSE_ADDRESS
-    "Reuse address" \"false\" \"true\"
+    config/ConfigPhysicalSocket.cpp RETRY "Retry listen and connect" \"false\"
+    \"true\"
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RECONNECT
-    "Reconnect after disconnect" \"false\" \"true\"
+    config/ConfigPhysicalSocket.cpp RETRY_TIMEOUT "Retry interval in seconds" 1
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RECONNECT_TIME
-    "Reconnect time in seconds" 1
+    config/ConfigPhysicalSocket.cpp RETRY_TRIES "Upper limit of retry tries" 0
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY
-    "Retry listen and connect" \"false\" \"true\"
+    config/ConfigPhysicalSocket.cpp RETRY_BASE "Base of exponential backoff"
+    1.8
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_TIMEOUT
-    "Retry interval in seconds" 1
-)
-append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_TRIES
-    "Upper limit of retry tries" 0
-)
-append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_BASE
-    "Base of exponential backoff" 1.8
-)
-append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_JITTER
+    config/ConfigPhysicalSocket.cpp RETRY_JITTER
     "Jitter of retry timeout in percent" 0
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp SNODEC_DEFAULT_RETRY_LIMIT
-    "Upper limit of retry timeout" 0
+    config/ConfigPhysicalSocket.cpp RETRY_LIMIT "Upper limit of retry timeout"
+    0
 )
 
 append_source_file_config(
-    config/ConfigPhysicalSocketServer.cpp SNODEC_DEFAULT_ACCEPT_TIMEOUT
+    config/ConfigPhysicalSocketServer.cpp ACCEPT_TIMEOUT
     "Accept inactivity timeout in seconds" 0
 )
 append_source_file_config(
-    config/ConfigPhysicalSocketClient.cpp SNODEC_DEFAULT_CONNECT_TIMEOUT
+    config/ConfigPhysicalSocketClient.cpp CONNECT_TIMEOUT
     "Connect timeout in seconds" 10
 )
 
 append_source_file_config(
-    config/ConfigTls.cpp SNODEC_DEFAULT_TLS_INITTIMEOUT
+    config/ConfigTls.cpp TLS_INIT_TIMEOUT
     "SSL/TLS initial handshake timeout in seconds" 10
 )
 append_source_file_config(
-    config/ConfigTls.cpp SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT
+    config/ConfigTls.cpp TLS_SHUTDOWN_TIMEOUT
     "SSL/TLS teardown timeout in seconds" 1
 )
 

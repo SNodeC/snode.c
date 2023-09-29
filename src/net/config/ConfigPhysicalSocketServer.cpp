@@ -53,7 +53,7 @@ namespace net::config {
                           "--accept-timeout",
                           "Accept timeout",
                           "timeout",
-                          SNODEC_DEFAULT_ACCEPT_TIMEOUT,
+                          ACCEPT_TIMEOUT,
                           CLI::NonNegativeNumber);
     }
 

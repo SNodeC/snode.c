@@ -7,7 +7,7 @@ set(logger_DEPENDENCIES "")
 set(utils_DEPENDENCIES logger)
 
 # Core
-set(core_DEPENDENCIES mux-@SNODEC_DEFAULT_IO_MULTIPLEXER@ utils)
+set(core_DEPENDENCIES mux-@SNODEC_IO_MULTIPLEXER@ utils)
 set(core-socket_DEPENDENCIES core)
 set(core-socket-stream_DEPENDENCIES core-socket)
 set(core-socket-stream-legacy_DEPENDENCIES core-socket-stream)

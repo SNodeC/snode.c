@@ -62,7 +62,7 @@ namespace net::in::stream::config {
                                                              SO_REUSEPORT,
                                                              "Reuse port number",
                                                              "bool",
-                                                             SNODEC_DEFAULT_REUSE_PORT,
+                                                             REUSE_PORT,
                                                              CLI::IsMember({"true", "false"}));
     }
 

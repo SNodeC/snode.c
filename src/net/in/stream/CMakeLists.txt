@@ -17,8 +17,8 @@ set(NET-IN-STREAM_H
 )
 
 append_source_file_config(
-    config/ConfigSocketServer.cpp SNODEC_DEFAULT_REUSE_PORT
-    "Reuse port (IPv4/IPv6)" \"false\" \"true\"
+    config/ConfigSocketServer.cpp REUSE_PORT "Reuse port (IPv4/IPv6)" \"false\"
+    \"true\"
 )
 
 add_library(net-in-stream SHARED ${NET-IN-STREAM_CPP} ${NET-IN-STREAM_H})

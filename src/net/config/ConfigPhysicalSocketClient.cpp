@@ -53,7 +53,7 @@ namespace net::config {
                           "--connect-timeout",
                           "Connect timeout",
                           "timeout",
-                          SNODEC_DEFAULT_CONNECT_TIMEOUT,
+                          CONNECT_TIMEOUT,
                           CLI::NonNegativeNumber);
     }
 

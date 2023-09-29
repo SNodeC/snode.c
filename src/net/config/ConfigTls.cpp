@@ -84,13 +84,13 @@ namespace net::config {
                    "--init-timeout",
                    "SSL/TLS initialization timeout in seconds",
                    "timeout",
-                   SNODEC_DEFAULT_TLS_INITTIMEOUT,
+                   TLS_INIT_TIMEOUT,
                    CLI::PositiveNumber);
         add_option(shutdownTimeoutOpt, //
                    "--shutdown-timeout",
                    "SSL/TLS shutdown timeout in seconds",
                    "timeout",
-                   SNODEC_DEFAULT_TLS_SHUTDOWNTIMEOUT,
+                   TLS_SHUTDOWN_TIMEOUT,
                    CLI::PositiveNumber);
     }
 

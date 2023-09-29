@@ -36,13 +36,13 @@ namespace net::config {
                    "--backlog",
                    "Listen backlog",
                    "backlog",
-                   SNODEC_DEFAULT_BACKLOG,
+                   BACKLOG,
                    CLI::PositiveNumber);
         add_option(acceptsPerTickOpt, //
                    "--accepts-per-tick",
                    "Accepts per tick",
                    "number",
-                   SNODEC_DEFAULT_ACCEPTS_PER_TICK,
+                   ACCEPTS_PER_TICK,
                    CLI::PositiveNumber);
     }
 

@@ -36,31 +36,31 @@ namespace net::config {
                    "--read-timeout",
                    "Read timeout in seconds",
                    "timeout",
-                   SNODEC_DEFAULT_READTIMEOUT,
+                   READ_TIMEOUT,
                    CLI::PositiveNumber);
         add_option(writeTimeoutOpt, //
                    "--write-timeout",
                    "Write timeout in seconds",
                    "timeout",
-                   SNODEC_DEFAULT_WRITETIMEOUT,
+                   WRITE_TIMEOUT,
                    CLI::PositiveNumber);
         add_option(readBlockSizeOpt, //
                    "--read-block-size",
                    "Read block size",
                    "size",
-                   SNODEC_DEFAULT_READBLOCKSIZE,
+                   READ_BLOCKSIZE,
                    CLI::PositiveNumber);
         add_option(writeBlockSizeOpt, //
                    "--write-block-size",
                    "Write block size",
                    "size",
-                   SNODEC_DEFAULT_WRITEBLOCKSIZE,
+                   WRITE_BLOCKSIZE,
                    CLI::PositiveNumber);
         add_option(terminateTimeoutOpt, //
                    "--terminate-timeout",
                    "Terminate timeout",
                    "timeout",
-                   SNODEC_DEFAULT_TERMINATETIMEOUT,
+                   TERMINATE_TIMEOUT,
                    CLI::PositiveNumber);
     }
 
