@@ -65,7 +65,7 @@ if(LIBMARIADB_FOUND)
     )
 
     set_target_properties(
-        db-mariadb PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+        db-mariadb PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME
                                                             snodec-db-mariadb
     )
 

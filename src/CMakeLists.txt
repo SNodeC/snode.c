@@ -76,7 +76,7 @@ add_compile_options(
 # https://stackoverflow.com/questions/11055569/linking-with-dynamic-library-with-dependencies
 add_link_options(LINKER:--as-needed)
 
-set(SNODEC_SOVERSION ${snode.c_VERSION_MAJOR})
+set(SNODEC_SO_VERSION ${snode.c_VERSION_MAJOR})
 
 add_subdirectory(log)
 add_subdirectory(utils)

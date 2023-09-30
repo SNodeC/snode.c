@@ -88,7 +88,7 @@ set_target_properties(
     http-server-express
     PROPERTIES OUTPUT_NAME snodec-http-server-express
                LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
-               SOVERSION ${SNODEC_SOVERSION}
+               SOVERSION ${SNODEC_SO_VERSION}
                INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
 )
 

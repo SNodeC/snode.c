@@ -30,7 +30,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    mqtt-fast PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+    mqtt-fast PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME
                                                        snodec-mqtt-fast
 )
 

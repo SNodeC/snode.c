@@ -53,7 +53,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    logger PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-logger
+    logger PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME snodec-logger
 )
 
 install(

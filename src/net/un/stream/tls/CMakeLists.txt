@@ -27,7 +27,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un-stream-tls PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+    net-un-stream-tls PROPERTIES SOVERSION ${SNODEC_SO_VERSION}
                                  OUTPUT_NAME snodec-net-un-stream-tls
 )
 

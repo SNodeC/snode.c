@@ -52,7 +52,7 @@ else(NOT OpenSSL_FOUND)
 
     set_target_properties(
         core-socket-stream-tls
-        PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+        PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME
                                                  snodec-core-socket-stream-tls
     )
 

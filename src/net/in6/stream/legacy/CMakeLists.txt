@@ -29,7 +29,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-in6-stream-legacy PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+    net-in6-stream-legacy PROPERTIES SOVERSION ${SNODEC_SO_VERSION}
                                      OUTPUT_NAME snodec-net-in6-stream-legacy
 )
 

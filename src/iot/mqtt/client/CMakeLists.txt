@@ -24,7 +24,7 @@ target_include_directories(
 
 set_target_properties(
     mqtt-client
-    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+    PROPERTIES SOVERSION ${SNODEC_SO_VERSION}
                OUTPUT_NAME snodec-mqtt-client
                INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
 )
@@ -75,7 +75,7 @@ target_include_directories(
 
 set_target_properties(
     mqtt-client-websocket
-    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+    PROPERTIES SOVERSION ${SNODEC_SO_VERSION}
                OUTPUT_NAME snodec-mqtt-client-websocket
                INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
 )

@@ -26,7 +26,7 @@ set_source_files_properties(
     PROPERTIES
         COMPILE_DEFINITIONS
         "HTTP_UPGRADE_INSTALL_LIBDIR=\"${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}\"; \
-            SOVERSION=\"${SNODEC_SOVERSION}\""
+            SOVERSION=\"${SNODEC_SO_VERSION}\""
 )
 
 target_include_directories(
@@ -40,7 +40,7 @@ target_link_libraries(http-server PUBLIC snodec::http)
 
 set_target_properties(
     http-server
-    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+    PROPERTIES SOVERSION ${SNODEC_SO_VERSION}
                OUTPUT_NAME snodec-http-server
                LIBRARY_OUTPUT_DIRECTORY "${HTTP_COMPILE_LIBDIR}"
                BUILD_RPATH "${HTTP_COMPILE_LIBDIR}"

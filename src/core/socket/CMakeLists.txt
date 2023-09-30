@@ -19,7 +19,7 @@ target_include_directories(
 target_link_libraries(core-socket PUBLIC snodec::core)
 
 set_target_properties(
-    core-socket PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+    core-socket PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME
                                                          snodec-core-socket
 )
 
