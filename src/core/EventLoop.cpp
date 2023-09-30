@@ -187,7 +187,7 @@ namespace core {
             sigaction(SIGALRM, &oldAlarmAct, nullptr);
             sigaction(SIGHUP, &oldHupAct, nullptr);
         } else {
-            LOG(INFO) << "Eventloop not started SNode.C not initialized or bootstraping failed";
+            LOG(TRACE) << "Eventloop not started SNode.C not initialized or bootstraping failed";
 
             EventLoop::instance().eventMultiplexer.clear();
         }
@@ -208,7 +208,7 @@ namespace core {
             signal = std::to_string(stopsig);
         }
 
-        LOG(INFO) << "Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
+        LOG(TRACE) << "Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
 
         eventLoopState = State::STOPING;
 
@@ -218,7 +218,7 @@ namespace core {
 
         utils::Timeval timeout = 2;
         do {
-            LOG(INFO) << "Stopping all DescriptorEventReceivers";
+            LOG(TRACE) << "Stopping all DescriptorEventReceivers";
 
             auto t1 = std::chrono::system_clock::now();
 
@@ -234,15 +234,15 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
 
-        LOG(INFO) << "Closing all libraries opened during runntime";
+        LOG(TRACE) << "Closing all libraries opened during runntime";
 
         DynamicLoader::execDlCloseAll();
 
-        LOG(INFO) << "Terminating SNode.C";
+        LOG(TRACE) << "Terminating SNode.C";
 
         utils::Config::terminate();
 
-        LOG(INFO) << "All resources released ... BYE";
+        LOG(TRACE) << "All resources released ... BYE";
     }
 
     State EventLoop::state() {
