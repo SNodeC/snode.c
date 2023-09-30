@@ -93,13 +93,10 @@ namespace CLI {
                         }
                         out << name << valueDelimiter << value << "\n\n";
                     } else {
-                        out << "\n";
+                        out << '\n';
                     }
                 }
             }
-        }
-        if (write_description && !out.str().empty()) {
-            out << '\n';
         }
         auto subcommands = app->get_subcommands({});
         for (const App* subcom : subcommands) {
@@ -134,7 +131,8 @@ namespace CLI {
 
         std::string outString;
         if (write_description && !out.str().empty()) {
-            outString = commentChar + commentLead + detail::fix_newlines(commentChar + commentLead, app->get_description()) + '\n';
+            outString =
+                commentChar + std::string("#") + commentLead + detail::fix_newlines(commentChar + commentLead, app->get_description());
         }
 
         return outString + out.str();
