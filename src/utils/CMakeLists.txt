@@ -49,6 +49,10 @@ set(UTILS_H
     system/time.h
 )
 
+append_source_file_config(
+    config/Config.cpp GROUP_NAME "Group name of group used for config file management" snodec
+)
+
 add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})
 add_library(snodec::utils ALIAS utils)
 

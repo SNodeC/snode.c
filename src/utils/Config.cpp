@@ -58,6 +58,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define XSTR(s) STR(s)
+#define STR(s) #s
+
 namespace CLI {
 
     class CallForCommandline : public CLI::Success {
@@ -202,7 +205,7 @@ namespace utils {
                     (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
                         ~std::filesystem::perms::others_all);
                 struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                if ((gr = getgrnam("snodec")) != nullptr) {
+                if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                     if (chown(configDirectory.c_str(), euid, gr->gr_gid) < 0) {
                         std::cout << "Warning: Can not set group ownership of '" << configDirectory << "' to 'snodec':" << strerror(errno)
                                   << std::endl;
@@ -225,7 +228,7 @@ namespace utils {
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                  ~std::filesystem::perms::others_all);
                 struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                if ((gr = getgrnam("snodec")) != nullptr) {
+                if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                     if (chown(logDirectory.c_str(), euid, gr->gr_gid) < 0) {
                         std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
                                   << std::endl;
@@ -248,7 +251,7 @@ namespace utils {
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                  ~std::filesystem::perms::others_all);
                 struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                if ((gr = getgrnam("snodec")) != nullptr) {
+                if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                     if (chown(pidDirectory.c_str(), euid, gr->gr_gid) < 0) {
                         std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
                                   << std::endl;
