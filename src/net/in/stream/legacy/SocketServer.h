@@ -24,6 +24,12 @@
 #include "net/in/stream/SocketServer.h"                     // IWYU pragma: export
 #include "net/in/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: export
 
+// IWYU pragma: no_include "core/socket/stream/SocketAcceptor.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketReader.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketWriter.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
