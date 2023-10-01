@@ -28,10 +28,10 @@ function(append_source_file_config source_file CONFIG_OPTION description default
         CACHE STRING "${description}"
     )
 
+    message(STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${source_file}'")
+
     set_property(
       SOURCE ${source_file}
       APPEND PROPERTY COMPILE_DEFINITIONS ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}}
     )
-
-    message(STATUS "Appending compile definition to '${source_file}': " '${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}}')
 endfunction(append_source_file_config source_file CONFIG_OPTION description default_value)
