@@ -121,7 +121,7 @@ target_link_libraries(
 )
 
 set_target_properties(
-    core PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME snodec-core
+    core PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-core
 )
 
 install(

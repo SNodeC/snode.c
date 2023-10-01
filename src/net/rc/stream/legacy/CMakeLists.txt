@@ -45,7 +45,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-rc-stream-legacy PROPERTIES SOVERSION ${SNODEC_SO_VERSION}
+    net-rc-stream-legacy PROPERTIES SOVERSION ${SNODEC_SOVERSION}
                                     OUTPUT_NAME snodec-net-rc-stream-legacy
 )
 

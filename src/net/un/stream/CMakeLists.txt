@@ -45,7 +45,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un-stream PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME
+    net-un-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
                                                            snodec-net-un-stream
 )
 

@@ -31,7 +31,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    mux-select PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME
+    mux-select PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
                                                         snodec-core-mux-select
 )
 

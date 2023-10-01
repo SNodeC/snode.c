@@ -50,7 +50,7 @@ set_target_properties(
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY
                "${WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR}"
                OUTPUT_NAME "snodec-websocket-echo-server"
-               SOVERSION ${SNODEC_SO_VERSION} # PREFIX "ssp"
+               SOVERSION ${SNODEC_SOVERSION} # PREFIX "ssp"
                INSTALL_RPATH
                "${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}"
 )

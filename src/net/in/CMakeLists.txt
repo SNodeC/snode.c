@@ -37,7 +37,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-in PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME snodec-net-in
+    net-in PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-in
 )
 
 install(

@@ -171,7 +171,7 @@ target_include_directories(
 target_link_libraries(net PUBLIC snodec::core)
 
 set_target_properties(
-    net PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME snodec-net
+    net PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net
 )
 
 install(

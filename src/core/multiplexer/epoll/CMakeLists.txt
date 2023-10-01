@@ -31,7 +31,7 @@ target_include_directories(
 )
 
 set_target_properties(
-    mux-epoll PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME
+    mux-epoll PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
                                                        snodec-core-mux-epoll
 )
 

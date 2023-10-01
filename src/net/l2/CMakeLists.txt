@@ -44,7 +44,7 @@ if(BLUEZ_FOUND)
     )
 
     set_target_properties(
-        net-l2 PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME
+        net-l2 PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
                                                         snodec-net-l2
     )
 

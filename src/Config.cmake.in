@@ -165,6 +165,6 @@ if("${isSystemDir}" STREQUAL "-1")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 endif("${isSystemDir}" STREQUAL "-1")
 
-set(SNODEC_SO_VERSION @SNODEC_SO_VERSION@)
+set(SNODEC_SOVERSION @SNODEC_SOVERSION@)
 
 add_link_options(LINKER:--as-needed)

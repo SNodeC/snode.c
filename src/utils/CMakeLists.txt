@@ -62,7 +62,7 @@ target_include_directories(
 target_link_libraries(utils PUBLIC snodec::logger)
 
 set_target_properties(
-    utils PROPERTIES SOVERSION ${SNODEC_SO_VERSION} OUTPUT_NAME snodec-utils
+    utils PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-utils
 )
 
 install(
