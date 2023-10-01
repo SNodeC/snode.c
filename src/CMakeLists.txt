@@ -1,18 +1,18 @@
-# snode.c - a slim toolkit for network communication
-# Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
+# snode.c - a slim toolkit for network communication Copyright (C) 2020, 2021,
+# 2022, 2023 Volker Christian <me@vchrist.at>
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Lesser General Public License for more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
 #
-# You should have received a copy of the GNU Lesser General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.18)
 
@@ -31,7 +31,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
         )
     else()
         message(STATUS "GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION}
-                " >= 12.2: Good"
+                       " >= 12.2: Good"
         )
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
@@ -42,7 +42,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
         )
     else()
         message(STATUS "CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION}
-                " >= 13.0: Good"
+                       " >= 13.0: Good"
         )
     endif()
 endif()
@@ -53,7 +53,7 @@ include(iwyu)
 
 set(IO_MULTIPLEXERS "epoll;poll;select")
 
-if ("${IO_MULTIPLEXER}" STREQUAL "")
+if("${IO_MULTIPLEXER}" STREQUAL "")
     list(SUBLIST IO_MULTIPLEXERS 0 1 IO_MULTIPLEXER)
 endif("${IO_MULTIPLEXER}" STREQUAL "")
 
