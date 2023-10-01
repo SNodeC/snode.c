@@ -196,7 +196,7 @@ namespace net::config {
     }
 
     double ConfigPhysicalSocket::getReconnectTime() {
-        return reconnectTimeOpt->as<float>();
+        return reconnectTimeOpt->as<double>();
     }
 
     void ConfigPhysicalSocket::setReconnectTime(double time) {

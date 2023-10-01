@@ -246,8 +246,8 @@ void SHA1::read(std::istream& is, std::string& s, std::size_t max) {
     delete[] sbuf;
 }
 
-static std::string transform_to_binary(const std::string& string) {
-    std::string buf;
+static std::vector<unsigned char> transform_to_binary(const std::string& string) {
+    std::vector<unsigned char> buf;
 
     char hex_byte[3];
     hex_byte[2] = 0;
@@ -256,13 +256,13 @@ static std::string transform_to_binary(const std::string& string) {
         hex_byte[0] = string.at(i);
         hex_byte[1] = string.at(i + 1);
         char* end_ptr = nullptr;
-        buf += static_cast<char>(strtoul(hex_byte, &end_ptr, 16));
+        buf.push_back(static_cast<unsigned char>(strtoul(hex_byte, &end_ptr, 16)));
     }
 
     return buf;
 }
 
-std::string sha1(const std::string& string) {
+std::vector<unsigned char> sha1(const std::string& string) {
     SHA1 checksum;
     checksum.update(string);
     return transform_to_binary(checksum.final());

@@ -67,10 +67,6 @@ namespace core {
         return errorCount != 0;
     }
 
-    void ere(int ne) {
-        errno = ne;
-    }
-
     void ProgressLog::logProgress() const {
         utils::PreserveErrno p1;
 

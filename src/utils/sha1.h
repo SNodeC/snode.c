@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -52,6 +53,6 @@ private:
     static void read(std::istream& is, std::string& s, std::size_t max);
 };
 
-std::string sha1(const std::string& string);
+std::vector<unsigned char> sha1(const std::string& string);
 
 #endif // UTILS_SHA1_H
