@@ -36,4 +36,12 @@ namespace net::un::stream::tls {
 
 } // namespace net::un::stream::tls
 
+extern template class core::socket::LogicalSocket<net::un::stream::tls::config::ConfigSocketClient>;
+extern template class core::socket::stream::tls::SocketConnector<net::un::stream::PhysicalClientSocket,
+                                                                 net::un::stream::tls::config::ConfigSocketClient>;
+extern template class core::socket::stream::tls::SocketConnection<net::un::stream::PhysicalClientSocket>;
+extern template class core::socket::stream::SocketConnectionT<net::un::stream::PhysicalClientSocket,
+                                                              core::socket::stream::tls::SocketReader,
+                                                              core::socket::stream::tls::SocketWriter>;
+
 #endif // NET_UN_STREAM_TLS_SOCKETCLIENT_H

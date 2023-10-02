@@ -93,7 +93,7 @@ namespace net::in {
                         sizeof(servBfr),
                         NI_NUMERICHOST | NI_NUMERICSERV);
 
-            struct sockaddr_in* aiAddr = (struct sockaddr_in*) addrInfo->ai_addr;
+            struct sockaddr_in* aiAddr = reinterpret_cast<sockaddr_in*>(addrInfo->ai_addr);
 
             std::string format = title + ":\n"
                                          "   ai_next      = %v\n"

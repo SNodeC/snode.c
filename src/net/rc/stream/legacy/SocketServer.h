@@ -37,4 +37,12 @@ namespace net::rc::stream::legacy {
 
 } // namespace net::rc::stream::legacy
 
+extern template class core::socket::LogicalSocket<net::rc::stream::legacy::config::ConfigSocketServer>;
+extern template class core::socket::stream::legacy::SocketAcceptor<net::rc::stream::PhysicalServerSocket,
+                                                                   net::rc::stream::legacy::config::ConfigSocketServer>;
+extern template class core::socket::stream::legacy::SocketConnection<net::rc::stream::PhysicalServerSocket>;
+extern template class core::socket::stream::SocketConnectionT<net::rc::stream::PhysicalServerSocket,
+                                                              core::socket::stream::legacy::SocketReader,
+                                                              core::socket::stream::legacy::SocketWriter>;
+
 #endif // NET_RC_STREAM_LEGACY_SOCKETSERVER_H

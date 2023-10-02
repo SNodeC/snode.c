@@ -51,6 +51,9 @@ namespace net::rc::stream::config {
             ->check(CLI::Range(1, 30));
     }
 
+    ConfigSocketServer::~ConfigSocketServer() {
+    }
+
 } // namespace net::rc::stream::config
 
 template class net::stream::config::ConfigSocketServer<net::rc::config::ConfigAddress>;

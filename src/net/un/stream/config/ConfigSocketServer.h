@@ -35,8 +35,12 @@ namespace net::un::stream::config {
     class ConfigSocketServer : public net::stream::config::ConfigSocketServer<net::un::config::ConfigAddress> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+
+        ~ConfigSocketServer() override;
     };
 
 } // namespace net::un::stream::config
+
+extern template class net::stream::config::ConfigSocketServer<net::un::config::ConfigAddress>;
 
 #endif // NET_UN_STREAM_CONFIG_CONFIGSOCKETSERVER_H

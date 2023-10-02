@@ -82,4 +82,6 @@ namespace net::in {
 
 } // namespace net::in
 
+extern template class net::SocketAddress<sockaddr_in>;
+
 #endif // NET_IN_SOCKETADDRESS_H

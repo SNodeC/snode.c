@@ -39,6 +39,9 @@ namespace net::in6::stream::config {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSocktype(SOCK_STREAM).setAiProtocol(IPPROTO_TCP);
     }
 
+    ConfigSocketClient::~ConfigSocketClient() {
+    }
+
 } // namespace net::in6::stream::config
 
 template class net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress>;

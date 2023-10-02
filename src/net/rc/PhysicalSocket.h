@@ -44,4 +44,6 @@ namespace net::rc {
 
 } // namespace net::rc
 
+extern template class net::PhysicalSocket<net::rc::SocketAddress>;
+
 #endif // NET_RC_PHYSICALSOCKET_H

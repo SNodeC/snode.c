@@ -37,4 +37,12 @@ namespace net::in6::stream::legacy {
 
 } // namespace net::in6::stream::legacy
 
+extern template class core::socket::LogicalSocket<net::in6::stream::legacy::config::ConfigSocketServer>;
+extern template class core::socket::stream::legacy::SocketAcceptor<net::in6::stream::PhysicalServerSocket,
+                                                                   net::in6::stream::legacy::config::ConfigSocketServer>;
+extern template class core::socket::stream::legacy::SocketConnection<net::in6::stream::PhysicalServerSocket>;
+extern template class core::socket::stream::SocketConnectionT<net::in6::stream::PhysicalServerSocket, // to superclass
+                                                              core::socket::stream::legacy::SocketReader,
+                                                              core::socket::stream::legacy::SocketWriter>;
+
 #endif // NET_IN6_STREAM_LEGACY_SOCKETSERVER_H

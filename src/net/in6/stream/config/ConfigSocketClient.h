@@ -35,8 +35,12 @@ namespace net::in6::stream::config {
     class ConfigSocketClient : public net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress> {
     public:
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
+
+        ~ConfigSocketClient() override;
     };
 
 } // namespace net::in6::stream::config
+
+extern template class net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress>;
 
 #endif // NET_IN6_STREAM_CONFIG_CONFIGSOCKETCLIENT_H

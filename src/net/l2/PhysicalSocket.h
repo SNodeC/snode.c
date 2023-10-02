@@ -44,4 +44,6 @@ namespace net::l2 {
 
 } // namespace net::l2
 
+extern template class net::PhysicalSocket<net::l2::SocketAddress>;
+
 #endif // NET_L2_PHYSICALSOCKET_H

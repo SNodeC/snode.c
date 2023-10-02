@@ -76,6 +76,7 @@ namespace net::l2::config {
 extern template class net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
+extern template class net::config::ConfigAddress<net::l2::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::l2::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::l2::SocketAddress>;
 

@@ -41,4 +41,6 @@ namespace net::un::stream::legacy::config {
 
 } // namespace net::un::stream::legacy::config
 
+extern template class net::stream::config::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer>;
+
 #endif // NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H

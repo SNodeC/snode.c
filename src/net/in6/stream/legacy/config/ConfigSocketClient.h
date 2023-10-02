@@ -41,4 +41,6 @@ namespace net::in6::stream::legacy::config {
 
 } // namespace net::in6::stream::legacy::config
 
+extern template class net::stream::config::legacy::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>;
+
 #endif // NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H

@@ -35,6 +35,8 @@ namespace net::l2::stream::config {
     class ConfigSocketServer : public net::stream::config::ConfigSocketServer<net::l2::config::ConfigAddress> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+
+        ~ConfigSocketServer() override;
     };
 
 } // namespace net::l2::stream::config

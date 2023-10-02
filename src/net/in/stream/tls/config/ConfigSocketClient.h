@@ -41,4 +41,6 @@ namespace net::in::stream::tls::config {
 
 } // namespace net::in::stream::tls::config
 
+extern template class net::stream::config::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>;
+
 #endif // NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H

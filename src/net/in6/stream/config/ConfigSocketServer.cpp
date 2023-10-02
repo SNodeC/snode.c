@@ -75,6 +75,9 @@ namespace net::in6::stream::config {
                                                              CLI::IsMember({"true", "false"}));
     }
 
+    ConfigSocketServer::~ConfigSocketServer() {
+    }
+
     void ConfigSocketServer::setReusePort(bool reusePort) {
         if (reusePort) {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);

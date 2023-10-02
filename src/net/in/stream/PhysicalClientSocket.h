@@ -46,4 +46,8 @@ namespace net::in::stream {
 
 } // namespace net::in::stream
 
+extern template class net::stream::PhysicalClientSocket<net::in::SocketAddress>;
+extern template class net::in::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
+extern template class net::in::PhysicalSocket<net::stream::PhysicalClientSocket>;
+
 #endif // NET_IN_STREAM_PHYSICALCLIENTSOCKET_H

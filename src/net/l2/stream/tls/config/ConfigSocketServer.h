@@ -41,4 +41,6 @@ namespace net::l2::stream::tls::config {
 
 } // namespace net::l2::stream::tls::config
 
+extern template class net::stream::config::tls::ConfigSocketServer<net::l2::stream::config::ConfigSocketServer>;
+
 #endif // NET_L2_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H

@@ -59,6 +59,9 @@ namespace net::l2::stream::config {
             ->check(CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
     }
 
+    ConfigSocketClient::~ConfigSocketClient() {
+    }
+
 } // namespace net::l2::stream::config
 
 template class net::stream::config::ConfigSocketClient<net::l2::config::ConfigAddress>;

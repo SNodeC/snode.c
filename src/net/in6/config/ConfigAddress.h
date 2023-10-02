@@ -90,6 +90,7 @@ namespace net::in6::config {
 extern template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
+extern template class net::config::ConfigAddress<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;
 

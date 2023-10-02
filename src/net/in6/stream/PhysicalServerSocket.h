@@ -46,4 +46,8 @@ namespace net::in6::stream {
 
 } // namespace net::in6::stream
 
+extern template class net::stream::PhysicalServerSocket<net::in6::SocketAddress>;
+extern template class net::in6::stream::PhysicalSocket<net::stream::PhysicalServerSocket>;
+extern template class net::in6::PhysicalSocket<net::stream::PhysicalServerSocket>;
+
 #endif // NET_IN6_STREAM_PHYSICALSERVERSOCKET_H
