@@ -20,7 +20,7 @@
 #define NET_IN6_STREAM_CONFIG_CONFIGSOCKETCLIENT_H
 
 #include "net/in6/config/ConfigAddress.h"         // IWYU pragma: export
-#include "net/stream/config/ConfigSocketClient.h" // IWYU pragma: export
+#include "net/config/socket/stream/ConfigSocketClient.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;

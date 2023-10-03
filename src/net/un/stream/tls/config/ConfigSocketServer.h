@@ -19,10 +19,10 @@
 #ifndef NET_UN_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_UN_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/stream/config/tls/ConfigSocketServer.h"
+#include "net/config/socket/stream/tls/ConfigSocketServer.h"
 #include "net/un/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/stream/config/tls/ConfigSocketServer.hpp"
+// IWYU pragma: no_include "net/config/socket/stream/tls/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -18,7 +18,7 @@
 
 #include "net/l2/stream/config/ConfigSocketClient.h"
 
-#include "net/stream/config/ConfigSocketClient.hpp"
+#include "net/config/socket/stream/ConfigSocketClient.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

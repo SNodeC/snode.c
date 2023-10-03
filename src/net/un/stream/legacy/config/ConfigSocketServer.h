@@ -19,10 +19,10 @@
 #ifndef NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/stream/config/legacy/ConfigSocketServer.h"
+#include "net/config/socket/stream/legacy/ConfigSocketServer.h"
 #include "net/un/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/stream/config/legacy/ConfigSocketServer.hpp"
+// IWYU pragma: no_include "net/config/socket/stream/legacy/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

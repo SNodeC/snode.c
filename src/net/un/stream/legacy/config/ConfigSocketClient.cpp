@@ -18,7 +18,7 @@
 
 #include "net/un/stream/legacy/config/ConfigSocketClient.h"
 
-#include "net/stream/config/legacy/ConfigSocketClient.hpp" // IWYU pragma: keep
+#include "net/config/socket/stream/legacy/ConfigSocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

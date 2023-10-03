@@ -16,21 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// #include "net/config/ConfigSection.hpp"
-#include "net/stream/config/ConfigSocketClient.h" // IWYU pragma: export
+#include "net/config/socket/stream/tls/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::stream::config {
+namespace net::stream::config::tls {
 
-    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
-    ConfigSocketClient<ConfigAddress>::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : ConfigAddress<net::config::ConfigAddressRemote>(instance)
-        , ConfigAddress<net::config::ConfigAddressLocal>(instance)
-        , net::config::ConfigConnection(instance)
-        , net::config::ConfigPhysicalSocketClient(instance) {
+    template <typename ConfigSocketClientBase>
+    ConfigSocketClient<ConfigSocketClientBase>::ConfigSocketClient(const std::string& name)
+        : net::config::ConfigInstance(name, "client")
+        , ConfigSocketClientBase(this)
+        , net::config::ConfigTlsClient(this) {
     }
 
-} // namespace net::stream::config
+} // namespace net::stream::config::tls

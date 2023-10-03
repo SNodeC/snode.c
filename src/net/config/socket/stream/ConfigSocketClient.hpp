@@ -17,7 +17,7 @@
  */
 
 // #include "net/config/ConfigSection.hpp"
-#include "net/stream/config/ConfigSocketServer.h" // IWYU pragma: export
+#include "net/config/socket/stream/ConfigSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,11 +26,11 @@
 namespace net::stream::config {
 
     template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
-    ConfigSocketServer<ConfigAddress>::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : ConfigAddress<net::config::ConfigAddressLocal>(instance)
+    ConfigSocketClient<ConfigAddress>::ConfigSocketClient(net::config::ConfigInstance* instance)
+        : ConfigAddress<net::config::ConfigAddressRemote>(instance)
+        , ConfigAddress<net::config::ConfigAddressLocal>(instance)
         , net::config::ConfigConnection(instance)
-        , net::config::ConfigPhysicalSocketServer(instance)
-        , net::config::ConfigListen(instance) {
+        , net::config::ConfigPhysicalSocketClient(instance) {
     }
 
 } // namespace net::stream::config

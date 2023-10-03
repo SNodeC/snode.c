@@ -18,7 +18,7 @@
 
 #include "net/rc/stream/tls/config/ConfigSocketServer.h"
 
-#include "net/stream/config/tls/ConfigSocketServer.hpp" // IWYU pragma: keep
+#include "net/config/socket/stream/tls/ConfigSocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

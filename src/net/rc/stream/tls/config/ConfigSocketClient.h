@@ -20,9 +20,9 @@
 #define NET_RC_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
 #include "net/rc/stream/config/ConfigSocketClient.h" // IWYU pragma: export
-#include "net/stream/config/tls/ConfigSocketClient.h"
+#include "net/config/socket/stream/tls/ConfigSocketClient.h"
 
-// IWYU pragma: no_include "net/stream/config/tls/ConfigSocketClient.hpp"
+// IWYU pragma: no_include "net/config/socket/stream/tls/ConfigSocketClient.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
