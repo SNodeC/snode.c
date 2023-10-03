@@ -17,13 +17,13 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(NET-IN6-STREAM_CPP
-    PhysicalSocket.cpp PhysicalSocketClient.cpp PhysicalServerSocket.cpp
+    PhysicalSocket.cpp PhysicalSocketClient.cpp PhysicalSocketServer.cpp
     config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
 )
 
 set(NET-IN6-STREAM_H
     PhysicalSocketClient.h
-    PhysicalServerSocket.h
+    PhysicalSocketServer.h
     SocketClient.h
     SocketServer.h
     PhysicalSocket.hpp

@@ -16,35 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_PHYSICALSERVERSOCKET_H
-#define NET_STREAM_PHYSICALSERVERSOCKET_H
+#include "net/l2/stream/PhysicalSocketServer.h"
 
-#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "net/phy/stream/PhysicalSocket.hpp"
+#include "net/l2/stream/PhysicalSocket.hpp"
+#include "net/phy/stream/PhysicalSocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::phy::stream {
+namespace net::l2::stream {
 
-    template <typename SocketAddressT>
-    class PhysicalServerSocket : public net::phy::stream::PhysicalSocket<SocketAddressT> {
-    private:
-        using Super = net::phy::stream::PhysicalSocket<SocketAddressT>;
+    PhysicalSocketServer::~PhysicalSocketServer() {
+    }
 
-    public:
-        using SocketAddress = SocketAddressT;
+} // namespace net::l2::stream
 
-        using Super::Super;
-
-        int listen(int backlog);
-
-        int accept();
-        int accept4(int flags);
-    };
-
-} // namespace net::phy::stream
-
-#endif // NET_STREAM_PHYSICALSERVERSOCKET_H
+template class net::phy::stream::PhysicalSocketServer<net::l2::SocketAddress>;
+template class net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+template class net::l2::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;

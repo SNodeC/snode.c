@@ -29,8 +29,8 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
-    SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::SocketAcceptor(
+    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(
         const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
@@ -50,15 +50,15 @@ namespace core::socket::stream {
         InitAcceptEventReceiver::span();
     }
 
-    template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
-    SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::~SocketAcceptor() {
+    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::~SocketAcceptor() {
         if (physicalSocket != nullptr) {
             delete physicalSocket;
         }
     }
 
-    template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
-    void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::initAcceptEvent() {
+    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
             LOG(INFO) << "Instance '" << this->config->getInstanceName() << "' enabled";
 
@@ -107,8 +107,8 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
-    void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::acceptEvent() {
+    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::acceptEvent() {
         int acceptsPerTick = config->getAcceptsPerTick();
 
         do {
@@ -124,13 +124,13 @@ namespace core::socket::stream {
         } while (--acceptsPerTick > 0);
     }
 
-    template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
-    void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::destruct() {
+    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::destruct() {
         delete this;
     }
 
-    template <typename PhysicalServerSocket, typename Config, template <typename PhysicalServerSocketT> typename SocketConnection>
-    void SocketAcceptor<PhysicalServerSocket, Config, SocketConnection>::unobservedEvent() {
+    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::unobservedEvent() {
         destruct();
     }
 

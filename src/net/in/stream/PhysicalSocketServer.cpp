@@ -16,22 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/PhysicalServerSocket.h"
+#include "net/in/stream/PhysicalSocketServer.h"
 
-#include "net/phy/stream/PhysicalServerSocket.hpp" // IWYU pragma: keep
-#include "net/un/stream/PhysicalSocket.hpp"
+#include "net/in/stream/PhysicalSocket.hpp"
+#include "net/phy/stream/PhysicalSocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::in::stream {
 
-    PhysicalServerSocket::~PhysicalServerSocket() {
+    PhysicalSocketServer::~PhysicalSocketServer() {
     }
 
-} // namespace net::un::stream
+} // namespace net::in::stream
 
-template class net::phy::stream::PhysicalServerSocket<net::un::SocketAddress>;
-template class net::un::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
-template class net::un::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+template class net::phy::stream::PhysicalSocketServer<net::in::SocketAddress>;
+template class net::in::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+template class net::in::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;

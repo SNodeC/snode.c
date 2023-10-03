@@ -21,7 +21,7 @@
 
 // clang-format off
 #include "net/l2/stream/PhysicalSocket.h"    // IWYU pragma: export
-#include "net/phy/stream/PhysicalServerSocket.h" // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
 // clang-format on
 
 // IWYU pragma: no_include "net/l2/stream/PhysicalSocket.hpp"
@@ -32,24 +32,24 @@
 
 namespace net::l2::stream {
 
-    class PhysicalServerSocket : public net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket> {
+    class PhysicalSocketServer : public net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer> {
     private:
-        using Super = net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+        using Super = net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
     public:
         using Super::Super;
 
-        PhysicalServerSocket(const PhysicalServerSocket&) = default;
+        PhysicalSocketServer(const PhysicalSocketServer&) = default;
 
-        ~PhysicalServerSocket() override;
+        ~PhysicalSocketServer() override;
 
         using Super::operator=;
     };
 
 } // namespace net::l2::stream
 
-extern template class net::phy::stream::PhysicalServerSocket<net::l2::SocketAddress>;
-extern template class net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
-extern template class net::l2::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+extern template class net::phy::stream::PhysicalSocketServer<net::l2::SocketAddress>;
+extern template class net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+extern template class net::l2::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
 #endif // NET_L2_STREAM_PHYSICALSERVERSOCKET_H

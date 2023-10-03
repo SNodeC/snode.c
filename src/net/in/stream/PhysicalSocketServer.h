@@ -20,7 +20,7 @@
 #define NET_IN_STREAM_PHYSICALSERVERSOCKET_H
 
 #include "net/in/stream/PhysicalSocket.h"    // IWYU pragma: export
-#include "net/phy/stream/PhysicalServerSocket.h" // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/in/stream/PhysicalSocket.hpp"
 
@@ -30,24 +30,24 @@
 
 namespace net::in::stream {
 
-    class PhysicalServerSocket : public net::in::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket> {
+    class PhysicalSocketServer : public net::in::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer> {
     private:
-        using Super = net::in::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+        using Super = net::in::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
     public:
         using Super::Super;
 
-        PhysicalServerSocket(const PhysicalServerSocket&) = default;
+        PhysicalSocketServer(const PhysicalSocketServer&) = default;
 
-        ~PhysicalServerSocket() override;
+        ~PhysicalSocketServer() override;
 
         using Super::operator=;
     };
 
 } // namespace net::in::stream
 
-extern template class net::phy::stream::PhysicalServerSocket<net::in::SocketAddress>;
-extern template class net::in::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
-extern template class net::in::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+extern template class net::phy::stream::PhysicalSocketServer<net::in::SocketAddress>;
+extern template class net::in::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+extern template class net::in::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
 #endif // NET_IN_STREAM_PHYSICALSERVERSOCKET_H

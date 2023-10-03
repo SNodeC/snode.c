@@ -73,8 +73,8 @@ set(NET_H
     phy/stream/PhysicalSocket.hpp
     phy/stream/PhysicalSocketClient.h
     phy/stream/PhysicalSocketClient.hpp
-    phy/stream/PhysicalServerSocket.h
-    phy/stream/PhysicalServerSocket.hpp
+    phy/stream/PhysicalSocketServer.h
+    phy/stream/PhysicalSocketServer.hpp
 )
 
 append_source_file_config(

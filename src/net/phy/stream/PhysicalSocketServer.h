@@ -16,29 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/phy/stream/PhysicalServerSocket.h"
+#ifndef NET_STREAM_PHYSICALSERVERSOCKET_H
+#define NET_STREAM_PHYSICALSERVERSOCKET_H
+
+#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "net/phy/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "core/system/socket.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::phy::stream {
 
-    template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::listen(int backlog) {
-        return core::system::listen(Super::getFd(), backlog);
-    }
+    template <typename SocketAddressT>
+    class PhysicalSocketServer : public net::phy::stream::PhysicalSocket<SocketAddressT> {
+    private:
+        using Super = net::phy::stream::PhysicalSocket<SocketAddressT>;
 
-    template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept() {
-        return core::system::accept(Super::getFd(), nullptr, nullptr);
-    }
+    public:
+        using SocketAddress = SocketAddressT;
 
-    template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept4(int flags) {
-        return core::system::accept4(Super::getFd(), nullptr, nullptr, flags);
-    }
+        using Super::Super;
+
+        int listen(int backlog);
+
+        int accept();
+        int accept4(int flags);
+    };
 
 } // namespace net::phy::stream
+
+#endif // NET_STREAM_PHYSICALSERVERSOCKET_H

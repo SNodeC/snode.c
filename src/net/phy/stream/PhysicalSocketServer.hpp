@@ -16,22 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/PhysicalServerSocket.h"
-
-#include "net/rc/stream/PhysicalSocket.hpp"
-#include "net/phy/stream/PhysicalServerSocket.hpp" // IWYU pragma: keep
+#include "net/phy/stream/PhysicalSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rc::stream {
+namespace net::phy::stream {
 
-    PhysicalServerSocket::~PhysicalServerSocket() {
+    template <typename PhysicalSocket>
+    int PhysicalSocketServer<PhysicalSocket>::listen(int backlog) {
+        return core::system::listen(Super::getFd(), backlog);
     }
 
-} // namespace net::rc::stream
+    template <typename PhysicalSocket>
+    int PhysicalSocketServer<PhysicalSocket>::accept() {
+        return core::system::accept(Super::getFd(), nullptr, nullptr);
+    }
 
-template class net::phy::stream::PhysicalServerSocket<net::rc::SocketAddress>;
-template class net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
-template class net::rc::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+    template <typename PhysicalSocket>
+    int PhysicalSocketServer<PhysicalSocket>::accept4(int flags) {
+        return core::system::accept4(Super::getFd(), nullptr, nullptr, flags);
+    }
+
+} // namespace net::phy::stream
