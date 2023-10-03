@@ -29,19 +29,19 @@
 namespace core::socket {
 
     template <typename ConfigT>
-    class LogicalSocket {
+    class Socket {
     public:
         using Config = ConfigT;
 
-        explicit LogicalSocket(const std::string& name);
+        explicit Socket(const std::string& name);
 
-        LogicalSocket(const LogicalSocket&) = default;
-        LogicalSocket(LogicalSocket&&) = default;
+        Socket(const Socket&) = default;
+        Socket(Socket&&) = default;
 
-        LogicalSocket& operator=(const LogicalSocket&) = default;
-        LogicalSocket& operator=(LogicalSocket&&) = default;
+        Socket& operator=(const Socket&) = default;
+        Socket& operator=(Socket&&) = default;
 
-        virtual ~LogicalSocket();
+        virtual ~Socket();
 
         Config& getConfig() const;
 

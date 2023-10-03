@@ -21,7 +21,7 @@
 
 #include "core/ProgressLog.h" // IWYU pragma: export
 #include "core/SNodeC.h"
-#include "core/socket/LogicalSocket.h" // IWYU pragma: export
+#include "core/socket/Socket.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,7 +39,7 @@
 namespace core::socket::stream {
 
     template <typename SocketConnectorT, typename SocketContextFactoryT>
-    class SocketClient : public core::socket::LogicalSocket<typename SocketConnectorT::Config> {
+    class SocketClient : public core::socket::Socket<typename SocketConnectorT::Config> {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
         !include core/socket/stream/pu/SocketClient.pu
@@ -49,7 +49,7 @@ namespace core::socket::stream {
         using SocketConnector = SocketConnectorT;
         using SocketContextFactory = SocketContextFactoryT;
 
-        using Super = core::socket::LogicalSocket<typename SocketConnector::Config>;
+        using Super = core::socket::Socket<typename SocketConnector::Config>;
 
     public:
         using SocketConnection = typename SocketConnector::SocketConnection;

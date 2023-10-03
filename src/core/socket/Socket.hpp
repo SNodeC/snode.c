@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/LogicalSocket.h"
+#include "core/socket/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,16 +25,16 @@
 namespace core::socket {
 
     template <typename Config>
-    LogicalSocket<Config>::LogicalSocket(const std::string& name)
+    Socket<Config>::Socket(const std::string& name)
         : config(std::make_shared<Config>(name)) {
     }
 
     template <typename Config>
-    LogicalSocket<Config>::~LogicalSocket() {
+    Socket<Config>::~Socket() {
     }
 
     template <typename Config>
-    Config& LogicalSocket<Config>::getConfig() const {
+    Config& Socket<Config>::getConfig() const {
         return *config;
     }
 

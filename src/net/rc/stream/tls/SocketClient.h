@@ -42,7 +42,7 @@ namespace net::rc::stream::tls {
 
 } // namespace net::rc::stream::tls
 
-extern template class core::socket::LogicalSocket<net::rc::stream::tls::config::ConfigSocketClient>;
+extern template class core::socket::Socket<net::rc::stream::tls::config::ConfigSocketClient>;
 extern template class core::socket::stream::tls::SocketConnector<net::rc::stream::PhysicalClientSocket,
                                                                  net::rc::stream::tls::config::ConfigSocketClient>;
 extern template class core::socket::stream::tls::SocketConnection<net::rc::stream::PhysicalClientSocket>;

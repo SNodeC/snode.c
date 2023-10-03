@@ -18,7 +18,7 @@
 
 #include "net/in/stream/legacy/SocketClient.h"
 
-#include "core/socket/LogicalSocket.hpp"                  // IWYU pragma: keep
+#include "core/socket/Socket.hpp"                         // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketConnection.hpp" // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketConnector.hpp"  // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketReader.hpp"     // IWYU pragma: keep
@@ -28,7 +28,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-template class core::socket::LogicalSocket<net::in::stream::legacy::config::ConfigSocketClient>;
+template class core::socket::Socket<net::in::stream::legacy::config::ConfigSocketClient>;
 template class core::socket::stream::legacy::SocketConnector<net::in::stream::PhysicalClientSocket,
                                                              net::in::stream::legacy::config::ConfigSocketClient>;
 template class core::socket::stream::legacy::SocketConnection<net::in::stream::PhysicalClientSocket>;

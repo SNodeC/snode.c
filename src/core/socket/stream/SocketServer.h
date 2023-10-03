@@ -21,7 +21,7 @@
 
 #include "core/ProgressLog.h" // IWYU pragma: export
 #include "core/SNodeC.h"
-#include "core/socket/LogicalSocket.h" // IWYU pragma: export
+#include "core/socket/Socket.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,12 +40,12 @@
 namespace core::socket::stream {
 
     template <typename SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public core::socket::LogicalSocket<typename SocketAcceptorT::Config> {
+    class SocketServer : public core::socket::Socket<typename SocketAcceptorT::Config> {
     private:
         using SocketAcceptor = SocketAcceptorT;
         using SocketContextFactory = SocketContextFactoryT;
 
-        using Super = core::socket::LogicalSocket<typename SocketAcceptor::Config>;
+        using Super = core::socket::Socket<typename SocketAcceptor::Config>;
 
     public:
         using SocketConnection = typename SocketAcceptor::SocketConnection;

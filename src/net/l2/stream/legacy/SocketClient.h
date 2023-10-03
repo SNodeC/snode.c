@@ -43,7 +43,7 @@ namespace net::l2::stream::legacy {
 
 } // namespace net::l2::stream::legacy
 
-extern template class core::socket::LogicalSocket<net::l2::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::Socket<net::l2::stream::legacy::config::ConfigSocketClient>;
 extern template class core::socket::stream::legacy::SocketConnector<net::l2::stream::PhysicalClientSocket,
                                                                     net::l2::stream::legacy::config::ConfigSocketClient>;
 extern template class core::socket::stream::legacy::SocketConnection<net::l2::stream::PhysicalClientSocket>;
