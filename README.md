@@ -519,18 +519,12 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 
 As starting point it is assumed that local **ssh** and **sftp** access to the router exist and that the router is connected to the **Internet** via the **WAN** port.
 
-Deploying SNode.C **for the first time** on an OpenWRT router involves three tasks:
+Deploying SNode.C **for the first time** on an OpenWRT router involves two tasks:
 
 1. Cross Compile SNode.C
-2. Prepare Deployment
 3. Deploy SNode.C
 
-**Subsequent** deployments involve only two tasks:
-
-1. Cross Compile SNode.C
-2. Deploy SNode.C
-
-***Note:*** All two or four tasks must be finished successfully in the given order.
+***Note:*** All two must be finished successfully in the given order.
 
 ### Cross Compile SNode.C
 
@@ -615,44 +609,6 @@ The last two steps, **Install Packages**, and **Cross Compile** (at most the las
 To parallelize the compilation use the switch `-j<thread-count>`  of make where \<thread-count\> is the number of CPU-threads dedicated to cross compile SNode.C and its dependencies.
 
 ***Note:*** For SNode.C and all it's build dependencies **ipk-packages** will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
-
-### Prepare Deployment (only once)
-
-If SNode.C is installed the first time on an OpenWRT Router some **packages** also build in the previous step need to be deployed by hand even though they are part of the official OpenWRT feeds. This is because these packages must be of a newer version than what is currently included in the OpenWRT feeds.
-
-Don't bother about the binary compatibility of those updated packages with the standard OpenWRT packages as they are binary equivalent to their  corespondent default OpenWRT packages and the functionality is also the same. Only the feature sets have been extended.
-
-These packages are
-
-- **libmagic**
-
-which is a sub-package of package **file**.
-
-To deploy these packages on an OpenWRT router **enter** the ipk-package **directory** using
-
-```sh
-cd <SDK_DIR>/bin/packages/<architecture>/snodec
-```
-
-**download** the necessary packages to the router
-
-```sh
-sftp root@<router-ip>
-cd /tmp
-put libmagic_<version>_<architecture>.ipk
-exit
-```
-
-and **install** it on the router by running
-
-```sh
-ssh root@<router-ip>
-cd /tmp
-opkg install libmagic_<version>_<architecture>.ipk
-exit
-```
-
-by hand.
 
 ### Deploy SNode.C
 
