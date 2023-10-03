@@ -18,8 +18,8 @@
 
 #include "net/rc/stream/PhysicalSocketServer.h"
 
-#include "net/rc/stream/PhysicalSocket.hpp"
 #include "net/phy/stream/PhysicalSocketServer.hpp" // IWYU pragma: keep
+#include "net/rc/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

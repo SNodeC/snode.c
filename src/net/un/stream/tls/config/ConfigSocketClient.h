@@ -32,8 +32,7 @@
 
 namespace net::un::stream::tls::config {
 
-    class ConfigSocketClient final
-        : public net::config::stream::tls::ConfigSocketClient<net::un::stream::config::ConfigSocketClient> {
+    class ConfigSocketClient final : public net::config::stream::tls::ConfigSocketClient<net::un::stream::config::ConfigSocketClient> {
     public:
         explicit ConfigSocketClient(const std::string& name);
 

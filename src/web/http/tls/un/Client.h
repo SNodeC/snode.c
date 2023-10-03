@@ -29,9 +29,7 @@
 namespace web::http::tls::un {
 
     template <typename Request, typename Response>
-    class Client : public web::http::client::Client<net::un::stream::tls::SocketClient, Request, Response> {
-        using web::http::client::Client<net::un::stream::tls::SocketClient, Request, Response>::Client;
-    };
+    using Client = web::http::client::Client<net::un::stream::tls::SocketClient, Request, Response>;
 
 } // namespace web::http::tls::un
 

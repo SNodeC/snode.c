@@ -32,8 +32,7 @@
 
 namespace net::in::stream::legacy::config {
 
-    class ConfigSocketClient final
-        : public net::config::stream::legacy::ConfigSocketClient<net::in::stream::config::ConfigSocketClient> {
+    class ConfigSocketClient final : public net::config::stream::legacy::ConfigSocketClient<net::in::stream::config::ConfigSocketClient> {
     public:
         explicit ConfigSocketClient(const std::string& name);
 

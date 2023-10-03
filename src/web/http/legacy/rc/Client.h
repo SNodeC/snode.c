@@ -29,9 +29,7 @@
 namespace web::http::legacy::rc {
 
     template <typename Request, typename Response>
-    class Client : public web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response> {
-        using web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response>::Client;
-    };
+    using Client = web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response>;
 
 } // namespace web::http::legacy::rc
 

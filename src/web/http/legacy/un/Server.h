@@ -29,9 +29,7 @@
 namespace web::http::legacy::un {
 
     template <typename Request, typename Response>
-    class Server : public web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response> {
-        using web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>::Server;
-    };
+    using Server = web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>;
 
 } // namespace web::http::legacy::un
 
