@@ -18,7 +18,7 @@
 
 #include "net/un/stream/legacy/config/ConfigSocketClient.h"
 
-#include "net/config/socket/stream/legacy/ConfigSocketClient.hpp" // IWYU pragma: keep
+#include "net/config/stream/legacy/ConfigSocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 namespace net::un::stream::legacy::config {
 
     ConfigSocketClient::ConfigSocketClient(const std::string& name)
-        : net::config::socket::stream::legacy::ConfigSocketClient<net::un::stream::config::ConfigSocketClient>(name) {
+        : net::config::stream::legacy::ConfigSocketClient<net::un::stream::config::ConfigSocketClient>(name) {
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
@@ -35,4 +35,4 @@ namespace net::un::stream::legacy::config {
 
 } // namespace net::un::stream::legacy::config
 
-template class net::config::socket::stream::legacy::ConfigSocketClient<net::un::stream::config::ConfigSocketClient>;
+template class net::config::stream::legacy::ConfigSocketClient<net::un::stream::config::ConfigSocketClient>;

@@ -16,27 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETCLIENT_H
-#define NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETCLIENT_H
-
-#include "net/config/ConfigInstance.h"
-#include "net/config/ConfigLegacy.h"
+#include "net/config/stream/ConfigSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config::socket::stream::legacy {
+namespace net::config::stream::legacy {
 
-    template <typename ConfigSocketClientBaseT>
-    class ConfigSocketClient
-        : public net::config::ConfigInstance
-        , public ConfigSocketClientBaseT
-        , public net::config::ConfigLegacy {
-    public:
-        explicit ConfigSocketClient(const std::string& name);
-    };
+    template <typename ConfigSocketServerBase>
+    ConfigSocketServer<ConfigSocketServerBase>::ConfigSocketServer(const std::string& name)
+        : net::config::ConfigInstance(name, "server")
+        , ConfigSocketServerBase(this)
+        , net::config::ConfigLegacy(this) {
+    }
 
-} // namespace net::config::socket::stream::legacy
-
-#endif // NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETCLIENT_H
+} // namespace net::config::stream::legacy

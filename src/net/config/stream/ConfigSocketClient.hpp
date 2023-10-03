@@ -16,19 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/socket/stream/ConfigSocketServer.h"
+// #include "net/config/ConfigSection.hpp"
+#include "net/config/stream/ConfigSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config::socket::stream::legacy {
+namespace net::config::stream {
 
-    template <typename ConfigSocketServerBase>
-    ConfigSocketServer<ConfigSocketServerBase>::ConfigSocketServer(const std::string& name)
-        : net::config::ConfigInstance(name, "server")
-        , ConfigSocketServerBase(this)
-        , net::config::ConfigLegacy(this) {
+    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
+    ConfigSocketClient<ConfigAddress>::ConfigSocketClient(net::config::ConfigInstance* instance)
+        : ConfigAddress<net::config::ConfigAddressRemote>(instance)
+        , ConfigAddress<net::config::ConfigAddressLocal>(instance)
+        , net::config::ConfigConnection(instance)
+        , net::config::ConfigPhysicalSocketClient(instance) {
     }
 
-} // namespace net::config::socket::stream::legacy
+} // namespace net::config::stream

@@ -16,27 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_CONFIG_TLS_CONFIGSOCKETCLIENT_H
-#define NET_STREAM_CONFIG_TLS_CONFIGSOCKETCLIENT_H
-
-#include "net/config/ConfigInstance.h"
-#include "net/config/ConfigTlsClient.h"
+#include "net/config/stream/tls/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config::socket::stream::tls {
+namespace net::config::stream::tls {
 
-    template <typename ConfigSocketClientBaseT>
-    class ConfigSocketClient
-        : public net::config::ConfigInstance
-        , public ConfigSocketClientBaseT
-        , public net::config::ConfigTlsClient {
-    public:
-        explicit ConfigSocketClient(const std::string& name);
-    };
+    template <typename ConfigSocketClientBase>
+    ConfigSocketClient<ConfigSocketClientBase>::ConfigSocketClient(const std::string& name)
+        : net::config::ConfigInstance(name, "client")
+        , ConfigSocketClientBase(this)
+        , net::config::ConfigTlsClient(this) {
+    }
 
-} // namespace net::config::socket::stream::tls
-
-#endif // NET_STREAM_CONFIG_TLS_CONFIGSOCKETCLIENT_H
+} // namespace net::config::stream::tls

@@ -19,10 +19,10 @@
 #ifndef NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/socket/stream/legacy/ConfigSocketServer.h"
+#include "net/config/stream/legacy/ConfigSocketServer.h"
 #include "net/un/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/config/socket/stream/legacy/ConfigSocketServer.hpp"
+// IWYU pragma: no_include "net/config/stream/legacy/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,7 +33,7 @@
 namespace net::un::stream::legacy::config {
 
     class ConfigSocketServer final
-        : public net::config::socket::stream::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer> {
+        : public net::config::stream::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer> {
     public:
         explicit ConfigSocketServer(const std::string& name);
 
@@ -42,6 +42,6 @@ namespace net::un::stream::legacy::config {
 
 } // namespace net::un::stream::legacy::config
 
-extern template class net::config::socket::stream::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer>;
+extern template class net::config::stream::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer>;
 
 #endif // NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H

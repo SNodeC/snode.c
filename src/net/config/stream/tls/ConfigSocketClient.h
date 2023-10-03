@@ -16,21 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// #include "net/config/ConfigSection.hpp"
-#include "net/config/socket/stream/ConfigSocketServer.h" // IWYU pragma: export
+#ifndef NET_STREAM_CONFIG_TLS_CONFIGSOCKETCLIENT_H
+#define NET_STREAM_CONFIG_TLS_CONFIGSOCKETCLIENT_H
+
+#include "net/config/ConfigInstance.h"
+#include "net/config/ConfigTlsClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config::socket::stream {
+namespace net::config::stream::tls {
 
-    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
-    ConfigSocketServer<ConfigAddress>::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : ConfigAddress<net::config::ConfigAddressLocal>(instance)
-        , net::config::ConfigConnection(instance)
-        , net::config::ConfigPhysicalSocketServer(instance)
-        , net::config::ConfigListen(instance) {
-    }
+    template <typename ConfigSocketClientBaseT>
+    class ConfigSocketClient
+        : public net::config::ConfigInstance
+        , public ConfigSocketClientBaseT
+        , public net::config::ConfigTlsClient {
+    public:
+        explicit ConfigSocketClient(const std::string& name);
+    };
 
-} // namespace net::config::socket::stream
+} // namespace net::config::stream::tls
+
+#endif // NET_STREAM_CONFIG_TLS_CONFIGSOCKETCLIENT_H

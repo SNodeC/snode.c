@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/socket/stream/legacy/ConfigSocketClient.h"
+#include "net/config/stream/legacy/ConfigSocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config::socket::stream::legacy {
+namespace net::config::stream::legacy {
 
     template <typename ConfigSocketClientBase>
     ConfigSocketClient<ConfigSocketClientBase>::ConfigSocketClient(const std::string& name)
@@ -31,4 +31,4 @@ namespace net::config::socket::stream::legacy {
         , net::config::ConfigLegacy(this) {
     }
 
-} // namespace net::config::socket::stream::legacy
+} // namespace net::config::stream::legacy

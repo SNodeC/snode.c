@@ -18,7 +18,7 @@
 
 #include "net/l2/stream/config/ConfigSocketClient.h"
 
-#include "net/config/socket/stream/ConfigSocketClient.hpp"
+#include "net/config/stream/ConfigSocketClient.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -47,7 +47,7 @@
 namespace net::l2::stream::config {
 
     ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : net::config::socket::stream::ConfigSocketClient<net::l2::config::ConfigAddress>(instance) {
+        : net::config::stream::ConfigSocketClient<net::l2::config::ConfigAddress>(instance) {
         net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::btAddressRequired();
         net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::psmRequired();
 
@@ -64,4 +64,4 @@ namespace net::l2::stream::config {
 
 } // namespace net::l2::stream::config
 
-template class net::config::socket::stream::ConfigSocketClient<net::l2::config::ConfigAddress>;
+template class net::config::stream::ConfigSocketClient<net::l2::config::ConfigAddress>;

@@ -18,7 +18,7 @@
 
 #include "net/in6/stream/tls/config/ConfigSocketClient.h"
 
-#include "net/config/socket/stream/tls/ConfigSocketClient.hpp" // IWYU pragma: keep
+#include "net/config/stream/tls/ConfigSocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 namespace net::in6::stream::tls::config {
 
     ConfigSocketClient::ConfigSocketClient(const std::string& name)
-        : net::config::socket::stream::tls::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>(name) {
+        : net::config::stream::tls::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>(name) {
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
@@ -35,4 +35,4 @@ namespace net::in6::stream::tls::config {
 
 } // namespace net::in6::stream::tls::config
 
-template class net::config::socket::stream::tls::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>;
+template class net::config::stream::tls::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>;

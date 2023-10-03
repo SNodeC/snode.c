@@ -28,7 +28,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config::socket::stream {
+namespace net::config::stream {
 
     template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressT>
     class ConfigSocketServer
@@ -42,6 +42,6 @@ namespace net::config::socket::stream {
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };
 
-} // namespace net::config::socket::stream
+} // namespace net::config::stream
 
 #endif // NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H

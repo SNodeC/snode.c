@@ -52,18 +52,18 @@ set(NET_H
     config/ConfigTls.h
     config/ConfigTlsServer.h
     config/ConfigTlsClient.h
-    config/socket/stream/ConfigSocketClient.h
-    config/socket/stream/ConfigSocketClient.hpp
-    config/socket/stream/ConfigSocketServer.h
-    config/socket/stream/ConfigSocketServer.hpp
-    config/socket/stream/legacy/ConfigSocketClient.h
-    config/socket/stream/legacy/ConfigSocketClient.hpp
-    config/socket/stream/legacy/ConfigSocketServer.h
-    config/socket/stream/legacy/ConfigSocketServer.hpp
-    config/socket/stream/tls/ConfigSocketClient.h
-    config/socket/stream/tls/ConfigSocketClient.hpp
-    config/socket/stream/tls/ConfigSocketServer.h
-    config/socket/stream/tls/ConfigSocketServer.hpp
+    config/stream/ConfigSocketClient.h
+    config/stream/ConfigSocketClient.hpp
+    config/stream/ConfigSocketServer.h
+    config/stream/ConfigSocketServer.hpp
+    config/stream/legacy/ConfigSocketClient.h
+    config/stream/legacy/ConfigSocketClient.hpp
+    config/stream/legacy/ConfigSocketServer.h
+    config/stream/legacy/ConfigSocketServer.hpp
+    config/stream/tls/ConfigSocketClient.h
+    config/stream/tls/ConfigSocketClient.hpp
+    config/stream/tls/ConfigSocketServer.h
+    config/stream/tls/ConfigSocketServer.hpp
     dgram/PeerSocket.h
     dgram/PeerSocket.hpp
     phy/PhysicalSocket.h

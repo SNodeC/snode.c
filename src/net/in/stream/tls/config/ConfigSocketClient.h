@@ -19,10 +19,10 @@
 #ifndef NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/config/socket/stream/tls/ConfigSocketClient.h"
+#include "net/config/stream/tls/ConfigSocketClient.h"
 #include "net/in/stream/config/ConfigSocketClient.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/config/socket/stream/tls/ConfigSocketClient.hpp"
+// IWYU pragma: no_include "net/config/stream/tls/ConfigSocketClient.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,7 +33,7 @@
 namespace net::in::stream::tls::config {
 
     class ConfigSocketClient final
-        : public net::config::socket::stream::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient> {
+        : public net::config::stream::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient> {
     public:
         explicit ConfigSocketClient(const std::string& name);
 
@@ -42,6 +42,6 @@ namespace net::in::stream::tls::config {
 
 } // namespace net::in::stream::tls::config
 
-extern template class net::config::socket::stream::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>;
+extern template class net::config::stream::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>;
 
 #endif // NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H

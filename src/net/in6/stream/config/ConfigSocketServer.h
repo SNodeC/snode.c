@@ -19,7 +19,7 @@
 #ifndef NET_IN6_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_IN6_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/socket/stream/ConfigSocketServer.h" // IWYU pragma: export
+#include "net/config/stream/ConfigSocketServer.h" // IWYU pragma: export
 #include "net/in6/config/ConfigAddress.h"                // IWYU pragma: export
 
 namespace net::config {
@@ -36,7 +36,7 @@ namespace CLI {
 
 namespace net::in6::stream::config {
 
-    class ConfigSocketServer : public net::config::socket::stream::ConfigSocketServer<net::in6::config::ConfigAddress> {
+    class ConfigSocketServer : public net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
@@ -55,6 +55,6 @@ namespace net::in6::stream::config {
 
 } // namespace net::in6::stream::config
 
-extern template class net::config::socket::stream::ConfigSocketServer<net::in6::config::ConfigAddress>;
+extern template class net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress>;
 
 #endif // NET_IN6_STREAM_CONFIG_CONFIGSOCKETSERVER_H
