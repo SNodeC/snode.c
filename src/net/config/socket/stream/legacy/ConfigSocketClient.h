@@ -26,7 +26,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::stream::config::legacy {
+namespace net::config::socket::stream::legacy {
 
     template <typename ConfigSocketClientBaseT>
     class ConfigSocketClient
@@ -37,6 +37,6 @@ namespace net::stream::config::legacy {
         explicit ConfigSocketClient(const std::string& name);
     };
 
-} // namespace net::stream::config::legacy
+} // namespace net::config::socket::stream::legacy
 
 #endif // NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETCLIENT_H

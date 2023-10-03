@@ -19,8 +19,8 @@
 #ifndef NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/in6/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 #include "net/config/socket/stream/legacy/ConfigSocketServer.h"
+#include "net/in6/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/config/socket/stream/legacy/ConfigSocketServer.hpp"
 
@@ -32,7 +32,8 @@
 
 namespace net::in6::stream::legacy::config {
 
-    class ConfigSocketServer final : public net::stream::config::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer> {
+    class ConfigSocketServer final
+        : public net::config::socket::stream::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer> {
     public:
         explicit ConfigSocketServer(const std::string& name);
 
@@ -41,6 +42,6 @@ namespace net::in6::stream::legacy::config {
 
 } // namespace net::in6::stream::legacy::config
 
-extern template class net::stream::config::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer>;
+extern template class net::config::socket::stream::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer>;
 
 #endif // NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H

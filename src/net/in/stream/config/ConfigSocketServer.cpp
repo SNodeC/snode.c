@@ -50,7 +50,7 @@
 namespace net::in::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::stream::config::ConfigSocketServer<net::in::config::ConfigAddress>(instance) {
+        : net::config::socket::stream::ConfigSocketServer<net::in::config::ConfigAddress>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE)
             .setAiSocktype(SOCK_STREAM)
@@ -88,4 +88,4 @@ namespace net::in::stream::config {
 
 } // namespace net::in::stream::config
 
-template class net::stream::config::ConfigSocketServer<net::in::config::ConfigAddress>;
+template class net::config::socket::stream::ConfigSocketServer<net::in::config::ConfigAddress>;

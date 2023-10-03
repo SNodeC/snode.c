@@ -31,7 +31,7 @@
 namespace net::in6::stream::config {
 
     ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress>(instance) {
+        : net::config::socket::stream::ConfigSocketClient<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::hostRequired();
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::portRequired();
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiSocktype(SOCK_STREAM).setAiProtocol(IPPROTO_TCP);
@@ -44,4 +44,4 @@ namespace net::in6::stream::config {
 
 } // namespace net::in6::stream::config
 
-template class net::stream::config::ConfigSocketClient<net::in6::config::ConfigAddress>;
+template class net::config::socket::stream::ConfigSocketClient<net::in6::config::ConfigAddress>;

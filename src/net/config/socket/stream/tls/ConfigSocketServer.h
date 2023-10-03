@@ -26,7 +26,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::stream::config::tls {
+namespace net::config::socket::stream::tls {
 
     template <typename ConfigSocketServerBaseT>
     class ConfigSocketServer
@@ -37,6 +37,6 @@ namespace net::stream::config::tls {
         explicit ConfigSocketServer(const std::string& name);
     };
 
-} // namespace net::stream::config::tls
+} // namespace net::config::socket::stream::tls
 
 #endif // NET_STREAM_CONFIG_TLS_CONFIGSOCKETSERVER_H

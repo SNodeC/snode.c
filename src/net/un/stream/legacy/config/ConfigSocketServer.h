@@ -32,7 +32,8 @@
 
 namespace net::un::stream::legacy::config {
 
-    class ConfigSocketServer final : public net::stream::config::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer> {
+    class ConfigSocketServer final
+        : public net::config::socket::stream::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer> {
     public:
         explicit ConfigSocketServer(const std::string& name);
 
@@ -41,6 +42,6 @@ namespace net::un::stream::legacy::config {
 
 } // namespace net::un::stream::legacy::config
 
-extern template class net::stream::config::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer>;
+extern template class net::config::socket::stream::legacy::ConfigSocketServer<net::un::stream::config::ConfigSocketServer>;
 
 #endif // NET_UN_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H

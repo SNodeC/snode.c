@@ -27,7 +27,7 @@
 namespace net::in::stream::tls::config {
 
     ConfigSocketClient::ConfigSocketClient(const std::string& name)
-        : net::stream::config::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>(name) {
+        : net::config::socket::stream::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>(name) {
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
@@ -35,4 +35,4 @@ namespace net::in::stream::tls::config {
 
 } // namespace net::in::stream::tls::config
 
-template class net::stream::config::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>;
+template class net::config::socket::stream::tls::ConfigSocketClient<net::in::stream::config::ConfigSocketClient>;

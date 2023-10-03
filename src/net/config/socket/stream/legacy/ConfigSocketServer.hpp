@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::stream::config::legacy {
+namespace net::config::socket::stream::legacy {
 
     template <typename ConfigSocketServerBase>
     ConfigSocketServer<ConfigSocketServerBase>::ConfigSocketServer(const std::string& name)
@@ -31,4 +31,4 @@ namespace net::stream::config::legacy {
         , net::config::ConfigLegacy(this) {
     }
 
-} // namespace net::stream::config::legacy
+} // namespace net::config::socket::stream::legacy

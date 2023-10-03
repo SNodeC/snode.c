@@ -27,7 +27,7 @@
 namespace net::un::stream::legacy::config {
 
     ConfigSocketClient::ConfigSocketClient(const std::string& name)
-        : net::stream::config::legacy::ConfigSocketClient<net::un::stream::config::ConfigSocketClient>(name) {
+        : net::config::socket::stream::legacy::ConfigSocketClient<net::un::stream::config::ConfigSocketClient>(name) {
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
@@ -35,4 +35,4 @@ namespace net::un::stream::legacy::config {
 
 } // namespace net::un::stream::legacy::config
 
-template class net::stream::config::legacy::ConfigSocketClient<net::un::stream::config::ConfigSocketClient>;
+template class net::config::socket::stream::legacy::ConfigSocketClient<net::un::stream::config::ConfigSocketClient>;

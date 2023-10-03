@@ -27,7 +27,7 @@
 namespace net::in6::stream::legacy::config {
 
     ConfigSocketClient::ConfigSocketClient(const std::string& name)
-        : net::stream::config::legacy::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>(name) {
+        : net::config::socket::stream::legacy::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>(name) {
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
@@ -35,4 +35,4 @@ namespace net::in6::stream::legacy::config {
 
 } // namespace net::in6::stream::legacy::config
 
-template class net::stream::config::legacy::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>;
+template class net::config::socket::stream::legacy::ConfigSocketClient<net::in6::stream::config::ConfigSocketClient>;

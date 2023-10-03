@@ -20,7 +20,7 @@
 #define NET_UN_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
 #include "net/config/socket/stream/ConfigSocketServer.h" // IWYU pragma: export
-#include "net/un/config/ConfigAddress.h"          // IWYU pragma: export
+#include "net/un/config/ConfigAddress.h"                 // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -32,7 +32,7 @@ namespace net::config {
 
 namespace net::un::stream::config {
 
-    class ConfigSocketServer : public net::stream::config::ConfigSocketServer<net::un::config::ConfigAddress> {
+    class ConfigSocketServer : public net::config::socket::stream::ConfigSocketServer<net::un::config::ConfigAddress> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
@@ -41,6 +41,6 @@ namespace net::un::stream::config {
 
 } // namespace net::un::stream::config
 
-extern template class net::stream::config::ConfigSocketServer<net::un::config::ConfigAddress>;
+extern template class net::config::socket::stream::ConfigSocketServer<net::un::config::ConfigAddress>;
 
 #endif // NET_UN_STREAM_CONFIG_CONFIGSOCKETSERVER_H

@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::stream::config::tls {
+namespace net::config::socket::stream::tls {
 
     template <typename ConfigSocketClientBase>
     ConfigSocketClient<ConfigSocketClientBase>::ConfigSocketClient(const std::string& name)
@@ -31,4 +31,4 @@ namespace net::stream::config::tls {
         , net::config::ConfigTlsClient(this) {
     }
 
-} // namespace net::stream::config::tls
+} // namespace net::config::socket::stream::tls

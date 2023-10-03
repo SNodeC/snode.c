@@ -55,6 +55,18 @@ set(NET_H
     config/ConfigTls.h
     config/ConfigTlsServer.h
     config/ConfigTlsClient.h
+    config/socket/stream/ConfigSocketClient.h
+    config/socket/stream/ConfigSocketClient.hpp
+    config/socket/stream/ConfigSocketServer.h
+    config/socket/stream/ConfigSocketServer.hpp
+    config/socket/stream/legacy/ConfigSocketClient.h
+    config/socket/stream/legacy/ConfigSocketClient.hpp
+    config/socket/stream/legacy/ConfigSocketServer.h
+    config/socket/stream/legacy/ConfigSocketServer.hpp
+    config/socket/stream/tls/ConfigSocketClient.h
+    config/socket/stream/tls/ConfigSocketClient.hpp
+    config/socket/stream/tls/ConfigSocketServer.h
+    config/socket/stream/tls/ConfigSocketServer.hpp
     dgram/PeerSocket.h
     dgram/PeerSocket.hpp
     stream/PhysicalSocket.h
@@ -63,18 +75,6 @@ set(NET_H
     stream/PhysicalClientSocket.hpp
     stream/PhysicalServerSocket.h
     stream/PhysicalServerSocket.hpp
-    stream/config/ConfigSocketClient.h
-    stream/config/ConfigSocketClient.hpp
-    stream/config/ConfigSocketServer.h
-    stream/config/ConfigSocketServer.hpp
-    stream/config/legacy/ConfigSocketClient.h
-    stream/config/legacy/ConfigSocketClient.hpp
-    stream/config/legacy/ConfigSocketServer.h
-    stream/config/legacy/ConfigSocketServer.hpp
-    stream/config/tls/ConfigSocketClient.h
-    stream/config/tls/ConfigSocketClient.hpp
-    stream/config/tls/ConfigSocketServer.h
-    stream/config/tls/ConfigSocketServer.hpp
 )
 
 append_source_file_config(
