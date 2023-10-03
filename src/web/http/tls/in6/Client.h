@@ -28,7 +28,7 @@
 
 namespace web::http::tls::in6 {
 
-    template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
+    template <typename Request, typename Response>
     class Client : public web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response> {
         using web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response>::Client;
     };

@@ -28,7 +28,7 @@
 
 namespace web::http::legacy::in6 {
 
-    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
+    template <typename Request, typename Response>
     class Server : public web::http::server::Server<net::in6::stream::legacy::SocketServer, Request, Response> {
         using web::http::server::Server<net::in6::stream::legacy::SocketServer, Request, Response>::Server;
     };

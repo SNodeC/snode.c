@@ -28,7 +28,7 @@
 
 namespace web::http::legacy::rc {
 
-    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
+    template <typename Request, typename Response>
     class Server : public web::http::server::Server<net::rc::stream::legacy::SocketServer, Request, Response> {
         using web::http::server::Server<net::rc::stream::legacy::SocketServer, Request, Response>::Server;
     };
