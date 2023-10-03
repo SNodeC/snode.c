@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::phy::stream {
 
     template <typename PhysicalSocket>
     int PhysicalClientSocket<PhysicalSocket>::connect(SocketAddress& remoteAddress) {
@@ -38,4 +38,4 @@ namespace net::stream {
         return cErrno == EINPROGRESS;
     }
 
-} // namespace net::stream
+} // namespace net::phy::stream

@@ -27,4 +27,4 @@
 
 namespace net::rc {} // namespace net::rc
 
-template class net::PhysicalSocket<net::rc::SocketAddress>;
+template class net::phy::PhysicalSocket<net::rc::SocketAddress>;

@@ -27,12 +27,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::phy::stream {
 
     template <typename SocketAddressT>
-    class PhysicalServerSocket : public net::stream::PhysicalSocket<SocketAddressT> {
+    class PhysicalServerSocket : public net::phy::stream::PhysicalSocket<SocketAddressT> {
     private:
-        using Super = net::stream::PhysicalSocket<SocketAddressT>;
+        using Super = net::phy::stream::PhysicalSocket<SocketAddressT>;
 
     public:
         using SocketAddress = SocketAddressT;
@@ -45,6 +45,6 @@ namespace net::stream {
         int accept4(int flags);
     };
 
-} // namespace net::stream
+} // namespace net::phy::stream
 
 #endif // NET_STREAM_PHYSICALSERVERSOCKET_H

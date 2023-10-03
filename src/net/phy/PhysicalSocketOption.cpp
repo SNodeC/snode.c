@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net {
+namespace net::phy {
 
     PhysicalSocketOption::PhysicalSocketOption(int optLevel, int optName, int optValue)
         : optLevel(optLevel)
@@ -58,4 +58,4 @@ namespace net {
         return static_cast<socklen_t>(optValue.size());
     }
 
-} // namespace net
+} // namespace net::phy

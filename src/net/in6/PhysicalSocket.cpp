@@ -27,4 +27,4 @@
 
 namespace net::in6 {} // namespace net::in6
 
-template class net::PhysicalSocket<net::in6::SocketAddress>;
+template class net::phy::PhysicalSocket<net::in6::SocketAddress>;

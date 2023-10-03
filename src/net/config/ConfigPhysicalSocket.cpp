@@ -123,7 +123,7 @@ namespace net::config {
         retryLimitOpt->needs(retryOpt);
     }
 
-    const std::map<int, const PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
+    const std::map<int, const net::phy::PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
         return socketOptionsMap;
     }
 
@@ -140,7 +140,7 @@ namespace net::config {
             name,
             [this, &opt, optLevel, optName](int64_t) -> void {
                 if (opt->as<bool>()) {
-                    socketOptionsMap.insert({optName, net::PhysicalSocketOption(optLevel, optName, 1)});
+                    socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, 1)});
                 } else {
                     socketOptionsMap.erase(optName);
                 }
@@ -154,14 +154,14 @@ namespace net::config {
     }
 
     void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, int optValue) {
-        socketOptionsMap.insert({optName, net::PhysicalSocketOption(optLevel, optName, optValue)});
+        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
     }
 
     void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::string& optValue) {
-        socketOptionsMap.insert({optName, net::PhysicalSocketOption(optLevel, optName, optValue)});
+        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
     }
     void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::vector<char>& optValue) {
-        socketOptionsMap.insert({optName, net::PhysicalSocketOption(optLevel, optName, optValue)});
+        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
     }
 
     void ConfigPhysicalSocket::removeSocketOption(int optName) {

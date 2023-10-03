@@ -26,4 +26,4 @@
 
 namespace net::in6::stream {} // namespace net::in6::stream
 
-template class net::stream::PhysicalSocket<net::in6::SocketAddress>;
+template class net::phy::stream::PhysicalSocket<net::in6::SocketAddress>;

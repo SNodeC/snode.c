@@ -26,4 +26,4 @@
 
 namespace net::l2::stream {} // namespace net::l2::stream
 
-template class net::stream::PhysicalSocket<net::l2::SocketAddress>;
+template class net::phy::stream::PhysicalSocket<net::l2::SocketAddress>;

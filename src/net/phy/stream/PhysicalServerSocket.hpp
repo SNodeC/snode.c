@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::phy::stream {
 
     template <typename PhysicalSocket>
     int PhysicalServerSocket<PhysicalSocket>::listen(int backlog) {
@@ -41,4 +41,4 @@ namespace net::stream {
         return core::system::accept4(Super::getFd(), nullptr, nullptr, flags);
     }
 
-} // namespace net::stream
+} // namespace net::phy::stream

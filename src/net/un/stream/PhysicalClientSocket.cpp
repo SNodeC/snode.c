@@ -38,6 +38,6 @@ namespace net::un::stream {
 
 } // namespace net::un::stream
 
-template class net::stream::PhysicalClientSocket<net::un::SocketAddress>;
-template class net::un::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
-template class net::un::PhysicalSocket<net::stream::PhysicalClientSocket>;
+template class net::phy::stream::PhysicalClientSocket<net::un::SocketAddress>;
+template class net::un::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
+template class net::un::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;

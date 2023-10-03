@@ -32,6 +32,6 @@ namespace net::in6::stream {
 
 } // namespace net::in6::stream
 
-template class net::stream::PhysicalServerSocket<net::in6::SocketAddress>;
-template class net::in6::stream::PhysicalSocket<net::stream::PhysicalServerSocket>;
-template class net::in6::PhysicalSocket<net::stream::PhysicalServerSocket>;
+template class net::phy::stream::PhysicalServerSocket<net::in6::SocketAddress>;
+template class net::in6::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+template class net::in6::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;

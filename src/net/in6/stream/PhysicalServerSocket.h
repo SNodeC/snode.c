@@ -30,9 +30,9 @@
 
 namespace net::in6::stream {
 
-    class PhysicalServerSocket : public net::in6::stream::PhysicalSocket<net::stream::PhysicalServerSocket> {
+    class PhysicalServerSocket : public net::in6::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket> {
     private:
-        using Super = net::in6::stream::PhysicalSocket<net::stream::PhysicalServerSocket>;
+        using Super = net::in6::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
 
     public:
         using Super::Super;
@@ -46,8 +46,8 @@ namespace net::in6::stream {
 
 } // namespace net::in6::stream
 
-extern template class net::stream::PhysicalServerSocket<net::in6::SocketAddress>;
-extern template class net::in6::stream::PhysicalSocket<net::stream::PhysicalServerSocket>;
-extern template class net::in6::PhysicalSocket<net::stream::PhysicalServerSocket>;
+extern template class net::phy::stream::PhysicalServerSocket<net::in6::SocketAddress>;
+extern template class net::in6::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+extern template class net::in6::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
 
 #endif // NET_IN6_STREAM_PHYSICALSERVERSOCKET_H

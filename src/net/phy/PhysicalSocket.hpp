@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::phy {
 
     template <typename SocketAddress>
     PhysicalSocket<SocketAddress>::PhysicalSocket(int domain, int type, int protocol)
@@ -60,7 +60,7 @@ namespace net {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags) {
+    int PhysicalSocket<SocketAddress>::open(const std::map<int, const net::phy::PhysicalSocketOption>& socketOptions, Flags flags) {
         int ret = Super::operator=(core::system::socket(domain, type | flags, protocol)).getFd();
 
         if (ret >= 0) {
@@ -126,4 +126,4 @@ namespace net {
         return bindAddress;
     }
 
-} // namespace net
+} // namespace net::phy

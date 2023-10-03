@@ -27,12 +27,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::phy::stream {
 
     template <typename SocketAddressT>
-    class PhysicalClientSocket : public net::stream::PhysicalSocket<SocketAddressT> {
+    class PhysicalClientSocket : public net::phy::stream::PhysicalSocket<SocketAddressT> {
     private:
-        using Super = net::stream::PhysicalSocket<SocketAddressT>;
+        using Super = net::phy::stream::PhysicalSocket<SocketAddressT>;
 
     public:
         using SocketAddress = SocketAddressT;
@@ -44,6 +44,6 @@ namespace net::stream {
         virtual bool connectInProgress(int cErrno);
     };
 
-} // namespace net::stream
+} // namespace net::phy::stream
 
 #endif // NET_STREAM_PHYSICALCLIENTSOCKET_H

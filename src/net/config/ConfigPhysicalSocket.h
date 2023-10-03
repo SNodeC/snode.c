@@ -45,7 +45,7 @@ namespace net::config {
     public:
         explicit ConfigPhysicalSocket(ConfigInstance* instance);
 
-        const std::map<int, const net::PhysicalSocketOption>& getSocketOptions();
+        const std::map<int, const net::phy::PhysicalSocketOption>& getSocketOptions();
 
         void addSocketOption(int optLevel, int optName, int optValue);
         void addSocketOption(int optLevel, int optName, const std::string& optValue);
@@ -100,7 +100,7 @@ namespace net::config {
         CLI::Option* reconnectOpt = nullptr;
         CLI::Option* reconnectTimeOpt = nullptr;
 
-        std::map<int, const net::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
+        std::map<int, const net::phy::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };
 
 } // namespace net::config

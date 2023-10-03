@@ -32,6 +32,6 @@ namespace net::rc::stream {
 
 } // namespace net::rc::stream
 
-template class net::stream::PhysicalServerSocket<net::rc::SocketAddress>;
-template class net::rc::stream::PhysicalSocket<net::stream::PhysicalServerSocket>;
-template class net::rc::PhysicalSocket<net::stream::PhysicalServerSocket>;
+template class net::phy::stream::PhysicalServerSocket<net::rc::SocketAddress>;
+template class net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;
+template class net::rc::PhysicalSocket<net::phy::stream::PhysicalServerSocket>;

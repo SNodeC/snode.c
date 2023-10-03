@@ -30,9 +30,9 @@
 
 namespace net::un::stream {
 
-    class PhysicalClientSocket : public net::un::stream::PhysicalSocket<net::stream::PhysicalClientSocket> {
+    class PhysicalClientSocket : public net::un::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket> {
     private:
-        using Super = net::un::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
+        using Super = net::un::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
 
     public:
         using Super::Super;
@@ -48,8 +48,8 @@ namespace net::un::stream {
 
 } // namespace net::un::stream
 
-extern template class net::stream::PhysicalClientSocket<net::un::SocketAddress>;
-extern template class net::un::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
-extern template class net::un::PhysicalSocket<net::stream::PhysicalClientSocket>;
+extern template class net::phy::stream::PhysicalClientSocket<net::un::SocketAddress>;
+extern template class net::un::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
+extern template class net::un::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
 
 #endif // NET_UN_STREAM_PHYSICALCLIENTSOCKET_H

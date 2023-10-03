@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::phy {
 
     template <typename SocketAddressT>
     class PhysicalSocket : public core::Descriptor {
@@ -53,7 +53,7 @@ namespace net {
     public:
         explicit PhysicalSocket(int fd);
 
-        int open(const std::map<int, const net::PhysicalSocketOption>& socketOptions, Flags flags);
+        int open(const std::map<int, const PhysicalSocketOption> &socketOptions, Flags flags);
 
         int bind(SocketAddress& bindAddress);
 
@@ -77,6 +77,6 @@ namespace net {
         int protocol{};
     };
 
-} // namespace net
+} // namespace net::phy
 
 #endif // NET_SOCKET_H

@@ -26,4 +26,4 @@
 
 namespace net::un::stream {} // namespace net::un::stream
 
-template class net::stream::PhysicalSocket<net::un::SocketAddress>;
+template class net::phy::stream::PhysicalSocket<net::un::SocketAddress>;

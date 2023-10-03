@@ -27,4 +27,4 @@
 
 namespace net::un {} // namespace net::un
 
-template class net::PhysicalSocket<net::un::SocketAddress>;
+template class net::phy::PhysicalSocket<net::un::SocketAddress>;

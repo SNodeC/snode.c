@@ -27,7 +27,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net {
+namespace net::phy {
 
     class PhysicalSocketOption {
     public:
@@ -48,6 +48,6 @@ namespace net {
         std::vector<char> optValue;
     };
 
-} // namespace net
+} // namespace net::phy
 
 #endif // NET_PHYSICALSOCKETOPTIONS_H

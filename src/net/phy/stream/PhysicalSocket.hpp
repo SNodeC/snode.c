@@ -22,11 +22,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::stream {
+namespace net::phy::stream {
 
     template <typename SocketAddress>
     void PhysicalSocket<SocketAddress>::shutdown(SHUT how) {
         core::system::shutdown(core::Descriptor::getFd(), how);
     }
 
-} // namespace net::stream
+} // namespace net::phy::stream

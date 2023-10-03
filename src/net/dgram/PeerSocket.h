@@ -32,9 +32,9 @@
 namespace net::dgram {
 
     template <typename SocketAddressT>
-    class PeerSocket : public net::PhysicalSocket<SocketAddressT> {
+    class PeerSocket : public net::phy::PhysicalSocket<SocketAddressT> {
     protected:
-        using Super = net::PhysicalSocket<SocketAddressT>;
+        using Super = net::phy::PhysicalSocket<SocketAddressT>;
 
     public:
         using Super::Super;

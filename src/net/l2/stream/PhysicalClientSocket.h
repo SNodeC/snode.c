@@ -32,9 +32,9 @@
 
 namespace net::l2::stream {
 
-    class PhysicalClientSocket : public net::l2::stream::PhysicalSocket<net::stream::PhysicalClientSocket> {
+    class PhysicalClientSocket : public net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket> {
     private:
-        using Super = net::l2::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
+        using Super = net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
 
     public:
         using Super::Super;
@@ -48,8 +48,8 @@ namespace net::l2::stream {
 
 } // namespace net::l2::stream
 
-extern template class net::stream::PhysicalClientSocket<net::l2::SocketAddress>;
-extern template class net::l2::stream::PhysicalSocket<net::stream::PhysicalClientSocket>;
-extern template class net::l2::PhysicalSocket<net::stream::PhysicalClientSocket>;
+extern template class net::phy::stream::PhysicalClientSocket<net::l2::SocketAddress>;
+extern template class net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
+extern template class net::l2::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
 
 #endif // NET_L2_STREAM_PHYSICALCLIENTSOCKET_H

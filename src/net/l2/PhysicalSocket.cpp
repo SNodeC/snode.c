@@ -27,4 +27,4 @@
 
 namespace net::l2 {} // namespace net::l2
 
-template class net::PhysicalSocket<net::l2::SocketAddress>;
+template class net::phy::PhysicalSocket<net::l2::SocketAddress>;

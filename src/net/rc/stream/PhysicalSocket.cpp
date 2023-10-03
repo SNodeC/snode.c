@@ -26,4 +26,4 @@
 
 namespace net::rc::stream {} // namespace net::rc::stream
 
-template class net::stream::PhysicalSocket<net::rc::SocketAddress>;
+template class net::phy::stream::PhysicalSocket<net::rc::SocketAddress>;

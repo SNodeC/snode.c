@@ -49,6 +49,6 @@ namespace net::un {
 
 } // namespace net::un
 
-extern template class net::PhysicalSocket<net::un::SocketAddress>;
+extern template class net::phy::PhysicalSocket<net::un::SocketAddress>;
 
 #endif // NET_UN_PHYSICALSOCKET_H
