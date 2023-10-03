@@ -193,13 +193,13 @@ For the server role we just need to create an object of type
 net::in::stream::legacy::SocketServer<SocketContextFactory>
 ```
 
-called a [*server instance*](#socketserver classes) and for the client role an object of type
+called a [*server instance*](#SocketServer-Classes) and for the client role an object of type
 
 ``` c++
 net::in::stream::legacy::SocketClient<SocketContextFactory>
 ```
 
-called [*client instance*](#socketclient classes) is needed.
+called [*client instance*](#SocketClient-Classes) is needed.
 
 A class *SocketContextFactory* is used for both instances as template argument. Such a *SocketContextFactory* **needs to be provided by the user** and is used internally by the *SocketServer* and the *SocketClient* instances to create a concrete *SocketContext* object for each established connection. This *SocketContext* **also needs to be provided by the user** and represents a **concrete application protocol**.
 
