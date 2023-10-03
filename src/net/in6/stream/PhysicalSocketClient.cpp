@@ -16,28 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/stream/PhysicalClientSocket.h"
+#include "net/in6/stream/PhysicalSocketClient.h"
 
-#include "net/phy/stream/PhysicalClientSocket.hpp" // IWYU pragma: keep
-#include "net/un/stream/PhysicalSocket.hpp"
+#include "net/in6/stream/PhysicalSocket.hpp"
+#include "net/phy/stream/PhysicalSocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::in6::stream {
 
-    PhysicalClientSocket::~PhysicalClientSocket() {
+    PhysicalSocketClient::~PhysicalSocketClient() {
     }
 
-    bool PhysicalClientSocket::connectInProgress(int cErrno) {
-        return cErrno == EAGAIN;
-    }
+} // namespace net::in6::stream
 
-} // namespace net::un::stream
-
-template class net::phy::stream::PhysicalClientSocket<net::un::SocketAddress>;
-template class net::un::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
-template class net::un::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
+template class net::phy::stream::PhysicalSocketClient<net::in6::SocketAddress>;
+template class net::in6::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+template class net::in6::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;

@@ -16,26 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/phy/stream/PhysicalClientSocket.h"
+#include "net/in/stream/PhysicalSocketClient.h"
+
+#include "net/in/stream/PhysicalSocket.hpp"
+#include "net/phy/stream/PhysicalSocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h"
-
-#include <cerrno>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::phy::stream {
+namespace net::in::stream {
 
-    template <typename PhysicalSocket>
-    int PhysicalClientSocket<PhysicalSocket>::connect(SocketAddress& remoteAddress) {
-        return core::system::connect(Super::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
+    PhysicalSocketClient::~PhysicalSocketClient() {
     }
 
-    template <typename PhysicalSocket>
-    bool PhysicalClientSocket<PhysicalSocket>::connectInProgress(int cErrno) {
-        return cErrno == EINPROGRESS;
-    }
+} // namespace net::in::stream
 
-} // namespace net::phy::stream
+template class net::phy::stream::PhysicalSocketClient<net::in::SocketAddress>;
+template class net::in::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+template class net::in::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;

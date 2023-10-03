@@ -16,34 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_PHYSICALCLIENTSOCKET_H
-#define NET_STREAM_PHYSICALCLIENTSOCKET_H
+#include "net/un/stream/PhysicalSocketClient.h"
 
-#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "net/phy/stream/PhysicalSocket.hpp"
+#include "net/phy/stream/PhysicalSocketClient.hpp" // IWYU pragma: keep
+#include "net/un/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::phy::stream {
+namespace net::un::stream {
 
-    template <typename SocketAddressT>
-    class PhysicalClientSocket : public net::phy::stream::PhysicalSocket<SocketAddressT> {
-    private:
-        using Super = net::phy::stream::PhysicalSocket<SocketAddressT>;
+    PhysicalSocketClient::~PhysicalSocketClient() {
+    }
 
-    public:
-        using SocketAddress = SocketAddressT;
+    bool PhysicalSocketClient::connectInProgress(int cErrno) {
+        return cErrno == EAGAIN;
+    }
 
-        using Super::Super;
+} // namespace net::un::stream
 
-        int connect(SocketAddress& remoteAddress);
-
-        virtual bool connectInProgress(int cErrno);
-    };
-
-} // namespace net::phy::stream
-
-#endif // NET_STREAM_PHYSICALCLIENTSOCKET_H
+template class net::phy::stream::PhysicalSocketClient<net::un::SocketAddress>;
+template class net::un::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+template class net::un::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;

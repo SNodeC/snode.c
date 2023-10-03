@@ -34,11 +34,11 @@ typedef struct ssl_ctx_st SSL_CTX;
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalClientSocketT, typename ConfigT>
+    template <typename PhysicalSocketClientT, typename ConfigT>
     class SocketConnector
-        : private core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
+        : private core::socket::stream::SocketConnector<PhysicalSocketClientT, ConfigT, core::socket::stream::tls::SocketConnection> {
     private:
-        using Super = core::socket::stream::SocketConnector<PhysicalClientSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
+        using Super = core::socket::stream::SocketConnector<PhysicalSocketClientT, ConfigT, core::socket::stream::tls::SocketConnection>;
 
     public:
         using SocketAddress = typename Super::SocketAddress;

@@ -16,22 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in6/stream/PhysicalClientSocket.h"
+#ifndef NET_STREAM_PHYSICALCLIENTSOCKET_H
+#define NET_STREAM_PHYSICALCLIENTSOCKET_H
 
-#include "net/in6/stream/PhysicalSocket.hpp"
-#include "net/phy/stream/PhysicalClientSocket.hpp" // IWYU pragma: keep
+#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "net/phy/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6::stream {
+namespace net::phy::stream {
 
-    PhysicalClientSocket::~PhysicalClientSocket() {
-    }
+    template <typename SocketAddressT>
+    class PhysicalSocketClient : public net::phy::stream::PhysicalSocket<SocketAddressT> {
+    private:
+        using Super = net::phy::stream::PhysicalSocket<SocketAddressT>;
 
-} // namespace net::in6::stream
+    public:
+        using SocketAddress = SocketAddressT;
 
-template class net::phy::stream::PhysicalClientSocket<net::in6::SocketAddress>;
-template class net::in6::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
-template class net::in6::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
+        using Super::Super;
+
+        int connect(SocketAddress& remoteAddress);
+
+        virtual bool connectInProgress(int cErrno);
+    };
+
+} // namespace net::phy::stream
+
+#endif // NET_STREAM_PHYSICALCLIENTSOCKET_H

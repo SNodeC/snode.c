@@ -71,8 +71,8 @@ set(NET_H
     phy/PhysicalSocketOption.h
     phy/stream/PhysicalSocket.h
     phy/stream/PhysicalSocket.hpp
-    phy/stream/PhysicalClientSocket.h
-    phy/stream/PhysicalClientSocket.hpp
+    phy/stream/PhysicalSocketClient.h
+    phy/stream/PhysicalSocketClient.hpp
     phy/stream/PhysicalServerSocket.h
     phy/stream/PhysicalServerSocket.hpp
 )

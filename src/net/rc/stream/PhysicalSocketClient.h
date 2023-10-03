@@ -20,7 +20,7 @@
 #define NET_RC_STREAM_PHYSICALCLIENTSOCKET_H
 
 #include "net/rc/stream/PhysicalSocket.h"    // IWYU pragma: export
-#include "net/phy/stream/PhysicalClientSocket.h" // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocketClient.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/rc/stream/PhysicalSocket.hpp"
 
@@ -30,24 +30,24 @@
 
 namespace net::rc::stream {
 
-    class PhysicalClientSocket : public net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket> {
+    class PhysicalSocketClient : public net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient> {
     private:
-        using Super = net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
+        using Super = net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
 
     public:
         using Super::Super;
 
-        PhysicalClientSocket(const PhysicalClientSocket&) = default;
+        PhysicalSocketClient(const PhysicalSocketClient&) = default;
 
-        ~PhysicalClientSocket() override;
+        ~PhysicalSocketClient() override;
 
         using Super::operator=;
     };
 
 } // namespace net::rc::stream
 
-extern template class net::phy::stream::PhysicalClientSocket<net::rc::SocketAddress>;
-extern template class net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
-extern template class net::rc::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
+extern template class net::phy::stream::PhysicalSocketClient<net::rc::SocketAddress>;
+extern template class net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+extern template class net::rc::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
 
 #endif // NET_RC_STREAM_PHYSICALCLIENTSOCKET_H

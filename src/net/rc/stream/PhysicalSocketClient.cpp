@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/PhysicalClientSocket.h"
+#include "net/rc/stream/PhysicalSocketClient.h"
 
 #include "net/rc/stream/PhysicalSocket.hpp"
-#include "net/phy/stream/PhysicalClientSocket.hpp" // IWYU pragma: keep
+#include "net/phy/stream/PhysicalSocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,11 +27,11 @@
 
 namespace net::rc::stream {
 
-    PhysicalClientSocket::~PhysicalClientSocket() {
+    PhysicalSocketClient::~PhysicalSocketClient() {
     }
 
 } // namespace net::rc::stream
 
-template class net::phy::stream::PhysicalClientSocket<net::rc::SocketAddress>;
-template class net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
-template class net::rc::PhysicalSocket<net::phy::stream::PhysicalClientSocket>;
+template class net::phy::stream::PhysicalSocketClient<net::rc::SocketAddress>;
+template class net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+template class net::rc::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;

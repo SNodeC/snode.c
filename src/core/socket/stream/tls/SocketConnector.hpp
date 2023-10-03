@@ -31,8 +31,8 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalClientSocket, typename Config>
-    core::socket::stream::tls::SocketConnector<PhysicalClientSocket, Config>::SocketConnector(
+    template <typename PhysicalSocketClient, typename Config>
+    core::socket::stream::tls::SocketConnector<PhysicalSocketClient, Config>::SocketConnector(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
@@ -77,15 +77,15 @@ namespace core::socket::stream::tls {
               config) {
     }
 
-    template <typename PhysicalClientSocket, typename Config>
-    SocketConnector<PhysicalClientSocket, Config>::~SocketConnector() {
+    template <typename PhysicalSocketClient, typename Config>
+    SocketConnector<PhysicalSocketClient, Config>::~SocketConnector() {
         if (ctx != nullptr) {
             ssl_ctx_free(ctx);
         }
     }
 
-    template <typename PhysicalClientSocket, typename Config>
-    void SocketConnector<PhysicalClientSocket, Config>::initConnectEvent() {
+    template <typename PhysicalSocketClient, typename Config>
+    void SocketConnector<PhysicalSocketClient, Config>::initConnectEvent() {
         if (!config->getDisabled()) {
             ctx = ssl_ctx_new(config);
 

@@ -20,7 +20,7 @@
 #define NET_IN_STREAM_SOCKETCLIENT_H
 
 #include "core/socket/stream/SocketClient.h"    // IWYU pragma: export
-#include "net/in/stream/PhysicalClientSocket.h" // IWYU pragma: export
+#include "net/in/stream/PhysicalSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,14 +32,14 @@
 
 namespace net::in::stream {
 
-    template <template <typename PhysicalClientSocket, typename ConfigSocketClientT> typename SocketConnectorT,
+    template <template <typename PhysicalSocketClient, typename ConfigSocketClientT> typename SocketConnectorT,
               typename ConfigSocketClientT,
               typename SocketContextFactoryT>
     class SocketClient
-        : public core::socket::stream::SocketClient<SocketConnectorT<net::in::stream::PhysicalClientSocket, ConfigSocketClientT>,
+        : public core::socket::stream::SocketClient<SocketConnectorT<net::in::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                     SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::in::stream::PhysicalClientSocket, ConfigSocketClientT>,
+        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::in::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                          SocketContextFactoryT>;
 
     public:
