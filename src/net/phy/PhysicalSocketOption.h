@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_PHYSICALSOCKETOPTIONS_H
-#define NET_PHYSICALSOCKETOPTIONS_H
+#ifndef NET_PHY_PHYSICALSOCKETOPTIONS_H
+#define NET_PHY_PHYSICALSOCKETOPTIONS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,4 +50,4 @@ namespace net::phy {
 
 } // namespace net::phy
 
-#endif // NET_PHYSICALSOCKETOPTIONS_H
+#endif // NET_PHY_PHYSICALSOCKETOPTIONS_H

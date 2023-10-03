@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_PHYSICALCLIENTSOCKET_H
-#define NET_STREAM_PHYSICALCLIENTSOCKET_H
+#ifndef NET_PHY_STREAM_PHYSICALSOCKETCLIENT_H
+#define NET_PHY_STREAM_PHYSICALSOCKETCLIENT_H
 
 #include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
 
@@ -46,4 +46,4 @@ namespace net::phy::stream {
 
 } // namespace net::phy::stream
 
-#endif // NET_STREAM_PHYSICALCLIENTSOCKET_H
+#endif // NET_PHY_STREAM_PHYSICALSOCKETCLIENT_H

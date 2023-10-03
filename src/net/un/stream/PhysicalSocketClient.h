@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_PHYSICALCLIENTSOCKET_H
-#define NET_UN_STREAM_PHYSICALCLIENTSOCKET_H
+#ifndef NET_UN_STREAM_PHYSICALSOCKETCLIENT_H
+#define NET_UN_STREAM_PHYSICALSOCKETCLIENT_H
 
 #include "net/phy/stream/PhysicalSocketClient.h" // IWYU pragma: export
 #include "net/un/stream/PhysicalSocket.h"    // IWYU pragma: export
@@ -52,4 +52,4 @@ extern template class net::phy::stream::PhysicalSocketClient<net::un::SocketAddr
 extern template class net::un::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
 extern template class net::un::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
 
-#endif // NET_UN_STREAM_PHYSICALCLIENTSOCKET_H
+#endif // NET_UN_STREAM_PHYSICALSOCKETCLIENT_H

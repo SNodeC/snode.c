@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
-#define NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
+#ifndef NET_CONFIG_STREAM_CONFIGSOCKETSERVER_H
+#define NET_CONFIG_STREAM_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigAddressLocal.h"         // IWYU pragma: export
 #include "net/config/ConfigConnection.h"           // IWYU pragma: export
@@ -44,4 +44,4 @@ namespace net::config::stream {
 
 } // namespace net::config::stream
 
-#endif // NET_STREAM_CONFIG_CONFIGSOCKETSERVER_H
+#endif // NET_CONFIG_STREAM_CONFIGSOCKETSERVER_H

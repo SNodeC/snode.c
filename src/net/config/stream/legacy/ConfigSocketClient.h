@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETCLIENT_H
-#define NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETCLIENT_H
+#ifndef NET_CONFIG_STREAM_LEGACY_CONFIGSOCKETCLIENT_H
+#define NET_CONFIG_STREAM_LEGACY_CONFIGSOCKETCLIENT_H
 
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigLegacy.h"
@@ -39,4 +39,4 @@ namespace net::config::stream::legacy {
 
 } // namespace net::config::stream::legacy
 
-#endif // NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETCLIENT_H
+#endif // NET_CONFIG_STREAM_LEGACY_CONFIGSOCKETCLIENT_H

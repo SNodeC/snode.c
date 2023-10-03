@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_H
-#define NET_SOCKET_H
+#ifndef NET_PHY_SOCKET_H
+#define NET_PHY_SOCKET_H
 
 #include "core/Descriptor.h"              // IWYU pragma: export
 #include "net/phy/PhysicalSocketOption.h" // IWYU pragma: export
@@ -53,7 +53,7 @@ namespace net::phy {
     public:
         explicit PhysicalSocket(int fd);
 
-        int open(const std::map<int, const PhysicalSocketOption> &socketOptions, Flags flags);
+        int open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags);
 
         int bind(SocketAddress& bindAddress);
 
@@ -79,4 +79,4 @@ namespace net::phy {
 
 } // namespace net::phy
 
-#endif // NET_SOCKET_H
+#endif // NET_PHY_SOCKET_H

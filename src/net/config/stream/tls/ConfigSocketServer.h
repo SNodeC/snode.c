@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_CONFIG_TLS_CONFIGSOCKETSERVER_H
-#define NET_STREAM_CONFIG_TLS_CONFIGSOCKETSERVER_H
+#ifndef NET_CONFIG_STREAM_TLS_CONFIGSOCKETSERVER_H
+#define NET_CONFIG_STREAM_TLS_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigTlsServer.h"
@@ -39,4 +39,4 @@ namespace net::config::stream::tls {
 
 } // namespace net::config::stream::tls
 
-#endif // NET_STREAM_CONFIG_TLS_CONFIGSOCKETSERVER_H
+#endif // NET_CONFIG_STREAM_TLS_CONFIGSOCKETSERVER_H

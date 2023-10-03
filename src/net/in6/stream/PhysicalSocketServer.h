@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN6_STREAM_PHYSICALSERVERSOCKET_H
-#define NET_IN6_STREAM_PHYSICALSERVERSOCKET_H
+#ifndef NET_IN6_STREAM_PHYSICALSOCKETSERVER_H
+#define NET_IN6_STREAM_PHYSICALSOCKETSERVER_H
 
 #include "net/in6/stream/PhysicalSocket.h"   // IWYU pragma: export
 #include "net/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
@@ -50,4 +50,4 @@ extern template class net::phy::stream::PhysicalSocketServer<net::in6::SocketAdd
 extern template class net::in6::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 extern template class net::in6::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
-#endif // NET_IN6_STREAM_PHYSICALSERVERSOCKET_H
+#endif // NET_IN6_STREAM_PHYSICALSOCKETSERVER_H

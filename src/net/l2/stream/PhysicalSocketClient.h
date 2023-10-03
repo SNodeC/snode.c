@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_PHYSICALCLIENTSOCKET_H
-#define NET_L2_STREAM_PHYSICALCLIENTSOCKET_H
+#ifndef NET_L2_STREAM_PHYSICALSOCKETCLIENT_H
+#define NET_L2_STREAM_PHYSICALSOCKETCLIENT_H
 
 // clang-format off
 #include "net/l2/stream/PhysicalSocket.h"    // IWYU pragma: export
@@ -52,4 +52,4 @@ extern template class net::phy::stream::PhysicalSocketClient<net::l2::SocketAddr
 extern template class net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
 extern template class net::l2::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
 
-#endif // NET_L2_STREAM_PHYSICALCLIENTSOCKET_H
+#endif // NET_L2_STREAM_PHYSICALSOCKETCLIENT_H
