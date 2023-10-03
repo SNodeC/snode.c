@@ -1,6 +1,6 @@
 # Simple NODE in C++ (SNode.C)
 
-[SNode.C](https://volkerchristian.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extensible event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
+[SNode.C](https://SNodeC.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extensible event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
 
 The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [**Interactive Media**](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [**Informatics, Communications and Media**](https://www.fh-ooe.at/en/hagenberg-campus/) at the [**University of Applied Sciences Upper Austria, Campus Hagenberg**](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
 
@@ -68,7 +68,7 @@ Imagine we want to create a very basic TCP (**stream**)/IPv4 (**in**) server/cli
 
 The client shall start sending text data to the server and the server shall reflect that data back to the client. The client receives this reflected data and sends it back again to the server. This data ping-pong shall last infinitely long.
 
-The code of this demo application can be found on [github](https://github.com/VolkerChristian/echo).
+The code of this demo application can be found on [github](https://github.com/SNodeC/echo).
 
 ### SocketServer and SocketClient Instances
 
@@ -78,13 +78,13 @@ For the server role we just need to create an object of type
 net::in::stream::legacy::SocketServer<SocketContextFactory>
 ```
 
-called a [*server instance*](#server) and for the client role an object of type
+called a [*server instance*](#socketserver classes) and for the client role an object of type
 
 ``` c++
 net::in::stream::legacy::SocketClient<SocketContextFactory>
 ```
 
-called [*client instance*](#client) is needed.
+called [*client instance*](#socketclient classes) is needed.
 
 A class *SocketContextFactory* is used for both instances as template argument. Such a *SocketContextFactory* **needs to be provided by the user** and is used internally by the *SocketServer* and the *SocketClient* instances to create a concrete *SocketContext* object for each established connection. This *SocketContext* **also needs to be provided by the user** and represents a **concrete application protocol**.
 
@@ -396,9 +396,9 @@ The echo application shows the typical architecture of servers and clients using
 
   which need be be derived from the base classes
 
-  - [`core::socket::stream::SocketContextFactory`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context_factory.html)
+  - [`core::socket::stream::SocketContextFactory`](https://SNodeC.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context_factory.html)
 
-  - [`core::socket::stream::SocketContext`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context.html)
+  - [`core::socket::stream::SocketContext`](https://SNodeC.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context.html)
 
 - The framework provides
 
@@ -711,11 +711,11 @@ as can be seen in the Echo-Demo-Application above.
 
 | Network Layer       | *SocketAddress* Classes                                      | SocketAddress Header Files                                   |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | [`net/in/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2_socket_address_8h.html) |
-| IPv6                | [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | [`net/in6/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2_socket_address_8h.html) |
-| Unix Domain Sockets | [`net::un::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | [`net/un/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2_socket_address_8h.html) |
-| Bluetooth RFCOMM    | [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | [`net/rc/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2_socket_address_8h.html) |
-| Bluetooth L2CAP     | [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | [`net/l2/SocketAddress.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2_socket_address_8h.html) |
+| IPv4                | [`net::in::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | [`net/in/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2_socket_address_8h.html) |
+| IPv6                | [`net::in6::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | [`net/in6/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2_socket_address_8h.html) |
+| Unix Domain Sockets | [`net::un::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | [`net/un/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2_socket_address_8h.html) |
+| Bluetooth RFCOMM    | [`net::rc::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | [`net/rc/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2_socket_address_8h.html) |
+| Bluetooth L2CAP     | [`net::l2::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | [`net/l2/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2_socket_address_8h.html) |
 
 Each *SocketAddress* class provides it's very specific set of constructors.
 
@@ -725,11 +725,11 @@ The default constructors of all *SocketAddress* classes creates wild-card *Socke
 
 | SocketAddress                                                | Constructors                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`net::in::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
-| [`net::in6::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
-| [`net::un::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
-| [`net::rc::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
-| [`net::l2::SocketAddress`](https://volkerchristian.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
+| [`net::in::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
+| [`net::in6::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
+| [`net::un::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
+| [`net::rc::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
+| [`net::l2::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
 
 ### *SocketConnection*
 
@@ -760,8 +760,8 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 
 | Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
-| SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://volkerchristian.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://volkerchristian.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
+| Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://SNodeC.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://SNodeC.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
+| SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://SNodeC.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://SNodeC.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
 
 #### Most Important common *SocketConnection* Methods
 
@@ -982,22 +982,22 @@ Each *SocketServer* template class expects a concrete *SocketContextFactory* as 
 
 | Network Layer       | Legacy Types                                                 | SSL/TLS Types                                                |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net::in::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
-| IPv6                | [`net::in6::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) |
-| Unix Domain Sockets | [`net::un::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
-| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
-| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketServer`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
+| IPv4                | [`net::in::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
+| IPv6                | [`net::in6::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) |
+| Unix Domain Sockets | [`net::un::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
+| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
+| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
 
 ### SocketServer Header Files
 
 
 | Network Layer       | Legacy Header Files                                          | SSL/TLS Header Files                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net/in/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_server_8h.html) | [`net/in/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_server_8h.html) |
-| IPv6                | [`net/in6/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_server_8h.html) | [`net/in6/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_server_8h.html) |
-| Unix Domain Sockets | [`net/un/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_server_8h.html) | [`net/un/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_server_8h.html) |
-| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_server_8h.html) | [`net/rc/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_server_8h.html) |
-| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_server_8h.html) | [`net/l2/stream/tls/SocketServer.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_server_8h.html) |
+| IPv4                | [`net/in/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_server_8h.html) | [`net/in/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_server_8h.html) |
+| IPv6                | [`net/in6/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_server_8h.html) | [`net/in6/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_server_8h.html) |
+| Unix Domain Sockets | [`net/un/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_server_8h.html) | [`net/un/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_server_8h.html) |
+| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_server_8h.html) | [`net/rc/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_server_8h.html) |
+| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_server_8h.html) | [`net/l2/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_server_8h.html) |
 
 ### Listen Methods
 
@@ -1115,22 +1115,22 @@ Each *SocketClient* template class expects a concrete *SocketContextFactory* as 
 
 | Network Layer       | Legacy Types                                                 | SSL/TLS Types                                                |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net::in::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
-| IPv6                | [`net::in6::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls.html) |
-| Unix Domain Sockets | [`net::un::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
-| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
-| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketClient`](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
+| IPv4                | [`net::in::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
+| IPv6                | [`net::in6::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls.html) |
+| Unix Domain Sockets | [`net::un::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
+| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
+| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
 
 ### SocketClient Header Files
 
 
 | Network Layer       | Legacy Header Files                                          | SSL/TLS Header Files                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net/in/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_client_8h.html) | [`net/in/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_client_8h.html) |
-| IPv6                | [`net/in6/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_client_8h.html) | [`net/in6/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_client_8h.html) |
-| Unix Domain Sockets | [`net/un/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_client_8h.html) | [`net/un/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_client_8h.html) |
-| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_client_8h.html) | [`net/rc/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_client_8h.html) |
-| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_client_8h.html) | [`net/l2/stream/tls/SocketClient.h`](https://volkerchristian.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_client_8h.html) |
+| IPv4                | [`net/in/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_client_8h.html) | [`net/in/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_client_8h.html) |
+| IPv6                | [`net/in6/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_client_8h.html) | [`net/in6/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_client_8h.html) |
+| Unix Domain Sockets | [`net/un/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_client_8h.html) | [`net/un/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_client_8h.html) |
+| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_client_8h.html) | [`net/rc/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_client_8h.html) |
+| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_client_8h.html) | [`net/l2/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_client_8h.html) |
 
 ### Connect Methods
 
@@ -1310,17 +1310,17 @@ Other configuration items can be configured in the very same way but for most op
 
 #### List of all Configuration Items
 
-All *SocketServer* and *SocketClient* instances share some common [configuration options](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1config.html).
+All *SocketServer* and *SocketClient* instances share some common [configuration options](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1config.html).
 
 Network layer specific configuration options:
 
 | Network Layer       | SocketAddress                                                | Transport Layer                                              | Legacy Connection Layer                                      | TLS Connection Layer                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls_1_1config.html) |
-| IPv6                | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls_1_1config.html) |
-| Unix Domain Sockets | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls_1_1config.html) |
-| Bluetooth RFCOMM    | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls_1_1config.html) |
-| Bluetoot L2CAP      | [Address configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1config.html) | [Transport layer configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1config.html) | [Legacy configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://volkerchristian.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls_1_1config.html) |
+| IPv4                | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls_1_1config.html) |
+| IPv6                | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls_1_1config.html) |
+| Unix Domain Sockets | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls_1_1config.html) |
+| Bluetooth RFCOMM    | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls_1_1config.html) |
+| Bluetoot L2CAP      | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls_1_1config.html) |
 
 ### Configuration via the Command Line
 
@@ -1397,7 +1397,7 @@ Thus, for instance if the `EchoServer` instance is created using and instance na
 EchoServer echoServer("echo"); // Create named server instance
 ```
 
- (try it yourself using the code from github in the **[named-instance](https://github.com/VolkerChristian/echo/tree/named-instance)** branch of the echo application), the output of the help screen changes slightly:
+ (try it yourself using the code from github in the **[named-instance](https://github.com/SNodeC/echo/tree/named-instance)** branch of the echo application), the output of the help screen changes slightly:
 
 ```shell
 Configuration for Application 'echoserver'
@@ -1967,7 +1967,7 @@ Thus the certificates can also bee configured running
 command@line:~/> echoserver echo tls --ca-cert-file <path to X.509 CA certificate> --cert-chain <path to X.509 certificate chain> --cert-key <path to X.509 certificate key> --cert-key-password <certificate key password>
 ```
 
-The demo code for this application can be found on github in the branch [named-instance-tls](https://github.com/VolkerChristian/echo/tree/named-instance-tls). Included in that branch is the directory *certs* where demo self signed CA certificate authorities with corresponding certificates for server and client can be found. This certificates have been created using the tool [XCA](https://hohnstaedt.de/xca/). The database of XCA for this certificates can also be found in that directory. The password of the XCA database and the keys is always 'snode.c'. 
+The demo code for this application can be found on github in the branch [named-instance-tls](https://github.com/SNodeC/echo/tree/named-instance-tls). Included in that branch is the directory *certs* where demo self signed CA certificate authorities with corresponding certificates for server and client can be found. This certificates have been created using the tool [XCA](https://hohnstaedt.de/xca/). The database of XCA for this certificates can also be found in that directory. The password of the XCA database and the keys is always 'snode.c'. 
 
 ***Warning***: Do not use this certificates for production! But the database of XCA can be used as template for own certificate creation.
 
