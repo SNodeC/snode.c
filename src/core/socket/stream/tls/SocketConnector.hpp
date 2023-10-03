@@ -58,17 +58,15 @@ namespace core::socket::stream::tls {
                               onConnected(socketConnection);
                               socketConnection->onConnected();
                           },
-                          [onError = this->onError, progressLog = Super::progressLog, config = this->config]() -> void { // onTimeout
+                          []() -> void { // onTimeout
                               LOG(WARNING) << "SSL/TLS initial handshake timed out";
                           },
-                          [onError = this->onError, progressLog = Super::progressLog, config = this->config](
-                              int sslErr) -> void { // onError
+                          [](int sslErr) -> void { // onError
                               ssl_log("SSL/TLS initial handshake failed", sslErr);
                           });
                   } else {
                       socketConnection->close();
                       ssl_log_error("SSL/TLS initialization failed");
-                      this->onError(*Super::progressLog.get());
                   }
               },
               [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
