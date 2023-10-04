@@ -16,45 +16,36 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN6_CPP SocketAddress.cpp SocketAddrInfo.cpp
-                config/ConfigAddress.cpp
-)
+set(NET-IN6-PHY_CPP PhysicalSocket.cpp)
 
-set(NET-IN6_H SocketAddress.h
-              SocketAddrInfo.h config/ConfigAddress.h
-)
+set(NET-IN6-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 
-append_source_file_config(
-    config/ConfigAddress.cpp IPV4_MAPPED "IPv4-mapped IPv6 addresses" \"false\"
-    \"true\"
-)
+add_library(net-in6-phy SHARED ${NET-IN6-PHY_CPP} ${NET-IN6-PHY_H})
+add_library(snodec::net-in6-phy ALIAS net-in6-phy)
 
-add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
-add_library(snodec::net-in6 ALIAS net-in6)
-
-target_link_libraries(net-in6 PUBLIC snodec::net snodec::core-socket)
+target_link_libraries(net-in6-phy PUBLIC snodec::net-in6)
 
 target_include_directories(
-    net-in6
+    net-in6-phy
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    net-in6 PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-in6
+    net-in6-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-in6-phy
 )
 
 install(
-    TARGETS net-in6
-    EXPORT snodec_net-in6_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in6
+    TARGETS net-in6-phy
+    EXPORT snodec_net-in6-phy_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in6-phy
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in6
-    COMPONENT net-in6
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in6/phy
+    COMPONENT net-in6-phy
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -64,12 +55,11 @@ install(
 )
 
 install(
-    EXPORT snodec_net-in6_Targets
-    FILE snodec_net-in6_Targets.cmake
+    EXPORT snodec_net-in6-phy_Targets
+    FILE snodec_net-in6-phy_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-in6
+    COMPONENT net-in6-phy
 )
 
-add_subdirectory(phy)
 add_subdirectory(stream)

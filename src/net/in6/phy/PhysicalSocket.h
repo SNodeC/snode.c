@@ -16,22 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in6/stream/PhysicalSocketClient.h"
+#ifndef NET_IN6_PHY_PHYSICALSOCKET_H
+#define NET_IN6_PHY_PHYSICALSOCKET_H
 
-#include "net/in6/stream/PhysicalSocket.hpp"
-#include "net/phy/stream/PhysicalSocketClient.hpp" // IWYU pragma: keep
+#include "net/in6/SocketAddress.h"  // IWYU pragma: export
+#include "net/phy/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in6::stream {
+namespace net::in6::phy {
 
-    PhysicalSocketClient::~PhysicalSocketClient() {
-    }
+    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
+    class PhysicalSocket : public PhysicalPeerSocketT<net::in6::SocketAddress> {
+    private:
+        using Super = PhysicalPeerSocketT<net::in6::SocketAddress>;
 
-} // namespace net::in6::stream
+    public:
+        using Super::Super;
 
-template class net::phy::stream::PhysicalSocketClient<net::in6::SocketAddress>;
-template class net::in6::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
-template class net::in6::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+        PhysicalSocket(int type, int protocol);
+        PhysicalSocket(const PhysicalSocket&) = default;
+
+        ~PhysicalSocket() override;
+    };
+
+} // namespace net::in6::phy
+
+extern template class net::phy::PhysicalSocket<net::in6::SocketAddress>;
+
+#endif // NET_IN6_PHY_PHYSICALSOCKET_H
