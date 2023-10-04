@@ -16,15 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// clang-format off
-#include "net/in/SocketAddress.h"
-#include "net/phy/PhysicalSocket.hpp"
-// clang-format on
+#include "net/in/phy/stream/PhysicalSocketServer.h"
+
+#include "net/in/phy/stream/PhysicalSocket.hpp"
+#include "net/phy/stream/PhysicalSocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in {} // namespace net::in
+namespace net::in::phy::stream {
 
-template class net::phy::PhysicalSocket<net::in::SocketAddress>;
+    PhysicalSocketServer::~PhysicalSocketServer() {
+    }
+
+} // namespace net::in::phy::stream
+
+template class net::phy::stream::PhysicalSocketServer<net::in::SocketAddress>;
+template class net::in::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+template class net::in::phy::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;

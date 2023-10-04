@@ -16,34 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_PHYSICALSOCKET_H
-#define NET_IN_PHYSICALSOCKET_H
-
-#include "net/in/SocketAddress.h"   // IWYU pragma: export
-#include "net/phy/PhysicalSocket.h" // IWYU pragma: export
+#include "net/in/phy/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in {
+namespace net::in::phy {
 
-    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
-    class PhysicalSocket : public PhysicalPeerSocketT<net::in::SocketAddress> {
-    private:
-        using Super = PhysicalPeerSocketT<net::in::SocketAddress>;
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
+        : Super(PF_INET, type, protocol) {
+    }
 
-    public:
-        using Super::Super;
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
+    }
 
-        PhysicalSocket(int type, int protocol);
-        PhysicalSocket(const PhysicalSocket&) = default;
-
-        ~PhysicalSocket() override;
-    };
-
-} // namespace net::in
-
-extern template class net::phy::PhysicalSocket<net::in::SocketAddress>;
-
-#endif // NET_IN_PHYSICALSOCKET_H
+} // namespace net::in::phy

@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_PHYSICALSOCKETSERVER_H
-#define NET_IN_STREAM_PHYSICALSOCKETSERVER_H
+#ifndef NET_IN_PHY_STREAM_PHYSICALSOCKETSERVER_H
+#define NET_IN_PHY_STREAM_PHYSICALSOCKETSERVER_H
 
-#include "net/in/stream/PhysicalSocket.h"        // IWYU pragma: export
+#include "net/in/phy/stream/PhysicalSocket.h"    // IWYU pragma: export
 #include "net/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/in/stream/PhysicalSocket.hpp"
@@ -28,11 +28,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {
+namespace net::in::phy::stream {
 
-    class PhysicalSocketServer : public net::in::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer> {
+    class PhysicalSocketServer : public net::in::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer> {
     private:
-        using Super = net::in::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+        using Super = net::in::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
     public:
         using Super::Super;
@@ -40,14 +40,12 @@ namespace net::in::stream {
         PhysicalSocketServer(const PhysicalSocketServer&) = default;
 
         ~PhysicalSocketServer() override;
-
-        using Super::operator=;
     };
 
-} // namespace net::in::stream
+} // namespace net::in::phy::stream
 
 extern template class net::phy::stream::PhysicalSocketServer<net::in::SocketAddress>;
-extern template class net::in::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
-extern template class net::in::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+extern template class net::in::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+extern template class net::in::phy::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
-#endif // NET_IN_STREAM_PHYSICALSOCKETSERVER_H
+#endif // NET_IN_PHY_STREAM_PHYSICALSOCKETSERVER_H

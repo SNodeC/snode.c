@@ -16,49 +16,44 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN-STREAM_CPP
-    config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
+set(NET-IN-PHY-STREAM_CPP
+    PhysicalSocket.cpp PhysicalSocketClient.cpp PhysicalSocketServer.cpp
 )
 
-set(NET-IN-STREAM_H
-    SocketClient.h
-    SocketServer.h
-    config/ConfigSocketClient.h
-    config/ConfigSocketServer.h
+set(NET-IN-PHY-STREAM_H
+    PhysicalSocketClient.h
+    PhysicalSocketServer.h
+    PhysicalSocket.hpp
+    PhysicalSocket.h
 )
 
-append_source_file_config(
-    config/ConfigSocketServer.cpp REUSE_PORT "Reuse port (IPv4/IPv6)" \"false\"
-    \"true\"
-)
+add_library(net-in-phy-stream SHARED ${NET-IN-PHY-STREAM_CPP} ${NET-IN-PHY-STREAM_H})
+add_library(snodec::net-in-phy-stream ALIAS net-in-phy-stream)
 
-add_library(net-in-stream SHARED ${NET-IN-STREAM_CPP} ${NET-IN-STREAM_H})
-add_library(snodec::net-in-stream ALIAS net-in-stream)
-
-target_link_libraries(net-in-stream PUBLIC snodec::net-in-phy-stream snodec::core-socket-stream)
+target_link_libraries(net-in-phy-stream PUBLIC snodec::net-in-phy)
 
 target_include_directories(
-    net-in-stream
+    net-in-phy-stream
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    net-in-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                           snodec-net-in-stream
+    net-in-phy-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                           snodec-net-in-phy-stream
 )
 
 install(
-    TARGETS net-in-stream
-    EXPORT snodec_net-in-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in-stream
+    TARGETS net-in-phy-stream
+    EXPORT snodec_net-in-phy-stream_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in-phy-stream
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in/stream
-    COMPONENT net-in-stream
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in/phy/stream
+    COMPONENT net-in-phy-stream
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -68,12 +63,9 @@ install(
 )
 
 install(
-    EXPORT snodec_net-in-stream_Targets
-    FILE snodec_net-in-stream_Targets.cmake
+    EXPORT snodec_net-in-phy-stream_Targets
+    FILE snodec_net-in-phy-stream_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-in-stream
+    COMPONENT net-in-phy-stream
 )
-
-add_subdirectory(legacy)
-add_subdirectory(tls)

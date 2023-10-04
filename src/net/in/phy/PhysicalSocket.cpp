@@ -16,21 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/in/PhysicalSocket.h" // IWYU pragma: export
+// clang-format off
+#include "net/in/SocketAddress.h"
+#include "net/phy/PhysicalSocket.hpp"
+// clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::in {
+namespace net::in::phy {} // namespace net::in::phy
 
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
-        : Super(PF_INET, type, protocol) {
-    }
-
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
-    }
-
-} // namespace net::in
+template class net::phy::PhysicalSocket<net::in::SocketAddress>;
