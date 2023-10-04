@@ -16,36 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_PHYSICALSOCKET_H
-#define NET_STREAM_PHYSICALSOCKET_H
-
-#include "net/PhysicalSocket.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "net/PhysicalSocket.hpp"
+#include "net/phy/stream/PhysicalServerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#include "core/system/socket.h"
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
 
-    template <typename SocketAddressT>
-    class PhysicalSocket : public net::PhysicalSocket<SocketAddressT> {
-    private:
-        using Super = net::PhysicalSocket<SocketAddressT>;
+    template <typename PhysicalSocket>
+    int PhysicalServerSocket<PhysicalSocket>::listen(int backlog) {
+        return core::system::listen(Super::getFd(), backlog);
+    }
 
-    public:
-        using SocketAddress = SocketAddressT;
+    template <typename PhysicalSocket>
+    int PhysicalServerSocket<PhysicalSocket>::accept() {
+        return core::system::accept(Super::getFd(), nullptr, nullptr);
+    }
 
-        using Super::Super;
-        using Super::operator=;
-
-    protected:
-        enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
-
-        void shutdown(SHUT how);
-    };
+    template <typename PhysicalSocket>
+    int PhysicalServerSocket<PhysicalSocket>::accept4(int flags) {
+        return core::system::accept4(Super::getFd(), nullptr, nullptr, flags);
+    }
 
 } // namespace net::stream
-
-#endif // NET_STREAM_PHYSICALSOCKET_H

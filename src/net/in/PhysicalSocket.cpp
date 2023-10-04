@@ -18,7 +18,7 @@
 
 // clang-format off
 #include "net/in/SocketAddress.h"
-#include "net/PhysicalSocket.hpp"
+#include "net/phy/PhysicalSocket.hpp"
 // clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

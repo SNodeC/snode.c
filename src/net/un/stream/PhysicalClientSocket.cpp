@@ -18,7 +18,7 @@
 
 #include "net/un/stream/PhysicalClientSocket.h"
 
-#include "net/stream/PhysicalClientSocket.hpp" // IWYU pragma: keep
+#include "net/phy/stream/PhysicalClientSocket.hpp" // IWYU pragma: keep
 #include "net/un/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

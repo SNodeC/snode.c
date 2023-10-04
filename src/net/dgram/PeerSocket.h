@@ -19,7 +19,7 @@
 #ifndef NET_DGRAM_PEERSOCKET_H
 #define NET_DGRAM_PEERSOCKET_H
 
-#include "net/PhysicalSocket.h" // IWYU pragma: export
+#include "net/phy/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

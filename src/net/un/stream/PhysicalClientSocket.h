@@ -19,7 +19,7 @@
 #ifndef NET_UN_STREAM_PHYSICALCLIENTSOCKET_H
 #define NET_UN_STREAM_PHYSICALCLIENTSOCKET_H
 
-#include "net/stream/PhysicalClientSocket.h" // IWYU pragma: export
+#include "net/phy/stream/PhysicalClientSocket.h" // IWYU pragma: export
 #include "net/un/stream/PhysicalSocket.h"    // IWYU pragma: export
 
 // IWYU pragma: no_include "net/un/stream/PhysicalSocket.hpp"

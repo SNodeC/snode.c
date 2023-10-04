@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_STREAM_PHYSICALSERVERSOCKET_H
-#define NET_STREAM_PHYSICALSERVERSOCKET_H
+#ifndef NET_STREAM_PHYSICALCLIENTSOCKET_H
+#define NET_STREAM_PHYSICALCLIENTSOCKET_H
 
-#include "net/stream/PhysicalSocket.h" // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/stream/PhysicalSocket.hpp"
+// IWYU pragma: no_include "net/phy/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,7 +30,7 @@
 namespace net::stream {
 
     template <typename SocketAddressT>
-    class PhysicalServerSocket : public net::stream::PhysicalSocket<SocketAddressT> {
+    class PhysicalClientSocket : public net::stream::PhysicalSocket<SocketAddressT> {
     private:
         using Super = net::stream::PhysicalSocket<SocketAddressT>;
 
@@ -38,14 +38,12 @@ namespace net::stream {
         using SocketAddress = SocketAddressT;
 
         using Super::Super;
-        using Super::operator=;
 
-        int listen(int backlog);
+        int connect(SocketAddress& remoteAddress);
 
-        int accept();
-        int accept4(int flags);
+        virtual bool connectInProgress(int cErrno);
     };
 
 } // namespace net::stream
 
-#endif // NET_STREAM_PHYSICALSERVERSOCKET_H
+#endif // NET_STREAM_PHYSICALCLIENTSOCKET_H

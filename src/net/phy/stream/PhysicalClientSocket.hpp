@@ -16,29 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/stream/PhysicalServerSocket.h"
+#include "net/phy/stream/PhysicalClientSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/socket.h"
+
+#include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
 
     template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::listen(int backlog) {
-        return core::system::listen(Super::getFd(), backlog);
+    int PhysicalClientSocket<PhysicalSocket>::connect(SocketAddress& remoteAddress) {
+        return core::system::connect(Super::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
     }
 
     template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept() {
-        return core::system::accept(Super::getFd(), nullptr, nullptr);
-    }
-
-    template <typename PhysicalSocket>
-    int PhysicalServerSocket<PhysicalSocket>::accept4(int flags) {
-        return core::system::accept4(Super::getFd(), nullptr, nullptr, flags);
+    bool PhysicalClientSocket<PhysicalSocket>::connectInProgress(int cErrno) {
+        return cErrno == EINPROGRESS;
     }
 
 } // namespace net::stream

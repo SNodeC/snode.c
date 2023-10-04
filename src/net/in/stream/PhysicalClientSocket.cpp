@@ -19,7 +19,7 @@
 #include "net/in/stream/PhysicalClientSocket.h"
 
 #include "net/in/stream/PhysicalSocket.hpp"
-#include "net/stream/PhysicalClientSocket.hpp" // IWYU pragma: keep
+#include "net/phy/stream/PhysicalClientSocket.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

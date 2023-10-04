@@ -17,7 +17,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(NET_CPP
-    PhysicalSocketOption.cpp
+    phy/PhysicalSocketOption.cpp
     config/ConfigInstance.cpp
     config/ConfigConnection.cpp
     config/ConfigLegacy.cpp
@@ -32,9 +32,6 @@ set(NET_CPP
 )
 
 set(NET_H
-    PhysicalSocket.h
-    PhysicalSocket.hpp
-    PhysicalSocketOption.h
     SocketAddress.h
     SocketAddress.hpp
     config/ConfigAddress.h
@@ -69,12 +66,15 @@ set(NET_H
     config/socket/stream/tls/ConfigSocketServer.hpp
     dgram/PeerSocket.h
     dgram/PeerSocket.hpp
-    stream/PhysicalSocket.h
-    stream/PhysicalSocket.hpp
-    stream/PhysicalClientSocket.h
-    stream/PhysicalClientSocket.hpp
-    stream/PhysicalServerSocket.h
-    stream/PhysicalServerSocket.hpp
+    phy/PhysicalSocket.h
+    phy/PhysicalSocket.hpp
+    phy/PhysicalSocketOption.h
+    phy/stream/PhysicalSocket.h
+    phy/stream/PhysicalSocket.hpp
+    phy/stream/PhysicalClientSocket.h
+    phy/stream/PhysicalClientSocket.hpp
+    phy/stream/PhysicalServerSocket.h
+    phy/stream/PhysicalServerSocket.hpp
 )
 
 append_source_file_config(

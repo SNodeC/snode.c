@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_H
 #define NET_SOCKET_H
 
-#include "core/Descriptor.h"          // IWYU pragma: export
-#include "net/PhysicalSocketOption.h" // IWYU pragma: export
+#include "core/Descriptor.h"              // IWYU pragma: export
+#include "net/phy/PhysicalSocketOption.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

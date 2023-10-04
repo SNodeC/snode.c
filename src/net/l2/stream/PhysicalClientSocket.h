@@ -21,7 +21,7 @@
 
 // clang-format off
 #include "net/l2/stream/PhysicalSocket.h"    // IWYU pragma: export
-#include "net/stream/PhysicalClientSocket.h" // IWYU pragma: export
+#include "net/phy/stream/PhysicalClientSocket.h" // IWYU pragma: export
 // clang-format on
 
 // IWYU pragma: no_include "net/l2/stream/PhysicalSocket.hpp"

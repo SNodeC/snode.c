@@ -20,7 +20,7 @@
 #define NET_IN6_STREAM_PHYSICALCLIENTSOCKET_H
 
 #include "net/in6/stream/PhysicalSocket.h"   // IWYU pragma: export
-#include "net/stream/PhysicalClientSocket.h" // IWYU pragma: export
+#include "net/phy/stream/PhysicalClientSocket.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/in6/stream/PhysicalSocket.hpp"
 

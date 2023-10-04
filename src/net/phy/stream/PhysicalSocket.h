@@ -16,7 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/stream/PhysicalSocket.h"
+#ifndef NET_STREAM_PHYSICALSOCKET_H
+#define NET_STREAM_PHYSICALSOCKET_H
+
+#include "net/phy/PhysicalSocket.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "net/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,9 +29,22 @@
 
 namespace net::stream {
 
-    template <typename SocketAddress>
-    void PhysicalSocket<SocketAddress>::shutdown(SHUT how) {
-        core::system::shutdown(core::Descriptor::getFd(), how);
-    }
+    template <typename SocketAddressT>
+    class PhysicalSocket : public net::PhysicalSocket<SocketAddressT> {
+    private:
+        using Super = net::PhysicalSocket<SocketAddressT>;
+
+    public:
+        using SocketAddress = SocketAddressT;
+
+        using Super::Super;
+
+    protected:
+        enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
+
+        void shutdown(SHUT how);
+    };
 
 } // namespace net::stream
+
+#endif // NET_STREAM_PHYSICALSOCKET_H
