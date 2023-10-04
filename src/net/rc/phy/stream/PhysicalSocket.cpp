@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/rc/stream/PhysicalSocket.h"
+#include "net/rc/phy/stream/PhysicalSocket.h"
 
 #include "net/phy/stream/PhysicalSocket.hpp" // IWYU pragma: keep
 
@@ -24,6 +24,6 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::rc::stream {} // namespace net::rc::stream
+namespace net::rc::phy::stream {} // namespace net::rc::phy::stream
 
 template class net::phy::stream::PhysicalSocket<net::rc::SocketAddress>;

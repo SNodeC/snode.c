@@ -19,8 +19,8 @@
 #ifndef NET_RC_STREAM_SOCKETCLIENT_H
 #define NET_RC_STREAM_SOCKETCLIENT_H
 
-#include "core/socket/stream/SocketClient.h"    // IWYU pragma: export
-#include "net/rc/stream/PhysicalSocketClient.h" // IWYU pragma: export
+#include "core/socket/stream/SocketClient.h"        // IWYU pragma: export
+#include "net/rc/phy/stream/PhysicalSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,10 +36,10 @@ namespace net::rc::stream {
               typename ConfigSocketClientT,
               typename SocketContextFactoryT>
     class SocketClient
-        : public core::socket::stream::SocketClient<SocketConnectorT<net::rc::stream::PhysicalSocketClient, ConfigSocketClientT>,
+        : public core::socket::stream::SocketClient<SocketConnectorT<net::rc::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                     SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::rc::stream::PhysicalSocketClient, ConfigSocketClientT>,
+        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::rc::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                          SocketContextFactoryT>;
 
     public:

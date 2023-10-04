@@ -47,12 +47,14 @@ set(net-in6-phy_DEPENDENCIES net-in6)
 set(net-in6-phy-stream_DEPENDENCIES net-in6-phy)
 set(net-l2-phy_DEPENDENCIES net-l2)
 set(net-l2-phy-stream_DEPENDENCIES net-l2-phy)
+set(net-rc-phy_DEPENDENCIES net-rc)
+set(net-rc-phy-stream_DEPENDENCIES net-rc-phy)
 
 # Base network-stream code
 set(net-in-stream_DEPENDENCIES net-in-phy-stream core-socket-stream)
 set(net-in6-stream_DEPENDENCIES net-in6-phy-stream core-socket-stream)
 set(net-l2-stream_DEPENDENCIES net-l2-phy-stream core-socket-stream)
-set(net-rc-stream_DEPENDENCIES net-rc core-socket-stream)
+set(net-rc-stream_DEPENDENCIES net-rc-phy-stream core-socket-stream)
 set(net-un-stream_DEPENDENCIES net-un core-socket-stream)
 
 # Legacy network-stream code

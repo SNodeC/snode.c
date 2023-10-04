@@ -16,59 +16,50 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-RC-STREAM_CPP
-    config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
-)
+set(NET-RC-PHY_CPP PhysicalSocket.cpp)
 
-set(NET-RC-STREAM_H
-    SocketClient.h
-    SocketServer.h
-    config/ConfigSocketClient.h
-    config/ConfigSocketServer.h
-)
+set(NET-RC-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 
-add_library(net-rc-stream SHARED ${NET-RC-STREAM_CPP} ${NET-RC-STREAM_H})
-add_library(snodec::net-rc-stream ALIAS net-rc-stream)
+add_library(net-rc-phy SHARED ${NET-RC-PHY_CPP} ${NET-RC-PHY_H})
+add_library(snodec::net-rc-phy ALIAS net-rc-phy)
 
-target_link_libraries(net-rc-stream PUBLIC snodec::net-rc-phy-stream snodec::core-socket-stream)
+target_link_libraries(net-rc-phy PUBLIC snodec::net-rc)
 
 target_include_directories(
-    net-rc-stream
+    net-rc-phy
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    net-rc-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                           snodec-net-rc-stream
+    net-rc-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-rc-phy
 )
 
 install(
-    TARGETS net-rc-stream
-    EXPORT snodec_net-rc-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-rc-stream
+    TARGETS net-rc-phy
+    EXPORT snodec_net-rc-phy_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-rc-phy
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc/stream
-    COMPONENT net-rc-stream
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc/phy
+    COMPONENT net-rc-phy
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
-    PATTERN "legacy" EXCLUDE
-    PATTERN "tls" EXCLUDE
+    PATTERN "stream" EXCLUDE
+    PATTERN "dgram" EXCLUDE
 )
 
 install(
-    EXPORT snodec_net-rc-stream_Targets
-    FILE snodec_net-rc-stream_Targets.cmake
+    EXPORT snodec_net-rc-phy_Targets
+    FILE snodec_net-rc-phy_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-rc-stream
+    COMPONENT net-rc-phy
 )
 
-add_subdirectory(legacy)
-add_subdirectory(tls)
+add_subdirectory(stream)

@@ -16,34 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RC_STREAM_PHYSICALSOCKET_H
-#define NET_RC_STREAM_PHYSICALSOCKET_H
+#include "net/rc/phy/stream/PhysicalSocketServer.h"
 
-#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
-#include "net/rc/PhysicalSocket.h"         // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocketServer.hpp" // IWYU pragma: keep
+#include "net/rc/phy/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rc::stream {
+namespace net::rc::phy::stream {
 
-    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
-    class PhysicalSocket : public net::rc::PhysicalSocket<PhysicalPeerSocketT> {
-    private:
-        using Super = net::rc::PhysicalSocket<PhysicalPeerSocketT>;
+    PhysicalSocketServer::~PhysicalSocketServer() {
+    }
 
-    public:
-        using Super::Super;
+} // namespace net::rc::phy::stream
 
-        PhysicalSocket();
-        PhysicalSocket(const PhysicalSocket&) = default;
-
-        ~PhysicalSocket() override;
-    };
-
-} // namespace net::rc::stream
-
-extern template class net::phy::stream::PhysicalSocket<net::rc::SocketAddress>;
-
-#endif // NET_RC_STREAM_PHYSICALSOCKET_H
+template class net::phy::stream::PhysicalSocketServer<net::rc::SocketAddress>;
+template class net::rc::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+template class net::rc::phy::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;

@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RC_STREAM_PHYSICALSOCKETSERVER_H
-#define NET_RC_STREAM_PHYSICALSOCKETSERVER_H
+#ifndef NET_RC_PHY_STREAM_PHYSICALSOCKETCLIENT_H
+#define NET_RC_PHY_STREAM_PHYSICALSOCKETCLIENT_H
 
-#include "net/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
-#include "net/rc/stream/PhysicalSocket.h"        // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocketClient.h" // IWYU pragma: export
+#include "net/rc/phy/stream/PhysicalSocket.h"    // IWYU pragma: export
 
 // IWYU pragma: no_include "net/rc/stream/PhysicalSocket.hpp"
 
@@ -28,26 +28,24 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::rc::stream {
+namespace net::rc::phy::stream {
 
-    class PhysicalSocketServer : public net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer> {
+    class PhysicalSocketClient : public net::rc::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient> {
     private:
-        using Super = net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+        using Super = net::rc::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
 
     public:
         using Super::Super;
 
-        PhysicalSocketServer(const PhysicalSocketServer&) = default;
+        PhysicalSocketClient(const PhysicalSocketClient&) = default;
 
-        ~PhysicalSocketServer() override;
-
-        using Super::operator=;
+        ~PhysicalSocketClient() override;
     };
 
-} // namespace net::rc::stream
+} // namespace net::rc::phy::stream
 
-extern template class net::phy::stream::PhysicalSocketServer<net::rc::SocketAddress>;
-extern template class net::rc::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
-extern template class net::rc::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+extern template class net::phy::stream::PhysicalSocketClient<net::rc::SocketAddress>;
+extern template class net::rc::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+extern template class net::rc::phy::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
 
-#endif // NET_STREAM_PHYSICALSOCKETSERVER_H
+#endif // NET_RC_PHY_STREAM_PHYSICALSOCKETCLIENT_H

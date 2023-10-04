@@ -16,15 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// clang-format off
-#include "net/rc/SocketAddress.h"
-#include "net/phy/PhysicalSocket.hpp"
-// clang-format on
+#include "net/rc/phy/PhysicalSocket.hpp"      // IWYU pragma: export
+#include "net/rc/phy/stream/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#include <netinet/in.h>
 
-namespace net::rc {} // namespace net::rc
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-template class net::phy::PhysicalSocket<net::rc::SocketAddress>;
+namespace net::rc::phy::stream {
+
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket()
+        : Super(SOCK_STREAM, BTPROTO_RFCOMM) {
+    }
+
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
+    }
+
+} // namespace net::rc::phy::stream
