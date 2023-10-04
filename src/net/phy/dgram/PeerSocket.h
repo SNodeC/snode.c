@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_DGRAM_PEERSOCKET_H
-#define NET_DGRAM_PEERSOCKET_H
+#ifndef NET_PHY_DGRAM_PEERSOCKET_H
+#define NET_PHY_DGRAM_PEERSOCKET_H
 
 #include "net/phy/PhysicalSocket.h" // IWYU pragma: export
 
@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::dgram {
+namespace net::phy::dgram {
 
     template <typename SocketAddressT>
     class PeerSocket : public net::phy::PhysicalSocket<SocketAddressT> {
@@ -38,11 +38,10 @@ namespace net::dgram {
 
     public:
         using Super::Super;
-        using Super::operator=;
 
         using SocketAddress = SocketAddressT;
     };
 
-} // namespace net::dgram
+} // namespace net::phy::dgram
 
-#endif // NET_DGRAM_PEERSOCKET_H
+#endif // NET_PHY_DGRAM_PEERSOCKET_H

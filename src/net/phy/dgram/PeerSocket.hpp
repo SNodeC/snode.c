@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/dgram/PeerSocket.h"
+#include "net/phy/dgram/PeerSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::dgram {} // namespace net::dgram
+namespace net::phy::dgram {} // namespace net::phy::dgram

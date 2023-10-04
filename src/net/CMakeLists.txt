@@ -64,11 +64,11 @@ set(NET_H
     config/stream/tls/ConfigSocketClient.hpp
     config/stream/tls/ConfigSocketServer.h
     config/stream/tls/ConfigSocketServer.hpp
-    dgram/PeerSocket.h
-    dgram/PeerSocket.hpp
     phy/PhysicalSocket.h
     phy/PhysicalSocket.hpp
     phy/PhysicalSocketOption.h
+    phy/dgram/PeerSocket.h
+    phy/dgram/PeerSocket.hpp
     phy/stream/PhysicalSocket.h
     phy/stream/PhysicalSocket.hpp
     phy/stream/PhysicalSocketClient.h
