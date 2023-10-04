@@ -26,18 +26,18 @@
 
 namespace net::phy::stream {
 
-    template <typename PhysicalSocket>
-    int PhysicalSocketServer<PhysicalSocket>::listen(int backlog) {
+    template <typename SocketAddress>
+    int PhysicalSocketServer<SocketAddress>::listen(int backlog) {
         return core::system::listen(Super::getFd(), backlog);
     }
 
-    template <typename PhysicalSocket>
-    int PhysicalSocketServer<PhysicalSocket>::accept() {
+    template <typename SocketAddress>
+    int PhysicalSocketServer<SocketAddress>::accept() {
         return core::system::accept(Super::getFd(), nullptr, nullptr);
     }
 
-    template <typename PhysicalSocket>
-    int PhysicalSocketServer<PhysicalSocket>::accept4(int flags) {
+    template <typename SocketAddress>
+    int PhysicalSocketServer<SocketAddress>::accept4(int flags) {
         return core::system::accept4(Super::getFd(), nullptr, nullptr, flags);
     }
 

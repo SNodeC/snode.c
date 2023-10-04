@@ -28,13 +28,13 @@
 
 namespace net::phy::stream {
 
-    template <typename PhysicalSocket>
-    int PhysicalSocketClient<PhysicalSocket>::connect(SocketAddress& remoteAddress) {
+    template <typename SocketAddress>
+    int PhysicalSocketClient<SocketAddress>::connect(SocketAddress& remoteAddress) {
         return core::system::connect(Super::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
     }
 
-    template <typename PhysicalSocket>
-    bool PhysicalSocketClient<PhysicalSocket>::connectInProgress(int cErrno) {
+    template <typename SocketAddress>
+    bool PhysicalSocketClient<SocketAddress>::connectInProgress(int cErrno) {
         return cErrno == EINPROGRESS;
     }
 
