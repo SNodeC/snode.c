@@ -43,10 +43,10 @@ namespace net::l2::stream::tls {
 } // namespace net::l2::stream::tls
 
 extern template class core::socket::Socket<net::l2::stream::tls::config::ConfigSocketServer>;
-extern template class core::socket::stream::tls::SocketAcceptor<net::l2::stream::PhysicalSocketServer,
+extern template class core::socket::stream::tls::SocketAcceptor<net::l2::phy::stream::PhysicalSocketServer,
                                                                 net::l2::stream::tls::config::ConfigSocketServer>;
-extern template class core::socket::stream::tls::SocketConnection<net::l2::stream::PhysicalSocketServer>;
-extern template class core::socket::stream::SocketConnectionT<net::l2::stream::PhysicalSocketServer,
+extern template class core::socket::stream::tls::SocketConnection<net::l2::phy::stream::PhysicalSocketServer>;
+extern template class core::socket::stream::SocketConnectionT<net::l2::phy::stream::PhysicalSocketServer,
                                                               core::socket::stream::tls::SocketReader,
                                                               core::socket::stream::tls::SocketWriter>;
 

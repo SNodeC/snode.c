@@ -16,44 +16,44 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-L2-STREAM_CPP
-    config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
+set(NET-L2-PHY-STREAM_CPP
+    PhysicalSocket.cpp PhysicalSocketClient.cpp PhysicalSocketServer.cpp
 )
 
-set(NET-L2-STREAM_H
-    SocketClient.h
-    SocketServer.h
-    config/ConfigSocketClient.h
-    config/ConfigSocketServer.h
+set(NET-L2-PHY-STREAM_H
+    PhysicalSocketClient.h
+    PhysicalSocketServer.h
+    PhysicalSocket.hpp
+    PhysicalSocket.h
 )
 
-add_library(net-l2-stream SHARED ${NET-L2-STREAM_CPP} ${NET-L2-STREAM_H})
-add_library(snodec::net-l2-stream ALIAS net-l2-stream)
+add_library(net-l2-phy-stream SHARED ${NET-L2-PHY-STREAM_CPP} ${NET-L2-PHY-STREAM_H})
+add_library(snodec::net-l2-phy-stream ALIAS net-l2-phy-stream)
 
-target_link_libraries(net-l2-stream PUBLIC snodec::net-l2-phy-stream snodec::core-socket-stream)
+target_link_libraries(net-l2-phy-stream PUBLIC snodec::net-l2-phy)
 
 target_include_directories(
-    net-l2-stream
+    net-l2-phy-stream
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    net-l2-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                           snodec-net-l2-stream
+    net-l2-phy-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+                              OUTPUT_NAME snodec-net-l2-phy-stream
 )
 
 install(
-    TARGETS net-l2-stream
-    EXPORT snodec_net-l2-stream_Targets
+    TARGETS net-l2-phy-stream
+    EXPORT snodec_net-l2-phy-stream_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-l2-stream
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2/stream
-    COMPONENT net-l2-stream
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2/phy/stream
+    COMPONENT net-l2-phy-stream
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -63,12 +63,9 @@ install(
 )
 
 install(
-    EXPORT snodec_net-l2-stream_Targets
-    FILE snodec_net-l2-stream_Targets.cmake
+    EXPORT snodec_net-l2-phy-stream_Targets
+    FILE snodec_net-l2-phy-stream_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-l2-stream
+    COMPONENT net-l2-phy-stream
 )
-
-add_subdirectory(legacy)
-add_subdirectory(tls)

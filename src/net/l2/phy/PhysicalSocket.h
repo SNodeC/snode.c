@@ -16,14 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/stream/PhysicalSocket.h"
+#ifndef NET_L2_PHY_PHYSICALSOCKET_H
+#define NET_L2_PHY_PHYSICALSOCKET_H
 
-#include "net/phy/stream/PhysicalSocket.hpp" // IWYU pragma: keep
+#include "net/l2/SocketAddress.h"   // IWYU pragma: export
+#include "net/phy/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {} // namespace net::l2::stream
+namespace net::l2::phy {
 
-template class net::phy::stream::PhysicalSocket<net::l2::SocketAddress>;
+    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
+    class PhysicalSocket : public PhysicalPeerSocketT<net::l2::SocketAddress> {
+    private:
+        using Super = PhysicalPeerSocketT<net::l2::SocketAddress>;
+
+    public:
+        using Super::Super;
+
+        PhysicalSocket(int type, int protocol);
+        PhysicalSocket(const PhysicalSocket&) = default;
+
+        ~PhysicalSocket() override;
+    };
+
+} // namespace net::l2::phy
+
+extern template class net::phy::PhysicalSocket<net::l2::SocketAddress>;
+
+#endif // NET_L2_PHY_PHYSICALSOCKET_H

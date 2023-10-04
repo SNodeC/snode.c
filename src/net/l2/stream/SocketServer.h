@@ -19,8 +19,8 @@
 #ifndef NET_L2_STREAM_SOCKETSERVER_H
 #define NET_L2_STREAM_SOCKETSERVER_H
 
-#include "core/socket/stream/SocketServer.h"    // IWYU pragma: export
-#include "net/l2/stream/PhysicalSocketServer.h" // IWYU pragma: export
+#include "core/socket/stream/SocketServer.h"        // IWYU pragma: export
+#include "net/l2/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,10 +36,10 @@ namespace net::l2::stream {
               typename ConfigSocketServerT,
               typename SocketContextFactoryT>
     class SocketServer
-        : public core::socket::stream::SocketServer<SocketAcceptorT<net::l2::stream::PhysicalSocketServer, ConfigSocketServerT>,
+        : public core::socket::stream::SocketServer<SocketAcceptorT<net::l2::phy::stream::PhysicalSocketServer, ConfigSocketServerT>,
                                                     SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketServer<SocketAcceptorT<net::l2::stream::PhysicalSocketServer, ConfigSocketServerT>,
+        using Super = core::socket::stream::SocketServer<SocketAcceptorT<net::l2::phy::stream::PhysicalSocketServer, ConfigSocketServerT>,
                                                          SocketContextFactoryT>;
 
     public:

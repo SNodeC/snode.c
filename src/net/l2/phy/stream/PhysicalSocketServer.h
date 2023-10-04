@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,13 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_PHYSICALSOCKETSERVER_H
-#define NET_L2_STREAM_PHYSICALSOCKETSERVER_H
+#ifndef NET_L2_PHY_STREAM_PHYSICALSOCKETSERVER_H
+#define NET_L2_PHY_STREAM_PHYSICALSOCKETSERVER_H
 
-// clang-format off
-#include "net/l2/stream/PhysicalSocket.h"    // IWYU pragma: export
+#include "net/l2/phy/stream/PhysicalSocket.h"    // IWYU pragma: export
 #include "net/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
-// clang-format on
 
 // IWYU pragma: no_include "net/l2/stream/PhysicalSocket.hpp"
 
@@ -30,11 +28,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::l2::phy::stream {
 
-    class PhysicalSocketServer : public net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer> {
+    class PhysicalSocketServer : public net::l2::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer> {
     private:
-        using Super = net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+        using Super = net::l2::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
     public:
         using Super::Super;
@@ -42,14 +40,12 @@ namespace net::l2::stream {
         PhysicalSocketServer(const PhysicalSocketServer&) = default;
 
         ~PhysicalSocketServer() override;
-
-        using Super::operator=;
     };
 
-} // namespace net::l2::stream
+} // namespace net::l2::phy::stream
 
 extern template class net::phy::stream::PhysicalSocketServer<net::l2::SocketAddress>;
-extern template class net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
-extern template class net::l2::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+extern template class net::l2::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+extern template class net::l2::phy::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
 
-#endif // NET_L2_STREAM_PHYSICALSOCKETSERVER_H
+#endif // NET_L2_PHY_STREAM_PHYSICALSOCKETSERVER_H

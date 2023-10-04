@@ -16,22 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/stream/PhysicalSocketServer.h"
+#include "net/l2/phy/stream/PhysicalSocketClient.h"
 
-#include "net/l2/stream/PhysicalSocket.hpp"
-#include "net/phy/stream/PhysicalSocketServer.hpp" // IWYU pragma: keep
+#include "net/l2/phy/stream/PhysicalSocket.hpp"
+#include "net/phy/stream/PhysicalSocketClient.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::l2::phy::stream {
 
-    PhysicalSocketServer::~PhysicalSocketServer() {
+    PhysicalSocketClient::~PhysicalSocketClient() {
     }
 
-} // namespace net::l2::stream
+} // namespace net::l2::phy::stream
 
-template class net::phy::stream::PhysicalSocketServer<net::l2::SocketAddress>;
-template class net::l2::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
-template class net::l2::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
+template class net::phy::stream::PhysicalSocketClient<net::l2::SocketAddress>;
+template class net::l2::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+template class net::l2::phy::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;

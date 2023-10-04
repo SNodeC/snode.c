@@ -16,21 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/PhysicalSocket.h" // IWYU pragma: export
+#ifndef NET_L2_PHY_STREAM_PHYSICALSOCKET_H
+#define NET_L2_PHY_STREAM_PHYSICALSOCKET_H
+
+#include "net/l2/phy/PhysicalSocket.h"     // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2 {
+namespace net::l2::phy::stream {
 
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    l2::PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
-        : Super(PF_BLUETOOTH, type, protocol) {
-    }
+    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
+    class PhysicalSocket : public net::l2::phy::PhysicalSocket<PhysicalPeerSocketT> {
+    private:
+        using Super = net::l2::phy::PhysicalSocket<PhysicalPeerSocketT>;
 
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
-    }
+    public:
+        using Super::Super;
 
-} // namespace net::l2
+        PhysicalSocket();
+        PhysicalSocket(const PhysicalSocket&) = default;
+
+        ~PhysicalSocket() override;
+    };
+
+} // namespace net::l2::phy::stream
+
+extern template class net::phy::stream::PhysicalSocket<net::l2::SocketAddress>;
+
+#endif // NET_L2_PHY_STREAM_PHYSICALSOCKET_H

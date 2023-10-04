@@ -16,29 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/PhysicalSocket.hpp"      // IWYU pragma: export
-#include "net/l2/stream/PhysicalSocket.h" // IWYU pragma: export
+#include "net/l2/phy/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <bluetooth/bluetooth.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::l2::stream {
+namespace net::l2::phy {
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket()
-        : Super(SOCK_STREAM, BTPROTO_L2CAP) {
+    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
+        : Super(PF_BLUETOOTH, type, protocol) {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
     }
 
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    void PhysicalSocket<PhysicalPeerSocket>::shutdown([[maybe_unused]] typename Super::SHUT how) {
-        Super::shutdown(Super::SHUT::RDWR); // always shutdown L2CAP sockets for RDWR
-    }
-
-} // namespace net::l2::stream
+} // namespace net::l2::phy
