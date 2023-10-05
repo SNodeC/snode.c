@@ -16,15 +16,12 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN-STREAM_CPP
-    config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
+set(NET-IN-STREAM_CPP config/ConfigSocketClient.cpp
+                      config/ConfigSocketServer.cpp
 )
 
-set(NET-IN-STREAM_H
-    SocketClient.h
-    SocketServer.h
-    config/ConfigSocketClient.h
-    config/ConfigSocketServer.h
+set(NET-IN-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
+                    config/ConfigSocketServer.h
 )
 
 append_source_file_config(
@@ -35,7 +32,9 @@ append_source_file_config(
 add_library(net-in-stream SHARED ${NET-IN-STREAM_CPP} ${NET-IN-STREAM_H})
 add_library(snodec::net-in-stream ALIAS net-in-stream)
 
-target_link_libraries(net-in-stream PUBLIC snodec::net-in-phy-stream snodec::core-socket-stream)
+target_link_libraries(
+    net-in-stream PUBLIC snodec::net-in-phy-stream snodec::core-socket-stream
+)
 
 target_include_directories(
     net-in-stream

@@ -33,7 +33,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-l2-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-l2-phy
+    net-l2-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                        snodec-net-l2-phy
 )
 
 install(

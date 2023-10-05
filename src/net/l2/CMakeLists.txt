@@ -21,13 +21,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-    set(NET-L2_CPP SocketAddress.cpp
-                   config/ConfigAddress.cpp
-    )
+    set(NET-L2_CPP SocketAddress.cpp config/ConfigAddress.cpp)
 
-    set(NET-L2_H SocketAddress.h
-                 config/ConfigAddress.h
-    )
+    set(NET-L2_H SocketAddress.h config/ConfigAddress.h)
 
     add_library(net-l2 SHARED ${NET-L2_CPP} ${NET-L2_H})
     add_library(snodec::net-l2 ALIAS net-l2)

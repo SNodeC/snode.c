@@ -33,7 +33,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-un-phy
+    net-un-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                        snodec-net-un-phy
 )
 
 install(

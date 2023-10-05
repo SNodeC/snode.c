@@ -16,17 +16,17 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-UN-PHY-STREAM_CPP
-    PhysicalSocket.cpp PhysicalSocketClient.cpp PhysicalSocketServer.cpp)
-
-set(NET-UN-PHY-STREAM_H
-    PhysicalSocketClient.h
-    PhysicalSocketServer.h
-    PhysicalSocket.hpp
-    PhysicalSocket.h
+set(NET-UN-PHY-STREAM_CPP PhysicalSocket.cpp PhysicalSocketClient.cpp
+                          PhysicalSocketServer.cpp
 )
 
-add_library(net-un-phy-stream SHARED ${NET-UN-PHY-STREAM_CPP} ${NET-UN-PHY-STREAM_H})
+set(NET-UN-PHY-STREAM_H PhysicalSocketClient.h PhysicalSocketServer.h
+                        PhysicalSocket.hpp PhysicalSocket.h
+)
+
+add_library(
+    net-un-phy-stream SHARED ${NET-UN-PHY-STREAM_CPP} ${NET-UN-PHY-STREAM_H}
+)
 add_library(snodec::net-un-phy-stream ALIAS net-un-phy-stream)
 
 target_link_libraries(net-un-phy-stream PUBLIC snodec::net-un-phy)
@@ -39,8 +39,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un-phy-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                           snodec-net-un-phy-stream
+    net-un-phy-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+                                 OUTPUT_NAME snodec-net-un-phy-stream
 )
 
 install(

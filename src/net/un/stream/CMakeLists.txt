@@ -16,21 +16,20 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-UN-STREAM_CPP
-    config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
+set(NET-UN-STREAM_CPP config/ConfigSocketClient.cpp
+                      config/ConfigSocketServer.cpp
 )
 
-set(NET-UN-STREAM_H
-    SocketClient.h
-    SocketServer.h
-    config/ConfigSocketClient.h
-    config/ConfigSocketServer.h
+set(NET-UN-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
+                    config/ConfigSocketServer.h
 )
 
 add_library(net-un-stream SHARED ${NET-UN-STREAM_CPP} ${NET-UN-STREAM_H})
 add_library(snodec::net-un-stream ALIAS net-un-stream)
 
-target_link_libraries(net-un-stream PUBLIC snodec::net-un-phy-stream snodec::core-socket-stream)
+target_link_libraries(
+    net-un-stream PUBLIC snodec::net-un-phy-stream snodec::core-socket-stream
+)
 
 target_include_directories(
     net-un-stream

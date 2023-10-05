@@ -16,11 +16,9 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN_CPP SocketAddress.cpp SocketAddrInfo.cpp config/ConfigAddress.cpp
-)
+set(NET-IN_CPP SocketAddress.cpp SocketAddrInfo.cpp config/ConfigAddress.cpp)
 
-set(NET-IN_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h
-)
+set(NET-IN_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 
 add_library(net-in SHARED ${NET-IN_CPP} ${NET-IN_H})
 add_library(snodec::net-in ALIAS net-in)

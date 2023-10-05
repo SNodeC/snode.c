@@ -16,8 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN-PHY_CPP PhysicalSocket.cpp
-)
+set(NET-IN-PHY_CPP PhysicalSocket.cpp)
 
 set(NET-IN-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 
@@ -34,7 +33,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-in-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-in-phy
+    net-in-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                        snodec-net-in-phy
 )
 
 install(

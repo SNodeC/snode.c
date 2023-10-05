@@ -16,18 +16,17 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN6-PHY-STREAM_CPP
-    PhysicalSocket.cpp PhysicalSocketClient.cpp PhysicalSocketServer.cpp
+set(NET-IN6-PHY-STREAM_CPP PhysicalSocket.cpp PhysicalSocketClient.cpp
+                           PhysicalSocketServer.cpp
 )
 
-set(NET-IN6-PHY-STREAM_H
-    PhysicalSocketClient.h
-    PhysicalSocketServer.h
-    PhysicalSocket.hpp
-    PhysicalSocket.h
+set(NET-IN6-PHY-STREAM_H PhysicalSocketClient.h PhysicalSocketServer.h
+                         PhysicalSocket.hpp PhysicalSocket.h
 )
 
-add_library(net-in6-phy-stream SHARED ${NET-IN6-PHY-STREAM_CPP} ${NET-IN6-PHY-STREAM_H})
+add_library(
+    net-in6-phy-stream SHARED ${NET-IN6-PHY-STREAM_CPP} ${NET-IN6-PHY-STREAM_H}
+)
 add_library(snodec::net-in6-phy-stream ALIAS net-in6-phy-stream)
 
 target_link_libraries(net-in6-phy-stream PUBLIC snodec::net-in6-phy)
@@ -41,7 +40,7 @@ target_include_directories(
 
 set_target_properties(
     net-in6-phy-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION}
-                              OUTPUT_NAME snodec-net-in6-phy-stream
+                                  OUTPUT_NAME snodec-net-in6-phy-stream
 )
 
 install(

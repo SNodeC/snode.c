@@ -16,21 +16,20 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-L2-STREAM_CPP
-    config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
+set(NET-L2-STREAM_CPP config/ConfigSocketClient.cpp
+                      config/ConfigSocketServer.cpp
 )
 
-set(NET-L2-STREAM_H
-    SocketClient.h
-    SocketServer.h
-    config/ConfigSocketClient.h
-    config/ConfigSocketServer.h
+set(NET-L2-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
+                    config/ConfigSocketServer.h
 )
 
 add_library(net-l2-stream SHARED ${NET-L2-STREAM_CPP} ${NET-L2-STREAM_H})
 add_library(snodec::net-l2-stream ALIAS net-l2-stream)
 
-target_link_libraries(net-l2-stream PUBLIC snodec::net-l2-phy-stream snodec::core-socket-stream)
+target_link_libraries(
+    net-l2-stream PUBLIC snodec::net-l2-phy-stream snodec::core-socket-stream
+)
 
 target_include_directories(
     net-l2-stream

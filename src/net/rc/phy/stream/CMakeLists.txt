@@ -16,18 +16,17 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-RC-PHY-STREAM_CPP
-    PhysicalSocket.cpp PhysicalSocketClient.cpp PhysicalSocketServer.cpp
+set(NET-RC-PHY-STREAM_CPP PhysicalSocket.cpp PhysicalSocketClient.cpp
+                          PhysicalSocketServer.cpp
 )
 
-set(NET-RC-PHY-STREAM_H
-    PhysicalSocketClient.h
-    PhysicalSocketServer.h
-    PhysicalSocket.hpp
-    PhysicalSocket.h
+set(NET-RC-PHY-STREAM_H PhysicalSocketClient.h PhysicalSocketServer.h
+                        PhysicalSocket.hpp PhysicalSocket.h
 )
 
-add_library(net-rc-phy-stream SHARED ${NET-RC-PHY-STREAM_CPP} ${NET-RC-PHY-STREAM_H})
+add_library(
+    net-rc-phy-stream SHARED ${NET-RC-PHY-STREAM_CPP} ${NET-RC-PHY-STREAM_H}
+)
 add_library(snodec::net-rc-phy-stream ALIAS net-rc-phy-stream)
 
 target_link_libraries(net-rc-phy-stream PUBLIC snodec::net-rc-phy)
@@ -41,7 +40,7 @@ target_include_directories(
 
 set_target_properties(
     net-rc-phy-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION}
-                              OUTPUT_NAME snodec-net-rc-phy-stream
+                                 OUTPUT_NAME snodec-net-rc-phy-stream
 )
 
 install(

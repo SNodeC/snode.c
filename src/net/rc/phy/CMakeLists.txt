@@ -33,7 +33,8 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-rc-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-rc-phy
+    net-rc-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                                        snodec-net-rc-phy
 )
 
 install(

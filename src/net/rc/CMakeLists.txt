@@ -21,13 +21,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-    set(NET-RC_CPP SocketAddress.cpp
-                   config/ConfigAddress.cpp
-    )
+    set(NET-RC_CPP SocketAddress.cpp config/ConfigAddress.cpp)
 
-    set(NET-RC_H SocketAddress.h
-                 config/ConfigAddress.h
-    )
+    set(NET-RC_H SocketAddress.h config/ConfigAddress.h)
 
     add_library(net-rc SHARED ${NET-RC_CPP} ${NET-RC_H})
     add_library(snodec::net-rc ALIAS net-rc)
