@@ -28,7 +28,7 @@ add_library(net-rc-stream SHARED ${NET-RC-STREAM_CPP} ${NET-RC-STREAM_H})
 add_library(snodec::net-rc-stream ALIAS net-rc-stream)
 
 target_link_libraries(
-    net-rc-stream PUBLIC snodec::net-rc-phy-stream snodec::core-socket-stream
+    net-rc-stream PUBLIC snodec::net-rc-phy-stream
 )
 
 target_include_directories(

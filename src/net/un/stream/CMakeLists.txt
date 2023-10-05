@@ -28,7 +28,7 @@ add_library(net-un-stream SHARED ${NET-UN-STREAM_CPP} ${NET-UN-STREAM_H})
 add_library(snodec::net-un-stream ALIAS net-un-stream)
 
 target_link_libraries(
-    net-un-stream PUBLIC snodec::net-un-phy-stream snodec::core-socket-stream
+    net-un-stream PUBLIC snodec::net-un-phy-stream
 )
 
 target_include_directories(
