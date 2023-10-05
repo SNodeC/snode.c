@@ -28,9 +28,7 @@ if(BLUEZ_FOUND)
     add_library(net-l2 SHARED ${NET-L2_CPP} ${NET-L2_H})
     add_library(snodec::net-l2 ALIAS net-l2)
 
-    target_link_libraries(
-        net-l2 PUBLIC net ${BLUEZ_LIBRARIES}
-    )
+    target_link_libraries(net-l2 PUBLIC net ${BLUEZ_LIBRARIES})
 
     target_include_directories(
         net-l2

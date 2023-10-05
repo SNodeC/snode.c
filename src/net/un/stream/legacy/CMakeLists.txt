@@ -33,8 +33,7 @@ add_library(
 add_library(snodec::net-un-stream-legacy ALIAS net-un-stream-legacy)
 
 target_link_libraries(
-    net-un-stream-legacy PUBLIC net-un-stream
-                                core-socket-stream-legacy
+    net-un-stream-legacy PUBLIC net-un-stream core-socket-stream-legacy
 )
 
 target_include_directories(

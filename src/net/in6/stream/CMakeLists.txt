@@ -35,9 +35,7 @@ append_source_file_config(
 add_library(net-in6-stream SHARED ${NET-IN6-STREAM_CPP} ${NET-IN6-STREAM_H})
 add_library(snodec::net-in6-stream ALIAS net-in6-stream)
 
-target_link_libraries(
-    net-in6-stream PUBLIC net-in6-phy-stream
-)
+target_link_libraries(net-in6-stream PUBLIC net-in6-phy-stream)
 
 target_include_directories(
     net-in6-stream

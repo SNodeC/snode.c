@@ -33,8 +33,7 @@ add_library(
 add_library(snodec::net-rc-stream-legacy ALIAS net-rc-stream-legacy)
 
 target_link_libraries(
-    net-rc-stream-legacy PUBLIC net-rc-stream
-                                core-socket-stream-legacy
+    net-rc-stream-legacy PUBLIC net-rc-stream core-socket-stream-legacy
 )
 
 target_include_directories(

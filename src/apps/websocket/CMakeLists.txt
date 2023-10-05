@@ -25,8 +25,8 @@ target_compile_definitions(
     wsechoserver PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 target_link_libraries(
-    wsechoserver PUBLIC http-server-express
-                        net-in-stream-legacy net-in-stream-tls
+    wsechoserver PUBLIC http-server-express net-in-stream-legacy
+                        net-in-stream-tls
 )
 
 get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
@@ -45,8 +45,7 @@ set(WSECHOCLIENT_H)
 
 add_executable(wsechoclient ${WSECHOCLIENT_CPP} ${WSECHOCLIENT_H})
 target_link_libraries(
-    wsechoclient PRIVATE http-client net-in-stream-legacy
-                         net-in-stream-tls
+    wsechoclient PRIVATE http-client net-in-stream-legacy net-in-stream-tls
 )
 
 get_target_property(HTTP_INSTALL_RPATH http-client HTTP_INSTALL_RPATH)

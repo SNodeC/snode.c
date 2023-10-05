@@ -29,8 +29,7 @@ install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 
 add_executable(testpost testpost.cpp)
 target_link_libraries(
-    testpost PRIVATE http-server-express net-in-stream-legacy
-                     net-in-stream-tls
+    testpost PRIVATE http-server-express net-in-stream-legacy net-in-stream-tls
 )
 set_target_properties(
     testpost PROPERTIES INSTALL_RPATH
@@ -42,9 +41,8 @@ install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 
 add_executable(verysimpleserver verysimpleserver.cpp)
 target_link_libraries(
-    verysimpleserver
-    PRIVATE http-server-express net-in-stream-legacy
-            net-in-stream-tls
+    verysimpleserver PRIVATE http-server-express net-in-stream-legacy
+                             net-in-stream-tls
 )
 set_target_properties(
     verysimpleserver PROPERTIES INSTALL_RPATH
@@ -57,8 +55,7 @@ install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 if(NLOHMANN_JSON_FOUND)
     add_executable(jsonserver jsonserver.cpp)
     target_link_libraries(
-        jsonserver PRIVATE http-server-express
-                           net-in-stream-legacy
+        jsonserver PRIVATE http-server-express net-in-stream-legacy
     )
     set_target_properties(
         jsonserver PROPERTIES INSTALL_RPATH
@@ -70,9 +67,7 @@ if(NLOHMANN_JSON_FOUND)
 endif(NLOHMANN_JSON_FOUND)
 
 add_executable(jsonclient jsonclient.cpp)
-target_link_libraries(
-    jsonclient PRIVATE http-client net-in-stream-legacy
-)
+target_link_libraries(jsonclient PRIVATE http-client net-in-stream-legacy)
 set_target_properties(
     jsonclient PROPERTIES INSTALL_RPATH
                           "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
@@ -83,8 +78,7 @@ install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 
 add_executable(testparser testparsers.cpp)
 target_link_libraries(
-    testparser PRIVATE http-server http-client core
-                       core-socket-stream logger
+    testparser PRIVATE http-server http-client core core-socket-stream logger
 )
 set_target_properties(
     testparser
@@ -99,9 +93,8 @@ install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 if(LIBMARIADB_FOUND)
     add_executable(testregex testregex.cpp)
     target_link_libraries(
-        testregex
-        PRIVATE http-server-express net-in-stream-legacy
-                net-in-stream-tls snodec::db-mariadb
+        testregex PRIVATE http-server-express net-in-stream-legacy
+                          net-in-stream-tls snodec::db-mariadb
     )
     set_target_properties(
         testregex PROPERTIES INSTALL_RPATH
@@ -114,8 +107,7 @@ endif(LIBMARIADB_FOUND)
 
 add_executable(warema-jalousien warema-jalousien.cpp)
 target_link_libraries(
-    warema-jalousien PRIVATE http-server-express
-                             net-in-stream-legacy
+    warema-jalousien PRIVATE http-server-express net-in-stream-legacy
 )
 set_target_properties(
     warema-jalousien PROPERTIES INSTALL_RPATH
@@ -127,9 +119,8 @@ install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 
 add_executable(vhostserver vhostserver.cpp)
 target_link_libraries(
-    vhostserver
-    PRIVATE http-server-express net-in6-stream-legacy
-            net-in6-stream-tls
+    vhostserver PRIVATE http-server-express net-in6-stream-legacy
+                        net-in6-stream-tls
 )
 set_target_properties(
     vhostserver PROPERTIES INSTALL_RPATH
@@ -153,9 +144,8 @@ install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 
 add_executable(testbasicauthentication testbasicauthentication.cpp)
 target_link_libraries(
-    testbasicauthentication
-    PRIVATE http-server-express net-in6-stream-legacy
-            net-in6-stream-tls
+    testbasicauthentication PRIVATE http-server-express net-in6-stream-legacy
+                                    net-in6-stream-tls
 )
 set_target_properties(
     testbasicauthentication

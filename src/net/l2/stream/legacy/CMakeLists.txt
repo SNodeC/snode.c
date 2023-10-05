@@ -33,8 +33,7 @@ add_library(
 add_library(snodec::net-l2-stream-legacy ALIAS net-l2-stream-legacy)
 
 target_link_libraries(
-    net-l2-stream-legacy PUBLIC net-l2-stream
-                                core-socket-stream-legacy
+    net-l2-stream-legacy PUBLIC net-l2-stream core-socket-stream-legacy
 )
 
 target_include_directories(

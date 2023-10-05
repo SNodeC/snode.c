@@ -77,8 +77,8 @@ foreach(NET IN LISTS NETS)
             echoclient-${STREAM}-${NET} ${ECHOCLIENT_CPP} ${ECHOCLIENT_H}
         )
         target_link_libraries(
-            echoclient-${STREAM}-${NET}
-            PRIVATE net-${NET}-stream-${STREAM} echosocketcontext
+            echoclient-${STREAM}-${NET} PRIVATE net-${NET}-stream-${STREAM}
+                                                echosocketcontext
         )
         target_compile_definitions(
             echoclient-${STREAM}-${NET}
@@ -93,8 +93,8 @@ foreach(NET IN LISTS NETS)
             echoserver-${STREAM}-${NET} ${ECHOSERVER_CPP} ${ECHOSERVER_H}
         )
         target_link_libraries(
-            echoserver-${STREAM}-${NET}
-            PRIVATE net-${NET}-stream-${STREAM} echosocketcontext
+            echoserver-${STREAM}-${NET} PRIVATE net-${NET}-stream-${STREAM}
+                                                echosocketcontext
         )
         target_compile_definitions(
             echoserver-${STREAM}-${NET}

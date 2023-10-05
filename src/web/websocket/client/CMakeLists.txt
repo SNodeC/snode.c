@@ -59,9 +59,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(
-    websocket-client PUBLIC websocket http-client
-)
+target_link_libraries(websocket-client PUBLIC websocket http-client)
 
 install(
     TARGETS websocket-client

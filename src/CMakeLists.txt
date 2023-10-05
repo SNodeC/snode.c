@@ -18,7 +18,6 @@ cmake_minimum_required(VERSION 3.18)
 
 project(snode.c-code)
 
-
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12.2)
         message(
@@ -47,7 +46,7 @@ set(SNODEC_INTREE_BUILD "YES")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(AppendSourceFileConfig)
-include(GetAllTargetsProperties)
+include(GetAllTargetsDependencies)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -109,14 +108,14 @@ add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
 
-get_all_targets_properties(LIST_OF_ALL_TARGETS_DEPENDENCIES log)
-get_all_targets_properties(LIST_OF_ALL_TARGETS_DEPENDENCIES utils)
-get_all_targets_properties(LIST_OF_ALL_TARGETS_DEPENDENCIES core)
-get_all_targets_properties(LIST_OF_ALL_TARGETS_DEPENDENCIES net)
-get_all_targets_properties(LIST_OF_ALL_TARGETS_DEPENDENCIES web)
-get_all_targets_properties(LIST_OF_ALL_TARGETS_DEPENDENCIES express)
-get_all_targets_properties(LIST_OF_ALL_TARGETS_DEPENDENCIES database)
-get_all_targets_properties(LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
+get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES log)
+get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES utils)
+get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES core)
+get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES net)
+get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES web)
+get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES express)
+get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES database)
+get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
 
 message("ALL_TARGETS:\n${ALL_TARGETS}")
 

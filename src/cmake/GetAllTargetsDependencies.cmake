@@ -19,10 +19,10 @@
 # Parameters:
 # - RESULT the list containing all found targets
 # - DIR root directory to start looking from
-function(get_all_targets_properties RESULT DIR)
+function(get_all_targets_dependencies RESULT DIR)
     get_property(SUBDIRS DIRECTORY "${DIR}" PROPERTY SUBDIRECTORIES)
     foreach(SUBDIR IN LISTS SUBDIRS)
-        get_all_targets_properties(${RESULT} "${SUBDIR}")
+        get_all_targets_dependencies(${RESULT} "${SUBDIR}")
     endforeach()
     get_directory_property(TARGETS DIRECTORY "${DIR}" BUILDSYSTEM_TARGETS)
     if (TARGETS)

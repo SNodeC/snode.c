@@ -27,9 +27,7 @@ set(NET-UN-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
 add_library(net-un-stream SHARED ${NET-UN-STREAM_CPP} ${NET-UN-STREAM_H})
 add_library(snodec::net-un-stream ALIAS net-un-stream)
 
-target_link_libraries(
-    net-un-stream PUBLIC net-un-phy-stream
-)
+target_link_libraries(net-un-stream PUBLIC net-un-phy-stream)
 
 target_include_directories(
     net-un-stream

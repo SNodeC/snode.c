@@ -22,9 +22,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(authorization_server AuthorizationServer.cpp)
 
 target_link_libraries(
-    authorization_server
-    PRIVATE http-server-express net-in-stream-legacy
-            snodec::db-mariadb
+    authorization_server PRIVATE http-server-express net-in-stream-legacy
+                                 snodec::db-mariadb
 )
 
 if(SNODEC_INTREE_BUILD)

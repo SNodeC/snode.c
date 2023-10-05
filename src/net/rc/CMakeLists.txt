@@ -28,9 +28,7 @@ if(BLUEZ_FOUND)
     add_library(net-rc SHARED ${NET-RC_CPP} ${NET-RC_H})
     add_library(snodec::net-rc ALIAS net-rc)
 
-    target_link_libraries(
-        net-rc PUBLIC net ${BLUEZ_LIBRARIES}
-    )
+    target_link_libraries(net-rc PUBLIC net ${BLUEZ_LIBRARIES})
 
     target_include_directories(
         net-rc

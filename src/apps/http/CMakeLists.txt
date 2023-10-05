@@ -80,9 +80,8 @@ foreach(NET IN LISTS NETS)
             httpserver-${STREAM}-${NET} ${HTTPSERVER_CPP} ${HTTPSERVER_H}
         )
         target_link_libraries(
-            httpserver-${STREAM}-${NET}
-            PUBLIC http-server-express
-                   net-${NET}-stream-${STREAM}
+            httpserver-${STREAM}-${NET} PUBLIC http-server-express
+                                               net-${NET}-stream-${STREAM}
         )
         set_target_properties(
             httpserver-${STREAM}-${NET}
@@ -107,8 +106,8 @@ foreach(NET IN LISTS NETS)
                        "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
         )
         target_link_libraries(
-            httpclient-${STREAM}-${NET}
-            PUBLIC http-client net-${NET}-stream-${STREAM}
+            httpclient-${STREAM}-${NET} PUBLIC http-client
+                                               net-${NET}-stream-${STREAM}
         )
         target_compile_definitions(
             httpclient-${STREAM}-${NET}
@@ -131,8 +130,7 @@ foreach(NET IN LISTS NETS)
             )
             target_link_libraries(
                 httpserverclientcert-${STREAM}-${NET}
-                PUBLIC http-server-express
-                       net-${NET}-stream-${STREAM}
+                PUBLIC http-server-express net-${NET}-stream-${STREAM}
             )
             target_compile_definitions(
                 httpserverclientcert-${STREAM}-${NET}
@@ -174,8 +172,8 @@ set_target_properties(
     PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 target_link_libraries(
-    httplowlevelclient PUBLIC net-in-stream-legacy
-                              net-in-stream-tls http-client
+    httplowlevelclient PUBLIC net-in-stream-legacy net-in-stream-tls
+                              http-client
 )
 install(TARGETS httplowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                            COMPONENT apps
