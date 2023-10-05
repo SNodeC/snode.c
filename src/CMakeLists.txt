@@ -108,16 +108,16 @@ add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
 
-get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES log)
-get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES utils)
-get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES core)
-get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES net)
-get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES web)
-get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES express)
-get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES database)
-get_all_targets_dependencies(LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
-
-message("ALL_TARGETS:\n${ALL_TARGETS}")
+# @LIST_OF_ALL_TARGETS_DEPENDENCIES@ in Config.cmake.in
+# will be replaced by ${LIST_OF_ALL_TARGETS_DEPENDENCIES}
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES log)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES utils)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES core)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES net)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES web)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES express)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES database)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
 
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in

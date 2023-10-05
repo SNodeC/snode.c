@@ -165,7 +165,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(net PUBLIC core)
+target_link_libraries(net PUBLIC utils)
 
 set_target_properties(
     net PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net
