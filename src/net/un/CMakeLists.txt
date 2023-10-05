@@ -52,6 +52,7 @@ install(
     PATTERN "cmake" EXCLUDE
     PATTERN "stream" EXCLUDE
     PATTERN "dgram" EXCLUDE
+    PATTERN "phy" EXCLUDE
 )
 
 install(
