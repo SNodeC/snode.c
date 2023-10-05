@@ -21,8 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <netinet/in.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::phy::stream {

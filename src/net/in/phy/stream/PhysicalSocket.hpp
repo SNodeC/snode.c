@@ -23,8 +23,6 @@
 
 #include "log/Logger.h"
 
-#include <netinet/in.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in::phy::stream {
