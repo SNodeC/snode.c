@@ -19,25 +19,25 @@ cmake_minimum_required(VERSION 3.18)
 project(snode.c-code)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12.2)
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12.2)
+        message(STATUS "GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION}
+                       " >= 12.2: Good"
+        )
+    else()
         message(
             FATAL_ERROR "GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION}
                         ": To old! Version required: >= 12.2"
         )
-    else()
-        message(STATUS "GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION}
-                       " >= 12.2: Good"
-        )
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
-    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13.0)
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13.0)
+        message(STATUS "CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION}
+                       " >= 13.0: Good"
+        )
+    else()
         message(
             FATAL_ERROR "CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION}
                         ": To old! Version required: >= 13.0"
-        )
-    else()
-        message(STATUS "CLANG compiler version " ${CMAKE_CXX_COMPILER_VERSION}
-                       " >= 13.0: Good"
         )
     endif()
 endif()
