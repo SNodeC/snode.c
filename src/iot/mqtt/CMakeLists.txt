@@ -63,8 +63,8 @@ if(NLOHMANN_JSON_FOUND)
 
     target_link_libraries(
         mqtt
-        PRIVATE snodec::mqtt-packets
-        PUBLIC snodec::core-socket-stream ${NLOHMANN_JSON_LIBRARIES}
+        PRIVATE mqtt-packets
+        PUBLIC core-socket-stream ${NLOHMANN_JSON_LIBRARIES}
     )
 
     set_target_properties(

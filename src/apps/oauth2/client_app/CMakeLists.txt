@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(client_app ClientApp.cpp)
 
 target_link_libraries(
-    client_app PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
+    client_app PRIVATE http-server-express net-in-stream-legacy
 )
 
 if(SNODEC_INTREE_BUILD)

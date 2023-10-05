@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-get_target_property(HTTP_INSTALL_RPATH snodec::http HTTP_INSTALL_RPATH)
+get_target_property(HTTP_INSTALL_RPATH http HTTP_INSTALL_RPATH)
 
 add_subdirectory(packets)
 add_subdirectory(broker)
@@ -34,8 +34,8 @@ add_library(snodec::mqtt-server ALIAS mqtt-server)
 
 target_link_libraries(
     mqtt-server
-    PUBLIC snodec::mqtt
-    PRIVATE snodec::mqtt-broker snodec::mqtt-server-packets
+    PUBLIC mqtt
+    PRIVATE mqtt-broker mqtt-server-packets
 )
 
 target_include_directories(
@@ -85,8 +85,8 @@ add_library(snodec::mqtt-server-websocket ALIAS mqtt-server)
 
 target_link_libraries(
     mqtt-server-websocket
-    PUBLIC snodec::mqtt-server snodec::websocket-server
-    PRIVATE snodec::mqtt-broker snodec::mqtt-server-packets
+    PUBLIC mqtt-server websocket-server
+    PRIVATE mqtt-broker mqtt-server-packets
 )
 
 target_include_directories(

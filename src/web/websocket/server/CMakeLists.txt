@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-get_target_property(HTTP_INSTALL_RPATH snodec::http-server HTTP_INSTALL_RPATH)
+get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
 
 set(WEBSOCKETSERVER_CPP
     GroupsManager.cpp SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp
@@ -61,7 +61,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    websocket-server PUBLIC snodec::websocket snodec::http-server
+    websocket-server PUBLIC websocket http-server
 )
 
 install(

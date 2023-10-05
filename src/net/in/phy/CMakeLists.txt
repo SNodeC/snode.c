@@ -23,7 +23,7 @@ set(NET-IN-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 add_library(net-in-phy SHARED ${NET-IN-PHY_CPP} ${NET-IN-PHY_H})
 add_library(snodec::net-in-phy ALIAS net-in-phy)
 
-target_link_libraries(net-in-phy PUBLIC snodec::net-in)
+target_link_libraries(net-in-phy PUBLIC net-in)
 
 target_include_directories(
     net-in-phy

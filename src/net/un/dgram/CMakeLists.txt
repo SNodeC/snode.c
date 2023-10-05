@@ -23,7 +23,7 @@ set(NET-UN-DGRAM_H Socket.h)
 add_library(net-un-dgram SHARED ${NET-UN-DGRAM_CPP} ${NET-UN-DGRAM_H})
 add_library(snodec::net-un-dgram ALIAS net-un-dgram)
 
-target_link_libraries(net-un-dgram PUBLIC snodec::net-un)
+target_link_libraries(net-un-dgram PUBLIC net-un)
 
 target_include_directories(
     net-un-dgram

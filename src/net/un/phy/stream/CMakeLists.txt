@@ -29,7 +29,7 @@ add_library(
 )
 add_library(snodec::net-un-phy-stream ALIAS net-un-phy-stream)
 
-target_link_libraries(net-un-phy-stream PUBLIC snodec::net-un-phy)
+target_link_libraries(net-un-phy-stream PUBLIC net-un-phy)
 
 target_include_directories(
     net-un-phy-stream

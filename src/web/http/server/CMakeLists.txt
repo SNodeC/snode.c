@@ -52,7 +52,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(http-server PUBLIC snodec::http)
+target_link_libraries(http-server PUBLIC http)
 
 set_target_properties(
     http-server

@@ -28,7 +28,7 @@ add_library(net-l2-stream SHARED ${NET-L2-STREAM_CPP} ${NET-L2-STREAM_H})
 add_library(snodec::net-l2-stream ALIAS net-l2-stream)
 
 target_link_libraries(
-    net-l2-stream PUBLIC snodec::net-l2-phy-stream
+    net-l2-stream PUBLIC net-l2-phy-stream
 )
 
 target_include_directories(

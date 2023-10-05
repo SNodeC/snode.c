@@ -31,8 +31,8 @@ add_library(
 add_library(snodec::net-in-stream-tls ALIAS net-in-stream-tls)
 
 target_link_libraries(
-    net-in-stream-tls PUBLIC snodec::net-in-stream
-                             snodec::core-socket-stream-tls
+    net-in-stream-tls PUBLIC net-in-stream
+                             core-socket-stream-tls
 )
 
 target_include_directories(

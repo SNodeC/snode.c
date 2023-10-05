@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-get_target_property(HTTP_INSTALL_RPATH snodec::http-client HTTP_INSTALL_RPATH)
+get_target_property(HTTP_INSTALL_RPATH http-client HTTP_INSTALL_RPATH)
 
 set(WEBSOCKETCLIENT_CPP
     SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp SubProtocol.cpp
@@ -60,7 +60,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    websocket-client PUBLIC snodec::websocket snodec::http-client
+    websocket-client PUBLIC websocket http-client
 )
 
 install(

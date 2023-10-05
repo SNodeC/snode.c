@@ -23,7 +23,7 @@ set(NET-UN-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 add_library(net-un-phy SHARED ${NET-UN-PHY_CPP} ${NET-UN-PHY_H})
 add_library(snodec::net-un-phy ALIAS net-un-phy)
 
-target_link_libraries(net-un-phy PUBLIC snodec::net-un)
+target_link_libraries(net-un-phy PUBLIC net-un)
 
 target_include_directories(
     net-un-phy

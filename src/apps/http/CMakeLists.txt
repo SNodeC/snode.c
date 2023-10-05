@@ -16,8 +16,8 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-get_target_property(HTTP_INSTALL_RPATH snodec::http-server HTTP_INSTALL_RPATH)
-get_target_property(HTTP_INSTALL_RPATH snodec::http-client HTTP_INSTALL_RPATH)
+get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
+get_target_property(HTTP_INSTALL_RPATH http-client HTTP_INSTALL_RPATH)
 
 set(IN 1)
 set(IN6 2)
@@ -81,8 +81,8 @@ foreach(NET IN LISTS NETS)
         )
         target_link_libraries(
             httpserver-${STREAM}-${NET}
-            PUBLIC snodec::http-server-express
-                   snodec::net-${NET}-stream-${STREAM}
+            PUBLIC http-server-express
+                   net-${NET}-stream-${STREAM}
         )
         set_target_properties(
             httpserver-${STREAM}-${NET}
@@ -108,7 +108,7 @@ foreach(NET IN LISTS NETS)
         )
         target_link_libraries(
             httpclient-${STREAM}-${NET}
-            PUBLIC snodec::http-client snodec::net-${NET}-stream-${STREAM}
+            PUBLIC http-client net-${NET}-stream-${STREAM}
         )
         target_compile_definitions(
             httpclient-${STREAM}-${NET}
@@ -131,8 +131,8 @@ foreach(NET IN LISTS NETS)
             )
             target_link_libraries(
                 httpserverclientcert-${STREAM}-${NET}
-                PUBLIC snodec::http-server-express
-                       snodec::net-${NET}-stream-${STREAM}
+                PUBLIC http-server-express
+                       net-${NET}-stream-${STREAM}
             )
             target_compile_definitions(
                 httpserverclientcert-${STREAM}-${NET}
@@ -154,7 +154,7 @@ foreach(NET IN LISTS NETS)
             )
             target_link_libraries(
                 httpclientclientcert-${STREAM}-${NET}
-                PUBLIC snodec::http-client snodec::net-${NET}-stream-${STREAM}
+                PUBLIC http-client net-${NET}-stream-${STREAM}
             )
             target_compile_definitions(
                 httpclientclientcert-${STREAM}-${NET}
@@ -174,8 +174,8 @@ set_target_properties(
     PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 target_link_libraries(
-    httplowlevelclient PUBLIC snodec::net-in-stream-legacy
-                              snodec::net-in-stream-tls snodec::http-client
+    httplowlevelclient PUBLIC net-in-stream-legacy
+                              net-in-stream-tls http-client
 )
 install(TARGETS httplowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                            COMPONENT apps

@@ -31,8 +31,8 @@ add_library(
 add_library(snodec::net-un-stream-tls ALIAS net-un-stream-tls)
 
 target_link_libraries(
-    net-un-stream-tls PUBLIC snodec::net-un-stream
-                             snodec::core-socket-stream-tls
+    net-un-stream-tls PUBLIC net-un-stream
+                             core-socket-stream-tls
 )
 
 target_include_directories(

@@ -23,7 +23,7 @@ set(NET-IN_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 add_library(net-in SHARED ${NET-IN_CPP} ${NET-IN_H})
 add_library(snodec::net-in ALIAS net-in)
 
-target_link_libraries(net-in PUBLIC snodec::net)
+target_link_libraries(net-in PUBLIC net)
 
 target_include_directories(
     net-in

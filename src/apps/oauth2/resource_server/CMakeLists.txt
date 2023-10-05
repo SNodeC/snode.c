@@ -22,8 +22,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(resource_server ResourceServer.cpp)
 
 target_link_libraries(
-    resource_server PRIVATE snodec::http-server-express snodec::http-client
-                            snodec::net-in-stream-legacy snodec::db-mariadb
+    resource_server PRIVATE http-server-express http-client
+                            net-in-stream-legacy snodec::db-mariadb
 )
 
 if(SNODEC_INTREE_BUILD)
