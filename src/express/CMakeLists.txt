@@ -93,12 +93,12 @@ target_include_directories(
 )
 
 target_link_libraries(
-    http-server-express PUBLIC snodec::http-server ${NLOHMANN_JSON_LIBRARIES}
+    http-server-express PUBLIC http-server ${NLOHMANN_JSON_LIBRARIES}
 )
 
-get_target_property(HTTP_COMPILE_LIBDIR snodec::http-server HTTP_COMPILE_LIBDIR)
-get_target_property(HTTP_INSTALL_LIBDIR snodec::http-server HTTP_INSTALL_LIBDIR)
-get_target_property(HTTP_INSTALL_RPATH snodec::http-server HTTP_INSTALL_RPATH)
+get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
+get_target_property(HTTP_INSTALL_LIBDIR http-server HTTP_INSTALL_LIBDIR)
+get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
 
 set_target_properties(
     http-server-express

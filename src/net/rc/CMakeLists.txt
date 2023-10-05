@@ -29,7 +29,7 @@ if(BLUEZ_FOUND)
     add_library(snodec::net-rc ALIAS net-rc)
 
     target_link_libraries(
-        net-rc PUBLIC snodec::net ${BLUEZ_LIBRARIES}
+        net-rc PUBLIC net ${BLUEZ_LIBRARIES}
     )
 
     target_include_directories(

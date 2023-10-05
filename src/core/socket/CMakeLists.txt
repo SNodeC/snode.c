@@ -30,7 +30,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(core-socket PUBLIC snodec::core)
+target_link_libraries(core-socket PUBLIC core)
 
 set_target_properties(
     core-socket PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME

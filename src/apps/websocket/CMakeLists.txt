@@ -25,11 +25,11 @@ target_compile_definitions(
     wsechoserver PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 target_link_libraries(
-    wsechoserver PUBLIC snodec::http-server-express
-                        snodec::net-in-stream-legacy snodec::net-in-stream-tls
+    wsechoserver PUBLIC http-server-express
+                        net-in-stream-legacy net-in-stream-tls
 )
 
-get_target_property(HTTP_INSTALL_RPATH snodec::http-server HTTP_INSTALL_RPATH)
+get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
 
 set_target_properties(
     wsechoserver PROPERTIES INSTALL_RPATH
@@ -45,11 +45,11 @@ set(WSECHOCLIENT_H)
 
 add_executable(wsechoclient ${WSECHOCLIENT_CPP} ${WSECHOCLIENT_H})
 target_link_libraries(
-    wsechoclient PRIVATE snodec::http-client snodec::net-in-stream-legacy
-                         snodec::net-in-stream-tls
+    wsechoclient PRIVATE http-client net-in-stream-legacy
+                         net-in-stream-tls
 )
 
-get_target_property(HTTP_INSTALL_RPATH snodec::http-client HTTP_INSTALL_RPATH)
+get_target_property(HTTP_INSTALL_RPATH http-client HTTP_INSTALL_RPATH)
 
 set_target_properties(
     wsechoclient PROPERTIES INSTALL_RPATH

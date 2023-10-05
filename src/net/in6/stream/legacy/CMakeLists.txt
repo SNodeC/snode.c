@@ -33,8 +33,8 @@ add_library(
 add_library(snodec::net-in6-stream-legacy ALIAS net-in6-stream-legacy)
 
 target_link_libraries(
-    net-in6-stream-legacy PUBLIC snodec::net-in6-stream
-                                 snodec::core-socket-stream-legacy
+    net-in6-stream-legacy PUBLIC net-in6-stream
+                                 core-socket-stream-legacy
 )
 
 target_include_directories(

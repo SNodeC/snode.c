@@ -23,7 +23,7 @@ set(NET-IN6-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 add_library(net-in6-phy SHARED ${NET-IN6-PHY_CPP} ${NET-IN6-PHY_H})
 add_library(snodec::net-in6-phy ALIAS net-in6-phy)
 
-target_link_libraries(net-in6-phy PUBLIC snodec::net-in6)
+target_link_libraries(net-in6-phy PUBLIC net-in6)
 
 target_include_directories(
     net-in6-phy

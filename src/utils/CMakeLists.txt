@@ -64,7 +64,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(utils PUBLIC snodec::logger)
+target_link_libraries(utils PUBLIC logger)
 
 set_target_properties(
     utils PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-utils

@@ -23,7 +23,7 @@ set(NET-L2-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 add_library(net-l2-phy SHARED ${NET-L2-PHY_CPP} ${NET-L2-PHY_H})
 add_library(snodec::net-l2-phy ALIAS net-l2-phy)
 
-target_link_libraries(net-l2-phy PUBLIC snodec::net-l2)
+target_link_libraries(net-l2-phy PUBLIC net-l2)
 
 target_include_directories(
     net-l2-phy

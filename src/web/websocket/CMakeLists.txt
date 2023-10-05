@@ -17,10 +17,10 @@
 cmake_minimum_required(VERSION 3.18)
 
 get_target_property(
-    HTTP_UPGRADE_COMPILE_LIBDIR snodec::http HTTP_UPGRADE_COMPILE_LIBDIR
+    HTTP_UPGRADE_COMPILE_LIBDIR http HTTP_UPGRADE_COMPILE_LIBDIR
 )
 get_target_property(
-    HTTP_UPGRADE_INSTALL_LIBDIR snodec::http HTTP_UPGRADE_INSTALL_LIBDIR
+    HTTP_UPGRADE_INSTALL_LIBDIR http HTTP_UPGRADE_INSTALL_LIBDIR
 )
 
 set(WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
@@ -55,7 +55,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(websocket PUBLIC snodec::logger)
+target_link_libraries(websocket PUBLIC logger)
 
 set_target_properties(
     websocket

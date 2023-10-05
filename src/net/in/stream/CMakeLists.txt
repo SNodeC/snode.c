@@ -33,7 +33,7 @@ add_library(net-in-stream SHARED ${NET-IN-STREAM_CPP} ${NET-IN-STREAM_H})
 add_library(snodec::net-in-stream ALIAS net-in-stream)
 
 target_link_libraries(
-    net-in-stream PUBLIC snodec::net-in-phy-stream
+    net-in-stream PUBLIC net-in-phy-stream
 )
 
 target_include_directories(

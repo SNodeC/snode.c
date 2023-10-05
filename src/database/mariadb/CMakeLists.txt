@@ -70,7 +70,7 @@ if(LIBMARIADB_FOUND)
     add_library(snodec::db-mariadb ALIAS db-mariadb)
 
     target_link_libraries(
-        db-mariadb PUBLIC snodec::core ${LIBMARIADB_LIBRARIES}
+        db-mariadb PUBLIC core ${LIBMARIADB_LIBRARIES}
     )
 
     target_include_directories(

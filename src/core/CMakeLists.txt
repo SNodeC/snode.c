@@ -116,8 +116,8 @@ target_include_directories(
 
 target_link_libraries(
     core
-    PRIVATE snodec::mux-${SNODEC_IO_MULTIPLEXER}
-    PUBLIC snodec::logger snodec::utils ${CMAKE_DL_LIBS}
+    PRIVATE mux-${SNODEC_IO_MULTIPLEXER}
+    PUBLIC utils ${CMAKE_DL_LIBS}
 )
 
 set_target_properties(

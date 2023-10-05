@@ -29,7 +29,7 @@ add_library(
 )
 add_library(snodec::net-rc-phy-stream ALIAS net-rc-phy-stream)
 
-target_link_libraries(net-rc-phy-stream PUBLIC snodec::net-rc-phy)
+target_link_libraries(net-rc-phy-stream PUBLIC net-rc-phy)
 
 target_include_directories(
     net-rc-phy-stream

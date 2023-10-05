@@ -28,7 +28,7 @@ append_source_file_config(
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
 add_library(snodec::net-in6 ALIAS net-in6)
 
-target_link_libraries(net-in6 PUBLIC snodec::net)
+target_link_libraries(net-in6 PUBLIC net)
 
 target_include_directories(
     net-in6

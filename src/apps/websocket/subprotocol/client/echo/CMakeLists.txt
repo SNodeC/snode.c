@@ -17,17 +17,17 @@
 cmake_minimum_required(VERSION 3.18)
 
 get_target_property(
-    WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR snodec::websocket-client
+    WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR websocket-client
     WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR
 )
 
 get_target_property(
-    WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR snodec::websocket-client
+    WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR websocket-client
     WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
 )
 
 get_target_property(
-    HTTP_UPGRADE_INSTALL_LIBDIR snodec::http-client HTTP_UPGRADE_INSTALL_LIBDIR
+    HTTP_UPGRADE_INSTALL_LIBDIR http-client HTTP_UPGRADE_INSTALL_LIBDIR
 )
 
 set(ECHOCLIENTSUBPROTOCOL_CPP Echo.cpp EchoFactory.cpp)
@@ -43,7 +43,7 @@ target_include_directories(
     websocket-echo-client PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
-target_link_libraries(websocket-echo-client PUBLIC snodec::websocket-client)
+target_link_libraries(websocket-echo-client PUBLIC websocket-client)
 
 set_target_properties(
     websocket-echo-client

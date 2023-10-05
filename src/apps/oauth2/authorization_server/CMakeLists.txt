@@ -23,7 +23,7 @@ add_executable(authorization_server AuthorizationServer.cpp)
 
 target_link_libraries(
     authorization_server
-    PRIVATE snodec::http-server-express snodec::net-in-stream-legacy
+    PRIVATE http-server-express net-in-stream-legacy
             snodec::db-mariadb
 )
 

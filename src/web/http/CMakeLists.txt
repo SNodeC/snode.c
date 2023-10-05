@@ -72,7 +72,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    http PUBLIC snodec::core-socket-stream ${LIBMAGIC_LIBRARIES}
+    http PUBLIC core-socket-stream ${LIBMAGIC_LIBRARIES}
 )
 
 set_target_properties(
