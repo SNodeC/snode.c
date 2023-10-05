@@ -14,24 +14,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-function(append_source_file_config source_file CONFIG_OPTION description default_value)
+function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT_VALUE)
     if ("${${CONFIG_OPTION}}" STREQUAL "")
-        set(value ${default_value})
+        set(value ${DEFAULT_VALUE})
     elseif("${ARGN}" STREQUAL "")
         set(value ${${CONFIG_OPTION}})
     else()
         set(value ${ARGN})
     endif()
-
     set(SNODEC_${CONFIG_OPTION}
         ${value}
-        CACHE STRING "${description}"
+        CACHE STRING "${DESCRIPTION}"
     )
-
-    message(STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${source_file}'")
-
+    message(STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}'")
     set_property(
-      SOURCE ${source_file}
+      SOURCE ${SOURCE_FILE}
       APPEND PROPERTY COMPILE_DEFINITIONS ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}}
     )
-endfunction(append_source_file_config source_file CONFIG_OPTION description default_value)
+endfunction(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT_VALUE)
