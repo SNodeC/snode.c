@@ -39,11 +39,11 @@ typedef struct ssl_st SSL;
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalServerSocketT, typename ConfigT>
+    template <typename PhysicalSocketServerT, typename ConfigT>
     class SocketAcceptor
-        : private core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection> {
+        : private core::socket::stream::SocketAcceptor<PhysicalSocketServerT, ConfigT, core::socket::stream::tls::SocketConnection> {
     private:
-        using Super = core::socket::stream::SocketAcceptor<PhysicalServerSocketT, ConfigT, core::socket::stream::tls::SocketConnection>;
+        using Super = core::socket::stream::SocketAcceptor<PhysicalSocketServerT, ConfigT, core::socket::stream::tls::SocketConnection>;
 
     public:
         using SocketAddress = typename Super::SocketAddress;

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGPHYSICALCLIENTSOCKET_H
-#define NET_CONFIG_CONFIGPHYSICALCLIENTSOCKET_H
+#ifndef NET_CONFIG_CONFIGPHYSICALSOCKETCLIENT_H
+#define NET_CONFIG_CONFIGPHYSICALSOCKETCLIENT_H
 
 #include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
 
@@ -58,4 +58,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // NET_CONFIG_CONFIGPHYSICALCLIENTSOCKET_H
+#endif // NET_CONFIG_CONFIGPHYSICALSOCKETCLIENT_H

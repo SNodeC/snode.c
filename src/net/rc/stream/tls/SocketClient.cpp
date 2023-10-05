@@ -29,9 +29,9 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template class core::socket::Socket<net::rc::stream::tls::config::ConfigSocketClient>;
-template class core::socket::stream::tls::SocketConnector<net::rc::stream::PhysicalClientSocket,
+template class core::socket::stream::tls::SocketConnector<net::rc::phy::stream::PhysicalSocketClient,
                                                           net::rc::stream::tls::config::ConfigSocketClient>;
-template class core::socket::stream::tls::SocketConnection<net::rc::stream::PhysicalClientSocket>;
-template class core::socket::stream::SocketConnectionT<net::rc::stream::PhysicalClientSocket,
+template class core::socket::stream::tls::SocketConnection<net::rc::phy::stream::PhysicalSocketClient>;
+template class core::socket::stream::SocketConnectionT<net::rc::phy::stream::PhysicalSocketClient,
                                                        core::socket::stream::tls::SocketReader,
                                                        core::socket::stream::tls::SocketWriter>;

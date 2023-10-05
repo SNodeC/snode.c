@@ -18,7 +18,7 @@
 
 #include "net/in6/stream/config/ConfigSocketServer.h"
 
-#include "net/config/socket/stream/ConfigSocketServer.hpp"
+#include "net/config/stream/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,7 +50,7 @@
 namespace net::in6::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::socket::stream::ConfigSocketServer<net::in6::config::ConfigAddress>(instance) {
+        : net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE)
             .setAiSocktype(SOCK_STREAM)
@@ -114,4 +114,4 @@ namespace net::in6::stream::config {
 
 } // namespace net::in6::stream::config
 
-template class net::config::socket::stream::ConfigSocketServer<net::in6::config::ConfigAddress>;
+template class net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress>;

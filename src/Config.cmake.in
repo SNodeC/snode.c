@@ -34,18 +34,30 @@ set(db-mariadb_DEPENDENCIES core)
 
 # Base network code
 set(net_DEPENDENCIES core)
-set(net-in_DEPENDENCIES net core-socket)
-set(net-in6_DEPENDENCIES net core-socket)
-set(net-l2_DEPENDENCIES net core-socket)
-set(net-rc_DEPENDENCIES net core-socket)
-set(net-un_DEPENDENCIES net core-socket)
+set(net-in_DEPENDENCIES net)
+set(net-in6_DEPENDENCIES net)
+set(net-l2_DEPENDENCIES net)
+set(net-rc_DEPENDENCIES net)
+set(net-un_DEPENDENCIES net)
+
+# Physical network code
+set(net-in-phy_DEPENDENCIES net-in)
+set(net-in-phy-stream_DEPENDENCIES net-in-phy)
+set(net-in6-phy_DEPENDENCIES net-in6)
+set(net-in6-phy-stream_DEPENDENCIES net-in6-phy)
+set(net-l2-phy_DEPENDENCIES net-l2)
+set(net-l2-phy-stream_DEPENDENCIES net-l2-phy)
+set(net-rc-phy_DEPENDENCIES net-rc)
+set(net-rc-phy-stream_DEPENDENCIES net-rc-phy)
+set(net-un-phy_DEPENDENCIES net-un)
+set(net-un-phy-stream_DEPENDENCIES net-un-phy)
 
 # Base network-stream code
-set(net-in-stream_DEPENDENCIES net-in core-socket-stream)
-set(net-in6-stream_DEPENDENCIES net-in6 core-socket-stream)
-set(net-l2-stream_DEPENDENCIES net-l2 core-socket-stream)
-set(net-rc-stream_DEPENDENCIES net-rc core-socket-stream)
-set(net-un-stream_DEPENDENCIES net-un core-socket-stream)
+set(net-in-stream_DEPENDENCIES net-in-phy-stream)
+set(net-in6-stream_DEPENDENCIES net-in6-phy-stream)
+set(net-l2-stream_DEPENDENCIES net-l2-phy-stream)
+set(net-rc-stream_DEPENDENCIES net-rc-phy-stream)
+set(net-un-stream_DEPENDENCIES net-un-phy-stream)
 
 # Legacy network-stream code
 set(net-in-stream-legacy_DEPENDENCIES net-in-stream core-socket-stream-legacy)

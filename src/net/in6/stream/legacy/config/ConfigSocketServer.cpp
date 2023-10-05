@@ -18,7 +18,7 @@
 
 #include "net/in6/stream/legacy/config/ConfigSocketServer.h"
 
-#include "net/config/socket/stream/legacy/ConfigSocketServer.hpp" // IWYU pragma: keep
+#include "net/config/stream/legacy/ConfigSocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 namespace net::in6::stream::legacy::config {
 
     ConfigSocketServer::ConfigSocketServer(const std::string& name)
-        : net::config::socket::stream::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer>(name) {
+        : net::config::stream::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer>(name) {
     }
 
     ConfigSocketServer::~ConfigSocketServer() {
@@ -35,4 +35,4 @@ namespace net::in6::stream::legacy::config {
 
 } // namespace net::in6::stream::legacy::config
 
-template class net::config::socket::stream::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer>;
+template class net::config::stream::legacy::ConfigSocketServer<net::in6::stream::config::ConfigSocketServer>;

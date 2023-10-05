@@ -17,7 +17,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(NET_CPP
-    PhysicalSocketOption.cpp
+    phy/PhysicalSocketOption.cpp
     config/ConfigInstance.cpp
     config/ConfigConnection.cpp
     config/ConfigLegacy.cpp
@@ -32,9 +32,6 @@ set(NET_CPP
 )
 
 set(NET_H
-    PhysicalSocket.h
-    PhysicalSocket.hpp
-    PhysicalSocketOption.h
     SocketAddress.h
     SocketAddress.hpp
     config/ConfigAddress.h
@@ -55,26 +52,29 @@ set(NET_H
     config/ConfigTls.h
     config/ConfigTlsServer.h
     config/ConfigTlsClient.h
-    config/socket/stream/ConfigSocketClient.h
-    config/socket/stream/ConfigSocketClient.hpp
-    config/socket/stream/ConfigSocketServer.h
-    config/socket/stream/ConfigSocketServer.hpp
-    config/socket/stream/legacy/ConfigSocketClient.h
-    config/socket/stream/legacy/ConfigSocketClient.hpp
-    config/socket/stream/legacy/ConfigSocketServer.h
-    config/socket/stream/legacy/ConfigSocketServer.hpp
-    config/socket/stream/tls/ConfigSocketClient.h
-    config/socket/stream/tls/ConfigSocketClient.hpp
-    config/socket/stream/tls/ConfigSocketServer.h
-    config/socket/stream/tls/ConfigSocketServer.hpp
-    dgram/PeerSocket.h
-    dgram/PeerSocket.hpp
-    stream/PhysicalSocket.h
-    stream/PhysicalSocket.hpp
-    stream/PhysicalClientSocket.h
-    stream/PhysicalClientSocket.hpp
-    stream/PhysicalServerSocket.h
-    stream/PhysicalServerSocket.hpp
+    config/stream/ConfigSocketClient.h
+    config/stream/ConfigSocketClient.hpp
+    config/stream/ConfigSocketServer.h
+    config/stream/ConfigSocketServer.hpp
+    config/stream/legacy/ConfigSocketClient.h
+    config/stream/legacy/ConfigSocketClient.hpp
+    config/stream/legacy/ConfigSocketServer.h
+    config/stream/legacy/ConfigSocketServer.hpp
+    config/stream/tls/ConfigSocketClient.h
+    config/stream/tls/ConfigSocketClient.hpp
+    config/stream/tls/ConfigSocketServer.h
+    config/stream/tls/ConfigSocketServer.hpp
+    phy/PhysicalSocket.h
+    phy/PhysicalSocket.hpp
+    phy/PhysicalSocketOption.h
+    phy/dgram/PeerSocket.h
+    phy/dgram/PeerSocket.hpp
+    phy/stream/PhysicalSocket.h
+    phy/stream/PhysicalSocket.hpp
+    phy/stream/PhysicalSocketClient.h
+    phy/stream/PhysicalSocketClient.hpp
+    phy/stream/PhysicalSocketServer.h
+    phy/stream/PhysicalSocketServer.hpp
 )
 
 append_source_file_config(

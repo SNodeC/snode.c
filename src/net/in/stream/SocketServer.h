@@ -19,8 +19,8 @@
 #ifndef NET_IN_STREAM_SOCKETSERVER_H
 #define NET_IN_STREAM_SOCKETSERVER_H
 
-#include "core/socket/stream/SocketServer.h"    // IWYU pragma: export
-#include "net/in/stream/PhysicalServerSocket.h" // IWYU pragma: export
+#include "core/socket/stream/SocketServer.h"        // IWYU pragma: export
+#include "net/in/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,14 +32,14 @@
 
 namespace net::in::stream {
 
-    template <template <typename PhysicalServerSocket, typename ConfigSocketServer> typename SocketAcceptorT,
+    template <template <typename PhysicalSocketServer, typename ConfigSocketServer> typename SocketAcceptorT,
               typename ConfigSocketServerT,
               typename SocketContextFactoryT>
     class SocketServer
-        : public core::socket::stream::SocketServer<SocketAcceptorT<net::in::stream::PhysicalServerSocket, ConfigSocketServerT>,
+        : public core::socket::stream::SocketServer<SocketAcceptorT<net::in::phy::stream::PhysicalSocketServer, ConfigSocketServerT>,
                                                     SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketServer<SocketAcceptorT<net::in::stream::PhysicalServerSocket, ConfigSocketServerT>,
+        using Super = core::socket::stream::SocketServer<SocketAcceptorT<net::in::phy::stream::PhysicalSocketServer, ConfigSocketServerT>,
                                                          SocketContextFactoryT>;
 
     public:

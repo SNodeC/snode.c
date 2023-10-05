@@ -29,8 +29,8 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
-    SocketConnector<PhysicalClientSocket, Config, SocketConnection>::SocketConnector(
+    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    SocketConnector<PhysicalSocketClient, Config, SocketConnection>::SocketConnector(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
@@ -50,15 +50,15 @@ namespace core::socket::stream {
         InitConnectEventReceiver::span();
     }
 
-    template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
-    SocketConnector<PhysicalClientSocket, Config, SocketConnection>::~SocketConnector() {
+    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    SocketConnector<PhysicalSocketClient, Config, SocketConnection>::~SocketConnector() {
         if (physicalSocket != nullptr) {
             delete physicalSocket;
         }
     }
 
-    template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
-    void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::initConnectEvent() {
+    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::initConnectEvent() {
         if (!config->getDisabled()) {
             LOG(INFO) << "Instance '" << this->config->getInstanceName() << "' enabled";
 
@@ -129,8 +129,8 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
-    void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::connectEvent() {
+    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
         int cErrno;
 
         if (physicalSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
@@ -164,18 +164,18 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
-    void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::destruct() {
+    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() {
         delete this;
     }
 
-    template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
-    void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::unobservedEvent() {
+    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::unobservedEvent() {
         destruct();
     }
 
-    template <typename PhysicalClientSocket, typename Config, template <typename PhysicalClientSocketT> typename SocketConnection>
-    void SocketConnector<PhysicalClientSocket, Config, SocketConnection>::connectTimeout() {
+    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
         disable();
 
         if (remoteAddress.useNext()) {

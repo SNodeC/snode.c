@@ -16,13 +16,9 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN6_CPP PhysicalSocket.cpp SocketAddress.cpp SocketAddrInfo.cpp
-                config/ConfigAddress.cpp
-)
+set(NET-IN6_CPP SocketAddress.cpp SocketAddrInfo.cpp config/ConfigAddress.cpp)
 
-set(NET-IN6_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
-              SocketAddrInfo.h config/ConfigAddress.h
-)
+set(NET-IN6_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 
 append_source_file_config(
     config/ConfigAddress.cpp IPV4_MAPPED "IPv4-mapped IPv6 addresses" \"false\"
@@ -32,7 +28,7 @@ append_source_file_config(
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})
 add_library(snodec::net-in6 ALIAS net-in6)
 
-target_link_libraries(net-in6 PUBLIC snodec::net snodec::core-socket)
+target_link_libraries(net-in6 PUBLIC snodec::net)
 
 target_include_directories(
     net-in6
@@ -71,4 +67,5 @@ install(
     COMPONENT net-in6
 )
 
+add_subdirectory(phy)
 add_subdirectory(stream)

@@ -18,8 +18,8 @@
 
 #include "net/un/dgram/Socket.h"
 
-#include "net/dgram/PeerSocket.hpp" // IWYU pragma: keep
-#include "net/un/PhysicalSocket.hpp"
+#include "net/phy/dgram/PeerSocket.hpp" // IWYU pragma: keep
+#include "net/un/phy/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -119,5 +119,5 @@ namespace net::un::dgram {
 
 } // namespace net::un::dgram
 
-template class net::dgram::PeerSocket<net::un::SocketAddress>;
-template class net::un::PhysicalSocket<net::dgram::PeerSocket>;
+template class net::phy::dgram::PeerSocket<net::un::SocketAddress>;
+template class net::un::phy::PhysicalSocket<net::phy::dgram::PeerSocket>;

@@ -19,10 +19,10 @@
 #ifndef NET_UN_DGRAM_SOCKET_H
 #define NET_UN_DGRAM_SOCKET_H
 
-#include "net/dgram/PeerSocket.h"  // IWYU pragma: export
-#include "net/un/PhysicalSocket.h" // IWYU pragma: export
+#include "net/phy/dgram/PeerSocket.h"  // IWYU pragma: export
+#include "net/un/phy/PhysicalSocket.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/un/PhysicalSocket.hpp"
+// IWYU pragma: no_include "net/un/phy/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,9 +30,9 @@
 
 namespace net::un::dgram {
 
-    class Socket : public net::un::PhysicalSocket<net::dgram::PeerSocket> {
+    class Socket : public net::un::phy::PhysicalSocket<net::phy::dgram::PeerSocket> {
     private:
-        using Super = net::un::PhysicalSocket<net::dgram::PeerSocket>;
+        using Super = net::un::phy::PhysicalSocket<net::phy::dgram::PeerSocket>;
 
     public:
         using Super::Super;
@@ -49,7 +49,7 @@ namespace net::un::dgram {
 
 } // namespace net::un::dgram
 
-extern template class net::dgram::PeerSocket<net::un::SocketAddress>;
-extern template class net::un::PhysicalSocket<net::dgram::PeerSocket>;
+extern template class net::phy::dgram::PeerSocket<net::un::SocketAddress>;
+extern template class net::un::phy::PhysicalSocket<net::phy::dgram::PeerSocket>;
 
 #endif // NET_UN_DGRAM_SOCKET_H

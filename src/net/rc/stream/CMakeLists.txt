@@ -16,26 +16,20 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-RC-STREAM_CPP
-    PhysicalSocket.cpp PhysicalClientSocket.cpp PhysicalServerSocket.cpp
-    config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
+set(NET-RC-STREAM_CPP config/ConfigSocketClient.cpp
+                      config/ConfigSocketServer.cpp
 )
 
-set(NET-RC-STREAM_H
-    PhysicalClientSocket.h
-    PhysicalServerSocket.h
-    SocketClient.h
-    SocketServer.h
-    PhysicalSocket.hpp
-    PhysicalSocket.h
-    config/ConfigSocketClient.h
-    config/ConfigSocketServer.h
+set(NET-RC-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
+                    config/ConfigSocketServer.h
 )
 
 add_library(net-rc-stream SHARED ${NET-RC-STREAM_CPP} ${NET-RC-STREAM_H})
 add_library(snodec::net-rc-stream ALIAS net-rc-stream)
 
-target_link_libraries(net-rc-stream PUBLIC snodec::net-rc)
+target_link_libraries(
+    net-rc-stream PUBLIC snodec::net-rc-phy-stream
+)
 
 target_include_directories(
     net-rc-stream

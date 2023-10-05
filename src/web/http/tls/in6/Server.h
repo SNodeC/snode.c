@@ -28,10 +28,8 @@
 
 namespace web::http::tls::in6 {
 
-    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
-    class Server : public web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response> {
-        using web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response>::Server;
-    };
+    template <typename Request, typename Response>
+    using Server = web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response>;
 
 } // namespace web::http::tls::in6
 

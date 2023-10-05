@@ -19,8 +19,8 @@
 #ifndef NET_L2_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_L2_STREAM_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/socket/stream/ConfigSocketServer.h" // IWYU pragma: export
-#include "net/l2/config/ConfigAddress.h"                 // IWYU pragma: export
+#include "net/config/stream/ConfigSocketServer.h" // IWYU pragma: export
+#include "net/l2/config/ConfigAddress.h"          // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -32,7 +32,7 @@ namespace net::config {
 
 namespace net::l2::stream::config {
 
-    class ConfigSocketServer : public net::config::socket::stream::ConfigSocketServer<net::l2::config::ConfigAddress> {
+    class ConfigSocketServer : public net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
@@ -41,6 +41,6 @@ namespace net::l2::stream::config {
 
 } // namespace net::l2::stream::config
 
-extern template class net::config::socket::stream::ConfigSocketServer<net::l2::config::ConfigAddress>;
+extern template class net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress>;
 
 #endif // NET_L2_STREAM_CONFIG_CONFIGSOCKETSERVER_H

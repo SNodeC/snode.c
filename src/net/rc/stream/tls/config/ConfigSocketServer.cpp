@@ -18,7 +18,7 @@
 
 #include "net/rc/stream/tls/config/ConfigSocketServer.h"
 
-#include "net/config/socket/stream/tls/ConfigSocketServer.hpp" // IWYU pragma: keep
+#include "net/config/stream/tls/ConfigSocketServer.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 namespace net::rc::stream::tls::config {
 
     ConfigSocketServer::ConfigSocketServer(const std::string& name)
-        : net::config::socket::stream::tls::ConfigSocketServer<net::rc::stream::config::ConfigSocketServer>(name) {
+        : net::config::stream::tls::ConfigSocketServer<net::rc::stream::config::ConfigSocketServer>(name) {
     }
 
     ConfigSocketServer::~ConfigSocketServer() {
@@ -35,4 +35,4 @@ namespace net::rc::stream::tls::config {
 
 } // namespace net::rc::stream::tls::config
 
-template class net::config::socket::stream::tls::ConfigSocketServer<net::rc::stream::config::ConfigSocketServer>;
+template class net::config::stream::tls::ConfigSocketServer<net::rc::stream::config::ConfigSocketServer>;

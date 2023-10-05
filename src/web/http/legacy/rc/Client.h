@@ -28,10 +28,8 @@
 
 namespace web::http::legacy::rc {
 
-    template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
-    class Client : public web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response> {
-        using web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response>::Client;
-    };
+    template <typename Request, typename Response>
+    using Client = web::http::client::Client<net::rc::stream::legacy::SocketClient, Request, Response>;
 
 } // namespace web::http::legacy::rc
 

@@ -19,8 +19,8 @@
 #ifndef NET_UN_STREAM_SOCKETCLIENT_H
 #define NET_UN_STREAM_SOCKETCLIENT_H
 
-#include "core/socket/stream/SocketClient.h"    // IWYU pragma: export
-#include "net/un/stream/PhysicalClientSocket.h" // IWYU pragma: export
+#include "core/socket/stream/SocketClient.h"        // IWYU pragma: export
+#include "net/un/phy/stream/PhysicalSocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,14 +31,14 @@
 
 namespace net::un::stream {
 
-    template <template <typename PhysicalClientSocket, typename ConfigSocketClientT> typename SocketConnectorT,
+    template <template <typename PhysicalSocketClient, typename ConfigSocketClientT> typename SocketConnectorT,
               typename ConfigSocketClientT,
               typename SocketContextFactoryT>
     class SocketClient
-        : public core::socket::stream::SocketClient<SocketConnectorT<net::un::stream::PhysicalClientSocket, ConfigSocketClientT>,
+        : public core::socket::stream::SocketClient<SocketConnectorT<net::un::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                     SocketContextFactoryT> {
     private:
-        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::un::stream::PhysicalClientSocket, ConfigSocketClientT>,
+        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::un::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                          SocketContextFactoryT>;
 
     public:

@@ -16,18 +16,14 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-IN_CPP PhysicalSocket.cpp SocketAddress.cpp SocketAddrInfo.cpp
-               config/ConfigAddress.cpp
-)
+set(NET-IN_CPP SocketAddress.cpp SocketAddrInfo.cpp config/ConfigAddress.cpp)
 
-set(NET-IN_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
-             SocketAddrInfo.h config/ConfigAddress.h
-)
+set(NET-IN_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 
 add_library(net-in SHARED ${NET-IN_CPP} ${NET-IN_H})
 add_library(snodec::net-in ALIAS net-in)
 
-target_link_libraries(net-in PUBLIC snodec::net snodec::core-socket)
+target_link_libraries(net-in PUBLIC snodec::net)
 
 target_include_directories(
     net-in
@@ -66,4 +62,5 @@ install(
     COMPONENT net-in
 )
 
+add_subdirectory(phy)
 add_subdirectory(stream)

@@ -21,19 +21,15 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-    set(NET-L2_CPP PhysicalSocket.cpp SocketAddress.cpp
-                   config/ConfigAddress.cpp
-    )
+    set(NET-L2_CPP SocketAddress.cpp config/ConfigAddress.cpp)
 
-    set(NET-L2_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
-                 config/ConfigAddress.h
-    )
+    set(NET-L2_H SocketAddress.h config/ConfigAddress.h)
 
     add_library(net-l2 SHARED ${NET-L2_CPP} ${NET-L2_H})
     add_library(snodec::net-l2 ALIAS net-l2)
 
     target_link_libraries(
-        net-l2 PUBLIC snodec::net snodec::core-socket ${BLUEZ_LIBRARIES}
+        net-l2 PUBLIC snodec::net ${BLUEZ_LIBRARIES}
     )
 
     target_include_directories(
@@ -74,6 +70,7 @@ if(BLUEZ_FOUND)
         COMPONENT net-l2
     )
 
+    add_subdirectory(phy)
     add_subdirectory(stream)
 
 else(BLUEZ_FOUND)
