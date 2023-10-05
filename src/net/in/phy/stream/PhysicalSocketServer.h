@@ -22,7 +22,7 @@
 #include "net/in/phy/stream/PhysicalSocket.h"    // IWYU pragma: export
 #include "net/phy/stream/PhysicalSocketServer.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "net/in/stream/PhysicalSocket.hpp"
+// IWYU pragma: no_include "net/in/phy/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
