@@ -16,9 +16,9 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-UN_CPP PhysicalSocket.cpp SocketAddress.cpp config/ConfigAddress.cpp)
+set(NET-UN_CPP SocketAddress.cpp config/ConfigAddress.cpp)
 
-set(NET-UN_H PhysicalSocket.hpp PhysicalSocket.h SocketAddress.h
+set(NET-UN_H SocketAddress.h
              config/ConfigAddress.h
 )
 
@@ -64,5 +64,6 @@ install(
     COMPONENT net-un
 )
 
+add_subdirectory(phy)
 add_subdirectory(stream)
 add_subdirectory(dgram)

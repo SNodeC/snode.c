@@ -16,59 +16,50 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-UN-STREAM_CPP
-    config/ConfigSocketClient.cpp config/ConfigSocketServer.cpp
-)
+set(NET-UN-PHY_CPP PhysicalSocket.cpp)
 
-set(NET-UN-STREAM_H
-    SocketClient.h
-    SocketServer.h
-    config/ConfigSocketClient.h
-    config/ConfigSocketServer.h
-)
+set(NET-UN-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 
-add_library(net-un-stream SHARED ${NET-UN-STREAM_CPP} ${NET-UN-STREAM_H})
-add_library(snodec::net-un-stream ALIAS net-un-stream)
+add_library(net-un-phy SHARED ${NET-UN-PHY_CPP} ${NET-UN-PHY_H})
+add_library(snodec::net-un-phy ALIAS net-un-phy)
 
-target_link_libraries(net-un-stream PUBLIC snodec::net-un-phy-stream snodec::core-socket-stream)
+target_link_libraries(net-un-phy PUBLIC snodec::net-un)
 
 target_include_directories(
-    net-un-stream
+    net-un-phy
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    net-un-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                           snodec-net-un-stream
+    net-un-phy PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-un-phy
 )
 
 install(
-    TARGETS net-un-stream
-    EXPORT snodec_net-un-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-un-stream
+    TARGETS net-un-phy
+    EXPORT snodec_net-un-phy_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-un-phy
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/un/stream
-    COMPONENT net-un-stream
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/un/phy
+    COMPONENT net-un-phy
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
-    PATTERN "legacy" EXCLUDE
-    PATTERN "tls" EXCLUDE
+    PATTERN "stream" EXCLUDE
+    PATTERN "dgram" EXCLUDE
 )
 
 install(
-    EXPORT snodec_net-un-stream_Targets
-    FILE snodec_net-un-stream_Targets.cmake
+    EXPORT snodec_net-un-phy_Targets
+    FILE snodec_net-un-phy_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-un-stream
+    COMPONENT net-un-phy
 )
 
-add_subdirectory(legacy)
-add_subdirectory(tls)
+add_subdirectory(stream)

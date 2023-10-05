@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/PhysicalSocket.h" // IWYU pragma: export
+#include "net/un/phy/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un {
+namespace net::un::phy {
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
@@ -51,4 +51,4 @@ namespace net::un {
         return ret;
     }
 
-} // namespace net::un
+} // namespace net::un::phy

@@ -16,15 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// clang-format off
-#include "net/un/SocketAddress.h"
-#include "net/phy/PhysicalSocket.hpp"
-// clang-format on
+#include "net/un/phy/stream/PhysicalSocketClient.h"
+
+#include "net/phy/stream/PhysicalSocketClient.hpp" // IWYU pragma: keep
+#include "net/un/phy/stream/PhysicalSocket.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#include <cerrno>
 
-namespace net::un {} // namespace net::un
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-template class net::phy::PhysicalSocket<net::un::SocketAddress>;
+namespace net::un::phy::stream {
+
+    PhysicalSocketClient::~PhysicalSocketClient() {
+    }
+
+    bool PhysicalSocketClient::connectInProgress(int cErrno) {
+        return cErrno == EAGAIN;
+    }
+
+} // namespace net::un::phy::stream
+
+template class net::phy::stream::PhysicalSocketClient<net::un::SocketAddress>;
+template class net::un::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
+template class net::un::phy::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;

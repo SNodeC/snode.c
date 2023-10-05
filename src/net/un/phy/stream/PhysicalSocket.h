@@ -16,22 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_STREAM_PHYSICALSOCKET_H
-#define NET_UN_STREAM_PHYSICALSOCKET_H
+#ifndef NET_UN_PHY_STREAM_PHYSICALSOCKET_H
+#define NET_UN_PHY_STREAM_PHYSICALSOCKET_H
 
 #include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
-#include "net/un/PhysicalSocket.h"         // IWYU pragma: export
+#include "net/un/phy/PhysicalSocket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un::stream {
+namespace net::un::phy::stream {
 
     template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
-    class PhysicalSocket : public net::un::PhysicalSocket<PhysicalPeerSocketT> {
+    class PhysicalSocket : public net::un::phy::PhysicalSocket<PhysicalPeerSocketT> {
     private:
-        using Super = net::un::PhysicalSocket<PhysicalPeerSocketT>;
+        using Super = net::un::phy::PhysicalSocket<PhysicalPeerSocketT>;
 
     public:
         using Super::Super;
@@ -44,8 +44,8 @@ namespace net::un::stream {
         ~PhysicalSocket() override;
     };
 
-} // namespace net::un::stream
+} // namespace net::un::phy::stream
 
 extern template class net::phy::stream::PhysicalSocket<net::un::SocketAddress>;
 
-#endif // NET_UN_STREAM_PHYSICALSOCKET_H
+#endif // NET_UN_PHY_STREAM_PHYSICALSOCKET_H

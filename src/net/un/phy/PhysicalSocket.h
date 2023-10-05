@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_PHYSICALSOCKET_H
-#define NET_UN_PHYSICALSOCKET_H
+#ifndef NET_UN_PHY_PHYSICALSOCKET_H
+#define NET_UN_PHY_PHYSICALSOCKET_H
 
 #include "net/phy/PhysicalSocket.h" // IWYU pragma: export
 #include "net/un/SocketAddress.h"   // IWYU pragma: export
@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un {
+namespace net::un::phy {
 
     template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
     class PhysicalSocket : public PhysicalPeerSocketT<net::un::SocketAddress> {
@@ -47,8 +47,8 @@ namespace net::un {
         bool doNotRemove = true;
     };
 
-} // namespace net::un
+} // namespace net::un::phy
 
 extern template class net::phy::PhysicalSocket<net::un::SocketAddress>;
 
-#endif // NET_UN_PHYSICALSOCKET_H
+#endif // NET_UN_PHY_PHYSICALSOCKET_H
