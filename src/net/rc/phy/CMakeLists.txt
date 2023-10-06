@@ -23,7 +23,7 @@ set(NET-RC-PHY_H PhysicalSocket.hpp PhysicalSocket.h)
 add_library(net-rc-phy SHARED ${NET-RC-PHY_CPP} ${NET-RC-PHY_H})
 add_library(snodec::net-rc-phy ALIAS net-rc-phy)
 
-target_link_libraries(net-rc-phy PUBLIC net-rc)
+target_link_libraries(net-rc-phy PUBLIC net-rc ${BLUEZ_LIBRARIES})
 
 target_include_directories(
     net-rc-phy
