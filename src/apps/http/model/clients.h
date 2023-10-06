@@ -159,7 +159,8 @@ namespace apps::http::tls {
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(0) << "\tPeer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                VLOG(0) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                               std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
                 VLOG(0) << "\t   Subject: " + std::string(str);
@@ -226,6 +227,7 @@ namespace apps::http::tls {
             VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                            socketConnection->getRemoteAddress().toString();
         });
+
         return client;
     }
 
