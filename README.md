@@ -417,9 +417,10 @@ int main(int argc, char* argv[]) {
 
     EchoServer echoServer; // Create anonymous server instance
 
-    echoServer.listen(8001, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
-    });
+    echoServer.listen(8001,
+                      [](const core::ProgressLog& progressLog) -> void {
+                          progressLog.logProgress();
+                      });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
@@ -451,9 +452,11 @@ int main(int argc, char* argv[]) {
 
     EchoClient echoClient; // Create anonymous client instance
 
-    echoClient.connect("localhost", 8001, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
-    });
+    echoClient.connect("localhost",
+                       8001,
+                       [](const core::ProgressLog& progressLog) -> void {
+                           progressLog.logProgress();
+                       });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
@@ -1671,13 +1674,8 @@ In case the parameterless *listen* method is used for activating a server instan
 
 ```cpp
 EchoServer echoServer("echo"); // Create server instance
-echoServer.listen([](const SocketAddress& socketAddress, int err) -> void { // Port on command line or in config file
-    if (err == 0) {
-        std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
-    } else {
-        std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                  << ": " << strerror(err) << std::endl;
-    }
+echoServer.listen([](const core::ProgressLog& progressLog) -> void {
+    progressLog.logProgress();
 });
 ```
 
@@ -1718,13 +1716,8 @@ Lets have look at the case of the named `echoclient`
 
 ```cpp
 EchoClient echoClient("echo"); // Create named client instance
-echoClient.connect([](const SocketAddress& socketAddress,
-                      int err) -> void { // Connect to server
-    if (err == 0) {
-        std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
-    } else {
-        std::cout << "Error: Echo client connected to " << socketAddress.toString() << ": " << strerror(err) << std::endl;
-    }
+echoClient.connect([](const core::ProgressLog& progressLog) -> void {
+    progressLog.logProgress();
 });
 ```
 
@@ -2150,41 +2143,28 @@ int main(int argc, char* argv[]) {
     using SocketAddressIn = EchoServerIn::SocketAddress;
 
     EchoServerIn echoServerIn;
-    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, int err) -> void { // IPv4, port 8001
-        if (err == 0) {
-            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
-        } else {
-            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                      << ": " << std::strerror(err) << std::endl;
-        }
-    });
+    echoServerIn.listen(8001,
+                        [](const core::ProgressLog& progressLog) -> void {
+                            progressLog.logProgress();
+                        });
 
     using EchoServerUn = net::un::stream::legacy::SocketServer<EchoServerContextFactory>;
     using SocketAddressUn = EchoServerUn::SocketAddress;
 
     EchoServerUn echoServerUn;
-    echoServerUn.listen(
-        "/tmp/echoserver", [](const SocketAddressUn& socketAddress, int err) -> void { // Unix-domain socket /tmp/echoserver
-            if (err == 0) {
-                std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
-            } else {
-                std::cout << "Error: Echo server listening on " 
-                          << socketAddress.toString() << ": " << std::strerror(err) << std::endl;
-            }
-        });
+    echoServerUn.listen("/tmp/echoserver",
+                        [](const core::ProgressLog& progressLog) -> void {
+                            progressLog.logProgress();
+                        });
 
     using EchoServerRc = net::rc::stream::legacy::SocketServer<EchoServerContextFactory>;
     using SocketAddressRc = EchoServerRc::SocketAddress;
 
     EchoServerRc echoServerRc;
-    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, int err) -> void { // Bluetooth RFCOMM on channel 16
-        if (err == 0) {
-            std::cout << "Success: Echo server listening on " << socketAddress.toString() << std::endl;
-        } else {
-            std::cout << "Error: Echo server listening on " << socketAddress.toString() 
-                      << ": " << std::strerror(err) << std::endl;
-        }
-    });
+    echoServerRc.listen(16,
+                        [](const core::ProgressLog& progressLog) -> void {
+                            progressLog.logProgress();
+                        });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
@@ -2212,14 +2192,8 @@ int main(int argc, char* argv[]) {
     EchoClientIn echoClientIn; // Create client instance
     echoClientIn.connect("localhost",
                          8001,
-                         [](const SocketAddressIn& socketAddress,
-                            int err) -> void { // Connect to server
-                             if (err == 0) {
-                                 std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
-                             } else {
-                                 std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
-                                           << ": " << std::strerror(err) << std::endl;
-                             }
+                         [](const core::ProgressLog& progressLog) -> void {
+                             progressLog.logProgress();
                          });
 
     static std::string unixDomain("Unix-Domain Socket");
@@ -2228,14 +2202,8 @@ int main(int argc, char* argv[]) {
 
     EchoClientUn echoClientUn; // Create client instance
     echoClientUn.connect("/tmp/echoserver",
-                         [](const SocketAddressUn& socketAddress,
-                            int err) -> void { // Connect to server
-                             if (err == 0) {
-                                 std::cout << "Success: Echo connected to " << socketAddress.toString() << std::endl;
-                             } else {
-                                 std::cout << "Error: Echo client connecting to " << socketAddress.toString() 
-                                           << ": " << std::strerror(err) << std::endl;
-                             }
+                         [](const core::ProgressLog& progressLog) -> void {
+                             progressLog.logProgress();
                          });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
@@ -2299,14 +2267,8 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
-        }
+    legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
     });
 
     using TLSWebApp = express::tls::in::WebApp;
@@ -2321,15 +2283,10 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
-        }
-    });
+    tlsApp.listen(8088,
+                  [](const core::ProgressLog& progressLog) -> void {
+                      progressLog.logProgress();
+                  });
 
     return express::WebApp::start();
 }
@@ -2403,12 +2360,8 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "LegacyWebApp listening on " << socketAddress.toString();
-        }
+    legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
     });
 
     using TLSWebApp = express::tls::in::WebApp;
@@ -2424,13 +2377,10 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(legacyApp);
 
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "TLSWebApp listening on " << socketAddress.toString();
-        }
-    });
+    tlsApp.listen(8088,
+                  [](const core::ProgressLog& progressLog) -> void {
+                      progressLog.logProgress();
+                  });
 
     return express::WebApp::start();
 }
