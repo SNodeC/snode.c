@@ -108,8 +108,8 @@ add_subdirectory(database)
 add_subdirectory(iot)
 add_subdirectory(apps)
 
-# @LIST_OF_ALL_TARGETS_DEPENDENCIES@ in Config.cmake.in
-# will be replaced by ${LIST_OF_ALL_TARGETS_DEPENDENCIES}
+# @LIST_OF_ALL_TARGETS_DEPENDENCIES@ in Config.cmake.in will be replaced by
+# ${LIST_OF_ALL_TARGETS_DEPENDENCIES}
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES log)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES utils)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES core)
