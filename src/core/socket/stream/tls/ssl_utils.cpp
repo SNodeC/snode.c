@@ -141,19 +141,27 @@ namespace core::socket::stream::tls {
                 if (!SSL_CTX_load_verify_locations(ctx,
                                                    !sslConfig.caFile.empty() ? sslConfig.caFile.c_str() : nullptr,
                                                    !sslConfig.caDir.empty() ? sslConfig.caDir.c_str() : nullptr)) {
-                    ssl_log_error("Can not load CA file or non default CA directory: CA-File " + sslConfig.caFile + " : CA-Dir " +
-                                  sslConfig.caDir);
+                    ssl_log_error("Can not load CA certificate or non default CA directory: ca-cert-file '" + sslConfig.caFile +
+                                  "' : ca-cert-dir '" + sslConfig.caDir + "'");
                     sslErr = true;
+                } else {
+                    ssl_log_info("CA certificate loaded: ca-cert-file '" + sslConfig.caFile + "' : ca-cert-dir '" + sslConfig.caDir + "'");
                 }
+            } else {
+                ssl_log_info("Neither using ca-cert-file nor ca-cert-dir");
             }
             if (!sslErr && sslConfig.useDefaultCaDir) {
                 if (!SSL_CTX_set_default_verify_paths(ctx)) {
                     ssl_log_error("Can not load default CA directory");
                     sslErr = true;
+                } else {
+                    ssl_log_info("Using default CA directory");
                 }
+            } else {
+                ssl_log_info("Not using default CA directory");
             }
             if (!sslErr) {
-                if (sslConfig.server && (sslConfig.useDefaultCaDir || !sslConfig.caFile.empty() || !sslConfig.caDir.empty())) {
+                if (sslConfig.useDefaultCaDir || !sslConfig.caFile.empty() || !sslConfig.caDir.empty()) {
                     SSL_CTX_set_verify_depth(ctx, 5);
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
                 }
@@ -172,7 +180,12 @@ namespace core::socket::stream::tls {
                         } else if (!SSL_CTX_check_private_key(ctx)) {
                             ssl_log_error("Private key not consistent with CA files: " + sslConfig.certChainKey);
                             sslErr = true;
+                        } else {
+                            ssl_log_info("Private key loaded: " + sslConfig.certChainKey);
                         }
+                    }
+                    if (!sslErr) {
+                        ssl_log_info("Certificate chain loaded: " + sslConfig.certChain);
                     }
                 }
             }
