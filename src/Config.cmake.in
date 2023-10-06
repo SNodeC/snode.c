@@ -23,7 +23,7 @@
 @SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES@
 # ##############################################################################
 
-macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp _lspace _ladd)
+macro(load_component_with_dependencies _comp _lspace _ladd)
     if(NOT ${_comp}_LOADED)
         if(${_comp}_DEPENDENCIES)
             list(JOIN ${_comp}_DEPENDENCIES ", " CURRENT_COMP_DEPENDENCIES)
@@ -80,7 +80,7 @@ set(_supported_components
     mqtt-client-websocket
 )
 
-include(CMakeFindDependencyMacro)
+#include(CMakeFindDependencyMacro)
 
 foreach(_comp ${snodec_FIND_COMPONENTS})
     if(NOT _comp IN_LIST _supported_components)
