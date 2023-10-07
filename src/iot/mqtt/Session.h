@@ -40,8 +40,9 @@ namespace iot::mqtt {
         Session() = default;
         explicit Session(const nlohmann::json& json);
 
-        Session(const Session&) = default;
+        virtual ~Session() = default;
 
+        Session(const Session&) = default;
         Session& operator=(const Session&) = default;
 
         bool isCleanSession() const;
