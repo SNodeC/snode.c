@@ -59,31 +59,33 @@ namespace core::socket::stream::tls {
     }
 
     static int verify_callback(int preverify_ok, X509_STORE_CTX* ctx) {
+        X509* curr_cert = X509_STORE_CTX_get_current_cert(ctx);
+        int depth = X509_STORE_CTX_get_error_depth(ctx);
+
         char buf[256];
-        X509* err_cert = nullptr;
-        int err = 0;
-        int depth = 0;
+        X509_NAME_oneline(X509_get_subject_name(curr_cert), buf, 256);
 
-        err_cert = X509_STORE_CTX_get_current_cert(ctx);
-        err = X509_STORE_CTX_get_error(ctx);
-        depth = X509_STORE_CTX_get_error_depth(ctx);
-
-        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
-
-        if (!preverify_ok) {
-            LOG(INFO) << "verify_error:num=" << err << ": " << X509_verify_cert_error_string(err) << ":depth=" << depth << ": " << buf;
+        if (preverify_ok) {
+            LOG(TRACE) << "SSL/TLS verify ok at depth=" << depth << ": " << buf;
         } else {
-            LOG(TRACE) << "depth=" << depth << ": " << buf;
-        }
+            int err = X509_STORE_CTX_get_error(ctx);
 
-        /*
-         * At this point, err contains the last verification error. We can use
-         * it for something special
-         */
+            LOG(WARNING) << "SSL/TLS verify error at depth=" << depth << ": verifyErr=" << err << ", "
+                         << X509_verify_cert_error_string(err);
 
-        if (!preverify_ok && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT)) {
-            X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
-            LOG(WARNING) << "no issuer certificate for issuer= " << buf;
+            /*
+             * At this point, err contains the last verification error. We can use
+             * it for something special
+             */
+
+            switch (err) {
+                case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+                    X509_NAME_oneline(X509_get_issuer_name(curr_cert), buf, 256);
+                    LOG(WARNING) << "no issuer certificate for issuer= " << buf;
+                    break;
+                default:
+                    break;
+            }
         }
 
         return preverify_ok;
@@ -138,9 +140,9 @@ namespace core::socket::stream::tls {
                 sslSessionCtxId++;
             }
             if (!sslConfig.caFile.empty() || !sslConfig.caDir.empty()) {
-                if (!SSL_CTX_load_verify_locations(ctx,
-                                                   !sslConfig.caFile.empty() ? sslConfig.caFile.c_str() : nullptr,
-                                                   !sslConfig.caDir.empty() ? sslConfig.caDir.c_str() : nullptr)) {
+                if (SSL_CTX_load_verify_locations(ctx,
+                                                  !sslConfig.caFile.empty() ? sslConfig.caFile.c_str() : nullptr,
+                                                  !sslConfig.caDir.empty() ? sslConfig.caDir.c_str() : nullptr) == 0) {
                     ssl_log_error("Can not load CA certificate or non default CA directory: ca-cert-file '" + sslConfig.caFile +
                                   "' : ca-cert-dir '" + sslConfig.caDir + "'");
                     sslErr = true;
@@ -151,7 +153,7 @@ namespace core::socket::stream::tls {
                 ssl_log_info("Neither using ca-cert-file nor ca-cert-dir");
             }
             if (!sslErr && sslConfig.useDefaultCaDir) {
-                if (!SSL_CTX_set_default_verify_paths(ctx)) {
+                if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
                     ssl_log_error("Can not load default CA directory");
                     sslErr = true;
                 } else {
@@ -166,7 +168,7 @@ namespace core::socket::stream::tls {
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
                 }
                 if (!sslConfig.certChain.empty()) {
-                    if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.certChain.c_str()) != 1) {
+                    if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.certChain.c_str()) == 0) {
                         ssl_log_error("Can not load certificate chain: " + sslConfig.certChain);
                         sslErr = true;
                     } else if (!sslConfig.certChainKey.empty()) {
@@ -174,7 +176,7 @@ namespace core::socket::stream::tls {
                             SSL_CTX_set_default_passwd_cb(ctx, password_callback);
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(sslConfig.password.c_str()));
                         }
-                        if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
+                        if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certChainKey.c_str(), SSL_FILETYPE_PEM) == 0) {
                             ssl_log_error("Can not load private key: " + sslConfig.certChainKey);
                             sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
