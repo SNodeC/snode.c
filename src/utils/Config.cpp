@@ -325,14 +325,21 @@ namespace utils {
                 ->disable_flag_override()
                 ->trigger_on_parse();
 
-            app.add_flag( //
+            app.add_flag_callback( //
                    "-s,--show-config",
+                   []() {
+                       throw CLI::CallForShowConfig();
+                   },
                    "Show current configuration and exit") //
                 ->configurable(false)
                 ->disable_flag_override();
 
-            app.add_option("-w,--write-config",
-                           "Write config file and exit") //
+            app.add_option_function<std::string>(
+                   "-w,--write-config",
+                   [](const std::string& configFile) -> void {
+                       throw CLI::CallForWriteConfig(configFile);
+                   },
+                   "Write config file and exit") //
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
                 ->type_name("[configfile]")
@@ -368,20 +375,29 @@ namespace utils {
                 ->configurable(false)
                 ->disable_flag_override();
 
-            app.add_flag( //
+            app.add_flag_callback(
                    "--commandline",
+                   []() {
+                       throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::REQUIRED);
+                   },
                    "Print a template command line showing required options only and exit")
                 ->configurable(false)
                 ->disable_flag_override();
 
-            app.add_flag( //
+            app.add_flag_callback(
                    "--commandline-full",
+                   []() {
+                       throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::ALL);
+                   },
                    "Print a template command line showing all possible options and exit")
                 ->configurable(false)
                 ->disable_flag_override();
 
-            app.add_flag( //
+            app.add_flag_callback(
                    "--commandline-configured",
+                   []() {
+                       throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::CONFIGURED);
+                   },
                    "Print a template command line showing all required and configured options and exit") //
                 ->configurable(false)
                 ->disable_flag_override();
@@ -466,8 +482,6 @@ namespace utils {
                                ->group(app.get_formatter()->get_label("Persistent Options"));
 
             parse1(); // for stopDaemon and pre init application options
-
-            //                app.all_config_files(!prefixMap.empty());
 
             if (app["--kill"]->count() > 0) {
                 try {
@@ -653,15 +667,15 @@ namespace utils {
 
         try {
             app.parse(argc, argv);
+
+            if (!quietOpt->as<bool>()) {
+                logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+            } else {
+                logger::Logger::quiet();
+            }
         } catch (const CLI::ParseError&) {
             // Do not process ParseError here but on second parse pass
-        }
-
-        if (!quietOpt->as<bool>()) {
-            logger::Logger::setLogLevel(logLevelOpt->as<int>());
-            logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
-        } else {
-            logger::Logger::quiet();
         }
 
         app.allow_extras(false);
@@ -672,34 +686,8 @@ namespace utils {
 
         try {
             try {
-                try {
-                    app.parse(argc, argv);
-                    if (app["--show-config"]->count() > 0) {
-                        throw CLI::CallForShowConfig();
-                    } else if (app["--write-config"]->count() > 0) {
-                        throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
-                    } else if (app["--commandline"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::REQUIRED);
-                    } else if (app["--commandline-configured"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::CONFIGURED);
-                    } else if (app["--commandline-full"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::ALL);
-                    }
-                    ret = true;
-                } catch (const CLI::ParseError&) {
-                    if (app["--show-config"]->count() > 0) {
-                        throw CLI::CallForShowConfig();
-                    } else if (app["--write-config"]->count() > 0) {
-                        throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
-                    } else if (app["--commandline"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::REQUIRED);
-                    } else if (app["--commandline-configured"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::CONFIGURED);
-                    } else if (app["--commandline-full"]->count() > 0) {
-                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::ALL);
-                    }
-                    throw;
-                }
+                app.parse(argc, argv);
+                ret = true;
             } catch (const CLI::CallForHelp&) {
                 std::cout << app.help() << std::endl;
             } catch (const CLI::CallForAllHelp&) {
@@ -721,7 +709,6 @@ namespace utils {
                 std::cout << std::endl
                           << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
-                std::cout << std::endl << app.get_footer() << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
                 std::cout << e.what() << std::endl;
                 try {
@@ -739,7 +726,6 @@ namespace utils {
                 } else {
                     std::cout << "Error writing config file" << std::endl;
                 }
-                std::cout << std::endl << app.get_footer() << std::endl;
             } catch (const CLI::ConversionError& e) {
                 std::cout << "Command line conversion error: " << e.what() << std::endl;
                 throw;
@@ -760,15 +746,11 @@ namespace utils {
                 }
                 throw;
             }
-        } catch (const CLI::Success& e) {
-            std::cout << "Success: " << e.get_name() << " " << e.what() << std::endl;
         } catch (const CLI::ParseError&) {
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
-            std::cout << std::endl << app.get_footer() << std::endl;
         } catch (const CLI::Error& e) {
             std::cout << "Error: " << e.get_name() << " " << e.what() << std::endl;
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
-            std::cout << std::endl << app.get_footer() << std::endl;
         }
 
         return ret;
