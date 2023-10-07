@@ -28,17 +28,16 @@
 namespace core::socket::stream::legacy {
 
     template <typename PhysicalSocket>
-    core::socket::stream::legacy::SocketConnection<PhysicalSocket>::SocketConnection(
-        PhysicalSocket& physicalSocket,
-        const std::shared_ptr<SocketContextFactory>& socketContextFactory,
-        const SocketAddress& localAddress,
-        const SocketAddress& remoteAddress,
-        const std::function<void(SocketConnection*)>& onDisconnect,
-        const utils::Timeval& readTimeout,
-        const utils::Timeval& writeTimeout,
-        std::size_t readBlockSize,
-        std::size_t writeBlockSize,
-        const utils::Timeval& terminateTimeout)
+    SocketConnection<PhysicalSocket>::SocketConnection(PhysicalSocket& physicalSocket,
+                                                       const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+                                                       const SocketAddress& localAddress,
+                                                       const SocketAddress& remoteAddress,
+                                                       const std::function<void(SocketConnection*)>& onDisconnect,
+                                                       const utils::Timeval& readTimeout,
+                                                       const utils::Timeval& writeTimeout,
+                                                       std::size_t readBlockSize,
+                                                       std::size_t writeBlockSize,
+                                                       const utils::Timeval& terminateTimeout)
         : PhysicalSocket(physicalSocket)
         , Super(
               socketContextFactory,

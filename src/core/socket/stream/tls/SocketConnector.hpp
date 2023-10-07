@@ -32,13 +32,12 @@
 namespace core::socket::stream::tls {
 
     template <typename PhysicalSocketClient, typename Config>
-    core::socket::stream::tls::SocketConnector<PhysicalSocketClient, Config>::SocketConnector(
-        const std::shared_ptr<SocketContextFactory>& socketContextFactory,
-        const std::function<void(SocketConnection*)>& onConnect,
-        const std::function<void(SocketConnection*)>& onConnected,
-        const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const core::ProgressLog&)>& onError,
-        const std::shared_ptr<Config>& config)
+    SocketConnector<PhysicalSocketClient, Config>::SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+                                                                   const std::function<void(SocketConnection*)>& onConnect,
+                                                                   const std::function<void(SocketConnection*)>& onConnected,
+                                                                   const std::function<void(SocketConnection*)>& onDisconnect,
+                                                                   const std::function<void(const core::ProgressLog&)>& onError,
+                                                                   const std::shared_ptr<Config>& config)
         : Super(
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect

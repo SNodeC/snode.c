@@ -28,13 +28,12 @@
 namespace core::socket::stream::legacy {
 
     template <typename PhysicalServerSocket, typename Config>
-    core::socket::stream::legacy::SocketAcceptor<PhysicalServerSocket, Config>::SocketAcceptor(
-        const std::shared_ptr<SocketContextFactory>& socketContextFactory,
-        const std::function<void(SocketConnection*)>& onConnect,
-        const std::function<void(SocketConnection*)>& onConnected,
-        const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const core::ProgressLog&)>& onError,
-        const std::shared_ptr<Config>& config)
+    SocketAcceptor<PhysicalServerSocket, Config>::SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+                                                                 const std::function<void(typename Super::SocketConnection*)>& onConnect,
+                                                                 const std::function<void(typename Super::SocketConnection*)>& onConnected,
+                                                                 const std::function<void(typename Super::SocketConnection*)>& onDisconnect,
+                                                                 const std::function<void(const core::ProgressLog&)>& onError,
+                                                                 const std::shared_ptr<Config>& config)
         : Super(
               socketContextFactory,
               onConnect,

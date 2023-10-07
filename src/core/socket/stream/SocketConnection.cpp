@@ -32,7 +32,7 @@ namespace core::socket::stream {
     }
 
     core::socket::stream::SocketContext*
-    core::socket::stream::SocketConnection::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
+    SocketConnection::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
         newSocketContext = socketContextFactory->create(this);
 
         if (newSocketContext == nullptr) {

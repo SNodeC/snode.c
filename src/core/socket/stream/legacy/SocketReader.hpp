@@ -28,7 +28,7 @@
 namespace core::socket::stream::legacy {
 
     template <typename PhysicalSocket>
-    ssize_t core::socket::stream::legacy::SocketReader<PhysicalSocket>::read(char* junk, std::size_t junkLen) {
+    ssize_t SocketReader<PhysicalSocket>::read(char* junk, std::size_t junkLen) {
         return core::system::recv(this->getFd(), junk, junkLen, 0);
     }
 

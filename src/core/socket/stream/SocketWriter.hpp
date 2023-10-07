@@ -27,10 +27,10 @@
 namespace core::socket::stream {
 
     template <typename PhysicalSocket>
-    core::socket::stream::SocketWriter<PhysicalSocket>::SocketWriter(const std::function<void(int)>& onError,
-                                                                     const utils::Timeval& timeout,
-                                                                     std::size_t blockSize,
-                                                                     const utils::Timeval& terminateTimeout)
+    SocketWriter<PhysicalSocket>::SocketWriter(const std::function<void(int)>& onError,
+                                               const utils::Timeval& timeout,
+                                               std::size_t blockSize,
+                                               const utils::Timeval& terminateTimeout)
         : core::eventreceiver::WriteEventReceiver("SocketWriter", timeout)
         , onError(onError)
         , terminateTimeout(terminateTimeout) {

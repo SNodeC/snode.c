@@ -56,7 +56,7 @@ namespace net::in6 {
     }
 
     SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
-        : net::SocketAddress<SocketAddress::SockAddr>(sockAddr, sockAddrLen)
+        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         char host[NI_MAXHOST];
         char serv[NI_MAXSERV];
@@ -67,18 +67,16 @@ namespace net::in6 {
             reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, NI_NUMERICSERV);
 
         if (ret == 0) {
-            this->port = static_cast<uint16_t>(std::stoul(serv));
-
             ret = core::system::getnameinfo(
                 reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
         }
         if (ret != 0) {
-            this->host = host;
-
             ret = core::system::getnameinfo(
                 reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
         }
+
         if (ret == 0) {
+            this->port = static_cast<uint16_t>(std::stoul(serv));
             this->host = host;
         } else {
             this->host = gai_strerror(ret);

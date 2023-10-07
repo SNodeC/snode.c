@@ -30,7 +30,7 @@
 namespace core::socket::stream::tls {
 
     template <typename PhysicalSocket>
-    ssize_t core::socket::stream::tls::SocketReader<PhysicalSocket>::read(char* junk, std::size_t junkLen) {
+    ssize_t SocketReader<PhysicalSocket>::read(char* junk, std::size_t junkLen) {
         int sslShutdownState = SSL_get_shutdown(ssl);
 
         int ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
