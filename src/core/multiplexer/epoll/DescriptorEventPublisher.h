@@ -38,11 +38,6 @@ namespace core {
 namespace core::epoll {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
-    public:
-        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
-
-        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
-
     private:
         class EPollEvents {
         public:
@@ -71,7 +66,7 @@ namespace core::epoll {
         };
 
     public:
-        explicit DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents);
+        DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents);
 
     private:
         void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;

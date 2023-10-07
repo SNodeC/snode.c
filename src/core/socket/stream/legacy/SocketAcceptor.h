@@ -46,9 +46,9 @@ namespace core::socket::stream::legacy {
         using SocketConnection = typename Super::SocketConnection;
 
         SocketAcceptor(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
-                       const std::function<void(typename Super::SocketConnection*)>& onConnect,
-                       const std::function<void(typename Super::SocketConnection*)>& onConnected,
-                       const std::function<void(typename Super::SocketConnection*)>& onDisconnect,
+                       const std::function<void(SocketConnection*)>& onConnect,
+                       const std::function<void(SocketConnection*)>& onConnected,
+                       const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::function<void(const core::ProgressLog&)>& onError,
                        const std::shared_ptr<Config>& config);
     };

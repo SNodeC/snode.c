@@ -38,7 +38,7 @@ namespace utils {
 
         void operator()(const std::string& value);
 
-        void operator()(std::int64_t count);
+        void operator()(int64_t count);
 
     private:
         CLI::Option*& option;

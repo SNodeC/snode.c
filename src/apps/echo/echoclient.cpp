@@ -33,6 +33,10 @@ int main(int argc, char* argv[]) {
         progressLog.logProgress();
     });
 
+    client.connect([](const core::ProgressLog& progressLog) -> void {
+        progressLog.logProgress();
+    });
+
     return core::SNodeC::start();
 }
 

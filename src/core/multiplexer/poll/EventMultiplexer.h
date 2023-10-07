@@ -66,10 +66,6 @@ namespace core::poll {
 
     class EventMultiplexer : public core::EventMultiplexer {
     public:
-        EventMultiplexer(const EventMultiplexer&) = delete;
-
-        EventMultiplexer& operator=(const EventMultiplexer&) = delete;
-
         EventMultiplexer();
         ~EventMultiplexer() override = default;
 

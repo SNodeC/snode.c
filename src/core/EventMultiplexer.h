@@ -45,15 +45,14 @@ namespace core {
 
     class EventMultiplexer {
     public:
-        EventMultiplexer(const EventMultiplexer&) = delete;
-
-        EventMultiplexer& operator=(const EventMultiplexer&) = delete;
-
-    protected:
         EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventPublisher,
                          DescriptorEventPublisher* const writeDescriptorEventPublisher,
                          DescriptorEventPublisher* const exceptionDescriptorEventPublisher);
         virtual ~EventMultiplexer();
+
+        EventMultiplexer(const EventMultiplexer&) = delete;
+
+        EventMultiplexer& operator=(const EventMultiplexer&) = delete;
 
     private:
         class EventQueue {
@@ -123,8 +122,6 @@ namespace core {
         core::TimerEventPublisher* const timerEventPublisher;
 
         EventQueue eventQueue;
-
-        friend class DescriptorEventPublisher;
     };
 
 } // namespace core

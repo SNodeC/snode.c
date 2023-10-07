@@ -54,7 +54,7 @@ namespace iot::mqtt::server::broker {
         head.publish(message, message.getTopic(), false);
     }
 
-    bool SubscribtionTree::unsubscribe(std::string topic, const std::string& clientId) {
+    bool SubscribtionTree::unsubscribe(const std::string& topic, const std::string& clientId) {
         return head.unsubscribe(clientId, topic, false);
     }
 

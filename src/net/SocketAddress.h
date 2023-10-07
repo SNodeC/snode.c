@@ -39,7 +39,7 @@ namespace net {
 
         SocketAddress(const SocketAddress& socketAddress);
 
-        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+        SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen);
 
         SocketAddress& operator=(const SocketAddress& socketAddress);
 

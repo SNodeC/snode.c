@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H
-#define NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H
+#ifndef NET_IN_STREAM_LEGACY_SOCKETCLIENT_H
+#define NET_IN_STREAM_LEGACY_SOCKETCLIENT_H
 
 #include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketConnector.h"      // IWYU pragma: export
@@ -51,4 +51,4 @@ extern template class core::socket::stream::SocketConnectionT<net::in::phy::stre
                                                               core::socket::stream::legacy::SocketReader,
                                                               core::socket::stream::legacy::SocketWriter>;
 
-#endif // NET_IPV4_STREAM_LEGACY_SOCKETCLIENT_H
+#endif // NET_IN_STREAM_LEGACY_SOCKETCLIENT_H

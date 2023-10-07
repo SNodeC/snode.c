@@ -24,7 +24,7 @@
 
 namespace core::timer {
 
-    IntervalTimerStopable::IntervalTimerStopable(const std::function<void(const std::function<void()>&)>& dispatcher,
+    IntervalTimerStopable::IntervalTimerStopable(const std::function<void(const std::function<void()>& stop)>& dispatcher,
                                                  const utils::Timeval& timeout,
                                                  const std::string& name)
         : core::TimerEventReceiver(name, timeout)

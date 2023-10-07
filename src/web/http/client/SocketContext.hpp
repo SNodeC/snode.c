@@ -94,7 +94,7 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::SocketContext::onConnected() {
+    void SocketContext<Request, Response>::onConnected() {
         VLOG(0) << "HTTP connected";
 
         request.setHost(getSocketConnection()->getRemoteAddress().toString());

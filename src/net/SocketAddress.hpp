@@ -41,7 +41,7 @@ namespace net {
     }
 
     template <typename SockAddr>
-    SocketAddress<SockAddr>::SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen)
+    SocketAddress<SockAddr>::SocketAddress(const SockAddr &sockAddr, socklen_t sockAddrLen)
         : sockAddr(sockAddr)
         , sockAddrLen(sockAddrLen) {
     }

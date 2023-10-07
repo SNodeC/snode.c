@@ -37,6 +37,30 @@ namespace core {
         , message("") {
     }
 
+    int ProgressLogEntry::getErrnum() const {
+        return errnum;
+    }
+
+    void ProgressLogEntry::setErrnum(int errnum) {
+        this->errnum = errnum;
+    }
+
+    unsigned short ProgressLogEntry::getLevel() const {
+        return level;
+    }
+
+    void ProgressLogEntry::setLevel(unsigned short level) {
+        this->level = level;
+    }
+
+    std::string ProgressLogEntry::getMessage() const {
+        return message;
+    }
+
+    void ProgressLogEntry::setMessage(const std::string& message) {
+        this->message = message;
+    }
+
     ProgressLogEntry& operator<<(ProgressLogEntry& ple, [[maybe_unused]] const std::string& message) {
         ple.message += message;
 
@@ -71,12 +95,12 @@ namespace core {
         utils::PreserveErrno p1;
 
         for (const ProgressLogEntry& progressLogEntry : *progressLog.get()) {
-            utils::PreserveErrno p2(progressLogEntry.errnum);
+            utils::PreserveErrno p2(progressLogEntry.getErrnum());
 
             if (errno == 0) {
-                VLOG(progressLogEntry.level) << progressLogEntry.message << ": " << std::strerror(progressLogEntry.errnum);
+                VLOG(progressLogEntry.getLevel()) << progressLogEntry.getMessage() << ": " << std::strerror(progressLogEntry.getErrnum());
             } else {
-                PLOG(WARNING) << progressLogEntry.message;
+                PLOG(WARNING) << progressLogEntry.getMessage();
             }
         }
     }

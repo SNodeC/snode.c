@@ -42,8 +42,6 @@ namespace iot::mqtt::server::broker {
         explicit Session(iot::mqtt::server::Mqtt* mqtt);
         Session(const Session&) = default;
 
-        Session& operator=(const Session&) = default;
-
         void sendPublish(iot::mqtt::server::broker::Message& message, uint8_t qoS, bool retain);
 
         void publishQueued();
@@ -55,8 +53,8 @@ namespace iot::mqtt::server::broker {
         bool isActive() const;
         bool isOwnedBy(const iot::mqtt::server::Mqtt* mqtt) const;
 
-        nlohmann::json toJson() const;
-        void fromJson(const nlohmann::json& json);
+        nlohmann::json toJson() const final;
+        void fromJson(const nlohmann::json& json) final;
 
     private:
         iot::mqtt::server::Mqtt* mqtt = nullptr;

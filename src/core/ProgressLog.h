@@ -29,15 +29,22 @@
 
 namespace core {
 
-    struct ProgressLogEntry {
+    class ProgressLogEntry {
+    public:
         ProgressLogEntry(unsigned short level);
+
+        int getErrnum() const;
+        void setErrnum(int errnum);
+        unsigned short getLevel() const;
+        void setLevel(unsigned short level);
+        std::string getMessage() const;
+        void setMessage(const std::string& message);
 
     private:
         int errnum = 0;
         unsigned short level = 0;
         std::string message{};
 
-        friend class ProgressLog;
         friend ProgressLogEntry& operator<<(ProgressLogEntry& ple, const std::string& message);
     };
 

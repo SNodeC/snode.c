@@ -39,10 +39,6 @@ namespace core::poll {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
     public:
-        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
-
-        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
-
         DescriptorEventPublisher(const std::string& name, core::poll::PollFdsManager& pollFds, short events, short revents);
 
     private:

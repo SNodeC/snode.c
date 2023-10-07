@@ -52,11 +52,7 @@ namespace core::select {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
     public:
-        DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
-
-        DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
-
-        explicit DescriptorEventPublisher(const std::string& name, FdSet& fdSet);
+        DescriptorEventPublisher(const std::string& name, FdSet& fdSet);
 
     private:
         void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
