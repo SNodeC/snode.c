@@ -34,4 +34,9 @@ namespace net::l2::phy::stream {
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
     }
 
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    void PhysicalSocket<PhysicalPeerSocket>::shutdown([[maybe_unused]] typename Super::SHUT how) {
+        Super::shutdown(Super::SHUT::RDWR); // always shutdown L2CAP sockets for RDWR
+    }
+
 } // namespace net::l2::phy::stream
