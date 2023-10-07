@@ -52,7 +52,7 @@ namespace apps::echo::model {
 
         if (junklen > 0) {
             VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
-            //            sendToPeer(junk, junklen);
+            sendToPeer(junk, junklen);
         }
 
         return junklen;
