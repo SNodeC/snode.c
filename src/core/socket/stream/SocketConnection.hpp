@@ -238,6 +238,7 @@ namespace core::socket::stream {
               typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onConnected() {
         socketContext->onConnected();
+        socketContextConnected = true;
     }
 
     template <typename PhysicalSocket,
@@ -246,7 +247,9 @@ namespace core::socket::stream {
               template <typename PhysicalSocketT>
               typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onDisconnected() {
-        socketContext->onDisconnected();
+        if (socketContextConnected) {
+            socketContext->onDisconnected();
+        }
     }
 
     template <typename PhysicalSocket,
