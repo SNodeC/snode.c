@@ -77,6 +77,7 @@ namespace core::socket::stream {
                   template <typename PhysicalSocket>
                   class SocketWriterT>
         friend class SocketConnectionT;
+        friend class SocketConnection;
     };
 
 } // namespace core::socket::stream

@@ -36,9 +36,7 @@ namespace web::http {
     SocketContextUpgradeFactory<Request, Response>::create(core::socket::stream::SocketConnection* socketConnection) {
         SocketContextUpgrade<Request, Response>* socketContext = create(socketConnection, request, response);
 
-        if (socketContext != nullptr) {
-            checkRefCount();
-        }
+        checkRefCount();
 
         return socketContext;
     }

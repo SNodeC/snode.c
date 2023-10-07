@@ -34,16 +34,14 @@ namespace core::socket::stream {
               typename SocketReader,
               template <typename PhysicalSocketT>
               typename SocketWriter>
-    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(
-        const std::shared_ptr<SocketContextFactory>& socketContextFactory,
-        const SocketAddress& localAddress,
-        const SocketAddress& remoteAddress,
-        const std::function<void()>& onDisconnect,
-        const utils::Timeval& readTimeout,
-        const utils::Timeval& writeTimeout,
-        std::size_t readBlockSize,
-        std::size_t writeBlockSize,
-        const utils::Timeval& terminateTimeout)
+    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const SocketAddress& localAddress,
+                                                                                     const SocketAddress& remoteAddress,
+                                                                                     const std::function<void()>& onDisconnect,
+                                                                                     const utils::Timeval& readTimeout,
+                                                                                     const utils::Timeval& writeTimeout,
+                                                                                     std::size_t readBlockSize,
+                                                                                     std::size_t writeBlockSize,
+                                                                                     const utils::Timeval& terminateTimeout)
         : SocketReader(
               [this](int errnum) -> void {
                   onReadError(errnum);
@@ -61,11 +59,9 @@ namespace core::socket::stream {
         , localAddress(localAddress)
         , remoteAddress(remoteAddress)
         , onDisconnect(onDisconnect) {
-        if (setSocketContext(socketContextFactory.get()) != nullptr) {
-            SocketReader::enable(getFd());
-            SocketWriter::enable(getFd());
-            SocketWriter::suspend();
-        }
+        SocketReader::enable(getFd());
+        SocketWriter::enable(getFd());
+        SocketWriter::suspend();
     }
 
     template <typename PhysicalSocket,
@@ -74,12 +70,8 @@ namespace core::socket::stream {
               template <typename PhysicalSocketT>
               typename SocketWriter>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::~SocketConnectionT() {
-        if (socketContext != nullptr) {
-            onDisconnected();
-            onDisconnect();
-
-            delete socketContext;
-        }
+        onDisconnected();
+        onDisconnect();
     }
 
     template <typename PhysicalSocket,
@@ -202,10 +194,9 @@ namespace core::socket::stream {
 
         if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
             onDisconnected();
-            delete socketContext;
             socketContext = newSocketContext;
             newSocketContext = nullptr;
-            onConnected();
+            onConnected(socketContext);
         }
 
         if (available != 0 && consumed == 0) {
@@ -229,27 +220,6 @@ namespace core::socket::stream {
               typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReadError(int errnum) {
         socketContext->onReadError(errnum);
-    }
-
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onConnected() {
-        socketContext->onConnected();
-        socketContextConnected = true;
-    }
-
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onDisconnected() {
-        if (socketContextConnected) {
-            socketContext->onDisconnected();
-        }
     }
 
     template <typename PhysicalSocket,

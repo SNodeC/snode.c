@@ -52,7 +52,6 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
 
         SocketConnection(PhysicalSocket& physicalSocket,
-                         const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(SocketConnection*)>& onDisconnect,

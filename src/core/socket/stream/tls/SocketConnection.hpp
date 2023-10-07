@@ -31,7 +31,6 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocket>
     SocketConnection<PhysicalSocket>::SocketConnection(PhysicalSocket& physicalSocket,
-                                                       const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                                                        const SocketAddress& localAddress,
                                                        const SocketAddress& remoteAddress,
                                                        const std::function<void(SocketConnection*)>& onDisconnect,
@@ -42,7 +41,6 @@ namespace core::socket::stream::tls {
                                                        const utils::Timeval& terminateTimeout)
         : PhysicalSocket(physicalSocket)
         , Super(
-              socketContextFactory,
               localAddress,
               remoteAddress,
               [onDisconnect, this]() -> void {

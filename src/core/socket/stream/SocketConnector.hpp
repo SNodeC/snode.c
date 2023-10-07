@@ -94,7 +94,7 @@ namespace core::socket::stream {
                                                  << remoteAddress.toString() << "' connection estableshed";
                         onError(*progressLog);
 
-                        SocketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
+                        SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
                     }
 
                     if (!isEnabled()) {
@@ -143,7 +143,7 @@ namespace core::socket::stream {
 
                 disable();
 
-                SocketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
+                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
             } else if (!physicalSocket->connectInProgress(errno)) {
                 progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketConnector::connectEvent::error '"
                                          << remoteAddress.toString() << "'";

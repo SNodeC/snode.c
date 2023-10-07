@@ -117,7 +117,7 @@ namespace core::socket::stream {
             if (physicalClientSocket.isValid()) {
                 LOG(TRACE) << this->config->getInstanceName() << ": SocketAcceptor::accept4 success '" << localAddress.toString() << "'";
 
-                SocketConnectionFactory(socketContextFactory, onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
+                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                 PLOG(ERROR) << this->config->getInstanceName() << ": SocketAcceptor::accept4 failed '" << localAddress.toString() << "'";
             }

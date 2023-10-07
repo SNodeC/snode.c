@@ -48,8 +48,7 @@ namespace core::socket::stream {
         SocketConnectionFactory& operator=(const SocketConnectionFactory&) = delete;
         SocketConnectionFactory& operator=(SocketConnectionFactory&&) = delete;
 
-        SocketConnectionFactory(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
-                                const std::function<void(SocketConnection*)>& onConnect,
+        SocketConnectionFactory(const std::function<void(SocketConnection*)>& onConnect,
                                 const std::function<void(SocketConnection*)>& onConnected,
                                 const std::function<void(SocketConnection*)>& onDisconnect);
 
@@ -59,8 +58,6 @@ namespace core::socket::stream {
         bool create(PhysicalSocket& physicalSocket, const std::shared_ptr<Config>& config);
 
     protected:
-        std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;
-
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;

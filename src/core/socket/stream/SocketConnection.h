@@ -55,8 +55,6 @@ namespace core::socket::stream {
     public:
         SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
-        bool isValid();
-
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
         void sendToPeer(const std::string& data);
         void sentToPeer(const std::vector<uint8_t>& data);
@@ -76,6 +74,11 @@ namespace core::socket::stream {
 
     protected:
         core::socket::stream::SocketContext* setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
+
+        void onConnected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
+        void onConnected(core::socket::stream::SocketContext* socketContext);
+
+        void onDisconnected();
 
         core::socket::stream::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* newSocketContext = nullptr;
@@ -103,8 +106,7 @@ namespace core::socket::stream {
         SocketConnectionT() = delete;
 
     protected:
-        SocketConnectionT(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
-                          const SocketAddress& localAddress,
+        SocketConnectionT(const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const std::function<void()>& onDisconnect,
                           const utils::Timeval& readTimeout,
@@ -139,9 +141,6 @@ namespace core::socket::stream {
     protected:
         void onWriteError(int errnum);
         void onReadError(int errnum);
-
-        void onConnected();
-        void onDisconnected();
 
     private:
         void onExit(int sig) final;

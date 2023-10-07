@@ -44,7 +44,7 @@ namespace core::socket::stream::tls {
                   socketConnection->startSSL(this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
                   onConnect(socketConnection);
               },
-              [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
+              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
                   SSL* ssl = socketConnection->getSSL();
 
                   if (ssl != nullptr) {
@@ -52,10 +52,10 @@ namespace core::socket::stream::tls {
                       ssl_set_sni(ssl, this->config);
 
                       socketConnection->doSSLHandshake(
-                          [onConnected, socketConnection]() -> void { // onSuccess
+                          [socketContextFactory, onConnected, socketConnection]() -> void { // onSuccess
                               LOG(INFO) << "SSL/TLS initial handshake success";
                               onConnected(socketConnection);
-                              socketConnection->onConnected();
+                              socketConnection->onConnected(socketContextFactory);
                           },
                           []() -> void { // onTimeout
                               LOG(WARNING) << "SSL/TLS initial handshake timed out";

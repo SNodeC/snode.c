@@ -46,17 +46,17 @@ namespace core::socket::stream::tls {
 
                   onConnect(socketConnection);
               },
-              [onConnected](SocketConnection* socketConnection) -> void {
+              [socketContextFactory, onConnected](SocketConnection* socketConnection) -> void {
                   SSL* ssl = socketConnection->getSSL();
 
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);
 
                       socketConnection->doSSLHandshake(
-                          [onConnected, socketConnection]() -> void { // onSuccess
+                          [socketContextFactory, onConnected, socketConnection]() -> void { // onSuccess
                               LOG(INFO) << "SSL/TLS initial handshake success";
                               onConnected(socketConnection);
-                              socketConnection->onConnected();
+                              socketConnection->onConnected(socketContextFactory);
                           },
                           []() -> void { // onTimeout
                               LOG(WARNING) << "SSL/TLS initial handshake timed out";

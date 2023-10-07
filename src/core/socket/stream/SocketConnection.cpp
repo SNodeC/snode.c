@@ -18,6 +18,7 @@
 
 #include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
 
+#include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -53,10 +54,6 @@ namespace core::socket::stream {
         return socketContext;
     }
 
-    bool SocketConnection::isValid() {
-        return socketContext != nullptr;
-    }
-
     void SocketConnection::sendToPeer(const std::string& data) {
         sendToPeer(data.data(), data.size());
     }
@@ -67,6 +64,26 @@ namespace core::socket::stream {
 
     void SocketConnection::sentToPeer(const std::vector<char>& data) {
         sendToPeer(data.data(), data.size());
+    }
+
+    void SocketConnection::onConnected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
+        if (setSocketContext(socketContextFactory.get()) != nullptr) {
+            socketContext->onConnected();
+        } else {
+            LOG(ERROR) << "SocketContextFactory: Failed creating new SocketContext";
+            close();
+        }
+    }
+
+    void SocketConnection::onConnected(core::socket::stream::SocketContext* socketContext) {
+        socketContext->onConnected();
+    }
+
+    void SocketConnection::onDisconnected() {
+        if (socketContext != nullptr) {
+            socketContext->onDisconnected();
+            delete socketContext;
+        }
     }
 
 } // namespace core::socket::stream

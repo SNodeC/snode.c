@@ -28,12 +28,10 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename Config, typename SocketConnection>
     SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>::SocketConnectionFactory(
-        const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect)
-        : socketContextFactory(socketContextFactory)
-        , onConnect(onConnect)
+        : onConnect(onConnect)
         , onConnected(onConnected)
         , onDisconnect(onDisconnect) {
     }
@@ -54,7 +52,6 @@ namespace core::socket::stream {
                 physicalSocket.setDontClose();
 
                 socketConnection = new SocketConnection(physicalSocket,
-                                                        socketContextFactory,
                                                         SocketAddress(localSockAddr, localSockAddrLen),
                                                         SocketAddress(remoteSockAddr, remoteSockAddrLen),
                                                         onDisconnect,
@@ -63,15 +60,8 @@ namespace core::socket::stream {
                                                         config->getReadBlockSize(),
                                                         config->getWriteBlockSize(),
                                                         config->getTerminateTimeout());
-                if (socketConnection->core::socket::stream::SocketConnection::isValid()) {
-                    onConnect(socketConnection);
-                    onConnected(socketConnection);
-                } else {
-                    LOG(ERROR) << "SocketConnectionFactory: Failed creating new SocketConnection";
-
-                    delete socketConnection;
-                    socketConnection = nullptr;
-                }
+                onConnect(socketConnection);
+                onConnected(socketConnection);
             } else {
                 PLOG(ERROR) << "getsockname";
             }
