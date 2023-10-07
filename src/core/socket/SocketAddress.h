@@ -43,11 +43,6 @@ namespace core::socket {
             int errCode = 0;
         };
 
-        SocketAddress() = default;
-        SocketAddress(const SocketAddress&) = default;
-
-        SocketAddress& operator=(const SocketAddress&) = default;
-
         virtual ~SocketAddress();
 
         virtual bool useNext() {
