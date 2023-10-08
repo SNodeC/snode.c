@@ -56,7 +56,7 @@ namespace core::socket::stream::tls {
                           [socketContextFactory, onConnected, socketConnection]() -> void { // onSuccess
                               LOG(INFO) << "SSL/TLS initial handshake success";
                               onConnected(socketConnection);
-                              socketConnection->onConnected(socketContextFactory);
+                              socketConnection->connected(socketContextFactory);
                           },
                           []() -> void { // onTimeout
                               LOG(WARNING) << "SSL/TLS initial handshake timed out";

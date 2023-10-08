@@ -75,10 +75,10 @@ namespace core::socket::stream {
     protected:
         core::socket::stream::SocketContext* setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
-        void onConnected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
-        void onConnected(core::socket::stream::SocketContext* socketContext);
+        void connected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
+        void connected(core::socket::stream::SocketContext* socketContext);
 
-        void onDisconnected();
+        void disconnected();
 
         core::socket::stream::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* newSocketContext = nullptr;

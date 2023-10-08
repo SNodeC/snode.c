@@ -66,7 +66,7 @@ namespace core::socket::stream {
         sendToPeer(data.data(), data.size());
     }
 
-    void SocketConnection::onConnected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
+    void SocketConnection::connected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
         if (setSocketContext(socketContextFactory.get()) != nullptr) {
             socketContext->onConnected();
         } else {
@@ -75,11 +75,11 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketConnection::onConnected(core::socket::stream::SocketContext* socketContext) {
+    void SocketConnection::connected(core::socket::stream::SocketContext* socketContext) {
         socketContext->onConnected();
     }
 
-    void SocketConnection::onDisconnected() {
+    void SocketConnection::disconnected() {
         if (socketContext != nullptr) {
             socketContext->onDisconnected();
             delete socketContext;
