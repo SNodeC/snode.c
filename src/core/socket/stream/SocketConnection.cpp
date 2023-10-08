@@ -70,7 +70,7 @@ namespace core::socket::stream {
         if (setSocketContext(socketContextFactory.get()) != nullptr) {
             socketContext->onConnected();
         } else {
-            LOG(ERROR) << "SocketContextFactory: Failed creating new SocketContext";
+            LOG(ERROR) << "SocketConnection: Failed creating new SocketContext";
             close();
         }
     }

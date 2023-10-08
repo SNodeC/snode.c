@@ -146,10 +146,8 @@ namespace utils {
     CLI::Option* Config::verboseLevelOpt = nullptr;
     CLI::Option* Config::quietOpt = nullptr;
 
-    std::shared_ptr<CLI::Formatter> Config::sectionFormatter = std::make_shared<CLI::HelpFormatter>();
-
+    std::shared_ptr<CLI::Formatter> Config::sectionFormatter;
     std::map<std::string, std::string> Config::prefixMap;
-
     std::map<std::string, CLI::Option*> Config::applicationOptions;
 
     // Declare some used functions
@@ -269,6 +267,8 @@ namespace utils {
         }
 
         if (success) {
+            sectionFormatter = std::make_shared<CLI::HelpFormatter>();
+
             sectionFormatter->label("SUBCOMMAND", "SECTION");
             sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
             sectionFormatter->label("PERSISTENT", "");
