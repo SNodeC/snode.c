@@ -42,10 +42,10 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_WANT_READ: {
                     utils::PreserveErrno preserveErrno;
 
-                    LOG(INFO) << "SSL/TLS start renegotiation on write";
+                    LOG(DEBUG) << "SSL/TLS start renegotiation on write";
                     doSSLHandshake(
                         []() -> void {
-                            LOG(INFO) << "SSL/TLS renegotiation on write success";
+                            LOG(DEBUG) << "SSL/TLS renegotiation on write success";
                         },
                         []() -> void {
                             LOG(WARNING) << "SSL/TLS renegotiation on write timed out";

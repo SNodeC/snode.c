@@ -127,7 +127,7 @@ namespace core {
         } else {
             EventLoop::instance().eventMultiplexer.clear();
 
-            PLOG(ERROR) << "SNodeC not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
+            PLOG(FATAL) << "SNodeC not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
         }
 
         return tickStatus;
@@ -137,7 +137,7 @@ namespace core {
         core::TickStatus tickStatus = TickStatus::SUCCESS;
 
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
-            LOG(INFO) << "Starting Eventloop";
+            LOG(DEBUG) << "Eventloop: started";
 
             struct sigaction sact;
             sigemptyset(&sact.sa_mask);
@@ -171,13 +171,13 @@ namespace core {
                 case TickStatus::SUCCESS:
                     [[fallthrough]];
                 case TickStatus::INTERRUPTED:
-                    LOG(INFO) << "EventLoop interrupted";
+                    LOG(DEBUG) << "EventLoop interrupted";
                     break;
                 case TickStatus::NOOBSERVER:
-                    LOG(INFO) << "EventLoop: No Observer";
+                    LOG(DEBUG) << "EventLoop: No Observer";
                     break;
                 case TickStatus::ERROR:
-                    PLOG(ERROR) << "EventLoop::instance()._tick()";
+                    PLOG(FATAL) << "EventLoop::instance()._tick()";
                     break;
             }
 
@@ -187,7 +187,7 @@ namespace core {
             sigaction(SIGALRM, &oldAlarmAct, nullptr);
             sigaction(SIGHUP, &oldHupAct, nullptr);
         } else {
-            LOG(TRACE) << "Eventloop not started SNode.C not initialized or bootstraping failed";
+            LOG(FATAL) << "Eventloop not started SNode.C not initialized or bootstraping failed";
 
             EventLoop::instance().eventMultiplexer.clear();
         }
@@ -208,7 +208,7 @@ namespace core {
             signal = std::to_string(stopsig);
         }
 
-        LOG(TRACE) << "Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
+        LOG(DEBUG) << "Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
 
         eventLoopState = State::STOPING;
 

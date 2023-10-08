@@ -98,9 +98,9 @@ namespace core {
             utils::PreserveErrno p2(progressLogEntry.getErrnum());
 
             if (errno == 0) {
-                VLOG(progressLogEntry.getLevel()) << progressLogEntry.getMessage() << ": " << std::strerror(progressLogEntry.getErrnum());
+                LOG(INFO) << progressLogEntry.getMessage();
             } else {
-                PLOG(WARNING) << progressLogEntry.getMessage();
+                PLOG(WARNING) << progressLogEntry.getMessage() << ": errno=" << std::strerror(errno);
             }
         }
     }

@@ -60,7 +60,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
-            LOG(INFO) << "Instance '" << this->config->getInstanceName() << "' enabled";
+            LOG(DEBUG) << config->getInstanceName() << ": enabled";
 
             core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
 
@@ -69,17 +69,13 @@ namespace core::socket::stream {
                 physicalSocket = new PhysicalSocket();
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::open '" << localAddress.toString()
-                                             << "'";
+                    progressLog->addEntry(0) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
                 } else if (physicalSocket->bind(localAddress) < 0) {
-                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::bind '" << localAddress.toString()
-                                             << "'";
+                    progressLog->addEntry(0) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
                 } else if (physicalSocket->listen(config->getBacklog()) < 0) {
-                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::listen '" << localAddress.toString()
-                                             << "'";
+                    progressLog->addEntry(0) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                 } else {
-                    progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::listen '" << localAddress.toString()
-                                             << "'";
+                    progressLog->addEntry(0) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                     enable(physicalSocket->getFd());
                 }
 
@@ -94,14 +90,14 @@ namespace core::socket::stream {
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 utils::PreserveErrno pe(0);
-                progressLog->addEntry(0) << this->config->getInstanceName() << ": SocketAcceptor::getLocalAddress '"
-                                         << localAddress.toString() << "': BadSocketAddress: " << badSocketAddress.what();
+                progressLog->addEntry(0) << config->getInstanceName() << ": getLocalAddress '" << localAddress.toString()
+                                         << "': BadSocketAddress: " << badSocketAddress.what();
                 onError(*progressLog);
 
                 destruct();
             }
         } else {
-            LOG(INFO) << "Instance '" << this->config->getInstanceName() << "' disabled";
+            LOG(DEBUG) << "Instance '" << config->getInstanceName() << "' disabled";
 
             destruct();
         }
@@ -115,11 +111,11 @@ namespace core::socket::stream {
             PhysicalSocket physicalClientSocket(physicalSocket->accept4(PhysicalSocket::Flags::NONBLOCK));
 
             if (physicalClientSocket.isValid()) {
-                LOG(TRACE) << this->config->getInstanceName() << ": SocketAcceptor::accept4 success '" << localAddress.toString() << "'";
+                LOG(DEBUG) << config->getInstanceName() << ": accept success '" << localAddress.toString() << "'";
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(ERROR) << this->config->getInstanceName() << ": SocketAcceptor::accept4 failed '" << localAddress.toString() << "'";
+                PLOG(DEBUG) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
             }
         } while (--acceptsPerTick > 0);
     }

@@ -193,12 +193,12 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onConnected() {
-        VLOG(0) << "HTTP connected";
+        LOG(INFO) << "HTTP connected";
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        VLOG(0) << "HTTP disconnected";
+        LOG(INFO) << "HTTP disconnected";
     }
 
 } // namespace web::http::server

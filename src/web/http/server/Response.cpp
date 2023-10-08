@@ -245,7 +245,7 @@ namespace web::http::server {
     }
 
     void Response::error([[maybe_unused]] int errnum) {
-        PLOG(ERROR) << "Stream error: ";
+        PLOG(INFO) << "Stream error: ";
         requestContext->close();
     }
 

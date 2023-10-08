@@ -76,23 +76,23 @@ namespace core::socket::stream {
             : SocketClient(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect " << name;
+                      LOG(INFO) << "OnConnect " << name;
 
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                       socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                       socketConnection->getRemoteAddress().toString();
                   },
                   [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected " << name;
+                      LOG(INFO) << "OnConnected " << name;
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect " << name;
+                      LOG(INFO) << "OnDisconnect " << name;
 
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                       socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                       socketConnection->getRemoteAddress().toString();
                   }) {
         }
 
@@ -123,23 +123,23 @@ namespace core::socket::stream {
             : SocketClient(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect " << name;
+                      LOG(INFO) << "OnConnect " << name;
 
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                       socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                       socketConnection->getRemoteAddress().toString();
                   },
                   [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected " << name;
+                      LOG(INFO) << "OnConnected " << name;
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect " << name;
+                      LOG(INFO) << "OnDisconnect " << name;
 
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
-                                     socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                                     socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                                       socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                                       socketConnection->getRemoteAddress().toString();
                   },
                   socketContextFactory) {
         }

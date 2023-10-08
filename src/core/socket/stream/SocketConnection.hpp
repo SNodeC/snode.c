@@ -112,7 +112,7 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         SocketWriter::shutdown([forceClose, this](int errnum) -> void {
             if (errnum != 0) {
-                PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                PLOG(DEBUG) << "SocketWriter::doWriteShutdown";
             }
             if (forceClose) {
                 close();

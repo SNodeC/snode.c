@@ -41,7 +41,8 @@ namespace core::socket::stream::tls {
         : Super(
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
-                  socketConnection->startSSL(this->ctx, this->config->getInitTimeout(), this->config->getShutdownTimeout());
+                  socketConnection->startSSL(this->ctx, Super::config->getInitTimeout(), Super::config->getShutdownTimeout());
+
                   onConnect(socketConnection);
               },
               [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
@@ -49,16 +50,16 @@ namespace core::socket::stream::tls {
 
                   if (ssl != nullptr) {
                       SSL_set_connect_state(ssl);
-                      ssl_set_sni(ssl, this->config);
+                      ssl_set_sni(ssl, Super::config);
 
                       socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection]() -> void { // onSuccess
-                              LOG(INFO) << "SSL/TLS initial handshake success";
+                              LOG(DEBUG) << "SSL/TLS initial handshake success";
                               onConnected(socketConnection);
                               socketConnection->connected(socketContextFactory);
                           },
                           []() -> void { // onTimeout
-                              LOG(WARNING) << "SSL/TLS initial handshake timed out";
+                              LOG(DEBUG) << "SSL/TLS initial handshake timed out";
                           },
                           [](int sslErr) -> void { // onError
                               ssl_log("SSL/TLS initial handshake failed", sslErr);

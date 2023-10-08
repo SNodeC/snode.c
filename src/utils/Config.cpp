@@ -410,7 +410,7 @@ namespace utils {
                                  "-l,--log-level",
                                  utils::ResetToDefault(logLevelOpt),
                                  "Log level") //
-                              ->default_val(3)
+                              ->default_val(4)
                               ->type_name("level")
                               ->check(CLI::Range(0, 6))
                               ->group(app.get_formatter()->get_label("Persistent Options"));
@@ -724,7 +724,7 @@ namespace utils {
                     confFile << app.config_to_str(true, true);
                     confFile.close();
                 } else {
-                    std::cout << "Error writing config file" << std::endl;
+                    std::cout << "Error writing config file: " << std::strerror(errno) << std::endl;
                 }
             } catch (const CLI::ConversionError& e) {
                 std::cout << "Command line conversion error: " << e.what() << std::endl;

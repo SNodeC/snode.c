@@ -78,11 +78,12 @@ namespace apps::http::tls {
         WebApp webApp(name, getRouter(rootPath));
 
         webApp.setOnConnect([&webApp](SocketConnection* socketConnection) -> void { // onConnect
-            VLOG(0) << "OnConnect " << webApp.getConfig().getInstanceName();
+            LOG(INFO) << "OnConnect " << webApp.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                           socketConnection->getRemoteAddress().toString();
+            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                             socketConnection->getLocalAddress().toString();
+            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                             socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -95,21 +96,21 @@ namespace apps::http::tls {
         });
 
         webApp.setOnConnected([&webApp](SocketConnection* socketConnection) -> void { // onConnected
-            VLOG(0) << "OnConnected " << webApp.getConfig().getInstanceName();
+            LOG(INFO) << "OnConnected " << webApp.getConfig().getInstanceName();
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(0) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
-                               std::string(X509_verify_cert_error_string(verifyErr));
+                LOG(INFO) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                                 std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                VLOG(0) << "\t   Subject: " + std::string(str);
+                LOG(INFO) << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                VLOG(0) << "\t   Issuer: " + std::string(str);
+                LOG(INFO) << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -124,7 +125,7 @@ namespace apps::http::tls {
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+                LOG(INFO) << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -138,14 +139,14 @@ namespace apps::http::tls {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
+                        LOG(INFO) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
+                        LOG(INFO) << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        LOG(INFO) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 #ifdef __clang__
@@ -158,16 +159,17 @@ namespace apps::http::tls {
 #endif
                 X509_free(server_cert);
             } else {
-                VLOG(0) << "\tPeer certificate: no certificate";
+                LOG(INFO) << "\tPeer certificate: no certificate";
             }
         });
 
         webApp.setOnDisconnect([&webApp](SocketConnection* socketConnection) -> void { // onDisconnect
-            VLOG(0) << "OnDisconnect " << webApp.getConfig().getInstanceName();
+            LOG(INFO) << "OnDisconnect " << webApp.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
-                           socketConnection->getRemoteAddress().toString();
+            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                             socketConnection->getLocalAddress().toString();
+            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                             socketConnection->getRemoteAddress().toString();
         });
 
         return webApp;
