@@ -215,16 +215,28 @@ namespace core::socket::stream {
             connect(remoteAddress, onError);
         }
 
-        void setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {
+        std::function<void(SocketConnection*)> setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {
+            std::function<void(SocketConnection*)> oldOnConnect = this->onConnect;
+
             this->onConnect = onConnect;
+
+            return oldOnConnect;
         }
 
-        void setOnConnected(const std::function<void(SocketConnection*)>& onConnected) {
+        std::function<void(SocketConnection*)> setOnConnected(const std::function<void(SocketConnection*)>& onConnected) {
+            std::function<void(SocketConnection*)> oldOnConnected = this->onConnected;
+
             this->onConnected = onConnected;
+
+            return oldOnConnected;
         }
 
-        void setOnDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
+        std::function<void(SocketConnection*)> setOnDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
+            std::function<void(SocketConnection*)> oldOnDisconnect = this->onDisconnect;
+
             this->onDisconnect = onDisconnect;
+
+            return oldOnDisconnect;
         }
 
         std::shared_ptr<SocketContextFactory> getSocketContextFactory() {
