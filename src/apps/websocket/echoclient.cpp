@@ -78,11 +78,20 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             });
 
-        legacyClient.connect([](const LegacySocketAddress& socketAddress, int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            } else {
-                VLOG(0) << "wsechoclient connected to " << socketAddress.toString();
+        legacyClient.connect([](const LegacySocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "legacy: connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "legacy: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "legacy: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "legacy: critical error occurred";
+                    break;
             }
         }); // Connection:keep-alive\r\n\r\n"
 
@@ -127,11 +136,20 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             });
 
-        tlsClient.connect([](const TLSSocketAddress& socketAddress, int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            } else {
-                VLOG(0) << "wsechoclient connected to " << socketAddress.toString();
+        tlsClient.connect([](const TLSSocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "tls: connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "tls: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "tls: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "tls: critical error occurred";
+                    break;
             }
         }); // Connection:keep-alive\r\n\r\n"
     }

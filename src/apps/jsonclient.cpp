@@ -79,23 +79,37 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Reason: " << reason;
         });
 
-    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "legacy (1): connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "legacy (1): disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "legacy (1): non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "legacy (1): critical error occurred";
+                break;
         }
     });
 
-    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "legacy (2): disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "legacy (2): non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "legacy (2): critical error occurred";
+                break;
         }
     });
 

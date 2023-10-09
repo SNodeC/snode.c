@@ -48,13 +48,20 @@ int main(int argc, char* argv[]) {
     server.getConfig().addSniCerts(sniCerts);
 #endif
 
-    server.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+    server.listen([](const SocketServer::SocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "echoserver: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "echoserver: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "echoserver: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "echoserver: critical error occurred";
+                break;
         }
     });
 

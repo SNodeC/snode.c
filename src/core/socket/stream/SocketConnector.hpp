@@ -182,6 +182,8 @@ namespace core::socket::stream {
 
                     new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
                 } else {
+                    utils::PreserveErrno pe(cErrno);
+
                     switch (cErrno) {
                         case EADDRINUSE:
                         case EADDRNOTAVAIL:

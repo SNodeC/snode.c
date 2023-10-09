@@ -53,7 +53,7 @@ namespace net::un {
             throw core::socket::SocketAddress::BadSocketAddress(
                 "Unix-Domain error sun-path to long: Lenght is = " + std::to_string(sunPath.length()) +
                     ", should be: " + std::to_string(sizeof(sockAddr.sun_path) - 1),
-                EINVAL);
+                core::socket::State::FATAL);
         }
 
         return *this;

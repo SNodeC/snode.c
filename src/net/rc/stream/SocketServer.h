@@ -47,20 +47,20 @@ namespace net::rc::stream {
 
         using Super::listen;
 
-        void listen(uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {
+        void listen(uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
             Super::getConfig().Local::setChannel(channel);
 
             listen(onError);
         }
 
-        void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
+        void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
             Super::getConfig().Local::setChannel(channel);
             Super::getConfig().setBacklog(backlog);
 
             listen(onError);
         }
 
-        void listen(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, int)>& onError) const {
+        void listen(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
             Super::getConfig().Local::setBtAddress(btAddress).setChannel(channel);
 
             listen(onError);
@@ -69,7 +69,7 @@ namespace net::rc::stream {
         void listen(const std::string& btAddress,
                     uint8_t channel,
                     int backlog,
-                    const std::function<void(const SocketAddress&, int)>& onError) const {
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
             Super::getConfig().Local::setBtAddress(btAddress).setChannel(channel);
             Super::getConfig().setBacklog(backlog);
 

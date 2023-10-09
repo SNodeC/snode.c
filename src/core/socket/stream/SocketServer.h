@@ -145,7 +145,9 @@ namespace core::socket::stream {
         }
 
     private:
-        void realListen(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries, double retryTimeoutScale) const {
+        void realListen(const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+                        unsigned int tries,
+                        double retryTimeoutScale) const {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketAcceptor(
                     socketContextFactory,

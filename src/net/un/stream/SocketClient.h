@@ -46,14 +46,14 @@ namespace net::un::stream {
 
         using Super::connect;
 
-        void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, int)>& onError) {
+        void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
             Super::getConfig().Remote::setSunPath(sunPath);
 
             connect(onError);
         }
 
         void
-        connect(const std::string& sunPath, const std::string& bindSunPath, const std::function<void(const SocketAddress&, int)>& onError) {
+        connect(const std::string& sunPath, const std::string& bindSunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
             Super::getConfig().Remote::setSunPath(sunPath);
             Super::getConfig().Local::setSunPath(bindSunPath);
 

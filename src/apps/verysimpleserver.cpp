@@ -39,13 +39,20 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, core::socket::State state) {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "legacyApp: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "legacyApp: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "legacyApp: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "legacyApp: critical error occurred";
+                break;
         }
     });
 
@@ -61,13 +68,20 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, core::socket::State state) {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "tlsApp: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "tlsApp: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "tlsApp: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "tlsApp: critical error occurred";
+                break;
         }
     });
 

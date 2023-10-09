@@ -532,11 +532,20 @@ int main(int argc, char* argv[]) {
     app.use(express::middleware::StaticMiddleware(
         "/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend-oauth2-auth-server/dist/"));
 
-    app.listen(8082, [](const express::legacy::in::WebApp::SocketAddress socketAddress, int err) {
-        if (err != 0) {
-            std::cerr << "Failed to listen on port " << 8082 << std::endl;
-        } else {
-            std::cout << "OAuth2AuthorizationServer is listening on " << socketAddress.toString() << std::endl;
+    app.listen(8082, [](const express::legacy::in::WebApp::SocketAddress socketAddress, core::socket::State state) {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "OAuth2AuthorizationServer: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "OAuth2AuthorizationServer: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "OAuth2AuthorizationServer: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "OAuth2AuthorizationServer: critical error occurred";
+                break;
         }
     });
 

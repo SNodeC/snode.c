@@ -140,7 +140,7 @@ namespace tls {
     using SocketConnection = SocketClient::SocketConnection;
 
     SocketClient getClient() {
-        SocketClient client(
+        SocketClient tlsClient(
             "tls",
             [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
@@ -237,15 +237,24 @@ namespace tls {
 
         SocketAddress remoteAddress("localhost", 8088);
 
-        client.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " + std::to_string(err);
-            } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
+        tlsClient.connect(remoteAddress, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "httpclient: connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "httpclient: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "httpclient: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "httpclient: critical error occurred";
+                    break;
             }
         });
 
-        return client;
+        return tlsClient;
     }
 
 } // namespace tls
@@ -283,11 +292,20 @@ namespace legacy {
 
         SocketAddress remoteAddress("localhost", 8080);
 
-        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
-            } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
+        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "httpclient: connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "httpclient: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "httpclient: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "httpclient: critical error occurred";
+                    break;
             }
         });
 
@@ -304,28 +322,43 @@ int main(int argc, char* argv[]) {
 
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
-        legacyClient.connect(legacyRemoteAddress,
-                             [](const tls::SocketAddress& socketAddress, int errnum) -> void { // example.com:81 simulate connnect timeout
-                                 if (errnum < 0) {
-                                     PLOG(ERROR) << "OnError";
-                                 } else if (errnum > 0) {
-                                     PLOG(ERROR) << "OnError: " << socketAddress.toString();
-                                 } else {
-                                     VLOG(0) << "snode.c connecting to " << socketAddress.toString();
-                                 }
-                             });
+        legacyClient.connect(
+            legacyRemoteAddress,
+            [](const tls::SocketAddress& socketAddress, core::socket::State state) -> void { // example.com:81 simulate connnect timeout
+                switch (state) {
+                    case core::socket::State::OK:
+                        VLOG(1) << "legacyClient: connected to '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        VLOG(1) << "legacyClient: disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        VLOG(1) << "legacyClient: non critical error occurred";
+                        break;
+                    case core::socket::State::FATAL:
+                        VLOG(1) << "legacyClient: critical error occurred";
+                        break;
+                }
+            });
 
         tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
 
         tls::SocketClient tlsClient = tls::getClient();
 
-        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int errnum) -> void {
-            if (errnum < 0) {
-                PLOG(ERROR) << "OnError";
-            } else if (errnum > 0) {
-                PLOG(ERROR) << "OnError: " << socketAddress.toString();
-            } else {
-                VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "legacy: connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "legacy: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "legacy: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "legacy: critical error occurred";
+                    break;
             }
         });
     }

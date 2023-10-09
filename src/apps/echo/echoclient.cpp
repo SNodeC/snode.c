@@ -31,18 +31,38 @@ int main(int argc, char* argv[]) {
     using SocketAddress = SocketClient::SocketAddress;
     SocketClient client = apps::echo::model::STREAM::getClient();
 
-    client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+    client.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "echoclient: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "echoclient: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "echoclient: critical error occurred";
+                break;
         }
     });
 
-    client.connect([](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    client.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "echoclient: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "echoclientt: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "echoclient: critical error occurred";
+                break;
+        }
     });
 
     return core::SNodeC::start();

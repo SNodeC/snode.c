@@ -55,13 +55,20 @@ int main(int argc, char* argv[]) {
         res.status(404).send("No Jalousie specified");
     });
 
-    webApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-        if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
-        } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+    webApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "werema: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "werema: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "werema: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "werema: critical error occurred";
+                break;
         }
     });
 

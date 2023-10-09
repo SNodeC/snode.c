@@ -83,11 +83,20 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "LegacyWebApp listening on " << socketAddress.toString();
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "legacyApp: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "legacyApp: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "legacyApp: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "legacyApp: critical error occurred";
+                break;
         }
     });
 
@@ -103,11 +112,20 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(legacyApp);
 
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) -> void {
-        if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
-        } else {
-            VLOG(0) << "TLSWebApp listening on " << socketAddress.toString();
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "tlsApp: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "tlsApp: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "tlsApp: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "tlsApp: critical error occurred";
+                break;
         }
     });
 

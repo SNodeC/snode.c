@@ -92,7 +92,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
 
-        std::function<void(const SocketAddress&, int)> onError = nullptr;
+        std::function<void(const SocketAddress&, core::socket::State)> onError = nullptr;
 
         std::shared_ptr<Config> config;
         std::shared_ptr<core::ProgressLog> progressLog;

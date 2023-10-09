@@ -65,13 +65,20 @@ int main(int argc, char* argv[]) {
             res.status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-            if (errnum < 0) {
-                PLOG(ERROR) << "OnError";
-            } else if (errnum > 0) {
-                PLOG(ERROR) << "OnError: " << socketAddress.toString();
-            } else {
-                VLOG(0) << "snode.c listening on " << socketAddress.toString();
+        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "legacy: connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "legacy: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "legacy: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "legacy: critical error occurred";
+                    break;
             }
         });
 
@@ -92,13 +99,20 @@ int main(int argc, char* argv[]) {
                 res.status(404).send("The requested resource is not found.");
             });
 
-            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-                if (errnum < 0) {
-                    PLOG(ERROR) << "OnError";
-                } else if (errnum > 0) {
-                    PLOG(ERROR) << "OnError: " << socketAddress.toString();
-                } else {
-                    VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+                switch (state) {
+                    case core::socket::State::OK:
+                        VLOG(1) << "tls: connected to '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        VLOG(1) << "tls: disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        VLOG(1) << "tls: non critical error occurred";
+                        break;
+                    case core::socket::State::FATAL:
+                        VLOG(1) << "tls: critical error occurred";
+                        break;
                 }
             });
 

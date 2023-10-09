@@ -46,31 +46,34 @@ namespace core::socket::stream::tls {
 
                   onConnect(socketConnection);
               },
-              [socketContextFactory, onConnected, config = this->config](SocketConnection* socketConnection) -> void { // onConnect
+              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
                   SSL* ssl = socketConnection->getSSL();
 
                   if (ssl != nullptr) {
                       SSL_set_connect_state(ssl);
-                      ssl_set_sni(ssl, Super::config);
+                      ssl_set_sni(ssl, this->config);
 
                       socketConnection->doSSLHandshake(
-                          [socketContextFactory, onConnected, socketConnection]() -> void { // onSuccess
-                              LOG(TRACE) << "SSL/TLS initial handshake success";
+                          [socketContextFactory, onConnected, socketConnection, config = this->config]() -> void { // onSuccess
+                              LOG(TRACE) << config->getInstanceName() << ": SSL/TLS initial handshake success";
+
                               onConnected(socketConnection);
                               socketConnection->connected(socketContextFactory);
                           },
-                          [config]() -> void { // onTimeout
-                              LOG(TRACE) << config.getInstanceName() << ": SSL/TLS initial handshake timed out";
+                          [config = this->config]() -> void { // onTimeout
+                              LOG(TRACE) << config->getInstanceName() << ": SSL/TLS initial handshake timed out";
                           },
-                          [config](int sslErr) -> void { // onError
-                              ssl_log(config.getInstanceName() << ": SSL/TLS initial handshake failed", sslErr);
+                          [config = this->config](int sslErr) -> void { // onError
+                              ssl_log(config->getInstanceName() + ": SSL/TLS initial handshake failed", sslErr);
                           });
                   } else {
                       socketConnection->close();
-                      ssl_log_error(config.getInstanceName() << ": SSL/TLS initialization failed");
+                      ssl_log_error(this->config->getInstanceName() + ": SSL/TLS initialization failed");
                   }
               },
-              [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+              [onDisconnect, instanceName = config->getInstanceName()](SocketConnection* socketConnection) -> void { // onDisconnect
+                  LOG(TRACE) << instanceName << ": SSL/TLS connection destroyed";
+
                   socketConnection->stopSSL();
                   onDisconnect(socketConnection);
               },

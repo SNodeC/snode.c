@@ -235,13 +235,20 @@ int main(int argc, char* argv[]) {
 
         legacyApp.use(router(db));
 
-        legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-            if (errnum < 0) {
-                PLOG(ERROR) << "OnError";
-            } else if (errnum > 0) {
-                PLOG(ERROR) << "OnError: " << socketAddress.toString();
-            } else {
-                VLOG(0) << "snode.c listening on " << socketAddress.toString();
+        legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "legacy-testregex: listening on '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "legacy-testregex: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "legacy-testregex: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "legacy-testregex: critical error occurred";
+                    break;
             }
         });
 
@@ -263,13 +270,20 @@ int main(int argc, char* argv[]) {
 
         tlsApp.use(legacyApp);
 
-        tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
-            if (errnum < 0) {
-                PLOG(ERROR) << "OnError";
-            } else if (errnum > 0) {
-                PLOG(ERROR) << "OnError: " << socketAddress.toString();
-            } else {
-                VLOG(0) << "snode.c listening on " << socketAddress.toString();
+        tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "tls-testregex: listening on '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "tls-testregex: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "tls-testregex: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "tls-testregex: critical error occurred";
+                    break;
             }
         });
 

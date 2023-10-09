@@ -149,7 +149,9 @@ namespace core::socket::stream {
         }
 
     private:
-        void realConnect(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries, double retryTimeoutScale) {
+        void realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+                         unsigned int tries,
+                         double retryTimeoutScale) {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketConnector(
                     socketContextFactory,

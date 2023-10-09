@@ -11,7 +11,7 @@
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    express::legacy::in::WebApp app;
+    express::legacy::in::WebApp app("OAuth2ResourceServer");
 
     const std::string authorizationServerUri{"http://localhost:8082"};
 
@@ -78,20 +78,38 @@ int main(int argc, char* argv[]) {
             "localhost",
             8082,
             [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& socketAddress,
-               int err) -> void {
-                if (err != 0) {
-                    PLOG(ERROR) << "OnError: " << err;
-                } else {
-                    VLOG(0) << "Resource server client connecting to " << socketAddress.toString();
+               core::socket::State state) -> void {
+                switch (state) {
+                    case core::socket::State::OK:
+                        VLOG(1) << "OAuth2ResourceServer: connected to '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        VLOG(1) << "OAuth2ResourceServer: disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        VLOG(1) << "OAuth2ResourceServer: non critical error occurred";
+                        break;
+                    case core::socket::State::FATAL:
+                        VLOG(1) << "OAuth2ResourceServer: critical error occurred";
+                        break;
                 }
             });
     });
 
-    app.listen(8083, [](const express::legacy::in::WebApp::SocketAddress socketAddress, int err) {
-        if (err != 0) {
-            std::cerr << "Failed to listen on port " << 8083 << std::endl;
-        } else {
-            std::cout << "OAuth2ResourceServer is listening on " << socketAddress.toString() << std::endl;
+    app.listen(8083, [](const express::legacy::in::WebApp::SocketAddress socketAddress, core::socket::State state) {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "app: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "app: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "app: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "app: critical error occurred";
+                break;
         }
     });
     return express::WebApp::start();
