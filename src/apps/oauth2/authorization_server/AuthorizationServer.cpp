@@ -10,7 +10,6 @@
 #include <ctime>
 #include <cxxabi.h>
 #include <iomanip>
-#include <iostream>
 
 // IWYU pragma: no_include <bits/chrono.h>
 

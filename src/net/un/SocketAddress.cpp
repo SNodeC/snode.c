@@ -18,6 +18,7 @@
 
 #include "net/un/SocketAddress.h"
 
+#include "core/socket/State.h"
 #include "net/SocketAddress.hpp"
 
 // IWYU pragma: no_include "core/socket/SocketAddress.h"

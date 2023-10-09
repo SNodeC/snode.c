@@ -18,6 +18,7 @@
 
 #include "net/in/SocketAddress.h"
 
+#include "core/socket/State.h"
 #include "net/SocketAddress.hpp"
 #include "net/in/SocketAddrInfo.h"
 

@@ -21,7 +21,7 @@
 
 #include "core/SNodeC.h"
 #include "core/socket/Socket.h" // IWYU pragma: export
-#include "core/socket/State.h"  // IWYU pragme: export
+#include "core/socket/State.h"  // IWYU pragma: export
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

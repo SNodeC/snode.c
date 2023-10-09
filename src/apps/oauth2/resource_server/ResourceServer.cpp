@@ -5,7 +5,6 @@
 #include "web/http/client/Response.h" // for Response
 #include "web/http/legacy/in/Client.h"
 
-#include <iostream>
 #include <nlohmann/json.hpp> // IWYU pragma: keep
 
 int main(int argc, char* argv[]) {
