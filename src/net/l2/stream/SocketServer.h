@@ -47,33 +47,33 @@ namespace net::l2::stream {
 
         using Super::listen;
 
-        void listen(uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+        void listen(uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setPsm(psm);
 
-            listen(onError);
+            listen(onStatus);
         }
 
-        void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+        void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setPsm(psm);
             Super::getConfig().setBacklog(backlog);
 
-            listen(onError);
+            listen(onStatus);
         }
 
-        void listen(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+        void listen(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
 
-            listen(onError);
+            listen(onStatus);
         }
 
         void listen(const std::string& btAddress,
                     uint16_t psm,
                     int backlog,
-                    const std::function<void(const SocketAddress& SocketAddress, int)>& onError) const {
+                    const std::function<void(const SocketAddress& SocketAddress, int)>& onStatus) const {
             Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().setBacklog(backlog);
 
-            listen(onError);
+            listen(onStatus);
         }
     };
 

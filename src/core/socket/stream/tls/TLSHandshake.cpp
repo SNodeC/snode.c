@@ -34,22 +34,22 @@ namespace core::socket::stream::tls {
     void TLSHandshake::doHandshake(SSL* ssl,
                                    const std::function<void(void)>& onSuccess,
                                    const std::function<void(void)>& onTimeout,
-                                   const std::function<void(int err)>& onError,
+                                   const std::function<void(int err)>& onStatus,
                                    const utils::Timeval& timeout) {
-        new TLSHandshake(ssl, onSuccess, onTimeout, onError, timeout);
+        new TLSHandshake(ssl, onSuccess, onTimeout, onStatus, timeout);
     }
 
     TLSHandshake::TLSHandshake(SSL* ssl,
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
-                               const std::function<void(int err)>& onError,
+                               const std::function<void(int err)>& onStatus,
                                const utils::Timeval& timeout)
         : ReadEventReceiver("TLSHandshake", timeout)
         , WriteEventReceiver("TLSHandshake", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
-        , onError(onError)
+        , onStatus(onStatus)
         , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
         int ret = SSL_do_handshake(ssl);
@@ -77,7 +77,7 @@ namespace core::socket::stream::tls {
                 delete this;
                 break;
             default:
-                onError(sslErr);
+                onStatus(sslErr);
                 delete this;
                 break;
         }
@@ -104,7 +104,7 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::disable();
                 break;
             default:
-                onError(sslErr);
+                onStatus(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 break;
@@ -132,7 +132,7 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::disable();
                 break;
             default:
-                onError(sslErr);
+                onStatus(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 break;

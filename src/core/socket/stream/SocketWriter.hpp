@@ -27,12 +27,12 @@
 namespace core::socket::stream {
 
     template <typename PhysicalSocket>
-    SocketWriter<PhysicalSocket>::SocketWriter(const std::function<void(int)>& onError,
+    SocketWriter<PhysicalSocket>::SocketWriter(const std::function<void(int)>& onStatus,
                                                const utils::Timeval& timeout,
                                                std::size_t blockSize,
                                                const utils::Timeval& terminateTimeout)
         : core::eventreceiver::WriteEventReceiver("SocketWriter", timeout)
-        , onError(onError)
+        , onStatus(onStatus)
         , terminateTimeout(terminateTimeout) {
         setBlockSize(blockSize);
     }
@@ -72,7 +72,7 @@ namespace core::socket::stream {
                 }
             } else {
                 disable();
-                onError(errno);
+                onStatus(errno);
             }
         } else if (!isSuspended()) {
             suspend();

@@ -34,22 +34,22 @@ namespace core::socket::stream::tls {
     void TLSShutdown::doShutdown(SSL* ssl,
                                  const std::function<void(void)>& onSuccess,
                                  const std::function<void(void)>& onTimeout,
-                                 const std::function<void(int err)>& onError,
+                                 const std::function<void(int err)>& onStatus,
                                  const utils::Timeval& timeout) {
-        new TLSShutdown(ssl, onSuccess, onTimeout, onError, timeout);
+        new TLSShutdown(ssl, onSuccess, onTimeout, onStatus, timeout);
     }
 
     TLSShutdown::TLSShutdown(SSL* ssl,
                              const std::function<void(void)>& onSuccess,
                              const std::function<void(void)>& onTimeout,
-                             const std::function<void(int err)>& onError,
+                             const std::function<void(int err)>& onStatus,
                              const utils::Timeval& timeout)
         : ReadEventReceiver("TLSShutdown", timeout)
         , WriteEventReceiver("TLSShutdown", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
-        , onError(onError)
+        , onStatus(onStatus)
         , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
         int ret = SSL_shutdown(ssl);
@@ -75,7 +75,7 @@ namespace core::socket::stream::tls {
                 delete this;
                 break;
             default:
-                onError(sslErr);
+                onStatus(sslErr);
                 delete this;
                 break;
         }
@@ -102,7 +102,7 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::disable();
                 break;
             default:
-                onError(sslErr);
+                onStatus(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 break;
@@ -130,7 +130,7 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::disable();
                 break;
             default:
-                onError(sslErr);
+                onStatus(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 break;

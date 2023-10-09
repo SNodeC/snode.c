@@ -95,7 +95,7 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket>
     void SocketConnection<PhysicalSocket>::doSSLHandshake(const std::function<void()>& onSuccess,
                                                           const std::function<void()>& onTimeout,
-                                                          const std::function<void(int)>& onError) {
+                                                          const std::function<void(int)>& onStatus) {
         if (!SocketReader::isSuspended()) {
             SocketReader::suspend();
         }
@@ -112,8 +112,8 @@ namespace core::socket::stream::tls {
             [onTimeout]() -> void { // onTimeout
                 onTimeout();
             },
-            [onError](int sslErr) -> void { // onError
-                onError(sslErr);
+            [onStatus](int sslErr) -> void { // onStatus
+                onStatus(sslErr);
             },
             sslInitTimeout);
     }
@@ -121,7 +121,7 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket>
     void SocketConnection<PhysicalSocket>::doSSLShutdown(const std::function<void()>& onSuccess,
                                                          const std::function<void()>& onTimeout,
-                                                         const std::function<void(int)>& onError,
+                                                         const std::function<void(int)>& onStatus,
                                                          const utils::Timeval& shutdownTimeout) {
         int resumeSocketReader = false;
         int resumeSocketWriter = false;
@@ -156,14 +156,14 @@ namespace core::socket::stream::tls {
                 }
                 onTimeout();
             },
-            [onError, this, resumeSocketReader, resumeSocketWriter](int sslErr) -> void { // onError
+            [onStatus, this, resumeSocketReader, resumeSocketWriter](int sslErr) -> void { // onStatus
                 if (resumeSocketReader) {
                     SocketReader::resume();
                 }
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
-                onError(sslErr);
+                onStatus(sslErr);
             },
             shutdownTimeout);
     }

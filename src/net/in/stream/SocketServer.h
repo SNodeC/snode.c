@@ -47,33 +47,33 @@ namespace net::in::stream {
 
         using Super::listen;
 
-        void listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+        void listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setPort(port);
 
-            listen(onError);
+            listen(onStatus);
         }
 
-        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setPort(port);
             Super::getConfig().setBacklog(backlog);
 
-            listen(onError);
+            listen(onStatus);
         }
 
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setHost(ipOrHostname).setPort(port);
 
-            listen(onError);
+            listen(onStatus);
         }
 
         void listen(const std::string& ipOrHostname,
                     uint16_t port,
                     int backlog,
-                    const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setHost(ipOrHostname).setPort(port);
             Super::getConfig().setBacklog(backlog);
 
-            listen(onError);
+            listen(onStatus);
         }
     };
 

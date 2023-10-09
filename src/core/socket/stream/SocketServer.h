@@ -145,7 +145,7 @@ namespace core::socket::stream {
         }
 
     private:
-        void realListen(const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+        void realListen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                         unsigned int tries,
                         double retryTimeoutScale) const {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
@@ -154,9 +154,9 @@ namespace core::socket::stream {
                     onConnect,
                     onConnected,
                     onDisconnect,
-                    [server = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress,
+                    [server = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
                                                                         core::socket::State state) -> void {
-                        onError(socketAddress, state);
+                        onStatus(socketAddress, state);
 
                         switch (state) {
                             case core::socket::State::ERROR:
@@ -174,8 +174,8 @@ namespace core::socket::stream {
                                     LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
 
                                     core::timer::Timer::singleshotTimer(
-                                        [server, onError, tries, retryTimeoutScale]() mutable -> void {
-                                            server.realListen(onError, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
+                                        [server, onStatus, tries, retryTimeoutScale]() mutable -> void {
+                                            server.realListen(onStatus, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
                                         },
                                         relativeRetryTimeout);
                                 }
@@ -191,23 +191,23 @@ namespace core::socket::stream {
         }
 
     public:
-        void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
-            realListen(onError, 0, 1);
+        void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+            realListen(onStatus, 0, 1);
         }
 
         void listen(const SocketAddress& localAddress,
-                    const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::config->Local::setSocketAddress(localAddress);
 
-            listen(onError);
+            listen(onStatus);
         }
 
         void listen(const SocketAddress& localAddress,
                     int backlog,
-                    const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::config->Local::setBacklog(backlog);
 
-            listen(localAddress, onError);
+            listen(localAddress, onStatus);
         }
 
         std::function<void(SocketConnection*)> setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {

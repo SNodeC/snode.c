@@ -39,7 +39,7 @@ namespace core::socket::stream::tls {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : Super(
               socketContextFactory,
@@ -68,7 +68,7 @@ namespace core::socket::stream::tls {
 
                               socketConnection->close();
                           },
-                          [socketConnection, instanceName = this->config->getInstanceName()](int sslErr) -> void { // onError
+                          [socketConnection, instanceName = this->config->getInstanceName()](int sslErr) -> void { // onStatus
                               ssl_log(instanceName + ": SSL/TLS initial handshake failed", sslErr);
 
                               socketConnection->close();
@@ -85,7 +85,7 @@ namespace core::socket::stream::tls {
                   socketConnection->stopSSL();
                   onDisconnect(socketConnection);
               },
-              onError,
+              onStatus,
               config) {
     }
 
@@ -104,7 +104,7 @@ namespace core::socket::stream::tls {
             if (ctx != nullptr) {
                 Super::initConnectEvent();
             } else {
-                Super::onError(config->Remote::getSocketAddress(), core::socket::State::FATAL);
+                Super::onStatus(config->Remote::getSocketAddress(), core::socket::State::FATAL);
                 Super::destruct();
             }
         } else {

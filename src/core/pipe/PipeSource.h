@@ -61,4 +61,4 @@ namespace core::pipe {
 
 } // namespace core::pipe
 
-#endif // CORE_PIPE_PIPESOURCE_H
+#endif // CORE_PIPE_  PIPESOURCE_H

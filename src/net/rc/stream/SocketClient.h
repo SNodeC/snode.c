@@ -47,41 +47,41 @@ namespace net::rc::stream {
 
         using Super::connect;
 
-        void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+        void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
 
-            connect(SocketAddress(btAddress, channel), onError);
+            connect(SocketAddress(btAddress, channel), onStatus);
         }
 
         void connect(const std::string& btAddress,
                      uint8_t channel,
                      const std::string& bindBtAddress,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
             Super::getConfig().Local::setBtAddress(bindBtAddress);
 
-            connect(onError);
+            connect(onStatus);
         }
 
         void connect(const std::string& btAddress,
                      uint8_t channel,
                      uint8_t bindChannel,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
             Super::getConfig().Local::setChannel(bindChannel);
 
-            connect(onError);
+            connect(onStatus);
         }
 
         void connect(const std::string& btAddress,
                      uint8_t channel,
                      const std::string& bindBtAddress,
                      uint8_t bindChannel,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
             Super::getConfig().Local::setBtAddress(bindBtAddress).setChannel(bindChannel);
 
-            connect(onError);
+            connect(onStatus);
         }
     };
 

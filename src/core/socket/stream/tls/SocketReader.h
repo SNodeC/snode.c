@@ -44,7 +44,7 @@ namespace core::socket::stream::tls {
 
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
-                                    const std::function<void(int)>& onError) = 0;
+                                    const std::function<void(int)>& onStatus) = 0;
 
         SSL* ssl = nullptr;
     };

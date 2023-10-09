@@ -25,12 +25,12 @@
 namespace core::socket::stream {
 
     template <typename PhysicalSocket>
-    SocketReader<PhysicalSocket>::SocketReader(const std::function<void(int)>& onError,
+    SocketReader<PhysicalSocket>::SocketReader(const std::function<void(int)>& onStatus,
                                                const utils::Timeval& timeout,
                                                std::size_t blockSize,
                                                const utils::Timeval& terminateTimeout)
         : core::eventreceiver::ReadEventReceiver("SocketReader", timeout)
-        , onError(onError)
+        , onStatus(onStatus)
         , terminateTimeout(terminateTimeout) {
         setBlockSize(blockSize);
     }
@@ -66,7 +66,7 @@ namespace core::socket::stream {
                     resume();
                 }
             } else {
-                onError(errno);
+                onStatus(errno);
                 disable();
             }
         } else {

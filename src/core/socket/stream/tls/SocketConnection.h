@@ -70,11 +70,11 @@ namespace core::socket::stream::tls {
 
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
-                            const std::function<void(int)>& onError) final;
+                            const std::function<void(int)>& onStatus) final;
 
         void doSSLShutdown(const std::function<void()>& onSuccess,
                            const std::function<void()>& onTimeout,
-                           const std::function<void(int)>& onError,
+                           const std::function<void(int)>& onStatus,
                            const utils::Timeval& shutdownTimeout);
 
         void doSSLShutdown() final;

@@ -34,7 +34,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
         , core::eventreceiver::ConnectEventReceiver("SocketConnector", 0)
@@ -42,7 +42,7 @@ namespace core::socket::stream {
         , onConnect(onConnect)
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
-        , onError(onError)
+        , onStatus(onStatus)
         , config(config) {
         InitConnectEventReceiver::span();
     }
@@ -125,14 +125,14 @@ namespace core::socket::stream {
                         LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
                         SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
-                        onError(remoteAddress, state);
+                        onStatus(remoteAddress, state);
                     }
 
                     if (!isEnabled()) {
                         if (remoteAddress.useNext()) {
-                            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
                         } else {
-                            onError(remoteAddress, state);
+                            onStatus(remoteAddress, state);
                         }
 
                         destruct();
@@ -140,13 +140,13 @@ namespace core::socket::stream {
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                     LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                    onError(remoteAddress, badSocketAddress.getState());
+                    onStatus(remoteAddress, badSocketAddress.getState());
                     destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                onError(remoteAddress, badSocketAddress.getState());
+                onStatus(remoteAddress, badSocketAddress.getState());
                 destruct();
             }
         } else {
@@ -166,7 +166,7 @@ namespace core::socket::stream {
             if (cErrno == 0) {
                 LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
-                onError(remoteAddress, state);
+                onStatus(remoteAddress, state);
                 disable();
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
@@ -177,7 +177,7 @@ namespace core::socket::stream {
                     LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                << config->Remote::getSocketAddress().toString() << "'";
 
-                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
                 } else {
                     utils::PreserveErrno pe(cErrno);
 
@@ -197,7 +197,7 @@ namespace core::socket::stream {
                             break;
                     }
 
-                    onError(remoteAddress, state);
+                    onStatus(remoteAddress, state);
                 }
 
                 disable();
@@ -207,7 +207,7 @@ namespace core::socket::stream {
         } else {
             PLOG(ERROR) << config->getInstanceName() << ": getsockopt syscall error '" << remoteAddress.toString() << "'";
 
-            onError(remoteAddress, core::socket::State::FATAL);
+            onStatus(remoteAddress, core::socket::State::FATAL);
             disable();
         }
     }
@@ -230,11 +230,11 @@ namespace core::socket::stream {
             LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '" << config->Remote::getSocketAddress().toString()
                        << "'";
 
-            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
         } else {
             LOG(ERROR) << config->getInstanceName() << ": connect timeout '" << remoteAddress.toString() << "'";
 
-            onError(remoteAddress, core::socket::State::ERROR);
+            onStatus(remoteAddress, core::socket::State::ERROR);
         }
 
         disable();

@@ -149,7 +149,7 @@ namespace core::socket::stream {
         }
 
     private:
-        void realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+        void realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                          unsigned int tries,
                          double retryTimeoutScale) {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
@@ -157,7 +157,7 @@ namespace core::socket::stream {
                     socketContextFactory,
                     onConnect,
                     onConnected,
-                    [client = *this, onError](SocketConnection* socketConnection) -> void {
+                    [client = *this, onStatus](SocketConnection* socketConnection) -> void {
                         client.onDisconnect(socketConnection);
 
                         if (client.getConfig().getReconnect()) {
@@ -166,15 +166,15 @@ namespace core::socket::stream {
                             LOG(INFO) << "Reconnecting in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
-                                [client, onError]() mutable -> void {
-                                    client.realConnect(onError, 0, 1);
+                                [client, onStatus]() mutable -> void {
+                                    client.realConnect(onStatus, 0, 1);
                                 },
                                 relativeReconnectTimeout);
                         }
                     },
-                    [client = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress,
+                    [client = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
                                                                         core::socket::State state) -> void {
-                        onError(socketAddress, state);
+                        onStatus(socketAddress, state);
 
                         switch (state) {
                             case core::socket::State::ERROR:
@@ -192,8 +192,8 @@ namespace core::socket::stream {
                                     LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
 
                                     core::timer::Timer::singleshotTimer(
-                                        [client, onError, tries, retryTimeoutScale]() mutable -> void {
-                                            client.realConnect(onError, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
+                                        [client, onStatus, tries, retryTimeoutScale]() mutable -> void {
+                                            client.realConnect(onStatus, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
                                         },
                                         relativeRetryTimeout);
                                 }
@@ -209,22 +209,22 @@ namespace core::socket::stream {
         }
 
     public:
-        void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
-            realConnect(onError, 0, 1);
+        void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+            realConnect(onStatus, 0, 1);
         }
 
-        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::config->Remote::setSocketAddress(remoteAddress);
 
-            connect(onError);
+            connect(onStatus);
         }
 
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& localAddress,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::config->Local::setSocketAddress(localAddress);
 
-            connect(remoteAddress, onError);
+            connect(remoteAddress, onStatus);
         }
 
         std::function<void(SocketConnection*)> setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {

@@ -43,7 +43,7 @@ namespace core::socket::stream {
     protected:
         using PhysicalSocket = PhysicalSocketT;
 
-        explicit SocketWriter(const std::function<void(int)>& onError,
+        explicit SocketWriter(const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);
@@ -69,7 +69,7 @@ namespace core::socket::stream {
         void terminate() final;
 
     private:
-        std::function<void(int)> onError;
+        std::function<void(int)> onStatus;
         std::function<void(int)> onShutdown;
 
         std::vector<char> writeBuffer;

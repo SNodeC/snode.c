@@ -34,7 +34,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
         , core::eventreceiver::AcceptEventReceiver("SocketAcceptor", 0)
@@ -42,7 +42,7 @@ namespace core::socket::stream {
         , onConnect(onConnect)
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
-        , onError(onError)
+        , onStatus(onStatus)
         , config(config) {
         InitAcceptEventReceiver::span();
     }
@@ -111,9 +111,9 @@ namespace core::socket::stream {
                 if (localAddress.useNext()) {
                     LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                << config->Local::getSocketAddress().toString() << "'";
-                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
+                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
                 } else {
-                    onError(localAddress, state);
+                    onStatus(localAddress, state);
                 }
 
                 if (!isEnabled()) {
@@ -122,13 +122,13 @@ namespace core::socket::stream {
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                onError(localAddress, badSocketAddress.getState());
+                onStatus(localAddress, badSocketAddress.getState());
                 destruct();
             }
         } else {
             LOG(TRACE) << config->getInstanceName() << ": disabled";
 
-            onError(localAddress, core::socket::State::DISABLED);
+            onStatus(localAddress, core::socket::State::DISABLED);
             destruct();
         }
     }

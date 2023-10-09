@@ -48,14 +48,14 @@ namespace core::socket::stream::tls {
         static void doShutdown(SSL* ssl,
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
-                               const std::function<void(int)>& onError,
+                               const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout);
 
     private:
         TLSShutdown(SSL* ssl,
                     const std::function<void(void)>& onSuccess,
                     const std::function<void(void)>& onTimeout,
-                    const std::function<void(int)>& onError,
+                    const std::function<void(int)>& onStatus,
                     const utils::Timeval& timeout);
 
         void readEvent() final;
@@ -68,7 +68,7 @@ namespace core::socket::stream::tls {
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;
-        std::function<void(int)> onError;
+        std::function<void(int)> onStatus;
 
         bool timeoutTriggered;
 

@@ -59,7 +59,7 @@ namespace core::socket::stream {
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
-                       const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+                       const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                        const std::shared_ptr<Config>& config);
 
     public:
@@ -87,7 +87,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
 
-        std::function<void(const SocketAddress&, core::socket::State)> onError = nullptr;
+        std::function<void(const SocketAddress&, core::socket::State)> onStatus = nullptr;
 
         std::shared_ptr<Config> config;
     };

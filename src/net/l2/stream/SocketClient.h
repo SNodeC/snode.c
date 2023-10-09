@@ -47,41 +47,41 @@ namespace net::l2::stream {
 
         using Super::connect;
 
-        void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+        void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
 
-            connect(SocketAddress(btAddress, psm), onError);
+            connect(SocketAddress(btAddress, psm), onStatus);
         }
 
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      const std::string& bindBtAddress,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().Local::setBtAddress(bindBtAddress);
 
-            connect(onError);
+            connect(onStatus);
         }
 
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      uint16_t bindPsm,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().Local::setPsm(bindPsm);
 
-            connect(onError);
+            connect(onStatus);
         }
 
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      const std::string& bindBtAddress,
                      uint16_t bindPsm,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().Local::setBtAddress(bindBtAddress).setPsm(bindPsm);
 
-            connect(onError);
+            connect(onStatus);
         }
     };
 
