@@ -415,12 +415,23 @@ int main(int argc, char* argv[]) {
                                                                                         // template argument
     using SocketAddress = EchoServer::SocketAddress;                                    // Simplify data type
 
-    EchoServer echoServer; // Create anonymous server instance
-
-    echoServer.listen(8001,
-                      [](const core::ProgressLog& progressLog) -> void {
-                          progressLog.logProgress();
-                      });
+    EchoServer echoServer; // Create server instance and listen on port 8001 on all interfaces
+    echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoServer: connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoServer: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoServer: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoServer: critical error occurred";
+                break;
+        }
+    });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
@@ -450,13 +461,23 @@ int main(int argc, char* argv[]) {
                                                                                         // template argument
     using SocketAddress = EchoClient::SocketAddress;                                    // Simplify data type
 
-    EchoClient echoClient; // Create anonymous client instance
-
-    echoClient.connect("localhost",
-                       8001,
-                       [](const core::ProgressLog& progressLog) -> void {
-                           progressLog.logProgress();
-                       });
+    EchoClient echoClient; // Create anonymous client instance and connect to localhost:8001
+    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoClient: connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoClient: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoClient: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoClient: critical error occurred";
+                break;
+        }
+    });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
@@ -1121,110 +1142,99 @@ Each *SocketServer* template class expects a concrete *SocketContextFactory* as 
 
 As already mentioned above, for convenience each *SocketServer* class provides its own specific set of *listen* methods. The implementation of this specific *listen* methods rely on some *listen* methods common to all *SocketServer* classes.
 
-#### Common *listen* Methods
+All *listen* methods expect an status callback as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
 
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
+```c++
+const std::function<void(const SocketAddress& socketAddress, core::socket::State state)>
 ```
 
-The type `SocketAddress` is defined as
+The bound *SocketAddress* and a *state* value is passed to this callback as arguments. 
+
+#### *SocketAddress* Types
+
+The type of the *SocketAddress* needs to match with the type of the *SocketServer* and can be acquired from a concrete *SocketServer* type by
 
 ```c++
 using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 ```
 
+#### *core::socket::State* Values
+
+The *core::socket::State* value passed to the callback reports the status of the SocketServer.
+
+- core::socket::State::OK
+  The *ServerSocket* instance has been created successfully.
+- core::socket::State::DISABLED
+  The *ServerSocket* instance is disabled
+- core::socket::State::ERROR
+  During switching to the listening state an recoverable error has occurred. In case a *retry* is configured for this instance the listen attempt is retried automatically.
+- core::socket::State::FATAL
+  A non recoverable error has occurred. No listen-retry is done.
+
+#### Common *listen* Methods
+
+Three common *listen* methods exist:
+
 | *listen* Methods common to all SocketServer Classes          | *listen* Method Arguments                                    |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| `void listen(StatusFunction& onError)`                       | Listen without parameter[^1]                                 |
-| `void listen(const SocketAddress& localAddress, StatusFunction& onError)` | Listen expecting a *SocketAddress* as argument               |
-| `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onError)` | Listen expecting a *SocketAddress* and a backlog as argument |
+| `void listen(StatusFunction& onStatus)`                      | Listen without parameter[^1]                                 |
+| `void listen(const SocketAddress& localAddress, StatusFunction& onStatus)` | Listen expecting a *SocketAddress* as argument               |
+| `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onStatus)` | Listen expecting a *SocketAddress* and a backlog as argument |
 
 [^1]: "Without parameter" is not completely right because every *listen* method expects a reference to a `std::function` for status processing (error or success) as argument.
 
 #### IPv4 specific *listen* Methods
 
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
-
-For the IPv4/SOCK_STREAM combination exist four specific *listen* methods.
+For the IPv4/SOCK_STREAM combination exist four specific *listen* methods:
 
 | IPv4 *listen* Methods                                        |
 | ------------------------------------------------------------ |
-| `void listen(uint16_t port, StatusFunction& onError)`        |
-| `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
+| `void listen(uint16_t port, StatusFunction& onStatus)`       |
+| `void listen(uint16_t port, int backlog, StatusFunction& onStatus)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onStatus)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onStatus)` |
 
 #### IPv6 specific *listen* Methods
 
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
-
-For the IPv6/SOCK_STREAM combination exist four specific *listen* methods.
+For the IPv6/SOCK_STREAM combination exist four specific *listen* methods:
 
 | IPv6 *listen* Methods                                        |
 | ------------------------------------------------------------ |
-| `void listen(uint16_t port, StatusFunction& onError)`        |
-| `void listen(uint16_t port, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onError)` |
+| `void listen(uint16_t port, StatusFunction& onStatus)`       |
+| `void listen(uint16_t port, int backlog, StatusFunction& onStatus)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onStatus)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onStatus)` |
 
 #### Unix Domain Socket specific *listen* Methods
 
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
-
-For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* methods.
+For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* methods:
 
 | Unix-Domain *listen* Methods                                 |
 | ------------------------------------------------------------ |
-| `void listen(const std::string& sunPath, StatusFunction& onError)` |
-| `void listen(const std::string& sunPath, int backlog, StatusFunction& onError)` |
+| `void listen(const std::string& sunPath, StatusFunction& onStatus)` |
+| `void listen(const std::string& sunPath, int backlog, StatusFunction& onStatus)` |
 
 #### Bluetooth RFCOMM specific *listen* Methods
 
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
-
-For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods.
+For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods:
 
 | Bluetooth RFCOMM *listen* Methods                            |
 | ------------------------------------------------------------ |
-| `void listen(uint8_t channel, StatusFunction& onError)`      |
-| `void listen(uint8_t channel, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
-| `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onError)` |
+| `void listen(uint8_t channel, StatusFunction& onStatus)`     |
+| `void listen(uint8_t channel, int backlog, StatusFunction& onStatus)` |
+| `void listen(const std::string& btAddress, uint8_t channel, StatusFunction& onStatus)` |
+| `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onStatus)` |
 
 #### Bluetooth L2CAP specific *listen* Methods
-
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
 
 For the L2CAP/SOCK_STREAM combination exist four specific *listen* methods.
 
 | Bluetooth L2CAP *listen* Methods                             |
 | ------------------------------------------------------------ |
-| `void listen(uint16_t psm, StatusFunction& onError)`         |
-| `void listen(uint16_t psm, int backlog, StatusFunction& onError)` |
-| `void listen(const std::string& btAddress, uint16_t psm, StatusFunction& onError)` |
-| `void listen(const std::string& btAddress, uint16_t psm, int backlog, StatusFunction& onError)` |
+| `void listen(uint16_t psm, StatusFunction& onStatus)`        |
+| `void listen(uint16_t psm, int backlog, StatusFunction& onStatus)` |
+| `void listen(const std::string& btAddress, uint16_t psm, StatusFunction& onStatus)` |
+| `void listen(const std::string& btAddress, uint16_t psm, int backlog, StatusFunction& onStatus)` |
 
 ## SocketClient Classes
 
@@ -1254,110 +1264,99 @@ Each *SocketClient* template class expects a concrete *SocketContextFactory* as 
 
 As already mentioned above, for convenience each *SocketClient* class provides its own specific set of *connect* methods. The implementation of this specific *connect* methods rely on some *connect* methods common to all *SocketClient* classes.
 
-#### Common *connect* Methods
-
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
-
-The type `SocketAddress` is defined as
+All *connect* methods expect an status callback as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
 
 ```c++
-using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
+const std::function<void(const SocketAddress& socketAddress, core::socket::State state)>
 ```
+
+The bound *SocketAddress* and a *state* value is passed to this callback as arguments. 
+
+#### *SocketAddress* Types
+
+The type of the *SocketAddress* needs to match with the type of the *SocketServer* and can be acquired from a concrete *SocketServer* type by
+
+```c++
+using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
+```
+
+#### *core::socket::State* Values
+
+The *core::socket::State* value passed to the callback reports the status of the SocketServer.
+
+- core::socket::State::OK
+  The *ServerSocket* instance has been created successfully.
+- core::socket::State::DISABLED
+  The *ServerSocket* instance is disabled
+- core::socket::State::ERROR
+  During switching to the listening state an recoverable error has occurred. In case a *retry* is configured for this instance the listen attempt is retried automatically.
+- core::socket::State::FATAL
+  A non recoverable error has occurred. No listen-retry is done.
+
+#### Common *connect* Methods
+
+Three common *connect* methods exist:
 
 | *connect* Methods common to all SocketServer Classes         | *connect* Method Arguments                         |
 | ------------------------------------------------------------ | -------------------------------------------------- |
-| `void connect(StatusFunction& onError)`                      | Connect without parameter[^2]                      |
-| `void connect(const SocketAddress& remoteAddress, StatusFunction& onError)` | Connect expecting a *SocketAddress* as argument    |
-| `void connect(const SocketAddress& remoteAddress, const SocketAddress& localAddress, StatusFunction& onError)` | Connect expecting two *SocketAddress*s as argument |
+| `void connect(StatusFunction& onStatus)`                     | Connect without parameter[^2]                      |
+| `void connect(const SocketAddress& remoteAddress, StatusFunction& onStatus)` | Connect expecting a *SocketAddress* as argument    |
+| `void connect(const SocketAddress& remoteAddress, const SocketAddress& localAddress, StatusFunction& onStatus)` | Connect expecting two *SocketAddress*s as argument |
 
 [^2]: "Without parameter" is not completely right because every *connect* method expects a `std::function` for status processing (error or success) as argument. 
 
 #### IPv4 specific *connect* Methods
 
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
-
-For the IPv4/SOCK_STREAM combination exist four specific *connect* methods.
+For the IPv4/SOCK_STREAM combination exist four specific *connect* methods:
 
 | IPv4 *connect* Methods                                       |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onError)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onStatus)` |
 
 #### IPv6 specific *connect* Methods
 
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
-
-For the IPv6/SOCK_STREAM combination exist four specific *connect* methods.
+For the IPv6/SOCK_STREAM combination exist four specific *connect* methods:
 
 | IPv6 *connect* Methods                                       |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onError)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onError)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onError)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onError)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onStatus)` |
 
 #### Unix Domain Socket specific *connect* Methods
-
-The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
 
 For the Unix Domain Socket/SOCK_STREAM combination exist two specific *connect* methods.
 
 | Unix-Domain *connect* Methods                                |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& sunPath, StatusFunction& onError)` |
-| `void connect(const std::string& remoteSunPath, const std::string& localSunPath, StatusFunction& onError)` |
+| `void connect(const std::string& sunPath, StatusFunction& onStatus)` |
+| `void connect(const std::string& remoteSunPath, const std::string& localSunPath, StatusFunction& onStatus)` |
 
 #### Bluetooth RFCOMM specific *connect* Methods
-
-IPv4 The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
 
 For the RFCOMM/SOCK_STREAM combination exist four specific *connect* methods.
 
 | Bluetooth RFCOMM *connect* Methods                           |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint8_t channel, uint8_t bindChannel, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onStatus)` |
+| `void connect(const std::string& btAddress, uint8_t channel, uint8_t bindChannel, StatusFunction& onStatus)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,StatusFunction& onStatus)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, StatusFunction& onStatus)` |
 
 #### Bluetooth L2CAP specific *connect* Methods
-
-IPv4 The type `StatusFunction` is defined as
-
-```cpp
-using StatusFunction = const std::function<void(const core::ProgressLog&)>;
-```
 
 For the L2CAP/SOCK_STREAM combination exist four specific *connect* methods.
 
 | Bluetooth L2CAP *connect* Methods                            |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& btAddress, uint16_t psm, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint16_t psm, uint16_t bindPsm, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, StatusFunction& onError)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, uint16_t bindPsm, StatusFunction& onError)` |
+| `void connect(const std::string& btAddress, uint16_t psm, StatusFunction& onStatus)` |
+| `void connect(const std::string& btAddress, uint16_t psm, uint16_t bindPsm, StatusFunction& onStatus)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, StatusFunction& onStatus)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, uint16_t bindPsm, StatusFunction& onStatus)` |
 
 # Configuration
 
@@ -1406,8 +1405,8 @@ Thus, if the port number is configured by using `setPort()` the *listen* method 
 ```cpp
 EchoServer echoServer;
 echoServer.getConfig().setPort(8001);
-echoServer.listen([](const core::ProgressLog& progressLog) -> void {
-    progressLog.logProgress();
+echoServer.listen([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    ...
 });
 ```
 
@@ -1419,8 +1418,8 @@ Though, because a *SocketClient* has two independent sets of IP-Addresses/host n
 EchoServer echoClient;
 echoClient.getConfig().Remote::setIpOrHostname("localhost");
 echoClient.getConfig().Remote::setPort(8001);
-echoClient.connect([](const core::ProgressLog& progressLog) -> void {
-    progressLog.logProgress();
+echoClient.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    ...
 });
 ```
 
@@ -1459,16 +1458,16 @@ Configuration for Application 'echoserver'
 
 Usage: echoserver [OPTIONS]
 
-Options (non-persistent):
+Options (none persistent):
   -h,--help
        Print this help message and exit
   -a,--help-all
        Print this help message, expand instances and exit
   -s,--show-config
        Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
+  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
        Write config file and exit
-  -c,--config-file configfile:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
+  -c,--config-file configfile:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
        Read an config file
   -i,--instance-map name=mapped_name 
        Instance name mapping used to make an instance known under an alias name also in a config file
@@ -1484,13 +1483,13 @@ Options (non-persistent):
        Display program version information and exit
 
 Options (persistent):
-  -l,--log-level level:INT in [0 - 6] [3] 
+  -l,--log-level level:INT in [0 - 6] [4] 
        Log level
-  -v,--verbose-level level:INT in [0 - 10] [0] 
+  -v,--verbose-level level:INT in [0 - 10] [1] 
        Verbose level
   -q{true},-u{false},--quiet={true,false} [false] 
        Quiet mode
-  --log-file logfile:NOT DIR [/home/voc/.local/log/snode.c/httpserver-tls-in.log] 
+  --log-file logfile:NOT DIR [/home/voc/.local/log/snode.c/echoserver.log] 
        Logfile path
   -e{true},-n{false},--enforce-log-file={true,false} [false] 
        Enforce writing of logs to file for foreground applications
@@ -1518,20 +1517,20 @@ EchoServer echoServer("echo"); // Create named server instance
  (try it yourself using the code from github in the **[named-instance](https://github.com/SNodeC/echo/tree/named-instance)** branch of the echo application), the output of the help screen changes slightly:
 
 ```shell
-Configuration for Application 'echoserver'
+ Configuration for Application 'echoserver'
 
 Usage: echoserver [OPTIONS] [INSTANCE]
 
-Options (non-persistent):
+Options (none persistent):
   -h,--help
        Print this help message and exit
   -a,--help-all
        Print this help message, expand instances and exit
   -s,--show-config
        Show current configuration and exit
-  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
+  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
        Write config file and exit
-  -c,--config-file configfile:NOT DIR [/home/voc/.config/snode.c/httpserver-tls-in.conf] 
+  -c,--config-file configfile:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
        Read an config file
   -i,--instance-map name=mapped_name 
        Instance name mapping used to make an instance known under an alias name also in a config file
@@ -1547,13 +1546,13 @@ Options (non-persistent):
        Display program version information and exit
 
 Options (persistent):
-  -l,--log-level level:INT in [0 - 6] [3] 
+  -l,--log-level level:INT in [0 - 6] [4] 
        Log level
-  -v,--verbose-level level:INT in [0 - 10] [0] 
+  -v,--verbose-level level:INT in [0 - 10] [1] 
        Verbose level
   -q{true},-u{false},--quiet={true,false} [false] 
        Quiet mode
-  --log-file logfile:NOT DIR [/home/voc/.local/log/snode.c/httpserver-tls-in.log] 
+  --log-file logfile:NOT DIR [/home/voc/.local/log/snode.c/echoserver.log] 
        Logfile path
   -e{true},-n{false},--enforce-log-file={true,false} [false] 
        Enforce writing of logs to file for foreground applications
@@ -1583,10 +1582,10 @@ Configuration for server instance 'echo'
 
 Usage: echoserver echo [OPTIONS] [SECTIONS]
 
-Options (non-persistent):
+Options (none persistent):
   -h,--help
        Print this help message and exit
-  --help-all
+  -a,--help-all
        Print this help message, expand sections and exit
   --commandline
        Print a template command line showing required options only and exit
@@ -1624,8 +1623,10 @@ Local side of connection for instance 'echo'
 
 Usage: echoserver echo local [OPTIONS]
 
-Options (non-persistent):
+Options (none persistent):
   -h,--help
+       Print this help message and exit
+  -a,--help-all
        Print this help message and exit
 
 Options (persistent):
@@ -1638,7 +1639,7 @@ Options (persistent):
 which offer configuration options to configure the host name or IP-Address and port number the physical server socket should be bound to. Note, that the default value of the port number is `[8001]`, what is this port number used to activate the `echo` instance:
 
 ```cpp
-echoServer.listen(8001, [](const SocketAddress& socketAddress, int err) -> void { // Listen on port 8001 on all interfaces
+echoServer.listen(8001, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
     ...
 });
 ```
@@ -1647,7 +1648,7 @@ This port number can now be overridden on the command line so, that the `echo` l
 
 ```shell
 command@line:~/> echoserver echo local --port 8080
-Success: Echo server listening on 0.0.0.0:8080
+EchoServer: listening on 0.0.0.0:8080
 ```
 
 To make this overridden port number setting persistent a configuration file can be generated and stored automatically by appending `-w`
@@ -1661,7 +1662,7 @@ to the command line above. If *echoserver* is now started without command line a
 
 ```shell
 command@line:~/> echoserver
-Success: Echo server listening on 0.0.0.0:8080
+EchoServer: listening on 0.0.0.0:8080
 ```
 
 the in the configuration file stored port number `8080` is used instead of the port number `8001` used directly in the code.
@@ -1674,8 +1675,8 @@ In case the parameterless *listen* method is used for activating a server instan
 
 ```cpp
 EchoServer echoServer("echo"); // Create server instance
-echoServer.listen([](const core::ProgressLog& progressLog) -> void {
-    progressLog.logProgress();
+echoServer.listen([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    ...
 });
 ```
 
@@ -1705,7 +1706,7 @@ command@line:~/> echoserver echo local --port 8080 -w
 Writing config file: /home/[user]/.config/snode.c/echoserver.conf
 
 command@line:~/> echoserver
-Success: Echo server listening on 0.0.0.0:8080
+EchoServer: listening on 0.0.0.0:8080
 ```
 
 ##### Using the Parameterless *connect* Methods when no Configuration File exists
@@ -1716,8 +1717,8 @@ Lets have look at the case of the named `echoclient`
 
 ```cpp
 EchoClient echoClient("echo"); // Create named client instance
-echoClient.connect([](const core::ProgressLog& progressLog) -> void {
-    progressLog.logProgress();
+echoClient.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    ...
 });
 ```
 
@@ -2126,16 +2127,6 @@ For instance, if the echo server shall also communicate via e.g. Unix-Domain soc
 In that case the Main-Application would look like
 
 ```c++
-#include "EchoServerContextFactory.h"
-
-#include <core/SNodeC.h>
-#include <iostream>
-#include <net/in/stream/legacy/SocketServer.h>
-#include <net/rc/stream/legacy/SocketServer.h>
-#include <net/un/stream/legacy/SocketServer.h>
-#include <cstring>
-#include <string>
-
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
@@ -2143,28 +2134,69 @@ int main(int argc, char* argv[]) {
     using SocketAddressIn = EchoServerIn::SocketAddress;
 
     EchoServerIn echoServerIn;
-    echoServerIn.listen(8001,
-                        [](const core::ProgressLog& progressLog) -> void {
-                            progressLog.logProgress();
-                        });
+    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoServerIn: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoServerIn: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoServerIn: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoServerIn: critical error occurred";
+                break;
+        }
+    });
 
     using EchoServerUn = net::un::stream::legacy::SocketServer<EchoServerContextFactory>;
     using SocketAddressUn = EchoServerUn::SocketAddress;
 
     EchoServerUn echoServerUn;
-    echoServerUn.listen("/tmp/echoserver",
-                        [](const core::ProgressLog& progressLog) -> void {
-                            progressLog.logProgress();
-                        });
+    echoServerUn.listen("/tmp/echoserver", [](const SocketAddressUn& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoServerUn: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoServerUn: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoServerUn: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoServerUn: critical error occurred";
+                break;
+        }
+    });
 
     using EchoServerRc = net::rc::stream::legacy::SocketServer<EchoServerContextFactory>;
     using SocketAddressRc = EchoServerRc::SocketAddress;
 
+    // Disabled because a peer would be needed and that's out of scope of this demo app.
+    // If a peer exists and runs the echo server remove the commented line
+    // echoClientRc.getConfig().setDisabled() and specify the bluetooth address and channel
+    // of the peer.
     EchoServerRc echoServerRc;
-    echoServerRc.listen(16,
-                        [](const core::ProgressLog& progressLog) -> void {
-                            progressLog.logProgress();
-                        });
+    echoServerRc.getConfig().setDisabled();
+    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoServerRc: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoServerRc: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoServerRc: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoServerRc: critical error occurred";
+                break;
+        }
+    });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
@@ -2173,15 +2205,6 @@ int main(int argc, char* argv[]) {
 and the client application with an additional Unix-Domain socket instance look like
 
 ```c++
-#include "EchoClientContextFactory.h"
-
-#include <core/SNodeC.h>
-#include <iostream>
-#include <net/in/stream/legacy/SocketClient.h>
-#include <net/un/stream/legacy/SocketClient.h>
-#include <cstring>
-#include <string>
-
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
@@ -2189,21 +2212,74 @@ int main(int argc, char* argv[]) {
     using EchoClientIn = net::in::stream::legacy::SocketClient<EchoClientContextFactory<ipv4>>;
     using SocketAddressIn = EchoClientIn::SocketAddress;
 
-    EchoClientIn echoClientIn; // Create client instance
-    echoClientIn.connect("localhost",
-                         8001,
-                         [](const core::ProgressLog& progressLog) -> void {
-                             progressLog.logProgress();
-                         });
+    EchoClientIn echoClientIn;
+    echoClientIn.connect("localhost", 8001, [](const SocketAddressIn& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoClientIn: connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoClientIn: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoClientIn: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoClientIn: critical error occurred";
+                break;
+        }
+    });
 
     static std::string unixDomain("Unix-Domain Socket");
     using EchoClientUn = net::un::stream::legacy::SocketClient<EchoClientContextFactory<unixDomain>>;
     using SocketAddressUn = EchoClientUn::SocketAddress;
 
-    EchoClientUn echoClientUn; // Create client instance
-    echoClientUn.connect("/tmp/echoserver",
-                         [](const core::ProgressLog& progressLog) -> void {
-                             progressLog.logProgress();
+    EchoClientUn echoClientUn;
+    echoClientUn.connect("/tmp/echoserver", [](const SocketAddressUn& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoClientUn: connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoClientUn: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoClientUn: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoClientUn: critical error occurred";
+                break;
+        }
+    });
+
+    // Disabled because a peer would be needed and that's out of scope of this demo app.
+    // If a peer exists and runs the echo server remove the commented line
+    // echoClientRc.getConfig().setDisabled(); specify the bluetooth address and channel
+    // of the peer.
+    static std::string rc("RFCOMM Socket");
+    using EchoClientRc = net::rc::stream::legacy::SocketClient<EchoClientContextFactory<rc>>;
+    using SocketAddressRc = EchoClientRc::SocketAddress;
+
+    EchoClientRc echoClientRc; // Create client instance
+    echoClientUn.getConfig().setDisabled();
+    echoClientRc.connect("10:3D:1C:AC:BA:9C",
+                         1,
+                         [](const SocketAddressRc& socketAddress,
+                            core::socket::State state) -> void { // Connect to server
+                             switch (state) {
+                                 case core::socket::State::OK:
+                                     VLOG(1) << "EchoClientRc: connected to '" << socketAddress.toString() << "'";
+                                     break;
+                                 case core::socket::State::DISABLED:
+                                     VLOG(1) << "EchoClientRc: disabled";
+                                     break;
+                                 case core::socket::State::ERROR:
+                                     VLOG(1) << "EchoClientRc: non critical error occurred";
+                                     break;
+                                 case core::socket::State::FATAL:
+                                     VLOG(1) << "EchoClientRc: critical error occurred";
+                                     break;
+                             }
                          });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
@@ -2254,6 +2330,7 @@ The use of X.509 certificates for encrypted communication is demonstrated also.
 #include <express/middleware/StaticMiddleware.h>
 #include <log/Logger.h>
 #include <utils/Config.h>
+
 int main(int argc, char* argv[]) {
     utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
 
@@ -2263,19 +2340,30 @@ int main(int argc, char* argv[]) {
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
     LegacyWebApp legacyApp;
-    legacyApp.getConfig().setReuseAddress();
 
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "LegacyWebApp: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "LegacyWebApp: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "LegacyWebApp: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "LegacyWebApp: critical error occurred";
+                break;
+        }
     });
 
     using TLSWebApp = express::tls::in::WebApp;
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
     TLSWebApp tlsApp;
-    tlsApp.getConfig().setReuseAddress();
 
     tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
     tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
@@ -2283,10 +2371,22 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    tlsApp.listen(8088,
-                  [](const core::ProgressLog& progressLog) -> void {
-                      progressLog.logProgress();
-                  });
+    tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "TLSWebApp: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "TLSWebApp: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "TLSWebApp: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "TLSWebApp: critical error occurred";
+                break;
+        }
+    });
 
     return express::WebApp::start();
 }
@@ -2308,7 +2408,6 @@ int main(int argc, char* argv[]) {
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
     LegacyWebApp legacyApp;
-    legacyApp.getConfig().setReuseAddress();
 
     // The macro 
     //    APPLICATION(req, res)
@@ -2360,16 +2459,27 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "LegacyWebApp: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "LegacyWebApp: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "LegacyWebApp: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "LegacyWebApp: critical error occurred";
+                break;
+        }
     });
 
     using TLSWebApp = express::tls::in::WebApp;
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
     TLSWebApp tlsApp;
-    
-    tlsApp.getConfig().setReuseAddress();
 
     tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
     tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
@@ -2377,10 +2487,22 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(legacyApp);
 
-    tlsApp.listen(8088,
-                  [](const core::ProgressLog& progressLog) -> void {
-                      progressLog.logProgress();
-                  });
+    tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "TLSWebApp: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "TLSWebApp: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "TLSWebApp: non critical error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "TLSWebApp: critical error occurred";
+                break;
+        }
+    });
 
     return express::WebApp::start();
 }
