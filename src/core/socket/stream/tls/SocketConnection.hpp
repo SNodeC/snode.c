@@ -109,10 +109,10 @@ namespace core::socket::stream::tls {
                 SocketReader::span();
                 onSuccess();
             },
-            [onTimeout, this]() -> void { // onTimeout
+            [onTimeout]() -> void { // onTimeout
                 onTimeout();
             },
-            [onError, this](int sslErr) -> void { // onError
+            [onError](int sslErr) -> void { // onError
                 onError(sslErr);
             },
             sslInitTimeout);
