@@ -94,6 +94,8 @@ namespace core {
             descriptorEventPublisher->stop();
         }
         timerEventPublisher->stop();
+
+        releaseExpiredResources(utils::Timeval::currentTime());
     }
 
     void EventMultiplexer::clear() {

@@ -52,12 +52,6 @@ namespace core::socket::stream::tls {
         , onError(onError)
         , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
-        ReadEventReceiver::enable(fd);
-        ReadEventReceiver::suspend();
-
-        WriteEventReceiver::enable(fd);
-        WriteEventReceiver::suspend();
-
         int ret = SSL_do_handshake(ssl);
 
         int sslErr = SSL_ERROR_NONE;
@@ -67,20 +61,24 @@ namespace core::socket::stream::tls {
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
-                ReadEventReceiver::resume();
+                ReadEventReceiver::enable(fd);
+
+                WriteEventReceiver::enable(fd);
+                WriteEventReceiver::suspend();
                 break;
             case SSL_ERROR_WANT_WRITE:
-                WriteEventReceiver::resume();
+                ReadEventReceiver::enable(fd);
+                ReadEventReceiver::suspend();
+
+                WriteEventReceiver::enable(fd);
                 break;
             case SSL_ERROR_NONE:
                 onSuccess();
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
+                delete this;
                 break;
             default:
                 onError(sslErr);
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
+                delete this;
                 break;
         }
     }

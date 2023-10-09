@@ -47,24 +47,24 @@ int main(int argc, char* argv[]) {
                 break;
         }
     });
-
-    client.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << "echoclient: disabled";
-                break;
-            case core::socket::State::ERROR:
-                VLOG(1) << "echoclientt: non critical error occurred";
-                break;
-            case core::socket::State::FATAL:
-                VLOG(1) << "echoclient: critical error occurred";
-                break;
-        }
-    });
-
+    /*
+        client.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << "echoclient: disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << "echoclientt: non critical error occurred";
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << "echoclient: critical error occurred";
+                    break;
+            }
+        });
+    */
     return core::SNodeC::start();
 }
 
