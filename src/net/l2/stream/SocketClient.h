@@ -47,7 +47,9 @@ namespace net::l2::stream {
 
         using Super::connect;
 
-        void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+        void connect(const std::string& btAddress,
+                     uint16_t psm,
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
 
             connect(SocketAddress(btAddress, psm), onStatus);

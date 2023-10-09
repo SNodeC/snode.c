@@ -59,7 +59,9 @@ namespace net::in6::stream {
             listen(onStatus);
         }
 
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        void listen(const std::string& ipOrHostname,
+                    uint16_t port,
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setHost(ipOrHostname).setPort(port);
 
             listen(onStatus);

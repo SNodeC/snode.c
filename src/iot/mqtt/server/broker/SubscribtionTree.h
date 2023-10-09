@@ -45,7 +45,7 @@ namespace iot::mqtt::server::broker {
 
         void publish(Message&& message);
 
-        bool unsubscribe(const std::string &topic, const std::string& clientId);
+        bool unsubscribe(const std::string& topic, const std::string& clientId);
         bool unsubscribe(const std::string& clientId);
 
         nlohmann::json toJson() const;

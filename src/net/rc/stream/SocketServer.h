@@ -60,7 +60,9 @@ namespace net::rc::stream {
             listen(onStatus);
         }
 
-        void listen(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        void listen(const std::string& btAddress,
+                    uint8_t channel,
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setBtAddress(btAddress).setChannel(channel);
 
             listen(onStatus);

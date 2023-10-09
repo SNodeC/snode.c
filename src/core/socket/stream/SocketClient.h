@@ -173,7 +173,7 @@ namespace core::socket::stream {
                         }
                     },
                     [client = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
-                                                                        core::socket::State state) -> void {
+                                                                         core::socket::State state) -> void {
                         onStatus(socketAddress, state);
 
                         switch (state) {

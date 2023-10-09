@@ -60,7 +60,9 @@ namespace net::l2::stream {
             listen(onStatus);
         }
 
-        void listen(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        void listen(const std::string& btAddress,
+                    uint16_t psm,
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
 
             listen(onStatus);

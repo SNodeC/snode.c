@@ -47,7 +47,9 @@ namespace net::rc::stream {
 
         using Super::connect;
 
-        void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+        void connect(const std::string& btAddress,
+                     uint8_t channel,
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setBtAddress(btAddress).setChannel(channel);
 
             connect(SocketAddress(btAddress, channel), onStatus);

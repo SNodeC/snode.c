@@ -47,7 +47,9 @@ namespace net::in6::stream {
 
         using Super::connect;
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
             Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
 
             connect(onStatus);
