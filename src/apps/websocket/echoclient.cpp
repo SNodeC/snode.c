@@ -37,6 +37,8 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     {
+        using LegacySocketAddress = web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress;
+
         web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
             "legacy",
             [](web::http::client::Request& request) -> void {
@@ -76,9 +78,15 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             });
 
-        legacyClient.connect([](const core::ProgressLog& progressLog) -> void {
-            progressLog.logProgress();
+        legacyClient.connect([](const LegacySocketAddress& socketAddress, int err) -> void {
+            if (err != 0) {
+                PLOG(ERROR) << "OnError: " << err;
+            } else {
+                VLOG(0) << "wsechoclient connected to " << socketAddress.toString();
+            }
         }); // Connection:keep-alive\r\n\r\n"
+
+        using TLSSocketAddress = web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress;
 
         web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
             "tls",
@@ -119,8 +127,12 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             });
 
-        tlsClient.connect([](const core::ProgressLog& progressLog) -> void {
-            progressLog.logProgress();
+        tlsClient.connect([](const TLSSocketAddress& socketAddress, int err) -> void {
+            if (err != 0) {
+                PLOG(ERROR) << "OnError: " << err;
+            } else {
+                VLOG(0) << "wsechoclient connected to " << socketAddress.toString();
+            }
         }); // Connection:keep-alive\r\n\r\n"
     }
 

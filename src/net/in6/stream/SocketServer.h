@@ -47,19 +47,19 @@ namespace net::in6::stream {
 
         using Super::listen;
 
-        void listen(uint16_t port, const std::function<void(const core::ProgressLog&)>& onError) const {
+        void listen(uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
             Super::getConfig().Local::setPort(port);
 
             listen(onError);
         }
-        void listen(uint16_t port, int backlog, const std::function<void(const core::ProgressLog&)>& onError) const {
+        void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, int)>& onError) const {
             Super::getConfig().Local::setPort(port);
             Super::getConfig().setBacklog(backlog);
 
             listen(onError);
         }
 
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const core::ProgressLog&)>& onError) const {
+        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, int)>& onError) const {
             Super::getConfig().Local::setHost(ipOrHostname).setPort(port);
 
             listen(onError);
@@ -68,7 +68,7 @@ namespace net::in6::stream {
         void listen(const std::string& ipOrHostname,
                     uint16_t port,
                     int backlog,
-                    const std::function<void(const core::ProgressLog&)>& onError) const {
+                    const std::function<void(const SocketAddress&, int)>& onError) const {
             Super::getConfig().Local::setHost(ipOrHostname).setPort(port);
             Super::getConfig().setBacklog(backlog);
 

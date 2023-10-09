@@ -19,9 +19,9 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 #define CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 
-#include "core/ProgressLog.h" // IWYU pragma: export
 #include "core/SNodeC.h"
 #include "core/socket/Socket.h" // IWYU pragma: export
+#include "core/socket/State.h"  // IWYU pragme: export
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -145,33 +145,43 @@ namespace core::socket::stream {
         }
 
     private:
-        void realListen(const std::function<void(const core::ProgressLog&)>& onError, unsigned int tries, double retryTimeoutScale) const {
+        void realListen(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries, double retryTimeoutScale) const {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketAcceptor(
                     socketContextFactory,
                     onConnect,
                     onConnected,
                     onDisconnect,
-                    [server = *this, onError, tries, retryTimeoutScale](const core::ProgressLog& progressLog) -> void {
-                        onError(progressLog);
+                    [server = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress,
+                                                                        core::socket::State state) -> void {
+                        onError(socketAddress, state);
 
-                        if (progressLog.getHasErrors() != 0 && server.getConfig().getRetry() &&
-                            (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries())) {
-                            double relativeRetryTimeout = server.getConfig().getRetryLimit() > 0
-                                                              ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                                                 server.getConfig().getRetryLimit())
-                                                              : server.getConfig().getRetryTimeout() * retryTimeoutScale;
-                            relativeRetryTimeout -=
-                                utils::Random::getInRange(-server.getConfig().getRetryJitter(), server.getConfig().getRetryJitter()) *
-                                relativeRetryTimeout / 100.;
+                        switch (state) {
+                            case core::socket::State::ERROR:
+                                if (server.getConfig().getRetry() &&
+                                    (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries())) {
+                                    double relativeRetryTimeout =
+                                        server.getConfig().getRetryLimit() > 0
+                                            ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                               server.getConfig().getRetryLimit())
+                                            : server.getConfig().getRetryTimeout() * retryTimeoutScale;
+                                    relativeRetryTimeout -= utils::Random::getInRange(-server.getConfig().getRetryJitter(),
+                                                                                      server.getConfig().getRetryJitter()) *
+                                                            relativeRetryTimeout / 100.;
 
-                            LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
+                                    LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
 
-                            core::timer::Timer::singleshotTimer(
-                                [server, onError, tries, retryTimeoutScale]() mutable -> void {
-                                    server.realListen(onError, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
-                                },
-                                relativeRetryTimeout);
+                                    core::timer::Timer::singleshotTimer(
+                                        [server, onError, tries, retryTimeoutScale]() mutable -> void {
+                                            server.realListen(onError, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
+                                        },
+                                        relativeRetryTimeout);
+                                }
+                                break;
+                            case core::socket::State::OK:
+                            case core::socket::State::DISABLED:
+                            case core::socket::State::FATAL:
+                                break;
                         }
                     },
                     Super::config);
@@ -179,17 +189,20 @@ namespace core::socket::stream {
         }
 
     public:
-        void listen(const std::function<void(const core::ProgressLog&)>& onError) const {
+        void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
             realListen(onError, 0, 1);
         }
 
-        void listen(const SocketAddress& localAddress, const std::function<void(const core::ProgressLog&)>& onError) const {
+        void listen(const SocketAddress& localAddress,
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
             Super::config->Local::setSocketAddress(localAddress);
 
             listen(onError);
         }
 
-        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const core::ProgressLog&)>& onError) const {
+        void listen(const SocketAddress& localAddress,
+                    int backlog,
+                    const std::function<void(const SocketAddress&, core::socket::State)>& onError) const {
             Super::config->Local::setBacklog(backlog);
 
             listen(localAddress, onError);

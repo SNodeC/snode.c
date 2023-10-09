@@ -20,6 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
+#include "core/socket/State.h"
 #include "core/socket/stream/SocketConnectionFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -62,7 +63,7 @@ namespace core::socket::stream {
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
-                        const std::function<void(const core::ProgressLog&)>& onError,
+                        const std::function<void(const SocketAddress&, int)>& onError,
                         const std::shared_ptr<Config>& config,
                         const std::shared_ptr<core::ProgressLog> progressLog = std::make_shared<core::ProgressLog>());
 
@@ -91,7 +92,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
 
-        std::function<void(const core::ProgressLog&)> onError;
+        std::function<void(const SocketAddress&, int)> onError;
 
         std::shared_ptr<Config> config = nullptr;
         std::shared_ptr<core::ProgressLog> progressLog;

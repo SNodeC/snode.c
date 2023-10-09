@@ -35,7 +35,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const core::ProgressLog&)>& onError,
+        const std::function<void(const SocketAddress&, core::socket::State)>& onError,
         const std::shared_ptr<Config>& config,
         const std::shared_ptr<core::ProgressLog> progressLog)
         : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
@@ -65,40 +65,73 @@ namespace core::socket::stream {
             core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
 
             try {
+                State state = State::OK;
+
                 localAddress = config->Local::getSocketAddress();
                 physicalSocket = new PhysicalSocket();
 
                 if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                    progressLog->addEntry(0) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
+                    switch (errno) {
+                        case EMFILE:
+                        case ENFILE:
+                        case ENOBUFS:
+                        case ENOMEM:
+                            state = State::ERROR;
+                            PLOG(WARNING) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
+                            break;
+                        default:
+                            state = State::FATAL;
+                            PLOG(ERROR) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
+                            break;
+                    }
                 } else if (physicalSocket->bind(localAddress) < 0) {
-                    progressLog->addEntry(0) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
+                    switch (errno) {
+                        case EADDRINUSE:
+                            state = State::ERROR;
+                            PLOG(WARNING) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
+                            break;
+                        default:
+                            state = State::FATAL;
+                            PLOG(ERROR) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
+                            break;
+                    }
                 } else if (physicalSocket->listen(config->getBacklog()) < 0) {
-                    progressLog->addEntry(0) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
+                    switch (errno) {
+                        case EADDRINUSE:
+                            state = State::ERROR;
+                            PLOG(WARNING) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
+                            break;
+                        default:
+                            state = State::FATAL;
+                            PLOG(ERROR) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
+                            break;
+                    }
                 } else {
-                    progressLog->addEntry(0) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                     enable(physicalSocket->getFd());
+                    LOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "' success";
                 }
 
                 if (localAddress.useNext()) {
+                    LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
+                               << config->Local::getSocketAddress().toString() << "'";
                     new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
                 } else {
-                    onError(*progressLog);
+                    onError(localAddress, state);
                 }
 
                 if (!isEnabled()) {
                     destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                utils::PreserveErrno pe(0);
-                progressLog->addEntry(0) << config->getInstanceName() << ": getLocalAddress '" << localAddress.toString()
-                                         << "': BadSocketAddress: " << badSocketAddress.what();
-                onError(*progressLog);
+                LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
 
+                onError(localAddress, badSocketAddress.getState());
                 destruct();
             }
         } else {
-            LOG(TRACE) << "Instance '" << config->getInstanceName() << "' disabled";
+            LOG(TRACE) << config->getInstanceName() << ": disabled";
 
+            onError(localAddress, core::socket::State::DISABLED);
             destruct();
         }
     }
@@ -109,13 +142,12 @@ namespace core::socket::stream {
 
         do {
             PhysicalSocket physicalClientSocket(physicalSocket->accept4(PhysicalSocket::Flags::NONBLOCK));
-
             if (physicalClientSocket.isValid()) {
                 LOG(TRACE) << config->getInstanceName() << ": accept success '" << localAddress.toString() << "'";
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(TRACE) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
+                PLOG(ERROR) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
             }
         } while (--acceptsPerTick > 0);
     }

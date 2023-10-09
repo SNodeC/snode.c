@@ -35,7 +35,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const core::ProgressLog&)>& onError,
+        const std::function<void(const SocketAddress&, core::socket::State)>& onError,
         const std::shared_ptr<Config>& config,
         const std::shared_ptr<core::ProgressLog> progressLog)
         : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
@@ -70,57 +70,90 @@ namespace core::socket::stream {
                 localAddress = config->Local::getSocketAddress();
 
                 try {
-                    remoteAddress = config->Remote::getSocketAddress();
+                    State state = State::OK;
 
+                    remoteAddress = config->Remote::getSocketAddress();
                     physicalSocket = new PhysicalSocket();
 
                     if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
-                        progressLog->addEntry(0) << config->getInstanceName() << ": open '" << remoteAddress.toString() << "'";
+                        switch (errno) {
+                            case EMFILE:
+                            case ENFILE:
+                            case ENOBUFS:
+                            case ENOMEM:
+                                PLOG(WARNING) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
+
+                                state = State::ERROR;
+                                break;
+                            default:
+                                PLOG(ERROR) << config->getInstanceName() << ": open failed '" << localAddress.toString() << "'";
+
+                                state = State::FATAL;
+                                break;
+                        }
                     } else if (physicalSocket->bind(localAddress) < 0) {
-                        progressLog->addEntry(0) << config->getInstanceName() << ": bind '" << remoteAddress.toString() << "'";
-                    } else if (physicalSocket->connect(remoteAddress) != 0 && !physicalSocket->connectInProgress(errno)) {
-                        progressLog->addEntry(0) << config->getInstanceName() << ": initial connect '" << remoteAddress.toString() << "'";
+                        switch (errno) {
+                            case EADDRINUSE:
+                                PLOG(WARNING) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
+
+                                state = State::ERROR;
+                                break;
+                            default:
+                                PLOG(ERROR) << config->getInstanceName() << ": bind failed '" << localAddress.toString() << "'";
+
+                                state = State::FATAL;
+                                break;
+                        }
+                    } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
+                        switch (errno) {
+                            case EADDRINUSE:
+                            case EADDRNOTAVAIL:
+                            case ECONNREFUSED:
+                            case ENETUNREACH:
+                                PLOG(WARNING) << config->getInstanceName() << ": connect '" << localAddress.toString() << "'";
+
+                                state = State::ERROR;
+                                break;
+                            default:
+                                PLOG(ERROR) << config->getInstanceName() << ": connect failed '" << localAddress.toString() << "'";
+
+                                state = State::FATAL;
+                                break;
+                        }
                     } else if (physicalSocket->connectInProgress(errno)) {
-                        utils::PreserveErrno pe(0);
-                        progressLog->addEntry(0)
-                            << config->getInstanceName() << ": initial connect '" << remoteAddress.toString() << "' connecting in progress";
+                        LOG(TRACE) << config->getInstanceName() << ": connect in progress'" << localAddress.toString() << "'";
 
                         enable(physicalSocket->getFd());
                     } else {
-                        progressLog->addEntry(0)
-                            << config->getInstanceName() << ": initial connect '" << remoteAddress.toString() << "' connection estableshed";
-                        onError(*progressLog);
+                        LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
                         SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
+                        onError(remoteAddress, state);
                     }
 
                     if (!isEnabled()) {
                         if (remoteAddress.useNext()) {
                             new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
                         } else {
-                            onError(*progressLog);
+                            onError(remoteAddress, state);
                         }
 
                         destruct();
                     }
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                    utils::PreserveErrno pe(0);
-                    progressLog->addEntry(0) << config->getInstanceName() << ": getRemoteAddress '" << remoteAddress.toString()
-                                             << "': BadSocketAddress: " << badSocketAddress.what();
-                    onError(*progressLog);
+                    LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
 
+                    onError(remoteAddress, badSocketAddress.getState());
                     destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                utils::PreserveErrno pe(0);
-                progressLog->addEntry(0) << config->getInstanceName() << ": getLocalAddress '" << localAddress.toString()
-                                         << "': BadSocketAddress: " << badSocketAddress.what();
-                onError(*progressLog);
+                LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
 
+                onError(remoteAddress, badSocketAddress.getState());
                 destruct();
             }
         } else {
-            LOG(TRACE) << "Instance '" << config->getInstanceName() << "' disabled";
+            LOG(TRACE) << config->getInstanceName() << ": disabled";
 
             destruct();
         }
@@ -130,30 +163,52 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
         int cErrno;
 
+        core::socket::State state = core::socket::State::OK;
+
         if (physicalSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
-            errno = cErrno;
+            if (cErrno == 0) {
+                LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
-            if (errno == 0) {
-                progressLog->addEntry(0) << config->getInstanceName() << ": connectEvent '" << remoteAddress.toString() << "'";
-                onError(*progressLog.get());
-
+                onError(remoteAddress, state);
                 disable();
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
-            } else if (!physicalSocket->connectInProgress(errno)) {
-                progressLog->addEntry(0) << config->getInstanceName() << ": connectEvent::error '" << remoteAddress.toString() << "'";
+            } else if (!physicalSocket->connectInProgress(cErrno)) {
+                LOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+
                 if (remoteAddress.useNext()) {
+                    LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
+                               << config->Remote::getSocketAddress().toString() << "'";
+
                     new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
                 } else {
-                    onError(*progressLog);
+                    switch (cErrno) {
+                        case EADDRINUSE:
+                        case EADDRNOTAVAIL:
+                        case ECONNREFUSED:
+                        case ENETUNREACH:
+                            PLOG(WARNING) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+
+                            state = State::ERROR;
+                            break;
+                        default:
+                            PLOG(ERROR) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+
+                            state = State::FATAL;
+                            break;
+                    }
+
+                    onError(remoteAddress, state);
                 }
 
                 disable();
+            } else {
+                // Connect still in progress
             }
-        } else { // syscall error
-            progressLog->addEntry(0) << config->getInstanceName() << ": connectEvent '" << remoteAddress.toString() << "'";
-            onError(*progressLog);
+        } else {
+            PLOG(ERROR) << config->getInstanceName() << ": getsockopt syscall error '" << remoteAddress.toString() << "'";
 
+            onError(remoteAddress, core::socket::State::FATAL);
             disable();
         }
     }
@@ -170,14 +225,20 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
-        disable();
+        LOG(WARNING) << config->getInstanceName() << ": connect timeout " << remoteAddress.toString();
 
         if (remoteAddress.useNext()) {
+            LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '" << config->Remote::getSocketAddress().toString()
+                       << "'";
+
             new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
         } else {
-            errno = ETIMEDOUT;
-            onError(*progressLog);
+            LOG(ERROR) << config->getInstanceName() << ": connect timeout '" << remoteAddress.toString() << "'";
+
+            onError(remoteAddress, core::socket::State::ERROR);
         }
+
+        disable();
     }
 
 } // namespace core::socket::stream

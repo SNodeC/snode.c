@@ -36,7 +36,7 @@ namespace net::in {
     }
 
     int SocketAddrInfo::init(const std::string& node, const std::string& service, const addrinfo& hints) {
-        int err = 0;
+        int aiErrCode = 0;
 
         this->node = node;
         this->service = service;
@@ -46,12 +46,12 @@ namespace net::in {
             addrInfo = nullptr;
         }
 
-        if ((err = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
+        if ((aiErrCode = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
             currentAddrInfo = addrInfo;
             SocketAddrInfo::logAddressInfo("Initialized AddressInfo", currentAddrInfo);
         }
 
-        return err;
+        return aiErrCode;
     }
 
     bool SocketAddrInfo::useNext() {
@@ -63,8 +63,6 @@ namespace net::in {
         } else {
             currentAddrInfo = addrInfo;
         }
-
-        LOG(TRACE) << "Has Next: " << useNext;
 
         if (useNext) {
             SocketAddrInfo::logAddressInfo("Next potentially used AddressInfo", currentAddrInfo);

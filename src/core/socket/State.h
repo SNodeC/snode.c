@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,7 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketAddress.h"
+#ifndef CORE_SOCKET_STATE_H
+#define CORE_SOCKET_STATE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,19 +25,8 @@
 
 namespace core::socket {
 
-    SocketAddress::~SocketAddress() {
-    }
-
-    SocketAddress::BadSocketAddress::BadSocketAddress(const std::string& errorMessage, State state)
-        : runtime_error(errorMessage)
-        , state(state) {
-    }
-
-    SocketAddress::BadSocketAddress::~BadSocketAddress() {
-    }
-
-    State SocketAddress::BadSocketAddress::getState() const {
-        return state;
-    }
+    enum class State { OK, DISABLED, ERROR, FATAL };
 
 } // namespace core::socket
+
+#endif // CORE_SOCKET_STATE_H

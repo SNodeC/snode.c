@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
     using LegacyWebApp = express::legacy::in::WebApp;
+    using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
     LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
@@ -82,11 +83,16 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) -> void {
+        if (errnum != 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "LegacyWebApp listening on " << socketAddress.toString();
+        }
     });
 
     using TLSWebApp = express::tls::in::WebApp;
+    using TLSSocketAddress = TLSWebApp::SocketAddress;
 
     TLSWebApp tlsApp;
     tlsApp.getConfig().setReuseAddress();
@@ -97,8 +103,12 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(legacyApp);
 
-    tlsApp.listen(8088, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) -> void {
+        if (errnum != 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "TLSWebApp listening on " << socketAddress.toString();
+        }
     });
 
     return express::WebApp::start();

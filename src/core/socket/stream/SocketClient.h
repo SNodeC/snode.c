@@ -19,9 +19,9 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
-#include "core/ProgressLog.h" // IWYU pragma: export
 #include "core/SNodeC.h"
 #include "core/socket/Socket.h" // IWYU pragma: export
+#include "core/socket/State.h"  // IWYU pragme: export
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -149,7 +149,7 @@ namespace core::socket::stream {
         }
 
     private:
-        void realConnect(const std::function<void(const core::ProgressLog&)>& onError, unsigned int tries, double retryTimeoutScale) {
+        void realConnect(const std::function<void(const SocketAddress&, int)>& onError, unsigned int tries, double retryTimeoutScale) {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketConnector(
                     socketContextFactory,
@@ -170,26 +170,36 @@ namespace core::socket::stream {
                                 relativeReconnectTimeout);
                         }
                     },
-                    [client = *this, onError, tries, retryTimeoutScale](const core::ProgressLog& progressLog) -> void {
-                        onError(progressLog);
+                    [client = *this, onError, tries, retryTimeoutScale](const SocketAddress& socketAddress,
+                                                                        core::socket::State state) -> void {
+                        onError(socketAddress, state);
 
-                        if (progressLog.getHasErrors() && client.getConfig().getRetry() &&
-                            (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries())) {
-                            double relativeRetryTimeout = client.getConfig().getRetryLimit() > 0
-                                                              ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                                                 client.getConfig().getRetryLimit())
-                                                              : client.getConfig().getRetryTimeout() * retryTimeoutScale;
-                            relativeRetryTimeout -=
-                                utils::Random::getInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) *
-                                relativeRetryTimeout / 100.;
+                        switch (state) {
+                            case core::socket::State::ERROR:
+                                if (client.getConfig().getRetry() &&
+                                    (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries())) {
+                                    double relativeRetryTimeout =
+                                        client.getConfig().getRetryLimit() > 0
+                                            ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                               client.getConfig().getRetryLimit())
+                                            : client.getConfig().getRetryTimeout() * retryTimeoutScale;
+                                    relativeRetryTimeout -= utils::Random::getInRange(-client.getConfig().getRetryJitter(),
+                                                                                      client.getConfig().getRetryJitter()) *
+                                                            relativeRetryTimeout / 100.;
 
-                            LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
+                                    LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
 
-                            core::timer::Timer::singleshotTimer(
-                                [client, onError, tries, retryTimeoutScale]() mutable -> void {
-                                    client.realConnect(onError, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
-                                },
-                                relativeRetryTimeout);
+                                    core::timer::Timer::singleshotTimer(
+                                        [client, onError, tries, retryTimeoutScale]() mutable -> void {
+                                            client.realConnect(onError, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
+                                        },
+                                        relativeRetryTimeout);
+                                }
+                                break;
+                            case core::socket::State::OK:
+                            case core::socket::State::DISABLED:
+                            case core::socket::State::FATAL:
+                                break;
                         }
                     },
                     Super::config);
@@ -197,11 +207,11 @@ namespace core::socket::stream {
         }
 
     public:
-        void connect(const std::function<void(const core::ProgressLog&)>& onError) {
+        void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
             realConnect(onError, 0, 1);
         }
 
-        void connect(const SocketAddress& remoteAddress, const std::function<void(const core::ProgressLog&)>& onError) {
+        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
             Super::config->Remote::setSocketAddress(remoteAddress);
 
             connect(onError);
@@ -209,7 +219,7 @@ namespace core::socket::stream {
 
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& localAddress,
-                     const std::function<void(const core::ProgressLog&)>& onError) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onError) {
             Super::config->Local::setSocketAddress(localAddress);
 
             connect(remoteAddress, onError);

@@ -19,6 +19,8 @@
 #ifndef CORE_SOCKET_SOCKETADDRESS_H
 #define CORE_SOCKET_SOCKETADDRESS_H
 
+#include "core/socket/State.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <stdexcept> // IWYU pragma: export
@@ -34,13 +36,13 @@ namespace core::socket {
         public:
             using Super = std::runtime_error;
 
-            explicit BadSocketAddress(const std::string& errorMessage, int errCode);
+            explicit BadSocketAddress(const std::string& errorMessage, State state);
             ~BadSocketAddress() override;
 
-            int getErrCode() const;
+            State getState() const;
 
         private:
-            int errCode = 0;
+            State state = State::OK;
         };
 
         virtual ~SocketAddress();

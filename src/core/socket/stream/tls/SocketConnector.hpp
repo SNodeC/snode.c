@@ -31,13 +31,14 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalSocketClient, typename Config>
-    SocketConnector<PhysicalSocketClient, Config>::SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
-                                                                   const std::function<void(SocketConnection*)>& onConnect,
-                                                                   const std::function<void(SocketConnection*)>& onConnected,
-                                                                   const std::function<void(SocketConnection*)>& onDisconnect,
-                                                                   const std::function<void(const core::ProgressLog&)>& onError,
-                                                                   const std::shared_ptr<Config>& config)
+    template <typename PhysicalClientSocket, typename Config>
+    core::socket::stream::tls::SocketConnector<PhysicalClientSocket, Config>::SocketConnector(
+        const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+        const std::function<void(SocketConnection*)>& onConnect,
+        const std::function<void(SocketConnection*)>& onConnected,
+        const std::function<void(SocketConnection*)>& onDisconnect,
+        const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+        const std::shared_ptr<Config>& config)
         : Super(
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
@@ -45,7 +46,7 @@ namespace core::socket::stream::tls {
 
                   onConnect(socketConnection);
               },
-              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
+              [socketContextFactory, onConnected, config = this->config](SocketConnection* socketConnection) -> void { // onConnect
                   SSL* ssl = socketConnection->getSSL();
 
                   if (ssl != nullptr) {
@@ -58,15 +59,15 @@ namespace core::socket::stream::tls {
                               onConnected(socketConnection);
                               socketConnection->connected(socketContextFactory);
                           },
-                          []() -> void { // onTimeout
-                              LOG(TRACE) << "SSL/TLS initial handshake timed out";
+                          [config]() -> void { // onTimeout
+                              LOG(TRACE) << config.getInstanceName() << ": SSL/TLS initial handshake timed out";
                           },
-                          [](int sslErr) -> void { // onError
-                              ssl_log("SSL/TLS initial handshake failed", sslErr);
+                          [config](int sslErr) -> void { // onError
+                              ssl_log(config.getInstanceName() << ": SSL/TLS initial handshake failed", sslErr);
                           });
                   } else {
                       socketConnection->close();
-                      ssl_log_error("SSL/TLS initialization failed");
+                      ssl_log_error(config.getInstanceName() << ": SSL/TLS initialization failed");
                   }
               },
               [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -92,7 +93,7 @@ namespace core::socket::stream::tls {
             if (ctx != nullptr) {
                 Super::initConnectEvent();
             } else {
-                Super::onError(*Super::progressLog.get());
+                Super::onError(config->Remote::getSocketAddress(), core::socket::State::FATAL);
                 Super::destruct();
             }
         } else {

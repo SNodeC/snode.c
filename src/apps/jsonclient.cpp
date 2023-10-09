@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     using Request = web::http::client::Request;
     using Response = web::http::client::Response;
     using Client = web::http::legacy::in::Client<Request, Response>;
+    using SocketAddress = Client::SocketAddress;
 
     Client jsonClient(
         "legacy",
@@ -78,12 +79,24 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Reason: " << reason;
         });
 
-    jsonClient.connect("localhost", 8080, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+        }
     });
 
-    jsonClient.connect("localhost", 8080, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+        }
     });
 
     /*

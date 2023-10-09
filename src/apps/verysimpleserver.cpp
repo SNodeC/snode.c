@@ -21,6 +21,7 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/in/WebApp.h"
+#include "log/Logger.h"
 #include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -31,17 +32,26 @@ int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
     using LegacyWebApp = express::legacy::in::WebApp;
+    using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
     LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
 
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+        }
     });
 
     using TLSWebApp = express::tls::in::WebApp;
+    using TLSSocketAddress = TLSWebApp::SocketAddress;
+
     TLSWebApp tlsApp;
     tlsApp.getConfig().setReuseAddress();
 
@@ -51,8 +61,14 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    tlsApp.listen(8088, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+        }
     });
 
     return express::WebApp::start();

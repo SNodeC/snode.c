@@ -20,6 +20,7 @@
 
 #include "apps/http/model/clients.h"
 #include "core/SNodeC.h"
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -27,11 +28,18 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     using Client = apps::http::STREAM::Client;
+    using SocketAddress = Client::SocketAddress;
 
     Client client = apps::http::STREAM::getClient();
 
-    client.connect([](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    client.connect([](const SocketAddress& socketAddress, int errnum) -> void {
+        if (errnum < 0) {
+            PLOG(ERROR) << "OnError";
+        } else if (errnum > 0) {
+            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        } else {
+            VLOG(0) << "snode.c connectedto " << socketAddress.toString();
+        }
     });
 
     return core::SNodeC::start();

@@ -28,6 +28,7 @@
 
 //
 
+#include "log/Logger.h"
 #include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -64,8 +65,14 @@ int main(int argc, char* argv[]) {
             res.status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080, [](const core::ProgressLog& progressLog) -> void {
-            progressLog.logProgress();
+        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int errnum) -> void {
+            if (errnum < 0) {
+                PLOG(ERROR) << "OnError";
+            } else if (errnum > 0) {
+                PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            } else {
+                VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            }
         });
 
         {
@@ -85,8 +92,14 @@ int main(int argc, char* argv[]) {
                 res.status(404).send("The requested resource is not found.");
             });
 
-            tlsApp.listen(8088, [](const core::ProgressLog& progressLog) -> void {
-                progressLog.logProgress();
+            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, int errnum) -> void {
+                if (errnum < 0) {
+                    PLOG(ERROR) << "OnError";
+                } else if (errnum > 0) {
+                    PLOG(ERROR) << "OnError: " << socketAddress.toString();
+                } else {
+                    VLOG(0) << "snode.c listening on " << socketAddress.toString();
+                }
             });
 
             //            tlsApp.getConfig().setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");

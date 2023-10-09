@@ -94,18 +94,20 @@ namespace net::in {
         int aiErrCode = 0;
 
         if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
-            const sockaddr* baseSockAddr = socketAddrInfo->getSockAddr();
-            if (baseSockAddr != nullptr) {
-                sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
-            } else {
-                throw core::socket::SocketAddress::BadSocketAddress(
-                    "IPv4 getaddrinfo for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
-                    aiErrCode == EAI_SYSTEM ? errno : EINVAL);
-            }
+            sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
         } else {
+            core::socket::State state = core::socket::State::OK;
+            switch (aiErrCode) {
+                case EAI_AGAIN:
+                case EAI_MEMORY:
+                    state = core::socket::State::ERROR;
+                    break;
+                default:
+                    state = core::socket::State::FATAL;
+                    break;
+            }
             throw core::socket::SocketAddress::BadSocketAddress(
-                "IPv4 init for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
-                aiErrCode == EAI_SYSTEM ? errno : EINVAL);
+                "IPv4 getaddrinfo for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)), state);
         }
 
         return *this;

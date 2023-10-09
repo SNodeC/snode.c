@@ -19,6 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETCONNECTOR_H
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETCONNECTOR_H
 
+#include "core/socket/State.h"
 #include "core/socket/stream/SocketConnector.h"
 
 namespace core::socket::stream::legacy {
@@ -47,7 +48,7 @@ namespace core::socket::stream::legacy {
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
-                        const std::function<void(const core::ProgressLog&)>& onError,
+                        const std::function<void(const SocketAddress&, core::socket::State)>& onError,
                         const std::shared_ptr<Config>& config);
     };
 

@@ -74,8 +74,12 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.listen([](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    legacyApp.listen([](const tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
+        } else {
+            VLOG(0) << "wsechoserver listening on " << socketAddress.toString();
+        }
     });
 
     {
@@ -118,8 +122,12 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.listen([](const core::ProgressLog& progressLog) -> void {
-            progressLog.logProgress();
+        tlsApp.listen([](const tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
+            if (err != 0) {
+                PLOG(ERROR) << "OnError: " << err;
+            } else {
+                VLOG(0) << "wsechoserver listening on " << socketAddress.toString();
+            }
         });
     }
 

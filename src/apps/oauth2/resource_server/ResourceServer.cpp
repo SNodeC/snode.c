@@ -5,6 +5,7 @@
 #include "web/http/client/Response.h" // for Response
 #include "web/http/legacy/in/Client.h"
 
+#include <iostream>
 #include <nlohmann/json.hpp> // IWYU pragma: keep
 
 int main(int argc, char* argv[]) {
@@ -73,13 +74,25 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
-        legacyClient.connect("localhost", 8082, [](const core::ProgressLog& progressLog) -> void {
-            progressLog.logProgress();
-        });
+        legacyClient.connect(
+            "localhost",
+            8082,
+            [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& socketAddress,
+               int err) -> void {
+                if (err != 0) {
+                    PLOG(ERROR) << "OnError: " << err;
+                } else {
+                    VLOG(0) << "Resource server client connecting to " << socketAddress.toString();
+                }
+            });
     });
 
-    app.listen(8083, [](const core::ProgressLog& progressLog) -> void {
-        progressLog.logProgress();
+    app.listen(8083, [](const express::legacy::in::WebApp::SocketAddress socketAddress, int err) {
+        if (err != 0) {
+            std::cerr << "Failed to listen on port " << 8083 << std::endl;
+        } else {
+            std::cout << "OAuth2ResourceServer is listening on " << socketAddress.toString() << std::endl;
+        }
     });
     return express::WebApp::start();
 }
