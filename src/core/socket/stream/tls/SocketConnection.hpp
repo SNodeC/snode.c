@@ -110,11 +110,9 @@ namespace core::socket::stream::tls {
                 onSuccess();
             },
             [onTimeout, this]() -> void { // onTimeout
-                SocketConnection::close();
                 onTimeout();
             },
             [onError, this](int sslErr) -> void { // onError
-                SocketConnection::close();
                 onError(sslErr);
             },
             sslInitTimeout);

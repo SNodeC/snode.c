@@ -47,7 +47,7 @@ namespace core::socket::stream::tls {
 
                   onConnect(socketConnection);
               },
-              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void {
+              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // on Connected
                   SSL* ssl = socketConnection->getSSL();
 
                   if (ssl != nullptr) {
@@ -61,15 +61,20 @@ namespace core::socket::stream::tls {
                               onConnected(socketConnection);
                               socketConnection->connected(socketContextFactory);
                           },
-                          [instanceName = this->config->getInstanceName()]() -> void { // onTimeout
+                          [socketConnection, instanceName = this->config->getInstanceName()]() -> void { // onTimeout
                               LOG(TRACE) << instanceName << ": SSL/TLS initial handshake timed out";
+
+                              socketConnection->close();
                           },
-                          [instanceName = this->config->getInstanceName()](int sslErr) -> void { // onError
+                          [socketConnection, instanceName = this->config->getInstanceName()](int sslErr) -> void { // onError
                               ssl_log(instanceName + ": SSL/TLS initial handshake failed", sslErr);
+
+                              socketConnection->close();
                           });
                   } else {
-                      socketConnection->close();
                       ssl_log_error(this->config->getInstanceName() + ": SSL/TLS initialization failed");
+
+                      socketConnection->close();
                   }
               },
               [onDisconnect, instanceName = config->getInstanceName()](SocketConnection* socketConnection) -> void { // onDisconnect
