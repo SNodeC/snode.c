@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/ProgressLog.h"
 #include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: export
 #include "core/socket/stream/SocketConnector.h"
 
@@ -36,8 +35,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onError,
-        const std::shared_ptr<Config>& config,
-        const std::shared_ptr<core::ProgressLog> progressLog)
+        const std::shared_ptr<Config>& config)
         : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
         , core::eventreceiver::ConnectEventReceiver("SocketConnector", 0)
         , socketContextFactory(socketContextFactory)
@@ -45,8 +43,7 @@ namespace core::socket::stream {
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
         , onError(onError)
-        , config(config)
-        , progressLog(progressLog) {
+        , config(config) {
         InitConnectEventReceiver::span();
     }
 
@@ -133,7 +130,7 @@ namespace core::socket::stream {
 
                     if (!isEnabled()) {
                         if (remoteAddress.useNext()) {
-                            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
+                            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                         } else {
                             onError(remoteAddress, state);
                         }
@@ -180,7 +177,7 @@ namespace core::socket::stream {
                     LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                << config->Remote::getSocketAddress().toString() << "'";
 
-                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
+                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                 } else {
                     utils::PreserveErrno pe(cErrno);
 

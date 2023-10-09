@@ -27,7 +27,6 @@ set(CORE_CPP
     EventLoop.cpp
     EventMultiplexer.cpp
     EventReceiver.cpp
-    ProgressLog.cpp
     SNodeC.cpp
     State.h
     Timer.cpp
@@ -67,7 +66,6 @@ set(CORE_H
     EventLoop.h
     EventMultiplexer.h
     EventReceiver.h
-    ProgressLog.h
     SNodeC.h
     TickStatus.h
     Timer.h

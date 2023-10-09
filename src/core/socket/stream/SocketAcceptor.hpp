@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/ProgressLog.h"
 #include "core/socket/stream/SocketAcceptor.h"
 #include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: export
 
@@ -36,8 +35,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onError,
-        const std::shared_ptr<Config>& config,
-        const std::shared_ptr<core::ProgressLog> progressLog)
+        const std::shared_ptr<Config>& config)
         : core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
         , core::eventreceiver::AcceptEventReceiver("SocketAcceptor", 0)
         , socketContextFactory(socketContextFactory)
@@ -45,8 +43,7 @@ namespace core::socket::stream {
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
         , onError(onError)
-        , config(config)
-        , progressLog(progressLog) {
+        , config(config) {
         InitAcceptEventReceiver::span();
     }
 
@@ -114,7 +111,7 @@ namespace core::socket::stream {
                 if (localAddress.useNext()) {
                     LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                << config->Local::getSocketAddress().toString() << "'";
-                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config, progressLog);
+                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onError, config);
                 } else {
                     onError(localAddress, state);
                 }

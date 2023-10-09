@@ -47,28 +47,29 @@ namespace core::socket::stream::tls {
 
                   onConnect(socketConnection);
               },
-              [socketContextFactory, onConnected, instanceName = config->getInstanceName()](SocketConnection* socketConnection) -> void {
+              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void {
                   SSL* ssl = socketConnection->getSSL();
 
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);
 
                       socketConnection->doSSLHandshake(
-                          [socketContextFactory, onConnected, socketConnection, instanceName]() -> void { // onSuccess
+                          [socketContextFactory, onConnected, socketConnection, instanceName = this->config->getInstanceName()]()
+                              -> void { // onSuccess
                               LOG(TRACE) << instanceName << ": SSL/TLS initial handshake success";
 
                               onConnected(socketConnection);
                               socketConnection->connected(socketContextFactory);
                           },
-                          [instanceName]() -> void { // onTimeout
+                          [instanceName = this->config->getInstanceName()]() -> void { // onTimeout
                               LOG(TRACE) << instanceName << ": SSL/TLS initial handshake timed out";
                           },
-                          [instanceName](int sslErr) -> void { // onError
+                          [instanceName = this->config->getInstanceName()](int sslErr) -> void { // onError
                               ssl_log(instanceName + ": SSL/TLS initial handshake failed", sslErr);
                           });
                   } else {
                       socketConnection->close();
-                      ssl_log_error(instanceName + ": SSL/TLS initialization failed");
+                      ssl_log_error(this->config->getInstanceName() + ": SSL/TLS initialization failed");
                   }
               },
               [onDisconnect, instanceName = config->getInstanceName()](SocketConnection* socketConnection) -> void { // onDisconnect

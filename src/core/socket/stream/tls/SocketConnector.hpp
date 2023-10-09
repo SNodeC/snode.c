@@ -54,17 +54,18 @@ namespace core::socket::stream::tls {
                       ssl_set_sni(ssl, this->config);
 
                       socketConnection->doSSLHandshake(
-                          [socketContextFactory, onConnected, socketConnection, config = this->config]() -> void { // onSuccess
-                              LOG(TRACE) << config->getInstanceName() << ": SSL/TLS initial handshake success";
+                          [socketContextFactory, onConnected, socketConnection, instanceName = this->config->getInstanceName()]()
+                              -> void { // onSuccess
+                              LOG(TRACE) << instanceName << ": SSL/TLS initial handshake success";
 
                               onConnected(socketConnection);
                               socketConnection->connected(socketContextFactory);
                           },
-                          [config = this->config]() -> void { // onTimeout
-                              LOG(TRACE) << config->getInstanceName() << ": SSL/TLS initial handshake timed out";
+                          [instanceName = this->config->getInstanceName()]() -> void { // onTimeout
+                              LOG(TRACE) << instanceName << ": SSL/TLS initial handshake timed out";
                           },
-                          [config = this->config](int sslErr) -> void { // onError
-                              ssl_log(config->getInstanceName() + ": SSL/TLS initial handshake failed", sslErr);
+                          [instanceName = this->config->getInstanceName()](int sslErr) -> void { // onError
+                              ssl_log(instanceName + ": SSL/TLS initial handshake failed", sslErr);
                           });
                   } else {
                       socketConnection->close();
